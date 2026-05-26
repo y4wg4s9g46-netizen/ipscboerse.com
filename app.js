@@ -4,7 +4,6 @@ const SUPABASE_ANON_KEY = "sb_publishable_mPH_ETwGVhcm7pr35WVPWA_KgJu5N_e";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
-const currentLang = "de";
 
 // HILFSFUNKTIONEN
 function escapeHtml(text) {
@@ -38,7 +37,7 @@ async function checkUserStatus() {
   }
 }
 
-// 2. RENDERN DER EINTRÄGE (MIT STAGE/TYP ANZEIGE)
+// 2. RENDERN DER EINTRÄGE
 async function renderMatches() {
     const container = document.getElementById("match-container");
     if (!container) return;
@@ -54,8 +53,8 @@ async function renderMatches() {
                 <span style="background:${badgeColor}; color:#000; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:bold;">
                     ${isWant ? "SUCHE" : "BIETE"}
                 </span>
-                <h3 style="margin:10px 0; color:#fff;">${escapeHtml(match.match_name)}</h3>
-                <p style="color:#aaa; font-size:14px;">Standort: ${escapeHtml(match.match_location)} | Preis: ${match.match_price} €</p>
+                <h3 style="margin:10px 0; color:#fff;">${escapeHtml(match.match_name)} (${escapeHtml(match.match_level || "")})</h3>
+                <p style="color:#aaa; font-size:14px;">Ort: ${escapeHtml(match.match_location || "")} | Preis: ${match.match_price || 0} €</p>
             </div>
         `;
     }).join("");
@@ -68,15 +67,16 @@ document.getElementById("match-form").addEventListener("submit", async (e) => {
 
     const matchData = {
         match_name: document.getElementById("match-name").value,
-        match_location: "Standard", // Hier ggf. aus Input ergänzen
-        match_price: 0,            // Hier ggf. aus Input ergänzen
+        match_location: document.getElementById("match-location").value,
+        match_price: document.getElementById("match-price").value,
+        match_level: document.getElementById("match-level").value,
         seller_email: currentUser.email,
         type: document.querySelector('input[name="ad-type"]:checked')?.value || "offer"
     };
 
     const { error } = await supabaseClient.from("matches").insert([matchData]);
     if (error) alert("Fehler: " + error.message);
-    else { alert("Erfolgreich!"); renderMatches(); }
+    else { alert("Erfolgreich!"); document.getElementById("match-form").reset(); renderMatches(); }
 });
 
 // 4. EVENT DELEGATOR & INITIALISIERUNG
