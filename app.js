@@ -53,8 +53,7 @@ async function renderMatches() {
                 <span style="background:${badgeColor}; color:#000; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:bold;">
                     ${isWant ? "SUCHE" : "BIETE"}
                 </span>
-                <h3 style="margin:10px 0; color:#fff;">${escapeHtml(match.match_name)} (${escapeHtml(match.match_level || "")})</h3>
-                <p style="color:#aaa; font-size:14px;">Ort: ${escapeHtml(match.match_location || "")} | Preis: ${match.match_price || 0} €</p>
+                <h3 style="margin:10px 0; color:#fff;">${escapeHtml(match.match_name || "Unbekanntes Match")}</h3>
             </div>
         `;
     }).join("");
@@ -67,9 +66,6 @@ document.getElementById("match-form").addEventListener("submit", async (e) => {
 
     const matchData = {
         match_name: document.getElementById("match-name").value,
-        match_location: document.getElementById("match-location").value,
-        match_price: document.getElementById("match-price").value,
-        match_level: document.getElementById("match-level").value,
         seller_email: currentUser.email,
         type: document.querySelector('input[name="ad-type"]:checked')?.value || "offer"
     };
