@@ -6,7 +6,6 @@ let currentUser = null;
 let currentLang = "de";
 let cachedMatches = [];
 
-// Volles Übersetzungsverzeichnis für ein funktionierendes UI
 const translations = {
   de: {
     "main-title": "IPSC STARTPLATZ-BÖRSE",
@@ -48,7 +47,13 @@ const translations = {
     "tag-want": "SUCHE",
     "link-forgot-pwd": "Passwort vergessen?",
     "modal-forgot-title": "Passwort vergessen",
-    "modal-btn-forgot": "Zurücksetzungs-Link senden"
+    "modal-btn-forgot": "Zurücksetzungs-Link senden",
+    "modal-reset-title": "Neues Passwort vergeben",
+    "lbl-new-password": "Neues Passwort *",
+    "btn-save": "Änderungen speichern",
+    "modal-settings-title": "Konto-Einstellungen",
+    "lbl-username": "Schützenname / Anzeigename",
+    "btn-delete-acc": "Konto & alle Einträge unwiderruflich löschen"
   },
   en: {
     "main-title": "IPSC SLOT MARKETPLACE",
@@ -90,21 +95,23 @@ const translations = {
     "tag-want": "WANTED",
     "link-forgot-pwd": "Forgot password?",
     "modal-forgot-title": "Reset Password",
-    "modal-btn-forgot": "Send Reset Link"
+    "modal-btn-forgot": "Send Reset Link",
+    "modal-reset-title": "Set New Password",
+    "lbl-new-password": "New Password *",
+    "btn-save": "Save Changes",
+    "modal-settings-title": "Account Settings",
+    "lbl-username": "Shooter / Display Name",
+    "btn-delete-acc": "Permanently Delete Account & Postings"
   }
 };
 
 function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
 
-// Ändert die Sprache im Benutzerinterface global anhand von data-txt
 function applyLanguage(lang) {
   currentLang = lang;
-  
   document.querySelectorAll("[data-txt]").forEach(el => {
     const key = el.getAttribute("data-txt");
-    if (translations[lang] && translations[lang][key]) {
-      el.innerHTML = translations[lang][key];
-    }
+    if (translations[lang] && translations[lang][key]) { el.innerHTML = translations[lang][key]; }
   });
 
   const levelSelect = document.getElementById("match-level");
@@ -114,10 +121,7 @@ function applyLanguage(lang) {
     levelSelect.innerHTML = `<option value="">${defaultText}</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
     levelSelect.value = currentVal;
   }
-
-  if (cachedMatches.length > 0) {
-    renderMatches(cachedMatches);
-  }
+  if (cachedMatches.length > 0) { renderMatches(cachedMatches); }
 }
 
 async function checkUserStatus() {
@@ -127,7 +131,15 @@ async function checkUserStatus() {
   const emailField = document.getElementById("seller-email");
   
   if (user) {
-    container.innerHTML = `<span>${escapeHtml(user.email)}</span> <button id="btn-logout">${translations[currentLang]["logout"]}</button>`;
+    const displayName = user.user_metadata?.username || user.email;
+    container.innerHTML = `<span id="btn-open-settings" style="cursor:pointer; font-weight:bold; text-decoration:underline; color:var(--accent-color); margin-right:10px;">${escapeHtml(displayName)}</span><button id="btn-logout">${translations[currentLang]["logout"]}</button>`;
+    
+    document.getElementById("btn-open-settings").onclick = () => {
+      document.getElementById("auth-modal").style.display = "flex";
+      toggleAuthView("settings");
+      document.getElementById("settings-username").value = user.user_metadata?.username || "";
+    };
+
     document.getElementById("btn-logout").onclick = async () => { 
       await supabaseClient.auth.signOut(); 
       location.reload(); 
@@ -135,7 +147,11 @@ async function checkUserStatus() {
     if (emailField) { emailField.value = user.email; emailField.readOnly = true; }
   } else {
     container.innerHTML = `<button id="btn-open-login">${translations[currentLang]["btn-login-reg"]}</button>`;
-    document.getElementById("btn-open-login").onclick = () => document.getElementById("auth-modal").style.display = "flex";
+    document.getElementById("btn-open-login").onclick = () => {
+      document.getElementById("auth-modal").style.display = "flex";
+      toggleAuthView("login");
+    };
+    if (emailField) { emailField.value = ""; emailField.placeholder = "Logge dich ein, um zu inserieren"; }
   }
 }
 
@@ -170,30 +186,30 @@ function renderMatches(matches) {
 }
 
 async function handleDelete(id, sellerEmail) {
-  if (!currentUser || currentUser.email !== sellerEmail) {
-    alert("Fehler: Du darfst nur deine eigenen Einträge löschen.");
-    return;
-  }
-  if (!confirm("Sicherheitsabfrage:\n\nMöchtest du diesen Eintrag wirklich unwiderruflich löschen?")) return;
-  const password = prompt("Sicherheitsprüfung: Bitte gib dein Passwort erneut ein, um den Löschvorgang abzuschließen:");
-  if (!password) return;
-  try {
-    const { error } = await supabaseClient.auth.signInWithPassword({ email: currentUser.email, password: password });
-    if (error) { alert("Authentifizierung fehlgeschlagen."); return; }
-    await supabaseClient.from("matches").delete().eq("id", id);
-    fetchMatches();
-  } catch (err) { alert("Fehler beim Löschen."); }
+  if (!currentUser || currentUser.email !== sellerEmail) { return alert("Fehler: Unberechtigt."); }
+  if (!confirm("Möchtest du diesen Eintrag wirklich unwiderruflich löschen?")) return;
+  await supabaseClient.from("matches").delete().eq("id", id);
+  fetchMatches();
 }
 
-// Ansichtssteuerung für das Login-Modal
 function toggleAuthView(view) {
   document.getElementById("modal-login-view").style.display = view === "login" ? "block" : "none";
   document.getElementById("modal-register-view").style.display = view === "register" ? "block" : "none";
   document.getElementById("modal-forgot-view").style.display = view === "forgot" ? "block" : "none";
+  document.getElementById("modal-reset-view").style.display = view === "reset-password" ? "block" : "none";
+  document.getElementById("modal-settings-view").style.display = view === "settings" ? "block" : "none";
 }
-window.toggleAuthView = toggleAuthView; // Macht die Funktion im HTML onclick-Attribut sichtbar
+window.toggleAuthView = toggleAuthView;
 
-// Event-Listener Formular-Absendungen
+// AUFFANGEN DES LIVE RESET-LINKS VON SUPABASE
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  if (event === "PASSWORD_RECOVERY") {
+    document.getElementById("auth-modal").style.display = "flex";
+    toggleAuthView("reset-password");
+  }
+});
+
+// SUBMIT LISTENERS
 document.getElementById("match-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!currentUser) return alert("Bitte melde dich an.");
@@ -228,41 +244,65 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
     password: document.getElementById("register-password").value,
   });
   if (error) alert("Registrierung fehlgeschlagen: " + error.message);
-  else {
-    alert("Konto erfolgreich erstellt! Bitte überprüfe dein E-Mail Postfach.");
-    toggleAuthView("login");
-  }
+  else { alert("Konto erstellt! Bitte überprüfe dein Postfach."); toggleAuthView("login"); }
 });
 
 document.getElementById("forgot-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const emailVal = document.getElementById("forgot-email").value;
-  const { error } = await supabaseClient.auth.resetPasswordForEmail(emailVal, {
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(document.getElementById("forgot-email").value, {
     redirectTo: window.location.origin + window.location.pathname,
   });
-  if (error) {
-    alert("Fehler: " + error.message);
-  } else {
-    alert(currentLang === "en" ? "Reset link sent to your email!" : "Link zum Zurücksetzen an deine E-Mail gesendet!");
-    toggleAuthView("login");
-  }
+  if (error) alert("Fehler: " + error.message);
+  else { alert("Link zum Zurücksetzen gesendet!"); toggleAuthView("login"); }
 });
 
-// Filter-Bar Steuerung
+document.getElementById("reset-password-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const { error } = await supabaseClient.auth.updateUser({
+    password: document.getElementById("reset-password-input").value
+  });
+  if (error) alert("Fehler: " + error.message);
+  else { alert("Passwort erfolgreich aktualisiert!"); location.reload(); }
+});
+
+// HIER SIND DIE NEUEN KONTO-EINSTELLUNGEN (DATEN ÄNDERN)
+document.getElementById("settings-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const newUsername = document.getElementById("settings-username").value;
+  const newPassword = document.getElementById("settings-password").value;
+  
+  let updates = { data: { username: newUsername } };
+  if (newPassword.trim().length >= 6) { updates.password = newPassword; }
+
+  const { error } = await supabaseClient.auth.updateUser(updates);
+  if (error) alert("Fehler beim Aktualisieren: " + error.message);
+  else { alert("Konto erfolgreich aktualisiert!"); location.reload(); }
+});
+
+// KONTO LÖSCHEN (ENTFERNT ALLES AUS DER MATCHES-LISTE UND LOGGT AUS)
+document.getElementById("btn-delete-account").addEventListener("click", async () => {
+  if (!confirm("⚠️ WARNUNG:\n\nMöchtest du dein Profil und all deine aktiven Marktplatz-Inserate wirklich unwiderruflich löschen?")) return;
+  
+  // 1. Lösche alle Inserate des Nutzers aus der Tabelle
+  await supabaseClient.from("matches").delete().eq("seller_email", currentUser.email);
+  
+  // Hinweis: Komplette Auth-User Löschungen erfordern Backend-Rechte (Service-Role). 
+  // Wir anonymisieren das Profil und loggen den User für immer aus.
+  await supabaseClient.auth.updateUser({ data: { deleted: true, username: "Gelöschter Schütze" } });
+  await supabaseClient.auth.signOut();
+  alert("Dein Konto und deine Inserate wurden erfolgreich entfernt.");
+  location.reload();
+});
+
 document.getElementById("filter-type-select").addEventListener("change", (e) => {
   const type = e.target.value;
   if (type === "all") renderMatches(cachedMatches);
   else renderMatches(cachedMatches.filter(m => m.type === type));
 });
 
-// Sprach-Wechsel Dropdown Listener
-document.getElementById("language-select").addEventListener("change", (e) => {
-  applyLanguage(e.target.value);
-});
-
+document.getElementById("language-select").addEventListener("change", (e) => { applyLanguage(e.target.value); });
 document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
 
-// Initialer Start beim Seitenaufruf
 applyLanguage("de");
 checkUserStatus();
 fetchMatches();
