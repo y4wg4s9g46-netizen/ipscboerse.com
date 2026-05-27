@@ -42,9 +42,12 @@ async function checkUserStatus() {
   const { data: { user } } = await supabaseClient.auth.getUser();
   currentUser = user;
   const container = document.getElementById("auth-status-container");
+  const emailField = document.getElementById("seller-email");
+  
   if (user) {
     container.innerHTML = `<span>${escapeHtml(user.email)}</span> <button id="btn-logout">${translations[currentLang]["logout"]}</button>`;
     document.getElementById("btn-logout").onclick = () => { supabaseClient.auth.signOut(); location.reload(); };
+    if (emailField) { emailField.value = user.email; emailField.readOnly = true; }
   } else {
     container.innerHTML = `<button id="btn-open-login">${translations[currentLang]["btn-login-reg"]}</button>`;
     document.getElementById("btn-open-login").onclick = () => document.getElementById("auth-modal").style.display = "flex";
@@ -85,15 +88,20 @@ async function handleDelete(id, sellerEmail) {
     alert("Fehler: Du darfst nur deine eigenen Einträge löschen.");
     return;
   }
-  if (!confirm("Möchtest du diesen Eintrag wirklich löschen?")) return;
-  await supabaseClient.from("matches").delete().eq("id", id);
-  fetchMatches();
+  if (!confirm("Sicherheitsabfrage:\n\nMöchtest du diesen Eintrag wirklich unwiderruflich löschen?")) return;
+  const password = prompt("Sicherheitsprüfung: Bitte gib dein Passwort erneut ein, um den Löschvorgang abzuschließen:");
+  if (!password) return;
+  try {
+    const { error } = await supabaseClient.auth.signInWithPassword({ email: currentUser.email, password: password });
+    if (error) { alert("Authentifizierung fehlgeschlagen."); return; }
+    await supabaseClient.from("matches").delete().eq("id", id);
+    fetchMatches();
+  } catch (err) { alert("Fehler beim Löschen."); }
 }
 
 document.getElementById("match-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!currentUser) return alert("Bitte melde dich an.");
-  
   const matchData = {
     match_name: document.getElementById("match-name").value,
     match_level: document.getElementById("match-level").value,
@@ -103,7 +111,6 @@ document.getElementById("match-form").addEventListener("submit", async (e) => {
     seller_email: currentUser.email,
     type: document.getElementById("type-want").checked ? "want" : "offer"
   };
-  
   await supabaseClient.from("matches").insert([matchData]);
   document.getElementById("match-form").reset();
   fetchMatches();
