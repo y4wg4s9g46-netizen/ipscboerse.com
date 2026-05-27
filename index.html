@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <script>
-        if (window.location.hash && window.location.hash.includes("type=recovery")) {
-            const hash = window.location.hash;
-            sessionStorage.setItem('pendingResetToken', hash);
-            window.location.replace(window.location.pathname);
-        }
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IPSC Match-Marktplatz | Startplatz Börse</title>
@@ -159,8 +152,6 @@
         
         .badge-container { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
         .badge { background-color: #444; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: #fff; }
-        .badge-type { background-color: rgba(255, 159, 67, 0.2); color: var(--accent-color); border: 1px solid var(--accent-color); }
-        .badge-want { background-color: rgba(46, 204, 113, 0.2); color: var(--success-color); border: 1px solid var(--success-color); }
 
         .card-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 
@@ -168,7 +159,6 @@
             background-color: var(--accent-color); color: #000; border: none;
             padding: 10px 20px; font-weight: bold; border-radius: 4px; text-decoration: none; text-align: center;
         }
-        .btn-contact-want { background-color: var(--success-color); }
         .btn-contact:hover { opacity: 0.9; }
 
         .btn-delete {
@@ -187,55 +177,47 @@
             color: var(--text-muted);
         }
 
-        .footer-content {
-            max-width: 1000px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 30px;
-        }
-
-        @media (max-width: 768px) {
-            .footer-content { grid-template-columns: 1fr; gap: 20px; }
-        }
-
-        footer h4 {
-            color: var(--accent-color);
-            margin: 0 0 10px 0;
-            font-size: 15px;
-        }
-
-        footer p { margin: 5px 0; line-height: 1.5; }
-        footer a { color: var(--accent-color); text-decoration: none; }
-        footer a:hover { text-decoration: underline; }
-
         .toast-container {
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
         }
+    </style>
+</head>
+<body>
 
-        .toast {
-            padding: 14px 20px;
-            border-radius: 6px;
-            color: #fff;
-            font-weight: bold;
-            font-size: 14px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            animation: toast-in 0.3s ease, toast-out 0.3s ease 3.7s forwards;
-            max-width: 350px;
-            pointer-events: auto;
-        }
+    <header>
+        <h1>IPSC STARTPLATZ-BÖRSE</h1>
+        <div class="header-controls">
+            <select id="language-select" class="lang-switch">
+                <option value="de">DE</option>
+                <option value="en">EN</option>
+            </select>
+            <div id="auth-status-container">
+                <button class="btn-auth" id="btn-open-login">Login / Registrieren</button>
+            </div>
+        </div>
+    </header>
 
-        .toast-success { background-color: var(--success-color); }
-        .toast-error { background-color: var(--danger-color); }
-        .toast-info { background-color: var(--info-color); }
+    <div class="container">
+        <div class="form-section">
+            <h2>Eintrag erstellen</h2>
+            <div class="toggle-selector">
+                <label><input type="radio" name="ad-type" id="type-offer" value="offer" checked> <span>Ich BIETE einen Startplatz an</span></label>
+                <label><input type="radio" name="ad-type" id="type-want" value="want"> <span>Ich SUCHE einen Startplatz</span></label>
+            </div>
+            <form id="match-form">
+                <div class="form-grid">
+                    <div class="form-group"><label>Name des Matches *</label><input type="text" id="match-name" required></div>
+                    <div class="form-group"><label>Match Level *</label><select id="match-level" required></select></div>
+                    <div class="form-group"><label>Datum *</label><input type="date" id="match-date" required></div>
+                    <div class="form-group"><label>Ort *</label><input type="text" id="match-location" required></div>
+                    <div class="form-group"><label>Preis (€) *</label><input type="number" id="match-price" required></div>
+                    <div class="form-group"><label>E-Mail *</label><input type="email" id="seller-email" required readonly></div>
+                </div>
+                <button type="submit" class="btn-submit">Eintrag veröffentlichen</button>
+            </form>
+        </div>
 
-        @keyframes toast-in {
-            from { opacity: 0; transform: translateX(40px); }
-            to { opacity: 1; transform: translateX(0); }
+        <div class="match-list" id="match-container
