@@ -9,13 +9,13 @@ let editingMatchId = null; // Trackt, ob gerade ein Eintrag editiert wird
 
 const translations = {
   de: {
-    "main-title": "IPSC STARTPLATZ-BÖRSE",
-    "sub-title": "Von Schützen für Schützen – Live Marktplatz",
+    "main-title": "IPSC STARTPLATZ-BÃ–RSE",
+    "sub-title": "Von SchÃ¼tzen fÃ¼r SchÃ¼tzen â€“ Live Marktplatz",
     "btn-login-reg": "Login / Registrieren",
     "logout": "Abmelden",
-    "info-msg": "<strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgültige Umschreibung des Startplatzes muss zwingend über den jeweiligen Match Director durchgeführt werden!",
+    "info-msg": "<strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgÃ¼ltige Umschreibung des Startplatzes muss zwingend Ã¼ber den jeweiligen Match Director durchgefÃ¼hrt werden!",
     "form-title": "Eintrag erstellen",
-    "form-title-edit": "Eintrag bearbeiten ✏️",
+    "form-title-edit": "Eintrag bearbeiten âœï¸",
     "opt-offer": "Ich BIETE einen Startplatz an",
     "opt-want": "Ich SUCHE einen Startplatz",
     "lbl-name": "Name des Matches *",
@@ -23,17 +23,17 @@ const translations = {
     "lbl-date": "Datum des Matches *",
     "lbl-location": "Austragungsort (Stand) *",
     "lbl-squad": "Squad Nummer (Optional)",
-    "lbl-price": "Abgabepreis (€) *",
+    "lbl-price": "Abgabepreis (â‚¬) *",
     "lbl-email": "Deine E-Mail-Adresse *",
-    "btn-insert": "Eintrag kostenlos veröffentlichen",
-    "btn-save-edit": "Änderungen保存 specken",
+    "btn-insert": "Eintrag kostenlos verÃ¶ffentlichen",
+    "btn-save-edit": "Ã„nderungen speichern",
     "btn-cancel": "Abbrechen",
     "filter-type": "Anzeigentyp:",
     "filter-all": "Alle Anzeigen",
     "filter-offers": "Nur Angebote (Biete)",
     "filter-wants": "Nur Gesuche (Suche)",
-    "list-title": "Aktuelle Marktplatz-Einträge",
-    "loading": "Lade aktuelle Startplätze...",
+    "list-title": "Aktuelle Marktplatz-EintrÃ¤ge",
+    "loading": "Lade aktuelle StartplÃ¤tze...",
     "modal-login-title": "Anmelden",
     "modal-btn-login": "Einloggen",
     "modal-no-acc": "Noch kein Konto?",
@@ -43,38 +43,38 @@ const translations = {
     "modal-has-acc": "Bereits registriert?",
     "modal-link-login": "Zum Login",
     "footer-impressum-link": "Impressum & Rechtliche Hinweise",
-    "no-slots": "Aktuell keine Einträge verfügbar.",
+    "no-slots": "Aktuell keine EintrÃ¤ge verfÃ¼gbar.",
     "btn-request": "Anbieter kontaktieren",
-    "btn-contact-want": "Schützen kontaktieren",
-    "btn-delete": "Löschen",
+    "btn-contact-want": "SchÃ¼tzen kontaktieren",
+    "btn-delete": "LÃ¶schen",
     "btn-edit": "Bearbeiten",
     "tag-offer": "BIETE",
     "tag-want": "SUCHE",
     "link-forgot-pwd": "Passwort vergessen?",
     "modal-forgot-title": "Passwort vergessen",
-    "modal-btn-forgot": "Zurücksetzungs-Link senden",
+    "modal-btn-forgot": "ZurÃ¼cksetzungs-Link senden",
     "modal-reset-title": "Neues Passwort vergeben",
     "lbl-new-password": "Neues Passwort *",
-    "btn-save": "Änderungen speichern",
+    "btn-save": "Ã„nderungen speichern",
     "modal-settings-title": "Konto-Einstellungen",
-    "lbl-username": "Schützenname / Anzeigename",
-    "btn-delete-acc": "Konto & alle Einträge unwiderruflich löschen",
+    "lbl-username": "SchÃ¼tzenname / Anzeigename",
+    "btn-delete-acc": "Konto & alle EintrÃ¤ge unwiderruflich lÃ¶schen",
     "email-subject-offer": "Interesse an deinem IPSC Startplatz: ",
-    "email-subject-want": "Bezüglich deiner Suche nach einem IPSC Startplatz: ",
-    "email-body-offer": "Hallo,\n\nich habe dein Inserat auf ipscboerse.com gesehen und interessiere mich für den von dir angebotenen Startplatz für das Match: ",
-    "email-body-want": "Hallo,\n\nich habe dein Gesuch auf ipscboerse.com gesehen. Ich hätte einen Startplatz abzugeben für das Match: ",
-    "email-body-footer": "\n\nIst das Inserat noch aktuell?\n\nViele Grüße",
-    "security-notice": "⚠️ WICHTIGER SICHERHEITSHINWEIS:\n\n1. Nutze für Zahlungen IMMER PayPal mit Käuferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prüfen, ob eine Umschreibung des Platzes überhaupt noch möglich ist!\n\nMöchtest du den E-Mail-Kontakt jetzt öffnen?",
-    "spam-error": "Spam-Schutz: Du hast bereits einen Eintrag für dieses Match an diesem Datum erstellt!"
+    "email-subject-want": "BezÃ¼glich deiner Suche nach einem IPSC Startplatz: ",
+    "email-body-offer": "Hallo,\n\nich habe dein Inserat auf ipscboerse.com gesehen und interessiere mich fÃ¼r den von dir angebotenen Startplatz fÃ¼r das Match: ",
+    "email-body-want": "Hallo,\n\nich habe dein Gesuch auf ipscboerse.com gesehen. Ich hÃ¤tte einen Startplatz abzugeben fÃ¼r das Match: ",
+    "email-body-footer": "\n\nIst das Inserat noch aktuell?\n\nViele GrÃ¼ÃŸe",
+    "security-notice": "âš ï¸ WICHTIGER SICHERHEITSHINWEIS:\n\n1. Nutze fÃ¼r Zahlungen IMMER PayPal mit KÃ¤uferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prÃ¼fen, ob eine Umschreibung des Platzes Ã¼berhaupt noch mÃ¶glich ist!\n\nMÃ¶chtest du den E-Mail-Kontakt jetzt Ã¶ffnen?",
+    "spam-error": "Spam-Schutz: Du hast bereits einen Eintrag fÃ¼r dieses Match an diesem Datum erstellt!"
   },
   en: {
     "main-title": "IPSC SLOT MARKETPLACE",
-    "sub-title": "By Shooters for Shooters – Live Marketplace",
+    "sub-title": "By Shooters for Shooters â€“ Live Marketplace",
     "btn-login-reg": "Login / Register",
     "logout": "Logout",
     "info-msg": "<strong>Important Notice:</strong> This platform only serves as a mediator. The final transfer of the slot must be processed by the respective Match Director!",
     "form-title": "Create Entry",
-    "form-title-edit": "Edit Entry ✏️",
+    "form-title-edit": "Edit Entry âœï¸",
     "opt-offer": "I OFFER a slot",
     "opt-want": "I AM LOOKING FOR a slot",
     "lbl-name": "Match Name *",
@@ -82,7 +82,7 @@ const translations = {
     "lbl-date": "Match Date *",
     "lbl-location": "Location (Range) *",
     "lbl-squad": "Squad Number (Optional)",
-    "lbl-price": "Price (€) *",
+    "lbl-price": "Price (â‚¬) *",
     "lbl-email": "Your Email Address *",
     "btn-insert": "Publish Entry for Free",
     "btn-save-edit": "Save Changes",
@@ -123,7 +123,7 @@ const translations = {
     "email-body-offer": "Hello,\n\nI saw your listing on ipscboerse.com and I am interested in the slot you offered for the match: ",
     "email-body-want": "Hello,\n\nI saw your request on ipscboerse.com. I have an available slot to give away for the match: ",
     "email-body-footer": "\n\nIs this listing still available?\n\nBest regards",
-    "security-notice": "⚠️ IMPORTANT SAFETY NOTICE:\n\n1. ALWAYS use PayPal with Buyer Protection for payments (never use 'Friends & Family').\n2. You MUST contact the Match Director BEFORE making any payment to confirm if a slot transfer is still permitted!\n\nDo you want to open the email client now?",
+    "security-notice": "âš ï¸ IMPORTANT SAFETY NOTICE:\n\n1. ALWAYS use PayPal with Buyer Protection for payments (never use 'Friends & Family').\n2. You MUST contact the Match Director BEFORE making any payment to confirm if a slot transfer is still permitted!\n\nDo you want to open the email client now?",
     "spam-error": "Spam protection: You have already posted an entry for this match on this date!"
   }
 };
@@ -144,7 +144,7 @@ function applyLanguage(lang) {
   const levelSelect = document.getElementById("match-level");
   if (levelSelect) {
     const currentVal = levelSelect.value;
-    const defaultText = lang === "en" ? "Please select..." : "Bitte wählen...";
+    const defaultText = lang === "en" ? "Please select..." : "Bitte wÃ¤hlen...";
     levelSelect.innerHTML = `<option value="">${defaultText}</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
     levelSelect.value = currentVal;
   }
@@ -200,6 +200,7 @@ async function fetchMatches() {
   renderMatches(cachedMatches);
 }
 
+// --- HIER WURDE DIE SQUAD-ANZEIGE HINZUGEFÃœGT ---
 function renderMatches(matches) {
   const container = document.getElementById("match-container");
   if (!matches.length) { container.innerHTML = `<p>${translations[currentLang]["no-slots"]}</p>`; return; }
@@ -208,14 +209,14 @@ function renderMatches(matches) {
     const isWant = m.type === "want";
     const levelBadge = m.match_level ? `<span class="badge" style="background:#555; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_level)}</span>` : "";
     
-    const squadBadge = m.match_squad ? `<span class="badge" style="background:#3498db; color:#fff; padding:2px 5px; border-radius:3px;">Squad ${escapeHtml(m.match_squad.toString())}</span>` : "";
+    // Neuer Badge fÃ¼r die Squad-Nummer (falls vorhanden)
+    const squadBadge = m.match_squad ? `<span class="badge" style="background:#3498db; color:#fff; padding:2px 5px; border-radius:3px;">Squad ${escapeHtml(m.match_squad)}</span>` : "";
     
     const canManage = currentUser && currentUser.email === m.seller_email;
     const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
     const contactBtnClass = isWant ? "btn-contact btn-contact-want" : "btn-contact";
     const contactText = isWant ? translations[currentLang]["btn-contact-want"] : translations[currentLang]["btn-request"];
 
-    // KORREKTUR: ID in einfache Anführungszeichen gesetzt ('${m.id}') für Text-IDs / UUIDs
     return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
       <div class="match-details">
         <h3>
@@ -227,12 +228,12 @@ function renderMatches(matches) {
         <p>${m.match_date} | ${escapeHtml(m.match_location)}</p>
       </div>
       <div class="card-actions">
-        <p>${parseFloat(m.match_price).toFixed(2)} €</p>
+        <p>${parseFloat(m.match_price).toFixed(2)} â‚¬</p>
         <button class="${contactBtnClass}" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">${contactText}</button>
         ${canManage ? `
           <div class="action-buttons-group">
-            <button class="btn-edit" onclick="handleEditClick('${m.id}')">${translations[currentLang]["btn-edit"]}</button>
-            <button class="btn-delete" onclick="handleDelete('${m.id}', '${m.seller_email}')">${translations[currentLang]["btn-delete"]}</button>
+            <button class="btn-edit" onclick="handleEditClick(${m.id})">${translations[currentLang]["btn-edit"]}</button>
+            <button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${translations[currentLang]["btn-delete"]}</button>
           </div>
         ` : ""}
       </div>
@@ -255,8 +256,7 @@ function handleContactClick(email, matchName, type) {
 window.handleContactClick = handleContactClick;
 
 function handleEditClick(id) {
-  // Strikter Vergleich via toString(), um ID-Typen-Konflikte zu vermeiden
-  const match = cachedMatches.find(m => m.id.toString() === id.toString());
+  const match = cachedMatches.find(m => m.id === id);
   if (!match) return;
 
   editingMatchId = id;
@@ -294,12 +294,11 @@ document.getElementById("btn-cancel-edit").addEventListener("click", resetFormSt
 
 async function handleDelete(id, sellerEmail) {
   if (!currentUser || currentUser.email !== sellerEmail) { return alert("Fehler: Unberechtigt."); }
-  if (!confirm("Möchtest du diesen Eintrag wirklich unwiderruflich löschen?")) return;
+  if (!confirm("MÃ¶chtest du diesen Eintrag wirklich unwiderruflich lÃ¶schen?")) return;
   await supabaseClient.from("matches").delete().eq("id", id);
   if (editingMatchId === id) resetFormState();
   fetchMatches();
 }
-window.handleDelete = handleDelete;
 
 function toggleAuthView(view) {
   document.getElementById("modal-login-view").style.display = view === "login" ? "block" : "none";
@@ -345,7 +344,7 @@ document.getElementById("match-form").addEventListener("submit", async (e) => {
   const { data: duplicateEntries, error: spamError } = await spamCheck;
 
   if (spamError) {
-    alert("Fehler bei der Spam-Prüfung: " + spamError.message);
+    alert("Fehler bei der Spam-PrÃ¼fung: " + spamError.message);
     return;
   }
 
@@ -394,4 +393,71 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 
 document.getElementById("register-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const { error } = await supabaseClient.auth
+  const { error } = await supabaseClient.auth.signUp({
+    email: document.getElementById("register-email").value,
+    password: document.getElementById("register-password").value,
+  });
+  if (error) alert("Registrierung fehlgeschlagen: " + error.message);
+  else { alert("Konto erstellt! Bitte Ã¼berprÃ¼fe dein Postfach."); toggleAuthView("login"); }
+});
+
+document.getElementById("forgot-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(document.getElementById("forgot-email").value, {
+    redirectTo: window.location.origin + window.location.pathname,
+  });
+  if (error) alert("Fehler: " + error.message);
+  else { alert("Link zum ZurÃ¼cksetzen gesendet!"); toggleAuthView("login"); }
+});
+
+document.getElementById("reset-password-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const { error } = await supabaseClient.auth.updateUser({
+    password: document.getElementById("reset-password-input").value
+  });
+  if (error) alert("Fehler: " + error.message);
+  else { 
+    alert(currentLang === "en" ? "Password updated! Confirmation email has been sent." : "Passwort erfolgreich aktualisiert! Eine BestÃ¤tigungs-E-Mail wurde versendet."); 
+    location.reload(); 
+  }
+});
+
+document.getElementById("settings-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const newUsername = document.getElementById("settings-username").value;
+  const newPassword = document.getElementById("settings-password").value;
+  
+  let updates = { data: { username: newUsername } };
+  if (newPassword.trim().length >= 6) { updates.password = newPassword; }
+
+  const { error } = await supabaseClient.auth.updateUser(updates);
+  if (error) alert("Fehler beim Aktualisieren: " + error.message);
+  else { 
+    alert(currentLang === "en" ? "Account updated! Security notice sent if password was changed." : "Konto erfolgreich aktualisiert! Falls das Passwort geÃ¤ndert wurde, wurde eine BestÃ¤tigungs-Mail versendet."); 
+    location.reload(); 
+  }
+});
+
+document.getElementById("btn-delete-account").addEventListener("click", async () => {
+  if (!confirm("âš ï¸ WARNUNG:\n\nMÃ¶chtest du dein Profil und all deine aktiven Marktplatz-Inserate wirklich unwiderruflich lÃ¶schen?")) return;
+  await supabaseClient.from("matches").delete().eq("seller_email", currentUser.email);
+  await supabaseClient.auth.updateUser({ data: { deleted: true, username: "GelÃ¶schter SchÃ¼tze" } });
+  await supabaseClient.auth.signOut();
+  alert("Dein Konto und deine Inserate wurden erfolgreich entfernt.");
+  location.reload();
+});
+
+document.getElementById("filter-type-select").addEventListener("change", (e) => {
+  const type = e.target.value;
+  if (type === "all") renderMatches(cachedMatches);
+  else renderMatches(cachedMatches.filter(m => m.type === type));
+});
+
+document.getElementById("language-select").addEventListener("change", (e) => { applyLanguage(e.target.value); });
+document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
+
+// Initiale Funktionsaufrufe
+applyLanguage("de");
+enforceFutureDates();
+checkUserStatus();
+fetchMatches();
