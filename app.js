@@ -77,7 +77,7 @@ async function checkUserStatus() {
 
 async function fetchMatches() {
   const { data, error } = await supabaseClient.from("matches").select("*").order("match_date", { ascending: true });
-  if (error) return;
+  if (error) { console.error("Fehler beim Laden:", error); return; }
   renderMatches(data || []);
 }
 
@@ -121,7 +121,7 @@ async function handleDelete(id, sellerEmail) {
   } catch (err) { alert("Fehler beim Löschen."); }
 }
 
-// Event Listener
+// --- Event Listener ---
 document.getElementById("match-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!currentUser) return alert("Bitte melde dich an.");
@@ -159,7 +159,6 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
   else alert("Registrierung erfolgreich! Bitte bestätige deine E-Mail.");
 });
 
-// Finaler Reset Handler: Leitet auf die Startseite um
 document.getElementById("reset-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const email = document.getElementById("reset-email").value;
@@ -172,7 +171,6 @@ document.getElementById("reset-form").addEventListener("submit", async (e) => {
 
 async function checkResetFlow() {
     const hash = window.location.hash;
-    // Öffnet das Modal automatisch, wenn Supabase den Recovery-Link erkennt
     if (hash.includes("type=recovery")) {
         document.getElementById("auth-modal").style.display = "flex";
         showResetView();
@@ -180,5 +178,11 @@ async function checkResetFlow() {
     }
 }
 
-// Initialisierung
-document.getElementById("btn-
+// --- Initialisierung ---
+if (document.getElementById("btn-close-modal")) {
+    document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
+}
+applyLanguage("de");
+checkUserStatus();
+fetchMatches();
+checkResetFlow();
