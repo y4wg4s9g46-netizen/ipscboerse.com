@@ -57,18 +57,13 @@ async function checkUserStatus() {
   }
 }
 
-// SICHERE Passwort vergessen Logik
 const forgotBtn = document.getElementById("btn-forgot-password");
 if (forgotBtn) {
   forgotBtn.addEventListener("click", async (e) => {
     e.preventDefault();
     const email = document.getElementById("login-email").value;
     if (!email) return alert("Bitte gib oben deine E-Mail-Adresse ein.");
-    
-    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin,
-    });
-    
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
     if (error) alert("Fehler: " + error.message);
     else alert("Prüfe dein E-Mail-Postfach für den Reset-Link.");
   });
@@ -91,7 +86,6 @@ function renderMatches(matches) {
     const isWant = m.type === "want";
     const levelBadge = m.match_level ? `<span class="badge">${escapeHtml(m.match_level)}</span>` : "";
     const canDelete = currentUser && currentUser.email === m.seller_email;
-    
     return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
       <div class="match-details">
         <h3>${escapeHtml(m.match_name)} ${levelBadge} <span class="badge">${isWant ? translations[currentLang]["tag-want"] : translations[currentLang]["tag-offer"]}</span></h3>
