@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Impressum | IPSC Startplatz-Börse</title>
+    <title>Impressum & Datenschutz | IPSC Startplatz-Börse</title>
     <style>
         :root {
             --bg-color: #1a1a1a;
@@ -19,9 +19,7 @@
             color: var(--text-color);
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            line-height: 1.6;
         }
 
         header {
@@ -32,17 +30,14 @@
         }
 
         header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
-        header a { color: var(--text-color); text-decoration: none; }
-        header a:hover { color: var(--accent-color); }
 
         .container {
             max-width: 800px;
             margin: 40px auto;
             padding: 0 20px;
-            flex: 1;
         }
 
-        .content-section {
+        .legal-section {
             background-color: var(--card-bg);
             border: 1px solid #444;
             border-radius: 6px;
@@ -50,111 +45,168 @@
             margin-bottom: 30px;
         }
 
-        .content-section h2 {
+        h2 {
             color: var(--accent-color);
-            margin-top: 0;
             border-bottom: 1px solid #444;
             padding-bottom: 10px;
+            margin-top: 0;
         }
 
-        .content-section h3 {
-            color: var(--accent-color);
-            margin-top: 25px;
+        h3 {
+            color: #fff;
+            margin-top: 20px;
         }
 
-        .content-section p {
-            line-height: 1.7;
-            color: var(--text-muted);
+        p, li {
+            color: #dddddd;
+            font-size: 15px;
         }
 
-        .content-section a {
+        ul {
+            padding-left: 20px;
+        }
+
+        a {
             color: var(--accent-color);
             text-decoration: none;
         }
 
-        .content-section a:hover { text-decoration: underline; }
+        a:hover {
+            text-decoration: underline;
+        }
 
-        .back-link {
+        .btn-back {
             display: inline-block;
-            margin-bottom: 20px;
+            background-color: transparent;
             color: var(--accent-color);
-            text-decoration: none;
+            border: 2px solid var(--accent-color);
+            padding: 8px 16px;
             font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            margin-bottom: 20px;
         }
 
-        .back-link:hover { text-decoration: underline; }
+        .btn-back:hover {
+            background-color: var(--accent-color);
+            color: #000;
+        }
 
         footer {
             background-color: #0f0f0f;
             border-top: 1px solid #444;
             padding: 20px;
-            margin-top: 50px;
             text-align: center;
-            font-size: 11px;
+            font-size: 13px;
             color: var(--text-muted);
+            margin-top: 60px;
         }
-
-        footer a { color: var(--accent-color); text-decoration: none; }
-        footer a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 
     <header>
-        <a href="/">
-            <h1>IPSC STARTPLATZ-BÖRSE</h1>
-        </a>
-        <p style="color: var(--text-muted); margin: 5px 0 0 0;">Impressum & Rechtliche Hinweise</p>
+        <h1>IPSC STARTPLATZ-BÖRSE</h1>
+        <p style="color: var(--text-muted); margin: 5px 0 0 0;">Rechtliche Hinweise & Datenschutz</p>
     </header>
 
     <div class="container">
-        <a href="/" class="back-link">&larr; Zurück zur Börse</a>
+        
+        <a href="index.html" class="btn-back">&larr; Zurück zum Marktplatz</a>
 
-        <div class="content-section">
-            <h2>Impressum / Anbieterkennzeichnung</h2>
-            <p><strong>Angaben gemäß § 5 DDG (Digitale-Dienste-Gesetz):</strong></p>
+        <!-- IMPRESSUM -->
+        <div class="legal-section">
+            <h2>Impressum</h2>
+            <p><strong>Angaben gemäß § 5 DDG:</strong></p>
             <p>
                 Fabian Schöps<br>
                 Weserblick 9<br>
-                34399 Gieselwerder
+                34399 Gieselwerder<br>
+                Deutschland
             </p>
+
+            <h3>Kontakt</h3>
             <p>
-                <strong>Kontakt:</strong><br>
-                E-Mail: <a href="mailto:info@ipscboerse.com">info@ipscboerse.com</a>
+                <br>
+                E-Mail: info@ipscboerse.com
+            </p>
+
+            <h3>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h3>
+            <p>
+                [Dein Vorname] [Dein Nachname]<br>
+                [Deine Straße und Hausnummer]<br>
+                [Deine PLZ] [Deine Stadt]
+            </p>
+
+            <h3>EU-Streitschlichtung</h3>
+            <p>
+                Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: 
+                <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer">https://ec.europa.eu/consumers/odr/</a>.<br>
+                Unsere E-Mail-Adresse findest du oben im Impressum. Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
+            </p>
+
+            <h3>Haftung für Inhalte (Nutzerinserate)</h3>
+            <p>
+                Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind wir jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen (wie z.B. Match-Inserate der Nutzer) zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.
             </p>
         </div>
 
-        <div class="content-section">
-            <h2>Haftungsausschluss</h2>
+        <!-- DATENSCHUTZ -->
+        <div class="legal-section">
+            <h2>Datenschutzerklärung</h2>
+            
+            <h3>1. Datenschutz auf einen Blick</h3>
             <p>
-                Diese Plattform stellt lediglich die technische Infrastruktur für die Vermittlung von IPSC-Startplätzen bereit. Der Betreiber ist kein Vermittler, Match Director oder Vertragspartner. Alle Absprachen und rechtlichen Umschreibungen finden ausschließlich eigenverantwortlich zwischen den jeweiligen Schützen statt.
+                Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit deinen personenbezogenen Daten passiert, wenn du diese Website besuchen oder ein Konto erstellen. Personenbezogene Daten sind alle Daten, mit denen du persönlich identifiziert werden kannst.
             </p>
 
-            <h3>Haftung für Inhalte</h3>
+            <h3>2. Verantwortliche Stelle</h3>
             <p>
-                Die Inhalte dieser Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß § 7 Abs.1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen.
+                Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist die im Impressum genannte Person.
             </p>
 
-            <h3>Haftung für Links</h3>
+            <h3>3. Datenerfassung auf unserer Website</h3>
+            <ul>
+                <li>
+                    <strong>Registrierung & Login:</strong> Wenn du ein Konto erstellst, erfassen wir deine E-Mail-Adresse sowie ein verschlüsseltes Passwort. Optional kannst du einen Schützennamen vergeben. Diese Daten sind zwingend erforderlich, um Inserate zu erstellen, zu verwalten oder zu löschen (Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO - Vertragserfüllung).
+                </li>
+                <li>
+                    <strong>Inserate:</strong> Wenn du ein Inserat veröffentlichst, werden die Formulardaten (Match-Name, Datum, Ort, Preis, Squad) zusammen mit deiner E-Mail-Adresse in unserer Datenbank gespeichert, damit andere Nutzer dich kontaktieren können.
+                </li>
+                <li>
+                    <strong>Bereitstellung der Website:</strong> Aus technischen Gründen speichert der Webserver bei jedem Aufruf automatisch Daten in sogenannten Server-Logfiles (z.B. IP-Adresse, Browsertyp, Uhrzeit). Dies dient der IT-Sicherheit und Stabilität der Plattform (Art. 6 Abs. 1 lit. f DSGVO).
+                </li>
+            </ul>
+
+            <h3>4. Cloud-Dienstleister & Datenübermittlung (Supabase)</h3>
             <p>
-                Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.
+                Für die Verwaltung der Nutzerkonten, die Anmeldung und die Speicherung der Marktplatz-Einträge nutzen wir den Backend-Dienst <strong>Supabase</strong> (Supabase Inc., 970 Summer St, Stamford, CT 06905, USA). 
             </p>
+            <p>
+                Die von uns genutzte Datenbank-Infrastruktur befindet sich in einem **EU-Rechenzentrum** (Frankfurt am Main, Deutschland). Dadurch wird sichergestellt, dass deine Daten standardmäßig innerhalb der Europäischen Union gespeichert werden. Supabase verarbeitet die Daten in unserem Auftrag als Auftragsverarbeiter. Wir haben mit Supabase einen Vertrag zur Auftragsverarbeitung (Data Processing Agreement, DPA) auf Basis der EU-Standardvertragsklauseln abgeschlossen, um den Schutz deiner Daten rechtlich abzusichern.
+            </p>
+
+            <h3>5. Speicherdauer und Datenlöschung</h3>
+            <p>
+                Deine Inserate bleiben so lange gespeichert, bis du sie manuell löschst oder das Datum des Matches in der Vergangenheit liegt. Wenn du dein Nutzerkonto über die Einstellungen löschst, werden dein Konto sowie alle damit verknüpften Inserate **unwiderruflich und sofort** aus unserer aktiven Datenbank entfernt.
+            </p>
+
+            <h3>6. Deine Rechte</h3>
+            <p>Du hast im Rahmen der geltenden gesetzlichen Bestimmungen jederzeit das Recht auf:</p>
+            <ul>
+                <li>Unentgeltliche Auskunft über deine gespeicherten personenbezogenen Daten.</li>
+                <li>Berichtigung oder Löschung dieser Daten.</li>
+                <li>Einschränkung der Verarbeitung oder Widerspruch gegen die Verarbeitung.</li>
+                <li>Datenübertragbarkeit.</li>
+            </ul>
+            <p>Hierzu sowie zu weiteren Fragen zum Thema Datenschutz kannst du dich jederzeit unter der im Impressum angegebenen E-Mail-Adresse an uns wenden. Des Weiteren steht dir ein Beschwerderecht bei der zuständigen Datenschutz-Aufsichtsbehörde zu.</p>
         </div>
 
-        <!-- NEU: Kontaktformular-Bereich -->
-        <div class="content-section">
-            <h2>Kontakt zum Betreiber</h2>
-            <p>Hast du Fragen oder Probleme? Schreib mir direkt eine Nachricht:</p>
-            <form action="mailto:info@ipscboerse.com" method="GET" enctype="text/plain" style="display: flex; flex-direction: column; gap: 10px;">
-                <input type="text" name="subject" placeholder="Betreff" style="padding: 10px; background: #1a1a1a; border: 1px solid #444; color: #fff;">
-                <textarea name="body" placeholder="Deine Nachricht an den Betreiber..." style="padding: 10px; background: #1a1a1a; border: 1px solid #444; color: #fff; height: 100px;"></textarea>
-                <button type="submit" style="padding: 10px; background: var(--accent-color); border: none; cursor: pointer; font-weight: bold; color: #000;">Nachricht senden</button>
-            </form>
-        </div>
     </div>
 
     <footer>
-        <div>&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+        <p>&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</p>
     </footer>
 
 </body>
