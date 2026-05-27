@@ -160,7 +160,7 @@ document.getElementById("reset-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const email = document.getElementById("reset-email").value;
   const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-    redirectTo: 'https://y4wg4s9g46-netizen.github.io/ipscboerse.com/reset-password.html',
+    redirectTo: 'https://y4wg4s9g46-netizen.github.io/reset-password.html',
   });
   if (error) alert("Fehler: " + error.message);
   else alert("Check deine E-Mails für den Reset-Link!");
