@@ -30,6 +30,25 @@ const translations = {
 
 function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
 
+// --- Auth View Management ---
+function toggleAuthView(isLogin) {
+    document.getElementById('modal-login-view').style.display = isLogin ? 'block' : 'none';
+    document.getElementById('modal-register-view').style.display = isLogin ? 'none' : 'block';
+    document.getElementById('modal-reset-view').style.display = 'none';
+}
+
+function showResetView() {
+    document.getElementById('modal-login-view').style.display = 'none';
+    document.getElementById('modal-register-view').style.display = 'none';
+    document.getElementById('modal-reset-view').style.display = 'block';
+}
+
+function showLoginView() {
+    document.getElementById('modal-login-view').style.display = 'block';
+    document.getElementById('modal-register-view').style.display = 'none';
+    document.getElementById('modal-reset-view').style.display = 'none';
+}
+
 function applyLanguage(lang) {
   currentLang = lang;
   const levelSelect = document.getElementById("match-level");
@@ -49,7 +68,7 @@ async function checkUserStatus() {
     document.getElementById("btn-logout").onclick = () => { supabaseClient.auth.signOut(); location.reload(); };
     if (emailField) { emailField.value = user.email; emailField.readOnly = true; }
   } else {
-    container.innerHTML = `<button id="btn-open-login">${translations[currentLang]["btn-login-reg"]}</button>`;
+    container.innerHTML = `<button class="btn-auth" id="btn-open-login">${translations[currentLang]["btn-login-reg"]}</button>`;
     document.getElementById("btn-open-login").onclick = () => document.getElementById("auth-modal").style.display = "flex";
   }
 }
@@ -76,7 +95,7 @@ function renderMatches(matches) {
       </div>
       <div class="card-actions">
         <p>${parseFloat(m.match_price).toFixed(2)} €</p>
-        <a href="mailto:${m.seller_email}" class="btn-contact">${isWant ? translations[currentLang]["btn-contact-want"] : translations[currentLang]["btn-request"]}</a>
+        <a href="mailto:${m.seller_email}" class="btn-contact ${isWant ? 'btn-contact-want' : ''}">${isWant ? translations[currentLang]["btn-contact-want"] : translations[currentLang]["btn-request"]}</a>
         ${canDelete ? `<button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${translations[currentLang]["btn-delete"]}</button>` : ""}
       </div>
     </div>`;
@@ -118,11 +137,33 @@ document.getElementById("match-form").addEventListener("submit", async (e) => {
 
 document.getElementById("login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  await supabaseClient.auth.signInWithPassword({
+  const { error } = await supabaseClient.auth.signInWithPassword({
     email: document.getElementById("login-email").value,
     password: document.getElementById("login-password").value,
   });
-  location.reload();
+  if (error) alert("Login fehlgeschlagen: " + error.message);
+  else location.reload();
+});
+
+document.getElementById("register-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const { error } = await supabaseClient.auth.signUp({
+    email: document.getElementById("register-email").value,
+    password: document.getElementById("register-password").value,
+  });
+  if (error) alert("Registrierung fehlgeschlagen: " + error.message);
+  else alert("Registrierung erfolgreich! Bitte bestätige deine E-Mail.");
+});
+
+// Reset Form Handler
+document.getElementById("reset-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("reset-email").value;
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/reset-password.html',
+  });
+  if (error) alert("Fehler: " + error.message);
+  else alert("Check deine E-Mails für den Reset-Link!");
 });
 
 document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
