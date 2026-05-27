@@ -6,45 +6,17 @@ let currentUser = null;
 let currentLang = "de";
 
 const translations = {
-  de: {
-    "btn-login-reg": "Login / Registrieren",
-    "logout": "Abmelden",
-    "no-slots": "Aktuell keine Einträge verfügbar.",
-    "btn-request": "Anbieter kontaktieren",
-    "btn-contact-want": "Schützen kontaktieren",
-    "btn-delete": "Löschen",
-    "tag-offer": "BIETE",
-    "tag-want": "SUCHE"
-  },
-  en: {
-    "btn-login-reg": "Login / Register",
-    "logout": "Logout",
-    "no-slots": "No marketplace entries available.",
-    "btn-request": "Contact Seller",
-    "btn-contact-want": "Contact Shooter",
-    "btn-delete": "Delete",
-    "tag-offer": "OFFER",
-    "tag-want": "WANTED"
-  }
+  de: { "btn-login-reg": "Login / Registrieren", "logout": "Abmelden", "no-slots": "Aktuell keine Einträge verfügbar.", "btn-request": "Anbieter kontaktieren", "btn-contact-want": "Schützen kontaktieren", "btn-delete": "Löschen", "tag-offer": "BIETE", "tag-want": "SUCHE" },
+  en: { "btn-login-reg": "Login / Register", "logout": "Logout", "no-slots": "No marketplace entries available.", "btn-request": "Contact Seller", "btn-contact-want": "Contact Shooter", "btn-delete": "Delete", "tag-offer": "OFFER", "tag-want": "WANTED" }
 };
 
 function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
-
-function applyLanguage(lang) {
-  currentLang = lang;
-  const levelSelect = document.getElementById("match-level");
-  if (!levelSelect) return;
-  const currentVal = levelSelect.value;
-  levelSelect.innerHTML = `<option value="">Bitte wählen...</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
-  levelSelect.value = currentVal;
-}
 
 async function checkUserStatus() {
   const { data: { user } } = await supabaseClient.auth.getUser();
   currentUser = user;
   const container = document.getElementById("auth-status-container");
   const emailField = document.getElementById("seller-email");
-  
   if (container) {
     if (user) {
       container.innerHTML = `<span>${escapeHtml(user.email)}</span> <button id="btn-logout">${translations[currentLang]["logout"]}</button>`;
@@ -81,7 +53,6 @@ function renderMatches(matches) {
   const container = document.getElementById("match-container");
   if (!container) return;
   if (!matches.length) { container.innerHTML = `<p>${translations[currentLang]["no-slots"]}</p>`; return; }
-  
   container.innerHTML = matches.map(m => {
     const isWant = m.type === "want";
     const levelBadge = m.match_level ? `<span class="badge">${escapeHtml(m.match_level)}</span>` : "";
@@ -148,6 +119,5 @@ if (loginForm) {
 const closeBtn = document.getElementById("btn-close-modal");
 if (closeBtn) closeBtn.onclick = () => document.getElementById("auth-modal").style.display = "none";
 
-applyLanguage("de");
 checkUserStatus();
 fetchMatches();
