@@ -1,414 +1,269 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPSC Match-Marktplatz | Startplatz Börse</title>
+const SUPABASE_URL = "https://huprxirlthkisjngwash.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_mPH_ETwGVhcm7pr35WVPWA_KgJu5N_e";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let currentLang = "de";
+
+const translations = {
+  de: {
+    "btn-login-reg": "Login / Registrieren",
+    "logout": "Abmelden",
+    "no-slots": "Aktuell keine Einträge verfügbar.",
+    "btn-request": "Anbieter kontaktieren",
+    "btn-contact-want": "Schützen kontaktieren",
+    "btn-delete": "Löschen",
+    "tag-offer": "BIETE",
+    "tag-want": "SUCHE"
+  },
+  en: {
+    "btn-login-reg": "Login / Register",
+    "logout": "Logout",
+    "no-slots": "No marketplace entries available.",
+    "btn-request": "Contact Seller",
+    "btn-contact-want": "Contact Shooter",
+    "btn-delete": "Delete",
+    "tag-offer": "OFFER",
+    "tag-want": "WANTED"
+  }
+};
+
+function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
+
+function applyLanguage(lang) {
+  currentLang = lang;
+  const levelSelect = document.getElementById("match-level");
+  if (levelSelect) {
+    const currentVal = levelSelect.value;
+    const defaultText = lang === "en" ? "Please select..." : "Bitte wählen...";
+    levelSelect.innerHTML = `<option value="">${defaultText}</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
+    levelSelect.value = currentVal;
+  }
+}
+
+async function checkUserStatus() {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  currentUser = user;
+  const container = document.getElementById("auth-status-container");
+  const emailField = document.getElementById("seller-email");
+  
+  if (user) {
+    const displayName = user.user_metadata?.display_name || user.email;
+    container.innerHTML = `<span id="btn-open-account" style="color: var(--accent-color); font-weight: bold; cursor: pointer; margin-right: 15px; text-decoration: underline;">${escapeHtml(displayName)}</span> <button id="btn-logout">${translations[currentLang]["logout"]}</button>`;
     
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    // REPARIERT: Logout wurde asynchron abgesichert, um Race Conditions vor dem Reload zu verhindern
+    document.getElementById("btn-logout").onclick = async () => { 
+      await supabaseClient.auth.signOut(); 
+      location.reload(); 
+    };
     
-    <style>
-        :root {
-            --bg-color: #1a1a1a;
-            --card-bg: #2d2d2d;
-            --accent-color: #ff9f43;
-            --text-color: #ffffff;
-            --text-muted: #aaaaaa;
-            --danger-color: #ff4d4d;
-            --success-color: #2ecc71;
-            --info-color: #3498db;
+    document.getElementById("btn-open-account").onclick = () => {
+      document.getElementById("account-modal").style.display = "flex";
+      document.getElementById("account-display-name").value = user.user_metadata?.display_name || "";
+    };
+
+    if (emailField) { emailField.value = user.email; emailField.readOnly = true; }
+  } else {
+    container.innerHTML = `<button id="btn-open-login">${translations[currentLang]["btn-login-reg"]}</button>`;
+    document.getElementById("btn-open-login").onclick = () => document.getElementById("auth-modal").style.display = "flex";
+  }
+}
+
+async function fetchMatches() {
+  const { data, error } = await supabaseClient.from("matches").select("*").order("match_date", { ascending: true });
+  if (error) return;
+  renderMatches(data || []);
+}
+
+function renderMatches(matches) {
+  const container = document.getElementById("match-container");
+  if (!matches.length) { container.innerHTML = `<p>${translations[currentLang]["no-slots"]}</p>`; return; }
+  
+  container.innerHTML = matches.map(m => {
+    const isWant = m.type === "want";
+    const levelBadge = m.match_level ? `<span class="badge" style="background:#555; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_level)}</span>` : "";
+    const canDelete = currentUser && currentUser.email === m.seller_email;
+    
+    return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
+      <div class="match-details">
+        <h3>${escapeHtml(m.match_name)} ${levelBadge} <span class="badge">${isWant ? translations[currentLang]["tag-want"] : translations[currentLang]["tag-offer"]}</span></h3>
+        <p>${m.match_date} | ${escapeHtml(m.match_location)}</p>
+      </div>
+      <div class="card-actions">
+        <p>${parseFloat(m.match_price).toFixed(2)} €</p>
+        <a href="mailto:${m.seller_email}" class="btn-contact">${isWant ? translations[currentLang]["btn-contact-want"] : translations[currentLang]["btn-request"]}</a>
+        ${canDelete ? `<button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${translations[currentLang]["btn-delete"]}</button>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+async function handleDelete(id, sellerEmail) {
+  if (!currentUser || currentUser.email !== sellerEmail) {
+    alert("Fehler: Du darfst nur deine eigenen Einträge löschen.");
+    return;
+  }
+  if (!confirm("Sicherheitsabfrage:\n\nMöchtest du diesen Eintrag wirklich unwiderruflich löschen?")) return;
+  const password = prompt("Sicherheitsprüfung: Bitte gib dein Passwort erneut ein, um den Löschvorgang abzuschließen:");
+  if (!password) return;
+  try {
+    const { error } = await supabaseClient.auth.signInWithPassword({ email: currentUser.email, password: password });
+    if (error) { alert("Authentifizierung fehlgeschlagen."); return; }
+    await supabaseClient.from("matches").delete().eq("id", id);
+    fetchMatches();
+  } catch (err) { alert("Fehler beim Löschen."); }
+}
+
+document.getElementById("match-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!currentUser) return alert("Bitte melde dich an.");
+  const matchData = {
+    match_name: document.getElementById("match-name").value,
+    match_level: document.getElementById("match-level").value,
+    match_date: document.getElementById("match-date").value,
+    match_location: document.getElementById("match-location").value,
+    match_price: document.getElementById("match-price").value,
+    seller_email: currentUser.email,
+    type: document.getElementById("type-want").checked ? "want" : "offer"
+  };
+  await supabaseClient.from("matches").insert([matchData]);
+  document.getElementById("match-form").reset();
+  fetchMatches();
+});
+
+document.getElementById("login-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: document.getElementById("login-email").value,
+    password: document.getElementById("login-password").value,
+  });
+  if (error) {
+    alert("Login fehlgeschlagen: " + error.message);
+  } else {
+    location.reload();
+  }
+});
+
+document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
+
+function toggleAuthView(isLogin) {
+  document.getElementById("modal-login-view").style.display = isLogin ? "block" : "none";
+  document.getElementById("modal-register-view").style.display = isLogin ? "none" : "block";
+  document.getElementById("modal-reset-view").style.display = "none";
+}
+
+function showResetView() {
+  document.getElementById("modal-login-view").style.display = "none";
+  document.getElementById("modal-register-view").style.display = "none";
+  document.getElementById("modal-reset-view").style.display = "block";
+}
+
+document.getElementById("reset-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("reset-email").value;
+  try {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    });
+    if (error) {
+      alert("Fehler beim Senden: " + error.message);
+    } else {
+      alert("Eine E-Mail mit dem Link zum Zurücksetzen deines Passworts wurde versendet.");
+      toggleAuthView(true);
+    }
+  } catch (err) {
+    alert("Ein unerwarteter Fehler ist aufgetreten.");
+  }
+});
+
+window.addEventListener("load", async () => {
+  if (window.location.hash.includes("type=recovery")) {
+    setTimeout(() => {
+      const newPassword = prompt("Passwort zurücksetzen:\n\nBitte gib dein neues Passwort ein (mindestens 6 Zeichen):");
+      if (newPassword) {
+        if (newPassword.length < 6) {
+          alert("Das Passwort muss mindestens 6 Zeichen lang sein.");
+          return;
         }
+        supabaseClient.auth.updateUser({ password: newPassword }).then(({ error }) => {
+          if (error) {
+            alert("Fehler beim Speichern des neuen Passworts: " + error.message);
+          } else {
+            alert("Dein Passwort wurde erfolgreich geändert! Du kannst dich jetzt regulär einloggen.");
+            window.location.hash = "";
+          }
+        });
+      }
+    }, 500);
+  }
+});
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
+document.getElementById("btn-close-account-modal").onclick = () => {
+  document.getElementById("account-modal").style.display = "none";
+};
 
-        header {
-            background-color: #0f0f0f;
-            padding: 20px;
-            text-align: center;
-            border-bottom: 3px solid var(--accent-color);
-            position: relative;
-        }
+document.getElementById("account-update-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const displayName = document.getElementById("account-display-name").value;
+  const { error } = await supabaseClient.auth.updateUser({
+    data: { display_name: displayName }
+  });
+  if (error) {
+    alert("Fehler beim Aktualisieren: " + error.message);
+  } else {
+    alert("Profil erfolgreich aktualisiert!");
+    location.reload();
+  }
+});
 
-        header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
+document.getElementById("account-password-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const newPassword = document.getElementById("account-new-password").value;
+  const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+  if (error) {
+    alert("Fehler beim Speichern: " + error.message);
+  } else {
+    alert("Dein Passwort wurde erfolgreich geändert.");
+    document.getElementById("account-new-password").value = "";
+    document.getElementById("account-modal").style.display = "none";
+  }
+});
 
-        .header-controls {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+document.getElementById("btn-delete-account").addEventListener("click", async () => {
+  if (!confirm("WARNUNG!\n\nMöchtest du all deine Einträge permanent vom Marktplatz löschen? Dieser Schritt kann nicht rückgängig gemacht werden.")) return;
+  
+  const password = prompt("Sicherheitsprüfung: Bitte gib dein Passwort ein, um die Löschung zu autorisieren:");
+  if (!password) return;
 
-        @media (max-width: 768px) {
-            .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; }
-        }
+  try {
+    const { error: authError } = await supabaseClient.auth.signInWithPassword({
+      email: currentUser.email,
+      password: password
+    });
+    if (authError) {
+      alert("Authentifizierung fehlgeschlagen. Abbruch.");
+      return;
+    }
 
-        .lang-switch {
-            background-color: #1a1a1a; color: #fff; border: 1px solid #555;
-            padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;
-        }
-        .lang-switch:focus { outline: none; border-color: var(--accent-color); }
+    const { error: dbError } = await supabaseClient.from("matches").delete().eq("seller_email", currentUser.email);
+    if (dbError) throw dbError;
 
-        .btn-auth {
-            background-color: transparent; color: var(--accent-color); border: 2px solid var(--accent-color);
-            padding: 8px 16px; font-weight: bold; border-radius: 4px; cursor: pointer;
-        }
+    alert("Deine Inserate und Profildaten wurden erfolgreich entfernt. Du wirst nun abgemeldet.");
+    await supabaseClient.auth.signOut();
+    location.reload();
+  } catch (err) {
+    alert("Fehler beim Löschen: " + err.message);
+  }
+});
 
-        .btn-auth:hover { background-color: var(--accent-color); color: #000; }
+// --- REPARIERT: Event-Listener für den englischen Sprachwechsel hinzugefügt ---
+document.getElementById("language-select").addEventListener("change", (e) => {
+  applyLanguage(e.target.value);
+  checkUserStatus(); // Aktualisiert Login- / Log-out-Übersetzungen
+  fetchMatches();    // Aktualisiert die Karten-Badges und Platzhalter-Übersetzungen live
+});
 
-        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; }
-
-        .info-box {
-            background-color: rgba(255, 159, 67, 0.1); border-left: 4px solid var(--accent-color);
-            padding: 15px; margin-bottom: 30px; border-radius: 4px;
-        }
-
-        .form-section {
-            background-color: var(--card-bg); border: 1px solid #444;
-            border-radius: 6px; padding: 25px; margin-bottom: 40px;
-        }
-
-        .form-section h2 { margin-top: 0; color: var(--accent-color); border-bottom: 1px solid #444; padding-bottom: 10px; }
-
-        .toggle-selector {
-            display: flex; gap: 20px; margin-bottom: 20px; background: #1a1a1a; padding: 12px; border-radius: 4px; border: 1px solid #444;
-        }
-
-        .toggle-selector label {
-            display: flex; align-items: center; gap: 8px; color: #fff; cursor: pointer; margin: 0; font-size: 14px;
-        }
-
-        .toggle-selector input { accent-color: var(--accent-color); cursor: pointer; }
-
-        .filter-bar {
-            background-color: #0f0f0f; border: 1px solid #444; padding: 15px; border-radius: 6px;
-            margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center;
-        }
-
-        .filter-group { display: flex; align-items: center; gap: 10px; }
-        .filter-group label { margin: 0; color: #fff; white-space: nowrap; }
-
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000;
-        }
-
-        .modal-content {
-            background-color: var(--card-bg); padding: 30px; border-radius: 6px;
-            border: 1px solid var(--accent-color); width: 100%; max-width: 400px; box-sizing: border-box;
-        }
-
-        .modal-content h3 { color: var(--accent-color); margin-top: 0; }
-        .modal-content .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
-        .modal-content input { background-color: #1a1a1a; border: 1px solid #555; color: #fff; padding: 10px; border-radius: 4px; }
-        .modal-footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-        .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; }
-
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
-
-        .form-group { display: flex; flex-direction: column; }
-        label { font-size: 14px; margin-bottom: 8px; color: var(--text-muted); font-weight: bold; }
-
-        input, select {
-            background-color: #1a1a1a; border: 1px solid #555; color: var(--text-color);
-            padding: 10px; border-radius: 4px; font-size: 15px;
-        }
-        input:focus, select:focus { outline: none; border-color: var(--accent-color); }
-
-        .btn-submit {
-            background-color: var(--accent-color); color: #000; border: none;
-            padding: 12px 30px; font-size: 16px; font-weight: bold; border-radius: 4px;
-            cursor: pointer; margin-top: 10px;
-        }
-        .btn-submit:hover { background-color: #e08b35; }
-
-        .match-list { display: flex; flex-direction: column; gap: 15px; }
-
-        .match-card {
-            background-color: var(--card-bg); border-radius: 6px; padding: 20px;
-            display: flex; justify-content: space-between; align-items: center; border: 1px solid #444;
-            position: relative; overflow: hidden;
-        }
-
-        .match-card::before {
-            content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 5px;
-        }
-        .card-offer::before { background-color: var(--accent-color); }
-        .card-want::before { background-color: var(--success-color); }
-
-        .match-details h3 { margin: 0 0 5px 0; color: var(--accent-color); display: flex; align-items: center; gap: 10px; }
-        .match-details p { margin: 5px 0; font-size: 14px; color: var(--text-muted); }
-        
-        .badge-container { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
-        .badge { background-color: #444; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: #fff; }
-        .badge-type { background-color: rgba(255, 159, 67, 0.2); color: var(--accent-color); border: 1px solid var(--accent-color); }
-        .badge-want { background-color: rgba(46, 204, 113, 0.2); color: var(--success-color); border: 1px solid var(--success-color); }
-
-        .card-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-
-        .btn-contact {
-            background-color: var(--accent-color); color: #000; border: none;
-            padding: 10px 20px; font-weight: bold; border-radius: 4px; text-decoration: none; text-align: center;
-        }
-        .btn-contact-want { background-color: var(--success-color); }
-        .btn-contact:hover { opacity: 0.9; }
-
-        .btn-delete {
-            background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color);
-            padding: 5px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer;
-            margin-top: 5px;
-        }
-        .btn-delete:hover { background-color: var(--danger-color); color: #fff; }
-
-        footer {
-            background-color: #0f0f0f;
-            border-top: 1px solid #444;
-            padding: 30px 20px;
-            margin-top: 50px;
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        .footer-content {
-            max-width: 1000px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 30px;
-        }
-
-        @media (max-width: 768px) {
-            .footer-content { grid-template-columns: 1fr; gap: 20px; }
-        }
-
-        footer h4 {
-            color: var(--accent-color);
-            margin: 0 0 10px 0;
-            font-size: 15px;
-        }
-
-        footer p { margin: 5px 0; line-height: 1.5; }
-        footer a { color: var(--accent-color); text-decoration: none; }
-        footer a:hover { text-decoration: underline; }
-
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
-        }
-
-        .toast {
-            padding: 14px 20px;
-            border-radius: 6px;
-            color: #fff;
-            font-weight: bold;
-            font-size: 14px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            animation: toast-in 0.3s ease, toast-out 0.3s ease 3.7s forwards;
-            max-width: 350px;
-            pointer-events: auto;
-        }
-
-        .toast-success { background-color: var(--success-color); }
-        .toast-error { background-color: var(--danger-color); }
-        .toast-info { background-color: var(--info-color); }
-
-        @keyframes toast-in {
-            from { opacity: 0; transform: translateX(40px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes toast-out {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
-        <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Von Schützen für Schützen – Live Marktplatz</p>
-        
-        <div class="header-controls">
-            <select id="language-select" class="lang-switch">
-                <option value="de">DE</option>
-                <option value="en">EN</option>
-            </select>
-            <div id="auth-status-container">
-                <button class="btn-auth" id="btn-open-login" data-txt="btn-login-reg">Login / Registrieren</button>
-            </div>
-        </div>
-    </header>
-
-    <div class="container">
-        
-        <div class="info-box" id="info-text" data-txt="info-msg">
-            <strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgültige Umschreibung des Startplatzes muss zwingend über den jeweiligen Match Director durchgeführt werden!
-        </div>
-
-        <div class="form-section">
-            <h2 data-txt="form-title">Eintrag erstellen</h2>
-            
-            <div class="toggle-selector" style="border-color: var(--accent-color);">
-                <label>
-                    <input type="radio" name="ad-type" id="type-offer" value="offer" checked>
-                    <span style="font-weight: bold; color: var(--accent-color);" data-txt="opt-offer">Ich BIETE einen Startplatz an</span>
-                </label>
-                <label>
-                    <input type="radio" name="ad-type" id="type-want" value="want">
-                    <span style="font-weight: bold; color: var(--success-color);" data-txt="opt-want">Ich SUCHE einen Startplatz</span>
-                </label>
-            </div>
-
-            <form id="match-form">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="match-name" data-txt="lbl-name">Name des Matches *</label>
-                        <input type="text" id="match-name" required placeholder="z.B. Infinity Open">
-                    </div>
-                    <div class="form-group">
-                        <label for="match-level" data-txt="lbl-level">Match Level *</label>
-                        <select id="match-level" required></select>
-                    </div>
-                    <div class="form-group">
-                        <label for="match-date" data-txt="lbl-date">Datum des Matches *</label>
-                        <input type="date" id="match-date" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="match-location" data-txt="lbl-location">Austragungsort (Stand) *</label>
-                        <input type="text" id="match-location" required placeholder="z.B. Philippsburg">
-                    </div>
-                    <div class="form-group">
-                        <label for="match-squad" data-txt="lbl-squad">Squad Nummer (Optional)</label>
-                        <input type="text" id="match-squad" inputmode="numeric" pattern="\d{1,4}" maxlength="4" placeholder="z.B. 0014">
-                    </div>
-                    <div class="form-group">
-                        <label for="match-price" id="lbl-dynamic-price">Abgabepreis (€) *</label>
-                        <input type="number" id="match-price" min="0" step="0.01" required placeholder="85.00">
-                    </div>
-                    <div class="form-group">
-                        <label for="seller-email" data-txt="lbl-email">Deine E-Mail-Adresse *</label>
-                        <input type="email" id="seller-email" required readonly placeholder="schuetze@beispiel.de">
-                    </div>
-                </div>
-                <div style="text-align: right; margin-top: 20px;">
-                    <button type="submit" class="btn-submit" id="btn-submit-ad" data-txt="btn-insert">Eintrag kostenlos veröffentlichen</button>
-                </div>
-            </form>
-        </div>
-
-        <div class="filter-bar">
-            <div class="filter-group">
-                <label data-txt="filter-type">Anzeigentyp:</label>
-                <select id="filter-type-select">
-                    <option value="all" data-txt="filter-all">Alle Anzeigen</option>
-                    <option value="offer" data-txt="filter-offers">Nur Angebote (Biete)</option>
-                    <option value="want" data-txt="filter-wants">Nur Gesuche (Suche)</option>
-                </select>
-            </div>
-        </div>
-
-        <h2 data-txt="list-title">Aktuelle Marktplatz-Einträge</h2>
-        <div class="match-list" id="match-container">
-            <p id="loading-text" data-txt="loading">Lade aktuelle Startplätze...</p>
-        </div>
-
-    </div>
-
-    <div class="modal" id="auth-modal">
-        <div class="modal-content">
-            <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
-            <div id="modal-login-view">
-                <h3 data-txt="modal-login-title">Anmelden</h3>
-                <form id="login-form">
-                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required></div>
-                    <div class="form-group"><label data-txt="lbl-password">Passwort *</label><input type="password" id="login-password" required></div>
-                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-login">Einloggen</button>
-                </form>
-                <div class="modal-footer">
-                    <div><span data-txt="modal-no-acc">Noch kein Konto?</span> <a onclick="toggleAuthView(false)" data-txt="modal-link-reg" style="color: var(--accent-color); cursor: pointer;">Registrieren</a></div>
-                    <a onclick="showResetView()" style="color: var(--accent-color); font-weight: bold; cursor: pointer;">Passwort vergessen?</a>
-                </div>
-            </div>
-            <div id="modal-register-view" style="display: none;">
-                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
-                <form id="register-form">
-                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="register-email" required></div>
-                    <div class="form-group"><label data-txt="lbl-password">Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
-                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-reg">Konto erstellen</button>
-                </form>
-                <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView(true)" data-txt="modal-link-login" style="color: var(--accent-color); cursor: pointer;">Zum Login</a></div>
-            </div>
-            <div id="modal-reset-view" style="display: none;">
-                <h3>Passwort zurücksetzen</h3>
-                <form id="reset-form">
-                    <div class="form-group"><label>E-Mail *</label><input type="email" id="reset-email" required placeholder="schuetze@beispiel.de"></div>
-                    <button type="submit" class="btn-submit" style="width:100%;">Reset-Link anfordern</button>
-                </form>
-                <div class="modal-footer"><a onclick="toggleAuthView(true)" style="color: var(--accent-color); cursor: pointer;">Zurück zum Login</a></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="account-modal">
-        <div class="modal-content">
-            <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-account-modal">&times;</span></div>
-            <h3>Mein Profil verwalten</h3>
-            
-            <form id="account-update-form" style="margin-bottom: 25px; border-bottom: 1px solid #444; padding-bottom: 20px;">
-                <h4 style="color: var(--accent-color); margin: 0 0 10px 0;">Profil bearbeiten</h4>
-                <div class="form-group">
-                    <label>Schützen- / Anzeigename</label>
-                    <input type="text" id="account-display-name" placeholder="z.B. IPSC_Shooter99">
-                </div>
-                <button type="submit" class="btn-submit" style="width:100%; padding: 8px; font-size: 14px;">Profil speichern</button>
-            </form>
-
-            <form id="account-password-form" style="margin-bottom: 25px; border-bottom: 1px solid #444; padding-bottom: 20px;">
-                <h4 style="color: var(--accent-color); margin: 0 0 10px 0;">Passwort direkt ändern</h4>
-                <div class="form-group">
-                    <label>Neues Passwort *</label>
-                    <input type="password" id="account-new-password" required minlength="6">
-                </div>
-                <button type="submit" class="btn-submit" style="width:100%; padding: 8px; font-size: 14px;">Neues Passwort speichern</button>
-            </form>
-
-            <div>
-                <h4 style="color: var(--danger-color); margin: 0 0 10px 0;">Gefahrenbereich</h4>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Das Löschen entfernt all deine Marktplatz-Einträge permanent aus der Datenbank.</p>
-                <button id="btn-delete-account" class="btn-delete" style="width:100%; padding: 10px; font-size: 14px; margin-top: 0;">Konto-Daten & Inserate permanent löschen</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="toast-container" class="toast-container"></div>
-
-    <footer>
-        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
-            <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
-            <div style="margin-top: 10px; font-size: 11px;">
-                &copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.
-            </div>
-        </div>
-    </footer>
-
-    <script src="app.js"></script>
-</body>
-</html>
+// Initialisierung beim Laden
+applyLanguage("de");
+checkUserStatus();
+fetchMatches();
