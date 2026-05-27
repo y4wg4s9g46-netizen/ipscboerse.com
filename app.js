@@ -96,15 +96,4 @@ function renderMatches(matches) {
       <div class="card-actions">
         <p>${parseFloat(m.match_price).toFixed(2)} €</p>
         <a href="mailto:${m.seller_email}" class="btn-contact ${isWant ? 'btn-contact-want' : ''}">${isWant ? translations[currentLang]["btn-contact-want"] : translations[currentLang]["btn-request"]}</a>
-        ${canDelete ? `<button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${translations[currentLang]["btn-delete"]}</button>` : ""}
-      </div>
-    </div>`;
-  }).join("");
-}
-
-async function handleDelete(id, sellerEmail) {
-  if (!currentUser || currentUser.email !== sellerEmail) {
-    alert("Fehler: Du darfst nur deine eigenen Einträge löschen.");
-    return;
-  }
-  if (!confirm("Sicher
+        ${canDelete ? `<button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${translations
