@@ -1,6 +1,7 @@
 const SUPABASE_URL = "https://huprxirlthkisjngwash.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_mPH_ETwGVhcm7pr35WVPWA_KgJu5N_e";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 let currentUser = null;
 let currentLang = "de";
 let allMatchesCached = [];
@@ -42,15 +43,8 @@ const translations = {
     "msg-save-err": "Fehler beim Speichern: ",
     "confirm-del": "Möchtest du diesen Eintrag wirklich löschen?",
     "alert-del-success": "Eintrag erfolgreich gelöscht!",
-    "filter-type": "Anzeigentyp:",
-    "filter-all": "Alle Einträge",
-    "filter-offers": "Nur Angebote (Biete)",
-    "filter-wants": "Nur Gesuche (Suche)",
-    "lbl-price-offer": "Abgabepreis (€) *",
-    "lbl-price-want": "Maximaler Kaufpreis (€) *",
     "tag-offer": "BIETE",
-    "tag-want": "SUCHE",
-    "footer-impressum-link": "Impressum & Rechtliche Hinweise"
+    "tag-want": "SUCHE"
   },
   en: {
     "main-title": "IPSC SLOT MARKETPLACE",
@@ -88,15 +82,8 @@ const translations = {
     "msg-save-err": "Error saving data: ",
     "confirm-del": "Are you sure?",
     "alert-del-success": "Deleted successfully!",
-    "filter-type": "Entry Type:",
-    "filter-all": "All Entries",
-    "filter-offers": "Offers Only",
-    "filter-wants": "Requests Only",
-    "lbl-price-offer": "Selling Price (€) *",
-    "lbl-price-want": "Max. Budget Price (€) *",
     "tag-offer": "OFFER",
-    "tag-want": "WANTED",
-    "footer-impressum-link": "Legal Notice & Imprint"
+    "tag-want": "WANTED"
   }
 };
 
@@ -107,29 +94,79 @@ function applyLanguage(lang) {
   document.querySelectorAll("[data-txt]").forEach(el => { const key = el.getAttribute("data-txt"); if (translations[lang][key]) el.innerHTML = translations[lang][key]; });
   const levelSelect = document.getElementById("match-level");
   const currentVal = levelSelect.value;
-  levelSelect.innerHTML = lang === "de"
-    ? '<option value="">Bitte wählen...</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>'
-    : '<option value="">Please select...</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>';
+  levelSelect.innerHTML = `<option value="">Bitte wählen...</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
   levelSelect.value = currentVal;
+}
+
+async function checkUserStatus() {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  currentUser = user;
+  const container = document.getElementById("auth-status-container");
+  if (user) {
+    container.innerHTML = `<span>${escapeHtml(user.email)}</span> <button id="btn-logout">${translations[currentLang]["logout"]}</button>`;
+    document.getElementById("btn-logout").onclick = () => { supabaseClient.auth.signOut(); location.reload(); };
+  } else {
+    container.innerHTML = `<button id="btn-open-login">${translations[currentLang]["btn-login-reg"]}</button>`;
+    document.getElementById("btn-open-login").onclick = () => document.getElementById("auth-modal").style.display = "flex";
+  }
+}
+
+async function fetchMatches() {
+  const { data, error } = await supabaseClient.from("matches").select("*").order("match_date", { ascending: true });
+  if (error) return;
+  allMatchesCached = data;
+  renderMatches(data);
 }
 
 function renderMatches(matches) {
   const container = document.getElementById("match-container");
+  if (!matches.length) { container.innerHTML = `<p>${translations[currentLang]["no-slots"]}</p>`; return; }
   container.innerHTML = matches.map(m => {
     const isWant = m.type === "want";
-    const levelBadge = m.match_level ? `<span class="badge" style="background: var(--accent-color); color: #000;">${escapeHtml(m.match_level)}</span>` : "";
+    const levelBadge = m.match_level ? `<span class="badge" style="background:#555; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_level)}</span>` : "";
     return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
       <div class="match-details">
-        <h3>${escapeHtml(m.match_name)} ${levelBadge} <span class="badge ${isWant ? "badge-want" : "badge-type"}">${isWant ? translations[currentLang]["tag-want"] : translations[currentLang]["tag-offer"]}</span></h3>
-        <p><strong>Date:</strong> ${m.match_date} | <strong>Range:</strong> ${escapeHtml(m.match_location)}</p>
+        <h3>${escapeHtml(m.match_name)} ${levelBadge} <span class="badge">${isWant ? translations[currentLang]["tag-want"] : translations[currentLang]["tag-offer"]}</span></h3>
+        <p>${m.match_date} | ${escapeHtml(m.match_location)}</p>
       </div>
       <div class="card-actions">
-        <p style="font-size: 18px; font-weight: bold;">${parseFloat(m.match_price).toFixed(2)} €</p>
+        <p>${parseFloat(m.match_price).toFixed(2)} €</p>
         <a href="mailto:${m.seller_email}" class="btn-contact">${isWant ? translations[currentLang]["btn-contact-want"] : translations[currentLang]["btn-request"]}</a>
       </div>
     </div>`;
   }).join("");
 }
 
-// Initialisierung (gekürzt auf das Wesentliche)
+// Event Listeners
+document.getElementById("match-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!currentUser) return alert(translations[currentLang]["alert-login-first"]);
+  const matchData = {
+    match_name: document.getElementById("match-name").value,
+    match_level: document.getElementById("match-level").value,
+    match_date: document.getElementById("match-date").value,
+    match_location: document.getElementById("match-location").value,
+    match_price: document.getElementById("match-price").value,
+    seller_email: currentUser.email,
+    type: document.getElementById("type-want").checked ? "want" : "offer"
+  };
+  await supabaseClient.from("matches").insert([matchData]);
+  fetchMatches();
+});
+
+document.getElementById("login-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  await supabaseClient.auth.signInWithPassword({
+    email: document.getElementById("login-email").value,
+    password: document.getElementById("login-password").value,
+  });
+  location.reload();
+});
+
+document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
+document.getElementById("language-select").onchange = (e) => applyLanguage(e.target.value);
+
+// Start
 applyLanguage("de");
+checkUserStatus();
+fetchMatches();
