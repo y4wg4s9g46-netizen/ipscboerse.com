@@ -169,6 +169,13 @@
         }
         .btn-delete:hover { background-color: var(--danger-color); color: #fff; }
 
+        .btn-edit {
+            background-color: transparent; color: var(--info-color); border: 1px solid var(--info-color);
+            padding: 5px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer;
+            margin-top: 5px;
+        }
+        .btn-edit:hover { background-color: var(--info-color); color: #fff; }
+
         .btn-danger-block {
             background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color);
             padding: 10px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 15px;
@@ -193,6 +200,12 @@
             flex-direction: column;
             gap: 10px;
             pointer-events: none;
+        }
+
+        .action-buttons-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -219,8 +232,8 @@
             <strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgültige Umschreibung des Startplatzes muss zwingend über den jeweiligen Match Director durchgeführt werden!
         </div>
 
-        <div class="form-section">
-            <h2 data-txt="form-title">Eintrag erstellen</h2>
+        <div class="form-section" id="form-anchor">
+            <h2 id="form-section-title" data-txt="form-title">Eintrag erstellen</h2>
             
             <div class="toggle-selector" style="border-color: var(--accent-color);">
                 <label>
@@ -264,7 +277,8 @@
                         <input type="email" id="seller-email" required readonly placeholder="Logge dich ein, um zu inserieren">
                     </div>
                 </div>
-                <div style="text-align: right; margin-top: 20px;">
+                <div style="text-align: right; margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; align-items: center;">
+                    <button type="button" class="btn-delete" id="btn-cancel-edit" style="display: none; padding: 12px 20px; font-size: 16px;" data-txt="btn-cancel">Abbrechen</button>
                     <button type="submit" class="btn-submit" id="btn-submit-ad" data-txt="btn-insert">Eintrag kostenlos veröffentlichen</button>
                 </div>
             </form>
