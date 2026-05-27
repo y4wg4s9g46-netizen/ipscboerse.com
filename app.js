@@ -33,6 +33,7 @@ function escapeHtml(text) { const div = document.createElement("div"); div.textC
 function applyLanguage(lang) {
   currentLang = lang;
   const levelSelect = document.getElementById("match-level");
+  if (!levelSelect) return;
   const currentVal = levelSelect.value;
   levelSelect.innerHTML = `<option value="">Bitte wählen...</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
   levelSelect.value = currentVal;
@@ -44,31 +45,38 @@ async function checkUserStatus() {
   const container = document.getElementById("auth-status-container");
   const emailField = document.getElementById("seller-email");
   
-  if (user) {
-    container.innerHTML = `<span>${escapeHtml(user.email)}</span> <button id="btn-logout">${translations[currentLang]["logout"]}</button>`;
-    document.getElementById("btn-logout").onclick = () => { supabaseClient.auth.signOut(); location.reload(); };
-    if (emailField) { emailField.value = user.email; emailField.readOnly = true; }
-  } else {
-    container.innerHTML = `<button class="btn-auth" id="btn-open-login">${translations[currentLang]["btn-login-reg"]}</button>`;
-    document.getElementById("btn-open-login").onclick = () => document.getElementById("auth-modal").style.display = "flex";
+  if (container) {
+    if (user) {
+      container.innerHTML = `<span>${escapeHtml(user.email)}</span> <button id="btn-logout">${translations[currentLang]["logout"]}</button>`;
+      document.getElementById("btn-logout").onclick = () => { supabaseClient.auth.signOut(); location.reload(); };
+      if (emailField) { emailField.value = user.email; emailField.readOnly = true; }
+    } else {
+      container.innerHTML = `<button class="btn-auth" id="btn-open-login">${translations[currentLang]["btn-login-reg"]}</button>`;
+      document.getElementById("btn-open-login").onclick = () => document.getElementById("auth-modal").style.display = "flex";
+    }
   }
 }
 
-// NEU: Passwort vergessen Logik
-document.getElementById("btn-forgot-password").addEventListener("click", async (e) => {
-  e.preventDefault();
-  const email = document.getElementById("login-email").value;
-  if (!email) return alert("Bitte gib oben deine E-Mail-Adresse ein.");
-  
-  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin,
+// SICHERE Passwort vergessen Logik
+const forgotBtn = document.getElementById("btn-forgot-password");
+if (forgotBtn) {
+  forgotBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("login-email").value;
+    if (!email) return alert("Bitte gib oben deine E-Mail-Adresse ein.");
+    
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    });
+    
+    if (error) alert("Fehler: " + error.message);
+    else alert("Prüfe dein E-Mail-Postfach für den Reset-Link.");
   });
-  
-  if (error) alert("Fehler: " + error.message);
-  else alert("Prüfe dein E-Mail-Postfach für den Reset-Link.");
-});
+}
 
 async function fetchMatches() {
+  const container = document.getElementById("match-container");
+  if (!container) return;
   const { data, error } = await supabaseClient.from("matches").select("*").order("match_date", { ascending: true });
   if (error) return;
   renderMatches(data || []);
@@ -76,6 +84,7 @@ async function fetchMatches() {
 
 function renderMatches(matches) {
   const container = document.getElementById("match-container");
+  if (!container) return;
   if (!matches.length) { container.innerHTML = `<p>${translations[currentLang]["no-slots"]}</p>`; return; }
   
   container.innerHTML = matches.map(m => {
@@ -110,33 +119,41 @@ async function handleDelete(id, sellerEmail) {
   } catch (err) { alert("Fehler beim Löschen."); }
 }
 
-document.getElementById("match-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  if (!currentUser) return alert("Bitte melde dich an.");
-  const matchData = {
-    match_name: document.getElementById("match-name").value,
-    match_level: document.getElementById("match-level").value,
-    match_date: document.getElementById("match-date").value,
-    match_location: document.getElementById("match-location").value,
-    match_price: document.getElementById("match-price").value,
-    seller_email: currentUser.email,
-    type: document.getElementById("type-want").checked ? "want" : "offer"
-  };
-  await supabaseClient.from("matches").insert([matchData]);
-  document.getElementById("match-form").reset();
-  fetchMatches();
-});
-
-document.getElementById("login-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  await supabaseClient.auth.signInWithPassword({
-    email: document.getElementById("login-email").value,
-    password: document.getElementById("login-password").value,
+const matchForm = document.getElementById("match-form");
+if (matchForm) {
+  matchForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!currentUser) return alert("Bitte melde dich an.");
+    const matchData = {
+      match_name: document.getElementById("match-name").value,
+      match_level: document.getElementById("match-level").value,
+      match_date: document.getElementById("match-date").value,
+      match_location: document.getElementById("match-location").value,
+      match_price: document.getElementById("match-price").value,
+      seller_email: currentUser.email,
+      type: document.getElementById("type-want").checked ? "want" : "offer"
+    };
+    await supabaseClient.from("matches").insert([matchData]);
+    matchForm.reset();
+    fetchMatches();
   });
-  location.reload();
-});
+}
 
-document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
+const loginForm = document.getElementById("login-form");
+if (loginForm) {
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await supabaseClient.auth.signInWithPassword({
+      email: document.getElementById("login-email").value,
+      password: document.getElementById("login-password").value,
+    });
+    location.reload();
+  });
+}
+
+const closeBtn = document.getElementById("btn-close-modal");
+if (closeBtn) closeBtn.onclick = () => document.getElementById("auth-modal").style.display = "none";
+
 applyLanguage("de");
 checkUserStatus();
 fetchMatches();
