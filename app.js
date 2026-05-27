@@ -5,6 +5,7 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
 let currentLang = "de";
 let cachedMatches = [];
+let editingMatchId = null; // Trackt, ob gerade ein Eintrag editiert wird
 
 const translations = {
   de: {
@@ -14,6 +15,7 @@ const translations = {
     "logout": "Abmelden",
     "info-msg": "<strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgültige Umschreibung des Startplatzes muss zwingend über den jeweiligen Match Director durchgeführt werden!",
     "form-title": "Eintrag erstellen",
+    "form-title-edit": "Eintrag bearbeiten ✏️",
     "opt-offer": "Ich BIETE einen Startplatz an",
     "opt-want": "Ich SUCHE einen Startplatz",
     "lbl-name": "Name des Matches *",
@@ -24,6 +26,8 @@ const translations = {
     "lbl-price": "Abgabepreis (€) *",
     "lbl-email": "Deine E-Mail-Adresse *",
     "btn-insert": "Eintrag kostenlos veröffentlichen",
+    "btn-save-edit": "Änderungen speichern",
+    "btn-cancel": "Abbrechen",
     "filter-type": "Anzeigentyp:",
     "filter-all": "Alle Anzeigen",
     "filter-offers": "Nur Angebote (Biete)",
@@ -43,6 +47,7 @@ const translations = {
     "btn-request": "Anbieter kontaktieren",
     "btn-contact-want": "Schützen kontaktieren",
     "btn-delete": "Löschen",
+    "btn-edit": "Bearbeiten",
     "tag-offer": "BIETE",
     "tag-want": "SUCHE",
     "link-forgot-pwd": "Passwort vergessen?",
@@ -50,7 +55,7 @@ const translations = {
     "modal-btn-forgot": "Zurücksetzungs-Link senden",
     "modal-reset-title": "Neues Passwort vergeben",
     "lbl-new-password": "Neues Passwort *",
-    "btn-save": "Änderungen保存",
+    "btn-save": "Änderungen speichern",
     "modal-settings-title": "Konto-Einstellungen",
     "lbl-username": "Schützenname / Anzeigename",
     "btn-delete-acc": "Konto & alle Einträge unwiderruflich löschen",
@@ -59,7 +64,8 @@ const translations = {
     "email-body-offer": "Hallo,\n\nich habe dein Inserat auf ipscboerse.com gesehen und interessiere mich für den von dir angebotenen Startplatz für das Match: ",
     "email-body-want": "Hallo,\n\nich habe dein Gesuch auf ipscboerse.com gesehen. Ich hätte einen Startplatz abzugeben für das Match: ",
     "email-body-footer": "\n\nIst das Inserat noch aktuell?\n\nViele Grüße",
-    "security-notice": "⚠️ WICHTIGER SICHERHEITSHINWEIS:\n\n1. Nutze für Zahlungen IMMER PayPal mit Käuferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prüfen, ob eine Umschreibung des Platzes überhaupt noch möglich ist!\n\nMöchtest du den E-Mail-Kontakt jetzt öffnen?"
+    "security-notice": "⚠️ WICHTIGER SICHERHEITSHINWEIS:\n\n1. Nutze für Zahlungen IMMER PayPal mit Käuferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prüfen, ob eine Umschreibung des Platzes überhaupt noch möglich ist!\n\nMöchtest du den E-Mail-Kontakt jetzt öffnen?",
+    "spam-error": "Spam-Schutz: Du hast bereits einen Eintrag für dieses Match an diesem Datum erstellt!"
   },
   en: {
     "main-title": "IPSC SLOT MARKETPLACE",
@@ -68,6 +74,7 @@ const translations = {
     "logout": "Logout",
     "info-msg": "<strong>Important Notice:</strong> This platform only serves as a mediator. The final transfer of the slot must be processed by the respective Match Director!",
     "form-title": "Create Entry",
+    "form-title-edit": "Edit Entry ✏️",
     "opt-offer": "I OFFER a slot",
     "opt-want": "I AM LOOKING FOR a slot",
     "lbl-name": "Match Name *",
@@ -78,6 +85,8 @@ const translations = {
     "lbl-price": "Price (€) *",
     "lbl-email": "Your Email Address *",
     "btn-insert": "Publish Entry for Free",
+    "btn-save-edit": "Save Changes",
+    "btn-cancel": "Cancel",
     "filter-type": "Ad Type:",
     "filter-all": "All Ads",
     "filter-offers": "Offers Only",
@@ -97,6 +106,7 @@ const translations = {
     "btn-request": "Contact Seller",
     "btn-contact-want": "Contact Shooter",
     "btn-delete": "Delete",
+    "btn-edit": "Edit",
     "tag-offer": "OFFER",
     "tag-want": "WANTED",
     "link-forgot-pwd": "Forgot password?",
@@ -113,7 +123,8 @@ const translations = {
     "email-body-offer": "Hello,\n\nI saw your listing on ipscboerse.com and I am interested in the slot you offered for the match: ",
     "email-body-want": "Hello,\n\nI saw your request on ipscboerse.com. I have an available slot to give away for the match: ",
     "email-body-footer": "\n\nIs this listing still available?\n\nBest regards",
-    "security-notice": "⚠️ IMPORTANT SAFETY NOTICE:\n\n1. ALWAYS use PayPal with Buyer Protection for payments (never use 'Friends & Family').\n2. You MUST contact the Match Director BEFORE making any payment to confirm if a slot transfer is still permitted!\n\nDo you want to open the email client now?"
+    "security-notice": "⚠️ IMPORTANT SAFETY NOTICE:\n\n1. ALWAYS use PayPal with Buyer Protection for payments (never use 'Friends & Family').\n2. You MUST contact the Match Director BEFORE making any payment to confirm if a slot transfer is still permitted!\n\nDo you want to open the email client now?",
+    "spam-error": "Spam protection: You have already posted an entry for this match on this date!"
   }
 };
 
@@ -123,7 +134,11 @@ function applyLanguage(lang) {
   currentLang = lang;
   document.querySelectorAll("[data-txt]").forEach(el => {
     const key = el.getAttribute("data-txt");
-    if (translations[lang] && translations[lang][key]) { el.innerHTML = translations[lang][key]; }
+    if (translations[lang] && translations[lang][key]) { 
+      if (key === "form-title" && editingMatchId !== null) return;
+      if (key === "btn-insert" && editingMatchId !== null) return;
+      el.innerHTML = translations[lang][key]; 
+    }
   });
 
   const levelSelect = document.getElementById("match-level");
@@ -136,7 +151,6 @@ function applyLanguage(lang) {
   if (cachedMatches.length > 0) { renderMatches(cachedMatches); }
 }
 
-// Setzt das Mindestdatum für das Formular dynamisch auf HEUTE
 function enforceFutureDates() {
   const dateInput = document.getElementById("match-date");
   if (dateInput) {
@@ -180,7 +194,6 @@ async function fetchMatches() {
   const { data, error } = await supabaseClient.from("matches").select("*").order("match_date", { ascending: true });
   if (error) return;
   
-  // Filtert abgelaufene Termine serverseitig heraus, falls nötig (Sicherheitsanker)
   const todayStr = new Date().toISOString().split("T")[0];
   cachedMatches = (data || []).filter(m => m.match_date >= todayStr);
   
@@ -194,7 +207,7 @@ function renderMatches(matches) {
   container.innerHTML = matches.map(m => {
     const isWant = m.type === "want";
     const levelBadge = m.match_level ? `<span class="badge" style="background:#555; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_level)}</span>` : "";
-    const canDelete = currentUser && currentUser.email === m.seller_email;
+    const canManage = currentUser && currentUser.email === m.seller_email;
     const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
     const contactBtnClass = isWant ? "btn-contact btn-contact-want" : "btn-contact";
     const contactText = isWant ? translations[currentLang]["btn-contact-want"] : translations[currentLang]["btn-request"];
@@ -207,13 +220,17 @@ function renderMatches(matches) {
       <div class="card-actions">
         <p>${parseFloat(m.match_price).toFixed(2)} €</p>
         <button class="${contactBtnClass}" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">${contactText}</button>
-        ${canDelete ? `<button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${translations[currentLang]["btn-delete"]}</button>` : ""}
+        ${canManage ? `
+          <div class="action-buttons-group">
+            <button class="btn-edit" onclick="handleEditClick(${m.id})">${translations[currentLang]["btn-edit"]}</button>
+            <button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${translations[currentLang]["btn-delete"]}</button>
+          </div>
+        ` : ""}
       </div>
     </div>`;
   }).join("");
 }
 
-// Generiert die E-Mail & zeigt den Sicherheitshinweis
 function handleContactClick(email, matchName, type) {
   const conf = confirm(translations[currentLang]["security-notice"]);
   if (!conf) return;
@@ -228,10 +245,48 @@ function handleContactClick(email, matchName, type) {
 }
 window.handleContactClick = handleContactClick;
 
+function handleEditClick(id) {
+  const match = cachedMatches.find(m => m.id === id);
+  if (!match) return;
+
+  editingMatchId = id;
+
+  document.getElementById("match-name").value = match.match_name;
+  document.getElementById("match-level").value = match.match_level;
+  document.getElementById("match-date").value = match.match_date;
+  document.getElementById("match-location").value = match.match_location;
+  document.getElementById("match-squad").value = match.match_squad || "";
+  document.getElementById("match-price").value = match.match_price;
+  
+  if (match.type === "want") {
+    document.getElementById("type-want").checked = true;
+  } else {
+    document.getElementById("type-offer").checked = true;
+  }
+
+  document.getElementById("form-section-title").innerText = translations[currentLang]["form-title-edit"];
+  document.getElementById("btn-submit-ad").innerText = translations[currentLang]["btn-save-edit"];
+  document.getElementById("btn-cancel-edit").style.display = "inline-block";
+
+  document.getElementById("form-anchor").scrollIntoView({ behavior: "smooth" });
+}
+window.handleEditClick = handleEditClick;
+
+function resetFormState() {
+  editingMatchId = null;
+  document.getElementById("match-form").reset();
+  document.getElementById("form-section-title").innerText = translations[currentLang]["form-title"];
+  document.getElementById("btn-submit-ad").innerText = translations[currentLang]["btn-insert"];
+  document.getElementById("btn-cancel-edit").style.display = "none";
+  enforceFutureDates();
+}
+document.getElementById("btn-cancel-edit").addEventListener("click", resetFormState);
+
 async function handleDelete(id, sellerEmail) {
   if (!currentUser || currentUser.email !== sellerEmail) { return alert("Fehler: Unberechtigt."); }
   if (!confirm("Möchtest du diesen Eintrag wirklich unwiderruflich löschen?")) return;
   await supabaseClient.from("matches").delete().eq("id", id);
+  if (editingMatchId === id) resetFormState();
   fetchMatches();
 }
 
@@ -251,6 +306,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   }
 });
 
+// --- ABSENDEN DES FORMULARS (INKLUSIVE SPAM-SCHUTZ) ---
 document.getElementById("match-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!currentUser) return alert("Bitte melde dich an.");
@@ -263,8 +319,36 @@ document.getElementById("match-form").addEventListener("submit", async (e) => {
     return;
   }
 
+  const matchName = document.getElementById("match-name").value;
+
+  // SPAM-SCHUTZ: Prüfen, ob exakt dieses Match am selben Tag bereits von dieser E-Mail existiert
+  let spamCheck = supabaseClient
+    .from("matches")
+    .select("id")
+    .eq("seller_email", currentUser.email)
+    .eq("match_name", matchName)
+    .eq("match_date", inputDate);
+
+  // Wenn wir editieren, das aktuelle Inserat von der Prüfung ausschließen
+  if (editingMatchId !== null) {
+    spamCheck = spamCheck.neq("id", editingMatchId);
+  }
+
+  const { data: duplicateEntries, error: spamError } = await spamCheck;
+
+  if (spamError) {
+    alert("Fehler bei der Spam-Prüfung: " + spamError.message);
+    return;
+  }
+
+  if (duplicateEntries && duplicateEntries.length > 0) {
+    alert(translations[currentLang]["spam-error"]);
+    return;
+  }
+
+  // Datenobjekt für DB vorbereiten
   const matchData = {
-    match_name: document.getElementById("match-name").value,
+    match_name: matchName,
     match_level: document.getElementById("match-level").value,
     match_date: inputDate,
     match_location: document.getElementById("match-location").value,
@@ -272,9 +356,22 @@ document.getElementById("match-form").addEventListener("submit", async (e) => {
     seller_email: currentUser.email,
     type: document.getElementById("type-want").checked ? "want" : "offer"
   };
-  await supabaseClient.from("matches").insert([matchData]);
-  document.getElementById("match-form").reset();
-  enforceFutureDates();
+
+  if (document.getElementById("match-squad").value) {
+    matchData.match_squad = document.getElementById("match-squad").value;
+  } else {
+    matchData.match_squad = null;
+  }
+
+  if (editingMatchId !== null) {
+    const { error } = await supabaseClient.from("matches").update(matchData).eq("id", editingMatchId);
+    if (error) alert("Fehler beim Aktualisieren: " + error.message);
+  } else {
+    const { error } = await supabaseClient.from("matches").insert([matchData]);
+    if (error) alert("Fehler beim Erstellen: " + error.message);
+  }
+
+  resetFormState();
   fetchMatches();
 });
 
