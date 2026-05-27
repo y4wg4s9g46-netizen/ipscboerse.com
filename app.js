@@ -45,8 +45,17 @@ async function checkUserStatus() {
   const emailField = document.getElementById("seller-email");
   
   if (user) {
-    container.innerHTML = `<span>${escapeHtml(user.email)}</span> <button id="btn-logout">${translations[currentLang]["logout"]}</button>`;
+    // ERWEITERT: Klick auf den Anzeigenamen/E-Mail öffnet das neue Kontoverwaltungs-Menü
+    const displayName = user.user_metadata?.display_name || user.email;
+    container.innerHTML = `<span id="btn-open-account" style="color: var(--accent-color); font-weight: bold; cursor: pointer; margin-right: 15px; text-decoration: underline;">${escapeHtml(displayName)}</span> <button id="btn-logout">${translations[currentLang]["logout"]}</button>`;
+    
     document.getElementById("btn-logout").onclick = () => { supabaseClient.auth.signOut(); location.reload(); };
+    
+    document.getElementById("btn-open-account").onclick = () => {
+      document.getElementById("account-modal").style.display = "flex";
+      document.getElementById("account-display-name").value = user.user_metadata?.display_name || "";
+    };
+
     if (emailField) { emailField.value = user.email; emailField.readOnly = true; }
   } else {
     container.innerHTML = `<button id="btn-open-login">${translations[currentLang]["btn-login-reg"]}</button>`;
@@ -116,7 +125,6 @@ document.getElementById("match-form").addEventListener("submit", async (e) => {
   fetchMatches();
 });
 
-// KORREKTUR: Fängt nun Login-Fehler sauber ab, statt stumm neuzuladen
 document.getElementById("login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -131,8 +139,6 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 });
 
 document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
-
-// --- NEU HINZUGEFÜGT: MODAL-STEUERUNG & PASSWORT RESET LOGIK ---
 
 function toggleAuthView(isLogin) {
   document.getElementById("modal-login-view").style.display = isLogin ? "block" : "none";
@@ -164,7 +170,6 @@ document.getElementById("reset-form").addEventListener("submit", async (e) => {
   }
 });
 
-// Fängt den Recovery-Link aus der E-Mail automatisch ab und öffnet das Popup zur Neuvergabe
 window.addEventListener("load", async () => {
   if (window.location.hash.includes("type=recovery")) {
     setTimeout(() => {
@@ -179,7 +184,7 @@ window.addEventListener("load", async () => {
             alert("Fehler beim Speichern des neuen Passworts: " + error.message);
           } else {
             alert("Dein Passwort wurde erfolgreich geändert! Du kannst dich jetzt regulär einloggen.");
-            window.location.hash = ""; // Hash leeren
+            window.location.hash = "";
           }
         });
       }
@@ -187,7 +192,72 @@ window.addEventListener("load", async () => {
   }
 });
 
-// --- ENDE PASSWORT-RESET LOGIK ---
+// --- NEU HINZUGEFÜGT: STEUERUNG FÜR DAS BENUTZERMENÜ (KONTO MODAL) ---
+
+document.getElementById("btn-close-account-modal").onclick = () => {
+  document.getElementById("account-modal").style.display = "none";
+};
+
+// 1. Profil bearbeiten (Anzeigename in User Metadata speichern)
+document.getElementById("account-update-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const displayName = document.getElementById("account-display-name").value;
+  const { error } = await supabaseClient.auth.updateUser({
+    data: { display_name: displayName }
+  });
+  if (error) {
+    alert("Fehler beim Aktualisieren: " + error.message);
+  } else {
+    alert("Profil erfolgreich aktualisiert!");
+    location.reload();
+  }
+});
+
+// 2. Passwort direkt ändern (Eingeloggter Zustand)
+document.getElementById("account-password-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const newPassword = document.getElementById("account-new-password").value;
+  const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+  if (error) {
+    alert("Fehler beim Speichern: " + error.message);
+  } else {
+    alert("Dein Passwort wurde erfolgreich geändert.");
+    document.getElementById("account-new-password").value = "";
+    document.getElementById("account-modal").style.display = "none";
+  }
+});
+
+// 3. Konto-Daten & Inserate permanent löschen
+document.getElementById("btn-delete-account").addEventListener("click", async () => {
+  if (!confirm("WARNUNG!\n\nMöchtest du all deine Einträge permanent vom Marktplatz löschen? Dieser Schritt kann nicht rückgängig gemacht werden.")) return;
+  
+  const password = prompt("Sicherheitsprüfung: Bitte gib dein Passwort ein, um die Löschung zu autorisieren:");
+  if (!password) return;
+
+  try {
+    // Re-Authentifizieren, um Datenmissbrauch zu verhindern
+    const { error: authError } = await supabaseClient.auth.signInWithPassword({
+      email: currentUser.email,
+      password: password
+    });
+    if (authError) {
+      alert("Authentifizierung fehlgeschlagen. Abbruch.");
+      return;
+    }
+
+    // Alle Inserate des Benutzers löschen
+    const { error: dbError } = await supabaseClient.from("matches").delete().eq("seller_email", currentUser.email);
+    if (dbError) throw dbError;
+
+    alert("Deine Inserate und Profildaten wurden erfolgreich entfernt. Du wirst nun abgemeldet.");
+    await supabaseClient.auth.signOut();
+    location.reload();
+  } catch (err) {
+    alert("Fehler beim Löschen: " + err.message);
+  }
+});
+
+// --- ENDE BENUTZERMENÜ LOGIK ---
 
 applyLanguage("de");
 checkUserStatus();
