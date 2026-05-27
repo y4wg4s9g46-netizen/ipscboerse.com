@@ -166,7 +166,18 @@ document.getElementById("reset-form").addEventListener("submit", async (e) => {
   else alert("Check deine E-Mails für den Reset-Link!");
 });
 
+// Automatische Prüfung bei Passwort-Reset-Link Klick
+async function checkResetFlow() {
+    const hash = window.location.hash;
+    if (hash.includes("type=recovery")) {
+        document.getElementById("auth-modal").style.display = "flex";
+        alert("Bitte lege nun dein neues Passwort fest.");
+    }
+}
+
 document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
+
 applyLanguage("de");
 checkUserStatus();
 fetchMatches();
+checkResetFlow();
