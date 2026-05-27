@@ -50,10 +50,16 @@ const translations = {
     "modal-btn-forgot": "Zurücksetzungs-Link senden",
     "modal-reset-title": "Neues Passwort vergeben",
     "lbl-new-password": "Neues Passwort *",
-    "btn-save": "Änderungen speichern",
+    "btn-save": "Änderungen保存",
     "modal-settings-title": "Konto-Einstellungen",
     "lbl-username": "Schützenname / Anzeigename",
-    "btn-delete-acc": "Konto & alle Einträge unwiderruflich löschen"
+    "btn-delete-acc": "Konto & alle Einträge unwiderruflich löschen",
+    "email-subject-offer": "Interesse an deinem IPSC Startplatz: ",
+    "email-subject-want": "Bezüglich deiner Suche nach einem IPSC Startplatz: ",
+    "email-body-offer": "Hallo,\n\nich habe dein Inserat auf ipscboerse.com gesehen und interessiere mich für den von dir angebotenen Startplatz für das Match: ",
+    "email-body-want": "Hallo,\n\nich habe dein Gesuch auf ipscboerse.com gesehen. Ich hätte einen Startplatz abzugeben für das Match: ",
+    "email-body-footer": "\n\nIst das Inserat noch aktuell?\n\nViele Grüße",
+    "security-notice": "⚠️ WICHTIGER SICHERHEITSHINWEIS:\n\n1. Nutze für Zahlungen IMMER PayPal mit Käuferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prüfen, ob eine Umschreibung des Platzes überhaupt noch möglich ist!\n\nMöchtest du den E-Mail-Kontakt jetzt öffnen?"
   },
   en: {
     "main-title": "IPSC SLOT MARKETPLACE",
@@ -101,7 +107,13 @@ const translations = {
     "btn-save": "Save Changes",
     "modal-settings-title": "Account Settings",
     "lbl-username": "Shooter / Display Name",
-    "btn-delete-acc": "Permanently Delete Account & Postings"
+    "btn-delete-acc": "Permanently Delete Account & Postings",
+    "email-subject-offer": "Inquiry regarding your IPSC slot: ",
+    "email-subject-want": "Regarding your request for an IPSC slot: ",
+    "email-body-offer": "Hello,\n\nI saw your listing on ipscboerse.com and I am interested in the slot you offered for the match: ",
+    "email-body-want": "Hello,\n\nI saw your request on ipscboerse.com. I have an available slot to give away for the match: ",
+    "email-body-footer": "\n\nIs this listing still available?\n\nBest regards",
+    "security-notice": "⚠️ IMPORTANT SAFETY NOTICE:\n\n1. ALWAYS use PayPal with Buyer Protection for payments (never use 'Friends & Family').\n2. You MUST contact the Match Director BEFORE making any payment to confirm if a slot transfer is still permitted!\n\nDo you want to open the email client now?"
   }
 };
 
@@ -122,6 +134,15 @@ function applyLanguage(lang) {
     levelSelect.value = currentVal;
   }
   if (cachedMatches.length > 0) { renderMatches(cachedMatches); }
+}
+
+// Setzt das Mindestdatum für das Formular dynamisch auf HEUTE
+function enforceFutureDates() {
+  const dateInput = document.getElementById("match-date");
+  if (dateInput) {
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.setAttribute("min", today);
+  }
 }
 
 async function checkUserStatus() {
@@ -158,7 +179,11 @@ async function checkUserStatus() {
 async function fetchMatches() {
   const { data, error } = await supabaseClient.from("matches").select("*").order("match_date", { ascending: true });
   if (error) return;
-  cachedMatches = data || [];
+  
+  // Filtert abgelaufene Termine serverseitig heraus, falls nötig (Sicherheitsanker)
+  const todayStr = new Date().toISOString().split("T")[0];
+  cachedMatches = (data || []).filter(m => m.match_date >= todayStr);
+  
   renderMatches(cachedMatches);
 }
 
@@ -170,7 +195,10 @@ function renderMatches(matches) {
     const isWant = m.type === "want";
     const levelBadge = m.match_level ? `<span class="badge" style="background:#555; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_level)}</span>` : "";
     const canDelete = currentUser && currentUser.email === m.seller_email;
-    
+    const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
+    const contactBtnClass = isWant ? "btn-contact btn-contact-want" : "btn-contact";
+    const contactText = isWant ? translations[currentLang]["btn-contact-want"] : translations[currentLang]["btn-request"];
+
     return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
       <div class="match-details">
         <h3>${escapeHtml(m.match_name)} ${levelBadge} <span class="badge">${isWant ? translations[currentLang]["tag-want"] : translations[currentLang]["tag-offer"]}</span></h3>
@@ -178,12 +206,27 @@ function renderMatches(matches) {
       </div>
       <div class="card-actions">
         <p>${parseFloat(m.match_price).toFixed(2)} €</p>
-        <a href="mailto:${m.seller_email}" class="btn-contact">${isWant ? translations[currentLang]["btn-contact-want"] : translations[currentLang]["btn-request"]}</a>
+        <button class="${contactBtnClass}" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">${contactText}</button>
         ${canDelete ? `<button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${translations[currentLang]["btn-delete"]}</button>` : ""}
       </div>
     </div>`;
   }).join("");
 }
+
+// Generiert die E-Mail & zeigt den Sicherheitshinweis
+function handleContactClick(email, matchName, type) {
+  const conf = confirm(translations[currentLang]["security-notice"]);
+  if (!conf) return;
+
+  const subjectPrefix = type === "want" ? translations[currentLang]["email-subject-want"] : translations[currentLang]["email-subject-offer"];
+  const bodyPrefix = type === "want" ? translations[currentLang]["email-body-want"] : translations[currentLang]["email-body-offer"];
+  
+  const subject = encodeURIComponent(subjectPrefix + matchName);
+  const body = encodeURIComponent(bodyPrefix + matchName + translations[currentLang]["email-body-footer"]);
+  
+  window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+}
+window.handleContactClick = handleContactClick;
 
 async function handleDelete(id, sellerEmail) {
   if (!currentUser || currentUser.email !== sellerEmail) { return alert("Fehler: Unberechtigt."); }
@@ -201,7 +244,6 @@ function toggleAuthView(view) {
 }
 window.toggleAuthView = toggleAuthView;
 
-// AUFFANGEN DES LIVE RESET-LINKS VON SUPABASE
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (event === "PASSWORD_RECOVERY") {
     document.getElementById("auth-modal").style.display = "flex";
@@ -209,14 +251,22 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   }
 });
 
-// SUBMIT LISTENERS
 document.getElementById("match-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!currentUser) return alert("Bitte melde dich an.");
+  
+  const inputDate = document.getElementById("match-date").value;
+  const todayStr = new Date().toISOString().split("T")[0];
+  
+  if (inputDate < todayStr) {
+    alert(currentLang === "en" ? "Error: Match date cannot be in the past!" : "Fehler: Das Match-Datum darf nicht in der Vergangenheit liegen!");
+    return;
+  }
+
   const matchData = {
     match_name: document.getElementById("match-name").value,
     match_level: document.getElementById("match-level").value,
-    match_date: document.getElementById("match-date").value,
+    match_date: inputDate,
     match_location: document.getElementById("match-location").value,
     match_price: document.getElementById("match-price").value,
     seller_email: currentUser.email,
@@ -224,6 +274,7 @@ document.getElementById("match-form").addEventListener("submit", async (e) => {
   };
   await supabaseClient.from("matches").insert([matchData]);
   document.getElementById("match-form").reset();
+  enforceFutureDates();
   fetchMatches();
 });
 
@@ -262,10 +313,12 @@ document.getElementById("reset-password-form").addEventListener("submit", async 
     password: document.getElementById("reset-password-input").value
   });
   if (error) alert("Fehler: " + error.message);
-  else { alert("Passwort erfolgreich aktualisiert!"); location.reload(); }
+  else { 
+    alert(currentLang === "en" ? "Password updated! Confirmation email has been sent." : "Passwort erfolgreich aktualisiert! Eine Bestätigungs-E-Mail wurde versendet."); 
+    location.reload(); 
+  }
 });
 
-// HIER SIND DIE NEUEN KONTO-EINSTELLUNGEN (DATEN ÄNDERN)
 document.getElementById("settings-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const newUsername = document.getElementById("settings-username").value;
@@ -276,18 +329,15 @@ document.getElementById("settings-form").addEventListener("submit", async (e) =>
 
   const { error } = await supabaseClient.auth.updateUser(updates);
   if (error) alert("Fehler beim Aktualisieren: " + error.message);
-  else { alert("Konto erfolgreich aktualisiert!"); location.reload(); }
+  else { 
+    alert(currentLang === "en" ? "Account updated! Security notice sent if password was changed." : "Konto erfolgreich aktualisiert! Falls das Passwort geändert wurde, wurde eine Bestätigungs-Mail versendet."); 
+    location.reload(); 
+  }
 });
 
-// KONTO LÖSCHEN (ENTFERNT ALLES AUS DER MATCHES-LISTE UND LOGGT AUS)
 document.getElementById("btn-delete-account").addEventListener("click", async () => {
   if (!confirm("⚠️ WARNUNG:\n\nMöchtest du dein Profil und all deine aktiven Marktplatz-Inserate wirklich unwiderruflich löschen?")) return;
-  
-  // 1. Lösche alle Inserate des Nutzers aus der Tabelle
   await supabaseClient.from("matches").delete().eq("seller_email", currentUser.email);
-  
-  // Hinweis: Komplette Auth-User Löschungen erfordern Backend-Rechte (Service-Role). 
-  // Wir anonymisieren das Profil und loggen den User für immer aus.
   await supabaseClient.auth.updateUser({ data: { deleted: true, username: "Gelöschter Schütze" } });
   await supabaseClient.auth.signOut();
   alert("Dein Konto und deine Inserate wurden erfolgreich entfernt.");
@@ -303,6 +353,8 @@ document.getElementById("filter-type-select").addEventListener("change", (e) => 
 document.getElementById("language-select").addEventListener("change", (e) => { applyLanguage(e.target.value); });
 document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
 
+// Initiale Funktionsaufrufe
 applyLanguage("de");
+enforceFutureDates();
 checkUserStatus();
 fetchMatches();
