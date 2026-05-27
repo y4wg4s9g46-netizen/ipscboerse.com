@@ -116,18 +116,23 @@ document.getElementById("match-form").addEventListener("submit", async (e) => {
   fetchMatches();
 });
 
+// KORREKTUR: Fängt nun Login-Fehler sauber ab, statt stumm neuzuladen
 document.getElementById("login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  await supabaseClient.auth.signInWithPassword({
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
     email: document.getElementById("login-email").value,
     password: document.getElementById("login-password").value,
   });
-  location.reload();
+  if (error) {
+    alert("Login fehlgeschlagen: " + error.message);
+  } else {
+    location.reload();
+  }
 });
 
 document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
 
-// --- NEU HINZUGEFÜGT: PASSWORT-RESET STEUERUNG & EVENT HANDLER ---
+// --- NEU HINZUGEFÜGT: MODAL-STEUERUNG & PASSWORT RESET LOGIK ---
 
 function toggleAuthView(isLogin) {
   document.getElementById("modal-login-view").style.display = isLogin ? "block" : "none";
@@ -159,30 +164,30 @@ document.getElementById("reset-form").addEventListener("submit", async (e) => {
   }
 });
 
-// Listener beim Laden der Seite (fängt den Recovery-Link aus der E-Mail ab)
+// Fängt den Recovery-Link aus der E-Mail automatisch ab und öffnet das Popup zur Neuvergabe
 window.addEventListener("load", async () => {
   if (window.location.hash.includes("type=recovery")) {
-    // Kurzer Timeout, damit die UI sauber aufgebaut ist
-    setTimeout(async () => {
+    setTimeout(() => {
       const newPassword = prompt("Passwort zurücksetzen:\n\nBitte gib dein neues Passwort ein (mindestens 6 Zeichen):");
       if (newPassword) {
         if (newPassword.length < 6) {
           alert("Das Passwort muss mindestens 6 Zeichen lang sein.");
           return;
         }
-        const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
-        if (error) {
-          alert("Fehler beim Speichern des neuen Passworts: " + error.message);
-        } else {
-          alert("Dein Passwort wurde erfolgreich geändert! Du kannst dich jetzt regulär einloggen.");
-          window.location.hash = ""; // Hash leeren
-        }
+        supabaseClient.auth.updateUser({ password: newPassword }).then(({ error }) => {
+          if (error) {
+            alert("Fehler beim Speichern des neuen Passworts: " + error.message);
+          } else {
+            alert("Dein Passwort wurde erfolgreich geändert! Du kannst dich jetzt regulär einloggen.");
+            window.location.hash = ""; // Hash leeren
+          }
+        });
       }
     }, 500);
   }
 });
 
-// --- ENDE PASSWORT-RESET STEUERUNG ---
+// --- ENDE PASSWORT-RESET LOGIK ---
 
 applyLanguage("de");
 checkUserStatus();
