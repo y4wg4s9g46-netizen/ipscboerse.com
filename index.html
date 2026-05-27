@@ -343,7 +343,10 @@
                     <div class="form-group"><label data-txt="lbl-password">Passwort *</label><input type="password" id="login-password" required></div>
                     <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-login">Einloggen</button>
                 </form>
-                <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView(false)" data-txt="modal-link-reg">Registrieren</a></div>
+                <div class="modal-footer">
+                    <div><span data-txt="modal-no-acc">Noch kein Konto?</span> <a onclick="toggleAuthView(false)" data-txt="modal-link-reg">Registrieren</a></div>
+                    <a onclick="showResetView()" style="color: var(--accent-color); font-weight: bold;">Passwort vergessen?</a>
+                </div>
             </div>
             <div id="modal-register-view" style="display: none;">
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
@@ -353,6 +356,14 @@
                     <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-reg">Konto erstellen</button>
                 </form>
                 <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView(true)" data-txt="modal-link-login">Zum Login</a></div>
+            </div>
+            <div id="modal-reset-view" style="display: none;">
+                <h3>Passwort zurücksetzen</h3>
+                <form id="reset-form">
+                    <div class="form-group"><label>E-Mail *</label><input type="email" id="reset-email" required placeholder="schuetze@beispiel.de"></div>
+                    <button type="submit" class="btn-submit" style="width:100%;">Reset-Link anfordern</button>
+                </form>
+                <div class="modal-footer"><a onclick="toggleAuthView(true)">Zurück zum Login</a></div>
             </div>
         </div>
     </div>
