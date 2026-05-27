@@ -152,8 +152,6 @@
         
         .badge-container { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
         .badge { background-color: #444; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: #fff; }
-        .badge-type { background-color: rgba(255, 159, 67, 0.2); color: var(--accent-color); border: 1px solid var(--accent-color); }
-        .badge-want { background-color: rgba(46, 204, 113, 0.2); color: var(--success-color); border: 1px solid var(--success-color); }
 
         .card-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 
@@ -170,6 +168,12 @@
             margin-top: 5px;
         }
         .btn-delete:hover { background-color: var(--danger-color); color: #fff; }
+
+        .btn-danger-block {
+            background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color);
+            padding: 10px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 15px;
+        }
+        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
 
         footer {
             background-color: #0f0f0f;
@@ -189,28 +193,6 @@
             flex-direction: column;
             gap: 10px;
             pointer-events: none;
-        }
-
-        .toast {
-            padding: 14px 20px;
-            border-radius: 6px;
-            color: #fff;
-            font-weight: bold;
-            font-size: 14px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            animation: toast-in 0.3s ease, toast-out 0.3s ease 3.7s forwards;
-            max-width: 350px;
-            pointer-events: auto;
-        }
-
-        @keyframes toast-in {
-            from { opacity: 0; transform: translateX(40px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes toast-out {
-            from { opacity: 1; }
-            to { opacity: 0; }
         }
     </style>
 </head>
@@ -279,7 +261,7 @@
                     </div>
                     <div class="form-group">
                         <label for="seller-email" data-txt="lbl-email">Deine E-Mail-Adresse *</label>
-                        <input type="email" id="seller-email" required readonly placeholder="schuetze@beispiel.de">
+                        <input type="email" id="seller-email" required readonly placeholder="Logge dich ein, um zu inserieren">
                     </div>
                 </div>
                 <div style="text-align: right; margin-top: 20px;">
@@ -341,6 +323,31 @@
                     <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
                 </form>
                 <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a></div>
+            </div>
+
+            <div id="modal-reset-view" style="display: none;">
+                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
+                <form id="reset-password-form">
+                    <div class="form-group"><label data-txt="lbl-new-password">Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="btn-save">Speichern</button>
+                </form>
+            </div>
+
+            <div id="modal-settings-view" style="display: none;">
+                <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
+                        <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
+                    </div>
+                    <div class="form-group">
+                        <label data-txt="lbl-new-password">Neues Passwort ändern (Optional)</label>
+                        <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
+                    </div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
+                </form>
+                <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
+                <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
             </div>
         </div>
     </div>
