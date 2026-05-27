@@ -160,13 +160,24 @@ document.getElementById("reset-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const email = document.getElementById("reset-email").value;
   const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin + '/reset-password.html',
+    redirectTo: 'https://y4wg4s9g46-netizen.github.io/ipscboerse.com/reset-password.html',
   });
   if (error) alert("Fehler: " + error.message);
   else alert("Check deine E-Mails für den Reset-Link!");
 });
 
+async function checkResetFlow() {
+    const hash = window.location.hash;
+    if (hash.includes("type=recovery")) {
+        document.getElementById("auth-modal").style.display = "flex";
+        alert("Bitte lege nun dein neues Passwort fest.");
+    }
+}
+
 document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
+
+// Initiale Aufrufe
 applyLanguage("de");
 checkUserStatus();
 fetchMatches();
+checkResetFlow();
