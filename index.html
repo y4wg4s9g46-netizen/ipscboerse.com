@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+    <script>
+        if (window.location.hash && window.location.hash.includes("type=recovery")) {
+            const hash = window.location.hash;
+            sessionStorage.setItem('pendingResetToken', hash);
+            window.location.replace(window.location.pathname);
+        }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IPSC Match-Marktplatz | Startplatz Börse</title>
