@@ -200,6 +200,7 @@ async function fetchMatches() {
   renderMatches(cachedMatches);
 }
 
+// --- HIER WURDE DIE SQUAD-ANZEIGE HINZUGEFÜGT ---
 function renderMatches(matches) {
   const container = document.getElementById("match-container");
   if (!matches.length) { container.innerHTML = `<p>${translations[currentLang]["no-slots"]}</p>`; return; }
@@ -207,6 +208,10 @@ function renderMatches(matches) {
   container.innerHTML = matches.map(m => {
     const isWant = m.type === "want";
     const levelBadge = m.match_level ? `<span class="badge" style="background:#555; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_level)}</span>` : "";
+    
+    // Neuer Badge für die Squad-Nummer (falls vorhanden)
+    const squadBadge = m.match_squad ? `<span class="badge" style="background:#3498db; color:#fff; padding:2px 5px; border-radius:3px;">Squad ${escapeHtml(m.match_squad)}</span>` : "";
+    
     const canManage = currentUser && currentUser.email === m.seller_email;
     const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
     const contactBtnClass = isWant ? "btn-contact btn-contact-want" : "btn-contact";
@@ -214,7 +219,12 @@ function renderMatches(matches) {
 
     return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
       <div class="match-details">
-        <h3>${escapeHtml(m.match_name)} ${levelBadge} <span class="badge">${isWant ? translations[currentLang]["tag-want"] : translations[currentLang]["tag-offer"]}</span></h3>
+        <h3>
+          ${escapeHtml(m.match_name)} 
+          ${levelBadge} 
+          ${squadBadge} 
+          <span class="badge">${isWant ? translations[currentLang]["tag-want"] : translations[currentLang]["tag-offer"]}</span>
+        </h3>
         <p>${m.match_date} | ${escapeHtml(m.match_location)}</p>
       </div>
       <div class="card-actions">
@@ -306,7 +316,6 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   }
 });
 
-// --- ABSENDEN DES FORMULARS (INKLUSIVE SPAM-SCHUTZ) ---
 document.getElementById("match-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!currentUser) return alert("Bitte melde dich an.");
@@ -321,7 +330,6 @@ document.getElementById("match-form").addEventListener("submit", async (e) => {
 
   const matchName = document.getElementById("match-name").value;
 
-  // SPAM-SCHUTZ: Prüfen, ob exakt dieses Match am selben Tag bereits von dieser E-Mail existiert
   let spamCheck = supabaseClient
     .from("matches")
     .select("id")
@@ -329,7 +337,6 @@ document.getElementById("match-form").addEventListener("submit", async (e) => {
     .eq("match_name", matchName)
     .eq("match_date", inputDate);
 
-  // Wenn wir editieren, das aktuelle Inserat von der Prüfung ausschließen
   if (editingMatchId !== null) {
     spamCheck = spamCheck.neq("id", editingMatchId);
   }
@@ -346,7 +353,6 @@ document.getElementById("match-form").addEventListener("submit", async (e) => {
     return;
   }
 
-  // Datenobjekt für DB vorbereiten
   const matchData = {
     match_name: matchName,
     match_level: document.getElementById("match-level").value,
