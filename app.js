@@ -106,25 +106,24 @@ function renderMatches(matches) {
 }
 
 async function handleDelete(id, sellerEmail) {
-  if (!currentUser || currentUser.email !== sellerEmail) {
-    alert("Fehler: Du darfst nur deine eigenen Einträge löschen.");
-    return;
-  }
-  if (!confirm("Sicherheitsabfrage:\n\nMöchtest du diesen Eintrag wirklich unwiderruflich löschen?")) return;
-  const password = prompt("Sicherheitsprüfung: Bitte gib dein Passwort erneut ein, um den Löschvorgang abzuschließen:");
+  if (!currentUser || currentUser.email !== sellerEmail) return alert("Nur eigene Einträge löschbar.");
+  if (!confirm("Eintrag unwiderruflich löschen?")) return;
+  
+  const password = prompt("Passwort zur Bestätigung:");
   if (!password) return;
+  
   try {
-    const { error } = await supabaseClient.auth.signInWithPassword({ email: currentUser.email, password: password });
-    if (error) { alert("Authentifizierung fehlgeschlagen."); return; }
+    const { error: authError } = await supabaseClient.auth.signInWithPassword({ email: currentUser.email, password });
+    if (authError) throw new Error("Passwort falsch");
     await supabaseClient.from("matches").delete().eq("id", id);
     fetchMatches();
-  } catch (err) { alert("Fehler beim Löschen."); }
+  } catch (err) { alert("Fehler: " + err.message); }
 }
 
 // --- Event Listener ---
 document.getElementById("match-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  if (!currentUser) return alert("Bitte melde dich an.");
+  if (!currentUser) return alert("Bitte anmelden.");
   const matchData = {
     match_name: document.getElementById("match-name").value,
     match_level: document.getElementById("match-level").value,
@@ -156,7 +155,7 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
     password: document.getElementById("register-password").value,
   });
   if (error) alert("Registrierung fehlgeschlagen: " + error.message);
-  else alert("Registrierung erfolgreich! Bitte bestätige deine E-Mail.");
+  else alert("Registrierung erfolgreich! Bitte E-Mail bestätigen.");
 });
 
 document.getElementById("reset-form").addEventListener("submit", async (e) => {
@@ -166,23 +165,20 @@ document.getElementById("reset-form").addEventListener("submit", async (e) => {
     redirectTo: 'https://y4wg4s9g46-netizen.github.io/ipscboerse.com/',
   });
   if (error) alert("Fehler: " + error.message);
-  else alert("Check deine E-Mails! Klicke auf den Link in der Mail, er bringt dich direkt zurück zu unserem Login-Fenster.");
+  else alert("Check deine E-Mails für den Reset-Link.");
 });
 
 async function checkResetFlow() {
-    const hash = window.location.hash;
-    if (hash.includes("type=recovery")) {
+    if (window.location.hash.includes("type=recovery")) {
         document.getElementById("auth-modal").style.display = "flex";
         showResetView();
-        alert("Reset-Link erkannt! Bitte lege nun dein neues Passwort fest.");
+        history.replaceState(null, null, ' '); // Bereinigt URL nach Reset-Erkennung
     }
 }
 
 // --- Initialisierung ---
-if (document.getElementById("btn-close-modal")) {
-    document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
-}
+document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
 applyLanguage("de");
 checkUserStatus();
 fetchMatches();
-checkResetFlow();
+window.addEventListener('load', checkResetFlow);
