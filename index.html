@@ -164,7 +164,6 @@
         .btn-contact-want { background-color: var(--success-color); }
         .btn-contact:hover { opacity: 0.9; }
 
-
         .btn-delete {
             background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color);
             padding: 5px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer;
@@ -336,15 +335,31 @@
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
+            
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
                 <form id="login-form">
                     <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required></div>
-                    <div class="form-group"><label data-txt="lbl-password">Passwort *</label><input type="password" id="login-password" required></div>
+                    <div class="form-group">
+                        <label data-txt="lbl-password">Passwort *</label>
+                        <input type="password" id="login-password" required>
+                        <a onclick="showResetView()" style="font-size: 12px; cursor: pointer; color: var(--text-muted); margin-top: 5px; display: block;">Passwort vergessen?</a>
+                    </div>
                     <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-login">Einloggen</button>
                 </form>
                 <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView(false)" data-txt="modal-link-reg">Registrieren</a></div>
             </div>
+
+            <div id="modal-reset-view" style="display: none;">
+                <h3 data-txt="modal-reset-title">Passwort zurücksetzen</h3>
+                <p style="font-size: 13px; color: var(--text-muted);">Gib deine E-Mail-Adresse ein, um einen Link zum Zurücksetzen zu erhalten.</p>
+                <form id="reset-form">
+                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="reset-email" required></div>
+                    <button type="submit" class="btn-submit" style="width:100%;">Link senden</button>
+                </form>
+                <div class="modal-footer"><a onclick="showLoginView()">Zurück zum Login</a></div>
+            </div>
+
             <div id="modal-register-view" style="display: none;">
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
