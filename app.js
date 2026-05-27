@@ -49,10 +49,24 @@ async function checkUserStatus() {
     document.getElementById("btn-logout").onclick = () => { supabaseClient.auth.signOut(); location.reload(); };
     if (emailField) { emailField.value = user.email; emailField.readOnly = true; }
   } else {
-    container.innerHTML = `<button id="btn-open-login">${translations[currentLang]["btn-login-reg"]}</button>`;
+    container.innerHTML = `<button class="btn-auth" id="btn-open-login">${translations[currentLang]["btn-login-reg"]}</button>`;
     document.getElementById("btn-open-login").onclick = () => document.getElementById("auth-modal").style.display = "flex";
   }
 }
+
+// NEU: Passwort vergessen Logik
+document.getElementById("btn-forgot-password").addEventListener("click", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("login-email").value;
+  if (!email) return alert("Bitte gib oben deine E-Mail-Adresse ein.");
+  
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin,
+  });
+  
+  if (error) alert("Fehler: " + error.message);
+  else alert("Prüfe dein E-Mail-Postfach für den Reset-Link.");
+});
 
 async function fetchMatches() {
   const { data, error } = await supabaseClient.from("matches").select("*").order("match_date", { ascending: true });
@@ -66,7 +80,7 @@ function renderMatches(matches) {
   
   container.innerHTML = matches.map(m => {
     const isWant = m.type === "want";
-    const levelBadge = m.match_level ? `<span class="badge" style="background:#555; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_level)}</span>` : "";
+    const levelBadge = m.match_level ? `<span class="badge">${escapeHtml(m.match_level)}</span>` : "";
     const canDelete = currentUser && currentUser.email === m.seller_email;
     
     return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
@@ -76,7 +90,7 @@ function renderMatches(matches) {
       </div>
       <div class="card-actions">
         <p>${parseFloat(m.match_price).toFixed(2)} €</p>
-        <a href="mailto:${m.seller_email}" class="btn-contact">${isWant ? translations[currentLang]["btn-contact-want"] : translations[currentLang]["btn-request"]}</a>
+        <a href="mailto:${m.seller_email}" class="btn-contact ${isWant ? "btn-contact-want" : ""}">${isWant ? translations[currentLang]["btn-contact-want"] : translations[currentLang]["btn-request"]}</a>
         ${canDelete ? `<button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${translations[currentLang]["btn-delete"]}</button>` : ""}
       </div>
     </div>`;
@@ -84,12 +98,9 @@ function renderMatches(matches) {
 }
 
 async function handleDelete(id, sellerEmail) {
-  if (!currentUser || currentUser.email !== sellerEmail) {
-    alert("Fehler: Du darfst nur deine eigenen Einträge löschen.");
-    return;
-  }
-  if (!confirm("Sicherheitsabfrage:\n\nMöchtest du diesen Eintrag wirklich unwiderruflich löschen?")) return;
-  const password = prompt("Sicherheitsprüfung: Bitte gib dein Passwort erneut ein, um den Löschvorgang abzuschließen:");
+  if (!currentUser || currentUser.email !== sellerEmail) return;
+  if (!confirm("Wirklich löschen?")) return;
+  const password = prompt("Passwort zur Bestätigung:");
   if (!password) return;
   try {
     const { error } = await supabaseClient.auth.signInWithPassword({ email: currentUser.email, password: password });
