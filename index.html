@@ -152,14 +152,18 @@
         
         .badge-container { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
         .badge { background-color: #444; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: #fff; }
-        
+        .badge-type { background-color: rgba(255, 159, 67, 0.2); color: var(--accent-color); border: 1px solid var(--accent-color); }
+        .badge-want { background-color: rgba(46, 204, 113, 0.2); color: var(--success-color); border: 1px solid var(--success-color); }
+
         .card-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 
         .btn-contact {
             background-color: var(--accent-color); color: #000; border: none;
             padding: 10px 20px; font-weight: bold; border-radius: 4px; text-decoration: none; text-align: center;
         }
+        .btn-contact-want { background-color: var(--success-color); }
         .btn-contact:hover { opacity: 0.9; }
+
 
         .btn-delete {
             background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color);
@@ -175,6 +179,65 @@
             margin-top: 50px;
             font-size: 13px;
             color: var(--text-muted);
+        }
+
+        .footer-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .footer-content { grid-template-columns: 1fr; gap: 20px; }
+        }
+
+        footer h4 {
+            color: var(--accent-color);
+            margin: 0 0 10px 0;
+            font-size: 15px;
+        }
+
+        footer p { margin: 5px 0; line-height: 1.5; }
+        footer a { color: var(--accent-color); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            padding: 14px 20px;
+            border-radius: 6px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            animation: toast-in 0.3s ease, toast-out 0.3s ease 3.7s forwards;
+            max-width: 350px;
+            pointer-events: auto;
+        }
+
+        .toast-success { background-color: var(--success-color); }
+        .toast-error { background-color: var(--danger-color); }
+        .toast-info { background-color: var(--info-color); }
+
+        @keyframes toast-in {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes toast-out {
+            from { opacity: 1; }
+            to { opacity: 0; }
         }
     </style>
 </head>
@@ -196,54 +259,115 @@
     </header>
 
     <div class="container">
+        
         <div class="info-box" id="info-text" data-txt="info-msg">
-            <strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung.
+            <strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgültige Umschreibung des Startplatzes muss zwingend über den jeweiligen Match Director durchgeführt werden!
         </div>
 
         <div class="form-section">
+            <h2 data-txt="form-title">Eintrag erstellen</h2>
+            
+            <div class="toggle-selector" style="border-color: var(--accent-color);">
+                <label>
+                    <input type="radio" name="ad-type" id="type-offer" value="offer" checked>
+                    <span style="font-weight: bold; color: var(--accent-color);" data-txt="opt-offer">Ich BIETE einen Startplatz an</span>
+                </label>
+                <label>
+                    <input type="radio" name="ad-type" id="type-want" value="want">
+                    <span style="font-weight: bold; color: var(--success-color);" data-txt="opt-want">Ich SUCHE einen Startplatz</span>
+                </label>
+            </div>
+
             <form id="match-form">
-                </form>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="match-name" data-txt="lbl-name">Name des Matches *</label>
+                        <input type="text" id="match-name" required placeholder="z.B. Infinity Open">
+                    </div>
+                    <div class="form-group">
+                        <label for="match-level" data-txt="lbl-level">Match Level *</label>
+                        <select id="match-level" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="match-date" data-txt="lbl-date">Datum des Matches *</label>
+                        <input type="date" id="match-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="match-location" data-txt="lbl-location">Austragungsort (Stand) *</label>
+                        <input type="text" id="match-location" required placeholder="z.B. Philippsburg">
+                    </div>
+                    <div class="form-group">
+                        <label for="match-squad" data-txt="lbl-squad">Squad Nummer (Optional)</label>
+                        <input type="text" id="match-squad" inputmode="numeric" pattern="\d{1,4}" maxlength="4" placeholder="z.B. 0014">
+                    </div>
+                    <div class="form-group">
+                        <label for="match-price" id="lbl-dynamic-price">Abgabepreis (€) *</label>
+                        <input type="number" id="match-price" min="0" step="0.01" required placeholder="85.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="seller-email" data-txt="lbl-email">Deine E-Mail-Adresse *</label>
+                        <input type="email" id="seller-email" required readonly placeholder="schuetze@beispiel.de">
+                    </div>
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="submit" class="btn-submit" id="btn-submit-ad" data-txt="btn-insert">Eintrag kostenlos veröffentlichen</button>
+                </div>
+            </form>
         </div>
 
-        <div class="match-list" id="match-container"></div>
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label data-txt="filter-type">Anzeigentyp:</label>
+                <select id="filter-type-select">
+                    <option value="all" data-txt="filter-all">Alle Anzeigen</option>
+                    <option value="offer" data-txt="filter-offers">Nur Angebote (Biete)</option>
+                    <option value="want" data-txt="filter-wants">Nur Gesuche (Suche)</option>
+                </select>
+            </div>
+        </div>
+
+        <h2 data-txt="list-title">Aktuelle Marktplatz-Einträge</h2>
+        <div class="match-list" id="match-container">
+            <p id="loading-text" data-txt="loading">Lade aktuelle Startplätze...</p>
+        </div>
+
     </div>
 
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
             <div id="modal-login-view">
-                <h3>Anmelden</h3>
+                <h3 data-txt="modal-login-title">Anmelden</h3>
                 <form id="login-form">
-                    <div class="form-group"><label>E-Mail *</label><input type="email" id="login-email" required></div>
-                    <div class="form-group"><label>Passwort *</label><input type="password" id="login-password" required></div>
-                    
-                    <div class="form-group" style="margin-top: 5px; font-size: 12px; margin-bottom: 15px;">
-                        <a href="#" id="btn-forgot-password" style="color: var(--accent-color);">Passwort vergessen?</a>
-                    </div>
-                    
-                    <button type="submit" class="btn-submit" style="width:100%;">Einloggen</button>
+                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required></div>
+                    <div class="form-group"><label data-txt="lbl-password">Passwort *</label><input type="password" id="login-password" required></div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-login">Einloggen</button>
                 </form>
-                <div class="modal-footer"><span>Noch kein Konto?</span><a onclick="toggleAuthView(false)">Registrieren</a></div>
+                <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView(false)" data-txt="modal-link-reg">Registrieren</a></div>
+            </div>
+            <div id="modal-register-view" style="display: none;">
+                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
+                <form id="register-form">
+                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="register-email" required></div>
+                    <div class="form-group"><label data-txt="lbl-password">Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-reg">Konto erstellen</button>
+                </form>
+                <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView(true)" data-txt="modal-link-login">Zum Login</a></div>
             </div>
         </div>
     </div>
 
-    <script>
-        // Passwort vergessen Logik direkt in der HTML Datei
-        document.addEventListener('DOMContentLoaded', () => {
-            const forgotBtn = document.getElementById('btn-forgot-password');
-            if (forgotBtn) {
-                forgotBtn.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    const email = document.getElementById('login-email').value;
-                    if (!email) {
-                        alert("Bitte gib zuerst deine E-Mail-Adresse im Login-Feld ein.");
-                        return;
-                    }
-                    // Hinweis: Wir greifen hier auf das supabaseClient Objekt aus app.js zu
-                    try {
-                        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-                            redirectTo: window.location.origin,
-                        });
-                        if (error) throw error;
-                        alert("Prüfe dein E-Mail-Post
+    <div id="toast-container" class="toast-container"></div>
+
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
+            <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            <div style="margin-top: 10px; font-size: 11px;">
+                &copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
