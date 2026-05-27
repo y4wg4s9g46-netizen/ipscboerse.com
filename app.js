@@ -209,7 +209,7 @@ function renderMatches(matches) {
     return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
       <div class="match-details">
         <h3>${escapeHtml(match.match_name)} <span class="badge ${isWant ? "badge-want" : "badge-type"}">${isWant ? translations[currentLang]["tag-want"] : translations[currentLang]["tag-offer"]}</span></h3>
-        <p><strong>Level:</strong> ${escapeHtml(match.match_level)} | <strong>Date:</strong> ${match.match_date} | <strong>Range:</strong> ${escapeHtml(match.match_location)}</p>
+        <p><strong>Date:</strong> ${match.match_date} | <strong>Range:</strong> ${escapeHtml(match.match_location)}</p>
       </div>
       <div class="card-actions">
         <p style="font-size: 18px; font-weight: bold;">${parseFloat(match.match_price).toFixed(2)} €</p>
