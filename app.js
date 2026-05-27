@@ -52,9 +52,11 @@ function showLoginView() {
 function applyLanguage(lang) {
   currentLang = lang;
   const levelSelect = document.getElementById("match-level");
-  const currentVal = levelSelect.value;
-  levelSelect.innerHTML = `<option value="">Bitte wählen...</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
-  levelSelect.value = currentVal;
+  if (levelSelect) {
+      const currentVal = levelSelect.value;
+      levelSelect.innerHTML = `<option value="">Bitte wählen...</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
+      levelSelect.value = currentVal;
+  }
 }
 
 async function checkUserStatus() {
@@ -81,6 +83,7 @@ async function fetchMatches() {
 
 function renderMatches(matches) {
   const container = document.getElementById("match-container");
+  if (!container) return;
   if (!matches.length) { container.innerHTML = `<p>${translations[currentLang]["no-slots"]}</p>`; return; }
   
   container.innerHTML = matches.map(m => {
@@ -118,6 +121,7 @@ async function handleDelete(id, sellerEmail) {
   } catch (err) { alert("Fehler beim Löschen."); }
 }
 
+// Event Listener
 document.getElementById("match-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!currentUser) return alert("Bitte melde dich an.");
@@ -155,18 +159,15 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
   else alert("Registrierung erfolgreich! Bitte bestätige deine E-Mail.");
 });
 
-// Reset Form Handler
 document.getElementById("reset-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const email = document.getElementById("reset-email").value;
   const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-    redirectTo: 'https://y4wg4s9g46-netizen.github.io/reset-password.html',
+    redirectTo: 'https://y4wg4s9g46-netizen.github.io/ipscboerse.com/reset-password.html',
   });
   if (error) alert("Fehler: " + error.message);
   else alert("Check deine E-Mails für den Reset-Link!");
 });
-
-document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
 
 async function checkResetFlow() {
     const hash = window.location.hash;
@@ -176,7 +177,8 @@ async function checkResetFlow() {
     }
 }
 
-// Initiale Aufrufe
+// Initialisierung (Nur EINMAL am Ende!)
+document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
 applyLanguage("de");
 checkUserStatus();
 fetchMatches();
