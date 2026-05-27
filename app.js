@@ -126,6 +126,64 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 });
 
 document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
+
+// --- NEU HINZUGEFÜGT: PASSWORT-RESET STEUERUNG & EVENT HANDLER ---
+
+function toggleAuthView(isLogin) {
+  document.getElementById("modal-login-view").style.display = isLogin ? "block" : "none";
+  document.getElementById("modal-register-view").style.display = isLogin ? "none" : "block";
+  document.getElementById("modal-reset-view").style.display = "none";
+}
+
+function showResetView() {
+  document.getElementById("modal-login-view").style.display = "none";
+  document.getElementById("modal-register-view").style.display = "none";
+  document.getElementById("modal-reset-view").style.display = "block";
+}
+
+document.getElementById("reset-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("reset-email").value;
+  try {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    });
+    if (error) {
+      alert("Fehler beim Senden: " + error.message);
+    } else {
+      alert("Eine E-Mail mit dem Link zum Zurücksetzen deines Passworts wurde versendet.");
+      toggleAuthView(true);
+    }
+  } catch (err) {
+    alert("Ein unerwarteter Fehler ist aufgetreten.");
+  }
+});
+
+// Listener beim Laden der Seite (fängt den Recovery-Link aus der E-Mail ab)
+window.addEventListener("load", async () => {
+  if (window.location.hash.includes("type=recovery")) {
+    // Kurzer Timeout, damit die UI sauber aufgebaut ist
+    setTimeout(async () => {
+      const newPassword = prompt("Passwort zurücksetzen:\n\nBitte gib dein neues Passwort ein (mindestens 6 Zeichen):");
+      if (newPassword) {
+        if (newPassword.length < 6) {
+          alert("Das Passwort muss mindestens 6 Zeichen lang sein.");
+          return;
+        }
+        const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+        if (error) {
+          alert("Fehler beim Speichern des neuen Passworts: " + error.message);
+        } else {
+          alert("Dein Passwort wurde erfolgreich geändert! Du kannst dich jetzt regulär einloggen.");
+          window.location.hash = ""; // Hash leeren
+        }
+      }
+    }, 500);
+  }
+});
+
+// --- ENDE PASSWORT-RESET STEUERUNG ---
+
 applyLanguage("de");
 checkUserStatus();
 fetchMatches();
