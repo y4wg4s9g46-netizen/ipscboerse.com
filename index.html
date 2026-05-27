@@ -368,6 +368,41 @@
         </div>
     </div>
 
+    <!-- NEU HINZUGEFÜGT: Benutzer-Menü / Konto-Modal -->
+    <div class="modal" id="account-modal">
+        <div class="modal-content">
+            <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-account-modal">&times;</span></div>
+            <h3>Mein Profil verwalten</h3>
+            
+            <!-- Konto bearbeiten -->
+            <form id="account-update-form" style="margin-bottom: 25px; border-bottom: 1px solid #444; padding-bottom: 20px;">
+                <h4 style="color: var(--accent-color); margin: 0 0 10px 0;">Profil bearbeiten</h4>
+                <div class="form-group">
+                    <label>Schützen- / Anzeigename</label>
+                    <input type="text" id="account-display-name" placeholder="z.B. IPSC_Shooter99">
+                </div>
+                <button type="submit" class="btn-submit" style="width:100%; padding: 8px; font-size: 14px;">Profil speichern</button>
+            </form>
+
+            <!-- Passwort ändern -->
+            <form id="account-password-form" style="margin-bottom: 25px; border-bottom: 1px solid #444; padding-bottom: 20px;">
+                <h4 style="color: var(--accent-color); margin: 0 0 10px 0;">Passwort direkt ändern</h4>
+                <div class="form-group">
+                    <label>Neues Passwort *</label>
+                    <input type="password" id="account-new-password" required minlength="6">
+                </div>
+                <button type="submit" class="btn-submit" style="width:100%; padding: 8px; font-size: 14px;">Neues Passwort speichern</button>
+            </form>
+
+            <!-- Daten & Inserate löschen -->
+            <div>
+                <h4 style="color: var(--danger-color); margin: 0 0 10px 0;">Gefahrenbereich</h4>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Das Löschen entfernt all deine Marktplatz-Einträge permanent aus der Datenbank.</p>
+                <button id="btn-delete-account" class="btn-delete" style="width:100%; padding: 10px; font-size: 14px; margin-top: 0;">Konto-Daten & Inserate permanent löschen</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast-container" class="toast-container"></div>
 
     <footer>
