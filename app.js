@@ -159,27 +159,26 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
   else alert("Registrierung erfolgreich! Bitte bestätige deine E-Mail.");
 });
 
+// Finaler Reset Handler: Leitet auf die Startseite um
 document.getElementById("reset-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const email = document.getElementById("reset-email").value;
   const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-    redirectTo: 'https://y4wg4s9g46-netizen.github.io/ipscboerse.com/reset-password.html',
+    redirectTo: 'https://y4wg4s9g46-netizen.github.io/ipscboerse.com/',
   });
   if (error) alert("Fehler: " + error.message);
-  else alert("Check deine E-Mails für den Reset-Link!");
+  else alert("Check deine E-Mails! Klicke auf den Link in der Mail, er bringt dich direkt zurück zu unserem Login-Fenster.");
 });
 
 async function checkResetFlow() {
     const hash = window.location.hash;
+    // Öffnet das Modal automatisch, wenn Supabase den Recovery-Link erkennt
     if (hash.includes("type=recovery")) {
         document.getElementById("auth-modal").style.display = "flex";
-        alert("Bitte lege nun dein neues Passwort fest.");
+        showResetView();
+        alert("Reset-Link erkannt! Bitte lege nun dein neues Passwort fest.");
     }
 }
 
-// Initialisierung (Nur EINMAL am Ende!)
-document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
-applyLanguage("de");
-checkUserStatus();
-fetchMatches();
-checkResetFlow();
+// Initialisierung
+document.getElementById("btn-
