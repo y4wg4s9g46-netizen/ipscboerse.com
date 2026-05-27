@@ -4,84 +4,25 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 let currentLang = "de";
-let allMatchesCached = [];
 
 const translations = {
   de: {
-    "main-title": "IPSC STARTPLATZ-BÖRSE",
-    "sub-title": "Von Schützen für Schützen – Live Marktplatz",
     "btn-login-reg": "Login / Registrieren",
-    "info-msg": "<strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung.",
-    "form-title": "Eintrag erstellen",
-    "opt-offer": "Ich BIETE einen Startplatz an",
-    "opt-want": "Ich SUCHE einen Startplatz",
-    "lbl-name": "Name des Matches *",
-    "lbl-level": "Match Level *",
-    "lbl-date": "Datum des Matches *",
-    "lbl-location": "Austragungsort (Stand) *",
-    "lbl-squad": "Squad Nummer (Optional)",
-    "lbl-email": "Deine E-Mail-Adresse *",
-    "btn-insert": "Eintrag kostenlos veröffentlichen",
-    "list-title": "Aktuelle Marktplatz-Einträge",
-    loading: "Lade aktuelle Startplätze...",
-    "modal-login-title": "Anmelden",
-    "lbl-password": "Passwort *",
-    "modal-btn-login": "Einloggen",
-    "modal-no-acc": "Noch kein Konto?",
-    "modal-link-reg": "Registrieren",
-    "modal-reg-title": "Konto erstellen",
-    "modal-btn-reg": "Konto erstellen",
-    "modal-has-acc": "Bereits registriert?",
-    "modal-link-login": "Zum Login",
-    logout: "Abmelden",
+    "logout": "Abmelden",
     "no-slots": "Aktuell keine Einträge verfügbar.",
     "btn-request": "Anbieter kontaktieren",
     "btn-contact-want": "Schützen kontaktieren",
     "btn-delete": "Löschen",
-    "alert-login-first": "Bitte melde dich zuerst an!",
-    "alert-success": "Erfolgreich eingetragen!",
-    "msg-save-err": "Fehler beim Speichern: ",
-    "confirm-del": "Möchtest du diesen Eintrag wirklich löschen?",
-    "alert-del-success": "Eintrag erfolgreich gelöscht!",
     "tag-offer": "BIETE",
     "tag-want": "SUCHE"
   },
   en: {
-    "main-title": "IPSC SLOT MARKETPLACE",
-    "sub-title": "By Shooters for Shooters – Live Marketplace",
     "btn-login-reg": "Login / Register",
-    "info-msg": "<strong>Important Note:</strong> This platform is for mediation only.",
-    "form-title": "Create Entry",
-    "opt-offer": "I am OFFERING a match slot",
-    "opt-want": "I am LOOKING FOR a match slot",
-    "lbl-name": "Match Name *",
-    "lbl-level": "Match Level *",
-    "lbl-date": "Match Date *",
-    "lbl-location": "Location (Range) *",
-    "lbl-squad": "Squad Number (Optional)",
-    "lbl-email": "Your Email Address *",
-    "btn-insert": "Publish Entry for Free",
-    "list-title": "Current Marketplace Entries",
-    loading: "Loading entries...",
-    "modal-login-title": "Login",
-    "lbl-password": "Password *",
-    "modal-btn-login": "Login",
-    "modal-no-acc": "Don't have an account?",
-    "modal-link-reg": "Register here",
-    "modal-reg-title": "Create Account",
-    "modal-btn-reg": "Sign Up",
-    "modal-has-acc": "Already registered?",
-    "modal-link-login": "Back to Login",
-    logout: "Logout",
+    "logout": "Logout",
     "no-slots": "No marketplace entries available.",
     "btn-request": "Contact Seller",
     "btn-contact-want": "Contact Shooter",
     "btn-delete": "Delete",
-    "alert-login-first": "Please log in first!",
-    "alert-success": "Successfully posted!",
-    "msg-save-err": "Error saving data: ",
-    "confirm-del": "Are you sure?",
-    "alert-del-success": "Deleted successfully!",
     "tag-offer": "OFFER",
     "tag-want": "WANTED"
   }
@@ -91,7 +32,6 @@ function escapeHtml(text) { const div = document.createElement("div"); div.textC
 
 function applyLanguage(lang) {
   currentLang = lang;
-  document.querySelectorAll("[data-txt]").forEach(el => { const key = el.getAttribute("data-txt"); if (translations[lang][key]) el.innerHTML = translations[lang][key]; });
   const levelSelect = document.getElementById("match-level");
   const currentVal = levelSelect.value;
   levelSelect.innerHTML = `<option value="">Bitte wählen...</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
@@ -114,16 +54,18 @@ async function checkUserStatus() {
 async function fetchMatches() {
   const { data, error } = await supabaseClient.from("matches").select("*").order("match_date", { ascending: true });
   if (error) return;
-  allMatchesCached = data;
-  renderMatches(data);
+  renderMatches(data || []);
 }
 
 function renderMatches(matches) {
   const container = document.getElementById("match-container");
   if (!matches.length) { container.innerHTML = `<p>${translations[currentLang]["no-slots"]}</p>`; return; }
+  
   container.innerHTML = matches.map(m => {
     const isWant = m.type === "want";
     const levelBadge = m.match_level ? `<span class="badge" style="background:#555; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_level)}</span>` : "";
+    const canDelete = currentUser && currentUser.email === m.seller_email;
+    
     return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
       <div class="match-details">
         <h3>${escapeHtml(m.match_name)} ${levelBadge} <span class="badge">${isWant ? translations[currentLang]["tag-want"] : translations[currentLang]["tag-offer"]}</span></h3>
@@ -132,15 +74,26 @@ function renderMatches(matches) {
       <div class="card-actions">
         <p>${parseFloat(m.match_price).toFixed(2)} €</p>
         <a href="mailto:${m.seller_email}" class="btn-contact">${isWant ? translations[currentLang]["btn-contact-want"] : translations[currentLang]["btn-request"]}</a>
+        ${canDelete ? `<button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${translations[currentLang]["btn-delete"]}</button>` : ""}
       </div>
     </div>`;
   }).join("");
 }
 
-// Event Listeners
+async function handleDelete(id, sellerEmail) {
+  if (!currentUser || currentUser.email !== sellerEmail) {
+    alert("Fehler: Du darfst nur deine eigenen Einträge löschen.");
+    return;
+  }
+  if (!confirm("Möchtest du diesen Eintrag wirklich löschen?")) return;
+  await supabaseClient.from("matches").delete().eq("id", id);
+  fetchMatches();
+}
+
 document.getElementById("match-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  if (!currentUser) return alert(translations[currentLang]["alert-login-first"]);
+  if (!currentUser) return alert("Bitte melde dich an.");
+  
   const matchData = {
     match_name: document.getElementById("match-name").value,
     match_level: document.getElementById("match-level").value,
@@ -150,7 +103,9 @@ document.getElementById("match-form").addEventListener("submit", async (e) => {
     seller_email: currentUser.email,
     type: document.getElementById("type-want").checked ? "want" : "offer"
   };
+  
   await supabaseClient.from("matches").insert([matchData]);
+  document.getElementById("match-form").reset();
   fetchMatches();
 });
 
@@ -164,9 +119,6 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 });
 
 document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
-document.getElementById("language-select").onchange = (e) => applyLanguage(e.target.value);
-
-// Start
 applyLanguage("de");
 checkUserStatus();
 fetchMatches();
