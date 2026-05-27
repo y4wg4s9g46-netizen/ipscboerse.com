@@ -26,7 +26,7 @@ const translations = {
     "lbl-price": "Abgabepreis (€) *",
     "lbl-email": "Deine E-Mail-Adresse *",
     "btn-insert": "Eintrag kostenlos veröffentlichen",
-    "btn-save-edit": "Änderungen speichern",
+    "btn-save-edit": "Änderungen保存 specken",
     "btn-cancel": "Abbrechen",
     "filter-type": "Anzeigentyp:",
     "filter-all": "Alle Anzeigen",
@@ -200,7 +200,6 @@ async function fetchMatches() {
   renderMatches(cachedMatches);
 }
 
-// --- HIER WURDE DIE SQUAD-ANZEIGE HINZUGEFÜGT ---
 function renderMatches(matches) {
   const container = document.getElementById("match-container");
   if (!matches.length) { container.innerHTML = `<p>${translations[currentLang]["no-slots"]}</p>`; return; }
@@ -209,14 +208,14 @@ function renderMatches(matches) {
     const isWant = m.type === "want";
     const levelBadge = m.match_level ? `<span class="badge" style="background:#555; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_level)}</span>` : "";
     
-    // Neuer Badge für die Squad-Nummer (falls vorhanden)
-    const squadBadge = m.match_squad ? `<span class="badge" style="background:#3498db; color:#fff; padding:2px 5px; border-radius:3px;">Squad ${escapeHtml(m.match_squad)}</span>` : "";
+    const squadBadge = m.match_squad ? `<span class="badge" style="background:#3498db; color:#fff; padding:2px 5px; border-radius:3px;">Squad ${escapeHtml(m.match_squad.toString())}</span>` : "";
     
     const canManage = currentUser && currentUser.email === m.seller_email;
     const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
     const contactBtnClass = isWant ? "btn-contact btn-contact-want" : "btn-contact";
     const contactText = isWant ? translations[currentLang]["btn-contact-want"] : translations[currentLang]["btn-request"];
 
+    // KORREKTUR: ID in einfache Anführungszeichen gesetzt ('${m.id}') für Text-IDs / UUIDs
     return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
       <div class="match-details">
         <h3>
@@ -232,8 +231,8 @@ function renderMatches(matches) {
         <button class="${contactBtnClass}" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">${contactText}</button>
         ${canManage ? `
           <div class="action-buttons-group">
-            <button class="btn-edit" onclick="handleEditClick(${m.id})">${translations[currentLang]["btn-edit"]}</button>
-            <button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${translations[currentLang]["btn-delete"]}</button>
+            <button class="btn-edit" onclick="handleEditClick('${m.id}')">${translations[currentLang]["btn-edit"]}</button>
+            <button class="btn-delete" onclick="handleDelete('${m.id}', '${m.seller_email}')">${translations[currentLang]["btn-delete"]}</button>
           </div>
         ` : ""}
       </div>
@@ -256,7 +255,8 @@ function handleContactClick(email, matchName, type) {
 window.handleContactClick = handleContactClick;
 
 function handleEditClick(id) {
-  const match = cachedMatches.find(m => m.id === id);
+  // Strikter Vergleich via toString(), um ID-Typen-Konflikte zu vermeiden
+  const match = cachedMatches.find(m => m.id.toString() === id.toString());
   if (!match) return;
 
   editingMatchId = id;
@@ -299,6 +299,7 @@ async function handleDelete(id, sellerEmail) {
   if (editingMatchId === id) resetFormState();
   fetchMatches();
 }
+window.handleDelete = handleDelete;
 
 function toggleAuthView(view) {
   document.getElementById("modal-login-view").style.display = view === "login" ? "block" : "none";
@@ -393,71 +394,4 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 
 document.getElementById("register-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const { error } = await supabaseClient.auth.signUp({
-    email: document.getElementById("register-email").value,
-    password: document.getElementById("register-password").value,
-  });
-  if (error) alert("Registrierung fehlgeschlagen: " + error.message);
-  else { alert("Konto erstellt! Bitte überprüfe dein Postfach."); toggleAuthView("login"); }
-});
-
-document.getElementById("forgot-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const { error } = await supabaseClient.auth.resetPasswordForEmail(document.getElementById("forgot-email").value, {
-    redirectTo: window.location.origin + window.location.pathname,
-  });
-  if (error) alert("Fehler: " + error.message);
-  else { alert("Link zum Zurücksetzen gesendet!"); toggleAuthView("login"); }
-});
-
-document.getElementById("reset-password-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const { error } = await supabaseClient.auth.updateUser({
-    password: document.getElementById("reset-password-input").value
-  });
-  if (error) alert("Fehler: " + error.message);
-  else { 
-    alert(currentLang === "en" ? "Password updated! Confirmation email has been sent." : "Passwort erfolgreich aktualisiert! Eine Bestätigungs-E-Mail wurde versendet."); 
-    location.reload(); 
-  }
-});
-
-document.getElementById("settings-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const newUsername = document.getElementById("settings-username").value;
-  const newPassword = document.getElementById("settings-password").value;
-  
-  let updates = { data: { username: newUsername } };
-  if (newPassword.trim().length >= 6) { updates.password = newPassword; }
-
-  const { error } = await supabaseClient.auth.updateUser(updates);
-  if (error) alert("Fehler beim Aktualisieren: " + error.message);
-  else { 
-    alert(currentLang === "en" ? "Account updated! Security notice sent if password was changed." : "Konto erfolgreich aktualisiert! Falls das Passwort geändert wurde, wurde eine Bestätigungs-Mail versendet."); 
-    location.reload(); 
-  }
-});
-
-document.getElementById("btn-delete-account").addEventListener("click", async () => {
-  if (!confirm("⚠️ WARNUNG:\n\nMöchtest du dein Profil und all deine aktiven Marktplatz-Inserate wirklich unwiderruflich löschen?")) return;
-  await supabaseClient.from("matches").delete().eq("seller_email", currentUser.email);
-  await supabaseClient.auth.updateUser({ data: { deleted: true, username: "Gelöschter Schütze" } });
-  await supabaseClient.auth.signOut();
-  alert("Dein Konto und deine Inserate wurden erfolgreich entfernt.");
-  location.reload();
-});
-
-document.getElementById("filter-type-select").addEventListener("change", (e) => {
-  const type = e.target.value;
-  if (type === "all") renderMatches(cachedMatches);
-  else renderMatches(cachedMatches.filter(m => m.type === type));
-});
-
-document.getElementById("language-select").addEventListener("change", (e) => { applyLanguage(e.target.value); });
-document.getElementById("btn-close-modal").onclick = () => document.getElementById("auth-modal").style.display = "none";
-
-// Initiale Funktionsaufrufe
-applyLanguage("de");
-enforceFutureDates();
-checkUserStatus();
-fetchMatches();
+  const { error } = await supabaseClient.auth
