@@ -344,8 +344,8 @@
                     <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-login">Einloggen</button>
                 </form>
                 <div class="modal-footer">
-                    <div><span data-txt="modal-no-acc">Noch kein Konto?</span> <a onclick="toggleAuthView(false)" data-txt="modal-link-reg">Registrieren</a></div>
-                    <a onclick="showResetView()" style="color: var(--accent-color); font-weight: bold;">Passwort vergessen?</a>
+                    <div><span data-txt="modal-no-acc">Noch kein Konto?</span> <a onclick="toggleAuthView(false)" data-txt="modal-link-reg" style="color: var(--accent-color); cursor: pointer;">Registrieren</a></div>
+                    <a onclick="showResetView()" style="color: var(--accent-color); font-weight: bold; cursor: pointer;">Passwort vergessen?</a>
                 </div>
             </div>
             <div id="modal-register-view" style="display: none;">
@@ -355,7 +355,7 @@
                     <div class="form-group"><label data-txt="lbl-password">Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
                     <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-reg">Konto erstellen</button>
                 </form>
-                <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView(true)" data-txt="modal-link-login">Zum Login</a></div>
+                <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView(true)" data-txt="modal-link-login" style="color: var(--accent-color); cursor: pointer;">Zum Login</a></div>
             </div>
             <div id="modal-reset-view" style="display: none;">
                 <h3>Passwort zurücksetzen</h3>
@@ -363,7 +363,7 @@
                     <div class="form-group"><label>E-Mail *</label><input type="email" id="reset-email" required placeholder="schuetze@beispiel.de"></div>
                     <button type="submit" class="btn-submit" style="width:100%;">Reset-Link anfordern</button>
                 </form>
-                <div class="modal-footer"><a onclick="toggleAuthView(true)">Zurück zum Login</a></div>
+                <div class="modal-footer"><a onclick="toggleAuthView(true)" style="color: var(--accent-color); cursor: pointer;">Zurück zum Login</a></div>
             </div>
         </div>
     </div>
