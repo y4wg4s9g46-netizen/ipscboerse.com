@@ -1,284 +1,413 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>IPSC Match-Marktplatz | Startplatz Börse</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPSC Match-Marktplatz | Startplatz Börse</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --accent-color: #ff9f43;
+            --text-color: #ffffff;
+            --text-muted: #aaaaaa;
+            --danger-color: #ff4d4d;
+            --success-color: #2ecc71;
+            --info-color: #3498db;
+        }
 
-   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
 
-   <style>
-       :root {
-           --bg-color: #1a1a1a; --card-bg: #2d2d2d; --accent-color: #ff9f43;
-           --text-color: #ffffff; --text-muted: #aaaaaa; --danger-color: #ff4d4d;
-           --success-color: #2ecc71; --info-color: #3498db;
-       }
+        header {
+            background-color: #0f0f0f;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid var(--accent-color);
+            position: relative;
+        }
 
-       body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
-       header { background-color: #0f0f0f; padding: 20px; text-align: center; border-bottom: 3px solid var(--accent-color); position: relative; }
-       header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
-       .header-controls { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 15px; }
-       @media (max-width: 768px) { .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; } }
+        header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
 
-       .lang-switch { background-color: #1a1a1a; color: #fff; border: 1px solid #555; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-       .btn-auth { background-color: transparent; color: var(--accent-color); border: 2px solid var(--accent-color); padding: 8px 16px; font-weight: bold; border-radius: 4px; cursor: pointer; }
-       .btn-auth:hover { background-color: var(--accent-color); color: #000; }
+        .header-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
-       .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; }
-       .stats-banner { background-color: #0f0f0f; border: 1px solid var(--success-color); color: var(--success-color); text-align: center; padding: 10px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; }
-       .info-box { background-color: rgba(255, 159, 67, 0.1); border-left: 4px solid var(--accent-color); padding: 15px; margin-bottom: 30px; border-radius: 4px; }
+        @media (max-width: 768px) {
+            .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; }
+        }
 
-       .form-section { background-color: var(--card-bg); border: 1px solid #444; border-radius: 6px; padding: 25px; margin-bottom: 40px; }
-       .form-section h2 { margin-top: 0; color: var(--accent-color); border-bottom: 1px solid #444; padding-bottom: 10px; }
-       .toggle-selector { display: flex; gap: 20px; margin-bottom: 20px; background: #1a1a1a; padding: 12px; border-radius: 4px; border: 1px solid #444; }
-       .toggle-selector label { display: flex; align-items: center; gap: 8px; color: #fff; cursor: pointer; margin: 0; font-size: 14px; }
+        .lang-switch {
+            background-color: #1a1a1a; color: #fff; border: 1px solid #555;
+            padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;
+        }
+        .lang-switch:focus { outline: none; border-color: var(--accent-color); }
 
-       .filter-bar { background-color: #0f0f0f; border: 1px solid #444; padding: 15px; border-radius: 6px; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
+        .btn-auth {
+            background-color: transparent; color: var(--accent-color); border: 2px solid var(--accent-color);
+            padding: 8px 16px; font-weight: bold; border-radius: 4px; cursor: pointer;
+        }
 
-       .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
-       .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 6px; border: 1px solid var(--accent-color); width: 100%; max-width: 500px; box-sizing: border-box; max-height: 90vh; overflow-y: auto; }
-       .modal-content h3 { color: var(--accent-color); margin-top: 0; }
+        .btn-auth:hover { background-color: var(--accent-color); color: #000; }
 
-       .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-       @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
-       .form-group { display: flex; flex-direction: column; margin-bottom: 15px; }
-       label { font-size: 14px; margin-bottom: 8px; color: var(--text-muted); font-weight: bold; }
-       input, select { background-color: #1a1a1a; border: 1px solid #555; color: var(--text-color); padding: 10px; border-radius: 4px; font-size: 15px; width: 100%; box-sizing: border-box; }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; }
 
-       .btn-submit { background-color: var(--accent-color); color: #000; border: none; padding: 12px 30px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; }
-       .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 15px; }
+        .info-box {
+            background-color: rgba(255, 159, 67, 0.1); border-left: 4px solid var(--accent-color);
+            padding: 15px; margin-bottom: 30px; border-radius: 4px;
+        }
 
-       .match-list { display: flex; flex-direction: column; gap: 15px; }
-       .match-card { background-color: var(--card-bg); border-radius: 6px; padding: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #444; position: relative; overflow: hidden; }
-       .card-offer { border-left: 5px solid var(--success-color); }
-       .card-want { border-left: 5px solid var(--info-color); }
-       .match-details h3 { margin: 0 0 5px 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}
-       .card-offer h3 { color: var(--success-color); }
-       .card-want h3 { color: var(--info-color); }
+        .form-section {
+            background-color: var(--card-bg); border: 1px solid #444;
+            border-radius: 6px; padding: 25px; margin-bottom: 40px;
+        }
 
-       .badge-container { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
-       .badge { background-color: #444; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: #fff; }
+        .form-section h2 { margin-top: 0; color: var(--accent-color); border-bottom: 1px solid #444; padding-bottom: 10px; }
 
-       .card-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-       .btn-contact { background-color: var(--accent-color); color: #000; border: none; padding: 10px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .toggle-selector {
+            display: flex; gap: 20px; margin-bottom: 20px; background: #1a1a1a; padding: 12px; border-radius: 4px; border: 1px solid #444;
+        }
 
-       .action-links { display: flex; gap: 10px; font-size: 12px; margin-top: 5px; }
-       .action-links a { color: var(--text-muted); cursor: pointer; text-decoration: underline; }
-       .action-links a:hover { color: #fff; }
-       .report-link { color: var(--danger-color) !important; }
+        .toggle-selector label {
+            display: flex; align-items: center; gap: 8px; color: #fff; cursor: pointer; margin: 0; font-size: 14px;
+        }
 
-       .checklist-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 15px; }
-       .checklist-item input { width: 20px; height: 20px; margin-top: 2px; }
-       .checklist-item label { color: #fff; font-weight: normal; font-size: 14px; line-height: 1.4; margin-bottom: 0; }
+        .toggle-selector input { accent-color: var(--accent-color); cursor: pointer; }
 
-       footer { text-align: center; padding: 30px 20px; border-top: 1px solid #444; margin-top: 50px; font-size: 13px; color: var(--text-muted); }
-   </style>
+        .filter-bar {
+            background-color: #0f0f0f; border: 1px solid #444; padding: 15px; border-radius: 6px;
+            margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center;
+        }
+
+        .filter-group { display: flex; align-items: center; gap: 10px; }
+        .filter-group label { margin: 0; color: #fff; white-space: nowrap; }
+
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg); padding: 30px; border-radius: 6px;
+            border: 1px solid var(--accent-color); width: 100%; max-width: 400px; box-sizing: border-box;
+        }
+
+        .modal-content h3 { color: var(--accent-color); margin-top: 0; }
+        .modal-content .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        .modal-content input { background-color: #1a1a1a; border: 1px solid #555; color: #fff; padding: 10px; border-radius: 4px; }
+        .modal-footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+
+        .form-group { display: flex; flex-direction: column; }
+        label { font-size: 14px; margin-bottom: 8px; color: var(--text-muted); font-weight: bold; }
+
+        input, select {
+            background-color: #1a1a1a; border: 1px solid #555; color: var(--text-color);
+            padding: 10px; border-radius: 4px; font-size: 15px;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--accent-color); }
+
+        .btn-submit {
+            background-color: var(--accent-color); color: #000; border: none;
+            padding: 12px 30px; font-size: 16px; font-weight: bold; border-radius: 4px;
+            cursor: pointer; margin-top: 10px;
+        }
+        .btn-submit:hover { background-color: #e08b35; }
+
+        .match-list { display: flex; flex-direction: column; gap: 15px; }
+
+        .match-card {
+            background-color: var(--card-bg); border-radius: 6px; padding: 20px;
+            display: flex; justify-content: space-between; align-items: center; border: 1px solid #444;
+            position: relative; overflow: hidden;
+        }
+
+        .match-card::before {
+            content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 5px;
+        }
+        .card-offer::before { background-color: var(--accent-color); }
+        .card-want::before { background-color: var(--success-color); }
+
+        .match-details h3 { margin: 0 0 5px 0; color: var(--accent-color); display: flex; align-items: center; gap: 10px; }
+        .match-details p { margin: 5px 0; font-size: 14px; color: var(--text-muted); }
+        
+        .badge-container { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+        .badge { background-color: #444; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: #fff; }
+
+        .card-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+
+        .btn-contact {
+            background-color: var(--accent-color); color: #000; border: none;
+            padding: 10px 20px; font-weight: bold; border-radius: 4px; text-decoration: none; text-align: center; cursor: pointer; font-size: 14px;
+        }
+        .btn-contact-want { background-color: var(--success-color); }
+        .btn-contact:hover { opacity: 0.9; }
+
+        .btn-delete {
+            background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color);
+            padding: 5px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer;
+            margin-top: 5px;
+        }
+        .btn-delete:hover { background-color: var(--danger-color); color: #fff; }
+
+        .btn-edit {
+            background-color: transparent; color: var(--info-color); border: 1px solid var(--info-color);
+            padding: 5px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer;
+            margin-top: 5px;
+        }
+        .btn-edit:hover { background-color: var(--info-color); color: #fff; }
+
+        .btn-danger-block {
+            background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color);
+            padding: 10px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 15px;
+        }
+        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
+
+        .btn-export {
+            background: #555; color: #fff; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 11px; margin-top: 5px;
+        }
+        .btn-export:hover { background: #777; }
+        
+        .btn-report {
+            background: #ff4d4d; color: #fff; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 11px; margin-top: 5px;
+        }
+        .btn-report:hover { background: #ff7373; }
+
+        footer {
+            background-color: #0f0f0f;
+            border-top: 1px solid #444;
+            padding: 30px 20px;
+            margin-top: 50px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .action-buttons-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
 
-   <header>
-       <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
-       <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Von Schützen für Schützen – Live Marktplatz</p>
-       <div class="header-controls">
-           <select id="language-select" class="lang-switch"><option value="de">DE</option><option value="en">EN</option></select>
-           <div id="auth-status-container"><button class="btn-auth" id="btn-open-login" data-txt="btn-login-reg">Login / Registrieren</button></div>
-       </div>
-   </header>
+    <header>
+        <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
+        <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Von Schützen für Schützen – Live Marktplatz</p>
+        
+        <div class="header-controls">
+            <select id="language-select" class="lang-switch">
+                <option value="de">DE</option>
+                <option value="en">EN</option>
+            </select>
+            <div id="auth-status-container">
+                <button class="btn-auth" id="btn-open-login" data-txt="btn-login-reg">Login / Registrieren</button>
+            </div>
+        </div>
+    </header>
 
-   <div class="container">
-       <div class="stats-banner" id="stats-banner" style="display: none;">
-           🎉 <span id="stats-counter">0</span> <span data-txt="stats-text">Startplätze erfolgreich vermittelt!</span>
-       </div>
+    <div class="container">
 
-       <div class="info-box" id="info-text" data-txt="info-msg">
-           <strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgültige Umschreibung muss zwingend über den Match Director durchgeführt werden!
-       </div>
+        <div id="social-proof-container" style="text-align: center; margin: 10px 0 30px 0; color: var(--text-muted); background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid #444;">
+            <span data-txt="social-proof">Erfolgreich vermittelte Startplätze: </span><b id="counter-val" style="color: var(--accent-color); font-size: 18px;">42</b>
+        </div>
+        
+        <div class="info-box" id="info-text" data-txt="info-msg">
+            <strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgültige Umschreibung des Startplatzes muss zwingend über den jeweiligen Match Director durchgeführt werden!
+        </div>
 
-       <div class="form-section" id="form-anchor">
-           <h2 id="form-section-title" data-txt="form-title">Eintrag erstellen</h2>
+        <div class="form-section" id="form-anchor">
+            <h2 id="form-section-title" data-txt="form-title">Eintrag erstellen</h2>
+            
+            <div class="toggle-selector" style="border-color: var(--accent-color);">
+                <label>
+                    <input type="radio" name="ad-type" id="type-offer" value="offer" checked>
+                    <span style="font-weight: bold; color: var(--accent-color);" data-txt="opt-offer">Ich BIETE einen Startplatz an</span>
+                </label>
+                <label>
+                    <input type="radio" name="ad-type" id="type-want" value="want">
+                    <span style="font-weight: bold; color: var(--success-color);" data-txt="opt-want">Ich SUCHE einen Startplatz</span>
+                </label>
+            </div>
 
-           <div class="toggle-selector" style="border-color: var(--accent-color);">
-               <label><input type="radio" name="ad-type" id="type-offer" value="offer" checked>
-               <span style="font-weight: bold; color: var(--success-color);" data-txt="opt-offer">Ich BIETE einen Startplatz an</span></label>
-               <label><input type="radio" name="ad-type" id="type-want" value="want">
-               <span style="font-weight: bold; color: var(--info-color);" data-txt="opt-want">Ich SUCHE einen Startplatz</span></label>
-           </div>
+            <form id="match-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="match-name" data-txt="lbl-name">Name des Matches *</label>
+                        <input type="text" id="match-name" required placeholder="z.B. Infinity Open">
+                    </div>
+                    <div class="form-group">
+                        <label for="match-level" data-txt="lbl-level">Match Level *</label>
+                        <select id="match-level" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="match-date" data-txt="lbl-date">Datum des Matches *</label>
+                        <input type="date" id="match-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="match-country" data-txt="lbl-country">Land *</label>
+                        <select id="match-country" required>
+                            <option value="DE">Deutschland</option>
+                            <option value="AT">Österreich</option>
+                            <option value="CH">Schweiz</option>
+                            <option value="IT">Italien</option>
+                            <option value="FR">Frankreich</option>
+                            <option value="OTHER">Andere</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="match-location" data-txt="lbl-location">Austragungsort (Stand) *</label>
+                        <input type="text" id="match-location" required placeholder="z.B. Philippsburg">
+                    </div>
+                    <div class="form-group">
+                        <label for="match-squad" data-txt="lbl-squad">Squad Nummer (Optional)</label>
+                        <input type="text" id="match-squad" inputmode="numeric" pattern="\d{1,4}" maxlength="4" placeholder="z.B. 0014">
+                    </div>
+                    <div class="form-group">
+                        <label for="match-price" id="lbl-dynamic-price" data-txt="lbl-price">Abgabepreis (€) *</label>
+                        <input type="number" id="match-price" min="0" step="0.01" required placeholder="85.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="seller-email" data-txt="lbl-email">Deine E-Mail-Adresse *</label>
+                        <input type="email" id="seller-email" required readonly placeholder="Logge dich ein, um zu inserieren">
+                    </div>
+                </div>
+                <div style="text-align: right; margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; align-items: center;">
+                    <button type="button" class="btn-delete" id="btn-cancel-edit" style="display: none; padding: 12px 20px; font-size: 16px;" data-txt="btn-cancel">Abbrechen</button>
+                    <button type="submit" class="btn-submit" id="btn-submit-ad" data-txt="btn-insert">Eintrag kostenlos veröffentlichen</button>
+                </div>
+            </form>
+        </div>
 
-           <form id="match-form">
-               <div class="form-grid">
-                   <div class="form-group">
-                       <label for="match-name" data-txt="lbl-name">Name des Matches *</label>
-                       <input type="text" id="match-name" required>
-                   </div>
-                   <div class="form-group">
-                       <label for="match-level" data-txt="lbl-level">Match Level *</label>
-                       <select id="match-level" required></select>
-                   </div>
-                   <div class="form-group">
-                       <label for="match-country" data-txt="lbl-country">Land *</label>
-                       <select id="match-country" required>
-                           <option value="DE">Deutschland</option>
-                           <option value="AT">Österreich</option>
-                           <option value="CH">Schweiz</option>
-                           <option value="EU">Anderes EU-Land</option>
-                           <option value="INT">International</option>
-                       </select>
-                   </div>
-                   <div class="form-group">
-                       <label for="match-division" data-txt="lbl-division">Division (Optional)</label>
-                       <select id="match-division">
-                           <option value="">Alle / Egal</option>
-                           <option value="Production">Production</option>
-                           <option value="Production Optics">Production Optics</option>
-                           <option value="Standard">Standard</option>
-                           <option value="Open">Open</option>
-                           <option value="Classic">Classic</option>
-                           <option value="Revolver">Revolver</option>
-                       </select>
-                   </div>
-                   <div class="form-group">
-                       <label for="match-date" data-txt="lbl-date">Datum des Matches *</label>
-                       <input type="date" id="match-date" required>
-                   </div>
-                   <div class="form-group">
-                       <label for="match-deadline" data-txt="lbl-deadline">Umschreibung möglich bis (Optional)</label>
-                       <input type="date" id="match-deadline">
-                   </div>
-                   <div class="form-group">
-                       <label for="match-location" data-txt="lbl-location">Austragungsort (Stand) *</label>
-                       <input type="text" id="match-location" required>
-                   </div>
-                   <div class="form-group">
-                       <label for="match-squad" data-txt="lbl-squad">Squad Nummer (Optional)</label>
-                       <input type="text" id="match-squad">
-                   </div>
-                   <div class="form-group">
-                       <label for="match-price" data-txt="lbl-price">Abgabepreis (€) *</label>
-                       <input type="number" id="match-price" min="0" step="0.01" required>
-                   </div>
-                   <div class="form-group">
-                       <label for="seller-email" data-txt="lbl-email">Deine E-Mail *</label>
-                       <input type="email" id="seller-email" required readonly>
-                   </div>
-               </div>
-               <div style="text-align: right; margin-top: 20px;">
-                   <button type="button" class="btn-auth" id="btn-cancel-edit" style="display: none; border-color: #555; color: #fff;" data-txt="btn-cancel">Abbrechen</button>
-                   <button type="submit" class="btn-submit" id="btn-submit-ad" data-txt="btn-insert">Eintrag veröffentlichen</button>
-               </div>
-           </form>
-       </div>
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label data-txt="filter-type">Anzeigentyp:</label>
+                <select id="filter-type-select">
+                    <option value="all" data-txt="filter-all">Alle Anzeigen</option>
+                    <option value="offer" data-txt="filter-offers">Nur Angebote (Biete)</option>
+                    <option value="want" data-txt="filter-wants">Nur Gesuche (Suche)</option>
+                </select>
+            </div>
+        </div>
 
-       <div class="filter-bar">
-           <div style="display: flex; gap: 10px; align-items: center;">
-               <label data-txt="filter-type">Anzeigentyp:</label>
-               <select id="filter-type-select">
-                   <option value="all" data-txt="filter-all">Alle Anzeigen</option>
-                   <option value="offer" data-txt="filter-offers">Nur Angebote (Biete)</option>
-                   <option value="want" data-txt="filter-wants">Nur Gesuche (Suche)</option>
-               </select>
-           </div>
-       </div>
+        <h2 data-txt="list-title">Aktuelle Marktplatz-Einträge</h2>
+        <div class="match-list" id="match-container">
+            <p id="loading-text" data-txt="loading">Lade aktuelle Startplätze...</p>
+        </div>
 
-       <h2 data-txt="list-title">Aktuelle Marktplatz-Einträge</h2>
-       <div class="match-list" id="match-container">
-           <p id="loading-text" data-txt="loading">Lade Einträge...</p>
-       </div>
-   </div>
+    </div>
 
-   <div class="modal" id="auth-modal">
-       <div class="modal-content">
-           <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
+    <!-- AUTH & SETTINGS MODAL -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
+            
+            <!-- 1. LOGIN -->
+            <div id="modal-login-view">
+                <h3 data-txt="modal-login-title">Anmelden</h3>
+                <form id="login-form">
+                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required></div>
+                    <div class="form-group">
+                        <label data-txt="lbl-password">Passwort *</label>
+                        <input type="password" id="login-password" required>
+                        <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
+                    </div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-login">Einloggen</button>
+                </form>
+                <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a></div>
+            </div>
 
-           <div id="modal-login-view">
-               <h3 data-txt="modal-login-title">Anmelden</h3>
-               <form id="login-form">
-                   <div class="form-group"><input type="email" id="login-email" required placeholder="E-Mail"></div>
-                   <div class="form-group"><input type="password" id="login-password" required placeholder="Passwort"></div>
-                   <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-login">Einloggen</button>
-               </form>
-               <div style="margin-top: 15px; font-size: 13px; text-align: center; display: flex; flex-direction: column; gap: 8px;">
-                   <a onclick="toggleAuthView('forgot')" style="color:var(--accent-color); cursor:pointer;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
-                   <a onclick="toggleAuthView('register')" style="color:var(--accent-color); cursor:pointer;" data-txt="modal-link-reg">Konto erstellen</a>
-               </div>
-           </div>
+            <!-- 2. REGISTRIERUNG -->
+            <div id="modal-register-view" style="display: none;">
+                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
+                <form id="register-form">
+                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="register-email" required></div>
+                    <div class="form-group"><label data-txt="lbl-password">Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-reg">Konto erstellen</button>
+                </form>
+                <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a></div>
+            </div>
 
-           <div id="modal-register-view" style="display: none;">
-               <h3 data-txt="modal-reg-title">Konto erstellen</h3>
-               <form id="register-form">
-                   <div class="form-group"><input type="email" id="register-email" required placeholder="E-Mail"></div>
-                   <div class="form-group"><input type="password" id="register-password" required minlength="6" placeholder="Passwort (min. 6 Zeichen)"></div>
-                   <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-reg">Erstellen</button>
-               </form>
-               <div style="margin-top: 15px; font-size: 13px; text-align: center;">
-                   <a onclick="toggleAuthView('login')" style="color:var(--accent-color); cursor:pointer;" data-txt="modal-link-login">Zurück zum Login</a>
-               </div>
-           </div>
+            <!-- 3. PASSWORT VERGESSEN -->
+            <div id="modal-forgot-view" style="display: none;">
+                <h3 data-txt="modal-forgot-title">Passwort zurücksetzen</h3>
+                <form id="forgot-form">
+                    <div class="form-group"><label data-txt="lbl-email">Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required></div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
+                </form>
+                <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a></div>
+            </div>
 
-           <div id="modal-forgot-view" style="display: none;">
-               <h3 data-txt="modal-forgot-title">Passwort zurücksetzen</h3>
-               <form id="forgot-form">
-                   <div class="form-group"><input type="email" id="forgot-email" required placeholder="Deine E-Mail-Adresse"></div>
-                   <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-forgot">Link senden</button>
-               </form>
-               <div style="margin-top: 15px; font-size: 13px; text-align: center;">
-                   <a onclick="toggleAuthView('login')" style="color:var(--accent-color); cursor:pointer;" data-txt="modal-link-login">Zurück zum Login</a>
-               </div>
-           </div>
+            <!-- 4. ECHTES RESET FORMULAR -->
+            <div id="modal-reset-view" style="display: none;">
+                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
+                <form id="reset-password-form">
+                    <div class="form-group"><label data-txt="lbl-new-password">Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="btn-save">Speichern</button>
+                </form>
+            </div>
 
-           <div id="modal-reset-view" style="display: none;">
-               <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
-               <form id="reset-password-form">
-                   <div class="form-group"><input type="password" id="reset-password-input" required minlength="6" placeholder="Neues Passwort"></div>
-                   <button type="submit" class="btn-submit" style="width:100%;" data-txt="btn-save">Speichern</button>
-               </form>
-           </div>
+            <!-- 5. KONTO EINSTELLUNGEN -->
+            <div id="modal-settings-view" style="display: none;">
+                <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
+                        <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
+                    </div>
+                    <div class="form-group">
+                        <label data-txt="lbl-new-password">Neues Passwort ändern (Optional)</label>
+                        <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
+                    </div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
+                </form>
+                <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
+                <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
+            </div>
+        </div>
+    </div>
 
-           <div id="modal-settings-view" style="display: none;">
-               <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
-               <form id="settings-form">
-                   <div class="form-group">
-                       <label data-txt="lbl-username">Anzeigename</label>
-                       <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
-                   </div>
-                   <div class="form-group">
-                       <label data-txt="lbl-new-password">Neues Passwort (Optional)</label>
-                       <input type="password" id="settings-password" minlength="6" placeholder="Leer lassen für keine Änderung">
-                   </div>
-                   <button type="submit" class="btn-submit" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
-               </form>
-               <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
-               <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
-           </div>
+    <div id="toast-container" class="toast-container"></div>
 
-           <div id="modal-checklist-view" style="display: none;">
-               <h3 style="color: var(--danger-color);" data-txt="modal-checklist-title">⚠️ Sicherheits-Checkliste</h3>
-               <p style="font-size: 14px; margin-bottom: 20px;" data-txt="checklist-desc">Bevor du Kontakt aufnimmst, musst du Folgendes bestätigen:</p>
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
+            <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            <div style="margin-top: 10px; font-size: 11px;">
+                &copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.
+            </div>
+        </div>
+    </footer>
 
-               <div class="checklist-item">
-                   <input type="checkbox" id="chk-paypal">
-                   <label for="chk-paypal" data-txt="chk-paypal">Ich werde Zahlungen <strong>nur per PayPal mit Käuferschutz</strong> tätigen (niemals 'Freunde & Familie').</label>
-               </div>
-               <div class="checklist-item">
-                   <input type="checkbox" id="chk-mos">
-                   <label for="chk-mos" data-txt="chk-mos">Ich werde prüfen, ob eine Umschreibung beim Match Director überhaupt noch möglich ist.</label>
-               </div>
-               <div class="checklist-item">
-                   <input type="checkbox" id="chk-liability">
-                   <label for="chk-liability" data-txt="chk-liability">Mir ist bewusst, dass diese Plattform keine Haftung für Betrug übernimmt.</label>
-               </div>
-
-               <button id="btn-proceed-contact" class="btn-submit" style="width:100%; background: var(--success-color); margin-top: 15px;" disabled data-txt="btn-proceed-mail">Jetzt E-Mail schreiben</button>
-           </div>
-       </div>
-   </div>
-
-   <footer>
-       <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
-           <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
-           <div style="margin-top: 10px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
-       </div>
-   </footer>
-
-   <script src="app.js"></script>
+    <script src="app-5.js"></script>
 </body>
 </html>
