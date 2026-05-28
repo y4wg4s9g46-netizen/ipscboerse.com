@@ -182,6 +182,16 @@
         }
         .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
 
+        .btn-export {
+            background: #555; color: #fff; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 11px; margin-top: 5px;
+        }
+        .btn-export:hover { background: #777; }
+        
+        .btn-report {
+            background: #ff4d4d; color: #fff; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 11px; margin-top: 5px;
+        }
+        .btn-report:hover { background: #ff7373; }
+
         footer {
             background-color: #0f0f0f;
             border-top: 1px solid #444;
@@ -259,6 +269,17 @@
                     <div class="form-group">
                         <label for="match-date" data-txt="lbl-date">Datum des Matches *</label>
                         <input type="date" id="match-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="match-country" data-txt="lbl-country">Land *</label>
+                        <select id="match-country" required>
+                            <option value="DE">Deutschland</option>
+                            <option value="AT">Österreich</option>
+                            <option value="CH">Schweiz</option>
+                            <option value="IT">Italien</option>
+                            <option value="FR">Frankreich</option>
+                            <option value="OTHER">Andere</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="match-location" data-txt="lbl-location">Austragungsort (Stand) *</label>
