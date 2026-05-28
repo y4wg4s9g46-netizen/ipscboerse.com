@@ -292,6 +292,10 @@ function exportToIcs(id) {
 window.exportToIcs = exportToIcs;
 
 function reportMatch(id) {
+  if (!currentUser) {
+    alert(translations[currentLang]["login-required"]);
+    return;
+  }
   const subject = encodeURIComponent("Melde-Anzeige: Eintrag ID " + id);
   const body = encodeURIComponent("Hallo Administratoren,\n\nich möchte folgenden Eintrag melden: " + window.location.origin + "/?id=" + id + "\n\nGrund der Meldung:\n");
   window.location.href = `mailto:info@ipscboerse.com?subject=${subject}&body=${body}`;
