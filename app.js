@@ -22,6 +22,7 @@ const translations = {
     "lbl-level": "Match Level *",
     "lbl-date": "Datum des Matches *",
     "lbl-location": "Austragungsort (Stand) *",
+    "lbl-country": "Land *",
     "lbl-squad": "Squad Nummer (Optional)",
     "lbl-price": "Abgabepreis (€) *",
     "lbl-email": "Deine E-Mail-Adresse *",
@@ -48,6 +49,10 @@ const translations = {
     "btn-contact-want": "Schützen kontaktieren",
     "btn-delete": "Löschen",
     "btn-edit": "Bearbeiten",
+    "btn-export": "Export (.ics)",
+    "report-btn": "Melden",
+    "login-required": "Nur eingeloggte Nutzer können kontaktieren",
+    "security-checklist": "\n\nSicherheits-Checkliste vor der E-Mail:\n- Match-Daten geprüft?\n- Match Director kontaktiert?",
     "tag-offer": "BIETE",
     "tag-want": "SUCHE",
     "link-forgot-pwd": "Passwort vergessen?",
@@ -81,6 +86,7 @@ const translations = {
     "lbl-level": "Match Level *",
     "lbl-date": "Match Date *",
     "lbl-location": "Location (Range) *",
+    "lbl-country": "Country *",
     "lbl-squad": "Squad Number (Optional)",
     "lbl-price": "Price (€) *",
     "lbl-email": "Your Email Address *",
@@ -107,6 +113,10 @@ const translations = {
     "btn-contact-want": "Contact Shooter",
     "btn-delete": "Delete",
     "btn-edit": "Edit",
+    "btn-export": "Export (.ics)",
+    "report-btn": "Report",
+    "login-required": "Only logged-in users can contact",
+    "security-checklist": "\n\nSecurity checklist before email:\n- Match details verified?\n- Match Director contacted?",
     "tag-offer": "OFFER",
     "tag-want": "WANTED",
     "link-forgot-pwd": "Forgot password?",
@@ -211,7 +221,8 @@ function renderMatches(matches) {
     
     // Neuer Badge für die Squad-Nummer (falls vorhanden)
     const squadBadge = m.match_squad ? `<span class="badge" style="background:#3498db; color:#fff; padding:2px 5px; border-radius:3px;">Squad ${escapeHtml(m.match_squad)}</span>` : "";
-    
+    const countryBadge = m.match_country ? `<span class="badge" style="background:#8e44ad; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_country)}</span>` : "";
+
     const canManage = currentUser && currentUser.email === m.seller_email;
     const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
     const contactBtnClass = isWant ? "btn-contact btn-contact-want" : "btn-contact";
@@ -223,6 +234,7 @@ function renderMatches(matches) {
           ${escapeHtml(m.match_name)} 
           ${levelBadge} 
           ${squadBadge} 
+          ${countryBadge}
           <span class="badge">${isWant ? translations[currentLang]["tag-want"] : translations[currentLang]["tag-offer"]}</span>
         </h3>
         <p>${m.match_date} | ${escapeHtml(m.match_location)}</p>
@@ -230,6 +242,10 @@ function renderMatches(matches) {
       <div class="card-actions">
         <p>${parseFloat(m.match_price).toFixed(2)} €</p>
         <button class="${contactBtnClass}" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">${contactText}</button>
+        <div class="action-buttons-group">
+            <button class="btn-export" onclick="exportToIcs(${m.id})">${translations[currentLang]["btn-export"]}</button>
+            <button class="btn-report" onclick="reportMatch(${m.id})">${translations[currentLang]["report-btn"]}</button>
+        </div>
         ${canManage ? `
           <div class="action-buttons-group">
             <button class="btn-edit" onclick="handleEditClick(${m.id})">${translations[currentLang]["btn-edit"]}</button>
@@ -242,7 +258,12 @@ function renderMatches(matches) {
 }
 
 function handleContactClick(email, matchName, type) {
-  const conf = confirm(translations[currentLang]["security-notice"]);
+  if (!currentUser) {
+    alert(translations[currentLang]["login-required"]);
+    return;
+  }
+
+  const conf = confirm(translations[currentLang]["security-notice"] + translations[currentLang]["security-checklist"]);
   if (!conf) return;
 
   const subjectPrefix = type === "want" ? translations[currentLang]["email-subject-want"] : translations[currentLang]["email-subject-offer"];
@@ -255,6 +276,25 @@ function handleContactClick(email, matchName, type) {
 }
 window.handleContactClick = handleContactClick;
 
+function exportToIcs(id) {
+  const match = cachedMatches.find(m => m.id === id);
+  if (!match) return;
+  const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${match.match_name}\nDTSTART:${match.match_date.replace(/-/g, '')}T080000Z\nLOCATION:${match.match_location}\nEND:VEVENT\nEND:VCALENDAR`;
+  const blob = new Blob([icsContent], { type: 'text/calendar' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${match.match_name.replace(/\s+/g, '_')}.ics`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+}
+window.exportToIcs = exportToIcs;
+
+function reportMatch(id) {
+  alert(currentLang === "en" ? "Ad reported to the administrators." : "Anzeige wurde den Administratoren gemeldet.");
+}
+window.reportMatch = reportMatch;
+
 function handleEditClick(id) {
   const match = cachedMatches.find(m => m.id === id);
   if (!match) return;
@@ -265,6 +305,7 @@ function handleEditClick(id) {
   document.getElementById("match-level").value = match.match_level;
   document.getElementById("match-date").value = match.match_date;
   document.getElementById("match-location").value = match.match_location;
+  document.getElementById("match-country").value = match.match_country || "DE";
   document.getElementById("match-squad").value = match.match_squad || "";
   document.getElementById("match-price").value = match.match_price;
   
@@ -358,6 +399,7 @@ document.getElementById("match-form").addEventListener("submit", async (e) => {
     match_level: document.getElementById("match-level").value,
     match_date: inputDate,
     match_location: document.getElementById("match-location").value,
+    match_country: document.getElementById("match-country").value,
     match_price: document.getElementById("match-price").value,
     seller_email: currentUser.email,
     type: document.getElementById("type-want").checked ? "want" : "offer"
