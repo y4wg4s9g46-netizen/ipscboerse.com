@@ -5,7 +5,7 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
 let currentLang = "de";
 let cachedMatches = [];
-let editingMatchId = null; // Trackt, ob gerade ein Eintrag editiert wird
+let editingMatchId = null; 
 
 const translations = {
   de: {
@@ -292,7 +292,9 @@ function exportToIcs(id) {
 window.exportToIcs = exportToIcs;
 
 function reportMatch(id) {
-  alert(currentLang === "en" ? "Ad reported to the administrators." : "Anzeige wurde den Administratoren gemeldet.");
+  const subject = encodeURIComponent("Melde-Anzeige: Eintrag ID " + id);
+  const body = encodeURIComponent("Hallo Administratoren,\n\nich möchte folgenden Eintrag melden: " + window.location.origin + "/?id=" + id + "\n\nGrund der Meldung:\n");
+  window.location.href = `mailto:info@ipscboerse.com?subject=${subject}&body=${body}`;
 }
 window.reportMatch = reportMatch;
 
