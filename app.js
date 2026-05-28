@@ -51,6 +51,8 @@ const translations = {
     "btn-edit": "Bearbeiten",
     "btn-export": "Export (.ics)",
     "report-btn": "Melden",
+    "buy-coffee": "Kaffee spendieren",
+    "social-proof": "Erfolgreich vermittelte Startplätze: ",
     "login-required": "Nur eingeloggte Nutzer können kontaktieren",
     "security-checklist": "\n\nSicherheits-Checkliste vor der E-Mail:\n- Match-Daten geprüft?\n- Match Director kontaktiert?",
     "tag-offer": "BIETE",
@@ -115,6 +117,8 @@ const translations = {
     "btn-edit": "Edit",
     "btn-export": "Export (.ics)",
     "report-btn": "Report",
+    "buy-coffee": "Buy me a coffee",
+    "social-proof": "Successfully mediated slots: ",
     "login-required": "Only logged-in users can contact",
     "security-checklist": "\n\nSecurity checklist before email:\n- Match details verified?\n- Match Director contacted?",
     "tag-offer": "OFFER",
@@ -210,7 +214,6 @@ async function fetchMatches() {
   renderMatches(cachedMatches);
 }
 
-// --- HIER WURDE DIE SQUAD-ANZEIGE HINZUGEFÜGT ---
 function renderMatches(matches) {
   const container = document.getElementById("match-container");
   if (!matches.length) { container.innerHTML = `<p>${translations[currentLang]["no-slots"]}</p>`; return; }
@@ -218,8 +221,6 @@ function renderMatches(matches) {
   container.innerHTML = matches.map(m => {
     const isWant = m.type === "want";
     const levelBadge = m.match_level ? `<span class="badge" style="background:#555; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_level)}</span>` : "";
-    
-    // Neuer Badge für die Squad-Nummer (falls vorhanden)
     const squadBadge = m.match_squad ? `<span class="badge" style="background:#3498db; color:#fff; padding:2px 5px; border-radius:3px;">Squad ${escapeHtml(m.match_squad)}</span>` : "";
     const countryBadge = m.match_country ? `<span class="badge" style="background:#8e44ad; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_country)}</span>` : "";
 
