@@ -5,54 +5,49 @@ import re
 import urllib.parse
 
 base_url = "https://www.ipscmatch.de/"
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-}
+headers = {"User-Agent": "Mozilla/5.0"}
 
 try:
     response = requests.get(base_url, headers=headers, timeout=30)
     soup = BeautifulSoup(response.text, 'html.parser')
     matches = []
-
-    for row in soup.find_all('tr'):
-        if '%' in row.text:
-            tds = row.find_all('td')
-            if len(tds) >= 4:
-                # Spalten-Mapping: 0=Datum, 1=Disziplin, 2=Level, 3=Region, 4=Veranstaltung
-                disziplin = tds[0].text.strip()
-                level = tds[1].text.strip()
-                region = tds[2].text.strip() # Hier steht die Region fest in der Tabelle
+    
+    table = soup.find('table')
+    for row in table.find_all('tr'):
+        cells = row.find_all('td')
+        # Wir brauchen mindestens 4 Zellen, um alle Infos zu haben
+        if len(cells) >= 4:
+            # 1. Den gesamten Textinhalt der Zellen holen
+            # Wir bereinigen die Region-Zelle (Zelle 2) von allen Bildern (Flaggen)
+            region_cell = cells[2]
+            for img in region_cell.find_all('img'):
+                img.decompose()
+            
+            disziplin = cells[0].text.strip()
+            level = cells[1].text.strip()
+            region = region_cell.text.strip() # Sollte nun z.B. "GER" sein
+            
+            # Die Match-Daten sind oft in Zelle 3 oder 4
+            # Wir suchen das <a> Tag in der gesamten Zeile
+            match_link = row.find('a')
+            if match_link:
+                name = match_link.text.strip()
+                url = urllib.parse.urljoin(base_url, match_link.get('href', ''))
                 
-                match_link = tds[3].find('a')
-                if match_link:
-                    best_name = match_link.text.strip()
-                    detail_url = urllib.parse.urljoin(base_url, match_link.get('href', ''))
-                    
-                    # Anmeldung-Check: Prüfe auf den Text in der Zelle UND auf der Detailseite
-                    is_closed = "geschlossen" in row.text.lower()
-                    if not is_closed:
-                        try:
-                            d_resp = requests.get(detail_url, headers=headers, timeout=5)
-                            if "Anmeldung geschlossen" in d_resp.text:
-                                is_closed = True
-                        except:
-                            pass
-                    
-                    prozent_match = re.search(r'(\d{1,3})\s*%', row.text)
-                    if prozent_match and int(prozent_match.group(1)) < 100:
-                        matches.append({
-                            "name": best_name,
-                            "auslastung": f"{prozent_match.group(1)}%",
-                            "region": region,
-                            "level": level,
-                            "disziplin": disziplin,
-                            "url": detail_url,
-                            "is_closed": is_closed
-                        })
+                prozent_match = re.search(r'(\d{1,3})\s*%', row.text)
+                if prozent_match and int(prozent_match.group(1)) < 100:
+                    matches.append({
+                        "name": name,
+                        "auslastung": f"{prozent_match.group(1)}%",
+                        "region": region,
+                        "level": level,
+                        "disziplin": disziplin,
+                        "url": url,
+                        "is_closed": "geschlossen" in row.text.lower() or "closed" in row.text.lower()
+                    })
 
     with open('matches.json', 'w', encoding='utf-8') as f:
         json.dump(matches, f, ensure_ascii=False, indent=4)
     print("Update erfolgreich.")
-
 except Exception as e:
     print(f"Fehler: {e}")
