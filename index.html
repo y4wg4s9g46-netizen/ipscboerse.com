@@ -143,6 +143,15 @@
             const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(targetUrl);
             const container = document.getElementById('js-match-container');
 
+            // Hilfsfunktion: Erkennt und blockiert Google Maps & andere Navigations-Links
+            function isMapLink(url) {
+                const lowerUrl = url.toLowerCase();
+                return lowerUrl.includes('maps.google') || 
+                       lowerUrl.includes('google.com/maps') || 
+                       lowerUrl.includes('goo.gl/maps') || 
+                       lowerUrl.includes('maps.apple');
+            }
+
             fetch(proxyUrl)
                 .then(response => {
                     if (!response.ok) throw new Error('Netzwerkfehler beim Laden der Daten.');
@@ -166,31 +175,35 @@
                             if (percentage < 100) {
                                 matchCount++;
                                 
-                                // --- DEEP-LINK EXTRAKTION START ---
                                 let extractedPath = '';
                                 
-                                // Variante A: Suche in normalen Links innerhalb der Zeile
+                                // 1. Suche in echten Links, aber schließe Maps aus
                                 const anchors = row.querySelectorAll('a');
                                 anchors.forEach(a => {
                                     const href = a.getAttribute('href') || '';
-                                    if (href && !href.includes('mailto:') && !href.includes('javascript:')) {
-                                        extractedPath = href;
+                                    if (href && !href.includes('mailto:') && !href.includes('javascript:') && !isMapLink(href)) {
+                                        // Bevorzuge Links, die nach Match-Details aussehen (enthalten oft 'index' oder 'match')
+                                        if (href.includes('index') || href.includes('match') || !extractedPath) {
+                                            extractedPath = href;
+                                        }
                                     }
                                 });
 
-                                // Variante B: Suche in "onclick"-Attributen der Zeile (wichtig für ipscmatch.de!)
+                                // 2. Falls kein Link gefunden, prüfe das onclick-Attribut der Zeile (ohne Maps)
                                 if (!extractedPath) {
                                     const rowOnclick = row.getAttribute('onclick') || '';
                                     const clickMatch = rowOnclick.match(/(?:href\s*=\s*['"]|location\s*=\s*['"]|open\(['"])([^'"]+)/);
-                                    if (clickMatch) extractedPath = clickMatch[1];
+                                    if (clickMatch && !isMapLink(clickMatch[1])) {
+                                        extractedPath = clickMatch[1];
+                                    }
                                 }
 
-                                // Variante C: Suche in "onclick"-Attributen der einzelnen TD-Zellen
+                                // 3. Falls immer noch nichts gefunden, prüfe einzelne Zellen-onclicks
                                 if (!extractedPath) {
                                     row.querySelectorAll('td').forEach(td => {
                                         const tdOnclick = td.getAttribute('onclick') || '';
                                         const tdClickMatch = tdOnclick.match(/(?:href\s*=\s*['"]|location\s*=\s*['"]|open\(['"])([^'"]+)/);
-                                        if (tdClickMatch && !extractedPath) {
+                                        if (tdClickMatch && !isMapLink(tdClickMatch[1]) && !extractedPath) {
                                             extractedPath = tdClickMatch[1];
                                         }
                                     });
@@ -206,16 +219,15 @@
                                         matchLink = 'https://www.ipscmatch.de/' + cleanPath;
                                     }
                                 }
-                                // --- DEEP-LINK EXTRAKTION ENDE ---
 
-                                // Match-Name bestimmen
+                                // Match-Name bestimmen (Erster Nicht-Maps-Link oder Text)
                                 let matchName = '';
-                                if (anchors.length > 0 && anchors[0].textContent.trim().length > 2) {
-                                    matchName = anchors[0].textContent.trim();
+                                const validAnchors = Array.from(anchors).filter(a => !isMapLink(a.getAttribute('href') || ''));
+                                if (validAnchors.length > 0 && validAnchors[0].textContent.trim().length > 2) {
+                                    matchName = validAnchors[0].textContent.trim();
                                 } else {
-                                    // Fallback: Nutze den ersten Textabschnitt der Zeile vor dem Datum
                                     const cleanText = rowText.replace(/(\d+)\s*%/, '').trim();
-                                    const parts = cleanText.split(/\d{2}\.\d{2}\./); // Trennen beim Datum
+                                    const parts = cleanText.split(/\d{2}\.\d{2}\./);
                                     matchName = parts[0].trim() || 'IPSC Turnier';
                                 }
 
