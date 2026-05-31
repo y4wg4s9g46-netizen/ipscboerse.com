@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Freie Match-Plätze | Startplatz Börse</title>
+    <title>IPSC Match-Marktplatz | Startplatz Börse</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         :root {
@@ -14,6 +16,7 @@
             --text-muted: #aaaaaa;
             --danger-color: #ff4d4d;
             --success-color: #2ecc71;
+            --info-color: #3498db;
         }
 
         body {
@@ -37,6 +40,7 @@
 
         header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
 
+        /* HIER ERGÄNZT: Stil für das neue Navigationsmenü */
         .main-nav {
             margin-top: 25px; 
             display: flex; 
@@ -65,229 +69,393 @@
             color: var(--text-color);
         }
 
+        .header-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; }
+        }
+
+        .lang-switch {
+            background-color: #1a1a1a; color: #fff; border: 1px solid #555;
+            padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;
+        }
+        .lang-switch:focus { outline: none; border-color: var(--accent-color); }
+
+        .btn-auth {
+            background-color: transparent; color: var(--accent-color); border: 2px solid var(--accent-color);
+            padding: 8px 16px; font-weight: bold; border-radius: 4px; cursor: pointer;
+        }
+
+        .btn-auth:hover { background-color: var(--accent-color); color: #000; }
+
         .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; }
 
         .info-box {
-            background-color: rgba(46, 204, 113, 0.1); border-left: 4px solid var(--success-color);
+            background-color: rgba(255, 159, 67, 0.1); border-left: 4px solid var(--accent-color);
             padding: 15px; margin-bottom: 30px; border-radius: 4px;
         }
+
+        .form-section {
+            background-color: var(--card-bg); border: 1px solid #444;
+            border-radius: 6px; padding: 25px; margin-bottom: 40px;
+        }
+
+        .form-section h2 { margin-top: 0; color: var(--accent-color); border-bottom: 1px solid #444; padding-bottom: 10px; }
+
+        .toggle-selector {
+            display: flex; gap: 20px; margin-bottom: 20px; background: #1a1a1a; padding: 12px; border-radius: 4px; border: 1px solid #444;
+        }
+
+        .toggle-selector label {
+            display: flex; align-items: center; gap: 8px; color: #fff; cursor: pointer; margin: 0; font-size: 14px;
+        }
+
+        .toggle-selector input { accent-color: var(--accent-color); cursor: pointer; }
+
+        .filter-bar {
+            background-color: #0f0f0f; border: 1px solid #444; padding: 15px; border-radius: 6px;
+            margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center;
+        }
+
+        .filter-group { display: flex; align-items: center; gap: 10px; }
+        .filter-group label { margin: 0; color: #fff; white-space: nowrap; }
+
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg); padding: 30px; border-radius: 6px;
+            border: 1px solid var(--accent-color); width: 100%; max-width: 400px; box-sizing: border-box;
+        }
+
+        .modal-content h3 { color: var(--accent-color); margin-top: 0; }
+        .modal-content .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        .modal-content input { background-color: #1a1a1a; border: 1px solid #555; color: #fff; padding: 10px; border-radius: 4px; }
+        .modal-footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+
+        .form-group { display: flex; flex-direction: column; }
+        label { font-size: 14px; margin-bottom: 8px; color: var(--text-muted); font-weight: bold; }
+
+        input, select {
+            background-color: #1a1a1a; border: 1px solid #555; color: var(--text-color);
+            padding: 10px; border-radius: 4px; font-size: 15px;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--accent-color); }
+
+        .btn-submit {
+            background-color: var(--accent-color); color: #000; border: none;
+            padding: 12px 30px; font-size: 16px; font-weight: bold; border-radius: 4px;
+            cursor: pointer; margin-top: 10px;
+        }
+        .btn-submit:hover { background-color: #e08b35; }
 
         .match-list { display: flex; flex-direction: column; gap: 15px; }
 
         .match-card {
-            background-color: rgba(46, 204, 113, 0.08);
             border-radius: 6px; padding: 20px;
             display: flex; justify-content: space-between; align-items: center; border: 1px solid #444;
             position: relative; overflow: hidden;
         }
 
-        .match-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 5px; background-color: var(--success-color); }
+        /* Farbliche Hervorhebung für Angebote und Gesuche */
+        .card-offer { background-color: rgba(255, 159, 67, 0.08); }
+        .card-want { background-color: rgba(46, 204, 113, 0.08); }
+
+        .match-card::before {
+            content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 5px;
+        }
+        .card-offer::before { background-color: var(--accent-color); }
+        .card-want::before { background-color: var(--success-color); }
 
         .match-details h3 { margin: 0 0 5px 0; color: var(--accent-color); display: flex; align-items: center; gap: 10px; }
         .match-details p { margin: 5px 0; font-size: 14px; color: var(--text-muted); }
         
         .badge-container { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
-        .badge { background-color: var(--success-color); color: #000; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .badge { background-color: #444; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: #fff; }
 
         .card-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 
         .btn-contact {
-            background-color: var(--success-color); color: #000; border: none;
+            background-color: var(--accent-color); color: #000; border: none;
             padding: 10px 20px; font-weight: bold; border-radius: 4px; text-decoration: none; text-align: center; cursor: pointer; font-size: 14px;
         }
+        .btn-contact-want { background-color: var(--success-color); }
         .btn-contact:hover { opacity: 0.9; }
 
-        .loading-msg { text-align: center; color: var(--text-muted); padding: 4px; font-style: italic; }
+        .btn-delete {
+            background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color);
+            padding: 5px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer;
+            margin-top: 5px;
+        }
+        .btn-delete:hover { background-color: var(--danger-color); color: #fff; }
+
+        .btn-edit {
+            background-color: transparent; color: var(--info-color); border: 1px solid var(--info-color);
+            padding: 5px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer;
+            margin-top: 5px;
+        }
+        .btn-edit:hover { background-color: var(--info-color); color: #fff; }
+
+        .btn-danger-block {
+            background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color);
+            padding: 10px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 15px;
+        }
+        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
+
+        .btn-export {
+            background: #555; color: #fff; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 11px; margin-top: 5px;
+        }
+        .btn-export:hover { background: #777; }
+        
+        .btn-report {
+            background: #ff4d4d; color: #fff; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 11px; margin-top: 5px;
+        }
+        .btn-report:hover { background: #ff7373; }
 
         footer {
-            background-color: #0f0f0f; border-top: 1px solid #444; padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted);
+            background-color: #0f0f0f;
+            border-top: 1px solid #444;
+            padding: 30px 20px;
+            margin-top: 50px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .action-buttons-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>IPSC STARTPLATZ-BÖRSE</h1>
-        <p style="color: var(--text-muted); margin: 5px 0 0 0;">Von Schützen für Schützen – Live Marktplatz</p>
+        <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
+        <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Von Schützen für Schützen – Live Marktplatz</p>
         
+        <!-- HIER ERGÄNZT: Das Navigationsmenü direkt im Header -->
         <nav class="main-nav">
-            <a href="index.html" class="inactive">Marktplatz</a>
-            <a href="freie-matches.html" class="active">Freie Match-Plätze</a>
+            <a href="index.html" class="active">Marktplatz</a>
+            <a href="freie-matches.html" class="inactive">Freie Match-Plätze</a>
         </nav>
+        
+        <div class="header-controls">
+            <select id="language-select" class="lang-switch">
+                <option value="de">DE</option>
+                <option value="en">EN</option>
+            </select>
+            <div id="auth-status-container">
+                <button class="btn-auth" id="btn-open-login" data-txt="btn-login-reg">Login / Registrieren</button>
+            </div>
+        </div>
     </header>
 
     <div class="container">
+
+        <!-- Social Proof Zähler -->
+        <div id="social-proof-container" style="text-align: center; margin: 10px 0 30px 0; color: var(--text-muted); background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid #444;">
+            <span data-txt="social-proof">Erfolgreich vermittelte Startplätze: </span><b id="counter-val" style="color: var(--accent-color); font-size: 18px;">42</b>
+        </div>
         
-        <div class="info-box">
-            <strong>Browser-Live-Filterung:</strong> Die Matches werden direkt von <i>ipscmatch.de</i> geladen. Es werden nur Turniere angezeigt, die eine Auslastung von unter 100% aufweisen (freie Startplätze).
+        <div class="info-box" id="info-text" data-txt="info-msg">
+            <strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgültige Umschreibung des Startplatzes muss zwingend über den jeweiligen Match Director durchgeführt werden!
         </div>
 
-        <h2 style="margin-bottom: 20px;">Verfügbare Matches auf MatchSign (Auslastung &lt; 100%)</h2>
+        <div class="form-section" id="form-anchor">
+            <h2 id="form-section-title" data-txt="form-title">Eintrag erstellen</h2>
+            
+            <div class="toggle-selector" style="border-color: var(--accent-color);">
+                <label>
+                    <input type="radio" name="ad-type" id="type-offer" value="offer" checked>
+                    <span style="font-weight: bold; color: var(--accent-color);" data-txt="opt-offer">Ich BIETE einen Startplatz an</span>
+                </label>
+                <label>
+                    <input type="radio" name="ad-type" id="type-want" value="want">
+                    <span style="font-weight: bold; color: var(--success-color);" data-txt="opt-want">Ich SUCHE einen Startplatz</span>
+                </label>
+            </div>
 
-        <div class="match-list" id="js-match-container">
-            <p class="loading-msg" id="js-status-text">Lade aktuelle Matches live von ipscmatch.de...</p>
+            <form id="match-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="match-name" data-txt="lbl-name">Name des Matches *</label>
+                        <input type="text" id="match-name" required placeholder="z.B. Infinity Open">
+                    </div>
+                    <div class="form-group">
+                        <label for="match-level" data-txt="lbl-level">Match Level *</label>
+                        <select id="match-level" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="match-date" data-txt="lbl-date">Datum des Matches *</label>
+                        <input type="date" id="match-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="match-country" data-txt="lbl-country">Land *</label>
+                        <select id="match-country" required>
+                            <option value="DE">Deutschland</option>
+                            <option value="AT">Österreich</option>
+                            <option value="CH">Schweiz</option>
+                            <option value="IT">Italien</option>
+                            <option value="FR">Frankreich</option>
+                            <option value="OTHER">Andere</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="match-location" data-txt="lbl-location">Austragungsort (Stand) *</label>
+                        <input type="text" id="match-location" required placeholder="z.B. Philippsburg">
+                    </div>
+                    <div class="form-group">
+                        <label for="match-squad" data-txt="lbl-squad">Squad Nummer (Optional)</label>
+                        <input type="text" id="match-squad" inputmode="numeric" pattern="\d{1,4}" maxlength="4" placeholder="z.B. 0014">
+                    </div>
+                    <div class="form-group">
+                        <label for="match-price" id="lbl-dynamic-price" data-txt="lbl-price">Abgabepreis (€) *</label>
+                        <input type="number" id="match-price" min="0" step="0.01" required placeholder="85.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="seller-email" data-txt="lbl-email">Deine E-Mail-Adresse *</label>
+                        <input type="email" id="seller-email" required readonly placeholder="Logge dich ein, um zu inserieren">
+                    </div>
+                </div>
+                <div style="text-align: right; margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; align-items: center;">
+                    <button type="button" class="btn-delete" id="btn-cancel-edit" style="display: none; padding: 12px 20px; font-size: 16px;" data-txt="btn-cancel">Abbrechen</button>
+                    <button type="submit" class="btn-submit" id="btn-submit-ad" data-txt="btn-insert">Eintrag kostenlos veröffentlichen</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label data-txt="filter-type">Anzeigentyp:</label>
+                <select id="filter-type-select">
+                    <option value="all" data-txt="filter-all">Alle Anzeigen</option>
+                    <option value="offer" data-txt="filter-offers">Nur Angebote (Biete)</option>
+                    <option value="want" data-txt="filter-wants">Nur Gesuche (Suche)</option>
+                </select>
+            </div>
+        </div>
+
+        <h2 data-txt="list-title">Aktuelle Marktplatz-Einträge</h2>
+        <div class="match-list" id="match-container">
+            <p id="loading-text" data-txt="loading">Lade aktuelle Startplätze...</p>
         </div>
 
     </div>
 
+    <!-- AUTH & SETTINGS MODAL -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
+            
+            <!-- 1. LOGIN -->
+            <div id="modal-login-view">
+                <h3 data-txt="modal-login-title">Anmelden</h3>
+                <form id="login-form">
+                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required></div>
+                    <div class="form-group">
+                        <label data-txt="lbl-password">Passwort *</label>
+                        <input type="password" id="login-password" required>
+                        <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
+                    </div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-login">Einloggen</button>
+                </form>
+                <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a></div>
+            </div>
+
+            <!-- 2. REGISTRIERUNG -->
+            <div id="modal-register-view" style="display: none;">
+                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
+                <form id="register-form">
+                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="register-email" required></div>
+                    <div class="form-group"><label data-txt="lbl-password">Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-reg">Konto erstellen</button>
+                </form>
+                <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a></div>
+            </div>
+
+            <!-- 3. PASSWORT VERGESSEN -->
+            <div id="modal-forgot-view" style="display: none;">
+                <h3 data-txt="modal-forgot-title">Passwort zurücksetzen</h3>
+                <form id="forgot-form">
+                    <div class="form-group"><label data-txt="lbl-email">Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required></div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
+                </form>
+                <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a></div>
+            </div>
+
+            <!-- 4. ECHTES RESET FORMULAR -->
+            <div id="modal-reset-view" style="display: none;">
+                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
+                <form id="reset-password-form">
+                    <div class="form-group"><label data-txt="lbl-new-password">Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="btn-save">Speichern</button>
+                </form>
+            </div>
+
+            <!-- 5. KONTO EINSTELLUNGEN -->
+            <div id="modal-settings-view" style="display: none;">
+                <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
+                        <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
+                    </div>
+                    <div class="form-group">
+                        <label data-txt="lbl-new-password">Neues Passwort ändern (Optional)</label>
+                        <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
+                    </div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
+                </form>
+                <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
+                <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
-            <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">Impressum & Rechtliche Hinweise</a>
-            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+            <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            
+            <!-- Buy Me A Coffee Button mit korrektem Link -->
+            <div style="margin-top: 20px;">
+                <a href="https://www.buymeacoffee.com/infojkw" target="_blank" style="background-color: #FFDD00; color: #000; padding: 10px 20px; border-radius: 5px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                    ☕ <span data-txt="buy-coffee">Kaffee spendieren</span>
+                </a>
+            </div>
+
+            <div style="margin-top: 15px; font-size: 11px;">
+                &copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.
+            </div>
         </div>
     </footer>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const targetUrl = 'https://www.ipscmatch.de/';
-            const container = document.getElementById('js-match-container');
-            const statusText = document.getElementById('js-status-text');
-
-            // Liste der CORS-Proxies für das Ausfall-Backup
-            const proxies = [
-                url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
-                url => 'https://api.codetabs.com/v1/proxy?url=' + encodeURIComponent(url)
-            ];
-
-            function isMapLink(url) {
-                const lowerUrl = url.toLowerCase();
-                return lowerUrl.includes('maps.google') || 
-                       lowerUrl.includes('google.com/maps') || 
-                       lowerUrl.includes('goo.gl/maps') || 
-                       lowerUrl.includes('maps.apple');
-            }
-
-            // Intelligente Ladefunktion mit Proxy-Wechsel bei Fehlern
-            function fetchMatches(proxyIndex = 0) {
-                if (proxyIndex >= proxies.length) {
-                    container.innerHTML = '<p class="loading-msg" style="color: var(--danger-color);">⚠️ Fehler beim Laden der Live-Daten. Bitte versuche es später erneut.</p>';
-                    return;
-                }
-
-                if (proxyIndex > 0 && statusText) {
-                    statusText.textContent = 'Erster Server ausgelastet, verbinde mit Backup-Server...';
-                }
-
-                const currentProxyUrl = proxies[proxyIndex](targetUrl);
-
-                fetch(currentProxyUrl)
-                    .then(response => {
-                        if (!response.ok) throw new Error('Proxy Fehler');
-                        return response.text();
-                    })
-                    .then(htmlString => {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(htmlString, 'text/html');
-                        const rows = doc.querySelectorAll('table tr');
-                        
-                        let htmlOutput = '';
-                        let matchCount = 0;
-
-                        rows.forEach(row => {
-                            const rowText = row.textContent.replace(/\s+/g, ' ').trim();
-                            const percentageMatch = rowText.match(/(\d+)\s*%/);
-                            
-                            if (percentageMatch) {
-                                const percentage = parseInt(percentageMatch[1], 10);
-
-                                if (percentage < 100) {
-                                    matchCount++;
-                                    
-                                    let extractedPath = '';
-                                    const anchors = row.querySelectorAll('a');
-                                    
-                                    anchors.forEach(a => {
-                                        const href = a.getAttribute('href') || '';
-                                        if (href && !href.includes('mailto:') && !href.includes('javascript:') && !isMapLink(href)) {
-                                            if (href.includes('index') || href.includes('match') || !extractedPath) {
-                                                extractedPath = href;
-                                            }
-                                        }
-                                    });
-
-                                    if (!extractedPath) {
-                                        const rowOnclick = row.getAttribute('onclick') || '';
-                                        const clickMatch = rowOnclick.match(/(?:href\s*=\s*['"]|location\s*=\s*['"]|open\(['"])([^'"]+)/);
-                                        if (clickMatch && !isMapLink(clickMatch[1])) {
-                                            extractedPath = clickMatch[1];
-                                        }
-                                    }
-
-                                    if (!extractedPath) {
-                                        row.querySelectorAll('td').forEach(td => {
-                                            const tdOnclick = td.getAttribute('onclick') || '';
-                                            const tdClickMatch = tdOnclick.match(/(?:href\s*=\s*['"]|location\s*=\s*['"]|open\(['"])([^'"]+)/);
-                                            if (tdClickMatch && !isMapLink(tdClickMatch[1]) && !extractedPath) {
-                                                extractedPath = tdClickMatch[1];
-                                            }
-                                        });
-                                    }
-
-                                    let matchLink = 'https://www.ipscmatch.de/';
-                                    if (extractedPath) {
-                                        if (extractedPath.startsWith('http')) {
-                                            matchLink = extractedPath;
-                                        } else {
-                                            const cleanPath = extractedPath.startsWith('/') ? extractedPath.substring(1) : extractedPath;
-                                            matchLink = 'https://www.ipscmatch.de/' + cleanPath;
-                                        }
-                                    }
-
-                                    let matchName = '';
-                                    const validAnchors = Array.from(anchors).filter(a => !isMapLink(a.getAttribute('href') || ''));
-                                    if (validAnchors.length > 0 && validAnchors[0].textContent.trim().length > 2) {
-                                        matchName = validAnchors[0].textContent.trim();
-                                    } else {
-                                        const cleanText = rowText.replace(/(\d+)\s*%/, '').trim();
-                                        const parts = cleanText.split(/\d{2}\.\d{2}\./);
-                                        matchName = parts[0].trim() || 'IPSC Turnier';
-                                    }
-
-                                    const dateMatch = rowText.match(/(\d{2}\.(?:\s*[-–]\s*\d{2}\.)?\s*\d{2}\.\s*\d{4})/);
-                                    let date = dateMatch ? dateMatch[1].trim() : '';
-                                    if (!date) {
-                                        const simpleDate = rowText.match(/(\d{2}\.\d{2}\.\d{4})/);
-                                        date = simpleDate ? simpleDate[1] : 'Siehe Anmeldung';
-                                    }
-
-                                    htmlOutput += `
-                                        <div class="match-card">
-                                            <div class="match-details">
-                                                <h3>${escapeHtml(matchName)}</h3>
-                                                <p>Datum: ${escapeHtml(date)}</p>
-                                                <div class="badge-container"><span class="badge">Freie Plätze</span></div>
-                                            </div>
-                                            <div class="card-actions">
-                                                <span style="font-weight: bold; color: var(--success-color); font-size: 16px;">Auslastung: ${percentage}%</span>
-                                                <a href="${escapeHtml(matchLink)}" target="_blank" class="btn-contact" style="margin-top: 5px;">Zur Anmeldung</a>
-                                            </div>
-                                        </div>
-                                    `;
-                                }
-                            }
-                        });
-
-                        if (matchCount > 0) {
-                            container.innerHTML = htmlOutput;
-                        } else {
-                            container.innerHTML = '<p class="loading-msg">Aktuell sind laut ipscmatch.de leider alle Turniere vollständig ausgebucht (100%+).</p>';
-                        }
-                    })
-                    .catch(error => {
-                        console.warn(`Proxy ${proxyIndex} fehlgeschlagen. Versuche nächsten...`, error);
-                        // Automatisch den nächsten Proxy in der Liste ansteuern
-                        fetchMatches(proxyIndex + 1);
-                    });
-            }
-
-            function escapeHtml(str) {
-                return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-            }
-
-            // Erstmaligen Ladevorgang starten
-            fetchMatches(0);
-        });
-    </script>
-
+    <script src="app.js"></script>
 </body>
 </html>
