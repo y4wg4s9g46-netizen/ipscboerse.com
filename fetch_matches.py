@@ -1,60 +1,55 @@
 import requests
 import json
 from bs4 import BeautifulSoup
-import re
-import urllib.parse
 
-base_url = "https://www.ipscmatch.de/"
+url = "https://www.ipscmatch.de/"
 headers = {"User-Agent": "Mozilla/5.0"}
 
 try:
-    response = requests.get(base_url, headers=headers, timeout=30)
+    response = requests.get(url, headers=headers, timeout=20)
     soup = BeautifulSoup(response.text, 'html.parser')
     matches = []
     
     table = soup.find('table')
     if table:
-        for row in table.find_all('tr')[1:]: # Kopfzeile überspringen
+        for row in table.find_all('tr')[1:]:
             cells = row.find_all('td')
             if len(cells) >= 5:
-                # Flaggen-Trick: Wir entfernen alle Bilder aus der Zelle, BEVOR wir den Text lesen
-                for img in row.find_all('img'):
-                    img.decompose()
+                # Flaggen entfernen
+                for img in cells[2].find_all('img'): img.decompose()
                 
                 disziplin = cells[0].text.strip()
                 level = cells[1].text.strip()
-                region = cells[2].text.strip() # Jetzt ohne Flagge!
+                region = cells[2].text.strip()
                 
-                # Veranstaltung (mit Link-Check)
-                match_link = cells[3].find('a')
-                if match_link:
-                    best_name = match_link.text.strip()
-                    detail_url = urllib.parse.urljoin(base_url, match_link.get('href', ''))
+                link_tag = cells[4].find('a')
+                if link_tag:
+                    name = link_tag.text.strip()
+                    m_url = "https://www.ipscmatch.de/" + link_tag.get('href', '')
                     
-                    # Status prüfen
-                    is_closed = "closed" in row.text.lower() or "geschlossen" in row.text.lower()
-                    if not is_closed:
-                        try:
-                            d_resp = requests.get(detail_url, headers=headers, timeout=5)
-                            if "anmeldung geschlossen" in d_resp.text.lower():
-                                is_closed = True
-                        except: pass
+                    # Auslastung prüfen
+                    prozent = 0
+                    if '%' in row.text:
+                        import re
+                        m = re.search(r'(\d+)\s*%', row.text)
+                        if m: prozent = int(m.group(1))
                     
-                    prozent_match = re.search(r'(\d{1,3})\s*%', row.text)
-                    if prozent_match and int(prozent_match.group(1)) < 100:
+                    if 0 < prozent < 100:
+                        # Anmeldung-Check
+                        is_closed = "geschlossen" in row.text.lower() or "closed" in row.text.lower()
+                        
                         matches.append({
-                            "name": best_name,
-                            "auslastung": f"{prozent_match.group(1)}%",
+                            "name": name,
+                            "auslastung": f"{prozent}%",
                             "region": region,
                             "level": level,
                             "disziplin": disziplin,
-                            "url": detail_url,
+                            "url": m_url,
                             "is_closed": is_closed
                         })
 
     with open('matches.json', 'w', encoding='utf-8') as f:
         json.dump(matches, f, ensure_ascii=False, indent=4)
-    print("Update erfolgreich.")
-
+    print("Fertig.")
 except Exception as e:
     print(f"Fehler: {e}")
