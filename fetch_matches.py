@@ -20,31 +20,33 @@ try:
     for row in soup.find_all('tr'):
         text = row.text
         if '%' in text:
-            match_name = ""
-            match_url = ""
+            best_name = ""
+            best_url = ""
+            max_len = 0
             
-            # Wir durchsuchen ALLE Links in dieser Zeile
+            # Wir schauen uns ALLE Links in der Zeile an
             for a in row.find_all('a'):
                 a_text = a.text.strip()
                 href = a.get('href', '')
                 
-                # Wir ignorieren Links, die nur nach Waffenart filtern (?type=...)
-                # und suchen nach dem echten Match-Namen!
+                # Wir ignorieren die Waffenart (?type=)
                 if a_text and 'type=' not in href:
-                    match_name = a_text
-                    match_url = urllib.parse.urljoin(url, href)
-                    break # Richtigen Link gefunden, Suche abbrechen
+                    # Der Link mit dem längsten Text ist zu 99,9% der Match-Name!
+                    if len(a_text) > max_len:
+                        max_len = len(a_text)
+                        best_name = a_text
+                        best_url = urllib.parse.urljoin(url, href)
             
-            # Nur wenn wir einen echten Namen gefunden haben, speichern wir es ab
-            if match_name:
+            # Nur speichern, wenn wir einen echten, längeren Namen gefunden haben (mehr als 3 Zeichen)
+            if best_name and max_len > 3:
                 prozent_match = re.search(r'(\d{1,3})\s*%', text)
                 if prozent_match:
                     prozent_wert = int(prozent_match.group(1))
                     if prozent_wert < 100:
                         matches.append({
-                            "name": match_name,
+                            "name": best_name,
                             "auslastung": f"{prozent_wert}%",
-                            "url": match_url
+                            "url": best_url
                         })
 
     with open('matches.json', 'w', encoding='utf-8') as f:
