@@ -1,75 +1,78 @@
 <?php
-// URL der IPSC Match Übersicht
-$url = "https://www.ipscmatch.de/";
+// 1. DESIGN-KOPF DEINER SEITE LADEN
+// Wenn du eine zentrale Datei für dein Menü/Header hast (z.B. header.php), 
+// entferne die zwei Schrägstriche am Anfang der nächsten Zeile:
+// include('header.php'); 
+?>
 
-// 1. HTML-Inhalt der Seite abrufen (Fehlermeldungen bei kaputtem HTML unterdrücken)
-$html = @file_get_contents($url);
+<div class="match-container" style="max-width: 800px; margin: 30px auto; padding: 20px; font-family: Arial, sans-serif;">
+    <h1 style="color: #333; border-bottom: 2px solid #ccc; padding-bottom: 10px;">Freie IPSC Match-Plätze</h1>
+    <p style="color: #666; margin-bottom: 20px;">Hier siehst du alle aktuellen Matches von ipscmatch.de, die noch nicht ausgebucht sind.</p>
 
-if ($html === FALSE) {
-    die("Fehler beim Abrufen der Daten von ipscmatch.de.");
-}
+    <?php
+    // --- START DES ABRAUF-SKRIPTS ---
+    $url = "https://www.ipscmatch.de/";
+    $html = @file_get_contents($url);
 
-// 2. Ein DOM-Dokument erstellen, um den HTML-Code lesbar zu machen
-$dom = new DOMDocument();
-@$dom->loadHTML($html);
-$xpath = new DOMXPath($dom);
+    if ($html === FALSE) {
+        echo "<p style='color: red;'>Fehler: Die Daten von ipscmatch.de konnten aktuell nicht geladen werden.</p>";
+    } else {
+        $dom = new DOMDocument();
+        @$dom->loadHTML($html);
+        $xpath = new DOMXPath($dom);
+        $rows = $xpath->query('//table//tr');
+        $freeMatches = [];
 
-// 3. Alle Tabellen-Reihen (tr) der Seite suchen
-// Hinweis: XPath sucht hier einfach in allen Tabellen der Seite
-$rows = $xpath->query('//table//tr');
-
-$freeMatches = [];
-
-// 4. Jede Reihe durchgehen und auswerten
-foreach ($rows as $row) {
-    $cols = $row->getElementsByTagName('td');
-    
-    // Prüfen, ob die Reihe genug Spalten hat (überspringt Kopfzeilen etc.)
-    if ($cols->length >= 5) { 
-        
-        // Die Spalten auslesen. 
-        // WICHTIG: Diese Index-Zahlen (0, 1, 2...) hängen vom genauen Aufbau von ipscmatch.de ab.
-        // Meistens: Spalte 0 = Datum, Spalte 2 = Match Name. Ggf. anpassen!
-        $date = trim($cols->item(0)->textContent); 
-        $matchName = trim($cols->item(2)->textContent); 
-        
-        // Wir suchen im gesamten Text der Reihe nach der Prozentzahl (z.B. "85%")
-        $rowText = $row->textContent;
-        
-        // Regulärer Ausdruck sucht nach einer Zahl direkt vor einem Prozentzeichen
-        if (preg_match('/(\d+)\s*%/', $rowText, $matches)) {
-            $percentage = (int)$matches[1];
-            
-            // 5. Filtern: Nur wenn die Auslastung unter 100% ist, speichern wir das Match
-            if ($percentage < 100) {
-                $freeMatches[] = [
-                    'name' => $matchName,
-                    'date' => $date,
-                    'utilisation' => $percentage
-                ];
+        foreach ($rows as $row) {
+            $cols = $row->getElementsByTagName('td');
+            if ($cols->length >= 5) { 
+                $date = trim($cols->item(0)->textContent); 
+                $matchName = trim($cols->item(2)->textContent); 
+                $rowText = $row->textContent;
+                
+                if (preg_match('/(\d+)\s*%/', $rowText, $matches)) {
+                    $percentage = (int)$matches[1];
+                    if ($percentage < 100) {
+                        $freeMatches[] = [
+                            'name' => $matchName,
+                            'date' => $date,
+                            'utilisation' => $percentage
+                        ];
+                    }
+                }
             }
         }
-    }
-}
 
-// 6. Das Ergebnis auf deiner Webseite ausgeben
-echo "<h3>Hier gibt es noch freie Plätze:</h3>";
-
-if (count($freeMatches) > 0) {
-    echo "<ul style='list-style-type: none; padding: 0;'>";
-    foreach ($freeMatches as $match) {
-        // Ausgabe sicher formatieren (verhindert bösartigen Code)
-        $safeName = htmlspecialchars($match['name']);
-        $safeDate = htmlspecialchars($match['date']);
-        $safeUtil = htmlspecialchars($match['utilisation']);
-        
-        echo "<li style='margin-bottom: 10px; padding: 10px; background-color: #f4f4f4; border-left: 5px solid #4CAF50;'>";
-        echo "<strong>{$safeName}</strong><br>";
-        echo "Datum: {$safeDate} | Auslastung: <strong>{$safeUtil}%</strong>";
-        echo "</li>";
+        // AUSGABE DER MATCHES
+        if (count($freeMatches) > 0) {
+            echo "<ul style='list-style-type: none; padding: 0;'>";
+            foreach ($freeMatches as $match) {
+                $safeName = htmlspecialchars($match['name']);
+                $safeDate = htmlspecialchars($match['date']);
+                $safeUtil = htmlspecialchars($match['utilisation']);
+                
+                echo "<li style='margin-bottom: 15px; padding: 15px; background-color: #f9f9f9; border-left: 5px solid #4CAF50; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);'>";
+                echo "<strong style='font-size: 1.1em; color: #222;'>{$safeName}</strong><br>";
+                echo "<span style='color: #666; font-size: 0.9em;'>Datum: {$safeDate}</span> | ";
+                echo "<span style='color: #2e7d32; font-weight: bold; font-size: 0.9em;'>Auslastung: {$safeUtil}% (Noch Plätze frei!)</span>";
+                echo "</li>";
+            }
+            echo "</ul>";
+        } else {
+            echo "<p style='color: #999; italic;'>Aktuell sind laut ipscmatch.de leider alle Turniere vollständig ausgebucht.</p>";
+        }
     }
-    echo "</ul>";
-} else {
-    echo "<p>Aktuell sind leider alle gelisteten Matches zu 100% voll.</p>";
-}
+    // --- ENDE DES ABRAUF-SKRIPTS ---
+    ?>
+    
+    <p style="font-size: 0.8em; color: #999; margin-top: 30px; text-align: center;">
+        Daten live gefiltert von <a href="https://www.ipscmatch.de/" target="_blank" style="color: #666;">ipscmatch.de</a>
+    </p>
+</div>
+
+<?php
+// 2. DESIGN-FUSS DEINER SEITE LADEN
+// Wenn du eine zentrale Datei für deinen Footer hast (z.B. footer.php),
+// entferne die zwei Schrägstriche am Anfang der nächsten Zeile:
+// include('footer.php'); 
 ?>
