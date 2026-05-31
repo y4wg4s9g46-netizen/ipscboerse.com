@@ -40,6 +40,35 @@
 
         header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
 
+        /* HIER ERGÄNZT: Stil für das neue Navigationsmenü */
+        .main-nav {
+            margin-top: 25px; 
+            display: flex; 
+            justify-content: center; 
+            gap: 25px; 
+            border-top: 1px solid #222; 
+            padding-top: 15px;
+        }
+        .main-nav a {
+            text-decoration: none; 
+            font-weight: bold; 
+            font-size: 14px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+            padding-bottom: 4px;
+            transition: color 0.2s ease;
+        }
+        .main-nav a.active {
+            color: var(--accent-color); 
+            border-bottom: 2px solid var(--accent-color);
+        }
+        .main-nav a.inactive {
+            color: var(--text-muted);
+        }
+        .main-nav a.inactive:hover {
+            color: var(--text-color);
+        }
+
         .header-controls {
             position: absolute;
             top: 20px;
@@ -228,6 +257,12 @@
     <header>
         <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
         <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Von Schützen für Schützen – Live Marktplatz</p>
+        
+        <!-- HIER ERGÄNZT: Das Navigationsmenü direkt im Header -->
+        <nav class="main-nav">
+            <a href="index.html" class="active">Marktplatz</a>
+            <a href="freie-matches.html" class="inactive">Freie Match-Plätze</a>
+        </nav>
         
         <div class="header-controls">
             <select id="language-select" class="lang-switch">
