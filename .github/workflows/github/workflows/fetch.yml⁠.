@@ -1,8 +1,8 @@
 name: Update Matches
 on:
   schedule:
-    - cron: '0 * * * *' # Läuft jede Stunde
-  workflow_dispatch:
+    - cron: '0 * * * *'
+  workflow_dispatch:  # <--- DIESE ZEILE IST ENTSCHEIDEND FÜR DEN BUTTON!
 
 jobs:
   build:
