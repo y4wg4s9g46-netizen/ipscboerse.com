@@ -137,79 +137,17 @@
         </div>
     </footer>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const targetUrl = 'https://www.ipscmatch.de/';
-            // Wir nutzen AllOrigins als CORS Proxy
-            const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(targetUrl);
-            const container = document.getElementById('js-match-container');
-            const statusText = document.getElementById('js-status-text');
-
-            fetch(proxyUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error('Netzwerkfehler beim Laden der Daten.');
-                    return response.text();
-                })
-                .then(htmlString => {
-                    // HTML parsen
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(htmlString, 'text/html');
-                    const rows = doc.querySelectorAll('table tr');
-                    
-                    let htmlOutput = '';
-                    let matchCount = 0;
-
-                    rows.forEach(row => {
-                        const cols = row.querySelectorAll('td');
-                        // Sicherstellen, dass es sich um eine Datenzeile handelt
-                        if (cols.length >= 5) {
-                            const date = cols[0].textContent.trim();
-                            const matchName = cols[2].textContent.trim();
-                            const rowText = row.textContent;
-
-                            // Prozentzahl auslesen
-                            const percentageMatch = rowText.match(/(\d+)\s*%/);
-                            if (percentageMatch) {
-                                const percentage = parseInt(percentageMatch[1], 10);
-
-                                // Nur Matches mit < 100% Auslastung anzeigen
-                                if (percentage < 100) {
-                                    matchCount++;
-                                    htmlOutput += `
-                                        <div class="match-card">
-                                            <div class="match-details">
-                                                <h3>${escapeHtml(matchName)}</h3>
-                                                <p>Datum: ${escapeHtml(date)}</p>
-                                                <div class="badge-container"><span class="badge">Freie Plätze</span></div>
-                                            </div>
-                                            <div class="card-actions">
-                                                <span style="font-weight: bold; color: var(--success-color); font-size: 16px;">Auslastung: ${percentage}%</span>
-                                                <a href="https://www.ipscmatch.de/" target="_blank" class="btn-contact" style="margin-top: 5px;">Zur Anmeldung</a>
-                                            </div>
-                                        </div>
-                                    `;
-                                }
-                            }
-                        }
-                    });
-
-                    if (matchCount > 0) {
-                        container.innerHTML = htmlOutput;
-                    } else {
-                        container.innerHTML = '<p class="loading-msg">Aktuell sind laut ipscmatch.de leider alle Turniere vollständig ausgebucht (100%+).</p>';
-                    }
-                })
-                .catch(error => {
-                    console.error(error);
-                    container.innerHTML = '<p class="loading-msg" style="color: var(--danger-color);">⚠️ Fehler beim Laden der Live-Daten. Bitte versuche es später erneut.</p>';
-                });
-
-            // Helferfunktion gegen XSS / bösartigen Code
-            function escapeHtml(str) {
-                return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-            }
-        });
-    </script>
+    <<script>
+    fetch('matches.json')
+      .then(res => res.json())
+      .then(data => {
+          let html = data.map(m => `<div class="match-card">${m}</div>`).join('');
+          document.getElementById('js-match-container').innerHTML = html;
+      })
+      .catch(() => {
+          document.getElementById('js-match-container').innerHTML = "Daten werden gerade aktualisiert...";
+      });
+</script>
 
 </body>
 </html>
