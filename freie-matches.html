@@ -3,190 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Freie Match-Plätze | Startplatz Börse</title>
-    
+    <title>Freie IPSC Matches</title>
     <style>
-        :root {
-            --bg-color: #1a1a1a;
-            --card-bg: #2d2d2d;
-            --accent-color: #ff9f43;
-            --text-color: #ffffff;
-            --text-muted: #aaaaaa;
-            --danger-color: #ff4d4d;
-            --success-color: #2ecc71;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
             margin: 0;
-            padding: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .match-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .match-card {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            justify-content: space-between;
         }
-
-        header {
-            background-color: #0f0f0f;
-            padding: 20px;
-            text-align: center;
-            border-bottom: 3px solid var(--accent-color);
-            position: relative;
+        .match-card h3 {
+            margin-top: 0;
+            color: #2980b9;
+            font-size: 1.2em;
+            line-height: 1.4;
         }
-
-        header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
-
-        .main-nav {
-            margin-top: 25px; 
-            display: flex; 
-            justify-content: center; 
-            gap: 25px; 
-            border-top: 1px solid #222; 
-            padding-top: 15px;
+        .badge {
+            display: inline-block;
+            background-color: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-bottom: 15px;
         }
-        .main-nav a {
-            text-decoration: none;
-            font-weight: bold; 
-            font-size: 14px; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px; 
-            padding-bottom: 4px;
-            transition: color 0.2s ease;
-        }
-        .main-nav a.active {
-            color: var(--accent-color);
-            border-bottom: 2px solid var(--accent-color);
-        }
-        .main-nav a.inactive {
-            color: var(--text-muted);
-        }
-        .main-nav a.inactive:hover {
-            color: var(--text-color);
-        }
-
-        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; }
-
-        .info-box {
-            background-color: rgba(46, 204, 113, 0.1);
-            border-left: 4px solid var(--success-color);
-            padding: 15px; margin-bottom: 30px; border-radius: 4px;
-        }
-
-        .match-list { display: flex; flex-direction: column; gap: 15px; }
-
-        .match-card {
-            background-color: rgba(46, 204, 113, 0.08);
-            border-radius: 6px; padding: 20px;
-            display: flex; justify-content: space-between; align-items: center; border: 1px solid #444;
-            position: relative; overflow: hidden;
-            transition: transform 0.2s ease;
-        }
-        
-        .match-card:hover {
-            transform: scale(1.01);
-            background-color: rgba(46, 204, 113, 0.15);
-        }
-
-        .match-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0;
-        width: 5px; background-color: var(--success-color); }
-
-        .match-details h3 { margin: 0 0 5px 0;
-        color: var(--accent-color); display: flex; align-items: center; gap: 10px; }
-        .match-details p { margin: 5px 0;
-        font-size: 14px; color: var(--text-muted); }
-        
-        .badge-container { display: flex;
-        gap: 5px; margin-top: 8px; flex-wrap: wrap; }
-        .badge { background-color: var(--success-color); color: #000;
-        padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-
-        .card-actions { display: flex;
-        flex-direction: column; align-items: flex-end; gap: 8px; }
-
         .btn-contact {
-            background-color: var(--success-color);
-            color: #000; border: none;
-            padding: 10px 20px; font-weight: bold; border-radius: 4px; text-decoration: none; text-align: center; cursor: pointer; font-size: 14px;
+            display: block;
+            text-align: center;
+            background-color: #27ae60;
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
         }
-        .btn-contact:hover { opacity: 0.9; }
-
-        .loading-msg { text-align: center; color: var(--text-muted); padding: 4px; font-style: italic; }
-
-        footer {
-            background-color: #0f0f0f;
-            border-top: 1px solid #444; padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted);
+        .btn-contact:hover {
+            background-color: #2ecc71;
+        }
+        .error-msg {
+            text-align: center;
+            color: red;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>IPSC STARTPLATZ-BÖRSE</h1>
-        <p style="color: var(--text-muted); margin: 5px 0 0 0;">Von Schützen für Schützen – Live Marktplatz</p>
-        
-        <nav class="main-nav">
-            <a href="index.html" class="inactive">Marktplatz</a>
-            <a href="freie-matches.html" class="active">Freie Match-Plätze</a>
-        </nav>
-    </header>
-
-    <div class="container">
-        
-        <div class="info-box">
-            <strong>Info:</strong> Die Matches werden lokal aktualisiert. Es werden nur Turniere angezeigt, die eine Auslastung von unter 100% aufweisen (freie Startplätze).
-        </div>
-
-        <h2 style="margin-bottom: 20px;">Verfügbare Matches auf MatchSign (Auslastung &lt; 100%)</h2>
-
-        <div class="match-list" id="js-match-container">
-            <p class="loading-msg" id="js-status-text">Lade aktuelle Matches...</p>
-        </div>
-
+    <h1>Verfügbare Startplätze (unter 100%)</h1>
+    
+    <div id="js-match-container" class="match-container">
+        <p style="text-align: center; width: 100%;">Lade aktuelle Matches...</p>
     </div>
 
-    <footer>
-        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
-            <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">Impressum & Rechtliche Hinweise</a>
-            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
-        </div>
-    </footer>
-
     <script>
-    // JSON Datei abrufen
-    fetch('matches.json')
-      .then(res => res.json())
-      .then(data => {
-          const container = document.getElementById('js-match-container');
-          
-          if (data.length === 0) {
-              container.innerHTML = "<p>Aktuell sind alle Matches zu 100% belegt.</p>";
-              return;
-          }
+        // Lade die JSON-Datei, die unser GitHub-Bot regelmäßig aktualisiert
+        fetch('matches.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Fehler beim Laden der Datei");
+                }
+                return response.json();
+            })
+            .then(matches => {
+                const container = document.getElementById('js-match-container');
+                
+                if (matches.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; width: 100%;">Aktuell sind leider alle Matches zu 100% ausgebucht.</p>';
+                    return;
+                }
 
-          // HTML für jedes Match aufbauen (mit echtem Link)
-          let html = data.map(match => `
-              <a href="${match.url}" target="_blank" style="text-decoration: none; color: inherit;">
-                  <div class="match-card">
-                      <div class="match-details">
-                          <h3>${match.name}</h3>
-                          <div class="badge-container">
-                              <span class="badge">Auslastung: ${match.auslastung}</span>
-                          </div>
-                      </div>
-                      <div class="card-actions">
-                          <span class="btn-contact">Zum Match</span>
-                      </div>
-                  </div>
-              </a>
-          `).join('');
-          
-          container.innerHTML = html;
-      })
-      .catch(err => {
-          console.error("Fehler beim Laden:", err);
-          document.getElementById('js-match-container').innerHTML = "<p class='loading-msg'>Fehler beim Laden der Daten. Bitte später erneut versuchen.</p>";
-      });
+                // Generiere den HTML-Code für jedes gefundene Match
+                let html = '';
+                matches.forEach(match => {
+                    html += `
+                        <div class="match-card">
+                            <div>
+                                <!-- Hier wird der Name des Matches eingefügt -->
+                                <h3>${match.name}</h3>
+                                <span class="badge">Auslastung: ${match.auslastung}</span>
+                            </div>
+                            <!-- Hier ist der Link zu ipscmatch.de (öffnet in neuem Tab) -->
+                            <a href="${match.url}" target="_blank" class="btn-contact">Zum Match</a>
+                        </div>
+                    `;
+                });
+                
+                // Füge die fertigen Karten in die Webseite ein
+                container.innerHTML = html;
+            })
+            .catch(error => {
+                console.error("Fehler:", error);
+                document.getElementById('js-match-container').innerHTML = '<p class="error-msg">Die aktuellen Matches konnten nicht geladen werden. Bitte lade die Seite neu.</p>';
+            });
     </script>
 
 </body>
