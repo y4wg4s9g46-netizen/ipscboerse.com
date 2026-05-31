@@ -140,7 +140,6 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const targetUrl = 'https://www.ipscmatch.de/';
-            // AllOrigins als CORS Proxy verwenden
             const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(targetUrl);
             const container = document.getElementById('js-match-container');
 
@@ -152,48 +151,77 @@
                 .then(htmlString => {
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(htmlString, 'text/html');
-                    
-                    // Sucht nach Tabellenzeilen (flexibler Selektor)
                     const rows = doc.querySelectorAll('table tr');
                     
                     let htmlOutput = '';
                     let matchCount = 0;
 
                     rows.forEach(row => {
-                        // Den gesamten Text der Zeile bereinigen
                         const rowText = row.textContent.replace(/\s+/g, ' ').trim();
-                        
-                        // Prozentzahl auslesen (z.B. "85%")
                         const percentageMatch = rowText.match(/(\d+)\s*%/);
+                        
                         if (percentageMatch) {
                             const percentage = parseInt(percentageMatch[1], 10);
 
-                            // Nur Matches mit unter 100% Auslastung anzeigen
                             if (percentage < 100) {
                                 matchCount++;
                                 
-                                // 1. Intelligente Extraktion des Matchnamens (Erster Link in der Zeile)
-                                const anchor = row.querySelector('a');
-                                let matchName = anchor ? anchor.textContent.trim() : '';
+                                // --- DEEP-LINK EXTRAKTION START ---
+                                let extractedPath = '';
                                 
-                                // 2. Dynamischer Direkt-Link zum Match generieren
-                                let matchLink = 'https://www.ipscmatch.de/';
-                                if (anchor && anchor.getAttribute('href')) {
-                                    const href = anchor.getAttribute('href');
-                                    matchLink = href.startsWith('http') ? href : 'https://www.ipscmatch.de/' + (href.startsWith('/') ? href.substring(1) : href);
+                                // Variante A: Suche in normalen Links innerhalb der Zeile
+                                const anchors = row.querySelectorAll('a');
+                                anchors.forEach(a => {
+                                    const href = a.getAttribute('href') || '';
+                                    if (href && !href.includes('mailto:') && !href.includes('javascript:')) {
+                                        extractedPath = href;
+                                    }
+                                });
+
+                                // Variante B: Suche in "onclick"-Attributen der Zeile (wichtig für ipscmatch.de!)
+                                if (!extractedPath) {
+                                    const rowOnclick = row.getAttribute('onclick') || '';
+                                    const clickMatch = rowOnclick.match(/(?:href\s*=\s*['"]|location\s*=\s*['"]|open\(['"])([^'"]+)/);
+                                    if (clickMatch) extractedPath = clickMatch[1];
                                 }
 
-                                // 3. Intelligente Extraktion des Datums über Regex (erkennt "12.06.2026", "12.–13.06.2026", etc.)
-                                const dateMatch = rowText.match(/(\d{2}\.(?:\s*[-–]\s*\d{2}\.)?\s*\d{2}\.\s*\d{4})/);
-                                let date = dateMatch ? dateMatch[1].trim() : '';
+                                // Variante C: Suche in "onclick"-Attributen der einzelnen TD-Zellen
+                                if (!extractedPath) {
+                                    row.querySelectorAll('td').forEach(td => {
+                                        const tdOnclick = td.getAttribute('onclick') || '';
+                                        const tdClickMatch = tdOnclick.match(/(?:href\s*=\s*['"]|location\s*=\s*['"]|open\(['"])([^'"]+)/);
+                                        if (tdClickMatch && !extractedPath) {
+                                            extractedPath = tdClickMatch[1];
+                                        }
+                                    });
+                                }
 
-                                // Fallbacks (Sicherheitsnetz falls Heuristiken fehlschlagen)
-                                if (!matchName || matchName.length < 3) {
+                                // Absoluten Link zusammensetzen
+                                let matchLink = 'https://www.ipscmatch.de/';
+                                if (extractedPath) {
+                                    if (extractedPath.startsWith('http')) {
+                                        matchLink = extractedPath;
+                                    } else {
+                                        const cleanPath = extractedPath.startsWith('/') ? extractedPath.substring(1) : extractedPath;
+                                        matchLink = 'https://www.ipscmatch.de/' + cleanPath;
+                                    }
+                                }
+                                // --- DEEP-LINK EXTRAKTION ENDE ---
+
+                                // Match-Name bestimmen
+                                let matchName = '';
+                                if (anchors.length > 0 && anchors[0].textContent.trim().length > 2) {
+                                    matchName = anchors[0].textContent.trim();
+                                } else {
+                                    // Fallback: Nutze den ersten Textabschnitt der Zeile vor dem Datum
                                     const cleanText = rowText.replace(/(\d+)\s*%/, '').trim();
-                                    const parts = cleanText.split('.');
+                                    const parts = cleanText.split(/\d{2}\.\d{2}\./); // Trennen beim Datum
                                     matchName = parts[0].trim() || 'IPSC Turnier';
                                 }
-                                
+
+                                // Datum bestimmen
+                                const dateMatch = rowText.match(/(\d{2}\.(?:\s*[-–]\s*\d{2}\.)?\s*\d{2}\.\s*\d{4})/);
+                                let date = dateMatch ? dateMatch[1].trim() : '';
                                 if (!date) {
                                     const simpleDate = rowText.match(/(\d{2}\.\d{2}\.\d{4})/);
                                     date = simpleDate ? simpleDate[1] : 'Siehe Anmeldung';
@@ -227,7 +255,6 @@
                     container.innerHTML = '<p class="loading-msg" style="color: var(--danger-color);">⚠️ Fehler beim Laden der Live-Daten. Bitte versuche es später erneut.</p>';
                 });
 
-            // Schutz vor XSS-Injections
             function escapeHtml(str) {
                 return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
             }
