@@ -1,137 +1,137 @@
 [
     {
-        "name": "PCC",
+        "name": "1",
         "auslastung": "84%",
-        "url": "https://www.ipscmatch.de/index.pl?type=PCC"
+        "url": "https://www.ipscmatch.de/index.pl?level=1"
     },
     {
-        "name": "HG",
+        "name": "3",
         "auslastung": "99%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG"
+        "url": "https://www.ipscmatch.de/index.pl?level=3"
     },
     {
-        "name": "HG",
+        "name": "2",
         "auslastung": "91%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG"
+        "url": "https://www.ipscmatch.de/index.pl?level=2"
     },
     {
-        "name": "HG",
+        "name": "2",
         "auslastung": "32%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG"
+        "url": "https://www.ipscmatch.de/index.pl?level=2"
     },
     {
-        "name": "HG",
+        "name": "2",
         "auslastung": "7%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG"
+        "url": "https://www.ipscmatch.de/index.pl?level=2"
     },
     {
-        "name": "HG",
+        "name": "2",
         "auslastung": "81%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG"
+        "url": "https://www.ipscmatch.de/index.pl?level=2"
     },
     {
-        "name": "HG",
+        "name": "3",
         "auslastung": "79%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG"
+        "url": "https://www.ipscmatch.de/index.pl?level=3"
     },
     {
-        "name": "HG, PCC",
+        "name": "3",
         "auslastung": "82%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG, PCC"
+        "url": "https://www.ipscmatch.de/index.pl?level=3"
     },
     {
-        "name": "SG",
+        "name": "3",
         "auslastung": "78%",
-        "url": "https://www.ipscmatch.de/index.pl?type=SG"
+        "url": "https://www.ipscmatch.de/index.pl?level=3"
     },
     {
-        "name": "HG",
+        "name": "2",
         "auslastung": "97%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG"
+        "url": "https://www.ipscmatch.de/index.pl?level=2"
     },
     {
-        "name": "Action Air",
+        "name": "Bracara Action Air 2026",
         "auslastung": "1%",
-        "url": "https://www.ipscmatch.de/index.pl?type=Action Air"
+        "url": "https://www.ipscmatch.de/index.pl?match=Bracara_Action_Air_-_2026"
     },
     {
-        "name": "HG",
+        "name": "3",
         "auslastung": "94%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG"
+        "url": "https://www.ipscmatch.de/index.pl?level=3"
     },
     {
-        "name": "SG",
+        "name": "3",
         "auslastung": "93%",
-        "url": "https://www.ipscmatch.de/index.pl?type=SG"
+        "url": "https://www.ipscmatch.de/index.pl?level=3"
     },
     {
-        "name": "HG",
+        "name": "2",
         "auslastung": "98%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG"
+        "url": "https://www.ipscmatch.de/index.pl?level=2"
     },
     {
-        "name": "PCC",
+        "name": "2",
         "auslastung": "78%",
-        "url": "https://www.ipscmatch.de/index.pl?type=PCC"
+        "url": "https://www.ipscmatch.de/index.pl?level=2"
     },
     {
-        "name": "SG",
+        "name": "3",
         "auslastung": "74%",
-        "url": "https://www.ipscmatch.de/index.pl?type=SG"
+        "url": "https://www.ipscmatch.de/index.pl?level=3"
     },
     {
-        "name": "PCC",
+        "name": "2",
         "auslastung": "95%",
-        "url": "https://www.ipscmatch.de/index.pl?type=PCC"
+        "url": "https://www.ipscmatch.de/index.pl?level=2"
     },
     {
-        "name": "HG",
+        "name": "2",
         "auslastung": "88%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG"
+        "url": "https://www.ipscmatch.de/index.pl?level=2"
     },
     {
-        "name": "HG",
+        "name": "2",
         "auslastung": "20%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG"
+        "url": "https://www.ipscmatch.de/index.pl?level=2"
     },
     {
-        "name": ".22LR HG",
+        "name": "2",
         "auslastung": "40%",
-        "url": "https://www.ipscmatch.de/index.pl?type=.22LR HG"
+        "url": "https://www.ipscmatch.de/index.pl?level=2"
     },
     {
-        "name": "HG, PCC, MR",
+        "name": "2",
         "auslastung": "6%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG, PCC, MR"
+        "url": "https://www.ipscmatch.de/index.pl?level=2"
     },
     {
-        "name": "HG, PCC, MR",
+        "name": "3",
         "auslastung": "11%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG, PCC, MR"
+        "url": "https://www.ipscmatch.de/index.pl?level=3"
     },
     {
-        "name": "PCC",
+        "name": "3",
         "auslastung": "86%",
-        "url": "https://www.ipscmatch.de/index.pl?type=PCC"
+        "url": "https://www.ipscmatch.de/index.pl?level=3"
     },
     {
-        "name": "RF",
+        "name": "3",
         "auslastung": "98%",
-        "url": "https://www.ipscmatch.de/index.pl?type=RF"
+        "url": "https://www.ipscmatch.de/index.pl?level=3"
     },
     {
-        "name": "HG, PCC, MR",
+        "name": "3",
         "auslastung": "37%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG, PCC, MR"
+        "url": "https://www.ipscmatch.de/index.pl?level=3"
     },
     {
-        "name": "HG",
+        "name": "3",
         "auslastung": "84%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG"
+        "url": "https://www.ipscmatch.de/index.pl?level=3"
     },
     {
-        "name": "HG, PCC, MR",
+        "name": "3",
         "auslastung": "8%",
-        "url": "https://www.ipscmatch.de/index.pl?type=HG, PCC, MR"
+        "url": "https://www.ipscmatch.de/index.pl?level=3"
     }
 ]
