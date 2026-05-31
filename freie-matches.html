@@ -99,11 +99,14 @@
         .badge-container { display: flex;
         gap: 8px; margin-top: 8px; flex-wrap: wrap; }
         
+        /* Die farbigen Badges für maximale Übersicht */
         .badge { background-color: var(--success-color); color: #000;
         padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        
-        /* Neues Design für das Land-Badge */
-        .badge-land { background-color: #3498db; color: #fff;
+        .badge-region { background-color: #3498db; color: #fff;
+        padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .badge-lvl { background-color: #9b59b6; color: #fff;
+        padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .badge-disziplin { background-color: #f39c12; color: #fff;
         padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
 
         .card-actions { display: flex;
@@ -175,7 +178,9 @@
                           <h3>${match.name}</h3>
                           <div class="badge-container">
                               <span class="badge">Auslastung: ${match.auslastung}</span>
-                              <span class="badge-land">Land: ${match.land}</span>
+                              <span class="badge-region">Reg: ${match.region}</span>
+                              <span class="badge-lvl">Level: ${match.level}</span>
+                              <span class="badge-disziplin">${match.disziplin}</span>
                           </div>
                       </div>
                       <div class="card-actions">
