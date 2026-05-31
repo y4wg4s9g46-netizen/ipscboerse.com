@@ -4,73 +4,311 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freie Match-Plätze | Startplatz Börse</title>
+    
     <style>
-        :root { --bg-color: #1a1a1a; --card-bg: #2d2d2d; --accent-color: #ff9f43; --text-color: #ffffff; --text-muted: #aaaaaa; --danger-color: #ff4d4d; --success-color: #2ecc71; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; }
-        header { background-color: #0f0f0f; padding: 20px; text-align: center; border-bottom: 3px solid var(--accent-color); }
-        .nav { margin-top: 20px; display: flex; justify-content: center; gap: 20px; }
-        .nav a { color: var(--text-muted); text-decoration: none; font-weight: bold; }
-        .nav a.active { color: var(--accent-color); border-bottom: 2px solid var(--accent-color); }
-        .container { max-width: 800px; margin: 30px auto; padding: 20px; }
-        .match-card { background: var(--card-bg); padding: 15px; margin-bottom: 10px; border-left: 4px solid var(--success-color); display: flex; justify-content: space-between; align-items: center; border-radius: 4px; }
-        .btn { background: var(--success-color); color: #000; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; }
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --accent-color: #ff9f43;
+            --text-color: #ffffff;
+            --text-muted: #aaaaaa;
+            --danger-color: #ff4d4d;
+            --success-color: #2ecc71;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #0f0f0f;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid var(--accent-color);
+            position: relative;
+        }
+
+        header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
+
+        .main-nav {
+            margin-top: 25px; 
+            display: flex; 
+            justify-content: center; 
+            gap: 25px; 
+            border-top: 1px solid #222; 
+            padding-top: 15px;
+        }
+        .main-nav a {
+            text-decoration: none; 
+            font-weight: bold; 
+            font-size: 14px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+            padding-bottom: 4px;
+            transition: color 0.2s ease;
+        }
+        .main-nav a.active {
+            color: var(--accent-color); 
+            border-bottom: 2px solid var(--accent-color);
+        }
+        .main-nav a.inactive {
+            color: var(--text-muted);
+        }
+        .main-nav a.inactive:hover {
+            color: var(--text-color);
+        }
+
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; }
+
+        .info-box {
+            background-color: rgba(46, 204, 113, 0.1); border-left: 4px solid var(--success-color);
+            padding: 15px; margin-bottom: 30px; border-radius: 4px;
+        }
+
+        .error-box {
+            background-color: rgba(255, 77, 77, 0.1); border-left: 4px solid var(--danger-color);
+            padding: 20px; margin-bottom: 30px; border-radius: 4px; text-align: center;
+        }
+
+        .match-list { display: flex; flex-direction: column; gap: 15px; }
+
+        .match-card {
+            background-color: rgba(46, 204, 113, 0.08);
+            border-radius: 6px; padding: 20px;
+            display: flex; justify-content: space-between; align-items: center; border: 1px solid #444;
+            position: relative; overflow: hidden;
+        }
+
+        .match-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 5px; background-color: var(--success-color); }
+
+        .match-details h3 { margin: 0 0 5px 0; color: var(--accent-color); display: flex; align-items: center; gap: 10px; }
+        .match-details p { margin: 5px 0; font-size: 14px; color: var(--text-muted); }
+        
+        .badge-container { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+        .badge { background-color: var(--success-color); color: #000; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+
+        .card-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+
+        .btn-contact {
+            background-color: var(--success-color); color: #000; border: none;
+            padding: 10px 20px; font-weight: bold; border-radius: 4px; text-decoration: none; text-align: center; cursor: pointer; font-size: 14px;
+        }
+        .btn-contact:hover { opacity: 0.9; }
+
+        .btn-retry {
+            background-color: var(--accent-color); color: #000; border: none;
+            padding: 8px 16px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 10px; font-size: 13px;
+        }
+
+        .loading-msg { text-align: center; color: var(--text-muted); padding: 4px; font-style: italic; }
+
+        footer {
+            background-color: #0f0f0f; border-top: 1px solid #444; padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted);
+        }
     </style>
 </head>
 <body>
 
     <header>
         <h1>IPSC STARTPLATZ-BÖRSE</h1>
-        <div class="nav">
-            <a href="index.html">Marktplatz</a>
+        <p style="color: var(--text-muted); margin: 5px 0 0 0;">Von Schützen für Schützen – Live Marktplatz</p>
+        
+        <nav class="main-nav">
+            <!-- Geändert von index.html auf ./ um immer relativ zur echten Startseite zu linken -->
+            <a href="./" class="inactive">Marktplatz</a>
             <a href="freie-matches.html" class="active">Freie Match-Plätze</a>
-        </div>
+        </nav>
     </header>
 
-    <div class="container" id="match-container">
-        <p>Lade Daten von ipscmatch.de... (Bitte warten)</p>
+    <div class="container">
+        
+        <div class="info-box">
+            <strong>Browser-Live-Filterung:</strong> Die Matches werden direkt von <i>ipscmatch.de</i> geladen. Es werden nur Turniere angezeigt, die eine Auslastung von unter 100% aufweisen (freie Startplätze).
+        </div>
+
+        <h2 style="margin-bottom: 20px;">Verfügbare Matches auf MatchSign (Auslastung &lt; 100%)</h2>
+
+        <div class="match-list" id="js-match-container">
+            <p class="loading-msg" id="js-status-text">Lade aktuelle Matches live von ipscmatch.de...</p>
+        </div>
+
     </div>
 
-    <script>
-        const CONTAINER = document.getElementById('match-container');
-        const CACHE_KEY = 'matches_data';
-        
-        // Cache laden, falls vorhanden (10 Minuten gültig)
-        const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
-        if(cached && (Date.now() - cached.time < 600000)) {
-            CONTAINER.innerHTML = cached.html;
-        } else {
-            fetchMatches();
-        }
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
+            <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">Impressum & Rechtliche Hinweise</a>
+            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+        </div>
+    </footer>
 
-        function fetchMatches() {
-            // Wir nutzen einen alternativen Mirror, um 408/Timeout zu vermeiden
-            const url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://www.ipscmatch.de/');
-            
-            fetch(url)
-                .then(r => r.json())
-                .then(data => {
-                    const doc = new DOMParser().parseFromString(data.contents, 'text/html');
-                    let html = '';
-                    doc.querySelectorAll('table tr').forEach(row => {
-                        if(row.textContent.includes('%') && !row.textContent.includes('100%')) {
-                            html += `<div class="match-card">
-                                        <div><strong>${row.cells[0]?.textContent || 'Match'}</strong></div>
-                                        <a href="https://www.ipscmatch.de" class="btn" target="_blank">Anmelden</a>
-                                     </div>`;
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const targetUrl = 'https://www.ipscmatch.de/';
+            const container = document.getElementById('js-match-container');
+
+            function isMapLink(url) {
+                const lowerUrl = url.toLowerCase();
+                return lowerUrl.includes('maps.google') || 
+                       lowerUrl.includes('google.com/maps') || 
+                       lowerUrl.includes('goo.gl/maps') || 
+                       lowerUrl.includes('maps.apple');
+            }
+
+            function fetchMatches() {
+                container.innerHTML = '<p class="loading-msg">Lade aktuelle Matches live von ipscmatch.de...</p>';
+
+                // AllOrigins JSON-Schnittstelle nutzen
+                const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl);
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+                fetch(proxyUrl, { signal: controller.signal })
+                    .then(response => {
+                        clearTimeout(timeoutId);
+                        if (!response.ok) throw new Error(`HTTP-Status ${response.status}`);
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data || !data.contents) {
+                            throw new Error("Proxy lieferte leere Daten zurück.");
                         }
+
+                        const htmlString = data.contents;
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(htmlString, 'text/html');
+                        const rows = doc.querySelectorAll('table tr');
+                        
+                        let htmlOutput = '';
+                        let matchCount = 0;
+
+                        rows.forEach(row => {
+                            const rowText = row.textContent.replace(/\s+/g, ' ').trim();
+                            const percentageMatch = rowText.match(/(\d+)\s*%/);
+                            
+                            if (percentageMatch) {
+                                const percentage = parseInt(percentageMatch[1], 10);
+
+                                if (percentage < 100) {
+                                    matchCount++;
+                                    
+                                    let extractedPath = '';
+                                    const anchors = row.querySelectorAll('a');
+                                    
+                                    anchors.forEach(a => {
+                                        const href = a.getAttribute('href') || '';
+                                        if (href && !href.includes('mailto:') && !href.includes('javascript:') && !isMapLink(href)) {
+                                            if (href.includes('index') || href.includes('match') || !extractedPath) {
+                                                extractedPath = href;
+                                            }
+                                        }
+                                    });
+
+                                    if (!extractedPath) {
+                                        const rowOnclick = row.getAttribute('onclick') || '';
+                                        const clickMatch = rowOnclick.match(/(?:href\s*=\s*['"]|location\s*=\s*['"]|open\(['"])([^'"]+)/);
+                                        if (clickMatch && !isMapLink(clickMatch[1])) {
+                                            extractedPath = clickMatch[1];
+                                        }
+                                    }
+
+                                    if (!extractedPath) {
+                                        row.querySelectorAll('td').forEach(td => {
+                                            const tdOnclick = td.getAttribute('onclick') || '';
+                                            const tdClickMatch = tdOnclick.match(/(?:href\s*=\s*['"]|location\s*=\s*['"]|open\(['"])([^'"]+)/);
+                                            if (tdClickMatch && !isMapLink(tdClickMatch[1]) && !extractedPath) {
+                                                extractedPath = tdClickMatch[1];
+                                            }
+                                        });
+                                    }
+
+                                    let matchLink = 'https://www.ipscmatch.de/';
+                                    if (extractedPath) {
+                                        if (extractedPath.startsWith('http')) {
+                                            matchLink = extractedPath;
+                                        } else {
+                                            const cleanPath = extractedPath.startsWith('/') ? extractedPath.substring(1) : extractedPath;
+                                            matchLink = 'https://www.ipscmatch.de/' + cleanPath;
+                                        }
+                                    }
+
+                                    let matchName = '';
+                                    const validAnchors = Array.from(anchors).filter(a => !isMapLink(a.getAttribute('href') || ''));
+                                    if (validAnchors.length > 0 && validAnchors[0].textContent.trim().length > 2) {
+                                        matchName = validAnchors[0].textContent.trim();
+                                    } else {
+                                        const cleanText = rowText.replace(/(\d+)\s*%/, '').trim();
+                                        const parts = cleanText.split(/\d{2}\.\d{2}\./);
+                                        matchName = parts[0].trim() || 'IPSC Turnier';
+                                    }
+
+                                    const dateMatch = rowText.match(/(\d{2}\.(?:\s*[-–]\s*\d{2}\.)?\s*\d{2}\.\s*\d{4})/);
+                                    let date = dateMatch ? dateMatch[1].trim() : '';
+                                    if (!date) {
+                                        const simpleDate = rowText.match(/(\d{2}\.\d{2}\.\d{4})/);
+                                        date = simpleDate ? simpleDate[1] : 'Siehe Anmeldung';
+                                    }
+
+                                    htmlOutput += `
+                                        <div class="match-card">
+                                            <div class="match-details">
+                                                <h3>${escapeHtml(matchName)}</h3>
+                                                <p>Datum: ${escapeHtml(date)}</p>
+                                                <div class="badge-container"><span class="badge">Freie Plätze</span></div>
+                                            </div>
+                                            <div class="card-actions">
+                                                <span style="font-weight: bold; color: var(--success-color); font-size: 16px;">Auslastung: ${percentage}%</span>
+                                                <a href="${escapeHtml(matchLink)}" target="_blank" class="btn-contact" style="margin-top: 5px;">Zur Anmeldung</a>
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                            }
+                        });
+
+                        if (matchCount > 0) {
+                            container.innerHTML = htmlOutput;
+                        } else {
+                            container.innerHTML = '<p class="loading-msg">Aktuell sind laut ipscmatch.de leider alle Turniere vollständig ausgebucht (100%+).</p>';
+                        }
+                    })
+                    .catch(error => {
+                        clearTimeout(timeoutId);
+                        console.error(error);
+                        
+                        let detailMsg = "Der Verbindungsserver ist überlastet oder blockiert.";
+                        if (error.name === 'AbortError') {
+                            detailMsg = "Zeitüberschreitung (Timeout) – ipscmatch.de hat zu langsam geantwortet.";
+                        } else if (error.message) {
+                            detailMsg = `Details: ${error.message}`;
+                        }
+
+                        container.innerHTML = `
+                            <div class="error-box">
+                                <p style="color: var(--danger-color); font-weight: bold; margin: 0 0 10px 0;">⚠️ Live-Daten konnten nicht geladen werden</p>
+                                <p style="font-size: 14px; color: var(--text-muted); margin: 0 0 15px 0;">${detailMsg}</p>
+                                <button class="btn-retry" id="js-btn-retry">Verbindung erneut versuchen</button>
+                            </div>
+                        `;
+                        
+                        document.getElementById('js-btn-retry').addEventListener('click', fetchMatches);
                     });
-                    
-                    if(html) {
-                        localStorage.setItem(CACHE_KEY, JSON.stringify({html, time: Date.now()}));
-                        CONTAINER.innerHTML = html;
-                    } else {
-                        CONTAINER.innerHTML = '<p>Aktuell keine freien Plätze gefunden.</p>';
-                    }
-                })
-                .catch(() => {
-                    CONTAINER.innerHTML = '<p>Fehler: Verbindung zu ipscmatch.de nicht möglich. Bitte später versuchen.</p>';
-                });
-        }
+            }
+
+            function escapeHtml(str) {
+                return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+            }
+
+            fetchMatches();
+        });
     </script>
+
 </body>
 </html>
