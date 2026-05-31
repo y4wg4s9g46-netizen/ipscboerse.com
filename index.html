@@ -140,10 +140,15 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const targetUrl = 'https://www.ipscmatch.de/';
-            const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(targetUrl);
             const container = document.getElementById('js-match-container');
+            const statusText = document.getElementById('js-status-text');
 
-            // Hilfsfunktion: Erkennt und blockiert Google Maps & andere Navigations-Links
+            // Liste der CORS-Proxies für das Ausfall-Backup
+            const proxies = [
+                url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+                url => 'https://api.codetabs.com/v1/proxy?url=' + encodeURIComponent(url)
+            ];
+
             function isMapLink(url) {
                 const lowerUrl = url.toLowerCase();
                 return lowerUrl.includes('maps.google') || 
@@ -152,124 +157,135 @@
                        lowerUrl.includes('maps.apple');
             }
 
-            fetch(proxyUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error('Netzwerkfehler beim Laden der Daten.');
-                    return response.text();
-                })
-                .then(htmlString => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(htmlString, 'text/html');
-                    const rows = doc.querySelectorAll('table tr');
-                    
-                    let htmlOutput = '';
-                    let matchCount = 0;
+            // Intelligente Ladefunktion mit Proxy-Wechsel bei Fehlern
+            function fetchMatches(proxyIndex = 0) {
+                if (proxyIndex >= proxies.length) {
+                    container.innerHTML = '<p class="loading-msg" style="color: var(--danger-color);">⚠️ Fehler beim Laden der Live-Daten. Bitte versuche es später erneut.</p>';
+                    return;
+                }
 
-                    rows.forEach(row => {
-                        const rowText = row.textContent.replace(/\s+/g, ' ').trim();
-                        const percentageMatch = rowText.match(/(\d+)\s*%/);
+                if (proxyIndex > 0 && statusText) {
+                    statusText.textContent = 'Erster Server ausgelastet, verbinde mit Backup-Server...';
+                }
+
+                const currentProxyUrl = proxies[proxyIndex](targetUrl);
+
+                fetch(currentProxyUrl)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Proxy Fehler');
+                        return response.text();
+                    })
+                    .then(htmlString => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(htmlString, 'text/html');
+                        const rows = doc.querySelectorAll('table tr');
                         
-                        if (percentageMatch) {
-                            const percentage = parseInt(percentageMatch[1], 10);
+                        let htmlOutput = '';
+                        let matchCount = 0;
 
-                            if (percentage < 100) {
-                                matchCount++;
-                                
-                                let extractedPath = '';
-                                
-                                // 1. Suche in echten Links, aber schließe Maps aus
-                                const anchors = row.querySelectorAll('a');
-                                anchors.forEach(a => {
-                                    const href = a.getAttribute('href') || '';
-                                    if (href && !href.includes('mailto:') && !href.includes('javascript:') && !isMapLink(href)) {
-                                        // Bevorzuge Links, die nach Match-Details aussehen (enthalten oft 'index' oder 'match')
-                                        if (href.includes('index') || href.includes('match') || !extractedPath) {
-                                            extractedPath = href;
-                                        }
-                                    }
-                                });
+                        rows.forEach(row => {
+                            const rowText = row.textContent.replace(/\s+/g, ' ').trim();
+                            const percentageMatch = rowText.match(/(\d+)\s*%/);
+                            
+                            if (percentageMatch) {
+                                const percentage = parseInt(percentageMatch[1], 10);
 
-                                // 2. Falls kein Link gefunden, prüfe das onclick-Attribut der Zeile (ohne Maps)
-                                if (!extractedPath) {
-                                    const rowOnclick = row.getAttribute('onclick') || '';
-                                    const clickMatch = rowOnclick.match(/(?:href\s*=\s*['"]|location\s*=\s*['"]|open\(['"])([^'"]+)/);
-                                    if (clickMatch && !isMapLink(clickMatch[1])) {
-                                        extractedPath = clickMatch[1];
-                                    }
-                                }
-
-                                // 3. Falls immer noch nichts gefunden, prüfe einzelne Zellen-onclicks
-                                if (!extractedPath) {
-                                    row.querySelectorAll('td').forEach(td => {
-                                        const tdOnclick = td.getAttribute('onclick') || '';
-                                        const tdClickMatch = tdOnclick.match(/(?:href\s*=\s*['"]|location\s*=\s*['"]|open\(['"])([^'"]+)/);
-                                        if (tdClickMatch && !isMapLink(tdClickMatch[1]) && !extractedPath) {
-                                            extractedPath = tdClickMatch[1];
+                                if (percentage < 100) {
+                                    matchCount++;
+                                    
+                                    let extractedPath = '';
+                                    const anchors = row.querySelectorAll('a');
+                                    
+                                    anchors.forEach(a => {
+                                        const href = a.getAttribute('href') || '';
+                                        if (href && !href.includes('mailto:') && !href.includes('javascript:') && !isMapLink(href)) {
+                                            if (href.includes('index') || href.includes('match') || !extractedPath) {
+                                                extractedPath = href;
+                                            }
                                         }
                                     });
-                                }
 
-                                // Absoluten Link zusammensetzen
-                                let matchLink = 'https://www.ipscmatch.de/';
-                                if (extractedPath) {
-                                    if (extractedPath.startsWith('http')) {
-                                        matchLink = extractedPath;
-                                    } else {
-                                        const cleanPath = extractedPath.startsWith('/') ? extractedPath.substring(1) : extractedPath;
-                                        matchLink = 'https://www.ipscmatch.de/' + cleanPath;
+                                    if (!extractedPath) {
+                                        const rowOnclick = row.getAttribute('onclick') || '';
+                                        const clickMatch = rowOnclick.match(/(?:href\s*=\s*['"]|location\s*=\s*['"]|open\(['"])([^'"]+)/);
+                                        if (clickMatch && !isMapLink(clickMatch[1])) {
+                                            extractedPath = clickMatch[1];
+                                        }
                                     }
-                                }
 
-                                // Match-Name bestimmen (Erster Nicht-Maps-Link oder Text)
-                                let matchName = '';
-                                const validAnchors = Array.from(anchors).filter(a => !isMapLink(a.getAttribute('href') || ''));
-                                if (validAnchors.length > 0 && validAnchors[0].textContent.trim().length > 2) {
-                                    matchName = validAnchors[0].textContent.trim();
-                                } else {
-                                    const cleanText = rowText.replace(/(\d+)\s*%/, '').trim();
-                                    const parts = cleanText.split(/\d{2}\.\d{2}\./);
-                                    matchName = parts[0].trim() || 'IPSC Turnier';
-                                }
+                                    if (!extractedPath) {
+                                        row.querySelectorAll('td').forEach(td => {
+                                            const tdOnclick = td.getAttribute('onclick') || '';
+                                            const tdClickMatch = tdOnclick.match(/(?:href\s*=\s*['"]|location\s*=\s*['"]|open\(['"])([^'"]+)/);
+                                            if (tdClickMatch && !isMapLink(tdClickMatch[1]) && !extractedPath) {
+                                                extractedPath = tdClickMatch[1];
+                                            }
+                                        });
+                                    }
 
-                                // Datum bestimmen
-                                const dateMatch = rowText.match(/(\d{2}\.(?:\s*[-–]\s*\d{2}\.)?\s*\d{2}\.\s*\d{4})/);
-                                let date = dateMatch ? dateMatch[1].trim() : '';
-                                if (!date) {
-                                    const simpleDate = rowText.match(/(\d{2}\.\d{2}\.\d{4})/);
-                                    date = simpleDate ? simpleDate[1] : 'Siehe Anmeldung';
-                                }
+                                    let matchLink = 'https://www.ipscmatch.de/';
+                                    if (extractedPath) {
+                                        if (extractedPath.startsWith('http')) {
+                                            matchLink = extractedPath;
+                                        } else {
+                                            const cleanPath = extractedPath.startsWith('/') ? extractedPath.substring(1) : extractedPath;
+                                            matchLink = 'https://www.ipscmatch.de/' + cleanPath;
+                                        }
+                                    }
 
-                                htmlOutput += `
-                                    <div class="match-card">
-                                        <div class="match-details">
-                                            <h3>${escapeHtml(matchName)}</h3>
-                                            <p>Datum: ${escapeHtml(date)}</p>
-                                            <div class="badge-container"><span class="badge">Freie Plätze</span></div>
+                                    let matchName = '';
+                                    const validAnchors = Array.from(anchors).filter(a => !isMapLink(a.getAttribute('href') || ''));
+                                    if (validAnchors.length > 0 && validAnchors[0].textContent.trim().length > 2) {
+                                        matchName = validAnchors[0].textContent.trim();
+                                    } else {
+                                        const cleanText = rowText.replace(/(\d+)\s*%/, '').trim();
+                                        const parts = cleanText.split(/\d{2}\.\d{2}\./);
+                                        matchName = parts[0].trim() || 'IPSC Turnier';
+                                    }
+
+                                    const dateMatch = rowText.match(/(\d{2}\.(?:\s*[-–]\s*\d{2}\.)?\s*\d{2}\.\s*\d{4})/);
+                                    let date = dateMatch ? dateMatch[1].trim() : '';
+                                    if (!date) {
+                                        const simpleDate = rowText.match(/(\d{2}\.\d{2}\.\d{4})/);
+                                        date = simpleDate ? simpleDate[1] : 'Siehe Anmeldung';
+                                    }
+
+                                    htmlOutput += `
+                                        <div class="match-card">
+                                            <div class="match-details">
+                                                <h3>${escapeHtml(matchName)}</h3>
+                                                <p>Datum: ${escapeHtml(date)}</p>
+                                                <div class="badge-container"><span class="badge">Freie Plätze</span></div>
+                                            </div>
+                                            <div class="card-actions">
+                                                <span style="font-weight: bold; color: var(--success-color); font-size: 16px;">Auslastung: ${percentage}%</span>
+                                                <a href="${escapeHtml(matchLink)}" target="_blank" class="btn-contact" style="margin-top: 5px;">Zur Anmeldung</a>
+                                            </div>
                                         </div>
-                                        <div class="card-actions">
-                                            <span style="font-weight: bold; color: var(--success-color); font-size: 16px;">Auslastung: ${percentage}%</span>
-                                            <a href="${escapeHtml(matchLink)}" target="_blank" class="btn-contact" style="margin-top: 5px;">Zur Anmeldung</a>
-                                        </div>
-                                    </div>
-                                `;
+                                    `;
+                                }
                             }
-                        }
-                    });
+                        });
 
-                    if (matchCount > 0) {
-                        container.innerHTML = htmlOutput;
-                    } else {
-                        container.innerHTML = '<p class="loading-msg">Aktuell sind laut ipscmatch.de leider alle Turniere vollständig ausgebucht (100%+).</p>';
-                    }
-                })
-                .catch(error => {
-                    console.error(error);
-                    container.innerHTML = '<p class="loading-msg" style="color: var(--danger-color);">⚠️ Fehler beim Laden der Live-Daten. Bitte versuche es später erneut.</p>';
-                });
+                        if (matchCount > 0) {
+                            container.innerHTML = htmlOutput;
+                        } else {
+                            container.innerHTML = '<p class="loading-msg">Aktuell sind laut ipscmatch.de leider alle Turniere vollständig ausgebucht (100%+).</p>';
+                        }
+                    })
+                    .catch(error => {
+                        console.warn(`Proxy ${proxyIndex} fehlgeschlagen. Versuche nächsten...`, error);
+                        // Automatisch den nächsten Proxy in der Liste ansteuern
+                        fetchMatches(proxyIndex + 1);
+                    });
+            }
 
             function escapeHtml(str) {
                 return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
             }
+
+            // Erstmaligen Ladevorgang starten
+            fetchMatches(0);
         });
     </script>
 
