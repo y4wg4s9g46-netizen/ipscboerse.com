@@ -40,35 +40,6 @@
 
         header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
 
-        /* Stil für das neue Navigationsmenü */
-        .main-nav {
-            margin-top: 25px; 
-            display: flex; 
-            justify-content: center; 
-            gap: 25px; 
-            border-top: 1px solid #222; 
-            padding-top: 15px;
-        }
-        .main-nav a {
-            text-decoration: none; 
-            font-weight: bold; 
-            font-size: 14px; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px; 
-            padding-bottom: 4px;
-            transition: color 0.2s ease;
-        }
-        .main-nav a.active {
-            color: var(--accent-color); 
-            border-bottom: 2px solid var(--accent-color);
-        }
-        .main-nav a.inactive {
-            color: var(--text-muted);
-        }
-        .main-nav a.inactive:hover {
-            color: var(--text-color);
-        }
-
         .header-controls {
             position: absolute;
             top: 20px;
@@ -170,10 +141,13 @@
             position: relative; overflow: hidden;
         }
 
+        /* Farbliche Hervorhebung für Angebote und Gesuche */
         .card-offer { background-color: rgba(255, 159, 67, 0.08); }
         .card-want { background-color: rgba(46, 204, 113, 0.08); }
 
-        .match-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 5px; }
+        .match-card::before {
+            content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 5px;
+        }
         .card-offer::before { background-color: var(--accent-color); }
         .card-want::before { background-color: var(--success-color); }
 
@@ -194,13 +168,15 @@
 
         .btn-delete {
             background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color);
-            padding: 5px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 5px;
+            padding: 5px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer;
+            margin-top: 5px;
         }
         .btn-delete:hover { background-color: var(--danger-color); color: #fff; }
 
         .btn-edit {
             background-color: transparent; color: var(--info-color); border: 1px solid var(--info-color);
-            padding: 5px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 5px;
+            padding: 5px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer;
+            margin-top: 5px;
         }
         .btn-edit:hover { background-color: var(--info-color); color: #fff; }
 
@@ -210,11 +186,41 @@
         }
         .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
 
+        .btn-export {
+            background: #555; color: #fff; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 11px; margin-top: 5px;
+        }
+        .btn-export:hover { background: #777; }
+        
+        .btn-report {
+            background: #ff4d4d; color: #fff; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 11px; margin-top: 5px;
+        }
+        .btn-report:hover { background: #ff7373; }
+
         footer {
-            background-color: #0f0f0f; border-top: 1px solid #444; padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted);
+            background-color: #0f0f0f;
+            border-top: 1px solid #444;
+            padding: 30px 20px;
+            margin-top: 50px;
+            font-size: 13px;
+            color: var(--text-muted);
         }
 
-        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .action-buttons-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -222,11 +228,6 @@
     <header>
         <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
         <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Von Schützen für Schützen – Live Marktplatz</p>
-        
-        <nav class="main-nav">
-            <a href="index.html" class="active">Marktplatz</a>
-            <a href="freie-matches.html" class="inactive">Freie Match-Plätze</a>
-        </nav>
         
         <div class="header-controls">
             <select id="language-select" class="lang-switch">
@@ -240,6 +241,8 @@
     </header>
 
     <div class="container">
+
+        <!-- Social Proof Zähler -->
         <div id="social-proof-container" style="text-align: center; margin: 10px 0 30px 0; color: var(--text-muted); background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid #444;">
             <span data-txt="social-proof">Erfolgreich vermittelte Startplätze: </span><b id="counter-val" style="color: var(--accent-color); font-size: 18px;">42</b>
         </div>
@@ -326,12 +329,15 @@
         <div class="match-list" id="match-container">
             <p id="loading-text" data-txt="loading">Lade aktuelle Startplätze...</p>
         </div>
+
     </div>
 
+    <!-- AUTH & SETTINGS MODAL -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
             
+            <!-- 1. LOGIN -->
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
                 <form id="login-form">
@@ -346,6 +352,7 @@
                 <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a></div>
             </div>
 
+            <!-- 2. REGISTRIERUNG -->
             <div id="modal-register-view" style="display: none;">
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
@@ -356,6 +363,7 @@
                 <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a></div>
             </div>
 
+            <!-- 3. PASSWORT VERGESSEN -->
             <div id="modal-forgot-view" style="display: none;">
                 <h3 data-txt="modal-forgot-title">Passwort zurücksetzen</h3>
                 <form id="forgot-form">
@@ -365,11 +373,27 @@
                 <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a></div>
             </div>
 
+            <!-- 4. ECHTES RESET FORMULAR -->
+            <div id="modal-reset-view" style="display: none;">
+                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
+                <form id="reset-password-form">
+                    <div class="form-group"><label data-txt="lbl-new-password">Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="btn-save">Speichern</button>
+                </form>
+            </div>
+
+            <!-- 5. KONTO EINSTELLUNGEN -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 <form id="settings-form">
-                    <div class="form-group"><label data-txt="lbl-username">Schützenname / Anzeigename</label><input type="text" id="settings-username"></div>
-                    <div class="form-group"><label data-txt="lbl-new-password">Neues Passwort ändern (Optional)</label><input type="password" id="settings-password" minlength="6"></div>
+                    <div class="form-group">
+                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
+                        <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
+                    </div>
+                    <div class="form-group">
+                        <label data-txt="lbl-new-password">Neues Passwort ändern (Optional)</label>
+                        <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
+                    </div>
                     <button type="submit" class="btn-submit" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
                 </form>
                 <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
@@ -382,13 +406,18 @@
 
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
-            <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">Impressum & Rechtliche Hinweise</a>
+            <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            
+            <!-- Buy Me A Coffee Button mit korrektem Link -->
             <div style="margin-top: 20px;">
                 <a href="https://www.buymeacoffee.com/infojkw" target="_blank" style="background-color: #FFDD00; color: #000; padding: 10px 20px; border-radius: 5px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                     ☕ <span data-txt="buy-coffee">Kaffee spendieren</span>
                 </a>
             </div>
-            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+
+            <div style="margin-top: 15px; font-size: 11px;">
+                &copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.
+            </div>
         </div>
     </footer>
 
