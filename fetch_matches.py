@@ -19,38 +19,37 @@ try:
 
     for row in soup.find_all('tr'):
         text = row.text
+        # Wir suchen nur Zeilen, die eine Prozentzahl enthalten
         if '%' in text:
-            # Wir zerschneiden die Tabellenzeile exakt in ihre Spalten
             tds = row.find_all('td')
             
-            # Wir brauchen mindestens 4 Spalten für unsere Daten
+            # Wir prüfen, ob die Tabelle mindestens 4 Spalten hat
             if len(tds) >= 4:
-                # --- SPALTE 1 (Index 0): DISZIPLIN ---
-                disziplin = tds[0].text.strip()
+                # Jetzt nutzen wir exakt DEINE Spalten-Zählweise!
+                disziplin = tds[0].text.strip()  # Spalte 1
+                level = tds[1].text.strip()      # Spalte 2
+                region = tds[2].text.strip()     # Spalte 3 (Hier ist jetzt die Region!)
                 
-                # --- SPALTE 2 (Index 1): LEVEL ---
-                level = tds[1].text.strip()
-                
-                # --- SPALTE 3 (Index 2): REGION ---
-                region = tds[2].text.strip()
-                
-                # --- SPALTE 4 (Index 3): VERANSTALTUNG ---
                 best_name = ""
                 best_url = ""
+                # Spalte 4: Veranstaltung
                 match_link = tds[3].find('a')
                 if match_link:
                     best_name = match_link.text.strip()
                     best_url = urllib.parse.urljoin(url, match_link.get('href', ''))
                 else:
                     best_name = tds[3].text.strip()
+                
+                # Erkennt sofort, ob das Match im Hintergrund als "closed" markiert ist
+                is_closed = "closed" in text.lower() or "geschlossen" in text.lower()
                     
-                # Prozentzahl aus der Zeile filtern
                 prozent_match = re.search(r'(\d{1,3})\s*%', text)
                 
-                # Nur speichern, wenn Spalte 4 einen Namen hat
+                # Nur speichern, wenn wir einen Namen und eine Auslastung gefunden haben
                 if best_name and prozent_match:
                     prozent_wert = int(prozent_match.group(1))
                     
+                    # Wir nehmen nur Matches, die unter 100% sind
                     if prozent_wert < 100:
                         matches.append({
                             "name": best_name,
@@ -58,7 +57,8 @@ try:
                             "region": region,
                             "level": level,
                             "disziplin": disziplin,
-                            "url": best_url
+                            "url": best_url,
+                            "is_closed": is_closed # Gibt das Signal an dein HTML weiter
                         })
 
     with open('matches.json', 'w', encoding='utf-8') as f:
