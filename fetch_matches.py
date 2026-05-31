@@ -20,31 +20,38 @@ try:
     for row in soup.find_all('tr'):
         text = row.text
         if '%' in text:
-            best_name = ""
-            best_url = ""
-            land = "N/A"
-            max_len = 0
+            # Wir zerschneiden die Tabellenzeile exakt in ihre einzelnen Spalten (<td>)
+            tds = row.find_all('td')
             
-            # Wir schauen uns ALLE Links in der Zeile an
-            for a in row.find_all('a'):
-                a_text = a.text.strip()
-                href = a.get('href', '')
+            # Die Tabelle hat feste Spalten: 0=Datum, 1=Art, 2=Level, 3=Veranstaltung, 4=Land
+            if len(tds) >= 5:
+                best_name = ""
+                best_url = ""
+                land = "N/A"
                 
-                # Ist es der Link für das Land? (Erkennt man am 'region=' im Link)
-                if 'region=' in href:
-                    land = a_text
-                # Wir ignorieren Waffenart (?type=), Level (?level=) und das Land selbst für den Match-Namen
-                elif 'type=' not in href and 'level=' not in href and 'region=' not in href:
-                    if len(a_text) > max_len:
-                        max_len = len(a_text)
-                        best_name = a_text
-                        best_url = urllib.parse.urljoin(url, href)
-            
-            # Nur speichern, wenn wir einen echten Match-Namen gefunden haben
-            if best_name and max_len > 3:
+                # --- SPALTE 4: VERANSTALTUNG (Index 3) ---
+                match_link = tds[3].find('a')
+                if match_link:
+                    best_name = match_link.text.strip()
+                    best_url = urllib.parse.urljoin(url, match_link.get('href', ''))
+                else:
+                    # Falls es mal kein Link ist, nimm wenigstens den Text
+                    best_name = tds[3].text.strip()
+                    
+                # --- SPALTE 5: LAND/REGION (Index 4) ---
+                land_link = tds[4].find('a')
+                if land_link:
+                    land = land_link.text.strip()
+                else:
+                    land = tds[4].text.strip()
+                    
+                # Prozentzahl aus der Zeile filtern
                 prozent_match = re.search(r'(\d{1,3})\s*%', text)
-                if prozent_match:
+                
+                # Nur speichern, wenn wir auch wirklich einen Namen in Spalte 4 gefunden haben
+                if best_name and prozent_match:
                     prozent_wert = int(prozent_match.group(1))
+                    
                     if prozent_wert < 100:
                         matches.append({
                             "name": best_name,
