@@ -26,11 +26,12 @@ try:
             # Wir durchsuchen ALLE Links in dieser Zeile
             for a in row.find_all('a'):
                 a_text = a.text.strip()
-                # Sobald wir einen Link finden, der echten Text enthält, ist das unser Match!
-                if a_text:
+                href = a.get('href', '')
+                
+                # Wir ignorieren Links, die nur nach Waffenart filtern (?type=...)
+                # und suchen nach dem echten Match-Namen!
+                if a_text and 'type=' not in href:
                     match_name = a_text
-                    href = a.get('href', '')
-                    # Baut den Link perfekt zusammen, egal ob relativ oder absolut
                     match_url = urllib.parse.urljoin(url, href)
                     break # Richtigen Link gefunden, Suche abbrechen
             
