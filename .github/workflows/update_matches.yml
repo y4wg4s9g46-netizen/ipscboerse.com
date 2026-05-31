@@ -1,0 +1,39 @@
+name: IPSC Bot
+
+# Wann soll der Bot starten?
+on:
+  schedule:
+    # Jeden Tag um 10:00 und 16:00 Uhr UTC (entspricht ca. 12:00 und 18:00 Uhr deutscher Zeit)
+    - cron: '0 10,16 * * *'
+  workflow_dispatch: # Erlaubt es dir, den Bot jederzeit manuell per Knopfdruck zu starten
+
+# Erlaubt dem Bot, die fertige matches.json in dein Repo zu schreiben
+permissions:
+  contents: write
+
+jobs:
+  update-daten:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository kopieren
+        uses: actions/checkout@v4
+
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Helfer-Pakete installieren
+        run: pip install requests beautifulsoup4
+
+      - name: Python-Skript starten
+        run: python fetch_matches.py
+
+      - name: Neue Daten hochladen
+        run: |
+          git config --global user.name "IPSC-Bot"
+          git config --global user.email "bot@ipscboerse.com"
+          git add matches.json
+          git commit -m "Auto-Update: Freie Matches aktualisiert" || echo "Keine neuen Änderungen"
+          git push
