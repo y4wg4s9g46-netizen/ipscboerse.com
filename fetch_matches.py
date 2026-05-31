@@ -20,35 +20,34 @@ try:
     for row in soup.find_all('tr'):
         text = row.text
         if '%' in text:
-            # Wir zerschneiden die Tabellenzeile exakt in ihre einzelnen Spalten (<td>)
+            # Wir zerschneiden die Tabellenzeile exakt in ihre Spalten
             tds = row.find_all('td')
             
-            # Die Tabelle hat feste Spalten: 0=Datum, 1=Art, 2=Level, 3=Veranstaltung, 4=Land
-            if len(tds) >= 5:
+            # Wir brauchen mindestens 4 Spalten für unsere Daten
+            if len(tds) >= 4:
+                # --- SPALTE 1 (Index 0): DISZIPLIN ---
+                disziplin = tds[0].text.strip()
+                
+                # --- SPALTE 2 (Index 1): LEVEL ---
+                level = tds[1].text.strip()
+                
+                # --- SPALTE 3 (Index 2): REGION ---
+                region = tds[2].text.strip()
+                
+                # --- SPALTE 4 (Index 3): VERANSTALTUNG ---
                 best_name = ""
                 best_url = ""
-                land = "N/A"
-                
-                # --- SPALTE 4: VERANSTALTUNG (Index 3) ---
                 match_link = tds[3].find('a')
                 if match_link:
                     best_name = match_link.text.strip()
                     best_url = urllib.parse.urljoin(url, match_link.get('href', ''))
                 else:
-                    # Falls es mal kein Link ist, nimm wenigstens den Text
                     best_name = tds[3].text.strip()
-                    
-                # --- SPALTE 5: LAND/REGION (Index 4) ---
-                land_link = tds[4].find('a')
-                if land_link:
-                    land = land_link.text.strip()
-                else:
-                    land = tds[4].text.strip()
                     
                 # Prozentzahl aus der Zeile filtern
                 prozent_match = re.search(r'(\d{1,3})\s*%', text)
                 
-                # Nur speichern, wenn wir auch wirklich einen Namen in Spalte 4 gefunden haben
+                # Nur speichern, wenn Spalte 4 einen Namen hat
                 if best_name and prozent_match:
                     prozent_wert = int(prozent_match.group(1))
                     
@@ -56,7 +55,9 @@ try:
                         matches.append({
                             "name": best_name,
                             "auslastung": f"{prozent_wert}%",
-                            "land": land,
+                            "region": region,
+                            "level": level,
+                            "disziplin": disziplin,
                             "url": best_url
                         })
 
