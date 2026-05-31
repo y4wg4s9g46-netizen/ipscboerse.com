@@ -97,8 +97,13 @@
         font-size: 14px; color: var(--text-muted); }
         
         .badge-container { display: flex;
-        gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+        gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        
         .badge { background-color: var(--success-color); color: #000;
+        padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        
+        /* Neues Design für das Land-Badge */
+        .badge-land { background-color: #3498db; color: #fff;
         padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
 
         .card-actions { display: flex;
@@ -153,7 +158,6 @@
     </footer>
 
     <script>
-    // JSON Datei abrufen, die der GitHub-Bot erstellt hat
     fetch('matches.json')
       .then(res => res.json())
       .then(data => {
@@ -164,7 +168,6 @@
               return;
           }
 
-          // HTML für jedes Match in deinem Original-Design aufbauen
           let html = data.map(match => `
               <a href="${match.url}" target="_blank" style="text-decoration: none; color: inherit; display: block;">
                   <div class="match-card">
@@ -172,6 +175,7 @@
                           <h3>${match.name}</h3>
                           <div class="badge-container">
                               <span class="badge">Auslastung: ${match.auslastung}</span>
+                              <span class="badge-land">Land: ${match.land}</span>
                           </div>
                       </div>
                       <div class="card-actions">
