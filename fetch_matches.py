@@ -22,6 +22,7 @@ try:
         if '%' in text:
             best_name = ""
             best_url = ""
+            land = "N/A"
             max_len = 0
             
             # Wir schauen uns ALLE Links in der Zeile an
@@ -29,15 +30,17 @@ try:
                 a_text = a.text.strip()
                 href = a.get('href', '')
                 
-                # Wir ignorieren die Waffenart (?type=)
-                if a_text and 'type=' not in href:
-                    # Der Link mit dem längsten Text ist zu 99,9% der Match-Name!
+                # Ist es der Link für das Land? (Erkennt man am 'region=' im Link)
+                if 'region=' in href:
+                    land = a_text
+                # Wir ignorieren Waffenart (?type=), Level (?level=) und das Land selbst für den Match-Namen
+                elif 'type=' not in href and 'level=' not in href and 'region=' not in href:
                     if len(a_text) > max_len:
                         max_len = len(a_text)
                         best_name = a_text
                         best_url = urllib.parse.urljoin(url, href)
             
-            # Nur speichern, wenn wir einen echten, längeren Namen gefunden haben (mehr als 3 Zeichen)
+            # Nur speichern, wenn wir einen echten Match-Namen gefunden haben
             if best_name and max_len > 3:
                 prozent_match = re.search(r'(\d{1,3})\s*%', text)
                 if prozent_match:
@@ -46,6 +49,7 @@ try:
                         matches.append({
                             "name": best_name,
                             "auslastung": f"{prozent_wert}%",
+                            "land": land,
                             "url": best_url
                         })
 
