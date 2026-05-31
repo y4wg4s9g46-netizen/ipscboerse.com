@@ -168,7 +168,7 @@
                 const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl);
 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 8000);
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
 
                 fetch(proxyUrl, { signal: controller.signal })
                     .then(response => {
