@@ -2,7 +2,6 @@ import requests
 import json
 from bs4 import BeautifulSoup
 
-# Hier kommt deine Web-App-URL vom Google Sheet rein
 proxy_url = "https://script.google.com/macros/s/AKfycbwAIM7EpJp0P_ntlg8shLeLE2YJXXf_JtQWfyb1C2GgFhcFX9R4myo6U5HRFjv3ymS11A/exec"
 
 try:
