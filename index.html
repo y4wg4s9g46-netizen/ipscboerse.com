@@ -40,6 +40,35 @@
 
         header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
 
+        /* Stil für das neue Navigationsmenü */
+        .main-nav {
+            margin-top: 25px; 
+            display: flex; 
+            justify-content: center; 
+            gap: 25px; 
+            border-top: 1px solid #222; 
+            padding-top: 15px;
+        }
+        .main-nav a {
+            text-decoration: none; 
+            font-weight: bold; 
+            font-size: 14px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+            padding-bottom: 4px;
+            transition: color 0.2s ease;
+        }
+        .main-nav a.active {
+            color: var(--accent-color); 
+            border-bottom: 2px solid var(--accent-color);
+        }
+        .main-nav a.inactive {
+            color: var(--text-muted);
+        }
+        .main-nav a.inactive:hover {
+            color: var(--text-color);
+        }
+
         .header-controls {
             position: absolute;
             top: 20px;
@@ -141,7 +170,6 @@
             position: relative; overflow: hidden;
         }
 
-        /* Farbliche Hervorhebung für Angebote und Gesuche */
         .card-offer { background-color: rgba(255, 159, 67, 0.08); }
         .card-want { background-color: rgba(46, 204, 113, 0.08); }
 
@@ -229,6 +257,12 @@
         <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
         <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Von Schützen für Schützen – Live Marktplatz</p>
         
+        <!-- Das neue Navigationsmenü im Header -->
+        <nav class="main-nav">
+            <a href="index.php" class="active">Marktplatz</a>
+            <a href="freie-matches.php" class="inactive">Freie Match-Plätze</a>
+        </nav>
+        
         <div class="header-controls">
             <select id="language-select" class="lang-switch">
                 <option value="de">DE</option>
@@ -242,7 +276,6 @@
 
     <div class="container">
 
-        <!-- Social Proof Zähler -->
         <div id="social-proof-container" style="text-align: center; margin: 10px 0 30px 0; color: var(--text-muted); background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid #444;">
             <span data-txt="social-proof">Erfolgreich vermittelte Startplätze: </span><b id="counter-val" style="color: var(--accent-color); font-size: 18px;">42</b>
         </div>
@@ -332,12 +365,10 @@
 
     </div>
 
-    <!-- AUTH & SETTINGS MODAL -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
             
-            <!-- 1. LOGIN -->
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
                 <form id="login-form">
@@ -352,7 +383,6 @@
                 <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a></div>
             </div>
 
-            <!-- 2. REGISTRIERUNG -->
             <div id="modal-register-view" style="display: none;">
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
@@ -363,7 +393,6 @@
                 <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a></div>
             </div>
 
-            <!-- 3. PASSWORT VERGESSEN -->
             <div id="modal-forgot-view" style="display: none;">
                 <h3 data-txt="modal-forgot-title">Passwort zurücksetzen</h3>
                 <form id="forgot-form">
@@ -373,7 +402,6 @@
                 <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a></div>
             </div>
 
-            <!-- 4. ECHTES RESET FORMULAR -->
             <div id="modal-reset-view" style="display: none;">
                 <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                 <form id="reset-password-form">
@@ -382,7 +410,6 @@
                 </form>
             </div>
 
-            <!-- 5. KONTO EINSTELLUNGEN -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 <form id="settings-form">
@@ -408,7 +435,6 @@
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
             <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
             
-            <!-- Buy Me A Coffee Button mit korrektem Link -->
             <div style="margin-top: 20px;">
                 <a href="https://www.buymeacoffee.com/infojkw" target="_blank" style="background-color: #FFDD00; color: #000; padding: 10px 20px; border-radius: 5px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                     ☕ <span data-txt="buy-coffee">Kaffee spendieren</span>
