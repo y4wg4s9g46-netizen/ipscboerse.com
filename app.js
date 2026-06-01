@@ -1,368 +1,460 @@
-let cachedMatches = [];
-window.editingMatchId = null; 
+// === ZENTRALE SUPABASE KONFIGURATION ===
+const SUPABASE_URL = "https://huprxirlthkisjngwash.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_yModrA5JZTiN5Cw7MHQqLQ_Coc04WAS";
 
-// Verhindert das Auswählen von Daten in der Vergangenheit
-function enforceFutureDates() {
-  const dateInput = document.getElementById("match-date");
-  if (dateInput) {
-    const today = new Date().toISOString().split("T")[0];
-    dateInput.setAttribute("min", today);
-  }
-}
-
-// Lädt die aktiven Inserate für den Marktplatz (und holt sich Profil-Daten der Verkäufer dazu!)
-async function fetchMatches() {
-  // Wir nutzen jetzt einen JOIN in Supabase, um den ipsc_alias der Verkäufer direkt mitzuladen
-  const { data, error } = await window.supabaseClient
-    .from("matches")
-    .select(`
-      *,
-      seller_profile:seller_email (ipsc_alias)
-    `)
-    .order("match_date", { ascending: true });
-    
-  if (error) {
-    // Fallback: Falls die verknüpfte Tabelle nicht existiert, lade nur die Matches
-    const { data: fallbackData } = await window.supabaseClient
-        .from("matches")
-        .select("*")
-        .order("match_date", { ascending: true });
-    cachedMatches = fallbackData || [];
-  } else {
-      cachedMatches = data || [];
-  }
-  
-  const todayStr = new Date().toISOString().split("T")[0];
-  
-  // Nur zukünftige oder tagesaktuelle Matches anzeigen
-  cachedMatches = cachedMatches.filter(m => m.match_date >= todayStr);
-  
-  renderMatches(cachedMatches);
-}
-
-// Hilfsfunktion: Holt Profil-Daten (Alias) für alte Einträge, falls der JOIN fehlschlägt
-async function fetchAliasForEmail(email) {
-    try {
-        // Optionale Funktion, falls wir die User-Daten aus einer separaten Tabelle holen müssen
-        return null; 
-    } catch(e) {
-        return null;
+// WICHTIG: Passkey-Support direkt beim Start der Verbindung aktivieren
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+        experimental: { passkey: true }
     }
+});
+
+// Global verfügbar machen
+window.supabaseClient = supabaseClient;
+window.currentUser = null;
+window.currentLang = "de";
+
+// Globale Funktion für den Bilder-Upload in Supabase Storage
+window.uploadImage = async function(file, folder) {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+    const filePath = `${folder}/${fileName}`;
+
+    const { error: uploadError } = await window.supabaseClient.storage
+        .from('images')
+        .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data } = window.supabaseClient.storage.from('images').getPublicUrl(filePath);
+    return data.publicUrl;
+};
+
+// ==========================================
+// --- NEU: PASSKEY FUNKTIONEN (FaceID / TouchID) ---
+// ==========================================
+
+// 1. Passkey-Login (für bestehende Passkey-Nutzer)
+window.loginWithPasskey = async function() {
+    const btn = document.querySelector('#modal-login-view button[onclick="loginWithPasskey()"]');
+    const oldText = btn.innerText;
+    btn.innerText = "Warte auf Fingerabdruck/FaceID...";
+
+    const { data, error } = await window.supabaseClient.auth.signInWithPasskey();
+
+    if (error) {
+        btn.innerText = oldText;
+        alert("Passkey-Login fehlgeschlagen oder abgebrochen: " + error.message);
+    } else {
+        btn.innerText = "Erfolgreich!";
+    }
+};
+
+// 2. Gerät als Passkey registrieren (für eingeloggte Nutzer im Einstellungs-Menü)
+window.registerPasskey = async function() {
+    const btn = document.querySelector('#modal-settings-view button[onclick="registerPasskey()"]');
+    const oldText = btn.innerText;
+    btn.innerText = "Bitte Sensor berühren...";
+
+    const { data, error } = await window.supabaseClient.auth.registerPasskey();
+
+    if (error) {
+        btn.innerText = oldText;
+        alert("Fehler bei der Passkey-Registrierung: " + error.message);
+    } else {
+        btn.innerText = "✓ Gerät erfolgreich als Passkey hinterlegt!";
+        btn.style.backgroundColor = "#2ecc71"; // Erfolgs-Grün
+    }
+};
+
+// ==========================================
+
+window.translations = {
+  de: {
+    "main-title": "IPSC STARTPLATZ-BÖRSE",
+    "sub-title": "Von Schützen für Schützen – Live Marktplatz",
+    "btn-login-reg": "Login / Registrieren",
+    "logout": "Abmelden",
+    "info-msg": "<strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgültige Umschreibung des Startplatzes muss zwingend über den jeweiligen Match Director durchgeführt werden!",
+    "form-title": "Eintrag erstellen",
+    "form-title-edit": "Eintrag bearbeiten ✏️",
+    "opt-offer": "Ich BIETE einen Startplatz an",
+    "opt-want": "Ich SUCHE einen Startplatz",
+    "lbl-name": "Name des Matches *",
+    "lbl-level": "Match Level *",
+    "lbl-date": "Datum des Matches *",
+    "lbl-location": "Austragungsort (Stand) *",
+    "lbl-country": "Land *",
+    "lbl-squad": "Squad Nummer (Optional)",
+    "lbl-price": "Abgabepreis (€) *",
+    "lbl-email": "Deine E-Mail-Adresse *",
+    "btn-insert": "Eintrag kostenlos veröffentlichen",
+    "btn-save-edit": "Änderungen speichern",
+    "btn-cancel": "Abbrechen",
+    "filter-type": "Anzeigentyp:",
+    "filter-all": "Alle Anzeigen",
+    "filter-offers": "Nur Angebote (Biete)",
+    "filter-wants": "Nur Gesuche (Suche)",
+    "list-title": "Aktuelle Marktplatz-Einträge",
+    "loading": "Lade aktuelle Startplätze...",
+    "modal-login-title": "Anmelden",
+    "modal-btn-login": "Einloggen",
+    "modal-no-acc": "Noch kein Konto?",
+    "modal-link-reg": "Registrieren",
+    "modal-reg-title": "Konto erstellen",
+    "modal-btn-reg": "Konto erstellen",
+    "modal-has-acc": "Bereits registriert?",
+    "modal-link-login": "Zum Login",
+    "footer-impressum-link": "Impressum & Rechtliche Hinweise",
+    "no-slots": "Aktuell keine Einträge verfügbar.",
+    "btn-request": "Anbieter kontaktieren",
+    "btn-contact-want": "Schützen kontaktieren",
+    "btn-delete": "Löschen",
+    "btn-edit": "Bearbeiten",
+    "btn-export": "Export (.ics)",
+    "report-btn": "Melden",
+    "buy-coffee": "Kaffee spendieren",
+    "social-proof": "Erfolgreich vermittelte Startplätze: ",
+    "login-required": "Nur eingeloggte Nutzer können kontaktieren",
+    "security-checklist": "\n\nSicherheits-Checkliste vor der E-Mail:\n- Match-Daten geprüft?\n- Match Director kontaktiert?",
+    "tag-offer": "BIETE",
+    "tag-want": "SUCHE",
+    "link-forgot-pwd": "Passwort vergessen?",
+    "modal-forgot-title": "Passwort vergessen",
+    "modal-btn-forgot": "Zurücksetzungs-Link senden",
+    "modal-reset-title": "Neues Passwort vergeben",
+    "lbl-new-password": "Neues Passwort *",
+    "btn-save": "Änderungen speichern",
+    "modal-settings-title": "Konto-Einstellungen",
+    "lbl-username": "Schützenname / Anzeigename",
+    "btn-delete-acc": "Konto & alle Einträge unwiderruflich löschen",
+    "email-subject-offer": "Interesse an deinem IPSC Startplatz: ",
+    "email-subject-want": "Bezüglich deiner Suche nach einem IPSC Startplatz: ",
+    "email-body-offer": "Hallo,\n\nich habe dein Inserat auf ipscboerse.com gesehen und interessiere mich für den von dir angebotenen Startplatz für das Match: ",
+    "email-body-want": "Hallo,\n\nich habe dein Gesuch auf ipscboerse.com gesehen. Ich hätte einen Startplatz abzugeben für das Match: ",
+    "email-body-footer": "\n\nIst das Inserat noch aktuell?\n\nViele Grüße",
+    "security-notice": "⚠️ WICHTIGER SICHERHEITSHINWEIS:\n\n1. Nutze für Zahlungen IMMER PayPal mit Käuferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prüfen, ob eine Umschreibung des Platzes überhaupt noch möglich ist!\n\nMöchtest du den E-Mail-Kontakt jetzt öffnen?",
+    "spam-error": "Spam-Schutz: Du hast bereits einen Eintrag für dieses Match an diesem Datum erstellt!"
+  },
+  en: {
+    "main-title": "IPSC SLOT MARKETPLACE",
+    "sub-title": "By Shooters for Shooters – Live Marketplace",
+    "btn-login-reg": "Login / Register",
+    "logout": "Logout",
+    "info-msg": "<strong>Important Notice:</strong> This platform only serves as a mediator. The final transfer of the slot must be processed by the respective Match Director!",
+    "form-title": "Create Entry",
+    "form-title-edit": "Edit Entry ✏️",
+    "opt-offer": "I OFFER a slot",
+    "opt-want": "I AM LOOKING FOR a slot",
+    "lbl-name": "Match Name *",
+    "lbl-level": "Match Level *",
+    "lbl-date": "Match Date *",
+    "lbl-location": "Location (Range) *",
+    "lbl-country": "Country *",
+    "lbl-squad": "Squad Number (Optional)",
+    "lbl-price": "Price (€) *",
+    "lbl-email": "Your Email Address *",
+    "btn-insert": "Publish Entry for Free",
+    "btn-save-edit": "Save Changes",
+    "btn-cancel": "Cancel",
+    "filter-type": "Ad Type:",
+    "filter-all": "All Ads",
+    "filter-offers": "Offers Only",
+    "filter-wants": "Wants Only",
+    "list-title": "Current Marketplace Entries",
+    "loading": "Loading current slots...",
+    "modal-login-title": "Login",
+    "modal-btn-login": "Login",
+    "modal-no-acc": "Don't have an account?",
+    "modal-link-reg": "Register",
+    "modal-reg-title": "Create Account",
+    "modal-btn-reg": "Create Account",
+    "modal-has-acc": "Already registered?",
+    "modal-link-login": "Go to Login",
+    "footer-impressum-link": "Imprint & Legal Notices",
+    "no-slots": "No marketplace entries available.",
+    "btn-request": "Contact Seller",
+    "btn-contact-want": "Contact Shooter",
+    "btn-delete": "Delete",
+    "btn-edit": "Edit",
+    "btn-export": "Export (.ics)",
+    "report-btn": "Report",
+    "buy-coffee": "Buy me a coffee",
+    "social-proof": "Successfully mediated slots: ",
+    "login-required": "Only logged-in users can contact",
+    "security-checklist": "\n\nSecurity checklist before email:\n- Match details verified?\n- Match Director contacted?",
+    "tag-offer": "OFFER",
+    "tag-want": "WANTED",
+    "link-forgot-pwd": "Forgot password?",
+    "modal-forgot-title": "Reset Password",
+    "modal-btn-forgot": "Send Reset Link",
+    "modal-reset-title": "Set New Password",
+    "lbl-new-password": "New Password *",
+    "btn-save": "Save Changes",
+    "modal-settings-title": "Account Settings",
+    "lbl-username": "Shooter / Display Name",
+    "btn-delete-acc": "Permanently Delete Account & Postings",
+    "email-subject-offer": "Inquiry regarding your IPSC slot: ",
+    "email-subject-want": "Regarding your request for an IPSC slot: ",
+    "email-body-offer": "Hello,\n\nI saw your listing on ipscboerse.com and I am interested in the slot you offered for the match: ",
+    "email-body-want": "Hello,\n\nI saw your request on ipscboerse.com. I have an available slot to give away for the match: ",
+    "email-body-footer": "\n\nIs this listing still available?\n\nBest regards",
+    "security-notice": "⚠️ IMPORTANT SAFETY NOTICE:\n\n1. ALWAYS use PayPal with Buyer Protection for payments (never use 'Friends & Family').\n2. You MUST contact the Match Director BEFORE making any payment to confirm if a slot transfer is still permitted!\n\nDo you want to open the email client now?",
+    "spam-error": "Spam protection: You have already posted an entry for this match on this date!"
+  }
+};
+
+function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
+
+function applyLanguage(lang) {
+  window.currentLang = lang;
+  document.querySelectorAll("[data-txt]").forEach(el => {
+    const key = el.getAttribute("data-txt");
+    if (window.translations[lang] && window.translations[lang][key]) { 
+      if (key === "form-title" && window.editingMatchId !== undefined && window.editingMatchId !== null) return;
+      if (key === "btn-insert" && window.editingMatchId !== undefined && window.editingMatchId !== null) return;
+      el.innerHTML = window.translations[lang][key]; 
+    }
+  });
+
+  const levelSelect = document.getElementById("match-level");
+  if (levelSelect) {
+    const currentVal = levelSelect.value;
+    const defaultText = lang === "en" ? "Please select..." : "Bitte wählen...";
+    levelSelect.innerHTML = `<option value="">${defaultText}</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
+    levelSelect.value = currentVal;
+  }
+  if (typeof window.onLanguageChanged === "function") { window.onLanguageChanged(lang); }
 }
 
-// Zeichnet die Inserate in die HTML-Liste
-function renderMatches(matches) {
-  const container = document.getElementById("match-container");
-  if (!container) return;
-
-  if (!matches.length) { 
-    container.innerHTML = `<p>${window.translations[window.currentLang]["no-slots"]}</p>`; 
-    return; 
-  }
+async function checkUserStatus() {
+  const container = document.getElementById("auth-status-container");
+  const emailField = document.getElementById("seller-email");
+  const user = window.currentUser;
   
-  // Wir holen uns alle User-Profile manuell, falls der JOIN oben fehlgeschlagen ist
-  window.supabaseClient.from('profiles').select('email, ipsc_alias').then(({data: profiles}) => {
-      
-      let aliasMap = {};
-      if(profiles) {
-          profiles.forEach(p => { aliasMap[p.email] = p.ipsc_alias; });
-      }
+  if (user) {
+    const displayName = user.user_metadata?.username || user.email.split('@')[0];
+    const avatarUrl = user.user_metadata?.avatar_url;
+    
+    // Profilbild oder reiner Text
+    const avatarHtml = avatarUrl 
+        ? `<img src="${avatarUrl}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 2px solid var(--accent-color);">` 
+        : `<span style="font-weight:bold; color:var(--accent-color);">${escapeHtml(displayName)}</span>`;
 
-      container.innerHTML = matches.map(m => {
-        const isWant = m.type === "want";
-        const levelBadge = m.match_level ? `<span class="badge" style="background:#555; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_level)}</span>` : "";
-        const squadBadge = m.match_squad ? `<span class="badge" style="background:#3498db; color:#fff; padding:2px 5px; border-radius:3px;">Squad ${escapeHtml(m.match_squad)}</span>` : "";
-        const countryBadge = m.match_country ? `<span class="badge" style="background:#8e44ad; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_country)}</span>` : "";
+    if (container) {
+      container.innerHTML = `<div id="btn-open-settings" style="cursor:pointer; display:flex; align-items:center; gap:10px; margin-right:15px;">${avatarHtml}</div><button class="btn-auth" id="btn-logout" style="border-color: var(--danger-color); color: var(--danger-color);">${window.translations[window.currentLang]["logout"]}</button>`;
+    }
+    if (emailField) { emailField.value = user.email; emailField.readOnly = true; }
+  } else {
+    if (container) {
+      container.innerHTML = `<button class="btn-auth" id="btn-open-login">${window.translations[window.currentLang]["btn-login-reg"]}</button>`;
+    }
+    if (emailField) { emailField.value = ""; emailField.placeholder = "Logge dich ein, um zu inserieren"; }
+  }
+}
 
-        // Admin-Erkennung für die Steuerung der Buttons auf dem Marktplatz
-        const isSender = window.currentUser && window.currentUser.email === m.seller_email;
-        const isAdmin = window.currentUser && window.currentUser.email === "fabian-schoeps@gmx.de";
-        const canManage = isSender || isAdmin;
+function toggleAuthView(view) {
+  if(document.getElementById("modal-login-view")) document.getElementById("modal-login-view").style.display = view === "login" ? "block" : "none";
+  if(document.getElementById("modal-register-view")) document.getElementById("modal-register-view").style.display = view === "register" ? "block" : "none";
+  if(document.getElementById("modal-forgot-view")) document.getElementById("modal-forgot-view").style.display = view === "forgot" ? "block" : "none";
+  if(document.getElementById("modal-reset-view")) document.getElementById("modal-reset-view").style.display = view === "reset-password" ? "block" : "none";
+  if(document.getElementById("modal-settings-view")) document.getElementById("modal-settings-view").style.display = view === "settings" ? "block" : "none";
+}
+window.toggleAuthView = toggleAuthView;
 
-        // TRUSTED SHOOTER BADGE LOGIK
-        // Versucht den Alias aus dem Profil-JOIN zu laden (oder aus der manuellen Map)
-        let sellerAlias = null;
+
+// ==========================================
+// --- ROBUSTE EVENT DELEGATION ---
+// ==========================================
+
+// 1. Klicks auf der ganzen Seite überwachen
+document.addEventListener("click", async (e) => {
+    
+    if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
+        document.getElementById("auth-modal").style.display = "flex";
+        toggleAuthView("login");
+    }
+    
+    if (e.target.id === "btn-close-modal" || e.target.closest("#btn-close-modal")) {
+        document.getElementById("auth-modal").style.display = "none";
+    }
+    
+    if (e.target.id === "btn-logout" || e.target.closest("#btn-logout")) {
+        await window.supabaseClient.auth.signOut();
+        location.reload();
+    }
+    
+    if (e.target.id === "btn-open-settings" || e.target.closest("#btn-open-settings")) {
+        document.getElementById("auth-modal").style.display = "flex";
+        toggleAuthView("settings");
         
-        // Prüfen, ob der aktuell eingeloggte Nutzer sein eigenes Inserat ansieht
-        if(isSender && window.currentUser.user_metadata?.ipsc_alias) {
-             sellerAlias = window.currentUser.user_metadata.ipsc_alias;
-        } else if (aliasMap[m.seller_email]) {
-            sellerAlias = aliasMap[m.seller_email];
-        } else if (m.seller_profile && m.seller_profile.ipsc_alias) {
-             sellerAlias = m.seller_profile.ipsc_alias;
+        const settingsUser = document.getElementById("settings-username");
+        if (settingsUser && window.currentUser) {
+            settingsUser.value = window.currentUser.user_metadata?.username || "";
+        }
+        
+        // IPSC Alias laden
+        const settingsIpsc = document.getElementById("settings-ipsc-alias");
+        if (settingsIpsc && window.currentUser) {
+            settingsIpsc.value = window.currentUser.user_metadata?.ipsc_alias || "";
         }
 
-        // Das grüne Trusted Badge generieren
-        const trustedBadge = (sellerAlias && sellerAlias.trim() !== "") 
-            ? `<span class="badge" style="background:var(--success-color); color:#fff; padding:2px 6px; border-radius:3px; display:inline-flex; align-items:center; gap:4px;" title="Verifizierter IPSC Alias: ${escapeHtml(sellerAlias)}">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                Trusted
-               </span>` 
-            : "";
-
-        const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
-        const contactBtnClass = isWant ? "btn-contact btn-contact-want" : "btn-contact";
-        const contactText = isWant ? window.translations[window.currentLang]["btn-contact-want"] : window.translations[window.currentLang]["btn-request"];
-
-        return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
-          <div class="match-details">
-            <h3>
-              ${escapeHtml(m.match_name)} 
-              ${levelBadge} 
-              ${squadBadge} 
-              ${countryBadge}
-              <span class="badge">${isWant ? window.translations[window.currentLang]["tag-want"] : window.translations[window.currentLang]["tag-offer"]}</span>
-              ${trustedBadge}
-            </h3>
-            <p>${m.match_date} | ${escapeHtml(m.match_location)}</p>
-          </div>
-          <div class="card-actions">
-            <p>${parseFloat(m.match_price).toFixed(2)} €</p>
-            <button class="${contactBtnClass}" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">${contactText}</button>
-            <div class="action-buttons-group">
-                <button class="btn-export" onclick="exportToIcs(${m.id})">${window.translations[window.currentLang]["btn-export"]}</button>
-                <button class="btn-report" onclick="reportMatch(${m.id})">${window.translations[window.currentLang]["report-btn"]}</button>
-            </div>
-            ${canManage ? `
-              <div class="action-buttons-group">
-                <button class="btn-edit" onclick="handleEditClick(${m.id})">${window.translations[window.currentLang]["btn-edit"]}</button>
-                <button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${window.translations[window.currentLang]["btn-delete"]}</button>
-              </div>
-            ` : ""}
-          </div>
-        </div>`;
-      }).join("");
-  });
-}
-
-// Mail-Client für Kontaktaufnahme öffnen
-function handleContactClick(email, matchName, type) {
-  if (!window.currentUser) {
-    alert(window.translations[window.currentLang]["login-required"]);
-    return;
-  }
-  
-  const conf = confirm(window.translations[window.currentLang]["security-notice"] + window.translations[window.currentLang]["security-checklist"]);
-  if (!conf) return;
-
-  const subjectPrefix = type === "want" ? window.translations[window.currentLang]["email-subject-want"] : window.translations[window.currentLang]["email-subject-offer"];
-  const bodyPrefix = type === "want" ? window.translations[window.currentLang]["email-body-want"] : window.translations[window.currentLang]["email-body-offer"];
-  
-  const subject = encodeURIComponent(subjectPrefix + matchName);
-  const body = encodeURIComponent(bodyPrefix + matchName + window.translations[window.currentLang]["email-body-footer"]);
-  
-  window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-}
-window.handleContactClick = handleContactClick;
-
-// ICS Kalender-Export
-function exportToIcs(id) {
-  const match = cachedMatches.find(m => m.id === id);
-  if (!match) return;
-  
-  const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${match.match_name}\nDTSTART:${match.match_date.replace(/-/g, '')}T080000Z\nLOCATION:${match.match_location}\nEND:VEVENT\nEND:VCALENDAR`;
-  const blob = new Blob([icsContent], { type: 'text/calendar' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${match.match_name.replace(/\s+/g, '_')}.ics`;
-  a.click();
-  window.URL.revokeObjectURL(url);
-}
-window.exportToIcs = exportToIcs;
-
-// Inserat an Admin melden
-function reportMatch(id) {
-  if (!window.currentUser) { 
-      alert(window.translations[window.currentLang]["login-required"]); 
-      return; 
-  }
-  const subject = encodeURIComponent("Melde-Anzeige: Eintrag ID " + id);
-  const body = encodeURIComponent("Hallo Administratoren,\n\nich möchte folgenden Eintrag melden: " + window.location.origin + "/?id=" + id + "\n\nGrund der Meldung:\n");
-  window.location.href = `mailto:info@ipscboerse.com?subject=${subject}&body=${body}`;
-}
-window.reportMatch = reportMatch;
-
-// Klick auf "Bearbeiten"
-function handleEditClick(id) {
-  const match = cachedMatches.find(m => m.id === id);
-  if (!match) return;
-  
-  window.editingMatchId = id;
-
-  document.getElementById("match-name").value = match.match_name;
-  document.getElementById("match-level").value = match.match_level;
-  document.getElementById("match-date").value = match.match_date;
-  document.getElementById("match-location").value = match.match_location;
-  document.getElementById("match-country").value = match.match_country || "DE";
-  document.getElementById("match-squad").value = match.match_squad || "";
-  document.getElementById("match-price").value = match.match_price;
-  
-  if (match.type === "want") { 
-      document.getElementById("type-want").checked = true; 
-  } else { 
-      document.getElementById("type-offer").checked = true; 
-  }
-
-  document.getElementById("form-section-title").innerText = window.translations[window.currentLang]["form-title-edit"];
-  document.getElementById("btn-submit-ad").innerText = window.translations[window.currentLang]["btn-save-edit"];
-  document.getElementById("btn-cancel-edit").style.display = "inline-block";
-  document.getElementById("form-anchor").scrollIntoView({ behavior: "smooth" });
-}
-window.handleEditClick = handleEditClick;
-
-// Formular nach dem Senden oder beim Abbrechen zurücksetzen
-function resetFormState() {
-  window.editingMatchId = null;
-  document.getElementById("match-form").reset();
-  document.getElementById("form-section-title").innerText = window.translations[window.currentLang]["form-title"];
-  document.getElementById("btn-submit-ad").innerText = window.translations[window.currentLang]["btn-insert"];
-  document.getElementById("btn-cancel-edit").style.display = "none";
-  enforceFutureDates();
-}
-document.getElementById("btn-cancel-edit")?.addEventListener("click", resetFormState);
-
-// Inserat löschen (Erlaubt dem Besitzer und dem Admin das Löschen)
-async function handleDelete(id, sellerEmail) {
-  const isAdmin = window.currentUser && window.currentUser.email === "fabian-schoeps@gmx.de";
-  const isOwner = window.currentUser && window.currentUser.email === sellerEmail;
-
-  if (!isOwner && !isAdmin) { 
-      return alert("Fehler: Unberechtigt."); 
-  }
-  
-  const text = isAdmin && !isOwner 
-    ? "Möchtest du diesen fremden Eintrag als ADMIN unwiderruflich löschen?" 
-    : "Möchtest du diesen Eintrag wirklich unwiderruflich löschen?";
+        const previewImg = document.getElementById("settings-avatar-preview");
+        if (previewImg && window.currentUser?.user_metadata?.avatar_url) {
+            previewImg.src = window.currentUser.user_metadata.avatar_url;
+            previewImg.style.display = 'block';
+        }
+    }
     
-  if (!confirm(text)) return;
-  
-  await window.supabaseClient.from("matches").delete().eq("id", id);
-  
-  if (window.editingMatchId === id) resetFormState();
-  fetchMatches();
-}
-
-// Inserat speichern / absenden
-document.getElementById("match-form")?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  
-  if (!window.currentUser) {
-      return alert("Bitte melde dich an.");
-  }
-  
-  const inputDate = document.getElementById("match-date").value;
-  const todayStr = new Date().toISOString().split("T")[0];
-  
-  if (inputDate < todayStr) {
-    alert(window.currentLang === "en" ? "Error: Match date cannot be in the past!" : "Fehler: Das Match-Datum darf nicht in der Vergangenheit liegen!");
-    return;
-  }
-
-  const matchName = document.getElementById("match-name").value;
-  
-  // Spam-Prüfung aufbauen
-  let spamCheck = window.supabaseClient
-      .from("matches")
-      .select("id")
-      .eq("seller_email", window.currentUser.email)
-      .eq("match_name", matchName)
-      .eq("match_date", inputDate);
-      
-  if (window.editingMatchId !== null) { 
-      spamCheck = spamCheck.neq("id", window.editingMatchId); 
-  }
-
-  const { data: duplicateEntries, error: spamError } = await spamCheck;
-  
-  if (spamError) { 
-      alert("Fehler bei der Spam-Prüfung: " + spamError.message); 
-      return; 
-  }
-  
-  if (duplicateEntries && duplicateEntries.length > 0) { 
-      alert(window.translations[window.currentLang]["spam-error"]); 
-      return; 
-  }
-
-  // Daten für Datenbank vorbereiten
-  const matchData = {
-    match_name: matchName,
-    match_level: document.getElementById("match-level").value,
-    match_date: inputDate,
-    match_location: document.getElementById("match-location").value,
-    match_country: document.getElementById("match-country").value,
-    match_price: document.getElementById("match-price").value,
-    seller_email: window.currentUser.email,
-    type: document.getElementById("type-want").checked ? "want" : "offer"
-  };
-  
-  if (document.getElementById("match-squad").value) {
-    matchData.match_squad = document.getElementById("match-squad").value;
-  } else {
-    matchData.match_squad = null;
-  }
-
-  // UPDATE ODER INSERT ausführen
-  if (window.editingMatchId !== null) {
-    const { error } = await window.supabaseClient.from("matches").update(matchData).eq("id", window.editingMatchId);
-    if (error) alert("Fehler beim Aktualisieren: " + error.message);
-  } else {
-    const { error } = await window.supabaseClient.from("matches").insert([matchData]);
-    if (error) alert("Fehler beim Erstellen: " + error.message);
-  }
-
-  resetFormState();
-  fetchMatches();
-  
-  // Wenn das Inserat aus dem Planer kam, löschen wir die URL-Parameter für mehr Übersichtlichkeit
-  if (window.history.replaceState) {
-    const url = new URL(window.location);
-    url.search = '';
-    window.history.replaceState({}, document.title, url);
-  }
+    if (e.target.id === "btn-delete-account") {
+        e.preventDefault();
+        if (!confirm("⚠️ WARNUNG:\n\nMöchtest du dein Profil und all deine aktiven Marktplatz-Inserate wirklich unwiderruflich löschen?")) return;
+        await window.supabaseClient.from("matches").delete().eq("seller_email", window.currentUser.email);
+        await window.supabaseClient.auth.updateUser({ data: { deleted: true, username: "Gelöschter Schütze" } });
+        await window.supabaseClient.auth.signOut();
+        alert("Dein Konto und deine Inserate wurden erfolgreich entfernt.");
+        location.reload();
+    }
 });
 
-// Dropdown: Biete/Suche Filter anwenden
-document.getElementById("filter-type-select")?.addEventListener("change", (e) => {
-  const type = e.target.value;
-  if (type === "all") renderMatches(cachedMatches);
-  else renderMatches(cachedMatches.filter(m => m.type === type));
-});
-
-// NEU: Prüft beim Start, ob Daten aus dem Wettkampfplaner in der URL stehen
-function checkPlannerImport() {
-  const urlParams = new URLSearchParams(window.location.search);
-  
-  if (urlParams.get('from_planner') === 'true') {
-    const name = urlParams.get('name');
-    const date = urlParams.get('date');
-    const location = urlParams.get('location');
-
-    if (name && document.getElementById("match-name")) {
-        document.getElementById("match-name").value = name;
+// Vorschau-Funktion für Datei-Upload im Menü
+window.previewSettingsAvatar = function(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.getElementById('settings-avatar-preview');
+            if (img) { img.src = e.target.result; img.style.display = 'block'; }
+        }
+        reader.readAsDataURL(input.files[0]);
     }
-    if (date && document.getElementById("match-date")) {
-        document.getElementById("match-date").value = date;
-    }
-    if (location && document.getElementById("match-location")) {
-        document.getElementById("match-location").value = location;
-    }
-
-    const formAnchor = document.getElementById("form-anchor");
-    if (formAnchor) {
-      setTimeout(() => { 
-          formAnchor.scrollIntoView({ behavior: "smooth" }); 
-      }, 300);
-    }
-  }
 }
 
-// Event-Hook: Wenn auth.js fertig geladen ist / sich Login ändert
-window.onAuthChange = () => { fetchMatches(); };
-window.onLanguageChanged = () => { if (cachedMatches.length > 0) { renderMatches(cachedMatches); } };
+// 2. Formular-Absendungen auf der ganzen Seite überwachen
+document.addEventListener("submit", async (e) => {
+    
+    // --- LOGIN ---
+    if (e.target.id === "login-form") {
+        e.preventDefault(); 
+        const btn = e.target.querySelector('button[type="submit"]');
+        if (btn) btn.innerText = "Lade..."; 
+        
+        const { error } = await window.supabaseClient.auth.signInWithPassword({
+            email: document.getElementById("login-email").value,
+            password: document.getElementById("login-password").value,
+        });
+        
+        if (error) {
+            if (btn) btn.innerText = "Einloggen"; 
+            alert("Login fehlgeschlagen: " + error.message);
+        } else {
+            location.reload();
+        }
+    }
+    
+    // --- REGISTRIEREN ---
+    else if (e.target.id === "register-form") {
+        e.preventDefault();
+        const { error } = await window.supabaseClient.auth.signUp({
+            email: document.getElementById("register-email").value,
+            password: document.getElementById("register-password").value,
+        });
+        if (error) alert("Registrierung fehlgeschlagen: " + error.message);
+        else { alert("Konto erstellt! Bitte überprüfe dein Postfach."); toggleAuthView("login"); }
+    }
+    
+    // --- PASSWORT VERGESSEN ---
+    else if (e.target.id === "forgot-form") {
+        e.preventDefault();
+        const { error } = await window.supabaseClient.auth.resetPasswordForEmail(document.getElementById("forgot-email").value, {
+            redirectTo: window.location.origin + window.location.pathname,
+        });
+        if (error) alert("Fehler: " + error.message);
+        else { alert("Link zum Zurücksetzen gesendet!"); toggleAuthView("login"); }
+    }
+    
+    // --- PASSWORT ZURÜCKSETZEN ---
+    else if (e.target.id === "reset-password-form") {
+        e.preventDefault();
+        const { error } = await window.supabaseClient.auth.updateUser({
+            password: document.getElementById("reset-password-input").value
+        });
+        if (error) alert("Fehler: " + error.message);
+        else { 
+            alert(window.currentLang === "en" ? "Password updated! Confirmation email has been sent." : "Passwort erfolgreich aktualisiert! Eine Bestätigungs-E-Mail wurde versendet."); 
+            location.reload(); 
+        }
+    }
+    
+    // --- KONTO EINSTELLUNGEN (MIT BILD & IPSC ALIAS) ---
+    else if (e.target.id === "settings-form") {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        const oldText = btn.innerText;
+        btn.innerText = "Speichere... (Bild lädt hoch)";
 
-// Start (wird beim Skript-Laden sofort ausgeführt)
-enforceFutureDates();
-checkPlannerImport();
-fetchMatches();
+        try {
+            const newUsername = document.getElementById("settings-username").value;
+            const newPassword = document.getElementById("settings-password").value;
+            const newIpscAlias = document.getElementById("settings-ipsc-alias").value; 
+
+            // Check if Avatar Input exists and a file is selected
+            const avatarInput = document.getElementById("settings-avatar");
+            const avatarFile = avatarInput && avatarInput.files.length > 0 ? avatarInput.files[0] : null;
+            
+            // ipsc_alias in die Updates packen
+            let updates = { data: { username: newUsername, ipsc_alias: newIpscAlias } };
+            if (newPassword.trim().length >= 6) { updates.password = newPassword; }
+
+            // Bild hochladen falls ausgewählt
+            if (avatarFile) {
+                const avatarUrl = await window.uploadImage(avatarFile, 'avatars');
+                updates.data.avatar_url = avatarUrl;
+            }
+
+            const { error } = await window.supabaseClient.auth.updateUser(updates);
+            if (error) throw error;
+            
+            alert(window.currentLang === "en" ? "Account updated!" : "Konto erfolgreich aktualisiert!"); 
+            location.reload(); 
+        } catch (err) {
+            btn.innerText = oldText;
+            alert("Fehler beim Speichern: " + err.message);
+        }
+    }
+});
+
+// Sprache wechseln
+document.addEventListener("change", (e) => {
+    if (e.target.id === "language-select") applyLanguage(e.target.value);
+});
+
+
+// === START LOGIK ===
+
+setTimeout(async () => {
+    applyLanguage("de");
+    
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    window.currentUser = session?.user || null;
+    await checkUserStatus();
+    
+    if (typeof window.onAuthChange === "function") { 
+        window.onAuthChange(window.currentUser); 
+    }
+
+    window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        window.currentUser = session?.user || null;
+        
+        if (event === "PASSWORD_RECOVERY") {
+            const modal = document.getElementById("auth-modal");
+            if (modal) modal.style.display = "flex";
+            toggleAuthView("reset-password");
+        }
+        
+        await checkUserStatus();
+        
+        if (typeof window.onAuthChange === "function") { 
+            window.onAuthChange(window.currentUser); 
+        }
+    });
+}, 100);
