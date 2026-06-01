@@ -348,6 +348,14 @@ document.addEventListener("submit", async (e) => {
     }
     else if (e.target.id === "register-form") {
         e.preventDefault();
+        
+        // NEU: Prüfen, ob AGB akzeptiert wurden
+        const agbCheckbox = document.getElementById("register-agb");
+        if (agbCheckbox && !agbCheckbox.checked) {
+            alert(window.currentLang === "en" ? "Please accept the terms and conditions." : "Bitte akzeptiere die AGB und Nutzungsbedingungen, um fortzufahren.");
+            return;
+        }
+
         const { error } = await window.supabaseClient.auth.signUp({
             email: document.getElementById("register-email").value,
             password: document.getElementById("register-password").value,
