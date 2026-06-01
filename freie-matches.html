@@ -166,6 +166,138 @@
             background-color: #0f0f0f;
             border-top: 1px solid #444; padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted);
         }
+
+        /* ========================================================
+           ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES (HAUPT-REPARATUR)
+           ======================================================== */
+        @media (max-width: 768px) {
+            html, body {
+                overflow-x: hidden !important;
+                width: 100% !important;
+            }
+            header {
+                padding: 12px 8px !important;
+            }
+            header h1 {
+                font-size: 19px !important;
+                margin-bottom: 8px !important;
+            }
+            header p {
+                font-size: 11px !important;
+                margin-top: 2px !important;
+            }
+            .header-controls {
+                position: static !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: center !important;
+                align-items: center !important;
+                gap: 12px !important;
+                margin-top: 10px !important;
+                width: 100% !important;
+            }
+            #auth-status-container {
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+            #btn-open-settings {
+                margin-right: 0 !important;
+            }
+            #btn-open-settings img {
+                width: 28px !important;
+                height: 28px !important;
+                border-width: 1px !important;
+            }
+            .btn-auth {
+                padding: 5px 10px !important;
+                font-size: 12px !important;
+            }
+            .main-nav {
+                margin-top: 12px !important;
+                padding-top: 8px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: flex-start !important;
+                overflow-x: auto !important;
+                white-space: nowrap !important;
+                gap: 15px !important;
+                -webkit-overflow-scrolling: touch !important;
+                scrollbar-width: none !important;
+            }
+            .main-nav::-webkit-scrollbar {
+                display: none !important;
+            }
+            .main-nav a {
+                flex-shrink: 0 !important;
+                font-size: 12px !important;
+                padding-bottom: 2px !important;
+            }
+            .container {
+                padding: 0 10px !important;
+                margin-top: 15px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .info-box, .form-section, .post-card, .match-card, #logged-out-section, #planner-section, #username-setup-section, #logged-out-msg {
+                padding: 12px !important;
+                margin-bottom: 12px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            .form-grid {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+            }
+            .toggle-selector {
+                flex-direction: column !important;
+                gap: 8px !important;
+                align-items: flex-start !important;
+            }
+            button, .btn-submit {
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .match-card {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 12px !important;
+            }
+            .card-actions {
+                align-items: flex-start !important;
+                width: 100% !important;
+                border-top: 1px solid #444 !important;
+                padding-top: 10px !important;
+            }
+            .action-buttons-group {
+                width: 100% !important;
+                display: flex !important;
+                gap: 6px !important;
+            }
+            .action-buttons-group button, .btn-contact {
+                flex: 1 !important;
+                text-align: center !important;
+                width: 100% !important;
+            }
+            .fab {
+                bottom: 15px !important;
+                right: 15px !important;
+                padding: 10px 16px !important;
+                font-size: 13px !important;
+                z-index: 999 !important;
+            }
+            .match-item {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 10px !important;
+            }
+            .match-item div[style*="display: flex"] {
+                width: 100% !important;
+                justify-content: space-between !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -222,9 +354,8 @@
     </footer>
 
     <script>
-    let allMatches = []; // Speichert alle geladenen Matches für den Filter
+    let allMatches = [];
 
-    // Der "?v=" Trick zwingt den Browser, IMMER die allerneueste Datei zu holen!
     fetch('matches.json?v=' + new Date().getTime())
       .then(res => res.json())
       .then(data => {
@@ -237,18 +368,16 @@
               return;
           }
 
-          document.getElementById('match-filters').style.display = 'flex'; // Filter einblenden
+          document.getElementById('match-filters').style.display = 'flex';
           setupFilters(allMatches);
-          renderMatches(allMatches); // Start: Alle anzeigen
+          renderMatches(allMatches);
       })
       .catch(err => {
           console.error("Fehler beim Laden:", err);
           document.getElementById('js-match-container').innerHTML = "<p class='loading-msg'>Fehler beim Laden der Daten. Bitte lade die Seite neu.</p>";
       });
 
-    // --- Filter Logik ---
     function setupFilters(matches) {
-        // Findet alle einzigartigen Werte, entfernt leere/N/A und sortiert sie alphabetisch
         const regions = [...new Set(matches.map(m => m.region))].filter(r => r && r !== "N/A" && r !== "-").sort();
         const disziplinen = [...new Set(matches.map(m => m.disziplin))].filter(d => d && d !== "-").sort();
         const levels = [...new Set(matches.map(m => m.level))].filter(l => l && l !== "-").sort();
@@ -257,12 +386,10 @@
         const disziplinSelect = document.getElementById('filter-disziplin');
         const levelSelect = document.getElementById('filter-level');
 
-        // Optionen einfügen
         regions.forEach(r => regionSelect.innerHTML += `<option value="${r}">${r}</option>`);
         disziplinen.forEach(d => disziplinSelect.innerHTML += `<option value="${d}">${d}</option>`);
         levels.forEach(l => levelSelect.innerHTML += `<option value="${l}">Level ${l}</option>`);
 
-        // Event-Listener: Filter anwenden, wenn etwas ausgewählt wird
         regionSelect.addEventListener('change', applyFilters);
         disziplinSelect.addEventListener('change', applyFilters);
         levelSelect.addEventListener('change', applyFilters);
@@ -273,7 +400,6 @@
         const selectedDisziplin = document.getElementById('filter-disziplin').value;
         const selectedLevel = document.getElementById('filter-level').value;
 
-        // Matches durchfiltern
         const filteredMatches = allMatches.filter(match => {
             const matchesRegion = selectedRegion === 'all' || match.region === selectedRegion;
             const matchesDisziplin = selectedDisziplin === 'all' || match.disziplin === selectedDisziplin;
@@ -285,7 +411,6 @@
         renderMatches(filteredMatches);
     }
 
-    // Zeigt die Matches (gefiltert oder alle) im Container an
     function renderMatches(matchesToDisplay) {
         const container = document.getElementById('js-match-container');
         
@@ -294,12 +419,10 @@
             return;
         }
 
-        // DEIN ORIGINALES DESIGN
         let html = matchesToDisplay.map(match => `
             <a href="${match.url}" target="_blank" style="text-decoration: none; color: inherit; display: block;">
                 <div class="match-card">
                     <div class="match-details">
-                   
                         <h3>${match.name}</h3>
                         <div class="badge-container">
                             <span class="badge-datum">📅 ${match.datum || 'N/A'}</span>
@@ -311,7 +434,6 @@
                     </div>
                     <div class="card-actions">
                         <span class="btn-contact">Zum Match</span>
- 
                     </div>
                 </div>
             </a>
