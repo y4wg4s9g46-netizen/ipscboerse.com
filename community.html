@@ -174,7 +174,7 @@
                 <h3>Neues Passwort vergeben</h3>
                 <form id="reset-password-form">
                     <div class="form-group"><label>Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
-                    <button type="submit" style="background: var(--accent-color); width:100%; padding: 10px; border: none; font-weight: bold; cursor: pointer;">Speichern</button>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="btn-save">Speichern</button>
                 </form>
             </div>
 
@@ -207,7 +207,7 @@
     <script src="auth.js"></script>
     <script>
         // === ADMIN KONFIGURATION ===
-        const ADMIN_EMAIL = 'info@ipscboerse.com'; 
+        const ADMIN_EMAIL = 'fabian-schoeps@gmx.de'; 
 
         function switchTab(tab) {
             if (window.currentUser && (!window.currentUser.user_metadata?.username || window.currentUser.user_metadata.username.trim() === "")) {
