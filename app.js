@@ -211,12 +211,12 @@ async function handleDelete(id, sellerEmail) {
   const isOwner = window.currentUser && window.currentUser.email === sellerEmail;
 
   if (!isOwner && !isAdmin) { 
-      return alert("Fehler: Unberechtigt."); 
+      return alert(window.currentLang === "en" ? "Error: Unauthorized." : "Fehler: Unberechtigt."); 
   }
   
-  const text = isAdmin && !isOwner 
-    ? "Möchtest du diesen fremden Eintrag als ADMIN unwiderruflich löschen?" 
-    : "Möchtest du diesen Eintrag wirklich unwiderruflich löschen?";
+  const textAdmin = window.currentLang === "en" ? "Do you want to permanently delete this entry as an ADMIN?" : "Möchtest du diesen fremden Eintrag als ADMIN unwiderruflich löschen?";
+  const textUser = window.currentLang === "en" ? "Do you really want to permanently delete this entry?" : "Möchtest du diesen Eintrag wirklich unwiderruflich löschen?";
+  const text = isAdmin && !isOwner ? textAdmin : textUser;
     
   if (!confirm(text)) return;
   
@@ -227,7 +227,7 @@ async function handleDelete(id, sellerEmail) {
 
 document.getElementById("match-form")?.addEventListener("submit", async (e) => {
   e.preventDefault();
-  if (!window.currentUser) return alert("Bitte melde dich an.");
+  if (!window.currentUser) return alert(window.currentLang === "en" ? "Please log in." : "Bitte melde dich an.");
   
   const inputDate = document.getElementById("match-date").value;
   const todayStr = new Date().toISOString().split("T")[0];
@@ -250,7 +250,7 @@ document.getElementById("match-form")?.addEventListener("submit", async (e) => {
   }
 
   const { data: duplicateEntries, error: spamError } = await spamCheck;
-  if (spamError) return alert("Fehler bei der Spam-Prüfung: " + spamError.message);
+  if (spamError) return alert((window.currentLang === "en" ? "Spam check error: " : "Fehler bei der Spam-Prüfung: ") + spamError.message);
   if (duplicateEntries && duplicateEntries.length > 0) return alert(window.translations[window.currentLang]["spam-error"]);
 
   const matchData = {
@@ -268,10 +268,10 @@ document.getElementById("match-form")?.addEventListener("submit", async (e) => {
 
   if (window.editingMatchId !== null) {
     const { error } = await window.supabaseClient.from("matches").update(matchData).eq("id", window.editingMatchId);
-    if (error) alert("Fehler beim Aktualisieren: " + error.message);
+    if (error) alert((window.currentLang === "en" ? "Error updating: " : "Fehler beim Aktualisieren: ") + error.message);
   } else {
     const { error } = await window.supabaseClient.from("matches").insert([matchData]);
-    if (error) alert("Fehler beim Erstellen: " + error.message);
+    if (error) alert((window.currentLang === "en" ? "Error creating: " : "Fehler beim Erstellen: ") + error.message);
   }
 
   resetFormState();
