@@ -27,6 +27,13 @@ try:
                     best_name = match_link.text.strip()
                     detail_url = urllib.parse.urljoin(base_url, match_link.get('href', ''))
                     
+                    # --- NEU: Datum kugelsicher auslesen ---
+                    datum = "N/A"
+                    # Sucht nach 15.09.2024 oder 15.09. - 16.09.2024
+                    datum_match = re.search(r'\d{2}\.\d{2}\.(?:\s*-\s*\d{2}\.\d{2}\.)?\s*\d{2,4}', row.text)
+                    if datum_match:
+                        datum = datum_match.group(0).strip()
+                    
                     # Glättet den Text der Tabellenzeile
                     row_text_clean = re.sub(r'\s+', ' ', row.text.lower())
                     is_closed = "geschlossen" in row_text_clean
@@ -37,10 +44,8 @@ try:
                             d_resp = requests.get(detail_url, headers=headers, timeout=10)
                             d_soup = BeautifulSoup(d_resp.text, 'html.parser')
                             
-                            # PLANIER-FUNKTION: Macht aus allen Umbrüchen/Tabs exakt ein Leerzeichen
                             d_clean_text = re.sub(r'\s+', ' ', d_soup.get_text(" ", strip=True).lower())
                             
-                            # Jetzt greift der Filter zu 100%, egal wie die Seite formatiert ist
                             if "anmeldung geschlossen" in d_clean_text or "closed" in d_clean_text:
                                 is_closed = True
                             else:
@@ -59,6 +64,7 @@ try:
                     if prozent_match and int(prozent_match.group(1)) < 100:
                         matches.append({
                             "name": best_name,
+                            "datum": datum, # Gibt das Datum an deine Website weiter
                             "auslastung": f"{prozent_match.group(1)}%",
                             "region": region,
                             "level": level,
