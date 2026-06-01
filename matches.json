@@ -1,21 +1,5 @@
 [
     {
-        "name": "Bodensee Thunder in Paradise PCC",
-        "auslastung": "84%",
-        "region": "GER",
-        "level": "1",
-        "disziplin": "PCC",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_Bodensee_Tropic_Thunder_PCC"
-    },
-    {
-        "name": "Helmbrechts-Cup 2026 \"Terminator-I´ll be Back\"",
-        "auslastung": "99%",
-        "region": "GER",
-        "level": "3",
-        "disziplin": "HG",
-        "url": "https://www.ipscmatch.de/index.pl?match=Helmbrechts_Cup_2026"
-    },
-    {
         "name": "Offene IPSC-LM Niedersachsen und Bremen 2026 Part ...",
         "auslastung": "91%",
         "region": "GER",
@@ -40,14 +24,6 @@
         "url": "https://www.ipscmatch.de/index.pl?match=2026_TSV-REGIONAL-MARTINIQUE"
     },
     {
-        "name": "Allauch Crow Cup 2026",
-        "auslastung": "81%",
-        "region": "FRA",
-        "level": "2",
-        "disziplin": "HG",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_Allauch_Crow_Cup"
-    },
-    {
         "name": "Bracara Augusta Match 2026",
         "auslastung": "79%",
         "region": "POR",
@@ -65,7 +41,7 @@
     },
     {
         "name": "RLP Shotgun Cup 2026",
-        "auslastung": "78%",
+        "auslastung": "77%",
         "region": "GER",
         "level": "3",
         "disziplin": "SG",
