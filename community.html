@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community | Startplatz Börse</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --accent-color: #ff9f43; /* Dein Orange */
+            --social-accent: #3498db; /* Blau für Social-Buttons wie auf deinem Screenshot */
+            --text-color: #ffffff;
+            --text-muted: #aaaaaa;
+            --danger-color: #ff4d4d;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background-color: #0f0f0f; padding: 20px; text-align: center; border-bottom: 3px solid var(--accent-color); position: relative; }
+        header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
+        
+        /* Haupt-Navigation (Marktplatz, Planer, Community) */
+        .main-nav { margin-top: 25px; display: flex; justify-content: center; gap: 25px; border-top: 1px solid #222; padding-top: 15px; }
+        .main-nav a { text-decoration: none; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 4px; transition: color 0.2s ease; }
+        .main-nav a.active { color: var(--accent-color); border-bottom: 2px solid var(--accent-color); }
+        .main-nav a.inactive { color: var(--text-muted); }
+        .main-nav a.inactive:hover { color: var(--text-color); }
+
+        .header-controls { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 15px; }
+        @media (max-width: 768px) { .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; } }
+        .btn-auth { background-color: transparent; color: var(--accent-color); border: 2px solid var(--accent-color); padding: 8px 16px; font-weight: bold; border-radius: 4px; cursor: pointer; }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; flex: 1; width: 100%; box-sizing: border-box; position: relative; }
+        
+        /* Social Sub-Navigation (Pillen-Design wie auf Screenshot) */
+        .social-nav { display: flex; gap: 10px; margin-bottom: 25px; }
+        .social-tab { background-color: transparent; border: 1px solid #555; color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .social-tab.active { background-color: var(--danger-color); color: #fff; border-color: var(--danger-color); }
+
+        /* Beitrag Styling */
+        .post-card { background-color: var(--card-bg); padding: 20px; border-radius: 8px; border: 1px solid #444; margin-bottom: 15px; }
+        .post-header { display: flex; align-items: center; margin-bottom: 15px; gap: 15px; }
+        .avatar { width: 40px; height: 40px; background-color: #555; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; color: #fff; }
+        .post-meta h4 { margin: 0; font-size: 16px; color: #fff; display: flex; align-items: center; gap: 8px;}
+        .post-meta span { font-size: 12px; color: var(--text-muted); }
+        .post-content { font-size: 15px; line-height: 1.5; color: #ddd; white-space: pre-wrap; }
+        
+        /* Admin News Styling */
+        .post-card.admin-post { border: 1px solid var(--accent-color); background-color: rgba(255, 159, 67, 0.05); }
+        .admin-badge { background-color: var(--danger-color); color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;}
+        .avatar.admin-avatar { background-color: var(--accent-color); color: #000; }
+
+        /* Floating Action Button (Neuer Beitrag) */
+        .fab { position: fixed; bottom: 30px; right: 30px; background-color: var(--social-accent); color: white; border: none; padding: 15px 25px; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; gap: 8px; transition: transform 0.2s; }
+        .fab:hover { transform: scale(1.05); }
+        @media (max-width: 768px) { .fab { bottom: 20px; right: 20px; padding: 12px 20px; font-size: 14px; } }
+
+        /* Modal-Styling (für neuen Beitrag) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background-color: var(--card-bg); padding: 25px; border-radius: 8px; width: 100%; max-width: 500px; box-sizing: border-box; }
+        textarea { width: 100%; background-color: #1a1a1a; border: 1px solid #555; color: #fff; padding: 15px; border-radius: 6px; font-family: inherit; font-size: 15px; resize: vertical; min-height: 120px; box-sizing: border-box; margin-bottom: 15px; }
+        textarea:focus { outline: none; border-color: var(--social-accent); }
+        .btn-post { background-color: var(--social-accent); color: #fff; border: none; padding: 12px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
+
+        /* Placeholder für Nicht-Eingeloggt */
+        #logged-out-msg { text-align: center; padding: 40px; background: var(--card-bg); border-radius: 8px; border: 1px solid #444; margin-top: 20px; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>COMMUNITY FEED</h1>
+        <nav class="main-nav">
+            <a href="index.html" class="inactive">Marktplatz</a>
+            <a href="freie-matches.html" class="inactive">Freie Match-Plätze</a>
+            <a href="mein-planer.html" class="inactive">Mein Planer</a>
+            <a href="community.html" class="active">Community</a>
+        </nav>
+        <div class="header-controls">
+            <div id="auth-status-container">
+                <button class="btn-auth" id="btn-open-login">Login / Registrieren</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="social-nav">
+            <button class="social-tab active" onclick="switchTab('feed')">Beiträge</button>
+            <button class="social-tab" onclick="switchTab('groups')">Gruppen</button>
+        </div>
+
+        <div id="logged-out-msg">
+            <h2>Werde Teil der Community</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Bitte logge dich ein, um Beiträge zu lesen und mit anderen Schützen zu diskutieren.</p>
+            <button onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" class="btn-auth" style="background: var(--accent-color); color: #000;">Jetzt einloggen</button>
+        </div>
+
+        <div id="feed-section" style="display: none;">
+            <div id="posts-container">
+                <p style="color: var(--text-muted); text-align: center;">Lade Beiträge...</p>
+            </div>
+            
+            <button class="fab" onclick="openPostModal()">
+                <span style="font-size: 20px; margin-top: -2px;">+</span> Beitrag erstellen
+            </button>
+        </div>
+
+        <div id="groups-section" style="display: none; text-align: center; padding: 40px; color: var(--text-muted);">
+            <h3>Gruppen-Funktion (Coming Soon)</h3>
+            <p>Hier wirst du bald private Squad-Gruppen oder Vereins-Kanäle erstellen können.</p>
+        </div>
+
+    </div>
+
+    <div class="modal" id="post-modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0; color: var(--social-accent);">Neuer Beitrag</h3>
+                <span style="cursor:pointer; font-size: 24px; color: #888;" onclick="document.getElementById('post-modal').style.display='none'">&times;</span>
+            </div>
+            <textarea id="post-content" placeholder="Was gibt's Neues rund um IPSC?"></textarea>
+            <button class="btn-post" onclick="submitPost()">Teilen</button>
+        </div>
+    </div>
+
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
+            <div id="modal-login-view">
+                <h3>Anmelden</h3>
+                <form id="login-form">
+                    <div style="margin-bottom: 15px;"><label>E-Mail *</label><input type="email" id="login-email" style="width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #555; color: #fff;" required></div>
+                    <div style="margin-bottom: 15px;"><label>Passwort *</label><input type="password" id="login-password" style="width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #555; color: #fff;" required></div>
+                    <button type="submit" style="background: var(--accent-color); width:100%; padding: 10px; border: none; font-weight: bold; cursor: pointer;">Einloggen</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        // === ADMIN KONFIGURATION ===
+        // Trage hier DEINE E-Mail Adresse ein. Beiträge von dieser Adresse werden als "Offizielle News" markiert.
+        const ADMIN_EMAIL = 'info@ipscboerse.com'; 
+
+        function switchTab(tab) {
+            document.querySelectorAll('.social-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('feed-section').style.display = 'none';
+            document.getElementById('groups-section').style.display = 'none';
+
+            if(tab === 'feed') {
+                document.querySelectorAll('.social-tab')[0].classList.add('active');
+                if (window.currentUser) document.getElementById('feed-section').style.display = 'block';
+            } else {
+                document.querySelectorAll('.social-tab')[1].classList.add('active');
+                if (window.currentUser) document.getElementById('groups-section').style.display = 'block';
+            }
+        }
+
+        // Event-Hook: Reagiert auf Login
+        window.onAuthChange = (user) => {
+            if (user) {
+                document.getElementById('logged-out-msg').style.display = 'none';
+                document.getElementById('feed-section').style.display = 'block';
+                loadPosts();
+            } else {
+                document.getElementById('logged-out-msg').style.display = 'block';
+                document.getElementById('feed-section').style.display = 'none';
+                document.getElementById('groups-section').style.display = 'none';
+            }
+        };
+
+        async function loadPosts() {
+            if (!window.currentUser) return;
+            const container = document.getElementById('posts-container');
+            
+            const { data, error } = await window.supabaseClient
+                .from('community_posts')
+                .select('*')
+                .order('created_at', { ascending: false }) // Neueste oben
+                .limit(50);
+
+            if (error) { container.innerHTML = 'Fehler beim Laden.'; return; }
+            
+            container.innerHTML = '';
+            
+            if(data.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#888;">Noch keine Beiträge. Mach den Anfang!</p>';
+                return;
+            }
+
+            data.forEach(post => {
+                const dateObj = new Date(post.created_at);
+                const displayDate = dateObj.toLocaleDateString('de-DE') + ' ' + dateObj.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
+                
+                const isAdmin = post.author_email === ADMIN_EMAIL;
+                const cardClass = isAdmin ? 'post-card admin-post' : 'post-card';
+                const avatarClass = isAdmin ? 'avatar admin-avatar' : 'avatar';
+                const initial = post.author_name ? post.author_name.charAt(0).toUpperCase() : '?';
+                const adminBadge = isAdmin ? '<span class="admin-badge">Admin News</span>' : '';
+
+                // Falls der Nutzer eigene Beiträge löschen darf (oder Admin alles löschen darf)
+                const isOwner = window.currentUser.email === post.author_email || window.currentUser.email === ADMIN_EMAIL;
+                const deleteBtn = isOwner ? `<button onclick="deletePost(${post.id})" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size:12px; float:right;">Löschen</button>` : '';
+
+                container.innerHTML += `
+                    <div class="${cardClass}">
+                        ${deleteBtn}
+                        <div class="post-header">
+                            <div class="${avatarClass}">${initial}</div>
+                            <div class="post-meta">
+                                <h4>${escapeHtml(post.author_name)} ${adminBadge}</h4>
+                                <span>${displayDate}</span>
+                            </div>
+                        </div>
+                        <div class="post-content">${escapeHtml(post.content)}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function openPostModal() {
+            document.getElementById('post-modal').style.display = 'flex';
+            document.getElementById('post-content').focus();
+        }
+
+        async function submitPost() {
+            const content = document.getElementById('post-content').value.trim();
+            if (!content) return;
+
+            const displayName = window.currentUser.user_metadata?.username || window.currentUser.email.split('@')[0];
+
+            const { error } = await window.supabaseClient
+                .from('community_posts')
+                .insert([{ 
+                    user_id: window.currentUser.id, 
+                    author_name: displayName,
+                    author_email: window.currentUser.email,
+                    content: content 
+                }]);
+
+            if (error) {
+                alert("Fehler beim Posten: " + error.message);
+            } else {
+                document.getElementById('post-content').value = '';
+                document.getElementById('post-modal').style.display = 'none';
+                loadPosts(); // Liste neu laden
+            }
+        }
+
+        async function deletePost(id) {
+            if(!confirm("Beitrag wirklich löschen?")) return;
+            const { error } = await window.supabaseClient.from('community_posts').delete().eq('id', id);
+            if(!error) loadPosts();
+        }
+
+        function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
+    </script>
+</body>
+</html>
