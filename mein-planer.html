@@ -33,13 +33,6 @@
         .header-controls { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 15px; }
         @media (max-width: 768px) { .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; } }
         
-        /* Sprachauswahl hinzugefügt */
-        .lang-switch {
-            background-color: #1a1a1a; color: #fff; border: 1px solid #555;
-            padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;
-        }
-        .lang-switch:focus { outline: none; border-color: var(--accent-color); }
-
         .btn-auth { background-color: transparent; color: var(--accent-color); border: 2px solid var(--accent-color); padding: 8px 16px; font-weight: bold; border-radius: 4px; cursor: pointer; }
         .btn-auth:hover { background-color: var(--accent-color); color: #000; }
 
@@ -207,23 +200,19 @@
 <body>
 
     <header>
-        <h1 data-txt="main-title">MEIN WETTKAMPFPLANER</h1>
-        <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Cloud-Sync & Kalender-Export</p>
+        <h1>MEIN WETTKAMPFPLANER</h1>
+        <p style="color: var(--text-muted); margin: 5px 0 0 0;">Cloud-Sync & Kalender-Export</p>
         
         <nav class="main-nav">
-            <a href="index.html" class="inactive">Marktplatz</a>
-            <a href="freie-matches.html" class="inactive">Freie Match-Plätze</a>
-            <a href="mein-planer.html" class="active">Mein Planer</a>
-            <a href="community.html" class="inactive">Community</a>
+            <a href="index.html" class="inactive" data-txt="nav-marketplace">Marktplatz</a>
+            <a href="freie-matches.html" class="inactive" data-txt="nav-free-slots">Freie Match-Plätze</a>
+            <a href="mein-planer.html" class="active" data-txt="nav-my-planner">Mein Planer</a>
+            <a href="community.html" class="inactive" data-txt="nav-community">Community</a>
         </nav>
 
         <div class="header-controls">
-            <select id="language-select" class="lang-switch">
-                <option value="de">DE</option>
-                <option value="en">EN</option>
-            </select>
             <div id="auth-status-container">
-                <button class="btn-auth" id="btn-open-login" data-txt="btn-login-reg">Login / Registrieren</button>
+                <button class="btn-auth" id="btn-open-login">Login / Registrieren</button>
             </div>
         </div>
     </header>
@@ -231,39 +220,39 @@
     <div class="container">
         
         <div id="logged-out-section" style="text-align: center; padding: 40px 20px;">
-            <h2 data-txt="pl-not-logged-in-title">Nicht angemeldet</h2>
-            <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 25px;" data-txt="pl-not-logged-in-desc">Logge dich ein, um deine Matches zu verwalten und in die Cloud zu synchronisieren.</p>
-            <button onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" style="width: auto; padding: 12px 30px;" data-txt="pl-btn-login-now">Jetzt einloggen</button>
+            <h2 data-txt="planner-logged-out-title">Nicht angemeldet</h2>
+            <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 25px;" data-txt="planner-logged-out-desc">Logge dich ein, um deine Matches zu verwalten und in die Cloud zu synchronisieren.</p>
+            <button onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" style="width: auto; padding: 12px 30px;" data-txt="planner-logged-out-btn">Jetzt einloggen</button>
         </div>
 
         <div id="planner-section" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 15px; margin-bottom: 20px;">
-                <h2 style="margin: 0;" data-txt="pl-my-matches-title">Meine Matches</h2>
+                <h2 style="margin: 0;" data-txt="planner-title-my-matches">Meine Matches</h2>
             </div>
 
-            <h3 data-txt="pl-new-match-title">Neues Match eintragen</h3>
+            <h3 data-txt="planner-subtitle-new">Neues Match eintragen</h3>
             <div class="form-group">
-                <label data-txt="pl-lbl-match-name">Match-Name</label>
+                <label data-txt="planner-lbl-match-name">Match-Name</label>
                 <input type="text" id="match-name" placeholder="z.B. Helmbrechts-Cup 2026">
             </div>
             <div style="display: flex; gap: 15px;">
                 <div class="form-group" style="flex: 1;">
-                    <label data-txt="pl-lbl-date">Datum</label>
+                    <label data-txt="planner-lbl-match-date">Datum</label>
                     <input type="date" id="match-date">
                 </div>
                 <div class="form-group" style="flex: 1;">
-                    <label data-txt="pl-lbl-location">Ort / Land</label>
+                    <label data-txt="planner-lbl-match-location">Ort / Land</label>
                     <input type="text" id="match-location" placeholder="z.B. Philippsburg">
                 </div>
             </div>
-            <button onclick="addMatch()" data-txt="pl-btn-save-cloud">Match in Cloud speichern</button>
+            <button onclick="addMatch()" data-txt="planner-btn-save">Match in Cloud speichern</button>
 
-            <h3 style="margin-top: 40px;" data-txt="pl-planned-matches-title">Geplante Matches</h3>
+            <h3 style="margin-top: 40px;" data-txt="planner-subtitle-planned">Geplante Matches</h3>
             <div id="my-matches-list">
-                <p style="color: var(--text-muted); font-style: italic;" data-txt="pl-loading-data">Lade Daten aus Supabase...</p>
+                <p style="color: var(--text-muted); font-style: italic;" data-txt="planner-loading">Lade Daten aus Supabase...</p>
             </div>
 
-            <button onclick="exportToCalendar()" class="btn-success" style="margin-top: 20px;" data-txt="pl-btn-export-cal">📅 In Kalender exportieren (.ics)</button>
+            <button onclick="exportToCalendar()" class="btn-success" style="margin-top: 20px;" data-txt="planner-btn-export">📅 In Kalender exportieren (.ics)</button>
         </div>
 
     </div>
@@ -273,93 +262,66 @@
             <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
             
             <div id="modal-login-view">
-                <h3 data-txt="modal-login-title">Anmelden</h3>
-                
-                <button type="button" class="btn-submit" style="width:100%; background-color: var(--accent-color); color: #1a1a1a; margin-bottom: 20px; font-size: 16px;" onclick="loginWithPasskey()">📱 Login mit FaceID / Fingerabdruck</button>
-                
-                <div style="text-align: center; margin-bottom: 20px; color: #777; font-size: 14px;">oder klassisch mit E-Mail</div>
-
+                <h3>Anmelden</h3>
                 <form id="login-form">
-                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required></div>
+                    <div class="form-group"><label>E-Mail *</label><input type="email" id="login-email" required></div>
                     <div class="form-group">
-                        <label data-txt="lbl-password">Passwort *</label>
+                        <label>Passwort *</label>
                         <input type="password" id="login-password" required>
-                        <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
+                        <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;">Passwort vergessen?</a>
                     </div>
-                    <button type="submit" class="btn-submit" style="width:100%; background-color: #555; color: white;" data-txt="modal-btn-login">Mit Passwort einloggen</button>
+                    <button type="submit" class="btn-submit" style="width:100%;">Einloggen</button>
                 </form>
-                <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a></div>
+                <div class="modal-footer"><span>Noch kein Konto?</span><a onclick="toggleAuthView('register')">Registrieren</a></div>
             </div>
 
             <div id="modal-register-view" style="display: none;">
-                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
+                <h3>Konto erstellen</h3>
                 <form id="register-form">
-                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="register-email" required></div>
-                    <div class="form-group"><label data-txt="lbl-password">Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
-                    
-                    <div class="form-group" style="flex-direction: row; align-items: flex-start; gap: 10px; margin-top: 5px; margin-bottom: 20px;">
-                        <input type="checkbox" id="register-agb" required style="margin-top: 3px; width: 16px; height: 16px; cursor: pointer;">
-                        <label for="register-agb" style="font-size: 12px; color: var(--text-muted); font-weight: normal; line-height: 1.4; margin: 0;">
-                            Ich akzeptiere die AGB und Nutzungsbedingungen. Weitere Details findest du im <a href="/impressum.html" target="_blank" style="color: var(--accent-color); text-decoration: underline;">Impressum</a>. *
-                        </label>
-                    </div>
-
-                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-reg">Konto erstellen</button>
+                    <div class="form-group"><label>E-Mail *</label><input type="email" id="register-email" required></div>
+                    <div class="form-group"><label>Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
+                    <button type="submit" class="btn-submit" style="width:100%;">Konto erstellen</button>
                 </form>
-                <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a></div>
+                <div class="modal-footer"><span>Bereits registriert?</span><a onclick="toggleAuthView('login')">Zum Login</a></div>
             </div>
 
             <div id="modal-forgot-view" style="display: none;">
-                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
+                <h3>Passwort zurücksetzen</h3>
                 <form id="forgot-form">
-                    <div class="form-group"><label data-txt="lbl-email">Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required></div>
-                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
+                    <div class="form-group"><label>Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required></div>
+                    <button type="submit" class="btn-submit" style="width:100%;">Zurücksetzungs-Link senden</button>
                 </form>
-                <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a></div>
+                <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')">Zurück zum Login</a></div>
             </div>
 
             <div id="modal-reset-view" style="display: none;">
-                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
+                <h3>Neues Passwort vergeben</h3>
                 <form id="reset-password-form">
-                    <div class="form-group"><label data-txt="lbl-new-password">Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
-                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="btn-save">Speichern</button>
+                    <div class="form-group"><label>Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
+                    <button type="submit" class="btn-submit" style="width:100%;">Speichern</button>
                 </form>
             </div>
 
             <div id="modal-settings-view" style="display: none;">
-                <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
-                
-                <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
-                    <label style="color: #3498db;">🔒 Passkey (Schnell-Login)</label>
-                    <p style="font-size: 12px; margin-top: 0; color: #ccc;">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()">Gerät als Passkey registrieren</button>
-                </div>
-
+                <h3>Konto-Einstellungen</h3>
                 <form id="settings-form">
                     <div class="form-group">
-                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
+                        <label>Schützenname / Anzeigename</label>
                         <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
                     </div>
-                    
-                    <div class="form-group" style="background-color: rgba(46, 204, 113, 0.1); padding: 12px; border-radius: 4px; border-left: 3px solid #2ecc71; margin-bottom: 20px;">
-                        <label style="color: #2ecc71; margin-bottom: 2px;">🛡️ IPSC Alias / Mitgliedsnummer</label>
-                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: #ccc;">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
-                        <input type="text" id="settings-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
-                    </div>
-
                     <div class="form-group">
                         <label>Profilbild (Optional)</label>
                         <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
                         <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
                     </div>
                     <div class="form-group">
-                        <label data-txt="lbl-new-password">Neues Passwort ändern (Optional)</label>
+                        <label>Neues Passwort ändern (Optional)</label>
                         <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
                     </div>
-                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
+                    <button type="submit" class="btn-submit" style="width:100%;">Änderungen speichern</button>
                 </form>
                 <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
-                <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
+                <button class="btn-danger-block" id="btn-delete-account">Konto & alle Einträge unwiderruflich löschen</button>
             </div>
         </div>
     </div>
@@ -381,7 +343,6 @@
     </footer>
 
     <script src="auth.js"></script>
-    <script src="app.js"></script> 
     <script>
         let myMatches = [];
 
@@ -441,7 +402,7 @@
             container.innerHTML = '';
 
             if (myMatches.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Noch keine Matches eingetragen.</p>';
+                container.innerHTML = '<p style="color: var(--text-muted); font-style: italic;" data-txt="planner-no-matches">Noch keine Matches eingetragen.</p>';
                 return;
             }
 
