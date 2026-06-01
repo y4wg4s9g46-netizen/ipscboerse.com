@@ -5,19 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freie Match-Plätze | Startplatz Börse</title>
     
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
+        /* Modernes Variablen-System für Hell- und Dunkelmodus */
         :root {
-            --bg-color: #1a1a1a;
-            --card-bg: #2d2d2d;
-            --accent-color: #ff9f43;
-            --text-color: #ffffff;
-            --text-muted: #aaaaaa;
-            --danger-color: #ff4d4d;
-            --success-color: #2ecc71;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --input-bg: #ffffff;
+            
+            --accent-color: #ff9f43; /* IPSC Orange */
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --info-color: #3b82f6;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --radius: 8px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #0f172a;
+                --card-bg: #1e293b;
+                --text-color: #f8fafc;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+                --input-bg: #0f172a;
+                --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+                --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            }
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
@@ -25,304 +48,428 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
         header {
-            background-color: #0f0f0f;
+            background-color: var(--card-bg);
             padding: 20px;
             text-align: center;
-            border-bottom: 3px solid var(--accent-color);
+            border-bottom: 1px solid var(--border-color);
             position: relative;
         }
 
-        header h1 { margin: 0; font-size: 24px; letter-spacing: 1px;
+        header h1 { 
+            margin: 0; 
+            font-size: 22px; 
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--text-color);
         }
 
         .main-nav {
-            margin-top: 25px;
+            margin-top: 20px;
             display: flex; 
             justify-content: center; 
-            gap: 25px; 
-            border-top: 1px solid #222; 
+            gap: 12px; 
+            border-top: 1px solid var(--border-color); 
             padding-top: 15px;
         }
         .main-nav a {
             text-decoration: none;
-            font-weight: bold; 
-            font-size: 14px; 
+            font-weight: 600; 
+            font-size: 13px; 
             text-transform: uppercase; 
             letter-spacing: 0.5px; 
-            padding-bottom: 4px;
-            transition: color 0.2s ease;
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            transition: all 0.2s ease;
         }
         .main-nav a.active {
-            color: var(--accent-color);
-            border-bottom: 2px solid var(--accent-color);
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
         }
         .main-nav a.inactive {
             color: var(--text-muted);
+            border: 1px solid transparent;
         }
         .main-nav a.inactive:hover {
             color: var(--text-color);
+            background-color: var(--bg-color);
         }
 
-        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1;
+        .header-controls {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
+        @media (max-width: 768px) {
+            .header-controls {
+                position: static !important;
+                justify-content: center;
+                margin-top: 15px;
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        .btn-auth {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+        }
+        .btn-auth:hover {
+            background-color: var(--bg-color);
+            border-color: var(--text-muted);
+        }
+
+        .lang-select {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 7px 10px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; }
 
         .info-box {
-            background-color: rgba(46, 204, 113, 0.1);
-            border-left: 4px solid var(--success-color);
-            padding: 15px; margin-bottom: 30px; border-radius: 4px;
+            background-color: rgba(59, 130, 246, 0.08);
+            border-left: 4px solid var(--info-color);
+            color: var(--text-color);
+            padding: 15px; margin-bottom: 30px; border-radius: var(--radius);
+            font-size: 14px;
+            line-height: 1.5;
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
         }
 
         /* --- Styling für die Filter --- */
         .filter-container {
             display: flex; 
-            gap: 15px; 
+            gap: 12px; 
             flex-wrap: wrap; 
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             background-color: var(--card-bg);
-            padding: 15px;
-            border-radius: 6px;
-            border: 1px solid #444;
+            padding: 12px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
         }
         .filter-container select {
-            padding: 8px 12px; 
-            border-radius: 4px; 
+            padding: 8px 14px; 
+            border-radius: var(--radius); 
             background-color: var(--bg-color); 
             color: var(--text-color); 
-            border: 1px solid #555;
+            border: 1px solid var(--border-color);
             outline: none;
             font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
         }
         .filter-container select:focus {
             border-color: var(--accent-color);
+            background-color: var(--card-bg);
         }
 
-        .match-list { display: flex; flex-direction: column; gap: 15px;
-        }
+        .match-list { display: flex; flex-direction: column; gap: 15px; }
 
         .match-card {
-            background-color: rgba(46, 204, 113, 0.08);
-            border-radius: 6px; padding: 20px;
-            display: flex; justify-content: space-between; align-items: center; border: 1px solid #444;
+            background-color: var(--card-bg);
+            border-radius: var(--radius); padding: 20px;
+            display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color);
             position: relative; overflow: hidden;
-            transition: transform 0.2s ease;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
         }
         
         .match-card:hover {
-            transform: scale(1.01);
-            background-color: rgba(46, 204, 113, 0.15);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--text-muted);
         }
 
-        .match-card::before { content: ''; position: absolute;
-            top: 0; left: 0; bottom: 0;
-        width: 5px; background-color: var(--success-color);
-        }
+        .match-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px; background-color: var(--success-color); }
 
-        .match-details h3 { margin: 0 0 5px 0;
-        color: var(--accent-color); display: flex;
-        align-items: center; gap: 10px; }
-        .match-details p { margin: 5px 0;
-        font-size: 14px;
-        color: var(--text-muted); }
+        .match-details h3 { margin: 0 0 8px 0; color: var(--text-color); font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .match-details p { margin: 5px 0; font-size: 14px; color: var(--text-muted); }
         
-        .badge-container { display: flex;
-        gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        .badge-container { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
         
-        /* --- NEU: Datum-Badge Design --- */
-        .badge-datum { background-color: #34495e; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .badge-datum { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .badge { background-color: rgba(16, 185, 129, 0.1); color: var(--success-color); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .badge-region { background-color: rgba(59, 130, 246, 0.1); color: var(--info-color); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .badge-lvl { background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .badge-disziplin { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
 
-        .badge { background-color: var(--success-color);
-        color: #000;
-        padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;
-        }
-        .badge-region { background-color: #3498db; color: #fff;
-        padding: 4px 8px; border-radius: 4px;
-        font-size: 12px; font-weight: bold; }
-        .badge-lvl { background-color: #9b59b6; color: #fff;
-        padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .badge-disziplin { background-color: #f39c12;
-        color: #fff;
-        padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;
-        }
-
-        .card-actions { display: flex;
-        flex-direction: column; align-items: flex-end; gap: 8px;
-        }
+        .card-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 
         .btn-contact {
-            background-color: var(--success-color);
-            color: #000; border: none;
-            padding: 10px 20px; font-weight: bold; border-radius: 4px; text-decoration: none; text-align: center; cursor: pointer; font-size: 14px;
+            background-color: var(--accent-color);
+            color: #ffffff; border: none;
+            padding: 10px 20px; font-weight: 600; border-radius: var(--radius); text-decoration: none; text-align: center; cursor: pointer; font-size: 14px;
+            box-shadow: var(--shadow-sm);
+            transition: opacity 0.15s;
         }
-        .btn-contact:hover { opacity: 0.9;
+        .btn-contact:hover { opacity: 0.9; }
+
+        .loading-msg { text-align: center; color: var(--text-muted); padding: 4px; font-style: italic; }
+
+        /* --- Luxuriöses & Modernes Modal-Design --- */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(8px); 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000; 
+            animation: fadeIn 0.2s ease-out;
         }
 
-        .loading-msg { text-align: center; color: var(--text-muted); padding: 4px; font-style: italic;
+        .modal-content { 
+            background-color: var(--card-bg); 
+            padding: 32px; 
+            border-radius: 12px; 
+            border: 1px solid var(--border-color); 
+            width: 100%; 
+            max-width: 420px; 
+            box-sizing: border-box; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+
+        .modal-content h3 { 
+            color: var(--text-color); 
+            margin-top: 0; 
+            margin-bottom: 24px;
+            font-size: 24px;
+            font-weight: 700; 
+            letter-spacing: -0.5px;
+        }
+
+        .modal-close-trigger {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+            transition: color 0.15s;
+        }
+        .modal-close-trigger:hover {
+            color: var(--text-color);
+        }
+
+        .modal-content .form-group { 
+            margin-bottom: 20px; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        .modal-content label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .modal-content input { 
+            background-color: var(--input-bg); 
+            border: 1px solid var(--border-color); 
+            color: var(--text-color); 
+            padding: 12px 14px; 
+            border-radius: var(--radius); 
+            font-size: 14px;
+            transition: all 0.15s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        .modal-content input:focus { 
+            outline: none; 
+            border-color: var(--accent-color); 
+            box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); 
+        }
+
+        .modal-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 500;
+            margin: 24px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .modal-divider::before, .modal-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .modal-divider:not(:empty)::before { margin-right: .75em; }
+        .modal-divider:not(:empty)::after { margin-left: .75em; }
+
+        .btn-primary-auth {
+            background-color: var(--accent-color);
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: var(--radius);
+            cursor: pointer;
+            width: 100%;
+            box-shadow: var(--shadow-sm);
+            transition: opacity 0.15s;
+        }
+        .btn-primary-auth:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary-auth {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: var(--radius);
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+            transition: background 0.15s;
+        }
+        .btn-secondary-auth:hover {
+            background-color: var(--border-color);
+        }
+
+        .modal-footer { 
+            margin-top: 24px; 
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex; 
+            justify-content: center; 
+            gap: 6px;
+            font-size: 13px; 
+            color: var(--text-muted);
+        }
+        .modal-footer a { 
+            color: var(--accent-color); 
+            text-decoration: none; 
+            cursor: pointer; 
+            font-weight: 600; 
+        }
+        .modal-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
+        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         footer {
-            background-color: #0f0f0f;
-            border-top: 1px solid #444; padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted);
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted);
         }
 
         /* ========================================================
            ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES (HAUPT-REPARATUR)
            ======================================================== */
         @media (max-width: 768px) {
-            html, body {
-                overflow-x: hidden !important;
-                width: 100% !important;
-            }
-            header {
-                padding: 12px 8px !important;
-            }
-            header h1 {
-                font-size: 19px !important;
-                margin-bottom: 8px !important;
-            }
-            header p {
-                font-size: 11px !important;
-                margin-top: 2px !important;
-            }
-            .header-controls {
-                position: static !important;
-                display: flex !important;
-                flex-direction: row !important;
-                justify-content: center !important;
-                align-items: center !important;
-                gap: 12px !important;
-                margin-top: 10px !important;
-                width: 100% !important;
-            }
-            #auth-status-container {
-                display: flex !important;
-                align-items: center !important;
-                gap: 8px !important;
-            }
-            #btn-open-settings {
-                margin-right: 0 !important;
-            }
-            #btn-open-settings img {
-                width: 28px !important;
-                height: 28px !important;
-                border-width: 1px !important;
-            }
-            .btn-auth {
-                padding: 5px 10px !important;
-                font-size: 12px !important;
-            }
-            .main-nav {
-                margin-top: 12px !important;
-                padding-top: 8px !important;
-                display: flex !important;
-                flex-direction: row !important;
-                justify-content: flex-start !important;
-                overflow-x: auto !important;
-                white-space: nowrap !important;
-                gap: 15px !important;
-                -webkit-overflow-scrolling: touch !important;
-                scrollbar-width: none !important;
-            }
-            .main-nav::-webkit-scrollbar {
-                display: none !important;
-            }
-            .main-nav a {
-                flex-shrink: 0 !important;
-                font-size: 12px !important;
-                padding-bottom: 2px !important;
-            }
-            .container {
-                padding: 0 10px !important;
-                margin-top: 15px !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
-            .info-box, .form-section, .post-card, .match-card, #logged-out-section, #planner-section, #username-setup-section, #logged-out-msg {
-                padding: 12px !important;
-                margin-bottom: 12px !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
-                word-wrap: break-word !important;
-                overflow-wrap: break-word !important;
-            }
-            .form-grid {
-                grid-template-columns: 1fr !important;
-                gap: 12px !important;
-            }
-            .toggle-selector {
-                flex-direction: column !important;
-                gap: 8px !important;
-                align-items: flex-start !important;
-            }
-            button, .btn-submit {
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
-            .match-card {
-                flex-direction: column !important;
-                align-items: stretch !important;
-                gap: 12px !important;
-            }
-            .card-actions {
-                align-items: flex-start !important;
-                width: 100% !important;
-                border-top: 1px solid #444 !important;
-                padding-top: 10px !important;
-            }
-            .action-buttons-group {
-                width: 100% !important;
-                display: flex !important;
-                gap: 6px !important;
-            }
-            .action-buttons-group button, .btn-contact {
-                flex: 1 !important;
-                text-align: center !important;
-                width: 100% !important;
-            }
-            .fab {
-                bottom: 15px !important;
-                right: 15px !important;
-                padding: 10px 16px !important;
-                font-size: 13px !important;
-                z-index: 999 !important;
-            }
-            .match-item {
-                flex-direction: column !important;
-                align-items: stretch !important;
-                gap: 10px !important;
-            }
-            .match-item div[style*="display: flex"] {
-                width: 100% !important;
-                justify-content: space-between !important;
-            }
+            html, body { overflow-x: hidden !important; width: 100% !important; }
+            header { padding: 12px 8px !important; }
+            header h1 { font-size: 19px !important; margin-bottom: 8px !important; }
+            header p { font-size: 11px !important; margin-top: 2px !important; }
+            .header-controls { position: static !important; display: flex !important; flex-direction: row !important; justify-content: center !important; align-items: center !important; gap: 12px !important; margin-top: 10px !important; width: 100% !important; }
+            #auth-status-container { display: flex !important; align-items: center !important; gap: 8px !important; }
+            #btn-open-settings { margin-right: 0 !important; }
+            #btn-open-settings img { width: 28px !important; height: 28px !important; border-width: 1px !important; }
+            .btn-auth { padding: 5px 10px !important; font-size: 12px !important; }
+            .main-nav { margin-top: 12px !important; padding-top: 8px !important; display: flex !important; flex-direction: row !important; justify-content: flex-start !important; overflow-x: auto !important; white-space: nowrap !important; gap: 15px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; }
+            .main-nav::-webkit-scrollbar { display: none !important; }
+            .main-nav a { flex-shrink: 0 !important; font-size: 12px !important; padding-bottom: 2px !important; }
+            .container { padding: 0 10px !important; margin-top: 15px !important; width: 100% !important; box-sizing: border-box !important; }
+            .info-box, .form-section, .post-card, .match-card, #logged-out-section, #planner-section, #username-setup-section, #logged-out-msg { padding: 12px !important; margin-bottom: 12px !important; width: 100% !important; box-sizing: border-box !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
+            .form-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+            .toggle-selector { flex-direction: column !important; gap: 8px !important; align-items: flex-start !important; }
+            button, .btn-submit { width: 100% !important; box-sizing: border-box !important; }
+            .match-card { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
+            .card-actions { align-items: flex-start !important; width: 100% !important; border-top: 1px solid var(--border-color) !important; padding-top: 10px !important; }
+            .action-buttons-group { width: 100% !important; display: flex !important; gap: 6px !important; }
+            .action-buttons-group button, .btn-contact { flex: 1 !important; text-align: center !important; width: 100% !important; }
+            .fab { bottom: 15px !important; right: 15px !important; padding: 10px 16px !important; font-size: 13px !important; z-index: 999 !important; }
+            .match-item { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
+            .match-item div[style*="display: flex"] { width: 100% !important; justify-content: space-between !important; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>IPSC STARTPLATZ-BÖRSE</h1>
-        <p style="color: var(--text-muted); margin: 5px 0 0 0;">Von Schützen für Schützen – Live Marktplatz</p>
+        <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
+        <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Von Schützen für Schützen – Live Marktplatz</p>
         
         <nav class="main-nav">
-            <a href="index.html" class="inactive">Marktplatz</a>
-            <a href="freie-matches.html" class="active">Freie Match-Plätze</a>
-            <a href="mein-planer.html" class="inactive">Mein Planer</a>
-            <a href="community.html" class="inactive">Community</a>
+            <a href="index.html" class="inactive" data-txt="nav-marketplace">Marktplatz</a>
+            <a href="freie-matches.html" class="active" data-txt="nav-free-slots">Freie Match-Plätze</a>
+            <a href="mein-planer.html" class="inactive" data-txt="nav-my-planner">Mein Planer</a>
+            <a href="community.html" class="inactive" data-txt="nav-community">Community</a>
         </nav>
+
+        <div class="header-controls">
+            <select id="language-select" class="lang-select">
+                <option value="de">DE</option>
+                <option value="en">EN</option>
+            </select>
+            <div id="auth-status-container">
+                <button class="btn-auth" id="btn-open-login" onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" data-txt="btn-login-reg">Login / Registrieren</button>
+            </div>
+        </div>
     </header>
 
     
     <div class="container">
         
-        <div class="info-box">
+        <div class="info-box" data-txt="free-info-box">
             <strong>Info:</strong> Die Matches werden automatisch im Hintergrund aktualisiert.
             Es werden nur Turniere angezeigt, die eine Auslastung von unter 100% aufweisen (freie Startplätze).
         </div>
 
-        <h2 style="margin-bottom: 20px;">Verfügbare Matches auf MatchSign (Auslastung &lt; 100%)</h2>
+        <h2 style="margin-bottom: 20px;" data-txt="free-list-title">Verfügbare Matches auf MatchSign (Auslastung &lt; 100%)</h2>
 
         <div class="filter-container" id="match-filters" style="display: none;">
             <select id="filter-region">
@@ -339,20 +486,129 @@
         </div>
 
         <div class="match-list" id="js-match-container">
-            <p class="loading-msg" id="js-status-text">Lade aktuelle Matches...</p>
+            <p class="loading-msg" id="js-status-text" data-txt="free-loading">Lade aktuelle Matches...</p>
         </div>
 
     </div>
 
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
+            
+            <div id="modal-login-view">
+                <h3 data-txt="modal-login-title">Anmelden</h3>
+                
+                <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
+                    <span>📱</span> Login mit FaceID / Fingerabdruck
+                </button>
+                
+                <div class="modal-divider">oder klassisch mit E-Mail</div>
+
+                <form id="login-form">
+                    <div class="form-group">
+                        <label data-txt="lbl-email">E-Mail *</label>
+                        <input type="email" id="login-email" required placeholder="name@beispiel.de">
+                    </div>
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="margin-bottom: 0;">Passwort *</label>
+                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
+                        </div>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
+                </form>
+                <div class="modal-footer">
+                    <span data-txt="modal-no-acc">Noch kein Konto?</span>
+                    <a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a>
+                </div>
+            </div>
+
+            <div id="modal-register-view" style="display: none;">
+                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label data-txt="lbl-email">E-Mail *</label>
+                        <input type="email" id="register-email" required placeholder="name@beispiel.de">
+                    </div>
+                    <div class="form-group">
+                        <label>Passwort *</label>
+                        <input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-reg">Konto erstellen</button>
+                </form>
+                <div class="modal-footer">
+                    <span data-txt="modal-has-acc">Bereits registriert?</span>
+                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a>
+                </div>
+            </div>
+
+            <div id="modal-forgot-view" style="display: none;">
+                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
+                <form id="forgot-form">
+                    <div class="form-group">
+                        <label>Deine E-Mail-Adresse *</label>
+                        <input type="email" id="forgot-email" required placeholder="name@beispiel.de">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
+                </form>
+                <div class="modal-footer">
+                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a>
+                </div>
+            </div>
+
+            <div id="modal-reset-view" style="display: none;">
+                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
+                <form id="reset-password-form">
+                    <div class="form-group">
+                        <label data-txt="lbl-new-password">Neues Passwort *</label>
+                        <input type="password" id="reset-password-input" required minlength="6" placeholder="Mindestens 6 Zeichen">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Speichern</button>
+                </form>
+            </div>
+
+            <div id="modal-settings-view" style="display: none;">
+                <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
+                
+                <div class="form-group" style="background-color: rgba(59, 130, 246, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <label style="color: var(--info-color); font-weight: 700;">🔒 Passkey (Schnell-Login)</label>
+                    <p style="font-size: 12px; margin-top: 4px; margin-bottom: 12px; color: var(--text-muted); line-height: 1.4;">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
+                    <button type="button" class="btn-secondary-auth" style="background-color: var(--card-bg);" onclick="registerPasskey()">Gerät registrieren</button>
+                </div>
+
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
+                        <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
+                    </div>
+                    <div class="form-group">
+                        <label>Profilbild (Optional)</label>
+                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)" style="font-size: 13px; color: var(--text-muted);">
+                        <img id="settings-avatar-preview" style="max-width: 800px; width: 80px; height: 80px; object-fit: cover; margin-top: 12px; border-radius: 50%; display: none; border: 2px solid var(--border-color);">
+                    </div>
+                    <div class="form-group">
+                        <label>Neues Passwort ändern (Optional)</label>
+                        <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Änderungen speichern</button>
+                </form>
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
+                <button class="btn-danger-block" id="btn-delete-account">Konto & alle Einträge unwiderruflich löschen</button>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
-            <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">Impressum & Rechtliche Hinweise</a>
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
      
             <div style="margin-top: 15px; font-size: 11px;">&copy;
  2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
 
+    <script src="auth.js"></script>
     <script>
     let allMatches = [];
 
@@ -363,7 +619,8 @@
           const container = document.getElementById('js-match-container');
           
           if (allMatches.length === 0) {
-              container.innerHTML = "<p>Aktuell sind alle Matches zu 100% belegt.</p>";
+              const noMatchesTxt = window.currentLang === "en" ? "Currently all matches are 100% booked." : "Aktuell sind alle Matches zu 100% belegt.";
+              container.innerHTML = `<p>${noMatchesTxt}</p>`;
               document.getElementById('match-filters').style.display = 'none';
               return;
           }
@@ -374,10 +631,15 @@
       })
       .catch(err => {
           console.error("Fehler beim Laden:", err);
-          document.getElementById('js-match-container').innerHTML = "<p class='loading-msg'>Fehler beim Laden der Daten. Bitte lade die Seite neu.</p>";
+          const errorTxt = window.currentLang === "en" ? "Error loading data. Please reload the page." : "Fehler beim Laden der Daten. Bitte lade die Seite neu.";
+          document.getElementById('js-match-container').innerHTML = `<p class='loading-msg'>${errorTxt}</p>`;
       });
 
     function setupFilters(matches) {
+        const currentRegionVal = document.getElementById('filter-region').value || 'all';
+        const currentDisziplinVal = document.getElementById('filter-disziplin').value || 'all';
+        const currentLevelVal = document.getElementById('filter-level').value || 'all';
+
         const regions = [...new Set(matches.map(m => m.region))].filter(r => r && r !== "N/A" && r !== "-").sort();
         const disziplinen = [...new Set(matches.map(m => m.disziplin))].filter(d => d && d !== "-").sort();
         const levels = [...new Set(matches.map(m => m.level))].filter(l => l && l !== "-").sort();
@@ -386,9 +648,25 @@
         const disziplinSelect = document.getElementById('filter-disziplin');
         const levelSelect = document.getElementById('filter-level');
 
+        const allCountriesTxt = window.currentLang === "en" ? "All Countries" : "Alle Länder";
+        const allDisciplinesTxt = window.currentLang === "en" ? "All Disciplines" : "Alle Disziplinen";
+        const allLevelsTxt = window.currentLang === "en" ? "All Levels" : "Alle Level";
+
+        regionSelect.innerHTML = `<option value="all">${allCountriesTxt}</option>`;
+        disziplinSelect.innerHTML = `<option value="all">${allDisciplinesTxt}</option>`;
+        levelSelect.innerHTML = `<option value="all">${allLevelsTxt}</option>`;
+
         regions.forEach(r => regionSelect.innerHTML += `<option value="${r}">${r}</option>`);
         disziplinen.forEach(d => disziplinSelect.innerHTML += `<option value="${d}">${d}</option>`);
         levels.forEach(l => levelSelect.innerHTML += `<option value="${l}">Level ${l}</option>`);
+
+        regionSelect.value = currentRegionVal;
+        disziplinSelect.value = currentDisziplinVal;
+        levelSelect.value = currentLevelVal;
+
+        regionSelect.removeEventListener('change', applyFilters);
+        disziplinSelect.removeEventListener('change', applyFilters);
+        levelSelect.removeEventListener('change', applyFilters);
 
         regionSelect.addEventListener('change', applyFilters);
         disziplinSelect.addEventListener('change', applyFilters);
@@ -415,9 +693,13 @@
         const container = document.getElementById('js-match-container');
         
         if (matchesToDisplay.length === 0) {
-            container.innerHTML = '<p style="padding: 10px;">Keine Matches für diese Filterkombination gefunden.</p>';
+            const noComboTxt = window.currentLang === "en" ? "No matches found for this filter combination." : "Keine Matches für diese Filterkombination gefunden.";
+            container.innerHTML = `<p style="padding: 10px;">${noComboTxt}</p>`;
             return;
         }
+
+        const loadBadgeTxt = window.currentLang === "en" ? "Capacity:" : "Auslastung:";
+        const btnTxt = window.currentLang === "en" ? "Go to Match" : "Zum Match";
 
         let html = matchesToDisplay.map(match => `
             <a href="${match.url}" target="_blank" style="text-decoration: none; color: inherit; display: block;">
@@ -426,20 +708,29 @@
                         <h3>${match.name}</h3>
                         <div class="badge-container">
                             <span class="badge-datum">📅 ${match.datum || 'N/A'}</span>
-                            <span class="badge">Auslastung: ${match.auslastung}</span>
+                            <span class="badge">${loadBadgeTxt} ${match.auslastung}</span>
                             <span class="badge-region">Reg: ${match.region || '-'}</span>
                             <span class="badge-lvl">Level: ${match.level || '-'}</span>
                             <span class="badge-disziplin">${match.disziplin || '-'}</span>
                         </div>
                     </div>
                     <div class="card-actions">
-                        <span class="btn-contact">Zum Match</span>
+                        <span class="btn-contact">${btnTxt}</span>
                     </div>
                 </div>
             </a>
         `).join('');
         container.innerHTML = html;
     }
+
+    window.onLanguageChanged = () => { 
+        const selector = document.getElementById("language-select");
+        if (selector) selector.value = window.currentLang;
+        if (allMatches.length > 0) {
+            setupFilters(allMatches);
+            applyFilters();
+        }
+    };
     </script>
 
 </body>
