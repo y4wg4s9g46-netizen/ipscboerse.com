@@ -1,6 +1,7 @@
 [
     {
         "name": "Offene IPSC-LM Niedersachsen und Bremen 2026 Part ...",
+        "datum": "14.06.2026",
         "auslastung": "91%",
         "region": "GER",
         "level": "2",
@@ -9,6 +10,7 @@
     },
     {
         "name": "Summer Cup Guyane 2026",
+        "datum": "14.06.2026",
         "auslastung": "32%",
         "region": "FRA",
         "level": "2",
@@ -17,6 +19,7 @@
     },
     {
         "name": "TSV Régional Martinique 2026",
+        "datum": "20.06.2026",
         "auslastung": "7%",
         "region": "FRA",
         "level": "2",
@@ -25,6 +28,7 @@
     },
     {
         "name": "Bracara Augusta Match 2026",
+        "datum": "11.07.2026",
         "auslastung": "79%",
         "region": "POR",
         "level": "3",
@@ -33,6 +37,7 @@
     },
     {
         "name": "Guga Ribas Cup 2026",
+        "datum": "12.07.2026",
         "auslastung": "82%",
         "region": "FRA",
         "level": "3",
@@ -41,6 +46,7 @@
     },
     {
         "name": "RLP Shotgun Cup 2026",
+        "datum": "26.07.2026",
         "auslastung": "77%",
         "region": "GER",
         "level": "3",
@@ -49,6 +55,7 @@
     },
     {
         "name": "Siegerland Challenge part I",
+        "datum": "26.07.2026",
         "auslastung": "97%",
         "region": "GER",
         "level": "2",
@@ -57,6 +64,7 @@
     },
     {
         "name": "Bracara Action Air 2026",
+        "datum": "09.08.2026",
         "auslastung": "1%",
         "region": "POR",
         "level": "",
@@ -65,6 +73,7 @@
     },
     {
         "name": "Thuringian Open - offene LM Handgun LV 13 2026",
+        "datum": "09.08.2026",
         "auslastung": "94%",
         "region": "GER",
         "level": "3",
@@ -73,6 +82,7 @@
     },
     {
         "name": "Shotgun Cup 2026",
+        "datum": "23.08.2026",
         "auslastung": "92%",
         "region": "GER",
         "level": "3",
@@ -81,6 +91,7 @@
     },
     {
         "name": "Hubertus Summercup 2026 Handgun",
+        "datum": "31.08.2026",
         "auslastung": "98%",
         "region": "GER",
         "level": "2",
@@ -89,6 +100,7 @@
     },
     {
         "name": "Hubertus Summercup 2026 PCC",
+        "datum": "31.08.2026",
         "auslastung": "78%",
         "region": "GER",
         "level": "2",
@@ -97,6 +109,7 @@
     },
     {
         "name": "Racan Shotgun Trophy 2026",
+        "datum": "05.09.2026",
         "auslastung": "74%",
         "region": "FRA",
         "level": "3",
@@ -105,6 +118,7 @@
     },
     {
         "name": "Level II Series - PCC Beginners II 2026",
+        "datum": "12.09.2026",
         "auslastung": "95%",
         "region": "GER",
         "level": "2",
@@ -113,6 +127,7 @@
     },
     {
         "name": "The Hunger Games 2026",
+        "datum": "20.09.2026",
         "auslastung": "94%",
         "region": "GER",
         "level": "2",
@@ -121,6 +136,7 @@
     },
     {
         "name": "11. Heidberg-Cup",
+        "datum": "26.09.2026",
         "auslastung": "20%",
         "region": "GER",
         "level": "2",
@@ -129,6 +145,7 @@
     },
     {
         "name": "11. Heidberg-Cup KK",
+        "datum": "27.09.2026",
         "auslastung": "40%",
         "region": "GER",
         "level": "2",
@@ -137,6 +154,7 @@
     },
     {
         "name": "Adeje Shooters Cup",
+        "datum": "03.10.2026",
         "auslastung": "6%",
         "region": "ESP",
         "level": "2",
@@ -145,6 +163,7 @@
     },
     {
         "name": "V Extreme Adeje Shooters",
+        "datum": "11.10.2026",
         "auslastung": "11%",
         "region": "ESP",
         "level": "3",
@@ -153,6 +172,7 @@
     },
     {
         "name": "360° PCC powered by 3G",
+        "datum": "18.10.2026",
         "auslastung": "86%",
         "region": "POL",
         "level": "3",
@@ -161,6 +181,7 @@
     },
     {
         "name": "360° powered by 3G",
+        "datum": "18.10.2026",
         "auslastung": "98%",
         "region": "POL",
         "level": "3",
@@ -169,6 +190,7 @@
     },
     {
         "name": "Tenerife Open 2026",
+        "datum": "13.12.2026",
         "auslastung": "37%",
         "region": "ESP",
         "level": "3",
@@ -177,6 +199,7 @@
     },
     {
         "name": "LM LV4 2027 Prd, PdO",
+        "datum": "10.01.2027",
         "auslastung": "84%",
         "region": "GER",
         "level": "3",
@@ -185,6 +208,7 @@
     },
     {
         "name": "Tenerife Masters Frontera 2027",
+        "datum": "24.01.2027",
         "auslastung": "8%",
         "region": "ESP",
         "level": "3",
