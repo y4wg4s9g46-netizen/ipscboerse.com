@@ -2,19 +2,16 @@
 const SUPABASE_URL = "https://huprxirlthkisjngwash.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_yModrA5JZTiN5Cw7MHQqLQ_Coc04WAS";
 
-// WICHTIG: Passkey-Support direkt beim Start der Verbindung aktivieren
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
         experimental: { passkey: true }
     }
 });
 
-// Global verfügbar machen
 window.supabaseClient = supabaseClient;
 window.currentUser = null;
 window.currentLang = "de";
 
-// Globale Funktion für den Bilder-Upload in Supabase Storage
 window.uploadImage = async function(file, folder) {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
@@ -30,11 +27,7 @@ window.uploadImage = async function(file, folder) {
     return data.publicUrl;
 };
 
-// ==========================================
-// --- NEU: PASSKEY FUNKTIONEN (FaceID / TouchID) ---
-// ==========================================
-
-// 1. Passkey-Login (für bestehende Passkey-Nutzer)
+// --- PASSKEY FUNKTIONEN ---
 window.loginWithPasskey = async function() {
     const btn = document.querySelector('#modal-login-view button[onclick="loginWithPasskey()"]');
     const oldText = btn ? btn.innerText : "";
@@ -50,7 +43,6 @@ window.loginWithPasskey = async function() {
     }
 };
 
-// 2. Gerät als Passkey registrieren (für eingeloggte Nutzer im Einstellungs-Menü)
 window.registerPasskey = async function() {
     const btn = document.querySelector('#modal-settings-view button[onclick="registerPasskey()"]');
     const oldText = btn ? btn.innerText : "";
@@ -68,6 +60,48 @@ window.registerPasskey = async function() {
         }
     }
 };
+
+// --- DESIGN SCHALTER LOGIK (LIGHT / DARK MODE) ---
+function updateThemeToggleIcon(theme) {
+    const btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+    if (theme === 'dark') {
+        btn.innerText = '☀️'; // Zeige Sonne im Darkmode zum Wechseln auf Light
+    } else if (theme === 'light') {
+        btn.innerText = '🌙'; // Zeige Mond im Lightmode zum Wechseln auf Dark
+    } else {
+        // Falls Auto: Schau was das System gerade nutzt
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        btn.innerText = prefersDark ? '☀️' : '🌙';
+    }
+}
+
+window.toggleTheme = function() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    let newTheme = 'light';
+    
+    // Wenn aktuell kein Attribut gesetzt ist, checke Systempräferenz
+    if (!currentTheme) {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        newTheme = prefersDark ? 'light' : 'dark';
+    } else {
+        newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    }
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('selectedTheme', newTheme);
+    updateThemeToggleIcon(newTheme);
+};
+
+function initTheme() {
+    const savedTheme = localStorage.getItem('selectedTheme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeToggleIcon(savedTheme);
+    } else {
+        updateThemeToggleIcon('auto');
+    }
+}
 
 // ==========================================
 
@@ -254,10 +288,6 @@ window.translations = {
   }
 };
 
-// WICHTIG: Funktion global verfügbar machen, damit app.js darauf zugreifen kann
-function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
-window.escapeHtml = escapeHtml;
-
 function applyLanguage(lang) {
   window.currentLang = lang;
   localStorage.setItem("selectedLanguage", lang); 
@@ -289,7 +319,6 @@ async function checkUserStatus() {
     const displayName = user.user_metadata?.username || user.email.split('@')[0];
     const avatarUrl = user.user_metadata?.avatar_url;
     
-    // Großzügiges, zentriertes High-End Profilbild mit dezentem Schatten
     const avatarHtml = avatarUrl 
         ? `<img src="${avatarUrl}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-color); box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: block;">` 
         : `<span style="font-weight:bold; color:var(--accent-color);">${escapeHtml(displayName)}</span>`;
@@ -315,27 +344,18 @@ function toggleAuthView(view) {
 }
 window.toggleAuthView = toggleAuthView;
 
-
-// ==========================================
-// --- ROBUSTE EVENT DELEGATION ---
-// ==========================================
-
 document.addEventListener("click", async (e) => {
-    
     if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
         document.getElementById("auth-modal").style.display = "flex";
         toggleAuthView("login");
     }
-    
     if (e.target.id === "btn-close-modal" || e.target.closest("#btn-close-modal")) {
         document.getElementById("auth-modal").style.display = "none";
     }
-    
     if (e.target.id === "btn-logout" || e.target.closest("#btn-logout")) {
         await window.supabaseClient.auth.signOut();
         location.reload();
     }
-    
     if (e.target.id === "btn-open-settings" || e.target.closest("#btn-open-settings")) {
         document.getElementById("auth-modal").style.display = "flex";
         toggleAuthView("settings");
@@ -344,19 +364,16 @@ document.addEventListener("click", async (e) => {
         if (settingsUser && window.currentUser) {
             settingsUser.value = window.currentUser.user_metadata?.username || "";
         }
-        
         const settingsIpsc = document.getElementById("settings-ipsc-alias");
         if (settingsIpsc && window.currentUser) {
             settingsIpsc.value = window.currentUser.user_metadata?.ipsc_alias || "";
         }
-
         const previewImg = document.getElementById("settings-avatar-preview");
         if (previewImg && window.currentUser?.user_metadata?.avatar_url) {
             previewImg.src = window.currentUser.user_metadata.avatar_url;
             previewImg.style.display = 'block';
         }
     }
-    
     if (e.target.id === "btn-delete-account") {
         e.preventDefault();
         if (!confirm("⚠️ WARNUNG:\n\nMöchtest du dein Profil und all deine aktiven Marktplatz-Inserate wirklich unwiderruflich löschen?")) return;
@@ -399,8 +416,6 @@ document.addEventListener("submit", async (e) => {
     }
     else if (e.target.id === "register-form") {
         e.preventDefault();
-        
-        // NEU: Prüfen, ob AGB akzeptiert wurden
         const agbCheckbox = document.getElementById("register-agb");
         if (agbCheckbox && !agbCheckbox.checked) {
             alert(window.currentLang === "en" ? "Please accept the terms and conditions." : "Bitte akzeptiere die AGB und Nutzungsbedingungen, um fortzufahren.");
@@ -473,7 +488,7 @@ document.addEventListener("change", (e) => {
 
 // === START LOGIK ===
 setTimeout(async () => {
-    // Holt sich die Sprache aus dem Speicher (falls vorhanden), sonst "de"
+    initTheme(); // Initialisiert das gewählte Theme direkt beim Start
     const savedLang = localStorage.getItem("selectedLanguage") || "de";
     applyLanguage(savedLang);
     
