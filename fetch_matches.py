@@ -27,23 +27,23 @@ try:
                     best_name = match_link.text.strip()
                     detail_url = urllib.parse.urljoin(base_url, match_link.get('href', ''))
                     
-                    is_closed = "geschlossen" in row.text.lower()
+                    # Glättet den Text der Tabellenzeile
+                    row_text_clean = re.sub(r'\s+', ' ', row.text.lower())
+                    is_closed = "geschlossen" in row_text_clean
                     region = ""
 
                     if not is_closed:
                         try:
-                            # Detailseite laden
                             d_resp = requests.get(detail_url, headers=headers, timeout=10)
                             d_soup = BeautifulSoup(d_resp.text, 'html.parser')
                             
-                            # Alles an HTML-Code entfernen und in Kleinbuchstaben umwandeln
-                            d_clean_text = d_soup.get_text(" ", strip=True).lower()
+                            # PLANIER-FUNKTION: Macht aus allen Umbrüchen/Tabs exakt ein Leerzeichen
+                            d_clean_text = re.sub(r'\s+', ' ', d_soup.get_text(" ", strip=True).lower())
                             
-                            # Der 100% sichere Check auf "anmeldung geschlossen"
-                            if "anmeldung geschlossen" in d_clean_text:
+                            # Jetzt greift der Filter zu 100%, egal wie die Seite formatiert ist
+                            if "anmeldung geschlossen" in d_clean_text or "closed" in d_clean_text:
                                 is_closed = True
                             else:
-                                # Region aus dem bereinigten Text suchen (jetzt mit POR und vielen mehr)
                                 reg_match = re.search(r'region.*?(GER|AUT|SUI|NED|BEL|FRA|CZE|POL|DEN|ITA|ESP|POR|GBR|HUN|SVK|SLO|CRO|GRE|FIN|SWE|NOR)', d_clean_text, re.IGNORECASE)
                                 if reg_match:
                                     region = reg_match.group(1).upper()
