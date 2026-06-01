@@ -222,7 +222,7 @@ function applyLanguage(lang) {
   if (levelSelect) {
     const currentVal = levelSelect.value;
     const defaultText = lang === "en" ? "Please select..." : "Bitte wählen...";
-    levelSelect.innerHTML = `<option value="">${defaultText}</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
+    levelSelect.innerHTML = `<option value="">\${defaultText}</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
     levelSelect.value = currentVal;
   }
   if (typeof window.onLanguageChanged === "function") { window.onLanguageChanged(lang); }
@@ -239,16 +239,16 @@ async function checkUserStatus() {
     
     // Profilbild oder reiner Text
     const avatarHtml = avatarUrl 
-        ? `<img src="${avatarUrl}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 2px solid var(--accent-color);">` 
-        : `<span style="font-weight:bold; color:var(--accent-color);">${escapeHtml(displayName)}</span>`;
+        ? `<img src="\${avatarUrl}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 2px solid var(--accent-color);">` 
+        : `<span style="font-weight:bold; color:var(--accent-color);">\${escapeHtml(displayName)}</span>`;
 
     if (container) {
-      container.innerHTML = `<div id="btn-open-settings" style="cursor:pointer; display:flex; align-items:center; gap:10px; margin-right:15px;">${avatarHtml}</div><button class="btn-auth" id="btn-logout" style="border-color: var(--danger-color); color: var(--danger-color);">${window.translations[window.currentLang]["logout"]}</button>`;
+      container.innerHTML = `<div id="btn-open-settings" style="cursor:pointer; display:flex; align-items:center; gap:10px; margin-right:15px;">\${avatarHtml}</div><button class="btn-auth" id="btn-logout" style="border-color: var(--danger-color); color: var(--danger-color);">\${window.translations[window.currentLang]["logout"]}</button>`;
     }
     if (emailField) { emailField.value = user.email; emailField.readOnly = true; }
   } else {
     if (container) {
-      container.innerHTML = `<button class="btn-auth" id="btn-open-login">${window.translations[window.currentLang]["btn-login-reg"]}</button>`;
+      container.innerHTML = `<button class="btn-auth" id="btn-open-login">\${window.translations[window.currentLang]["btn-login-reg"]}</button>`;
     }
     if (emailField) { emailField.value = ""; emailField.placeholder = "Logge dich ein, um zu inserieren"; }
   }
@@ -292,6 +292,12 @@ document.addEventListener("click", async (e) => {
         const settingsUser = document.getElementById("settings-username");
         if (settingsUser && window.currentUser) {
             settingsUser.value = window.currentUser.user_metadata?.username || "";
+        }
+        
+        // NEU: IPSC Alias laden
+        const settingsIpsc = document.getElementById("settings-ipsc-alias");
+        if (settingsIpsc && window.currentUser) {
+            settingsIpsc.value = window.currentUser.user_metadata?.ipsc_alias || "";
         }
 
         const previewImg = document.getElementById("settings-avatar-preview");
@@ -380,7 +386,7 @@ document.addEventListener("submit", async (e) => {
         }
     }
     
-    // --- KONTO EINSTELLUNGEN (MIT BILD) ---
+    // --- KONTO EINSTELLUNGEN (MIT BILD & IPSC ALIAS) ---
     else if (e.target.id === "settings-form") {
         e.preventDefault();
         const btn = e.target.querySelector('button[type="submit"]');
@@ -390,12 +396,14 @@ document.addEventListener("submit", async (e) => {
         try {
             const newUsername = document.getElementById("settings-username").value;
             const newPassword = document.getElementById("settings-password").value;
-            
+            const newIpscAlias = document.getElementById("settings-ipsc-alias").value; // NEU
+
             // Check if Avatar Input exists and a file is selected
             const avatarInput = document.getElementById("settings-avatar");
             const avatarFile = avatarInput && avatarInput.files.length > 0 ? avatarInput.files[0] : null;
             
-            let updates = { data: { username: newUsername } };
+            // NEU: ipsc_alias in die Updates packen
+            let updates = { data: { username: newUsername, ipsc_alias: newIpscAlias } };
             if (newPassword.trim().length >= 6) { updates.password = newPassword; }
 
             // Bild hochladen falls ausgewählt
