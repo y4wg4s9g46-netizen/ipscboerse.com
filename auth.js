@@ -244,6 +244,7 @@ window.escapeHtml = escapeHtml;
 
 function applyLanguage(lang) {
   window.currentLang = lang;
+  localStorage.setItem("selectedLanguage", lang); // Merkt sich die Sprache seitenübergreifend
   document.querySelectorAll("[data-txt]").forEach(el => {
     const key = el.getAttribute("data-txt");
     if (window.translations[lang] && window.translations[lang][key]) { 
@@ -456,7 +457,9 @@ document.addEventListener("change", (e) => {
 
 // === START LOGIK ===
 setTimeout(async () => {
-    applyLanguage("de");
+    // Holt sich die Sprache aus dem Speicher (falls vorhanden), sonst "de"
+    const savedLang = localStorage.getItem("selectedLanguage") || "de";
+    applyLanguage(savedLang);
     
     const { data: { session } } = await window.supabaseClient.auth.getSession();
     window.currentUser = session?.user || null;
