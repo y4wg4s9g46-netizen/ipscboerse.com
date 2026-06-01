@@ -24,7 +24,7 @@
             --radius: 8px;
         }
 
-        /* Dunkler Modus (wird über data-theme oder Systempräferenz gesteuert) */
+        /* Dunkler Modus (gesteuert über data-theme oder Systempräferenz) */
         html[data-theme="dark"] {
             --bg-color: #0f172a;
             --card-bg: #1e293b;
@@ -178,6 +178,10 @@
             border-color: var(--text-muted);
         }
 
+        /html[data-theme="dark"] .back-btn:hover {
+            background-color: var(--border-color);
+        }
+
         hr {
             border: 0; 
             border-top: 1px solid var(--border-color); 
@@ -270,7 +274,7 @@
         <h3>§ 3 Automatisierte Moderation &amp; Hausrecht</h3>
         <p>Um die Sicherheit, Jugendfreiheit und Qualität des Marktplatzes zu gewährleisten, setzt der Betreiber automatisierte Filter- und KI-Systeme zur Echtzeit-Moderation ein:</p>
         <ul>
-            <li><strong>Text-Filter:</strong> Alle eingestellten Beiträge und Kommentare werden vollautomatisch auf eine integrierte Liste unzulässiger Begriffe und Schimpfwörter geprüft.</li>
+            <li><strong>Text-Filter:</strong> Alle eingestellten Beiträge und Kommentare werden vollautomatisch auf eine integrierte Liste unzulässiger Begriffe und Schimpwörter geprüft.</li>
             <li><strong>Bild-KI:</strong> Hochgeladene Bilddateien werden softwareseitig mittels künstlicher Intelligenz auf visuelle Richtlinienverstöße (wie z.B. Nacktheit oder Teilnacktheit) gescannt.</li>
         </ul>
         <p>Verstößt ein Beitrag oder Kommentar gegen diese Richtlinien, wird der Eintrag durch das System <span class="highlight">sofort, vollautomatisch und ohne Vorwarnung unwiderruflich gelöscht</span>. Der Betreiber behält sich im Rahmen seines Hausrechts das Recht vor, Nutzerkonten bei Verstößen temporär oder dauerhaft zu sperren.</p>
@@ -316,7 +320,7 @@
             <li><strong>Bild-Scans (Sightengine):</strong> Beim Hochladen eines Bildes wird dessen URL automatisiert an die Programmierschnittstelle des Prüfdienstes Sightengine (Sightengine SAS, Frankreich/EU) übermittelt. Das Bild wird dort rein maschinell auf Verstöße (z.B. Filter für Nacktheit) analysiert. Es findet keine dauerhafte Speicherung oder Nutzung der Bilder für Drittzwecke oder KI-Training durch den Dienstleister statt.</li>
         </ul>
 
-        <h3>5. Nutzung von Supabase (Hosting &amp; Datenbank)</h3>
+        <h3>5. Nutzung von Supabase (Hosting &amp; ... Datenspeicherung)</h3>
         <p>Diese Webseite nutzt für die Datenbank, die Datei-Speicherung (Storage) und die Nutzer-Authentifizierung den Backend-Dienst "Supabase" (Supabase Inc., San Francisco, USA). Deine Daten werden auf den von Supabase angemieteten Servern (standardmäßig innerhalb der EU, Region Frankfurt) verarbeitet. Die Datenübertragung stützt sich auf Standardvertragsklauseln (SCC) der EU. Weitere Infos: <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Supabase Privacy</a>.</p>
 
         <h3>6. Cookies &amp; Local Storage</h3>
