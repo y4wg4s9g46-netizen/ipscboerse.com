@@ -250,6 +250,138 @@
             gap: 8px;
             margin-top: 5px;
         }
+
+        /* ========================================================
+           ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES (HAUPT-REPARATUR)
+           ======================================================== */
+        @media (max-width: 768px) {
+            html, body {
+                overflow-x: hidden !important;
+                width: 100% !important;
+            }
+            header {
+                padding: 12px 8px !important;
+            }
+            header h1 {
+                font-size: 19px !important;
+                margin-bottom: 8px !important;
+            }
+            header p {
+                font-size: 11px !important;
+                margin-top: 2px !important;
+            }
+            .header-controls {
+                position: static !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: center !important;
+                align-items: center !important;
+                gap: 12px !important;
+                margin-top: 10px !important;
+                width: 100% !important;
+            }
+            #auth-status-container {
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+            #btn-open-settings {
+                margin-right: 0 !important;
+            }
+            #btn-open-settings img {
+                width: 28px !important;
+                height: 28px !important;
+                border-width: 1px !important;
+            }
+            .btn-auth {
+                padding: 5px 10px !important;
+                font-size: 12px !important;
+            }
+            .main-nav {
+                margin-top: 12px !important;
+                padding-top: 8px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: flex-start !important;
+                overflow-x: auto !important;
+                white-space: nowrap !important;
+                gap: 15px !important;
+                -webkit-overflow-scrolling: touch !important;
+                scrollbar-width: none !important;
+            }
+            .main-nav::-webkit-scrollbar {
+                display: none !important;
+            }
+            .main-nav a {
+                flex-shrink: 0 !important;
+                font-size: 12px !important;
+                padding-bottom: 2px !important;
+            }
+            .container {
+                padding: 0 10px !important;
+                margin-top: 15px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .info-box, .form-section, .post-card, .match-card, #logged-out-section, #planner-section, #username-setup-section, #logged-out-msg {
+                padding: 12px !important;
+                margin-bottom: 12px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            .form-grid {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+            }
+            .toggle-selector {
+                flex-direction: column !important;
+                gap: 8px !important;
+                align-items: flex-start !important;
+            }
+            button, .btn-submit {
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .match-card {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 12px !important;
+            }
+            .card-actions {
+                align-items: flex-start !important;
+                width: 100% !important;
+                border-top: 1px solid #444 !important;
+                padding-top: 10px !important;
+            }
+            .action-buttons-group {
+                width: 100% !important;
+                display: flex !important;
+                gap: 6px !important;
+            }
+            .action-buttons-group button, .btn-contact {
+                flex: 1 !important;
+                text-align: center !important;
+                width: 100% !important;
+            }
+            .fab {
+                bottom: 15px !important;
+                right: 15px !important;
+                padding: 10px 16px !important;
+                font-size: 13px !important;
+                z-index: 999 !important;
+            }
+            .match-item {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 10px !important;
+            }
+            .match-item div[style*="display: flex"] {
+                width: 100% !important;
+                justify-content: space-between !important;
+            }
+        }
     </style>
 </head>
 <body>
