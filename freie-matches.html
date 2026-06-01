@@ -376,7 +376,7 @@
                 <option value="en">EN</option>
             </select>
             <div id="auth-status-container">
-                <button class="btn-auth" id="btn-open-login" data-txt="btn-login-reg">Login / Registrieren</button>
+                <button class="btn-auth" id="btn-open-login" onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" data-txt="btn-login-reg">Login / Registrieren</button>
             </div>
         </div>
     </header>
