@@ -35,10 +35,11 @@
             position: relative;
         }
 
-        header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
+        header h1 { margin: 0; font-size: 24px; letter-spacing: 1px;
+        }
 
         .main-nav {
-            margin-top: 25px; 
+            margin-top: 25px;
             display: flex; 
             justify-content: center; 
             gap: 25px; 
@@ -65,7 +66,8 @@
             color: var(--text-color);
         }
 
-        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1;
+        }
 
         .info-box {
             background-color: rgba(46, 204, 113, 0.1);
@@ -73,7 +75,32 @@
             padding: 15px; margin-bottom: 30px; border-radius: 4px;
         }
 
-        .match-list { display: flex; flex-direction: column; gap: 15px; }
+        /* --- NEU: Styling für die Filter --- */
+        .filter-container {
+            display: flex; 
+            gap: 15px; 
+            flex-wrap: wrap; 
+            margin-bottom: 20px;
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #444;
+        }
+        .filter-container select {
+            padding: 8px 12px; 
+            border-radius: 4px; 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            border: 1px solid #555;
+            outline: none;
+            font-family: inherit;
+        }
+        .filter-container select:focus {
+            border-color: var(--accent-color);
+        }
+
+        .match-list { display: flex; flex-direction: column; gap: 15px;
+        }
 
         .match-card {
             background-color: rgba(46, 204, 113, 0.08);
@@ -88,37 +115,49 @@
             background-color: rgba(46, 204, 113, 0.15);
         }
 
-        .match-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0;
-        width: 5px; background-color: var(--success-color); }
+        .match-card::before { content: ''; position: absolute;
+            top: 0; left: 0; bottom: 0;
+        width: 5px; background-color: var(--success-color);
+        }
 
         .match-details h3 { margin: 0 0 5px 0;
-        color: var(--accent-color); display: flex; align-items: center; gap: 10px; }
+        color: var(--accent-color); display: flex;
+        align-items: center; gap: 10px; }
         .match-details p { margin: 5px 0;
-        font-size: 14px; color: var(--text-muted); }
+        font-size: 14px;
+        color: var(--text-muted); }
         
         .badge-container { display: flex;
         gap: 8px; margin-top: 8px; flex-wrap: wrap; }
         
-        .badge { background-color: var(--success-color); color: #000;
-        padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .badge { background-color: var(--success-color);
+        color: #000;
+        padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;
+        }
         .badge-region { background-color: #3498db; color: #fff;
-        padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        padding: 4px 8px; border-radius: 4px;
+        font-size: 12px; font-weight: bold; }
         .badge-lvl { background-color: #9b59b6; color: #fff;
         padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .badge-disziplin { background-color: #f39c12; color: #fff;
-        padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .badge-disziplin { background-color: #f39c12;
+        color: #fff;
+        padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;
+        }
 
         .card-actions { display: flex;
-        flex-direction: column; align-items: flex-end; gap: 8px; }
+        flex-direction: column; align-items: flex-end; gap: 8px;
+        }
 
         .btn-contact {
             background-color: var(--success-color);
             color: #000; border: none;
             padding: 10px 20px; font-weight: bold; border-radius: 4px; text-decoration: none; text-align: center; cursor: pointer; font-size: 14px;
         }
-        .btn-contact:hover { opacity: 0.9; }
+        .btn-contact:hover { opacity: 0.9;
+        }
 
-        .loading-msg { text-align: center; color: var(--text-muted); padding: 4px; font-style: italic; }
+        .loading-msg { text-align: center; color: var(--text-muted); padding: 4px; font-style: italic;
+        }
 
         footer {
             background-color: #0f0f0f;
@@ -138,13 +177,29 @@
         </nav>
     </header>
 
+    
     <div class="container">
         
         <div class="info-box">
-            <strong>Info:</strong> Die Matches werden automatisch im Hintergrund aktualisiert. Es werden nur Turniere angezeigt, die eine Auslastung von unter 100% aufweisen (freie Startplätze).
+            <strong>Info:</strong> Die Matches werden automatisch im Hintergrund aktualisiert.
+            Es werden nur Turniere angezeigt, die eine Auslastung von unter 100% aufweisen (freie Startplätze).
         </div>
 
         <h2 style="margin-bottom: 20px;">Verfügbare Matches auf MatchSign (Auslastung &lt; 100%)</h2>
+
+        <div class="filter-container" id="match-filters" style="display: none;">
+            <select id="filter-region">
+                <option value="all">Alle Länder</option>
+            </select>
+            
+            <select id="filter-disziplin">
+                <option value="all">Alle Disziplinen</option>
+            </select>
+            
+            <select id="filter-level">
+                <option value="all">Alle Level</option>
+            </select>
+        </div>
 
         <div class="match-list" id="js-match-container">
             <p class="loading-msg" id="js-status-text">Lade aktuelle Matches...</p>
@@ -155,48 +210,110 @@
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
             <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">Impressum & Rechtliche Hinweise</a>
-            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+     
+            <div style="margin-top: 15px; font-size: 11px;">&copy;
+ 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
 
     <script>
+    let allMatches = []; // Speichert alle geladenen Matches für den Filter
+
     // Der "?v=" Trick zwingt den Browser, IMMER die allerneueste Datei zu holen!
     fetch('matches.json?v=' + new Date().getTime())
       .then(res => res.json())
       .then(data => {
+          allMatches = data;
           const container = document.getElementById('js-match-container');
           
-          if (data.length === 0) {
+          if (allMatches.length === 0) {
               container.innerHTML = "<p>Aktuell sind alle Matches zu 100% belegt.</p>";
+              document.getElementById('match-filters').style.display = 'none';
               return;
           }
 
-          let html = data.map(match => `
-              <a href="${match.url}" target="_blank" style="text-decoration: none; color: inherit; display: block;">
-                  <div class="match-card">
-                      <div class="match-details">
-                          <h3>${match.name}</h3>
-                          <div class="badge-container">
-                              <span class="badge">Auslastung: ${match.auslastung}</span>
-                              <!-- Falls mal ein Wert fehlt, zeigen wir ein "-" statt "undefined" -->
-                              <span class="badge-region">Reg: ${match.region || '-'}</span>
-                              <span class="badge-lvl">Level: ${match.level || '-'}</span>
-                              <span class="badge-disziplin">${match.disziplin || '-'}</span>
-                          </div>
-                      </div>
-                      <div class="card-actions">
-                          <span class="btn-contact">Zum Match</span>
-                      </div>
-                  </div>
-              </a>
-          `).join('');
-          
-          container.innerHTML = html;
+          document.getElementById('match-filters').style.display = 'flex'; // Filter einblenden
+          setupFilters(allMatches);
+          renderMatches(allMatches); // Start: Alle anzeigen
       })
       .catch(err => {
           console.error("Fehler beim Laden:", err);
           document.getElementById('js-match-container').innerHTML = "<p class='loading-msg'>Fehler beim Laden der Daten. Bitte lade die Seite neu.</p>";
       });
+
+    // --- NEU: Filter Logik ---
+    function setupFilters(matches) {
+        // Findet alle einzigartigen Werte, entfernt leere/N/A und sortiert sie alphabetisch
+        const regions = [...new Set(matches.map(m => m.region))].filter(r => r && r !== "N/A" && r !== "-").sort();
+        const disziplinen = [...new Set(matches.map(m => m.disziplin))].filter(d => d && d !== "-").sort();
+        const levels = [...new Set(matches.map(m => m.level))].filter(l => l && l !== "-").sort();
+
+        const regionSelect = document.getElementById('filter-region');
+        const disziplinSelect = document.getElementById('filter-disziplin');
+        const levelSelect = document.getElementById('filter-level');
+
+        // Optionen einfügen
+        regions.forEach(r => regionSelect.innerHTML += `<option value="${r}">${r}</option>`);
+        disziplinen.forEach(d => disziplinSelect.innerHTML += `<option value="${d}">${d}</option>`);
+        levels.forEach(l => levelSelect.innerHTML += `<option value="${l}">Level ${l}</option>`);
+
+        // Event-Listener: Filter anwenden, wenn etwas ausgewählt wird
+        regionSelect.addEventListener('change', applyFilters);
+        disziplinSelect.addEventListener('change', applyFilters);
+        levelSelect.addEventListener('change', applyFilters);
+    }
+
+    function applyFilters() {
+        const selectedRegion = document.getElementById('filter-region').value;
+        const selectedDisziplin = document.getElementById('filter-disziplin').value;
+        const selectedLevel = document.getElementById('filter-level').value;
+
+        // Matches durchfiltern
+        const filteredMatches = allMatches.filter(match => {
+            const matchesRegion = selectedRegion === 'all' || match.region === selectedRegion;
+            const matchesDisziplin = selectedDisziplin === 'all' || match.disziplin === selectedDisziplin;
+            const matchesLevel = selectedLevel === 'all' || match.level === selectedLevel;
+            
+            return matchesRegion && matchesDisziplin && matchesLevel;
+        });
+
+        renderMatches(filteredMatches);
+    }
+
+    // Zeigt die Matches (gefiltert oder alle) im Container an
+    function renderMatches(matchesToDisplay) {
+        const container = document.getElementById('js-match-container');
+        
+        if (matchesToDisplay.length === 0) {
+            container.innerHTML = '<p style="padding: 10px;">Keine Matches für diese Filterkombination gefunden.</p>';
+            return;
+        }
+
+        // DEIN ORIGINALES DESIGN
+        let html = matchesToDisplay.map(match => `
+            <a href="${match.url}" target="_blank" style="text-decoration: none; color: inherit; display: block;">
+                <div class="match-card">
+                    <div class="match-details">
+                   
+                        <h3>${match.name}</h3>
+                        <div class="badge-container">
+                            <span class="badge">Auslastung: ${match.auslastung}</span>
+                            <span class="badge-region">Reg: ${match.region || '-'}</span>
+                            <span class="badge-lvl">Level: ${match.level ||
+'-'}</span>
+                            <span class="badge-disziplin">${match.disziplin ||
+'-'}</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <span class="btn-contact">Zum Match</span>
+ 
+                    </div>
+                </div>
+            </a>
+        `).join('');
+        container.innerHTML = html;
+    }
     </script>
 
 </body>
