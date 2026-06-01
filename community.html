@@ -11,8 +11,8 @@
         :root {
             --bg-color: #1a1a1a;
             --card-bg: #2d2d2d;
-            --accent-color: #ff9f43; /* Dein Orange */
-            --social-accent: #3498db; /* Blau für Social-Buttons wie auf deinem Screenshot */
+            --accent-color: #ff9f43; 
+            --social-accent: #3498db; 
             --text-color: #ffffff;
             --text-muted: #aaaaaa;
             --danger-color: #ff4d4d;
@@ -22,11 +22,10 @@
         header { background-color: #0f0f0f; padding: 20px; text-align: center; border-bottom: 3px solid var(--accent-color); position: relative; }
         header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
         
-        /* Haupt-Navigation (Marktplatz, Planer, Community) */
         .main-nav { margin-top: 25px; display: flex; justify-content: center; gap: 25px; border-top: 1px solid #222; padding-top: 15px; }
         .main-nav a { text-decoration: none; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 4px; transition: color 0.2s ease; }
         .main-nav a.active { color: var(--accent-color); border-bottom: 2px solid var(--accent-color); }
-        .main-nav a.inactive = { color: var(--text-muted); }
+        .main-nav a.inactive { color: var(--text-muted); }
         .main-nav a.inactive:hover { color: var(--text-color); }
 
         .header-controls { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 15px; }
@@ -35,12 +34,10 @@
 
         .container { max-width: 600px; margin: 0 auto; padding: 20px; flex: 1; width: 100%; box-sizing: border-box; position: relative; }
         
-        /* Social Sub-Navigation (Pillen-Design wie auf Screenshot) */
         .social-nav { display: flex; gap: 10px; margin-bottom: 25px; }
         .social-tab { background-color: transparent; border: 1px solid #555; color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; cursor: pointer; }
         .social-tab.active { background-color: var(--danger-color); color: #fff; border-color: var(--danger-color); }
 
-        /* Beitrag Styling */
         .post-card { background-color: var(--card-bg); padding: 20px; border-radius: 8px; border: 1px solid #444; margin-bottom: 15px; }
         .post-header { display: flex; align-items: center; margin-bottom: 15px; gap: 15px; }
         .avatar { width: 40px; height: 40px; background-color: #555; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; color: #fff; }
@@ -48,24 +45,20 @@
         .post-meta span { font-size: 12px; color: var(--text-muted); }
         .post-content { font-size: 15px; line-height: 1.5; color: #ddd; white-space: pre-wrap; }
         
-        /* Admin News Styling */
         .post-card.admin-post { border: 1px solid var(--accent-color); background-color: rgba(255, 159, 67, 0.05); }
         .admin-badge { background-color: var(--danger-color); color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;}
         .avatar.admin-avatar { background-color: var(--accent-color); color: #000; }
 
-        /* Floating Action Button (Neuer Beitrag) */
         .fab { position: fixed; bottom: 30px; right: 30px; background-color: var(--social-accent); color: white; border: none; padding: 15px 25px; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; gap: 8px; transition: transform 0.2s; }
         .fab:hover { transform: scale(1.05); }
         @media (max-width: 768px) { .fab { bottom: 20px; right: 20px; padding: 12px 20px; font-size: 14px; } }
 
-        /* Modal-Styling (für neuen Beitrag) */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background-color: var(--card-bg); padding: 25px; border-radius: 8px; width: 100%; max-width: 500px; box-sizing: border-box; }
         textarea { width: 100%; background-color: #1a1a1a; border: 1px solid #555; color: #fff; padding: 15px; border-radius: 6px; font-family: inherit; font-size: 15px; resize: vertical; min-height: 120px; box-sizing: border-box; margin-bottom: 15px; }
         textarea:focus { outline: none; border-color: var(--social-accent); }
         .btn-post { background-color: var(--social-accent); color: #fff; border: none; padding: 12px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
 
-        /* Placeholder für Nicht-Eingeloggt / Username Setup */
         #logged-out-msg, #username-setup-section { text-align: center; padding: 40px; background: var(--card-bg); border-radius: 8px; border: 1px solid #444; margin-top: 20px; }
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
         .form-group input { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #555; background-color: #1a1a1a; color: var(--text-color); box-sizing: border-box; font-family: inherit; }
@@ -97,7 +90,7 @@
         </div>
 
         <div id="logged-out-msg">
-            <h2>Werte Teil der Community</h2>
+            <h2>Werde Teil der Community</h2>
             <p style="color: var(--text-muted); margin-bottom: 20px;">Bitte logge dich ein, um Beiträge zu lesen und mit anderen Schützen zu diskutieren.</p>
             <button onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" class="btn-auth" style="background: var(--accent-color); color: #000;">Jetzt einloggen</button>
         </div>
@@ -108,7 +101,7 @@
             <div style="max-width: 320px; margin: 0 auto 15px auto;" class="form-group">
                 <input type="text" id="initial-username" placeholder="z.B. AlphaShooter">
             </div>
-            <button onclick="saveInitialUsername()" style="background: var(--accent-color); color: #000; width: auto; padding: 12px 30px;">Namen speichern & starten</button>
+            <button onclick="saveInitialUsername()" style="background: var(--accent-color); color: #000; width: auto; padding: 12px 30px; font-weight:bold; border:none; border-radius:4px; cursor:pointer;">Namen speichern & starten</button>
         </div>
 
         <div id="feed-section" style="display: none;">
@@ -132,23 +125,81 @@
         <div class="modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h3 style="margin: 0; color: var(--social-accent);">Neuer Beitrag</h3>
-                <span style="cursor:pointer; font-size: 24px; color: #888;" onclick="document.getElementById('post-modal').style.display='none'">&times;</span>
+                <span style="cursor:pointer; font-size: 24px; color: #888;" onclick="closePostModal()">&times;</span>
             </div>
             <textarea id="post-content" placeholder="Was gibt's Neues rund um IPSC?"></textarea>
-            <button class="btn-post" onclick="submitPost()">Teilen</button>
+            
+            <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:5px;">Foto hinzufügen (Optional)</label>
+            <input type="file" id="post-image" accept="image/*" onchange="previewPostImage(this)" style="margin-bottom: 15px; color: #fff; width:100%;">
+            <img id="post-image-preview" style="width: 100%; border-radius: 8px; margin-bottom: 15px; display: none; object-fit: cover; max-height: 250px;">
+            
+            <button class="btn-post" id="btn-submit-post" onclick="submitPost()">Teilen</button>
         </div>
     </div>
 
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
+            
             <div id="modal-login-view">
                 <h3>Anmelden</h3>
                 <form id="login-form">
-                    <div style="margin-bottom: 15px;"><label>E-Mail *</label><input type="email" id="login-email" style="width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #555; color: #fff;" required></div>
-                    <div style="margin-bottom: 15px;"><label>Passwort *</label><input type="password" id="login-password" style="width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #555; color: #fff;" required></div>
+                    <div class="form-group"><label>E-Mail *</label><input type="email" id="login-email" required></div>
+                    <div class="form-group"><label>Passwort *</label><input type="password" id="login-password" required><a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;">Passwort vergessen?</a></div>
                     <button type="submit" style="background: var(--accent-color); width:100%; padding: 10px; border: none; font-weight: bold; cursor: pointer;">Einloggen</button>
                 </form>
+                <div class="modal-footer"><span>Noch kein Konto?</span><a onclick="toggleAuthView('register')" style="color: var(--accent-color); cursor:pointer;">Registrieren</a></div>
+            </div>
+
+            <div id="modal-register-view" style="display: none;">
+                <h3>Konto erstellen</h3>
+                <form id="register-form">
+                    <div class="form-group"><label>E-Mail *</label><input type="email" id="register-email" required></div>
+                    <div class="form-group"><label>Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
+                    <button type="submit" style="background: var(--accent-color); width:100%; padding: 10px; border: none; font-weight: bold; cursor: pointer;">Konto erstellen</button>
+                </form>
+                <div class="modal-footer"><span>Bereits registriert?</span><a onclick="toggleAuthView('login')" style="color: var(--accent-color); cursor:pointer;">Zum Login</a></div>
+            </div>
+
+            <div id="modal-forgot-view" style="display: none;">
+                <h3>Passwort zurücksetzen</h3>
+                <form id="forgot-form">
+                    <div class="form-group"><label>Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required></div>
+                    <button type="submit" style="background: var(--accent-color); width:100%; padding: 10px; border: none; font-weight: bold; cursor: pointer;">Zurücksetzungs-Link senden</button>
+                </form>
+                <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')" style="color: var(--accent-color); cursor:pointer;">Zurück zum Login</a></div>
+            </div>
+
+            <div id="modal-reset-view" style="display: none;">
+                <h3>Neues Passwort vergeben</h3>
+                <form id="reset-password-form">
+                    <div class="form-group"><label>Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
+                    <button type="submit" style="background: var(--accent-color); width:100%; padding: 10px; border: none; font-weight: bold; cursor: pointer;">Speichern</button>
+                </form>
+            </div>
+
+            <div id="modal-settings-view" style="display: none;">
+                <h3>Konto-Einstellungen</h3>
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label>Schützenname / Anzeigename</label>
+                        <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Profilbild (Optional)</label>
+                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
+                        <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Neues Passwort ändern (Optional)</label>
+                        <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
+                    </div>
+                    <button type="submit" style="background: var(--accent-color); width:100%; padding: 10px; border: none; font-weight: bold; cursor: pointer;">Änderungen speichern</button>
+                </form>
+                <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
+                <button id="btn-delete-account" style="background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer;">Konto & alle Einträge unwiderruflich löschen</button>
             </div>
         </div>
     </div>
@@ -159,11 +210,9 @@
         const ADMIN_EMAIL = 'info@ipscboerse.com'; 
 
         function switchTab(tab) {
-            // Wenn kein Username existiert, Tabs blockieren
             if (window.currentUser && (!window.currentUser.user_metadata?.username || window.currentUser.user_metadata.username.trim() === "")) {
                 return;
             }
-
             document.querySelectorAll('.social-tab').forEach(t => t.classList.remove('active'));
             document.getElementById('feed-section').style.display = 'none';
             document.getElementById('groups-section').style.display = 'none';
@@ -177,29 +226,20 @@
             }
         }
 
-        // Event-Hook: Reagiert automatisch auf den Login-Status aus auth.js
         window.onAuthChange = (user) => {
-            // Standardmäßig alles verstecken
             document.getElementById('logged-out-msg').style.display = 'none';
             document.getElementById('username-setup-section').style.display = 'none';
             document.getElementById('feed-section').style.display = 'none';
             document.getElementById('groups-section').style.display = 'none';
 
             if (user) {
-                // Prüfen ob ein gültiger Username in den Metadaten existiert
                 const hasUsername = user.user_metadata?.username && user.user_metadata.username.trim() !== "";
-
                 if (!hasUsername) {
-                    // Falls kein Name da ist -> Setup Formular einblenden
                     document.getElementById('username-setup-section').style.display = 'block';
                 } else {
-                    // Falls Name vorhanden -> Community freigeben
                     const activeTab = document.querySelector('.social-tab.active').innerText;
-                    if (activeTab === 'Beiträge') {
-                        document.getElementById('feed-section').style.display = 'block';
-                    } else {
-                        document.getElementById('groups-section').style.display = 'block';
-                    }
+                    if (activeTab === 'Beiträge') document.getElementById('feed-section').style.display = 'block';
+                    else document.getElementById('groups-section').style.display = 'block';
                     loadPosts();
                 }
             } else {
@@ -207,25 +247,12 @@
             }
         };
 
-        // NEU: Speicher-Funktion für den initialen Usernamen
         async function saveInitialUsername() {
             const newUsername = document.getElementById('initial-username').value.trim();
-            if (!newUsername || newUsername.length < 3) {
-                alert("Bitte gib einen Schützennamen ein (mindestens 3 Zeichen).");
-                return;
-            }
-
-            // Metadaten in Supabase aktualisieren
-            const { error } = await window.supabaseClient.auth.updateUser({
-                data: { username: newUsername }
-            });
-
-            if (error) {
-                alert("Fehler beim Speichern: " + error.message);
-            } else {
-                alert("Erfolgreich gespeichert! Willkommen in der Community.");
-                location.reload(); // Neu laden, um den Feed mit dem neuen Namen freizuschalten
-            }
+            if (!newUsername || newUsername.length < 3) { alert("Bitte gib einen Schützennamen ein (mindestens 3 Zeichen)."); return; }
+            const { error } = await window.supabaseClient.auth.updateUser({ data: { username: newUsername } });
+            if (error) alert("Fehler beim Speichern: " + error.message);
+            else { alert("Erfolgreich gespeichert! Willkommen in der Community."); location.reload(); }
         }
 
         async function loadPosts() {
@@ -233,12 +260,7 @@
             const container = document.getElementById('posts-container');
             if (!container) return;
             
-            const { data, error } = await window.supabaseClient
-                .from('community_posts')
-                .select('*')
-                .order('created_at', { ascending: false })
-                .limit(50);
-
+            const { data, error } = await window.supabaseClient.from('community_posts').select('*').order('created_at', { ascending: false }).limit(50);
             if (error) { container.innerHTML = 'Fehler beim Laden.'; return; }
             container.innerHTML = '';
             
@@ -257,6 +279,16 @@
                 const initial = post.author_name ? post.author_name.charAt(0).toUpperCase() : '?';
                 const adminBadge = isAdmin ? '<span class="admin-badge">Admin News</span>' : '';
 
+                // Falls der Nutzer ein Bild hat, zeige es, sonst seine Initialen
+                const avatarHtml = post.author_avatar 
+                    ? `<img src="${post.author_avatar}" class="${avatarClass}" style="object-fit: cover; padding: 0; border: none;">`
+                    : `<div class="${avatarClass}">${initial}</div>`;
+
+                // Falls der Beitrag ein Bild enthält, zeige es an
+                const postImageHtml = post.image_url 
+                    ? `<img src="${post.image_url}" style="width: 100%; border-radius: 8px; margin-top: 15px; border: 1px solid #444;">`
+                    : '';
+
                 const isOwner = window.currentUser.email === post.author_email || window.currentUser.email === ADMIN_EMAIL;
                 const deleteBtn = isOwner ? `<button onclick="deletePost(${post.id})" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size:12px; float:right;">Löschen</button>` : '';
 
@@ -264,44 +296,81 @@
                     <div class="${cardClass}">
                         ${deleteBtn}
                         <div class="post-header">
-                            <div class="${avatarClass}">${initial}</div>
+                            ${avatarHtml}
                             <div class="post-meta">
                                 <h4>${escapeHtml(post.author_name)} ${adminBadge}</h4>
                                 <span>${displayDate}</span>
                             </div>
                         </div>
                         <div class="post-content">${escapeHtml(post.content)}</div>
+                        ${postImageHtml}
                     </div>
                 `;
             });
+        }
+
+        // Bildvorschau für neuen Post
+        window.previewPostImage = function(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('post-image-preview');
+                    if (img) { img.src = e.target.result; img.style.display = 'block'; }
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
         }
 
         function openPostModal() {
             document.getElementById('post-modal').style.display = 'flex';
             document.getElementById('post-content').focus();
         }
+        
+        function closePostModal() {
+            document.getElementById('post-modal').style.display = 'none';
+            document.getElementById('post-image').value = '';
+            document.getElementById('post-image-preview').style.display = 'none';
+        }
 
         async function submitPost() {
             const content = document.getElementById('post-content').value.trim();
-            if (!content) return;
+            const imageFile = document.getElementById('post-image').files[0];
+            const btn = document.getElementById('btn-submit-post');
 
-            const displayName = window.currentUser.user_metadata?.username || "Schütze";
+            if (!content && !imageFile) return;
 
-            const { error } = await window.supabaseClient
-                .from('community_posts')
-                .insert([{ 
-                    user_id: window.currentUser.id, 
-                    author_name: displayName,
-                    author_email: window.currentUser.email,
-                    content: content 
-                }]);
+            btn.innerText = "Wird hochgeladen...";
 
-            if (error) {
-                alert("Fehler beim Posten: " + error.message);
-            } else {
+            try {
+                let imageUrl = null;
+                // Wenn ein Bild ausgewählt wurde, lade es über auth.js in Supabase hoch
+                if (imageFile) {
+                    imageUrl = await window.uploadImage(imageFile, 'posts');
+                }
+
+                const displayName = window.currentUser.user_metadata?.username || "Schütze";
+                const avatarUrl = window.currentUser.user_metadata?.avatar_url || null;
+
+                const { error } = await window.supabaseClient
+                    .from('community_posts')
+                    .insert([{ 
+                        user_id: window.currentUser.id, 
+                        author_name: displayName,
+                        author_email: window.currentUser.email,
+                        author_avatar: avatarUrl,
+                        content: content,
+                        image_url: imageUrl
+                    }]);
+
+                if (error) throw error;
+
                 document.getElementById('post-content').value = '';
-                document.getElementById('post-modal').style.display = 'none';
-                loadPosts();
+                closePostModal();
+                btn.innerText = "Teilen";
+                loadPosts(); 
+            } catch (err) {
+                btn.innerText = "Teilen";
+                alert("Fehler beim Posten: " + err.message);
             }
         }
 
