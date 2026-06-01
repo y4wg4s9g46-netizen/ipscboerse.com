@@ -46,7 +46,6 @@ window.loginWithPasskey = async function() {
         btn.innerText = oldText;
         alert("Passkey-Login fehlgeschlagen oder abgebrochen: " + error.message);
     } else {
-        // Bei Erfolg lädt die Seite von selbst neu durch den Auth-Listener unten
         btn.innerText = "Erfolgreich!";
     }
 };
@@ -205,7 +204,9 @@ window.translations = {
   }
 };
 
+// WICHTIG: Funktion global verfügbar machen, damit app.js darauf zugreifen kann
 function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
+window.escapeHtml = escapeHtml;
 
 function applyLanguage(lang) {
   window.currentLang = lang;
@@ -222,7 +223,7 @@ function applyLanguage(lang) {
   if (levelSelect) {
     const currentVal = levelSelect.value;
     const defaultText = lang === "en" ? "Please select..." : "Bitte wählen...";
-    levelSelect.innerHTML = `<option value="">\${defaultText}</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
+    levelSelect.innerHTML = `<option value="">${defaultText}</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
     levelSelect.value = currentVal;
   }
   if (typeof window.onLanguageChanged === "function") { window.onLanguageChanged(lang); }
@@ -239,16 +240,16 @@ async function checkUserStatus() {
     
     // Profilbild oder reiner Text
     const avatarHtml = avatarUrl 
-        ? `<img src="\${avatarUrl}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 2px solid var(--accent-color);">` 
-        : `<span style="font-weight:bold; color:var(--accent-color);">\${escapeHtml(displayName)}</span>`;
+        ? `<img src="${avatarUrl}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 2px solid var(--accent-color);">` 
+        : `<span style="font-weight:bold; color:var(--accent-color);">${escapeHtml(displayName)}</span>`;
 
     if (container) {
-      container.innerHTML = `<div id="btn-open-settings" style="cursor:pointer; display:flex; align-items:center; gap:10px; margin-right:15px;">\${avatarHtml}</div><button class="btn-auth" id="btn-logout" style="border-color: var(--danger-color); color: var(--danger-color);">\${window.translations[window.currentLang]["logout"]}</button>`;
+      container.innerHTML = `<div id="btn-open-settings" style="cursor:pointer; display:flex; align-items:center; gap:10px; margin-right:15px;">${avatarHtml}</div><button class="btn-auth" id="btn-logout" style="border-color: var(--danger-color); color: var(--danger-color);">${window.translations[window.currentLang]["logout"]}</button>`;
     }
     if (emailField) { emailField.value = user.email; emailField.readOnly = true; }
   } else {
     if (container) {
-      container.innerHTML = `<button class="btn-auth" id="btn-open-login">\${window.translations[window.currentLang]["btn-login-reg"]}</button>`;
+      container.innerHTML = `<button class="btn-auth" id="btn-open-login">${window.translations[window.currentLang]["btn-login-reg"]}</button>`;
     }
     if (emailField) { emailField.value = ""; emailField.placeholder = "Logge dich ein, um zu inserieren"; }
   }
@@ -268,7 +269,6 @@ window.toggleAuthView = toggleAuthView;
 // --- ROBUSTE EVENT DELEGATION ---
 // ==========================================
 
-// 1. Klicks auf der ganzen Seite überwachen
 document.addEventListener("click", async (e) => {
     
     if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
@@ -294,7 +294,6 @@ document.addEventListener("click", async (e) => {
             settingsUser.value = window.currentUser.user_metadata?.username || "";
         }
         
-        // NEU: IPSC Alias laden
         const settingsIpsc = document.getElementById("settings-ipsc-alias");
         if (settingsIpsc && window.currentUser) {
             settingsIpsc.value = window.currentUser.user_metadata?.ipsc_alias || "";
@@ -318,7 +317,6 @@ document.addEventListener("click", async (e) => {
     }
 });
 
-// Vorschau-Funktion für Datei-Upload im Menü
 window.previewSettingsAvatar = function(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -330,10 +328,7 @@ window.previewSettingsAvatar = function(input) {
     }
 }
 
-// 2. Formular-Absendungen auf der ganzen Seite überwachen
 document.addEventListener("submit", async (e) => {
-    
-    // --- LOGIN ---
     if (e.target.id === "login-form") {
         e.preventDefault(); 
         const btn = e.target.querySelector('button[type="submit"]');
@@ -351,8 +346,6 @@ document.addEventListener("submit", async (e) => {
             location.reload();
         }
     }
-    
-    // --- REGISTRIEREN ---
     else if (e.target.id === "register-form") {
         e.preventDefault();
         const { error } = await window.supabaseClient.auth.signUp({
@@ -362,8 +355,6 @@ document.addEventListener("submit", async (e) => {
         if (error) alert("Registrierung fehlgeschlagen: " + error.message);
         else { alert("Konto erstellt! Bitte überprüfe dein Postfach."); toggleAuthView("login"); }
     }
-    
-    // --- PASSWORT VERGESSEN ---
     else if (e.target.id === "forgot-form") {
         e.preventDefault();
         const { error } = await window.supabaseClient.auth.resetPasswordForEmail(document.getElementById("forgot-email").value, {
@@ -372,8 +363,6 @@ document.addEventListener("submit", async (e) => {
         if (error) alert("Fehler: " + error.message);
         else { alert("Link zum Zurücksetzen gesendet!"); toggleAuthView("login"); }
     }
-    
-    // --- PASSWORT ZURÜCKSETZEN ---
     else if (e.target.id === "reset-password-form") {
         e.preventDefault();
         const { error } = await window.supabaseClient.auth.updateUser({
@@ -385,8 +374,6 @@ document.addEventListener("submit", async (e) => {
             location.reload(); 
         }
     }
-    
-    // --- KONTO EINSTELLUNGEN (MIT BILD & IPSC ALIAS) ---
     else if (e.target.id === "settings-form") {
         e.preventDefault();
         const btn = e.target.querySelector('button[type="submit"]');
@@ -396,17 +383,14 @@ document.addEventListener("submit", async (e) => {
         try {
             const newUsername = document.getElementById("settings-username").value;
             const newPassword = document.getElementById("settings-password").value;
-            const newIpscAlias = document.getElementById("settings-ipsc-alias").value; // NEU
+            const newIpscAlias = document.getElementById("settings-ipsc-alias").value; 
 
-            // Check if Avatar Input exists and a file is selected
             const avatarInput = document.getElementById("settings-avatar");
             const avatarFile = avatarInput && avatarInput.files.length > 0 ? avatarInput.files[0] : null;
             
-            // NEU: ipsc_alias in die Updates packen
             let updates = { data: { username: newUsername, ipsc_alias: newIpscAlias } };
             if (newPassword.trim().length >= 6) { updates.password = newPassword; }
 
-            // Bild hochladen falls ausgewählt
             if (avatarFile) {
                 const avatarUrl = await window.uploadImage(avatarFile, 'avatars');
                 updates.data.avatar_url = avatarUrl;
@@ -424,14 +408,11 @@ document.addEventListener("submit", async (e) => {
     }
 });
 
-// Sprache wechseln
 document.addEventListener("change", (e) => {
     if (e.target.id === "language-select") applyLanguage(e.target.value);
 });
 
-
 // === START LOGIK ===
-
 setTimeout(async () => {
     applyLanguage("de");
     
