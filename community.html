@@ -356,7 +356,6 @@
                 const isOwner = window.currentUser.email === post.author_email || window.currentUser.email === ADMIN_EMAIL;
                 const deleteBtn = isOwner ? `<button onclick="deletePost(${post.id})" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size:12px; float:right;">Löschen</button>` : '';
 
-                // HTML Zusammensetzung der Karten inklusive neuer Interaktionsleiste und Kommentarbox
                 container.innerHTML += `
                     <div class="post-card ${isAdmin ? 'admin-post' : ''}">
                         ${deleteBtn}
@@ -397,7 +396,7 @@
             });
         }
 
-        // NEU: Like-Logik
+        // Like-Logik
         async function likePost(postId, currentLikes) {
             const { error } = await window.supabaseClient
                 .from('community_posts')
@@ -411,7 +410,7 @@
         }
         window.likePost = likePost;
 
-        // NEU: Dislike-Logik
+        // Dislike-Logik
         async function dislikePost(postId, currentDislikes) {
             const { error } = await window.supabaseClient
                 .from('community_posts')
@@ -425,7 +424,7 @@
         }
         window.dislikePost = dislikePost;
 
-        // NEU: Toggelt die Sichtbarkeit der Kommentare und lädt sie
+        // Toggelt die Sichtbarkeit der Kommentare und lädt sie
         function toggleCommentsSection(postId) {
             const wrapper = document.getElementById(`comments-wrapper-${postId}`);
             if (!wrapper) return;
@@ -439,7 +438,7 @@
         }
         window.toggleCommentsSection = toggleCommentsSection;
 
-        // NEU: Lädt alle Kommentare für einen bestimmten Post
+        // Lädt alle Kommentare für einen bestimmten Post
         async function loadComments(postId) {
             const container = document.getElementById(`comments-list-${postId}`);
             if (!container) return;
@@ -467,7 +466,7 @@
             }).join('');
         }
 
-        // NEU: Sendet einen neuen Kommentar ab
+        // Sendet einen neuen Kommentar ab
         async function submitComment(postId) {
             const input = document.getElementById(`comment-input-${postId}`);
             if (!input || !input.value.trim()) return;
@@ -493,7 +492,7 @@
         }
         window.submitComment = submitComment;
 
-        // NEU: Triggert eine Mail an den Support wegen Regelverstoß
+        // Triggert eine Mail an den Support wegen Regelverstoß
         function reportPost(postId) {
             const subject = encodeURIComponent("Regelverstoß Community-Eintrag ID: " + postId);
             const body = encodeURIComponent("Hallo Support-Team,\n\nich möchte den folgenden Beitrag zur Überprüfung melden:\nPlattform-ID: " + postId + "\n\nGrund der Meldung:\n");
@@ -530,8 +529,19 @@
 
             if (!content && !imageFile) return;
 
-            // === AUTOMATISCHER WORTFILTER (BLACK-LIST) ===
-            const blacklist = ["beleidigung1", "schimpfwort2", "spamlink", "betrug"];
+            // === SICHER ERWEITERTER AUTOMATISCHER WORTFILTER (BLACK-LIST) ===
+            const blacklist = [
+                // Vulgärsprache, Beleidigungen & Aggression
+                "arsch", "arschloch", "arschkriecher", "asozial", "bastard", "depp", "ficker", "fotze", "hurensohn", "hure", "idiot", "miststück", "nutte", "pisser", "schlampe", "schwachkopf", "wichser", "wixxer", "vollidiot", "spasti", "missgeburt", "pisser", "vogel", "hanswurst",
+                // Diskriminierung, Rassismus & Extremismus
+                "nazi", "hitler", "neger", "kanake", "schwuchtel", "fascho", "antifa", "terrorist", "juden", "zionist", "heil hitler", "jude",
+                // Spam, Krypto, Casino & Scam-Werbung
+                "casino", "slots", "poker", "bitcoin", "crypto", "kryptowährung", "geld verdienen", "schnelles geld", "reich werden", "investieren", "dividende", "aktien-tipp", "whatsapp-gruppe", "telegram-kanal", "gewinnspiel", "jackpot", "bonuscode",
+                // Erotik, Porno & Dating-Spam
+                "sex", "porn", "porno", "erotik", "cam", "webcam", "dating", "singles", "ficken", "milf", "geile", "nackt", "onlyfans", "sugar daddy", "escort", "xxx", "hentai",
+                // Illegale Angebote & Phishing
+                "hack", "warez", "crack", "phishing", "betrug", "scam", "gefälscht", "ausweis kaufen", "pass kaufen", "geldwäsche", "paypal betrug", "kredit ohne schufa"
+            ];
             
             const containsBadWord = blacklist.some(word => content.toLowerCase().includes(word.toLowerCase()));
             if (containsBadWord) {
