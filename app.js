@@ -12,7 +12,6 @@ function enforceFutureDates() {
 
 // Lädt die aktiven Inserate für den Marktplatz (und holt sich Profil-Daten der Verkäufer dazu!)
 async function fetchMatches() {
-  // Wir nutzen jetzt einen JOIN in Supabase, um den ipsc_alias der Verkäufer direkt mitzuladen
   const { data, error } = await window.supabaseClient
     .from("matches")
     .select(`
@@ -22,7 +21,6 @@ async function fetchMatches() {
     .order("match_date", { ascending: true });
     
   if (error) {
-    // Fallback: Falls die verknüpfte Tabelle nicht existiert, lade nur die Matches
     const { data: fallbackData } = await window.supabaseClient
         .from("matches")
         .select("*")
@@ -33,21 +31,9 @@ async function fetchMatches() {
   }
   
   const todayStr = new Date().toISOString().split("T")[0];
-  
-  // Nur zukünftige oder tagesaktuelle Matches anzeigen
   cachedMatches = cachedMatches.filter(m => m.match_date >= todayStr);
   
   renderMatches(cachedMatches);
-}
-
-// Hilfsfunktion: Holt Profil-Daten (Alias) für alte Einträge, falls der JOIN fehlschlägt
-async function fetchAliasForEmail(email) {
-    try {
-        // Optionale Funktion, falls wir die User-Daten aus einer separaten Tabelle holen müssen
-        return null; 
-    } catch(e) {
-        return null;
-    }
 }
 
 // Zeichnet die Inserate in die HTML-Liste
@@ -60,7 +46,6 @@ function renderMatches(matches) {
     return; 
   }
   
-  // Wir holen uns alle User-Profile manuell, falls der JOIN oben fehlgeschlagen ist
   window.supabaseClient.from('profiles').select('email, ipsc_alias').then(({data: profiles}) => {
       
       let aliasMap = {};
@@ -70,20 +55,15 @@ function renderMatches(matches) {
 
       container.innerHTML = matches.map(m => {
         const isWant = m.type === "want";
-        const levelBadge = m.match_level ? `<span class="badge" style="background:#555; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_level)}</span>` : "";
-        const squadBadge = m.match_squad ? `<span class="badge" style="background:#3498db; color:#fff; padding:2px 5px; border-radius:3px;">Squad ${escapeHtml(m.match_squad)}</span>` : "";
-        const countryBadge = m.match_country ? `<span class="badge" style="background:#8e44ad; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_country)}</span>` : "";
+        const levelBadge = m.match_level ? `<span class="badge" style="background:#555; color:#fff; padding:2px 5px; border-radius:3px;">${window.escapeHtml(m.match_level)}</span>` : "";
+        const squadBadge = m.match_squad ? `<span class="badge" style="background:#3498db; color:#fff; padding:2px 5px; border-radius:3px;">Squad ${window.escapeHtml(m.match_squad)}</span>` : "";
+        const countryBadge = m.match_country ? `<span class="badge" style="background:#8e44ad; color:#fff; padding:2px 5px; border-radius:3px;">${window.escapeHtml(m.match_country)}</span>` : "";
 
-        // Admin-Erkennung für die Steuerung der Buttons auf dem Marktplatz
         const isSender = window.currentUser && window.currentUser.email === m.seller_email;
         const isAdmin = window.currentUser && window.currentUser.email === "fabian-schoeps@gmx.de";
         const canManage = isSender || isAdmin;
 
-        // TRUSTED SHOOTER BADGE LOGIK
-        // Versucht den Alias aus dem Profil-JOIN zu laden (oder aus der manuellen Map)
         let sellerAlias = null;
-        
-        // Prüfen, ob der aktuell eingeloggte Nutzer sein eigenes Inserat ansieht
         if(isSender && window.currentUser.user_metadata?.ipsc_alias) {
              sellerAlias = window.currentUser.user_metadata.ipsc_alias;
         } else if (aliasMap[m.seller_email]) {
@@ -92,9 +72,8 @@ function renderMatches(matches) {
              sellerAlias = m.seller_profile.ipsc_alias;
         }
 
-        // Das grüne Trusted Badge generieren
         const trustedBadge = (sellerAlias && sellerAlias.trim() !== "") 
-            ? `<span class="badge" style="background:var(--success-color); color:#fff; padding:2px 6px; border-radius:3px; display:inline-flex; align-items:center; gap:4px;" title="Verifizierter IPSC Alias: ${escapeHtml(sellerAlias)}">
+            ? `<span class="badge" style="background:var(--success-color); color:#fff; padding:2px 6px; border-radius:3px; display:inline-flex; align-items:center; gap:4px;" title="Verifizierter IPSC Alias: ${window.escapeHtml(sellerAlias)}">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 Trusted
                </span>` 
@@ -107,14 +86,14 @@ function renderMatches(matches) {
         return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
           <div class="match-details">
             <h3>
-              ${escapeHtml(m.match_name)} 
+              ${window.escapeHtml(m.match_name)} 
               ${levelBadge} 
               ${squadBadge} 
               ${countryBadge}
               <span class="badge">${isWant ? window.translations[window.currentLang]["tag-want"] : window.translations[window.currentLang]["tag-offer"]}</span>
               ${trustedBadge}
             </h3>
-            <p>${m.match_date} | ${escapeHtml(m.match_location)}</p>
+            <p>${m.match_date} | ${window.escapeHtml(m.match_location)}</p>
           </div>
           <div class="card-actions">
             <p>${parseFloat(m.match_price).toFixed(2)} €</p>
@@ -132,10 +111,19 @@ function renderMatches(matches) {
           </div>
         </div>`;
       }).join("");
+  }).catch(() => {
+      // Sicherheitsanker: Falls Profil-Abfrage fehlschlägt, lade Inserate ohne Badge
+      container.innerHTML = matches.map(m => {
+        const isWant = m.type === "want";
+        const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
+        return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
+          <div class="match-details"><h3>${window.escapeHtml(m.match_name)}</h3><p>${m.match_date} | ${window.escapeHtml(m.match_location)}</p></div>
+          <div class="card-actions"><p>${parseFloat(m.match_price).toFixed(2)} €</p><button class="btn-contact" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">Kontakt</button></div>
+        </div>`;
+      }).join("");
   });
 }
 
-// Mail-Client für Kontaktaufnahme öffnen
 function handleContactClick(email, matchName, type) {
   if (!window.currentUser) {
     alert(window.translations[window.currentLang]["login-required"]);
@@ -155,7 +143,6 @@ function handleContactClick(email, matchName, type) {
 }
 window.handleContactClick = handleContactClick;
 
-// ICS Kalender-Export
 function exportToIcs(id) {
   const match = cachedMatches.find(m => m.id === id);
   if (!match) return;
@@ -171,7 +158,6 @@ function exportToIcs(id) {
 }
 window.exportToIcs = exportToIcs;
 
-// Inserat an Admin melden
 function reportMatch(id) {
   if (!window.currentUser) { 
       alert(window.translations[window.currentLang]["login-required"]); 
@@ -183,7 +169,6 @@ function reportMatch(id) {
 }
 window.reportMatch = reportMatch;
 
-// Klick auf "Bearbeiten"
 function handleEditClick(id) {
   const match = cachedMatches.find(m => m.id === id);
   if (!match) return;
@@ -211,7 +196,6 @@ function handleEditClick(id) {
 }
 window.handleEditClick = handleEditClick;
 
-// Formular nach dem Senden oder beim Abbrechen zurücksetzen
 function resetFormState() {
   window.editingMatchId = null;
   document.getElementById("match-form").reset();
@@ -222,7 +206,6 @@ function resetFormState() {
 }
 document.getElementById("btn-cancel-edit")?.addEventListener("click", resetFormState);
 
-// Inserat löschen (Erlaubt dem Besitzer und dem Admin das Löschen)
 async function handleDelete(id, sellerEmail) {
   const isAdmin = window.currentUser && window.currentUser.email === "fabian-schoeps@gmx.de";
   const isOwner = window.currentUser && window.currentUser.email === sellerEmail;
@@ -238,18 +221,13 @@ async function handleDelete(id, sellerEmail) {
   if (!confirm(text)) return;
   
   await window.supabaseClient.from("matches").delete().eq("id", id);
-  
   if (window.editingMatchId === id) resetFormState();
   fetchMatches();
 }
 
-// Inserat speichern / absenden
 document.getElementById("match-form")?.addEventListener("submit", async (e) => {
   e.preventDefault();
-  
-  if (!window.currentUser) {
-      return alert("Bitte melde dich an.");
-  }
+  if (!window.currentUser) return alert("Bitte melde dich an.");
   
   const inputDate = document.getElementById("match-date").value;
   const todayStr = new Date().toISOString().split("T")[0];
@@ -260,8 +238,6 @@ document.getElementById("match-form")?.addEventListener("submit", async (e) => {
   }
 
   const matchName = document.getElementById("match-name").value;
-  
-  // Spam-Prüfung aufbauen
   let spamCheck = window.supabaseClient
       .from("matches")
       .select("id")
@@ -274,18 +250,9 @@ document.getElementById("match-form")?.addEventListener("submit", async (e) => {
   }
 
   const { data: duplicateEntries, error: spamError } = await spamCheck;
-  
-  if (spamError) { 
-      alert("Fehler bei der Spam-Prüfung: " + spamError.message); 
-      return; 
-  }
-  
-  if (duplicateEntries && duplicateEntries.length > 0) { 
-      alert(window.translations[window.currentLang]["spam-error"]); 
-      return; 
-  }
+  if (spamError) return alert("Fehler bei der Spam-Prüfung: " + spamError.message);
+  if (duplicateEntries && duplicateEntries.length > 0) return alert(window.translations[window.currentLang]["spam-error"]);
 
-  // Daten für Datenbank vorbereiten
   const matchData = {
     match_name: matchName,
     match_level: document.getElementById("match-level").value,
@@ -297,13 +264,8 @@ document.getElementById("match-form")?.addEventListener("submit", async (e) => {
     type: document.getElementById("type-want").checked ? "want" : "offer"
   };
   
-  if (document.getElementById("match-squad").value) {
-    matchData.match_squad = document.getElementById("match-squad").value;
-  } else {
-    matchData.match_squad = null;
-  }
+  matchData.match_squad = document.getElementById("match-squad").value || null;
 
-  // UPDATE ODER INSERT ausführen
   if (window.editingMatchId !== null) {
     const { error } = await window.supabaseClient.from("matches").update(matchData).eq("id", window.editingMatchId);
     if (error) alert("Fehler beim Aktualisieren: " + error.message);
@@ -315,7 +277,6 @@ document.getElementById("match-form")?.addEventListener("submit", async (e) => {
   resetFormState();
   fetchMatches();
   
-  // Wenn das Inserat aus dem Planer kam, löschen wir die URL-Parameter für mehr Übersichtlichkeit
   if (window.history.replaceState) {
     const url = new URL(window.location);
     url.search = '';
@@ -323,46 +284,31 @@ document.getElementById("match-form")?.addEventListener("submit", async (e) => {
   }
 });
 
-// Dropdown: Biete/Suche Filter anwenden
 document.getElementById("filter-type-select")?.addEventListener("change", (e) => {
   const type = e.target.value;
   if (type === "all") renderMatches(cachedMatches);
   else renderMatches(cachedMatches.filter(m => m.type === type));
 });
 
-// NEU: Prüft beim Start, ob Daten aus dem Wettkampfplaner in der URL stehen
 function checkPlannerImport() {
   const urlParams = new URLSearchParams(window.location.search);
-  
   if (urlParams.get('from_planner') === 'true') {
     const name = urlParams.get('name');
     const date = urlParams.get('date');
     const location = urlParams.get('location');
 
-    if (name && document.getElementById("match-name")) {
-        document.getElementById("match-name").value = name;
-    }
-    if (date && document.getElementById("match-date")) {
-        document.getElementById("match-date").value = date;
-    }
-    if (location && document.getElementById("match-location")) {
-        document.getElementById("match-location").value = location;
-    }
+    if (name && document.getElementById("match-name")) document.getElementById("match-name").value = name;
+    if (date && document.getElementById("match-date")) document.getElementById("match-date").value = date;
+    if (location && document.getElementById("match-location")) document.getElementById("match-location").value = location;
 
     const formAnchor = document.getElementById("form-anchor");
-    if (formAnchor) {
-      setTimeout(() => { 
-          formAnchor.scrollIntoView({ behavior: "smooth" }); 
-      }, 300);
-    }
+    if (formAnchor) setTimeout(() => { formAnchor.scrollIntoView({ behavior: "smooth" }); }, 300);
   }
 }
 
-// Event-Hook: Wenn auth.js fertig geladen ist / sich Login ändert
 window.onAuthChange = () => { fetchMatches(); };
 window.onLanguageChanged = () => { if (cachedMatches.length > 0) { renderMatches(cachedMatches); } };
 
-// Start (wird beim Skript-Laden sofort ausgeführt)
 enforceFutureDates();
 checkPlannerImport();
 fetchMatches();
