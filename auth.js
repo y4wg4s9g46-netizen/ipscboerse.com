@@ -71,6 +71,12 @@ window.registerPasskey = async function() {
 
 window.translations = {
   de: {
+    "free-info-box": "<strong>Info:</strong> Die Matches werden automatisch im Hintergrund aktualisiert. Es werden nur Turniere angezeigt, die eine Auslastung von unter 100% aufweisen (freie Startplätze).",
+    "free-list-title": "Verfügbare Matches auf MatchSign (Auslastung < 100%)",
+    "free-all-countries": "Alle Länder",
+    "free-all-disciplines": "Alle Disziplinen",
+    "free-all-levels": "Alle Level",
+    "free-loading": "Lade aktuelle Matches..."
     "main-title": "IPSC STARTPLATZ-BÖRSE",
     "sub-title": "Von Schützen für Schützen – Live Marktplatz",
     "btn-login-reg": "Login / Registrieren",
@@ -154,6 +160,12 @@ window.translations = {
     "planner-btn-export": "📅 In Kalender exportieren (.ics)"
   },
   en: {
+    "free-info-box": "<strong>Info:</strong> The matches are automatically updated in the background. Only tournaments with a capacity under 100% are displayed (available slots).",
+    "free-list-title": "Available Matches on MatchSign (Capacity < 100%)",
+    "free-all-countries": "All Countries",
+    "free-all-disciplines": "All Disciplines",
+    "free-all-levels": "All Levels",
+    "free-loading": "Loading current matches..."
     "main-title": "IPSC SLOT MARKETPLACE",
     "sub-title": "By Shooters for Shooters – Live Marketplace",
     "btn-login-reg": "Login / Register",
