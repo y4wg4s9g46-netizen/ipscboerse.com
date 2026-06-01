@@ -17,10 +17,10 @@
             --danger-color: #ff4d4d;
             --success-color: #2ecc71;
             --input-bg: #333333;
+            --info-color: #3498db;
         }
 
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
-        
         header { background-color: #0f0f0f; padding: 20px; text-align: center; border-bottom: 3px solid var(--accent-color); position: relative; }
         header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
         
@@ -30,7 +30,6 @@
         .main-nav a.inactive { color: var(--text-muted); }
         .main-nav a.inactive:hover { color: var(--text-color); }
 
-        /* Header Controls (Login Button wie auf Index) */
         .header-controls { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 15px; }
         @media (max-width: 768px) { .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; } }
         
@@ -46,23 +45,24 @@
         
         button { background-color: var(--accent-color); color: #000; border: none; padding: 12px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; transition: opacity 0.2s; }
         button:hover { opacity: 0.9; }
-        .btn-secondary { background-color: #555; color: white; margin-top: 10px; }
-        .btn-danger { background-color: var(--danger-color); color: white; margin-top: 10px; }
         .btn-success { background-color: var(--success-color); }
+        .btn-submit { background-color: var(--accent-color); color: #000; border: none; padding: 12px 30px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 10px; }
+        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 15px; }
+        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
 
         .match-item { background-color: rgba(255, 159, 67, 0.1); border-left: 4px solid var(--accent-color); padding: 15px; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
         .match-item h4 { margin: 0 0 5px 0; color: var(--text-color); }
         .match-item p { margin: 0; font-size: 13px; color: var(--text-muted); }
         .delete-btn { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); width: auto; padding: 5px 10px; font-size: 12px; }
 
-        footer { background-color: #0f0f0f; border-top: 1px solid #444; padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted); text-align: center; }
-
-        /* Modal Styles */
+        /* Modal-Styling identisch zur index.html */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 6px; border: 1px solid var(--accent-color); width: 100%; max-width: 400px; box-sizing: border-box; }
         .modal-content h3 { color: var(--accent-color); margin-top: 0; }
         .modal-footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
         .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; }
+
+        footer { background-color: #0f0f0f; border-top: 1px solid #444; padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted); text-align: center; }
     </style>
 </head>
 <body>
@@ -89,7 +89,7 @@
         <div id="logged-out-section" style="text-align: center; padding: 40px 20px;">
             <h2>Nicht angemeldet</h2>
             <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 25px;">Logge dich ein, um deine Matches zu verwalten und in die Cloud zu synchronisieren.</p>
-            <button onclick="openModal('login')" style="width: auto; padding: 12px 30px;">Jetzt einloggen</button>
+            <button onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" style="width: auto; padding: 12px 30px;">Jetzt einloggen</button>
         </div>
 
         <div id="planner-section" style="display: none;">
@@ -137,7 +137,7 @@
                         <input type="password" id="login-password" required>
                         <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;">Passwort vergessen?</a>
                     </div>
-                    <button type="submit" style="width:100%;">Einloggen</button>
+                    <button type="submit" class="btn-submit" style="width:100%;">Einloggen</button>
                 </form>
                 <div class="modal-footer"><span>Noch kein Konto?</span><a onclick="toggleAuthView('register')">Registrieren</a></div>
             </div>
@@ -147,7 +147,7 @@
                 <form id="register-form">
                     <div class="form-group"><label>E-Mail *</label><input type="email" id="register-email" required></div>
                     <div class="form-group"><label>Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
-                    <button type="submit" style="width:100%;">Konto erstellen</button>
+                    <button type="submit" class="btn-submit" style="width:100%;">Konto erstellen</button>
                 </form>
                 <div class="modal-footer"><span>Bereits registriert?</span><a onclick="toggleAuthView('login')">Zum Login</a></div>
             </div>
@@ -156,9 +156,34 @@
                 <h3>Passwort zurücksetzen</h3>
                 <form id="forgot-form">
                     <div class="form-group"><label>Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required></div>
-                    <button type="submit" style="width:100%;">Zurücksetzungs-Link senden</button>
+                    <button type="submit" class="btn-submit" style="width:100%;">Zurücksetzungs-Link senden</button>
                 </form>
                 <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')">Zurück zum Login</a></div>
+            </div>
+
+            <div id="modal-reset-view" style="display: none;">
+                <h3>Neues Passwort vergeben</h3>
+                <form id="reset-password-form">
+                    <div class="form-group"><label>Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
+                    <button type="submit" class="btn-submit" style="width:100%;">Speichern</button>
+                </form>
+            </div>
+
+            <div id="modal-settings-view" style="display: none;">
+                <h3>Konto-Einstellungen</h3>
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label>Schützenname / Anzeigename</label>
+                        <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
+                    </div>
+                    <div class="form-group">
+                        <label>Neues Passwort ändern (Optional)</label>
+                        <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
+                    </div>
+                    <button type="submit" class="btn-submit" style="width:100%;">Änderungen speichern</button>
+                </form>
+                <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
+                <button class="btn-danger-block" id="btn-delete-account">Konto & alle Einträge unwiderruflich löschen</button>
             </div>
         </div>
     </div>
@@ -169,37 +194,112 @@
         </div>
     </footer>
 
+    <script src="auth.js"></script>
     <script>
-        // === SUPABASE KONFIGURATION ===
-        // Reale Zugangsdaten übernommen aus app.js
-        const SUPABASE_URL = "https://huprxirlthkisjngwash.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_yModrA5JZTiN5Cw7MHQqLQ_Coc04WAS";
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        let currentUser = null;
         let myMatches = [];
-
-        // --- AUTH STATUS CHECK ---
-        supabase.auth.onAuthStateChange((event, session) => {
-            const container = document.getElementById("auth-status-container");
-            if (session) {
-                currentUser = session.user;
-                const displayName = currentUser.user_metadata?.username || currentUser.email;
-                container.innerHTML = `<span style="font-weight:bold; color:var(--accent-color); margin-right:10px;">${escapeHtml(displayName)}</span><button class="btn-auth" id="btn-logout" style="border-color: var(--danger-color); color: var(--danger-color);">Abmelden</button>`;
-                
-                document.getElementById("btn-logout").onclick = async () => { 
-                    await supabase.auth.signOut(); 
-                };
-                showPlanner();
-            } else {
-                currentUser = null;
-                container.innerHTML = `<button class="btn-auth" id="btn-open-login">Login / Registrieren</button>`;
-                document.getElementById("btn-open-login").onclick = () => openModal('login');
-                hidePlanner();
-            }
-        });
 
         function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
 
-        // --- MODAL LOGIK ---
-        document.getElementById("
+        // Event-Hook: Reagiert automatisch, wenn sich in auth.js der Login-Status ändert
+        window.onAuthChange = (user) => {
+            if (user) {
+                document.getElementById('logged-out-section').style.display = 'none';
+                document.getElementById('planner-section').style.display = 'block';
+                loadMatchesFromSupabase();
+            } else {
+                document.getElementById('logged-out-section').style.display = 'block';
+                document.getElementById('planner-section').style.display = 'none';
+                document.getElementById('my-matches-list').innerHTML = '';
+            }
+        };
+
+        async function loadMatchesFromSupabase() {
+            if (!window.currentUser) return;
+            const { data, error } = await window.supabaseClient
+                .from('user_matches')
+                .select('*')
+                .order('match_date', { ascending: true });
+
+            if (error) { console.error("Fehler beim Laden:", error); return; }
+            myMatches = data || [];
+            renderMatches();
+        }
+
+        async function addMatch() {
+            const name = document.getElementById('match-name').value.trim();
+            const date = document.getElementById('match-date').value;
+            const location = document.getElementById('match-location').value.trim();
+
+            if (!name || !date) { alert("Match-Name und Datum sind Pflichtfelder."); return; }
+
+            const { error } = await window.supabaseClient
+                .from('user_matches')
+                .insert([{ user_id: window.currentUser.id, match_name: name, match_date: date, match_location: location }]);
+
+            if (error) { alert("Fehler beim Speichern: " + error.message); return; }
+
+            document.getElementById('match-name').value = '';
+            document.getElementById('match-date').value = '';
+            document.getElementById('match-location').value = '';
+            loadMatchesFromSupabase();
+        }
+
+        async function deleteMatch(id) {
+            const { error } = await window.supabaseClient.from('user_matches').delete().eq('id', id);
+            if (!error) loadMatchesFromSupabase();
+        }
+
+        function renderMatches() {
+            const container = document.getElementById('my-matches-list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (myMatches.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Noch keine Matches eingetragen.</p>';
+                return;
+            }
+
+            myMatches.forEach(match => {
+                const dateObj = new Date(match.match_date);
+                const displayDate = dateObj.toLocaleDateString('de-DE');
+                container.innerHTML += `
+                    <div class="match-item">
+                        <div>
+                            <h4>${escapeHtml(match.match_name)}</h4>
+                            <p>📅 ${displayDate} | 📍 ${escapeHtml(match.match_location || '-')}</p>
+                        </div>
+                        <button onclick="deleteMatch(${match.id})" class="delete-btn">Löschen</button>
+                    </div>
+                `;
+            });
+        }
+
+        function exportToCalendar() {
+            if (myMatches.length === 0) { alert("Keine Matches zum Exportieren."); return; }
+            let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//IPSC Boerse//Wettkampfplaner//DE\nCALSCALE:GREGORIAN\n";
+            myMatches.forEach(match => {
+                const dateStr = match.match_date.replace(/-/g, '');
+                icsContent += "BEGIN:VEVENT\n";
+                icsContent += `DTSTART;VALUE=DATE:${dateStr}\n`;
+                const endDate = new Date(match.match_date);
+                endDate.setDate(endDate.getDate() + 1);
+                const endStr = endDate.toISOString().split('T')[0].replace(/-/g, '');
+                icsContent += `DTEND;VALUE=DATE:${endStr}\n`;
+                icsContent += `SUMMARY:${match.match_name}\n`;
+                if(match.match_location) icsContent += `LOCATION:${match.match_location}\n`;
+                icsContent += "DESCRIPTION:Wettkampf eingetragen über ipscboerse.com\n";
+                icsContent += "END:VEVENT\n";
+            });
+            icsContent += "END:VCALENDAR";
+
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'meine_ipsc_matches.ics';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
