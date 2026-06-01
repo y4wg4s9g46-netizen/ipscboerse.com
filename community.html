@@ -26,7 +26,7 @@
         .main-nav { margin-top: 25px; display: flex; justify-content: center; gap: 25px; border-top: 1px solid #222; padding-top: 15px; }
         .main-nav a { text-decoration: none; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 4px; transition: color 0.2s ease; }
         .main-nav a.active { color: var(--accent-color); border-bottom: 2px solid var(--accent-color); }
-        .main-nav a.inactive { color: var(--text-muted); }
+        .main-nav a.inactive = { color: var(--text-muted); }
         .main-nav a.inactive:hover { color: var(--text-color); }
 
         .header-controls { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 15px; }
@@ -65,8 +65,10 @@
         textarea:focus { outline: none; border-color: var(--social-accent); }
         .btn-post { background-color: var(--social-accent); color: #fff; border: none; padding: 12px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
 
-        /* Placeholder für Nicht-Eingeloggt */
-        #logged-out-msg { text-align: center; padding: 40px; background: var(--card-bg); border-radius: 8px; border: 1px solid #444; margin-top: 20px; }
+        /* Placeholder für Nicht-Eingeloggt / Username Setup */
+        #logged-out-msg, #username-setup-section { text-align: center; padding: 40px; background: var(--card-bg); border-radius: 8px; border: 1px solid #444; margin-top: 20px; }
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        .form-group input { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #555; background-color: #1a1a1a; color: var(--text-color); box-sizing: border-box; font-family: inherit; }
 
     </style>
 </head>
@@ -95,9 +97,18 @@
         </div>
 
         <div id="logged-out-msg">
-            <h2>Werde Teil der Community</h2>
+            <h2>Werte Teil der Community</h2>
             <p style="color: var(--text-muted); margin-bottom: 20px;">Bitte logge dich ein, um Beiträge zu lesen und mit anderen Schützen zu diskutieren.</p>
             <button onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" class="btn-auth" style="background: var(--accent-color); color: #000;">Jetzt einloggen</button>
+        </div>
+
+        <div id="username-setup-section" style="display: none; border-color: var(--accent-color);">
+            <h2>Wähle deinen Schützennamen</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Bevor du in der Community starten kannst, wähle bitte einen Schützennamen / Anzeigenamen (z.B. IPSCShooter99).</p>
+            <div style="max-width: 320px; margin: 0 auto 15px auto;" class="form-group">
+                <input type="text" id="initial-username" placeholder="z.B. AlphaShooter">
+            </div>
+            <button onclick="saveInitialUsername()" style="background: var(--accent-color); color: #000; width: auto; padding: 12px 30px;">Namen speichern & starten</button>
         </div>
 
         <div id="feed-section" style="display: none;">
@@ -145,10 +156,14 @@
     <script src="auth.js"></script>
     <script>
         // === ADMIN KONFIGURATION ===
-        // Trage hier DEINE E-Mail Adresse ein. Beiträge von dieser Adresse werden als "Offizielle News" markiert.
         const ADMIN_EMAIL = 'info@ipscboerse.com'; 
 
         function switchTab(tab) {
+            // Wenn kein Username existiert, Tabs blockieren
+            if (window.currentUser && (!window.currentUser.user_metadata?.username || window.currentUser.user_metadata.username.trim() === "")) {
+                return;
+            }
+
             document.querySelectorAll('.social-tab').forEach(t => t.classList.remove('active'));
             document.getElementById('feed-section').style.display = 'none';
             document.getElementById('groups-section').style.display = 'none';
@@ -162,31 +177,69 @@
             }
         }
 
-        // Event-Hook: Reagiert auf Login
+        // Event-Hook: Reagiert automatisch auf den Login-Status aus auth.js
         window.onAuthChange = (user) => {
+            // Standardmäßig alles verstecken
+            document.getElementById('logged-out-msg').style.display = 'none';
+            document.getElementById('username-setup-section').style.display = 'none';
+            document.getElementById('feed-section').style.display = 'none';
+            document.getElementById('groups-section').style.display = 'none';
+
             if (user) {
-                document.getElementById('logged-out-msg').style.display = 'none';
-                document.getElementById('feed-section').style.display = 'block';
-                loadPosts();
+                // Prüfen ob ein gültiger Username in den Metadaten existiert
+                const hasUsername = user.user_metadata?.username && user.user_metadata.username.trim() !== "";
+
+                if (!hasUsername) {
+                    // Falls kein Name da ist -> Setup Formular einblenden
+                    document.getElementById('username-setup-section').style.display = 'block';
+                } else {
+                    // Falls Name vorhanden -> Community freigeben
+                    const activeTab = document.querySelector('.social-tab.active').innerText;
+                    if (activeTab === 'Beiträge') {
+                        document.getElementById('feed-section').style.display = 'block';
+                    } else {
+                        document.getElementById('groups-section').style.display = 'block';
+                    }
+                    loadPosts();
+                }
             } else {
                 document.getElementById('logged-out-msg').style.display = 'block';
-                document.getElementById('feed-section').style.display = 'none';
-                document.getElementById('groups-section').style.display = 'none';
             }
         };
+
+        // NEU: Speicher-Funktion für den initialen Usernamen
+        async function saveInitialUsername() {
+            const newUsername = document.getElementById('initial-username').value.trim();
+            if (!newUsername || newUsername.length < 3) {
+                alert("Bitte gib einen Schützennamen ein (mindestens 3 Zeichen).");
+                return;
+            }
+
+            // Metadaten in Supabase aktualisieren
+            const { error } = await window.supabaseClient.auth.updateUser({
+                data: { username: newUsername }
+            });
+
+            if (error) {
+                alert("Fehler beim Speichern: " + error.message);
+            } else {
+                alert("Erfolgreich gespeichert! Willkommen in der Community.");
+                location.reload(); // Neu laden, um den Feed mit dem neuen Namen freizuschalten
+            }
+        }
 
         async function loadPosts() {
             if (!window.currentUser) return;
             const container = document.getElementById('posts-container');
+            if (!container) return;
             
             const { data, error } = await window.supabaseClient
                 .from('community_posts')
                 .select('*')
-                .order('created_at', { ascending: false }) // Neueste oben
+                .order('created_at', { ascending: false })
                 .limit(50);
 
             if (error) { container.innerHTML = 'Fehler beim Laden.'; return; }
-            
             container.innerHTML = '';
             
             if(data.length === 0) {
@@ -204,7 +257,6 @@
                 const initial = post.author_name ? post.author_name.charAt(0).toUpperCase() : '?';
                 const adminBadge = isAdmin ? '<span class="admin-badge">Admin News</span>' : '';
 
-                // Falls der Nutzer eigene Beiträge löschen darf (oder Admin alles löschen darf)
                 const isOwner = window.currentUser.email === post.author_email || window.currentUser.email === ADMIN_EMAIL;
                 const deleteBtn = isOwner ? `<button onclick="deletePost(${post.id})" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size:12px; float:right;">Löschen</button>` : '';
 
@@ -233,7 +285,7 @@
             const content = document.getElementById('post-content').value.trim();
             if (!content) return;
 
-            const displayName = window.currentUser.user_metadata?.username || window.currentUser.email.split('@')[0];
+            const displayName = window.currentUser.user_metadata?.username || "Schütze";
 
             const { error } = await window.supabaseClient
                 .from('community_posts')
@@ -249,7 +301,7 @@
             } else {
                 document.getElementById('post-content').value = '';
                 document.getElementById('post-modal').style.display = 'none';
-                loadPosts(); // Liste neu laden
+                loadPosts();
             }
         }
 
