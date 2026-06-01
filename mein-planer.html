@@ -33,6 +33,7 @@
         .header-controls { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 15px; }
         @media (max-width: 768px) { .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; } }
         
+        /* Sprachauswahl hinzugefügt */
         .lang-switch {
             background-color: #1a1a1a; color: #fff; border: 1px solid #555;
             padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;
@@ -230,39 +231,39 @@
     <div class="container">
         
         <div id="logged-out-section" style="text-align: center; padding: 40px 20px;">
-            <h2>Nicht angemeldet</h2>
-            <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 25px;">Logge dich ein, um deine Matches zu verwalten und in die Cloud zu synchronisieren.</p>
-            <button onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" style="width: auto; padding: 12px 30px;">Jetzt einloggen</button>
+            <h2 data-txt="pl-not-logged-in-title">Nicht angemeldet</h2>
+            <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 25px;" data-txt="pl-not-logged-in-desc">Logge dich ein, um deine Matches zu verwalten und in die Cloud zu synchronisieren.</p>
+            <button onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" style="width: auto; padding: 12px 30px;" data-txt="pl-btn-login-now">Jetzt einloggen</button>
         </div>
 
         <div id="planner-section" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 15px; margin-bottom: 20px;">
-                <h2 style="margin: 0;">Meine Matches</h2>
+                <h2 style="margin: 0;" data-txt="pl-my-matches-title">Meine Matches</h2>
             </div>
 
-            <h3>Neues Match eintragen</h3>
+            <h3 data-txt="pl-new-match-title">Neues Match eintragen</h3>
             <div class="form-group">
-                <label>Match-Name</label>
+                <label data-txt="pl-lbl-match-name">Match-Name</label>
                 <input type="text" id="match-name" placeholder="z.B. Helmbrechts-Cup 2026">
             </div>
             <div style="display: flex; gap: 15px;">
                 <div class="form-group" style="flex: 1;">
-                    <label>Datum</label>
+                    <label data-txt="pl-lbl-date">Datum</label>
                     <input type="date" id="match-date">
                 </div>
                 <div class="form-group" style="flex: 1;">
-                    <label>Ort / Land</label>
+                    <label data-txt="pl-lbl-location">Ort / Land</label>
                     <input type="text" id="match-location" placeholder="z.B. Philippsburg">
                 </div>
             </div>
-            <button onclick="addMatch()">Match in Cloud speichern</button>
+            <button onclick="addMatch()" data-txt="pl-btn-save-cloud">Match in Cloud speichern</button>
 
-            <h3 style="margin-top: 40px;">Geplante Matches</h3>
+            <h3 style="margin-top: 40px;" data-txt="pl-planned-matches-title">Geplante Matches</h3>
             <div id="my-matches-list">
-                <p style="color: var(--text-muted); font-style: italic;">Lade Daten aus Supabase...</p>
+                <p style="color: var(--text-muted); font-style: italic;" data-txt="pl-loading-data">Lade Daten aus Supabase...</p>
             </div>
 
-            <button onclick="exportToCalendar()" class="btn-success" style="margin-top: 20px;">📅 In Kalender exportieren (.ics)</button>
+            <button onclick="exportToCalendar()" class="btn-success" style="margin-top: 20px;" data-txt="pl-btn-export-cal">📅 In Kalender exportieren (.ics)</button>
         </div>
 
     </div>
@@ -380,7 +381,7 @@
     </footer>
 
     <script src="auth.js"></script>
-    <script src="app.js"></script>
+    <script src="app.js"></script> 
     <script>
         let myMatches = [];
 
