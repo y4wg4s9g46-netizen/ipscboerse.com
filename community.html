@@ -63,6 +63,7 @@
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
         .form-group input { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #555; background-color: #1a1a1a; color: var(--text-color); box-sizing: border-box; font-family: inherit; }
 
+        footer { background-color: #0f0f0f; border-top: 1px solid #444; padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted); text-align: center; }
     </style>
 </head>
 <body>
@@ -204,6 +205,22 @@
         </div>
     </div>
 
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
+            <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            
+            <div style="margin-top: 20px;">
+                <a href="https://www.buymeacoffee.com/infojkw" target="_blank" style="background-color: #FFDD00; color: #000; padding: 10px 20px; border-radius: 5px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                    ☕ <span data-txt="buy-coffee">Kaffee spendieren</span>
+                </a>
+            </div>
+
+            <div style="margin-top: 15px; font-size: 11px;">
+                &copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.
+            </div>
+        </div>
+    </footer>
+
     <script src="auth.js"></script>
     <script>
         // === ADMIN KONFIGURATION ===
@@ -273,7 +290,7 @@
                 const dateObj = new Date(post.created_at);
                 const displayDate = dateObj.toLocaleDateString('de-DE') + ' ' + dateObj.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
                 
-                const isAdmin = post.author_email === ADMIN_EMAIL;
+                const isAdmin = post.author_email && post.author_email.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim();
                 const cardClass = isAdmin ? 'post-card admin-post' : 'post-card';
                 const avatarClass = isAdmin ? 'avatar admin-avatar' : 'avatar';
                 const initial = post.author_name ? post.author_name.charAt(0).toUpperCase() : '?';
