@@ -8,200 +8,273 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
+        /* Modernes Variablen-System für Hell- und Dunkelmodus */
         :root {
-            --bg-color: #f4f6f8;
+            --bg-color: #f8f9fa;
             --card-bg: #ffffff;
-            --accent-color: #ff9f43;
-            --text-color: #2d3748;
-            --text-muted: #718096;
-            --danger-color: #e53e3e;
-            --success-color: #38a169;
-            --input-bg: #ffffff;
-            --info-color: #3182ce;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
             --border-color: #e2e8f0;
+            --input-bg: #ffffff;
+            
+            --accent-color: #ff9f43; /* IPSC Orange */
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --info-color: #3b82f6;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --radius: 8px;
         }
 
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
-        header { background-color: #ffffff; padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
-        header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: #1a202c; }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #0f172a;
+                --card-bg: #1e293b;
+                --text-color: #f8fafc;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+                --input-bg: #0f172a;
+                --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+                --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        header { background-color: var(--card-bg); padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
+        header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-color); }
         
-        .main-nav { margin-top: 20px; display: flex; justify-content: center; gap: 15px; border-top: 1px solid var(--border-color); padding-top: 15px; }
-        .main-nav a { text-decoration: none; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; padding: 6px 12px; border-radius: 6px; transition: all 0.2s ease; }
-        .main-nav a.active { color: #1a202c; background-color: #edf2f7; }
-        .main-nav a.inactive { color: var(--text-muted); }
-        .main-nav a.inactive:hover { color: #1a202c; background-color: #f7fafc; }
+        .main-nav { margin-top: 20px; display: flex; justify-content: center; gap: 12px; border-top: 1px solid var(--border-color); padding-top: 15px; }
+        .main-nav a { text-decoration: none; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 16px; border-radius: var(--radius); transition: all 0.2s ease; }
+        .main-nav a.active { color: var(--text-color); background-color: var(--bg-color); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
+        .main-nav a.inactive { color: var(--text-muted); border: 1px solid transparent; }
+        .main-nav a.inactive:hover { color: var(--text-color); background-color: var(--bg-color); }
 
         .header-controls { position: absolute; top: 16px; right: 20px; display: flex; align-items: center; gap: 12px; }
         @media (max-width: 768px) { .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; } }
         
-        .btn-auth { background-color: #ffffff; color: #4a5568; border: 1px solid var(--border-color); padding: 8px 16px; font-weight: 600; font-size: 13px; border-radius: 6px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s; }
-        .btn-auth:hover { background-color: #f7fafc; border-color: #cbd5e0; color: #1a202c; }
+        .btn-auth { background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 16px; font-weight: 600; font-size: 13px; border-radius: var(--radius); cursor: pointer; box-shadow: var(--shadow-sm); transition: all 0.2s; }
+        .btn-auth:hover { background-color: var(--bg-color); border-color: var(--text-muted); }
 
         /* Sprachumschalter Styling */
-        .lang-select { background: #ffffff; color: #4a5568; border: 1px solid var(--border-color); padding: 7px 10px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .lang-select { background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 7px 10px; border-radius: var(--radius); font-weight: 600; cursor: pointer; font-size: 13px; box-shadow: var(--shadow-sm); }
 
         .container { max-width: 800px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
         
-        #logged-out-section, #planner-section { background-color: var(--card-bg); padding: 25px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .form-section h2, #planner-section h2 { margin-top: 0; font-size: 20px; font-weight: 700; color: #1a202c; }
+        #logged-out-section, #planner-section { background-color: var(--card-bg); padding: 25px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+        .form-section h2, #planner-section h2 { margin-top: 0; font-size: 20px; font-weight: 700; color: var(--text-color); }
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
-        .form-group label { display: block; margin-bottom: 6px; color: #4a5568; font-size: 13px; font-weight: 600; }
-        .form-group input { width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box; font-family: inherit; font-size: 14px; }
-        .form-group input:focus { outline: none; border-color: var(--info-color); box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15); }
+        .form-group label { display: block; margin-bottom: 6px; color: var(--text-color); font-size: 13px; font-weight: 600; }
+        .form-group input { width: 100%; padding: 10px 12px; border-radius: var(--radius); border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box; font-family: inherit; font-size: 14px; }
+        .form-group input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(255, 159, 67, 0.15); }
         
-        button { background-color: #3182ce; color: #fff; border: none; padding: 12px 20px; font-weight: 600; border-radius: 6px; cursor: pointer; width: 100%; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: background 0.15s; }
-        button:hover { background-color: #2b6cb0; }
+        button { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 20px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; font-size: 15px; box-shadow: var(--shadow-sm); transition: opacity 0.15s; }
+        button:hover { opacity: 0.9; }
         .btn-success { background-color: var(--success-color); }
-        .btn-success:hover { background-color: #2f855a; }
-        .btn-submit { background-color: #3182ce; color: #fff; padding: 12px 30px; font-size: 15px; font-weight: 600; border-radius: 6px; cursor: pointer; margin-top: 10px; }
-        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: 6px; cursor: pointer; margin-top: 15px; transition: all 0.2s; }
+        .btn-submit { background-color: var(--accent-color); color: #fff; padding: 12px 30px; font-size: 15px; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 10px; }
+        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
         .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
 
-        .match-item { background-color: #fffaf0; border-left: 4px solid var(--accent-color); padding: 15px; margin-bottom: 12px; border-radius: 6px; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
-        .match-item h4 { margin: 0 0 5px 0; color: #1a202c; font-size: 16px; font-weight: 600; }
+        .match-item { background-color: var(--bg-color); border-left: 4px solid var(--accent-color); padding: 15px; margin-bottom: 12px; border-radius: var(--radius); border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); }
+        .match-item h4 { margin: 0 0 5px 0; color: var(--text-color); font-size: 16px; font-weight: 600; }
         .match-item p { margin: 0; font-size: 13px; color: var(--text-muted); }
         .delete-btn { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); width: auto; padding: 5px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; box-shadow: none; }
         .delete-btn:hover { background-color: var(--danger-color); color: #fff; }
 
-        /* Modal-Styling */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(26, 32, 44, 0.4); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 8px; border: 1px solid var(--border-color); width: 100%; max-width: 400px; box-sizing: border-box; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
-        .modal-content h3 { color: #1a202c; margin-top: 0; font-weight: 700; }
-        .modal-footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-        .modal-footer a { color: var(--info-color); text-decoration: none; cursor: pointer; font-weight: 600; }
+        /* --- Luxuriöses & Modernes Modal-Design --- */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(8px); 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000; 
+            animation: fadeIn 0.2s ease-out;
+        }
 
-        footer { background-color: #ffffff; border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted); text-align: center; }
+        .modal-content { 
+            background-color: var(--card-bg); 
+            padding: 32px; 
+            border-radius: 12px; 
+            border: 1px solid var(--border-color); 
+            width: 100%; 
+            max-width: 420px; 
+            box-sizing: border-box; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+
+        .modal-content h3 { 
+            color: var(--text-color); 
+            margin-top: 0; 
+            margin-bottom: 24px;
+            font-size: 24px;
+            font-weight: 700; 
+            letter-spacing: -0.5px;
+        }
+
+        .modal-close-trigger {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+            transition: color 0.15s;
+        }
+        .modal-close-trigger:hover {
+            color: var(--text-color);
+        }
+
+        .modal-content .form-group { 
+            margin-bottom: 20px; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        .modal-content label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .modal-content input { 
+            background-color: var(--input-bg); 
+            border: 1px solid var(--border-color); 
+            color: var(--text-color); 
+            padding: 12px 14px; 
+            border-radius: var(--radius); 
+            font-size: 14px;
+            transition: all 0.15s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        .modal-content input:focus { 
+            outline: none; 
+            border-color: var(--accent-color); 
+            box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); 
+        }
+
+        .modal-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 500;
+            margin: 24px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .modal-divider::before, .modal-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .modal-divider:not(:empty)::before { margin-right: .75em; }
+        .modal-divider:not(:empty)::after { margin-left: .75em; }
+
+        .btn-primary-auth {
+            background-color: var(--accent-color);
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: var(--radius);
+            cursor: pointer;
+            width: 100%;
+            box-shadow: var(--shadow-sm);
+            transition: opacity 0.15s;
+        }
+        .btn-primary-auth:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary-auth {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: var(--radius);
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+            transition: background 0.15s;
+        }
+        .btn-secondary-auth:hover {
+            background-color: var(--border-color);
+        }
+
+        .modal-footer { 
+            margin-top: 24px; 
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex; 
+            justify-content: center; 
+            gap: 6px;
+            font-size: 13px; 
+            color: var(--text-muted);
+        }
+        .modal-footer a { 
+            color: var(--accent-color); 
+            text-decoration: none; 
+            cursor: pointer; 
+            font-weight: 600; 
+        }
+        .modal-footer a:hover {
+            text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        footer { background-color: var(--card-bg); border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted); text-align: center; }
 
         /* ========================================================
            ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES (HAUPT-REPARATUR)
            ======================================================== */
         @media (max-width: 768px) {
-            html, body {
-                overflow-x: hidden !important;
-                width: 100% !important;
-            }
-            header {
-                padding: 12px 8px !important;
-            }
-            header h1 {
-                font-size: 19px !important;
-                margin-bottom: 8px !important;
-            }
-            header p {
-                font-size: 11px !important;
-                margin-top: 2px !important;
-            }
-            .header-controls {
-                position: static !important;
-                display: flex !important;
-                flex-direction: row !important;
-                justify-content: center !important;
-                align-items: center !important;
-                gap: 12px !important;
-                margin-top: 10px !important;
-                width: 100% !important;
-            }
-            #auth-status-container {
-                display: flex !important;
-                align-items: center !important;
-                gap: 8px !important;
-            }
-            #btn-open-settings {
-                margin-right: 0 !important;
-            }
-            #btn-open-settings img {
-                width: 28px !important;
-                height: 28px !important;
-                border-width: 1px !important;
-            }
-            .btn-auth {
-                padding: 5px 10px !important;
-                font-size: 12px !important;
-            }
-            .main-nav {
-                margin-top: 12px !important;
-                padding-top: 8px !important;
-                display: flex !important;
-                flex-direction: row !important;
-                justify-content: flex-start !important;
-                overflow-x: auto !important;
-                white-space: nowrap !important;
-                gap: 15px !important;
-                -webkit-overflow-scrolling: touch !important;
-                scrollbar-width: none !important;
-            }
-            .main-nav::-webkit-scrollbar {
-                display: none !important;
-            }
-            .main-nav a {
-                flex-shrink: 0 !important;
-                font-size: 12px !important;
-                padding-bottom: 2px !important;
-            }
-            .container {
-                padding: 0 10px !important;
-                margin-top: 15px !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
-            .info-box, .form-section, .post-card, .match-card, #logged-out-section, #planner-section, #username-setup-section, #logged-out-msg {
-                padding: 12px !important;
-                margin-bottom: 12px !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
-                word-wrap: break-word !important;
-                overflow-wrap: break-word !important;
-            }
-            .form-grid {
-                grid-template-columns: 1fr !important;
-                gap: 12px !important;
-            }
-            .toggle-selector {
-                flex-direction: column !important;
-                gap: 8px !important;
-                align-items: flex-start !important;
-            }
-            button, .btn-submit {
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
-            .match-card {
-                flex-direction: column !important;
-                align-items: stretch !important;
-                gap: 12px !important;
-            }
-            .card-actions {
-                align-items: flex-start !important;
-                width: 100% !important;
-                border-top: 1px solid var(--border-color) !important;
-                padding-top: 10px !important;
-            }
-            .action-buttons-group {
-                width: 100% !important;
-                display: flex !important;
-                gap: 6px !important;
-            }
-            .action-buttons-group button, .btn-contact {
-                flex: 1 !important;
-                text-align: center !important;
-                width: 100% !important;
-            }
-            .fab {
-                bottom: 15px !important;
-                right: 15px !important;
-                padding: 10px 16px !important;
-                font-size: 13px !important;
-                z-index: 999 !important;
-            }
-            .match-item {
-                flex-direction: column !important;
-                align-items: stretch !important;
-                gap: 10px !important;
-            }
-            .match-item div[style*="display: flex"] {
-                width: 100% !important;
-                justify-content: space-between !important;
-            }
+            html, body { overflow-x: hidden !important; width: 100% !important; }
+            header { padding: 12px 8px !important; }
+            header h1 { font-size: 19px !important; margin-bottom: 8px !important; }
+            header p { font-size: 11px !important; margin-top: 2px !important; }
+            .header-controls { position: static !important; display: flex !important; flex-direction: row !important; justify-content: center !important; align-items: center !important; gap: 12px !important; margin-top: 10px !important; width: 100% !important; }
+            #auth-status-container { display: flex !important; align-items: center !important; gap: 8px !important; }
+            #btn-open-settings { margin-right: 0 !important; }
+            #btn-open-settings img { width: 28px !important; height: 28px !important; border-width: 1px !important; }
+            .btn-auth { padding: 5px 10px !important; font-size: 12px !important; }
+            .main-nav { margin-top: 12px !important; padding-top: 8px !important; display: flex !important; flex-direction: row !important; justify-content: flex-start !important; overflow-x: auto !important; white-space: nowrap !important; gap: 15px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; }
+            .main-nav::-webkit-scrollbar { display: none !important; }
+            .main-nav a { flex-shrink: 0 !important; font-size: 12px !important; padding-bottom: 2px !important; }
+            .container { padding: 0 10px !important; margin-top: 15px !important; width: 100% !important; box-sizing: border-box !important; }
+            .info-box, .form-section, .post-card, .match-card, #logged-out-section, #planner-section, #username-setup-section, #logged-out-msg { padding: 12px !important; margin-bottom: 12px !important; width: 100% !important; box-sizing: border-box !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
+            .form-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+            .toggle-selector { flex-direction: column !important; gap: 8px !important; align-items: flex-start !important; }
+            button, .btn-submit { width: 100% !important; box-sizing: border-box !important; }
+            .match-card { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
+            .card-actions { align-items: flex-start !important; width: 100% !important; border-top: 1px solid var(--border-color) !important; padding-top: 10px !important; }
+            .action-buttons-group { width: 100% !important; display: flex !important; gap: 6px !important; }
+            .action-buttons-group button, .btn-contact { flex: 1 !important; text-align: center !important; width: 100% !important; }
+            .fab { bottom: 15px !important; right: 15px !important; padding: 10px 16px !important; font-size: 13px !important; z-index: 999 !important; }
+            .match-item { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
+            .match-item div[style*="display: flex"] { width: 100% !important; justify-content: space-between !important; }
         }
     </style>
 </head>
@@ -257,7 +330,7 @@
                     <input type="text" id="match-location" placeholder="z.B. Philippsburg">
                 </div>
             </div>
-            <button onclick="addMatch()" data-txt="planner-btn-save">Match in Cloud保存</button>
+            <button onclick="addMatch()" data-txt="planner-btn-save">Match in Cloud speichern</button>
 
             <h3 style="margin-top: 40px;" data-txt="planner-subtitle-planned">Geplante Matches</h3>
             <div id="my-matches-list">
@@ -271,69 +344,107 @@
 
     <div class="modal" id="auth-modal">
         <div class="modal-content">
-            <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
+            <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
             
             <div id="modal-login-view">
-                <h3>Anmelden</h3>
+                <h3 data-txt="modal-login-title">Anmelden</h3>
+                
+                <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
+                    <span>📱</span> Login mit FaceID / Fingerabdruck
+                </button>
+                
+                <div class="modal-divider">oder klassisch mit E-Mail</div>
+
                 <form id="login-form">
-                    <div class="form-group"><label>E-Mail *</label><input type="email" id="login-email" required></div>
                     <div class="form-group">
-                        <label>Passwort *</label>
-                        <input type="password" id="login-password" required>
-                        <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;">Passwort vergessen?</a>
+                        <label data-txt="lbl-email">E-Mail *</label>
+                        <input type="email" id="login-email" required placeholder="name@beispiel.de">
                     </div>
-                    <button type="submit" class="btn-submit" style="width:100%;">Einloggen</button>
-                    <button type="button" onclick="loginWithPasskey()" style="width:100%; margin-top:10px; background-color:#4a5568; color:#fff;">🔑 Mit Passkey einloggen (FaceID/TouchID)</button>
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="margin-bottom: 0;">Passwort *</label>
+                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
+                        </div>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
                 </form>
-                <div class="modal-footer"><span>Noch kein Konto?</span><a onclick="toggleAuthView('register')">Registrieren</a></div>
+                <div class="modal-footer">
+                    <span data-txt="modal-no-acc">Noch kein Konto?</span>
+                    <a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a>
+                </div>
             </div>
 
             <div id="modal-register-view" style="display: none;">
-                <h3>Konto erstellen</h3>
+                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
-                    <div class="form-group"><label>E-Mail *</label><input type="email" id="register-email" required></div>
-                    <div class="form-group"><label>Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
-                    <button type="submit" class="btn-submit" style="width:100%;">Konto erstellen</button>
+                    <div class="form-group">
+                        <label data-txt="lbl-email">E-Mail *</label>
+                        <input type="email" id="register-email" required placeholder="name@beispiel.de">
+                    </div>
+                    <div class="form-group">
+                        <label>Passwort *</label>
+                        <input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-reg">Konto erstellen</button>
                 </form>
-                <div class="modal-footer"><span>Bereits registriert?</span><a onclick="toggleAuthView('login')">Zum Login</a></div>
+                <div class="modal-footer">
+                    <span data-txt="modal-has-acc">Bereits registriert?</span>
+                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a>
+                </div>
             </div>
 
             <div id="modal-forgot-view" style="display: none;">
-                <h3>Passwort zurücksetzen</h3>
+                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
                 <form id="forgot-form">
-                    <div class="form-group"><label>Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required></div>
-                    <button type="submit" class="btn-submit" style="width:100%;">Zurücksetzungs-Link senden</button>
+                    <div class="form-group">
+                        <label>Deine E-Mail-Adresse *</label>
+                        <input type="email" id="forgot-email" required placeholder="name@beispiel.de">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
                 </form>
-                <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')">Zurück zum Login</a></div>
+                <div class="modal-footer">
+                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a>
+                </div>
             </div>
 
             <div id="modal-reset-view" style="display: none;">
-                <h3>Neues Passwort vergeben</h3>
+                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                 <form id="reset-password-form">
-                    <div class="form-group"><label>Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
-                    <button type="submit" class="btn-submit" style="width:100%;">Speichern</button>
+                    <div class="form-group">
+                        <label data-txt="lbl-new-password">Neues Passwort *</label>
+                        <input type="password" id="reset-password-input" required minlength="6" placeholder="Mindestens 6 Zeichen">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Speichern</button>
                 </form>
             </div>
 
             <div id="modal-settings-view" style="display: none;">
-                <h3>Konto-Einstellungen</h3>
+                <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
+                
+                <div class="form-group" style="background-color: rgba(59, 130, 246, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <label style="color: var(--info-color); font-weight: 700;">🔒 Passkey (Schnell-Login)</label>
+                    <p style="font-size: 12px; margin-top: 4px; margin-bottom: 12px; color: var(--text-muted); line-height: 1.4;">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
+                    <button type="button" class="btn-secondary-auth" style="background-color: var(--card-bg);" onclick="registerPasskey()">Gerät registrieren</button>
+                </div>
+
                 <form id="settings-form">
                     <div class="form-group">
-                        <label>Schützenname / Anzeigename</label>
+                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
                         <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
                     </div>
                     <div class="form-group">
                         <label>Profilbild (Optional)</label>
-                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
-                        <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
+                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)" style="font-size: 13px; color: var(--text-muted);">
+                        <img id="settings-avatar-preview" style="max-width: 800px; width: 80px; height: 80px; object-fit: cover; margin-top: 12px; border-radius: 50%; display: none; border: 2px solid var(--border-color);">
                     </div>
                     <div class="form-group">
                         <label>Neues Passwort ändern (Optional)</label>
                         <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
                     </div>
-                    <button type="submit" class="btn-submit" style="width:100%;">Änderungen speichern</button>
+                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Änderungen speichern</button>
                 </form>
-                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
                 <button class="btn-danger-block" id="btn-delete-account">Konto & alle Einträge unwiderruflich löschen</button>
             </div>
         </div>
@@ -392,7 +503,7 @@
 
             if (!name || !date) { alert("Match-Name und Datum sind Pflichtfelder."); return; }
 
-            const { error } = await window.supabaseClient
+            const { error = null } = await window.supabaseClient
                 .from('user_matches')
                 .insert([{ user_id: window.currentUser.id, match_name: name, match_date: date, match_location: location }]);
 
