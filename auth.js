@@ -66,11 +66,10 @@ function updateThemeToggleIcon(theme) {
     const btn = document.getElementById('theme-toggle');
     if (!btn) return;
     if (theme === 'dark') {
-        btn.innerText = '☀️'; // Zeige Sonne im Darkmode zum Wechseln auf Light
+        btn.innerText = '☀️'; 
     } else if (theme === 'light') {
-        btn.innerText = '🌙'; // Zeige Mond im Lightmode zum Wechseln auf Dark
+        btn.innerText = '🌙'; 
     } else {
-        // Falls Auto: Schau was das System gerade nutzt
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         btn.innerText = prefersDark ? '☀️' : '🌙';
     }
@@ -80,7 +79,6 @@ window.toggleTheme = function() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     let newTheme = 'light';
     
-    // Wenn aktuell kein Attribut gesetzt ist, checke Systempräferenz
     if (!currentTheme) {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         newTheme = prefersDark ? 'light' : 'dark';
@@ -194,7 +192,24 @@ window.translations = {
     "free-all-countries": "Alle Länder",
     "free-all-disciplines": "Alle Disziplinen",
     "free-all-levels": "Alle Level",
-    "free-loading": "Lade aktuelle Matches..."
+    "free-loading": "Lade aktuelle Matches...",
+
+    "comm-title": "COMMUNITY FEED",
+    "tab-posts": "Beiträge",
+    "tab-groups": "Gruppen",
+    "comm-logged-out-title": "Werde Teil der Community",
+    "comm-logged-out-desc": "Bitte logge dich ein, um Beiträge zu lesen und mit anderen Schützen zu diskutieren.",
+    "comm-logged-out-btn": "Jetzt einloggen",
+    "comm-setup-title": "Wähle deinen Schützennamen",
+    "comm-setup-desc": "Bevor du in der Community starten kannst, wähle bitte einen Schützennamen / Anzeigenamen (z.B. IPSCShooter99).",
+    "comm-setup-btn": "Namen speichern & starten",
+    "comm-loading": "Lade Beiträge...",
+    "fab-create-post": "+ Beitrag erstellen",
+    "modal-new-post": "Neuer Beitrag",
+    "lbl-add-photo": "Foto hinzufügen (Optional)",
+    "btn-share-post": "Teilen",
+    "comm-groups-coming": "Gruppen-Funktion (Coming Soon)",
+    "comm-groups-desc": "Hier wirst du bald private Squad-Gruppen oder Vereins-Kanäle erstellen können."
   },
   en: {
     "main-title": "IPSC SLOT MARKETPLACE",
@@ -284,7 +299,24 @@ window.translations = {
     "free-all-countries": "All Countries",
     "free-all-disciplines": "All Disciplines",
     "free-all-levels": "All Levels",
-    "free-loading": "Loading current matches..."
+    "free-loading": "Loading current matches...",
+
+    "comm-title": "COMMUNITY FEED",
+    "tab-posts": "Posts",
+    "tab-groups": "Groups",
+    "comm-logged-out-title": "Join the Community",
+    "comm-logged-out-desc": "Please log in to read posts and discuss with other shooters.",
+    "comm-logged-out-btn": "Log in now",
+    "comm-setup-title": "Choose your Shooter Name",
+    "comm-setup-desc": "Before starting in the community, please choose a shooter name / display name (e.g., IPSCShooter99).",
+    "comm-setup-btn": "Save Name & Start",
+    "comm-loading": "Loading posts...",
+    "fab-create-post": "+ Create Post",
+    "modal-new-post": "New Post",
+    "lbl-add-photo": "Add Photo (Optional)",
+    "btn-share-post": "Share",
+    "comm-groups-coming": "Groups Feature (Coming Soon)",
+    "comm-groups-desc": "Here you will soon be able to create private squad groups or club channels."
   }
 };
 
@@ -490,15 +522,33 @@ document.addEventListener("submit", async (e) => {
 });
 
 document.addEventListener("change", (e) => {
-    if (e.target.id === "language-select") applyLanguage(e.target.value);
+    if (e.target.id === "language-select") {
+        localStorage.setItem("selectedLanguage", e.target.value); // <-- FIX 2: Sichert Sprachauswahl sofort
+        applyLanguage(e.target.value);
+    }
 });
 
-// === START LOGIK ===
-setTimeout(async () => {
-    initTheme(); // Initialisiert das gewählte Theme direkt beim Start
+// === ROBUSTE INITIALISIERUNGS-SCHLEIFE GEGEN RACE CONDITIONS ===
+const initAppLanguage = () => {
+    initTheme();
     const savedLang = localStorage.getItem("selectedLanguage") || "de";
-    applyLanguage(savedLang);
     
+    // Setzt auch den visuellen Wert des Auswahlschalters im DOM zurück
+    const selector = document.getElementById("language-select");
+    if (selector) selector.value = savedLang;
+    
+    applyLanguage(savedLang);
+};
+
+// Startet die Übersetzung erst, wenn das DOM vollständig bereit ist
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => setTimeout(initAppLanguage, 50));
+} else {
+    setTimeout(initAppLanguage, 50);
+}
+
+// Supabase Statusprüfung läuft entkoppelt weiter
+setTimeout(async () => {
     const { data: { session } } = await window.supabaseClient.auth.getSession();
     window.currentUser = session?.user || null;
     await checkUserStatus();
@@ -522,4 +572,4 @@ setTimeout(async () => {
             window.onAuthChange(window.currentUser); 
         }
     });
-}, 100);
+}, 150);
