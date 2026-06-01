@@ -49,9 +49,23 @@
         .main-nav a.inactive { color: var(--text-muted); border: 1px solid transparent; }
         .main-nav a.inactive:hover { color: var(--text-color); background-color: var(--bg-color); }
 
-        .header-controls { position: absolute; top: 16px; right: 20px; display: flex; align-items: center; gap: 12px; }
-        @media (max-width: 768px) { .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; } }
+        /* PERFEKTE HORIZONTALE AUSRICHTUNG FÜR PROFILBILD & BUTTONS */
+        .header-controls { 
+            position: absolute; 
+            top: 50%; 
+            right: 20px; 
+            transform: translateY(-50%); 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
         
+        #auth-status-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         .btn-auth { background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 16px; font-weight: 600; font-size: 13px; border-radius: var(--radius); cursor: pointer; box-shadow: var(--shadow-sm); transition: all 0.2s; }
         .btn-auth:hover { background-color: var(--bg-color); border-color: var(--text-muted); }
 
@@ -130,122 +144,31 @@
             line-height: 1;
             transition: color 0.15s;
         }
-        .modal-close-trigger:hover {
-            color: var(--text-color);
-        }
+        .modal-close-trigger:hover { color: var(--text-color); }
 
-        .modal-content .form-group { 
-            margin-bottom: 20px; 
-            display: flex; 
-            flex-direction: column; 
-        }
-        .modal-content label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .modal-content input { 
-            background-color: var(--input-bg); 
-            border: 1px solid var(--border-color); 
-            color: var(--text-color); 
-            padding: 12px 14px; 
-            border-radius: var(--radius); 
-            font-size: 14px;
-            transition: all 0.15s ease;
-            box-shadow: var(--shadow-sm);
-        }
-        .modal-content input:focus { 
-            outline: none; 
-            border-color: var(--accent-color); 
-            box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); 
-        }
+        .modal-content .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
+        .modal-content label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .modal-content input { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px 14px; border-radius: var(--radius); font-size: 14px; transition: all 0.15s ease; box-shadow: var(--shadow-sm); }
+        .modal-content input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); }
 
         .modal-divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 12px;
-            font-weight: 500;
-            margin: 24px 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .modal-divider::before, .modal-divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid var(--border-color);
-        }
+        .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
         .modal-divider:not(:empty)::before { margin-right: .75em; }
         .modal-divider:not(:empty)::after { margin-left: .75em; }
 
-        .btn-primary-auth {
-            background-color: var(--accent-color);
-            color: #ffffff;
-            border: none;
-            padding: 12px 24px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: var(--radius);
-            cursor: pointer;
-            width: 100%;
-            box-shadow: var(--shadow-sm);
-            transition: opacity 0.15s;
-        }
-        .btn-primary-auth:hover {
-            opacity: 0.9;
-        }
+        .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; }
+        .btn-primary-auth:hover { opacity: 0.9; }
 
-        .btn-secondary-auth {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 12px 24px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: var(--radius);
-            cursor: pointer;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: var(--shadow-sm);
-            transition: background 0.15s;
-        }
-        .btn-secondary-auth:hover {
-            background-color: var(--border-color);
-        }
+        .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
+        .btn-secondary-auth:hover { background-color: var(--border-color); }
 
-        .modal-footer { 
-            margin-top: 24px; 
-            padding-top: 16px;
-            border-top: 1px solid var(--border-color);
-            display: flex; 
-            justify-content: center; 
-            gap: 6px;
-            font-size: 13px; 
-            color: var(--text-muted);
-        }
-        .modal-footer a { 
-            color: var(--accent-color); 
-            text-decoration: none; 
-            cursor: pointer; 
-            font-weight: 600; 
-        }
-        .modal-footer a:hover {
-            text-decoration: underline;
-        }
+        .modal-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
+        .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; font-weight: 600; }
+        .modal-footer a:hover { text-decoration: underline; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.98); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        footer { background-color: var(--card-bg); border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted); text-align: center; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
         /* ========================================================
            ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES (HAUPT-REPARATUR)
