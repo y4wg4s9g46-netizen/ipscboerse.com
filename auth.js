@@ -288,6 +288,14 @@ window.translations = {
   }
 };
 
+// Global verfügbare Sicherheitsfunktion für HTML-Escaping (wird von app.js benötigt!)
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+window.escapeHtml = escapeHtml;
+
 function applyLanguage(lang) {
   window.currentLang = lang;
   localStorage.setItem("selectedLanguage", lang); 
@@ -319,12 +327,14 @@ async function checkUserStatus() {
     const displayName = user.user_metadata?.username || user.email.split('@')[0];
     const avatarUrl = user.user_metadata?.avatar_url;
     
+    // Optische Vergrößerung auf 48px mit feinem Schatten für klare Präsenz neben dem Logout-Feld
     const avatarHtml = avatarUrl 
-        ? `<img src="${avatarUrl}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-color); box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: block;">` 
+        ? `<img src="${avatarUrl}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-color); box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: block;">` 
         : `<span style="font-weight:bold; color:var(--accent-color);">${escapeHtml(displayName)}</span>`;
 
     if (container) {
-      container.innerHTML = `<div id="btn-open-settings" style="cursor:pointer; display:flex; align-items:center; margin-right:4px;">${avatarHtml}</div><button class="btn-auth" id="btn-logout" style="border-color: var(--danger-color); color: var(--danger-color);">${window.translations[window.currentLang]["logout"]}</button>`;
+      // Struktur nutzt eine saubere Flexbox-Zentrierung auf gleicher Ebene
+      container.innerHTML = `<div id="btn-open-settings" style="cursor:pointer; display:flex; align-items:center;">${avatarHtml}</div><button class="btn-auth" id="btn-logout" style="border-color: var(--danger-color); color: var(--danger-color); margin-left: 4px;">${window.translations[window.currentLang]["logout"]}</button>`;
     }
     if (emailField) { emailField.value = user.email; emailField.readOnly = true; }
   } else {
