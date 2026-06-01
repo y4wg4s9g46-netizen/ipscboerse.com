@@ -10,21 +10,44 @@ function enforceFutureDates() {
   }
 }
 
-// Lädt die aktiven Inserate für den Marktplatz
+// Lädt die aktiven Inserate für den Marktplatz (und holt sich Profil-Daten der Verkäufer dazu!)
 async function fetchMatches() {
+  // Wir nutzen jetzt einen JOIN in Supabase, um den ipsc_alias der Verkäufer direkt mitzuladen
   const { data, error } = await window.supabaseClient
     .from("matches")
-    .select("*")
+    .select(`
+      *,
+      seller_profile:seller_email (ipsc_alias)
+    `)
     .order("match_date", { ascending: true });
     
-  if (error) return;
+  if (error) {
+    // Fallback: Falls die verknüpfte Tabelle nicht existiert, lade nur die Matches
+    const { data: fallbackData } = await window.supabaseClient
+        .from("matches")
+        .select("*")
+        .order("match_date", { ascending: true });
+    cachedMatches = fallbackData || [];
+  } else {
+      cachedMatches = data || [];
+  }
   
   const todayStr = new Date().toISOString().split("T")[0];
   
   // Nur zukünftige oder tagesaktuelle Matches anzeigen
-  cachedMatches = (data || []).filter(m => m.match_date >= todayStr);
+  cachedMatches = cachedMatches.filter(m => m.match_date >= todayStr);
   
   renderMatches(cachedMatches);
+}
+
+// Hilfsfunktion: Holt Profil-Daten (Alias) für alte Einträge, falls der JOIN fehlschlägt
+async function fetchAliasForEmail(email) {
+    try {
+        // Optionale Funktion, falls wir die User-Daten aus einer separaten Tabelle holen müssen
+        return null; 
+    } catch(e) {
+        return null;
+    }
 }
 
 // Zeichnet die Inserate in die HTML-Liste
@@ -37,48 +60,79 @@ function renderMatches(matches) {
     return; 
   }
   
-  container.innerHTML = matches.map(m => {
-    const isWant = m.type === "want";
-    const levelBadge = m.match_level ? `<span class="badge" style="background:#555; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_level)}</span>` : "";
-    const squadBadge = m.match_squad ? `<span class="badge" style="background:#3498db; color:#fff; padding:2px 5px; border-radius:3px;">Squad ${escapeHtml(m.match_squad)}</span>` : "";
-    const countryBadge = m.match_country ? `<span class="badge" style="background:#8e44ad; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_country)}</span>` : "";
+  // Wir holen uns alle User-Profile manuell, falls der JOIN oben fehlgeschlagen ist
+  window.supabaseClient.from('profiles').select('email, ipsc_alias').then(({data: profiles}) => {
+      
+      let aliasMap = {};
+      if(profiles) {
+          profiles.forEach(p => { aliasMap[p.email] = p.ipsc_alias; });
+      }
 
-    // Admin-Erkennung für die Steuerung der Buttons auf dem Marktplatz
-    const isSender = window.currentUser && window.currentUser.email === m.seller_email;
-    const isAdmin = window.currentUser && window.currentUser.email === "fabian-schoeps@gmx.de";
-    const canManage = isSender || isAdmin;
+      container.innerHTML = matches.map(m => {
+        const isWant = m.type === "want";
+        const levelBadge = m.match_level ? `<span class="badge" style="background:#555; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_level)}</span>` : "";
+        const squadBadge = m.match_squad ? `<span class="badge" style="background:#3498db; color:#fff; padding:2px 5px; border-radius:3px;">Squad ${escapeHtml(m.match_squad)}</span>` : "";
+        const countryBadge = m.match_country ? `<span class="badge" style="background:#8e44ad; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_country)}</span>` : "";
 
-    const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
-    const contactBtnClass = isWant ? "btn-contact btn-contact-want" : "btn-contact";
-    const contactText = isWant ? window.translations[window.currentLang]["btn-contact-want"] : window.translations[window.currentLang]["btn-request"];
+        // Admin-Erkennung für die Steuerung der Buttons auf dem Marktplatz
+        const isSender = window.currentUser && window.currentUser.email === m.seller_email;
+        const isAdmin = window.currentUser && window.currentUser.email === "fabian-schoeps@gmx.de";
+        const canManage = isSender || isAdmin;
 
-    return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
-      <div class="match-details">
-        <h3>
-          ${escapeHtml(m.match_name)} 
-          ${levelBadge} 
-          ${squadBadge} 
-          ${countryBadge}
-          <span class="badge">${isWant ? window.translations[window.currentLang]["tag-want"] : window.translations[window.currentLang]["tag-offer"]}</span>
-        </h3>
-        <p>${m.match_date} | ${escapeHtml(m.match_location)}</p>
-      </div>
-      <div class="card-actions">
-        <p>${parseFloat(m.match_price).toFixed(2)} €</p>
-        <button class="${contactBtnClass}" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">${contactText}</button>
-        <div class="action-buttons-group">
-            <button class="btn-export" onclick="exportToIcs(${m.id})">${window.translations[window.currentLang]["btn-export"]}</button>
-            <button class="btn-report" onclick="reportMatch(${m.id})">${window.translations[window.currentLang]["report-btn"]}</button>
-        </div>
-        ${canManage ? `
-          <div class="action-buttons-group">
-            <button class="btn-edit" onclick="handleEditClick(${m.id})">${window.translations[window.currentLang]["btn-edit"]}</button>
-            <button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${window.translations[window.currentLang]["btn-delete"]}</button>
+        // TRUSTED SHOOTER BADGE LOGIK
+        // Versucht den Alias aus dem Profil-JOIN zu laden (oder aus der manuellen Map)
+        let sellerAlias = null;
+        
+        // Prüfen, ob der aktuell eingeloggte Nutzer sein eigenes Inserat ansieht
+        if(isSender && window.currentUser.user_metadata?.ipsc_alias) {
+             sellerAlias = window.currentUser.user_metadata.ipsc_alias;
+        } else if (aliasMap[m.seller_email]) {
+            sellerAlias = aliasMap[m.seller_email];
+        } else if (m.seller_profile && m.seller_profile.ipsc_alias) {
+             sellerAlias = m.seller_profile.ipsc_alias;
+        }
+
+        // Das grüne Trusted Badge generieren
+        const trustedBadge = (sellerAlias && sellerAlias.trim() !== "") 
+            ? `<span class="badge" style="background:var(--success-color); color:#fff; padding:2px 6px; border-radius:3px; display:inline-flex; align-items:center; gap:4px;" title="Verifizierter IPSC Alias: ${escapeHtml(sellerAlias)}">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Trusted
+               </span>` 
+            : "";
+
+        const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
+        const contactBtnClass = isWant ? "btn-contact btn-contact-want" : "btn-contact";
+        const contactText = isWant ? window.translations[window.currentLang]["btn-contact-want"] : window.translations[window.currentLang]["btn-request"];
+
+        return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
+          <div class="match-details">
+            <h3>
+              ${escapeHtml(m.match_name)} 
+              ${levelBadge} 
+              ${squadBadge} 
+              ${countryBadge}
+              <span class="badge">${isWant ? window.translations[window.currentLang]["tag-want"] : window.translations[window.currentLang]["tag-offer"]}</span>
+              ${trustedBadge}
+            </h3>
+            <p>${m.match_date} | ${escapeHtml(m.match_location)}</p>
           </div>
-        ` : ""}
-      </div>
-    </div>`;
-  }).join("");
+          <div class="card-actions">
+            <p>${parseFloat(m.match_price).toFixed(2)} €</p>
+            <button class="${contactBtnClass}" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">${contactText}</button>
+            <div class="action-buttons-group">
+                <button class="btn-export" onclick="exportToIcs(${m.id})">${window.translations[window.currentLang]["btn-export"]}</button>
+                <button class="btn-report" onclick="reportMatch(${m.id})">${window.translations[window.currentLang]["report-btn"]}</button>
+            </div>
+            ${canManage ? `
+              <div class="action-buttons-group">
+                <button class="btn-edit" onclick="handleEditClick(${m.id})">${window.translations[window.currentLang]["btn-edit"]}</button>
+                <button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${window.translations[window.currentLang]["btn-delete"]}</button>
+              </div>
+            ` : ""}
+          </div>
+        </div>`;
+      }).join("");
+  });
 }
 
 // Mail-Client für Kontaktaufnahme öffnen
