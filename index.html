@@ -9,7 +9,7 @@
     
     <style>
         /* Modernes Variablen-System für Hell- und Dunkelmodus */
-        :root {
+        :root, html[data-theme="light"] {
             --bg-color: #f8f9fa;
             --card-bg: #ffffff;
             --text-color: #1e293b;
@@ -26,8 +26,21 @@
             --radius: 8px;
         }
 
+        /* Dunkler Modus (wird über data-theme oder Systempräferenz gesteuert) */
+        html[data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --input-bg: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Falls der Nutzer noch nichts gewählt hat, gilt die System-Einstellung */
         @media (prefers-color-scheme: dark) {
-            :root {
+            html:not([data-theme="light"]) {
                 --bg-color: #0f172a;
                 --card-bg: #1e293b;
                 --text-color: #f8fafc;
@@ -109,7 +122,29 @@
             .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; transform: none; }
         }
 
-        .lang-switch {
+        /* Styling für den neuen Theme-Button im Header */
+        .theme-toggle-btn {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+            width: 38px;
+            height: 38px;
+        }
+        .theme-toggle-btn:hover {
+            border-color: var(--text-muted);
+            background-color: var(--bg-color);
+        }
+
+        .lang-select {
             background: var(--card-bg);
             color: var(--text-color);
             border: 1px solid var(--border-color);
@@ -255,10 +290,6 @@
         .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
         .btn-secondary-auth:hover { background-color: var(--border-color); }
 
-        .modal-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
-        .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; font-weight: 600; }
-        .modal-footer a:hover { text-decoration: underline; }
-
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
 
@@ -351,7 +382,7 @@
             header { padding: 12px 8px !important; }
             header h1 { font-size: 19px !important; margin-bottom: 8px !important; }
             header p { font-size: 11px !important; margin-top: 2px !important; }
-            .header-controls { position: static !important; display: flex !important; flex-direction: row !important; justify-content: center !important; align-items: center !important; gap: 12px !important; margin-top: 10px !important; width: 100% !important; }
+            .header-controls { position: static !important; display: flex !important; flex-direction: row !important; justify-content: center !important; align-items: center !important; gap: 12px !important; margin-top: 10px !important; width: 100% !important; transform: none; }
             #auth-status-container { display: flex !important; align-items: center !important; gap: 8px !important; }
             #btn-open-settings { margin-right: 0 !important; }
             #btn-open-settings img { width: 28px !important; height: 28px !important; border-width: 1px !important; }
@@ -388,7 +419,10 @@
         </nav>
         
         <div class="header-controls">
-            <select id="language-select" class="lang-switch">
+            <!-- Manueller Design-Schalter -->
+            <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
+
+            <select id="language-select" class="lang-select">
                 <option value="de">DE</option>
                 <option value="en">EN</option>
             </select>
