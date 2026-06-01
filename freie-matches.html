@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freie Match-Plätze | Startplatz Börse</title>
     
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         :root {
             --bg-color: #1a1a1a;
@@ -14,6 +16,8 @@
             --text-muted: #aaaaaa;
             --danger-color: #ff4d4d;
             --success-color: #2ecc71;
+            --input-bg: #333333;
+            --info-color: #3498db;
         }
 
         body {
@@ -204,6 +208,16 @@
 
         .loading-msg { text-align: center; color: var(--text-muted); padding: 4px; font-style: italic;
         }
+
+        /* Modal-Styling */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 6px; border: 1px solid var(--accent-color); width: 100%; max-width: 400px; box-sizing: border-box; }
+        .modal-content h3 { color: var(--accent-color); margin-top: 0; }
+        .modal-footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; }
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 14px; font-weight: bold; }
+        .form-group input { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #555; background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box; font-family: inherit; }
 
         footer {
             background-color: #0f0f0f;
@@ -397,7 +411,77 @@
 
     </div>
 
-    <footer>
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
+            
+            <div id="modal-login-view">
+                <h3>Anmelden</h3>
+                <form id="login-form">
+                    <div class="form-group"><label>E-Mail *</label><input type="email" id="login-email" required></div>
+                    <div class="form-group">
+                        <label>Passwort *</label>
+                        <input type="password" id="login-password" required>
+                        <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;">Passwort vergessen?</a>
+                    </div>
+                    <button type="submit" class="btn-submit" style="width:100%;">Einloggen</button>
+                    <button type="button" onclick="loginWithPasskey()" style="width:100%; margin-top:10px; background-color:#34495e; color:#fff;">🔑 Mit Passkey einloggen (FaceID/TouchID)</button>
+                </form>
+                <div class="modal-footer"><span>Noch kein Konto?</span><a onclick="toggleAuthView('register')">Registrieren</a></div>
+            </div>
+
+            <div id="modal-register-view" style="display: none;">
+                <h3>Konto erstellen</h3>
+                <form id="register-form">
+                    <div class="form-group"><label>E-Mail *</label><input type="email" id="register-email" required></div>
+                    <div class="form-group"><label>Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
+                    <button type="submit" class="btn-submit" style="width:100%;">Konto erstellen</button>
+                </form>
+                <div class="modal-footer"><span>Bereits registriert?</span><a onclick="toggleAuthView('login')">Zum Login</a></div>
+            </div>
+
+            <div id="modal-forgot-view" style="display: none;">
+                <h3>Passwort zurücksetzen</h3>
+                <form id="forgot-form">
+                    <div class="form-group"><label>Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required></div>
+                    <button type="submit" class="btn-submit" style="width:100%;">Zurücksetzungs-Link senden</button>
+                </form>
+                <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')">Zurück zum Login</a></div>
+            </div>
+
+            <div id="modal-reset-view" style="display: none;">
+                <h3>Neues Passwort vergeben</h3>
+                <form id="reset-password-form">
+                    <div class="form-group"><label>Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
+                    <button type="submit" class="btn-submit" style="width:100%;">Speichern</button>
+                </form>
+            </div>
+
+            <div id="modal-settings-view" style="display: none;">
+                <h3>Konto-Einstellungen</h3>
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label>Schützenname / Anzeigename</label>
+                        <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
+                    </div>
+                    <div class="form-group">
+                        <label>Profilbild (Optional)</label>
+                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
+                        <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
+                    </div>
+                    <div class="form-group">
+                        <label>Neues Passwort ändern (Optional)</label>
+                        <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
+                    </div>
+                    <button type="submit" class="btn-submit" style="width:100%;">Änderungen speichern</button>
+                </form>
+                <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
+                <button class="btn-danger-block" id="btn-delete-account">Konto & alle Einträge unwiderruflich löschen</button>
+            </div>
+        </div>
+    </div>
+
+    <footer id="form-anchor">
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
             <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
      
@@ -406,6 +490,7 @@
         </div>
     </footer>
 
+    <script src="auth.js"></script>
     <script>
     let allMatches = [];
 
@@ -480,7 +565,7 @@
         
         if (matchesToDisplay.length === 0) {
             const noComboTxt = window.currentLang === "en" ? "No matches found for this filter combination." : "Keine Matches für diese Filterkombination gefunden.";
-            container.innerHTML = `<p style="padding: 10px;">${noComboTxt}</p>`;
+            container.innerHTML = `<p style="padding: 10px;">${noComboTxt}</p>';`;
             return;
         }
 
