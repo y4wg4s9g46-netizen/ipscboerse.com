@@ -10,88 +10,171 @@
     <script src="https://cdn.jsdelivr.net/npm/nsfwjs@2.4.0/dist/browser/nsfwjs.min.js"></script>
 
     <style>
+        /* Modernes Variablen-System für Hell- und Dunkelmodus */
         :root {
-            --bg-color: #1a1a1a;
-            --card-bg: #2d2d2d;
-            --accent-color: #ff9f43; 
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --input-bg: #ffffff;
+            
+            --accent-color: #ff9f43; /* IPSC Orange */
             --social-accent: #3498db; 
-            --text-color: #ffffff;
-            --text-muted: #aaaaaa;
-            --danger-color: #ff4d4d;
-            --success-color: #2ecc71;
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --info-color: #3b82f6;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --radius: 8px;
         }
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
-        header { background-color: #0f0f0f; padding: 20px; text-align: center; border-bottom: 3px solid var(--accent-color); position: relative; }
-        header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
-        
-        .main-nav { margin-top: 25px; display: flex; justify-content: center; gap: 25px; border-top: 1px solid #222; padding-top: 15px; }
-        .main-nav a { text-decoration: none; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 4px; transition: color 0.2s ease; }
-        .main-nav a.active { color: var(--accent-color); border-bottom: 2px solid var(--accent-color); }
-        .main-nav a.inactive { color: var(--text-muted); }
-        .main-nav a.inactive:hover { color: var(--text-color); }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #0f172a;
+                --card-bg: #1e293b;
+                --text-color: #f8fafc;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+                --input-bg: #0f172a;
+                --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+                --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            }
+        }
 
-        .header-controls { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 15px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        header { background-color: var(--card-bg); padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
+        header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-color); }
+        
+        .main-nav { margin-top: 20px; display: flex; justify-content: center; gap: 12px; border-top: 1px solid var(--border-color); padding-top: 15px; }
+        .main-nav a { text-decoration: none; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 16px; border-radius: var(--radius); transition: all 0.2s ease; }
+        .main-nav a.active { color: var(--text-color); background-color: var(--bg-color); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
+        .main-nav a.inactive { color: var(--text-muted); border: 1px solid transparent; }
+        .main-nav a.inactive:hover { color: var(--text-color); background-color: var(--bg-color); }
+
+        .header-controls { position: absolute; top: 16px; right: 20px; display: flex; align-items: center; gap: 12px; }
         @media (max-width: 768px) { .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; } }
         
-        .lang-switch { background-color: #1a1a1a; color: #fff; border: 1px solid #555; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .lang-switch:focus { outline: none; border-color: var(--accent-color); }
+        .lang-switch { background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 7px 10px; border-radius: var(--radius); cursor: pointer; font-weight: 600; font-size: 13px; box-shadow: var(--shadow-sm); }
 
-        .btn-auth { background-color: transparent; color: var(--accent-color); border: 2px solid var(--accent-color); padding: 8px 16px; font-weight: bold; border-radius: 4px; cursor: pointer; }
+        .btn-auth { background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 16px; font-weight: 600; font-size: 13px; border-radius: var(--radius); cursor: pointer; box-shadow: var(--shadow-sm); transition: all 0.2s; }
+        .btn-auth:hover { background-color: var(--bg-color); border-color: var(--text-muted); }
 
         .container { max-width: 600px; margin: 0 auto; padding: 20px; flex: 1; width: 100%; box-sizing: border-box; position: relative; }
         
         .social-nav { display: flex; gap: 10px; margin-bottom: 25px; }
-        .social-tab { background-color: transparent; border: 1px solid #555; color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; cursor: pointer; }
-        .social-tab.active { background-color: var(--danger-color); color: #fff; border-color: var(--danger-color); }
+        .social-tab { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-sm); transition: all 0.15s; }
+        .social-tab:hover { background-color: var(--card-bg); color: var(--text-color); }
+        .social-tab.active { background-color: var(--accent-color); color: #fff; border-color: var(--accent-color); }
 
-        .post-card { background-color: var(--card-bg); padding: 20px; border-radius: 8px; border: 1px solid #444; margin-bottom: 15px; }
+        .post-card { background-color: var(--card-bg); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 15px; box-shadow: var(--shadow-sm); }
         .post-header { display: flex; align-items: center; margin-bottom: 15px; gap: 15px; }
-        .avatar { width: 40px; height: 40px; background-color: #555; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; color: #fff; }
-        .post-meta h4 { margin: 0; font-size: 16px; color: #fff; display: flex; align-items: center; gap: 8px;}
+        .avatar { width: 40px; height: 40px; background-color: var(--border-color); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 16px; color: var(--text-color); border: 1px solid var(--border-color); }
+        .post-meta h4 { margin: 0; font-size: 15px; color: var(--text-color); font-weight: 600; display: flex; align-items: center; gap: 8px;}
         .post-meta span { font-size: 12px; color: var(--text-muted); }
-        .post-content { font-size: 15px; line-height: 1.5; color: #ddd; white-space: pre-wrap; }
+        .post-content { font-size: 14px; line-height: 1.5; color: var(--text-color); white-space: pre-wrap; }
         
-        .post-card.admin-post { border: 1px solid var(--accent-color); background-color: rgba(255, 159, 67, 0.05); }
-        .admin-badge { background-color: var(--danger-color); color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;}
-        .avatar.admin-avatar { background-color: var(--accent-color); color: #000; }
+        .post-card.admin-post { border: 1px solid var(--accent-color); background-color: rgba(255, 159, 67, 0.03); }
+        .admin-badge { background-color: var(--accent-color); color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+        .avatar.admin-avatar { background-color: var(--accent-color); color: #fff; border-color: var(--accent-color); }
 
-        /* Interaktions-Leiste unter dem Beitrag */
-        .post-actions-bar { display: flex; gap: 20px; margin-top: 15px; border-top: 1px solid #444; padding-top: 12px; font-size: 14px; }
-        .action-trigger { cursor: pointer; display: flex; align-items: center; gap: 5px; user-select: none; transition: opacity 0.2s; }
-        .action-trigger:hover { opacity: 0.8; }
+        .post-actions-bar { display: flex; gap: 20px; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 12px; font-size: 13px; font-weight: 600; }
+        .action-trigger { cursor: pointer; display: flex; align-items: center; gap: 5px; user-select: none; transition: opacity 0.15s; }
+        .action-trigger:hover { opacity: 0.7; }
 
-        /* Kommentarbereich Design */
-        .comments-wrapper { display: none; margin-top: 15px; background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 6px; border: 1px solid #444; }
-        .comment-item { border-bottom: 1px solid #333; padding: 8px 0; font-size: 14px; }
+        .comments-wrapper { display: none; margin-top: 15px; background: var(--bg-color); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); }
+        .comment-item { border-bottom: 1px solid var(--border-color); padding: 8px 0; font-size: 13px; }
         .comment-item:last-child { border-bottom: none; }
-        .comment-meta { font-weight: bold; color: var(--accent-color); margin-bottom: 3px; display: flex; justify-content: space-between; font-size: 12px; }
+        .comment-meta { font-weight: 600; color: var(--text-color); margin-bottom: 3px; display: flex; justify-content: space-between; font-size: 12px; }
         .comment-meta span { color: var(--text-muted); font-weight: normal; }
         .comment-input-box { display: flex; gap: 10px; margin-top: 15px; }
-        .comment-input-box input { flex: 1; background: #1a1a1a; border: 1px solid #555; color: #fff; padding: 8px 12px; border-radius: 4px; font-family: inherit; }
+        .comment-input-box input { flex: 1; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 12px; border-radius: 4px; font-family: inherit; font-size: 13px; box-shadow: var(--shadow-sm); }
         .comment-input-box input:focus { outline: none; border-color: var(--social-accent); }
-        .comment-input-box button { width: auto; background: var(--social-accent); color: #fff; padding: 8px 16px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
+        .comment-input-box button { width: auto; background: var(--social-accent); color: #fff; padding: 8px 16px; font-weight: 600; border-radius: 4px; border: none; cursor: pointer; font-size: 13px; }
 
-        .fab { position: fixed; bottom: 30px; right: 30px; background-color: var(--social-accent); color: white; border: none; padding: 15px 25px; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; gap: 8px; transition: transform 0.2s; }
-        .fab:hover { transform: scale(1.05); }
-        @media (max-width: 768px) { .fab { bottom: 20px; right: 20px; padding: 12px 20px; font-size: 14px; } }
+        .fab { position: fixed; bottom: 30px; right: 30px; background-color: var(--accent-color); color: white; border: none; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-md); z-index: 100; display: flex; align-items: center; gap: 8px; transition: transform 0.15s; }
+        .fab:hover { transform: translateY(-2px); }
+        @media (max-width: 768px) { .fab { bottom: 20px; right: 20px; padding: 10px 18px; font-size: 13px; } }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background-color: var(--card-bg); padding: 25px; border-radius: 8px; width: 100%; max-width: 500px; box-sizing: border-box; }
-        textarea { width: 100%; background-color: #1a1a1a; border: 1px solid #555; color: #fff; padding: 15px; border-radius: 6px; font-family: inherit; font-size: 15px; resize: vertical; min-height: 120px; box-sizing: border-box; margin-bottom: 15px; }
-        textarea:focus { outline: none; border-color: var(--social-accent); }
-        .btn-post { background-color: var(--social-accent); color: #fff; border: none; padding: 12px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
+        /* --- Luxuriöses & Modernes Modal-Design --- */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(8px); 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000; 
+            animation: fadeIn 0.2s ease-out;
+        }
 
-        /* Allgemeine Modal Buttons hinzugefügt aus der main style */
-        .btn-submit { background-color: var(--accent-color); color: #000; border: none; padding: 12px 30px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 10px; }
-        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 15px; }
+        .modal-content { 
+            background-color: var(--card-bg); 
+            padding: 32px; 
+            border-radius: 12px; 
+            border: 1px solid var(--border-color); 
+            width: 100%; 
+            max-width: 420px; 
+            box-sizing: border-box; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+
+        .modal-content h3 { 
+            color: var(--text-color); 
+            margin-top: 0; 
+            margin-bottom: 24px;
+            font-size: 24px;
+            font-weight: 700; 
+            letter-spacing: -0.5px;
+        }
+
+        .modal-close-trigger {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+            transition: color 0.15s;
+        }
+        .modal-close-trigger:hover { color: var(--text-color); }
+
+        .modal-content .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
+        .modal-content label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .modal-content input, textarea { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px 14px; border-radius: var(--radius); font-size: 14px; transition: all 0.15s ease; box-shadow: var(--shadow-sm); font-family: inherit; }
+        .modal-content input:focus, textarea:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); }
+
+        .modal-divider {
+            display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
+        .modal-divider:not(:empty)::before { margin-right: .75em; }
+        .modal-divider:not(:empty)::after { margin-left: .75em; }
+
+        .btn-primary-auth, .btn-post { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; }
+        .btn-primary-auth:hover, .btn-post:hover { opacity: 0.9; }
+
+        .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
+        .btn-secondary-auth:hover { background-color: var(--border-color); }
+
+        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 30px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 10px; box-shadow: var(--shadow-sm); }
+        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
         .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
 
-        #logged-out-msg, #username-setup-section { text-align: center; padding: 40px; background: var(--card-bg); border-radius: 8px; border: 1px solid #444; margin-top: 20px; }
-        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
-        .form-group input { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #555; background-color: #1a1a1a; color: var(--text-color); box-sizing: border-box; font-family: inherit; }
+        #logged-out-msg, #username-setup-section { text-align: center; padding: 40px; background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border-color); margin-top: 20px; box-shadow: var(--shadow-sm); }
 
-        footer { background-color: #0f0f0f; border-top: 1px solid #444; padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted); text-align: center; }
+        footer { background-color: var(--card-bg); border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted); text-align: center; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
         /* ========================================================
            ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES (HAUPT-REPARATUR)
@@ -115,7 +198,7 @@
             .toggle-selector { flex-direction: column !important; gap: 8px !important; align-items: flex-start !important; }
             button, .btn-submit { width: 100% !important; box-sizing: border-box !important; }
             .match-card { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
-            .card-actions { align-items: flex-start !important; width: 100% !important; border-top: 1px solid #444 !important; padding-top: 10px !important; }
+            .card-actions { align-items: flex-start !important; width: 100% !important; border-top: 1px solid var(--border-color) !important; padding-top: 10px !important; }
             .action-buttons-group { width: 100% !important; display: flex !important; gap: 6px !important; }
             .action-buttons-group button, .btn-contact { flex: 1 !important; text-align: center !important; width: 100% !important; }
             .fab { bottom: 15px !important; right: 15px !important; padding: 10px 16px !important; font-size: 13px !important; z-index: 999 !important; }
@@ -129,10 +212,10 @@
     <header>
         <h1 data-txt="main-title">COMMUNITY FEED</h1>
         <nav class="main-nav">
-            <a href="index.html" class="inactive">Marktplatz</a>
-            <a href="freie-matches.html" class="inactive">Freie Match-Plätze</a>
-            <a href="mein-planer.html" class="inactive">Mein Planer</a>
-            <a href="community.html" class="active">Community</a>
+            <a href="index.html" class="inactive" data-txt="nav-marketplace">Marktplatz</a>
+            <a href="freie-matches.html" class="inactive" data-txt="nav-free-slots">Freie Match-Plätze</a>
+            <a href="mein-planer.html" class="inactive" data-txt="nav-my-planner">Mein Planer</a>
+            <a href="community.html" class="active" data-txt="nav-community">Community</a>
         </nav>
         <div class="header-controls">
             <select id="language-select" class="lang-switch">
@@ -155,7 +238,7 @@
         <div id="logged-out-msg">
             <h2>Werde Teil der Community</h2>
             <p style="color: var(--text-muted); margin-bottom: 20px;">Bitte logge dich ein, um Beiträge zu lesen und mit anderen Schützen zu diskutieren.</p>
-            <button onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" class="btn-auth" style="background: var(--accent-color); color: #000;">Jetzt einloggen</button>
+            <button onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" class="btn-auth" style="background: var(--accent-color); color: #fff; border-color: var(--accent-color);">Jetzt einloggen</button>
         </div>
 
         <div id="username-setup-section" style="display: none; border-color: var(--accent-color);">
@@ -164,7 +247,7 @@
             <div style="max-width: 320px; margin: 0 auto 15px auto;" class="form-group">
                 <input type="text" id="initial-username" placeholder="z.B. AlphaShooter">
             </div>
-            <button onclick="saveInitialUsername()" style="background: var(--accent-color); color: #000; width: auto; padding: 12px 30px; font-weight:bold; border:none; border-radius:4px; cursor:pointer;">Namen speichern & starten</button>
+            <button onclick="saveInitialUsername()" style="background: var(--accent-color); color: #fff; width: auto; padding: 12px 30px; font-weight:bold; border:none; border-radius:var(--radius); cursor:pointer; box-shadow: var(--shadow-sm);">Namen speichern & starten</button>
         </div>
 
         <div id="feed-section" style="display: none;">
@@ -186,15 +269,15 @@
 
     <div class="modal" id="post-modal">
         <div class="modal-content">
+            <button class="modal-close-trigger" onclick="closePostModal()">&times;</button>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="margin: 0; color: var(--social-accent);">Neuer Beitrag</h3>
-                <span style="cursor:pointer; font-size: 24px; color: #888;" onclick="closePostModal()">&times;</span>
+                <h3 style="margin: 0; color: var(--accent-color);">Neuer Beitrag</h3>
             </div>
             <textarea id="post-content" placeholder="Was gibt's Neues rund um IPSC?"></textarea>
             
-            <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:5px;">Foto hinzufügen (Optional)</label>
-            <input type="file" id="post-image" accept="image/*" onchange="previewPostImage(this)" style="margin-bottom: 15px; color: #fff; width:100%;">
-            <img id="post-image-preview" style="width: 100%; border-radius: 8px; margin-bottom: 15px; display: none; object-fit: cover; max-height: 250px;">
+            <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:5px; font-weight: 600;">Foto hinzufügen (Optional)</label>
+            <input type="file" id="post-image" accept="image/*" onchange="previewPostImage(this)" style="margin-bottom: 15px; color: var(--text-color); width:100%;">
+            <img id="post-image-preview" style="width: 100%; border-radius: var(--radius); margin-bottom: 15px; display: none; object-fit: cover; max-height: 250px; border: 1px solid var(--border-color);">
             
             <button class="btn-post" id="btn-submit-post" onclick="submitPost()">Teilen</button>
         </div>
@@ -202,32 +285,50 @@
 
     <div class="modal" id="auth-modal">
         <div class="modal-content">
-            <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
+            <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
             
+            <!-- 1. LOGIN ANSICHT -->
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
                 
-                <button type="button" class="btn-submit" style="width:100%; background-color: var(--accent-color); color: #1a1a1a; margin-bottom: 20px; font-size: 16px;" onclick="loginWithPasskey()">📱 Login mit FaceID / Fingerabdruck</button>
+                <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
+                    <span>📱</span> Login mit FaceID / Fingerabdruck
+                </button>
                 
-                <div style="text-align: center; margin-bottom: 20px; color: #777; font-size: 14px;">oder klassisch mit E-Mail</div>
+                <div class="modal-divider">oder klassisch mit E-Mail</div>
 
                 <form id="login-form">
-                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required></div>
                     <div class="form-group">
-                        <label data-txt="lbl-password">Passwort *</label>
-                        <input type="password" id="login-password" required>
-                        <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
+                        <label data-txt="lbl-email">E-Mail *</label>
+                        <input type="email" id="login-email" required placeholder="name@beispiel.de">
                     </div>
-                    <button type="submit" class="btn-submit" style="width:100%; background-color: #555; color: white;" data-txt="modal-btn-login">Mit Passwort einloggen</button>
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="margin-bottom: 0;">Passwort *</label>
+                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
+                        </div>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
                 </form>
-                <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a></div>
+                <div class="modal-footer">
+                    <span data-txt="modal-no-acc">Noch kein Konto?</span>
+                    <a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a>
+                </div>
             </div>
 
+            <!-- 2. REGISTRIERUNGS-ANSICHT -->
             <div id="modal-register-view" style="display: none;">
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
-                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="register-email" required></div>
-                    <div class="form-group"><label data-txt="lbl-password">Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
+                    <div class="form-group">
+                        <label data-txt="lbl-email">E-Mail *</label>
+                        <input type="email" id="register-email" required placeholder="name@beispiel.de">
+                    </div>
+                    <div class="form-group">
+                        <label>Passwort *</label>
+                        <input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen">
+                    </div>
                     
                     <div class="form-group" style="flex-direction: row; align-items: flex-start; gap: 10px; margin-top: 5px; margin-bottom: 20px;">
                         <input type="checkbox" id="register-agb" required style="margin-top: 3px; width: 16px; height: 16px; cursor: pointer;">
@@ -236,35 +337,44 @@
                         </label>
                     </div>
 
-                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-reg">Konto erstellen</button>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-reg">Konto erstellen</button>
                 </form>
                 <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a></div>
             </div>
 
+            <!-- 3. PASSWORT VERGESSEN ANSICHT -->
             <div id="modal-forgot-view" style="display: none;">
                 <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
                 <form id="forgot-form">
-                    <div class="form-group"><label data-txt="lbl-email">Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required></div>
-                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
+                    <div class="form-group">
+                        <label data-txt="lbl-email">Deine E-Mail-Adresse *</label>
+                        <input type="email" id="forgot-email" required placeholder="name@beispiel.de">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
                 </form>
                 <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a></div>
             </div>
 
+            <!-- 4. PASSWORT ZURÜCKSETZEN ANSICHT -->
             <div id="modal-reset-view" style="display: none;">
                 <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                 <form id="reset-password-form">
-                    <div class="form-group"><label data-txt="lbl-new-password">Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
-                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="btn-save">Speichern</button>
+                    <div class="form-group">
+                        <label data-txt="lbl-new-password">Neues Passwort *</label>
+                        <input type="password" id="reset-password-input" required minlength="6" placeholder="Mindestens 6 Zeichen">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Speichern</button>
                 </form>
             </div>
 
+            <!-- 5. KONTO-EINSTELLUNGEN ANSICHT -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
-                <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
-                    <label style="color: #3498db;">🔒 Passkey (Schnell-Login)</label>
-                    <p style="font-size: 12px; margin-top: 0; color: #ccc;">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()">Gerät als Passkey registrieren</button>
+                <div class="form-group" style="background-color: rgba(59, 130, 246, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <label style="color: var(--info-color); font-weight: 700;">🔒 Passkey (Schnell-Login)</label>
+                    <p style="font-size: 12px; margin-top: 4px; margin-bottom: 12px; color: var(--text-muted); line-height: 1.4;">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
+                    <button type="button" class="btn-secondary-auth" style="background-color: var(--card-bg);" onclick="registerPasskey()">Gerät registrieren</button>
                 </div>
 
                 <form id="settings-form">
@@ -273,24 +383,24 @@
                         <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
                     </div>
                     
-                    <div class="form-group" style="background-color: rgba(46, 204, 113, 0.1); padding: 12px; border-radius: 4px; border-left: 3px solid #2ecc71; margin-bottom: 20px;">
-                        <label style="color: #2ecc71; margin-bottom: 2px;">🛡️ IPSC Alias / Mitgliedsnummer</label>
-                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: #ccc;">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
+                    <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 4px; border-left: 3px solid var(--success-color); margin-bottom: 20px;">
+                        <label style="color: var(--success-color); margin-bottom: 2px;">🛡️ IPSC Alias / Mitgliedsnummer</label>
+                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
                         <input type="text" id="settings-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
                     </div>
 
                     <div class="form-group">
                         <label>Profilbild (Optional)</label>
-                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
-                        <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
+                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)" style="font-size: 13px; color: var(--text-muted);">
+                        <img id="settings-avatar-preview" style="max-width: 800px; width: 80px; height: 80px; object-fit: cover; margin-top: 12px; border-radius: 50%; display: none; border: 2px solid var(--border-color);">
                     </div>
                     <div class="form-group">
                         <label data-txt="lbl-new-password">Neues Passwort ändern (Optional)</label>
                         <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
                     </div>
-                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
+                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Änderungen speichern</button>
                 </form>
-                <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
                 <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
             </div>
         </div>
@@ -298,7 +408,7 @@
 
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
-            <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
             
             <div style="margin-top: 20px;">
                 <a href="https://www.buymeacoffee.com/infojkw" target="_blank" style="background-color: #FFDD00; color: #000; padding: 10px 20px; border-radius: 5px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
@@ -316,119 +426,119 @@
     <script src="app.js"></script>
     <script>
         // === ADMIN KONFIGURATION ===
-        const ADMIN_EMAIL = 'fabian-schoeps@gmx.de'; 
+        const ADMIN_EMAIL = 'fabian-schoeps@gmx.de';[cite: 6]
 
         // === GLOBALER INTELLIGENTER WORTFILTER ===
         function checkTextForBadWords(text) {
-            if (!text) return false;
+            if (!text) return false;[cite: 6]
             
             // 1. Text komplett normalisieren (Kleinbuchstaben, Akzente weg, Sonderzeichen weg)
-            let cleanText = text.toLowerCase()
-                .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
-                .replace(/[^a-z0-9\s]/g, ""); 
+            let cleanText = text.toLowerCase()[cite: 6]
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")[cite: 6]
+                .replace(/[^a-z0-9\s]/g, "");[cite: 6]
 
-            const blacklist = [
+            const blacklist = [[cite: 6]
                 // Vulgärsprache, Beleidigungen & Aggression
-                "arsch", "arschloch", "arschkriecher", "asozial", "bastard", "depp", "ficker", "fotze", "hurensohn", "hure", "idiot", "miststueck", "miststück", "nutte", "schlampe", "schwachkopf", "wichser", "wixxer", "vollidiot", "spasti", "missgeburt", "pisser", "vogel", "hanswurst",
+                "arsch", "arschloch", "arschkriecher", "asozial", "bastard", "depp", "ficker", "fotze", "hurensohn", "hure", "idiot", "miststueck", "miststück", "nutte", "schlampe", "schwachkopf", "wichser", "wixxer", "vollidiot", "spasti", "missgeburt", "pisser", "vogel", "hanswurst",[cite: 6]
                 // Diskriminierung, Rassismus & Extremismus
-                "nazi", "hitler", "neger", "kanake", "schwuchtel", "fascho", "antifa", "terrorist", "juden", "zionist", "heil hitler", "jude",
+                "nazi", "hitler", "neger", "kanake", "schwuchtel", "fascho", "antifa", "terrorist", "juden", "zionist", "heil hitler", "jude",[cite: 6]
                 // Spam, Krypto, Casino & Scam-Werbung
-                "casino", "slots", "poker", "bitcoin", "crypto", "kryptowaehrung", "kryptowährung", "geld verdienen", "schnelles geld", "reich werden", "investieren", "dividende", "aktien", "whatsapp", "telegram", "gewinnspiel", "jackpot", "bonuscode",
+                "casino", "slots", "poker", "bitcoin", "crypto", "kryptowaehrung", "kryptowährung", "geld verdienen", "schnelles geld", "reich werden", "investieren", "dividende", "aktien", "whatsapp", "telegram", "gewinnspiel", "jackpot", "bonuscode",[cite: 6]
                 // Erotik, Porno & Dating-Spam
-                "sex", "porn", "porno", "erotik", "cam", "webcam", "dating", "singles", "ficken", "milf", "geile", "nackt", "onlyfans", "sugar daddy", "escort", "xxx", "hentai",
+                "sex", "porn", "porno", "erotik", "cam", "webcam", "dating", "singles", "ficken", "milf", "geile", "nackt", "onlyfans", "sugar daddy", "escort", "xxx", "hentai",[cite: 6]
                 // Phishing & Betrug
-                "hack", "warez", "crack", "phishing", "betrug", "scam", "gefaelscht", "gefälscht", "ausweis kaufen", "pass kaufen", "geldwaesche", "geldwäsche", "paypal betrug", "kredit ohne schufa"
-            ];
+                "hack", "warez", "crack", "phishing", "betrug", "scam", "gefaelscht", "gefälscht", "ausweis kaufen", "pass kaufen", "geldwaesche", "geldwäsche", "paypal betrug", "kredit ohne schufa"[cite: 6]
+            ];[cite: 6]
             
             // Erstes Überprüfen des bereinigten Textes
-            let hasMatch = blacklist.some(word => cleanText.includes(word));
-            if (hasMatch) return true;
+            let hasMatch = blacklist.some(word => cleanText.includes(word));[cite: 6]
+            if (hasMatch) return true;[cite: 6]
 
             // Hardcore-Schutz: Alle Leerzeichen löschen gegen "A r s c h" oder "I d i o t"
-            let tightText = cleanText.replace(/\s+/g, "");
-            return blacklist.some(word => tightText.includes(word));
+            let tightText = cleanText.replace(/\s+/g, "");[cite: 6]
+            return blacklist.some(word => tightText.includes(word));[cite: 6]
         }
 
         function switchTab(tab) {
-            if (window.currentUser && (!window.currentUser.user_metadata?.username || window.currentUser.user_metadata.username.trim() === "")) {
-                return;
+            if (window.currentUser && (!window.currentUser.user_metadata?.username || window.currentUser.user_metadata.username.trim() === "")) {[cite: 6]
+                return;[cite: 6]
             }
-            document.querySelectorAll('.social-tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('feed-section').style.display = 'none';
-            document.getElementById('groups-section').style.display = 'none';
+            document.querySelectorAll('.social-tab').forEach(t => t.classList.remove('active'));[cite: 6]
+            document.getElementById('feed-section').style.display = 'none';[cite: 6]
+            document.getElementById('groups-section').style.display = 'none';[cite: 6]
 
             if(tab === 'feed') {
-                document.querySelectorAll('.social-tab')[0].classList.add('active');
-                if (window.currentUser) document.getElementById('feed-section').style.display = 'block';
+                document.querySelectorAll('.social-tab')[0].classList.add('active');[cite: 6]
+                if (window.currentUser) document.getElementById('feed-section').style.display = 'block';[cite: 6]
             } else {
-                document.querySelectorAll('.social-tab')[1].classList.add('active');
-                if (window.currentUser) document.getElementById('groups-section').style.display = 'block';
+                document.querySelectorAll('.social-tab')[1].classList.add('active');[cite: 6]
+                if (window.currentUser) document.getElementById('groups-section').style.display = 'block';[cite: 6]
             }
         }
 
         window.onAuthChange = (user) => {
-            document.getElementById('logged-out-msg').style.display = 'none';
-            document.getElementById('username-setup-section').style.display = 'none';
-            document.getElementById('feed-section').style.display = 'none';
-            document.getElementById('groups-section').style.display = 'none';
+            document.getElementById('logged-out-msg').style.display = 'none';[cite: 6]
+            document.getElementById('username-setup-section').style.display = 'none';[cite: 6]
+            document.getElementById('feed-section').style.display = 'none';[cite: 6]
+            document.getElementById('groups-section').style.display = 'none';[cite: 6]
 
             if (user) {
-                const hasUsername = user.user_metadata?.username && user.user_metadata.username.trim() !== "";
+                const hasUsername = user.user_metadata?.username && user.user_metadata.username.trim() !== "";[cite: 6]
                 if (!hasUsername) {
-                    document.getElementById('username-setup-section').style.display = 'block';
+                    document.getElementById('username-setup-section').style.display = 'block';[cite: 6]
                 } else {
-                    const activeTab = document.querySelector('.social-tab.active').innerText;
-                    if (activeTab === 'Beiträge') document.getElementById('feed-section').style.display = 'block';
-                    else document.getElementById('groups-section').style.display = 'block';
-                    loadPosts();
+                    const activeTab = document.querySelector('.social-tab.active').innerText;[cite: 6]
+                    if (activeTab === 'Beiträge') document.getElementById('feed-section').style.display = 'block';[cite: 6]
+                    else document.getElementById('groups-section').style.display = 'block';[cite: 6]
+                    loadPosts();[cite: 6]
                 }
             } else {
-                document.getElementById('logged-out-msg').style.display = 'block';
+                document.getElementById('logged-out-msg').style.display = 'block';[cite: 6]
             }
         };
 
         async function saveInitialUsername() {
-            const newUsername = document.getElementById('initial-username').value.trim();
-            if (!newUsername || newUsername.length < 3) { alert("Bitte gib einen Schützennamen ein (mindestens 3 Zeichen)."); return; }
-            const { error } = await window.supabaseClient.auth.updateUser({ data: { username: newUsername } });
-            if (error) alert("Fehler beim Speichern: " + error.message);
-            else { alert("Erfolgreich gespeichert! Willkommen in der Community."); location.reload(); }
+            const newUsername = document.getElementById('initial-username').value.trim();[cite: 6]
+            if (!newUsername || newUsername.length < 3) { alert("Bitte gib einen Schützennamen ein (mindestens 3 Zeichen)."); return; }[cite: 6]
+            const { error } = await window.supabaseClient.auth.updateUser({ data: { username: newUsername } });[cite: 6]
+            if (error) alert("Fehler beim Speichern: " + error.message);[cite: 6]
+            else { alert("Erfolgreich gespeichert! Willkommen in der Community."); location.reload(); }[cite: 6]
         }
 
         async function loadPosts() {
-            if (!window.currentUser) return;
-            const container = document.getElementById('posts-container');
-            if (!container) return;
+            if (!window.currentUser) return;[cite: 6]
+            const container = document.getElementById('posts-container');[cite: 6]
+            if (!container) return;[cite: 6]
             
-            const { data, error } = await window.supabaseClient.from('community_posts').select('*').order('created_at', { ascending: false }).limit(50);
-            if (error) { container.innerHTML = 'Fehler beim Laden.'; return; }
-            container.innerHTML = '';
+            const { data, error } = await window.supabaseClient.from('community_posts').select('*').order('created_at', { ascending: false }).limit(50);[cite: 6]
+            if (error) { container.innerHTML = 'Fehler beim Laden.'; return; }[cite: 6]
+            container.innerHTML = '';[cite: 6]
             
             if(data.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#888;">Noch keine Beiträge. Mach den Anfang!</p>';
-                return;
+                container.innerHTML = '<p style="text-align:center; color:#888;">Noch keine Beiträge. Mach den Anfang!</p>';[cite: 6]
+                return;[cite: 6]
             }
 
             data.forEach(post => {
-                const dateObj = new Date(post.created_at);
-                const displayDate = dateObj.toLocaleDateString('de-DE') + ' ' + dateObj.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
+                const dateObj = new Date(post.created_at);[cite: 6]
+                const displayDate = dateObj.toLocaleDateString('de-DE') + ' ' + dateObj.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});[cite: 6]
                 
-                const isAdmin = post.author_email && post.author_email.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim();
-                const cardClass = isAdmin ? 'post-card admin-post' : 'post-card';
-                const avatarClass = isAdmin ? 'avatar admin-avatar' : 'avatar';
-                const initial = post.author_name ? post.author_name.charAt(0).toUpperCase() : '?';
-                const adminBadge = isAdmin ? '<span class="admin-badge">Admin News</span>' : '';
+                const isAdmin = post.author_email && post.author_email.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim();[cite: 6]
+                const cardClass = isAdmin ? 'post-card admin-post' : 'post-card';[cite: 6]
+                const avatarClass = isAdmin ? 'avatar admin-avatar' : 'avatar';[cite: 6]
+                const initial = post.author_name ? post.author_name.charAt(0).toUpperCase() : '?';[cite: 6]
+                const adminBadge = isAdmin ? '<span class="admin-badge">Admin News</span>' : '';[cite: 6]
 
-                const avatarHtml = post.author_avatar 
-                    ? `<img src="${post.author_avatar}" class="${avatarClass}" style="object-fit: cover; padding: 0; border: none;">`
-                    : `<div class="${avatarClass}">${initial}</div>`;
+                const avatarHtml = post.author_avatar[cite: 6]
+                    ? `<img src="${post.author_avatar}" class="${avatarClass}" style="object-fit: cover; padding: 0; border: none;">`[cite: 6]
+                    : `<div class="${avatarClass}">${initial}</div>`;[cite: 6]
 
-                const postImageHtml = post.image_url 
-                    ? `<img src="${post.image_url}" style="width: 100%; border-radius: 8px; margin-top: 15px; border: 1px solid #444;">`
-                    : '';
+                const postImageHtml = post.image_url[cite: 6]
+                    ? `<img src="${post.image_url}" style="width: 100%; border-radius: 8px; margin-top: 15px; border: 1px solid #444;">`[cite: 6]
+                    : '';[cite: 6]
 
-                const isOwner = window.currentUser.email === post.author_email || window.currentUser.email === ADMIN_EMAIL;
-                const deleteBtn = isOwner ? `<button onclick="deletePost(${post.id})" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size:12px; float:right;">Löschen</button>` : '';
+                const isOwner = window.currentUser.email === post.author_email || window.currentUser.email === ADMIN_EMAIL;[cite: 6]
+                const deleteBtn = isOwner ? `<button onclick="deletePost(${post.id})" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size:12px; float:right;">Löschen</button>` : '';[cite: 6]
 
                 container.innerHTML += `
                     <div class="post-card ${isAdmin ? 'admin-post' : ''}">
@@ -472,65 +582,65 @@
 
         // Like-Logik
         async function likePost(postId, currentLikes) {
-            const { error } = await window.supabaseClient
-                .from('community_posts')
-                .update({ likes: currentLikes + 1 })
-                .eq('id', postId);
+            const { error } = await window.supabaseClient[cite: 6]
+                .from('community_posts')[cite: 6]
+                .update({ likes: currentLikes + 1 })[cite: 6]
+                .eq('id', postId);[cite: 6]
             
             if (!error) {
-                const badge = document.getElementById(`likes-count-${postId}`);
-                if (badge) badge.innerText = currentLikes + 1;
+                const badge = document.getElementById(`likes-count-${postId}`);[cite: 6]
+                if (badge) badge.innerText = currentLikes + 1;[cite: 6]
             }
         }
-        window.likePost = likePost;
+        window.likePost = likePost;[cite: 6]
 
         // Dislike-Logik
         async function dislikePost(postId, currentDislikes) {
-            const { error } = await window.supabaseClient
-                .from('community_posts')
-                .update({ dislikes: currentDislikes + 1 })
-                .eq('id', postId);
+            const { error } = await window.supabaseClient[cite: 6]
+                .from('community_posts')[cite: 6]
+                .update({ dislikes: currentDislikes + 1 })[cite: 6]
+                .eq('id', postId);[cite: 6]
             
             if (!error) {
-                const badge = document.getElementById(`dislikes-count-${postId}`);
-                if (badge) badge.innerText = currentDislikes + 1;
+                const badge = document.getElementById(`dislikes-count-${postId}`);[cite: 6]
+                if (badge) badge.innerText = currentDislikes + 1;[cite: 6]
             }
         }
-        window.dislikePost = dislikePost;
+        window.dislikePost = dislikePost;[cite: 6]
 
         // Toggelt die Sichtbarkeit der Kommentare und lädt sie
         function toggleCommentsSection(postId) {
-            const wrapper = document.getElementById(`comments-wrapper-${postId}`);
-            if (!wrapper) return;
+            const wrapper = document.getElementById(`comments-wrapper-${postId}`);[cite: 6]
+            if (!wrapper) return;[cite: 6]
             
             if (wrapper.style.display === "block") {
-                wrapper.style.display = "none";
+                wrapper.style.display = "none";[cite: 6]
             } else {
-                wrapper.style.display = "block";
-                loadComments(postId);
+                wrapper.style.display = "block";[cite: 6]
+                loadComments(postId);[cite: 6]
             }
         }
-        window.toggleCommentsSection = toggleCommentsSection;
+        window.toggleCommentsSection = toggleCommentsSection;[cite: 6]
 
         // Lädt alle Kommentare für einen bestimmten Post
         async function loadComments(postId) {
-            const container = document.getElementById(`comments-list-${postId}`);
-            if (!container) return;
+            const container = document.getElementById(`comments-list-${postId}`);[cite: 6]
+            if (!container) return;[cite: 6]
 
-            const { data, error } = await window.supabaseClient
-                .from('community_comments')
-                .select('*')
-                .eq('post_id', postId)
-                .order('created_at', { ascending: true });
+            const { data, error } = await window.supabaseClient[cite: 6]
+                .from('community_comments')[cite: 6]
+                .select('*')[cite: 6]
+                .eq('post_id', postId)[cite: 6]
+                .order('created_at', { ascending: true });[cite: 6]
 
             if (error || !data || data.length === 0) {
-                container.innerHTML = '<p style="font-size:12px; color:var(--text-muted); font-style:italic; margin:0;">Noch keine Kommentare geschrieben.</p>';
-                return;
+                container.innerHTML = '<p style="font-size:12px; color:var(--text-muted); font-style:italic; margin:0;">Noch keine Kommentare geschrieben.</p>';[cite: 6]
+                return;[cite: 6]
             }
 
             container.innerHTML = data.map(c => {
-                const dObj = new Date(c.created_at);
-                const dStr = dObj.toLocaleDateString('de-DE') + ' ' + dObj.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
+                const dObj = new Date(c.created_at);[cite: 6]
+                const dStr = dObj.toLocaleDateString('de-DE') + ' ' + dObj.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});[cite: 6]
                 return `
                     <div class="comment-item">
                         <div class="comment-meta">${escapeHtml(c.author_name)} <span>${dStr}</span></div>
@@ -542,152 +652,152 @@
 
         // Sendet einen neuen Kommentar ab (JETZT MIT WORTFILTER)
         async function submitComment(postId) {
-            const input = document.getElementById(`comment-input-${postId}`);
-            if (!input || !input.value.trim()) return;
+            const input = document.getElementById(`comment-input-${postId}`);[cite: 6]
+            if (!input || !input.value.trim()) return;[cite: 6]
 
-            const text = input.value.trim();
+            const text = input.value.trim();[cite: 6]
 
             // === TEXTFILTER FÜR KOMMENTARE ===
             if (checkTextForBadWords(text)) {
-                alert("Dein Kommentar enthält Begriffe, die gegen unsere Richtlinien verstoßen.");
-                return;
+                alert("Dein Kommentar enthält Begriffe, die gegen unsere Richtlinien verstoßen.");[cite: 6]
+                return;[cite: 6]
             }
 
-            const displayName = window.currentUser.user_metadata?.username || "Schütze";
+            const displayName = window.currentUser.user_metadata?.username || "Schütze";[cite: 6]
 
-            const { error } = await window.supabaseClient
-                .from('community_comments')
-                .insert([{
-                    post_id: postId,
-                    user_id: window.currentUser.id,
-                    author_name: displayName,
-                    content: text
-                }]);
+            const { error } = await window.supabaseClient[cite: 6]
+                .from('community_comments')[cite: 6]
+                .insert([{[cite: 6]
+                    post_id: postId,[cite: 6]
+                    user_id: window.currentUser.id,[cite: 6]
+                    author_name: displayName,[cite: 6]
+                    content: text[cite: 6]
+                }]);[cite: 6]
 
             if (error) {
-                alert("Fehler beim Kommentieren: " + error.message);
+                alert("Fehler beim Kommentieren: " + error.message);[cite: 6]
             } else {
-                input.value = '';
-                loadComments(postId);
+                input.value = '';[cite: 6]
+                loadComments(postId);[cite: 6]
             }
         }
-        window.submitComment = submitComment;
+        window.submitComment = submitComment;[cite: 6]
 
         // Triggert eine Mail an den Support wegen Regelverstoß
         function reportPost(postId) {
-            const subject = encodeURIComponent("Regelverstoß Community-Eintrag ID: " + postId);
-            const body = encodeURIComponent("Hallo Support-Team,\n\nich möchte den folgenden Beitrag zur Überprüfung melden:\nPlattform-ID: " + postId + "\n\nGrund der Meldung:\n");
-            window.location.href = `mailto:info@ipscboerse.com?subject=${subject}&body=${body}`;
+            const subject = encodeURIComponent("Regelverstoß Community-Eintrag ID: " + postId);[cite: 6]
+            const body = encodeURIComponent("Hallo Support-Team,\n\nich möchte den folgenden Beitrag zur Überprüfung melden:\nPlattform-ID: " + postId + "\n\nGrund der Meldung:\n");[cite: 6]
+            window.location.href = `mailto:info@ipscboerse.com?subject=${subject}&body=${body}`;[cite: 6]
         }
-        window.reportPost = reportPost;
+        window.reportPost = reportPost;[cite: 6]
 
         window.previewPostImage = function(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.getElementById('post-image-preview');
-                    if (img) { img.src = e.target.result; img.style.display = 'block'; }
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
+            if (input.files && input.files[0]) {[cite: 6]
+                const reader = new FileReader();[cite: 6]
+                reader.onload = function(e) {[cite: 6]
+                    const img = document.getElementById('post-image-preview');[cite: 6]
+                    if (img) { img.src = e.target.result; img.style.display = 'block'; }[cite: 6]
+                }[cite: 6]
+                reader.readAsDataURL(input.files[0]);[cite: 6]
+            }[cite: 6]
         }
 
         function openPostModal() {
-            document.getElementById('post-modal').style.display = 'flex';
-            document.getElementById('post-content').focus();
+            document.getElementById('post-modal').style.display = 'flex';[cite: 6]
+            document.getElementById('post-content').focus();[cite: 6]
         }
         
         function closePostModal() {
-            document.getElementById('post-modal').style.display = 'none';
-            document.getElementById('post-image').value = '';
-            document.getElementById('post-image-preview').style.display = 'none';
+            document.getElementById('post-modal').style.display = 'none';[cite: 6]
+            document.getElementById('post-image').value = '';[cite: 6]
+            document.getElementById('post-image-preview').style.display = 'none';[cite: 6]
         }
 
         async function submitPost() {
-            const content = document.getElementById('post-content').value.trim();
-            const imageFile = document.getElementById('post-image').files[0];
-            const btn = document.getElementById('btn-submit-post');
+            const content = document.getElementById('post-content').value.trim();[cite: 6]
+            const imageFile = document.getElementById('post-image').files[0];[cite: 6]
+            const btn = document.getElementById('btn-submit-post');[cite: 6]
 
-            if (!content && !imageFile) return;
+            if (!content && !imageFile) return;[cite: 6]
 
             // === TEXTFILTER FÜR POSTS ===
             if (checkTextForBadWords(content)) {
-                alert("Dein Beitrag enthält Begriffe, die gegen unsere Community-Richtlinien verstoßen. Bitte passe deinen Text an.");
-                return;
+                alert("Dein Beitrag enthält Begriffe, die gegen unsere Community-Richtlinien verstoßen. Bitte passe deinen Text an.");[cite: 6]
+                return;[cite: 6]
             }
 
             // === AUTOMATISCHER BILD-FILTER (NSFW-DETECTION) ===
             if (imageFile) {
-                const originalText = btn.innerText;
-                btn.innerText = "Prüfe Bild auf zulässige Inhalte...";
-                btn.style.opacity = "0.7";
+                const originalText = btn.innerText;[cite: 6]
+                btn.innerText = "Prüfe Bild auf zulässige Inhalte...";[cite: 6]
+                btn.style.opacity = "0.7";[cite: 6]
                 
                 try {
-                    const imgElement = document.createElement('img');
-                    imgElement.src = URL.createObjectURL(imageFile);
+                    const imgElement = document.createElement('img');[cite: 6]
+                    imgElement.src = URL.createObjectURL(imageFile);[cite: 6]
                     
-                    await new Promise((resolve) => { imgElement.onload = resolve; });
+                    await new Promise((resolve) => { imgElement.onload = resolve; });[cite: 6]
 
-                    const model = await nsfwjs.load();
-                    const predictions = await model.classify(imgElement);
+                    const model = await nsfwjs.load();[cite: 6]
+                    const predictions = await model.classify(imgElement);[cite: 6]
                     
-                    const unsafe = predictions.find(p => (p.className === 'Porn' || p.className === 'Hentai') && p.probability > 0.65);
+                    const unsafe = predictions.find(p => (p.className === 'Porn' || p.className === 'Hentai') && p.probability > 0.65);[cite: 6]
                     
                     if (unsafe) {
-                        alert("Das hochgeladene Bild verstößt gegen unsere Richtlinien (unzulässiger Inhalt erkannt).");
-                        btn.innerText = originalText;
-                        btn.style.opacity = "1";
-                        return;
+                        alert("Das hochgeladene Bild verstößt gegen unsere Richtlinien (unzulässiger Inhalt erkannt).");[cite: 6]
+                        btn.innerText = originalText;[cite: 6]
+                        btn.style.opacity = "1";[cite: 6]
+                        return;[cite: 6]
                     }
                 } catch (kiError) {
-                    console.error("KI-Filter Fehler:", kiError);
+                    console.error("KI-Filter Fehler:", kiError);[cite: 6]
                 }
             }
 
-            btn.innerText = "Wird hochgeladen...";
-            btn.style.opacity = "0.7";
+            btn.innerText = "Wird hochgeladen...";[cite: 6]
+            btn.style.opacity = "0.7";[cite: 6]
 
             try {
-                let imageUrl = null;
+                let imageUrl = null;[cite: 6]
                 if (imageFile) {
-                    imageUrl = await window.uploadImage(imageFile, 'posts');
+                    imageUrl = await window.uploadImage(imageFile, 'posts');[cite: 6]
                 }
 
-                const displayName = window.currentUser.user_metadata?.username || "Schütze";
-                const avatarUrl = window.currentUser.user_metadata?.avatar_url || null;
+                const displayName = window.currentUser.user_metadata?.username || "Schütze";[cite: 6]
+                const avatarUrl = window.currentUser.user_metadata?.avatar_url || null;[cite: 6]
 
-                const { error } = await window.supabaseClient
-                    .from('community_posts')
-                    .insert([{ 
-                        user_id: window.currentUser.id, 
-                        author_name: displayName,
-                        author_email: window.currentUser.email,
-                        author_avatar: avatarUrl,
-                        content: content,
-                        image_url: imageUrl
-                    }]);
+                const { error } = await window.supabaseClient[cite: 6]
+                    .from('community_posts')[cite: 6]
+                    .insert([{ [cite: 6]
+                        user_id: window.currentUser.id,  [cite: 6]
+                        author_name: displayName,[cite: 6]
+                        author_email: window.currentUser.email,[cite: 6]
+                        author_avatar: avatarUrl,[cite: 6]
+                        content: content,[cite: 6]
+                        image_url: imageUrl[cite: 6]
+                    }]);[cite: 6]
 
-                if (error) throw error;
+                if (error) throw error;[cite: 6]
 
-                document.getElementById('post-content').value = '';
-                closePostModal();
-                btn.innerText = "Teilen";
-                btn.style.opacity = "1";
-                loadPosts(); 
+                document.getElementById('post-content').value = '';[cite: 6]
+                closePostModal();[cite: 6]
+                btn.innerText = "Teilen";[cite: 6]
+                btn.style.opacity = "1";[cite: 6]
+                loadPosts(); [cite: 6]
             } catch (err) {
-                btn.innerText = "Teilen";
-                btn.style.opacity = "1";
-                alert("Fehler beim Posten: " + err.message);
+                btn.innerText = "Teilen";[cite: 6]
+                btn.style.opacity = "1";[cite: 6]
+                alert("Fehler beim Posten: " + err.message);[cite: 6]
             }
         }
 
         async function deletePost(id) {
-            if(!confirm("Beitrag wirklich löschen?")) return;
-            const { error } = await window.supabaseClient.from('community_posts').delete().eq('id', id);
-            if(!error) loadPosts();
+            if(!confirm("Beitrag wirklich löschen?")) return;[cite: 6]
+            const { error } = await window.supabaseClient.from('community_posts').delete().eq('id', id);[cite: 6]
+            if(!error) loadPosts();[cite: 6]
         }
 
-        function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
+        function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }[cite: 6]
     </script>
 </body>
 </html>
