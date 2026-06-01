@@ -134,7 +134,24 @@ window.translations = {
     "email-body-want": "Hallo,\n\nich habe dein Gesuch auf ipscboerse.com gesehen. Ich hätte einen Startplatz abzugeben für das Match: ",
     "email-body-footer": "\n\nIst das Inserat noch aktuell?\n\nViele Grüße",
     "security-notice": "⚠️ WICHTIGER SICHERHEITSHINWEIS:\n\n1. Nutze für Zahlungen IMMER PayPal mit Käuferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prüfen, ob eine Umschreibung des Platzes überhaupt noch möglich ist!\n\nMöchtest du den E-Mail-Kontakt jetzt öffnen?",
-    "spam-error": "Spam-Schutz: Du hast bereits einen Eintrag für dieses Match an diesem Datum erstellt!"
+    "spam-error": "Spam-Schutz: Du hast bereits einen Eintrag für dieses Match an diesem Datum erstellt!",
+    
+    "nav-marketplace": "Marktplatz",
+    "nav-free-slots": "Freie Match-Plätze",
+    "nav-my-planner": "Mein Planer",
+    "nav-community": "Community",
+    "planner-logged-out-title": "Nicht angemeldet",
+    "planner-logged-out-desc": "Logge dich ein, um deine Matches zu verwalten und in die Cloud zu synchronisieren.",
+    "planner-logged-out-btn": "Jetzt einloggen",
+    "planner-title-my-matches": "Meine Matches",
+    "planner-subtitle-new": "Neues Match eintragen",
+    "planner-lbl-match-name": "Match-Name",
+    "planner-lbl-match-date": "Datum",
+    "planner-lbl-match-location": "Ort / Land",
+    "planner-btn-save": "Match in Cloud speichern",
+    "planner-subtitle-planned": "Geplante Matches",
+    "planner-loading": "Lade Daten aus Supabase...",
+    "planner-btn-export": "📅 In Kalender exportieren (.ics)"
   },
   en: {
     "main-title": "IPSC SLOT MARKETPLACE",
@@ -200,7 +217,24 @@ window.translations = {
     "email-body-want": "Hello,\n\nI saw your request on ipscboerse.com. I have an available slot to give away for the match: ",
     "email-body-footer": "\n\nIs this listing still available?\n\nBest regards",
     "security-notice": "⚠️ IMPORTANT SAFETY NOTICE:\n\n1. ALWAYS use PayPal with Buyer Protection for payments (never use 'Friends & Family').\n2. You MUST contact the Match Director BEFORE making any payment to confirm if a slot transfer is still permitted!\n\nDo you want to open the email client now?",
-    "spam-error": "Spam protection: You have already posted an entry for this match on this date!"
+    "spam-error": "Spam protection: You have already posted an entry for this match on this date!",
+    
+    "nav-marketplace": "Marketplace",
+    "nav-free-slots": "Free Match Slots",
+    "nav-my-planner": "My Planner",
+    "nav-community": "Community",
+    "planner-logged-out-title": "Not logged in",
+    "planner-logged-out-desc": "Log in to manage your matches and sync them to the cloud.",
+    "planner-logged-out-btn": "Log in now",
+    "planner-title-my-matches": "My Matches",
+    "planner-subtitle-new": "Add New Match",
+    "planner-lbl-match-name": "Match Name",
+    "planner-lbl-match-date": "Date",
+    "planner-lbl-match-location": "Location / Country",
+    "planner-btn-save": "Save Match to Cloud",
+    "planner-subtitle-planned": "Planned Matches",
+    "planner-loading": "Loading data from Supabase...",
+    "planner-btn-export": "📅 Export to Calendar (.ics)"
   }
 };
 
