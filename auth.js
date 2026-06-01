@@ -1,7 +1,13 @@
 // === ZENTRALE SUPABASE KONFIGURATION ===
 const SUPABASE_URL = "https://huprxirlthkisjngwash.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_yModrA5JZTiN5Cw7MHQqLQ_Coc04WAS";
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// WICHTIG: Passkey-Support direkt beim Start der Verbindung aktivieren
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+        experimental: { passkey: true }
+    }
+});
 
 // Global verfügbar machen
 window.supabaseClient = supabaseClient;
@@ -23,6 +29,46 @@ window.uploadImage = async function(file, folder) {
     const { data } = window.supabaseClient.storage.from('images').getPublicUrl(filePath);
     return data.publicUrl;
 };
+
+// ==========================================
+// --- NEU: PASSKEY FUNKTIONEN (FaceID / TouchID) ---
+// ==========================================
+
+// 1. Passkey-Login (für bestehende Passkey-Nutzer)
+window.loginWithPasskey = async function() {
+    const btn = document.querySelector('#modal-login-view button[onclick="loginWithPasskey()"]');
+    const oldText = btn.innerText;
+    btn.innerText = "Warte auf Fingerabdruck/FaceID...";
+
+    const { data, error } = await window.supabaseClient.auth.signInWithPasskey();
+
+    if (error) {
+        btn.innerText = oldText;
+        alert("Passkey-Login fehlgeschlagen oder abgebrochen: " + error.message);
+    } else {
+        // Bei Erfolg lädt die Seite von selbst neu durch den Auth-Listener unten
+        btn.innerText = "Erfolgreich!";
+    }
+};
+
+// 2. Gerät als Passkey registrieren (für eingeloggte Nutzer im Einstellungs-Menü)
+window.registerPasskey = async function() {
+    const btn = document.querySelector('#modal-settings-view button[onclick="registerPasskey()"]');
+    const oldText = btn.innerText;
+    btn.innerText = "Bitte Sensor berühren...";
+
+    const { data, error } = await window.supabaseClient.auth.registerPasskey();
+
+    if (error) {
+        btn.innerText = oldText;
+        alert("Fehler bei der Passkey-Registrierung: " + error.message);
+    } else {
+        btn.innerText = "✓ Gerät erfolgreich als Passkey hinterlegt!";
+        btn.style.backgroundColor = "#2ecc71"; // Erfolgs-Grün
+    }
+};
+
+// ==========================================
 
 window.translations = {
   de: {
