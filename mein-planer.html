@@ -9,7 +9,7 @@
 
     <style>
         /* Modernes Variablen-System für Hell- und Dunkelmodus */
-        :root {
+        :root, html[data-theme="light"] {
             --bg-color: #f8f9fa;
             --card-bg: #ffffff;
             --text-color: #1e293b;
@@ -26,8 +26,21 @@
             --radius: 8px;
         }
 
+        /* Dunkler Modus (wird über data-theme oder Systempräferenz gesteuert) */
+        html[data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --input-bg: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Falls der Nutzer noch nichts gewählt hat, gilt die System-Einstellung */
         @media (prefers-color-scheme: dark) {
-            :root {
+            html:not([data-theme="light"]) {
                 --bg-color: #0f172a;
                 --card-bg: #1e293b;
                 --text-color: #f8fafc;
@@ -49,7 +62,7 @@
         .main-nav a.inactive { color: var(--text-muted); border: 1px solid transparent; }
         .main-nav a.inactive:hover { color: var(--text-color); background-color: var(--bg-color); }
 
-        /* HEADER CONTROLS MIT FLEXBOX UND VERTIKALEM RE-ALIGNMENT */
+        /* HEADER CONTROLS MIT HORIZONTALEM FLEX-REALIGNMENT */
         .header-controls { 
             position: absolute; 
             top: 50%; 
@@ -66,7 +79,28 @@
             gap: 16px;
         }
 
-        /* STYLING FÜR DEN HOCHWERTIGEN PROFILBILD-WRAPPER */
+        /* Styling für den Theme-Button im Header */
+        .theme-toggle-btn {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+            width: 38px;
+            height: 38px;
+        }
+        .theme-toggle-btn:hover {
+            border-color: var(--text-muted);
+            background-color: var(--bg-color);
+        }
+
         #btn-open-settings {
             display: flex;
             align-items: center;
@@ -119,6 +153,8 @@
             align-items: center; 
             z-index: 1000; 
             animation: fadeIn 0.2s ease-out;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .modal-content { 
@@ -127,10 +163,12 @@
             border-radius: 12px; 
             border: 1px solid var(--border-color); 
             width: 100%; 
-            max-width: 420px; 
+            max-width: 440px; 
+            max-height: 90vh; /* Verhindert das vertikale Ausbrechen aus dem Bildschirm */
+            overflow-y: auto; /* Aktiviert den internen Scrollbalken für lange Formulare */
+            position: relative;
             box-sizing: border-box; 
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            position: relative;
         }
 
         .modal-content h3 { 
@@ -140,20 +178,22 @@
             font-size: 24px;
             font-weight: 700; 
             letter-spacing: -0.5px;
+            padding-right: 20px;
         }
 
         .modal-close-trigger {
             position: absolute;
-            top: 20px;
+            top: 24px;
             right: 24px;
             background: transparent;
             border: none;
             color: var(--text-muted);
-            font-size: 22px;
+            font-size: 26px;
             cursor: pointer;
             padding: 4px;
             line-height: 1;
             transition: color 0.15s;
+            z-index: 1010;
         }
         .modal-close-trigger:hover { color: var(--text-color); }
 
@@ -189,7 +229,7 @@
             header { padding: 12px 8px !important; }
             header h1 { font-size: 19px !important; margin-bottom: 8px !important; }
             header p { font-size: 11px !important; margin-top: 2px !important; }
-            .header-controls { position: static !important; display: flex !important; flex-direction: row !important; justify-content: center !important; align-items: center !important; gap: 12px !important; margin-top: 10px !important; width: 100% !important; }
+            .header-controls { position: static !important; display: flex !important; flex-direction: row !important; justify-content: center !important; align-items: center !important; gap: 12px !important; margin-top: 10px !important; width: 100% !important; transform: none; }
             #auth-status-container { display: flex !important; align-items: center !important; gap: 8px !important; }
             #btn-open-settings { margin-right: 0 !important; }
             #btn-open-settings img { width: 28px !important; height: 28px !important; border-width: 1px !important; }
@@ -226,6 +266,9 @@
         </nav>
 
         <div class="header-controls">
+            <!-- Manueller Design-Schalter -->
+            <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
+
             <select id="language-select" class="lang-select">
                 <option value="de">DE</option>
                 <option value="en">EN</option>
@@ -280,7 +323,7 @@
         <div class="modal-content">
             <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
             
-            <!-- 1. LOGIN ANSICHT -->
+            <!-- 1. LOGIN ANSICHT MIT PASSKEY BUTTON -->
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
                 
@@ -384,7 +427,7 @@
                     <button type="submit" class="btn-primary-auth" data-txt="btn-save">Änderungen speichern</button>
                 </form>
                 <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
-                <button class="btn-danger-block" id="btn-delete-account">Konto & alle Einträge unwiderruflich löschen</button>
+                <button class="btn-danger-block">Konto & alle Einträge unwiderruflich löschen</button>
             </div>
         </div>
     </div>
@@ -392,16 +435,9 @@
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
             <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
-            
-            <div style="margin-top: 20px;">
-                <a href="https://www.buymeacoffee.com/infojkw" target="_blank" style="background-color: #FFDD00; color: #000; padding: 10px 20px; border-radius: 5px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
-                    ☕ <span data-txt="buy-coffee">Kaffee spendieren</span>
-                </a>
-            </div>
-
-            <div style="margin-top: 15px; font-size: 11px;">
-                &copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.
-            </div>
+     
+            <div style="margin-top: 15px; font-size: 11px;">&copy;
+ 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
 
@@ -410,6 +446,14 @@
         let myMatches = [];
 
         function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
+
+        // Synchronisiert das Theme-Symbol beim Start
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
+            if (typeof updateThemeToggleIcon === "function") {
+                updateThemeToggleIcon(savedThemeSetting);
+            }
+        });
 
         window.onAuthChange = (user) => {
             if (user) {
