@@ -211,82 +211,84 @@ function toggleAuthView(view) {
 }
 window.toggleAuthView = toggleAuthView;
 
-document.addEventListener("DOMContentLoaded", () => {
-  const closeBtn = document.getElementById("btn-close-modal");
-  if (closeBtn) closeBtn.onclick = () => document.getElementById("auth-modal").style.display = "none";
-  
-  const langSelect = document.getElementById("language-select");
-  if (langSelect) langSelect.addEventListener("change", (e) => { applyLanguage(e.target.value); });
 
-  document.getElementById("login-form")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const { error } = await window.supabaseClient.auth.signInWithPassword({
-      email: document.getElementById("login-email").value,
-      password: document.getElementById("login-password").value,
-    });
-    if (error) alert("Login fehlgeschlagen: " + error.message);
-    else location.reload();
+// --- EVENT LISTENERS DIREKT LADEN ---
+
+const closeBtn = document.getElementById("btn-close-modal");
+if (closeBtn) closeBtn.onclick = () => document.getElementById("auth-modal").style.display = "none";
+
+const langSelect = document.getElementById("language-select");
+if (langSelect) langSelect.addEventListener("change", (e) => { applyLanguage(e.target.value); });
+
+document.getElementById("login-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const { error } = await window.supabaseClient.auth.signInWithPassword({
+    email: document.getElementById("login-email").value,
+    password: document.getElementById("login-password").value,
   });
-
-  document.getElementById("register-form")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const { error } = await window.supabaseClient.auth.signUp({
-      email: document.getElementById("register-email").value,
-      password: document.getElementById("register-password").value,
-    });
-    if (error) alert("Registrierung fehlgeschlagen: " + error.message);
-    else { alert("Konto erstellt! Bitte überprüfe dein Postfach."); toggleAuthView("login"); }
-  });
-
-  document.getElementById("forgot-form")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const { error } = await window.supabaseClient.auth.resetPasswordForEmail(document.getElementById("forgot-email").value, {
-      redirectTo: window.location.origin + window.location.pathname,
-    });
-    if (error) alert("Fehler: " + error.message);
-    else { alert("Link zum Zurücksetzen gesendet!"); toggleAuthView("login"); }
-  });
-
-  document.getElementById("reset-password-form")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const { error } = await window.supabaseClient.auth.updateUser({
-      password: document.getElementById("reset-password-input").value
-    });
-    if (error) alert("Fehler: " + error.message);
-    else { 
-      alert(window.currentLang === "en" ? "Password updated! Confirmation email has been sent." : "Passwort erfolgreich aktualisiert! Eine Bestätigungs-E-Mail wurde versendet."); 
-      location.reload(); 
-    }
-  });
-
-  document.getElementById("settings-form")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const newUsername = document.getElementById("settings-username").value;
-    const newPassword = document.getElementById("settings-password").value;
-    
-    let updates = { data: { username: newUsername } };
-    if (newPassword.trim().length >= 6) { updates.password = newPassword; }
-
-    const { error } = await window.supabaseClient.auth.updateUser(updates);
-    if (error) alert("Fehler beim Aktualisieren: " + error.message);
-    else { 
-      alert(window.currentLang === "en" ? "Account updated! Security notice sent if password was changed." : "Konto erfolgreich aktualisiert! Falls das Passwort geändert wurde, wurde eine Bestätigungs-Mail versendet."); 
-      location.reload(); 
-    }
-  });
-
-  document.getElementById("btn-delete-account")?.addEventListener("click", async () => {
-    if (!confirm("⚠️ WARNUNG:\n\nMöchtest du dein Profil und all deine aktiven Marktplatz-Inserate wirklich unwiderruflich löschen?")) return;
-    await window.supabaseClient.from("matches").delete().eq("seller_email", window.currentUser.email);
-    await window.supabaseClient.auth.updateUser({ data: { deleted: true, username: "Gelöschter Schütze" } });
-    await window.supabaseClient.auth.signOut();
-    alert("Dein Konto und deine Inserate wurden erfolgreich entfernt.");
-    location.reload();
-  });
-  
-  applyLanguage("de");
-  checkUserStatus();
+  if (error) alert("Login fehlgeschlagen: " + error.message);
+  else location.reload();
 });
+
+document.getElementById("register-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const { error } = await window.supabaseClient.auth.signUp({
+    email: document.getElementById("register-email").value,
+    password: document.getElementById("register-password").value,
+  });
+  if (error) alert("Registrierung fehlgeschlagen: " + error.message);
+  else { alert("Konto erstellt! Bitte überprüfe dein Postfach."); toggleAuthView("login"); }
+});
+
+document.getElementById("forgot-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const { error } = await window.supabaseClient.auth.resetPasswordForEmail(document.getElementById("forgot-email").value, {
+    redirectTo: window.location.origin + window.location.pathname,
+  });
+  if (error) alert("Fehler: " + error.message);
+  else { alert("Link zum Zurücksetzen gesendet!"); toggleAuthView("login"); }
+});
+
+document.getElementById("reset-password-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const { error } = await window.supabaseClient.auth.updateUser({
+    password: document.getElementById("reset-password-input").value
+  });
+  if (error) alert("Fehler: " + error.message);
+  else { 
+    alert(window.currentLang === "en" ? "Password updated! Confirmation email has been sent." : "Passwort erfolgreich aktualisiert! Eine Bestätigungs-E-Mail wurde versendet."); 
+    location.reload(); 
+  }
+});
+
+document.getElementById("settings-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const newUsername = document.getElementById("settings-username").value;
+  const newPassword = document.getElementById("settings-password").value;
+  
+  let updates = { data: { username: newUsername } };
+  if (newPassword.trim().length >= 6) { updates.password = newPassword; }
+
+  const { error } = await window.supabaseClient.auth.updateUser(updates);
+  if (error) alert("Fehler beim Aktualisieren: " + error.message);
+  else { 
+    alert(window.currentLang === "en" ? "Account updated! Security notice sent if password was changed." : "Konto erfolgreich aktualisiert! Falls das Passwort geändert wurde, wurde eine Bestätigungs-Mail versendet."); 
+    location.reload(); 
+  }
+});
+
+document.getElementById("btn-delete-account")?.addEventListener("click", async () => {
+  if (!confirm("⚠️ WARNUNG:\n\nMöchtest du dein Profil und all deine aktiven Marktplatz-Inserate wirklich unwiderruflich löschen?")) return;
+  await window.supabaseClient.from("matches").delete().eq("seller_email", window.currentUser.email);
+  await window.supabaseClient.auth.updateUser({ data: { deleted: true, username: "Gelöschter Schütze" } });
+  await window.supabaseClient.auth.signOut();
+  alert("Dein Konto und deine Inserate wurden erfolgreich entfernt.");
+  location.reload();
+});
+
+// Initiale Setups
+applyLanguage("de");
+checkUserStatus();
 
 window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
   window.currentUser = session?.user || null;
