@@ -426,10 +426,10 @@
         <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Von Schützen für Schützen – Live Marktplatz</p>
         
         <nav class="main-nav">
-            <a href="index.html" class="active">Marktplatz</a>
-            <a href="freie-matches.html" class="inactive">Freie Match-Plätze</a>
-            <a href="mein-planer.html" class="inactive">Mein Planer</a>
-            <a href="community.html" class="inactive">Community</a>
+            <a href="index.html" class="active" data-txt="nav-marketplace">Marktplatz</a>
+            <a href="freie-matches.html" class="inactive" data-txt="nav-free-slots">Freie Match-Plätze</a>
+            <a href="mein-planer.html" class="inactive" data-txt="nav-my-planner">Mein Planer</a>
+            <a href="community.html" class="inactive" data-txt="nav-community">Community</a>
         </nav>
         
         <div class="header-controls">
@@ -550,7 +550,7 @@
                 <form id="login-form">
                     <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required placeholder="name@beispiel.de"></div>
                     <div class="form-group">
-                        <label data-txt="lbl-password">Passwort *</label>
+                        <label style="margin-bottom: 6px;">Passwort *</label>
                         <input type="password" id="login-password" required placeholder="••••••••">
                         <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
                     </div>
@@ -564,7 +564,7 @@
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
                     <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="register-email" required placeholder="name@beispiel.de"></div>
-                    <div class="form-group"><label data-txt="lbl-password">Passwort *</label><input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen"></div>
+                    <div class="form-group"><label style="margin-bottom: 6px;">Passwort *</label><input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen"></div>
                     
                     <div class="form-group" style="flex-direction: row; align-items: flex-start; gap: 10px; margin-top: 5px; margin-bottom: 20px;">
                         <input type="checkbox" id="register-agb" required style="margin-top: 3px; width: 16px; height: 16px; cursor: pointer;">
