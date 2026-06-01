@@ -184,8 +184,8 @@
             border: 1px solid var(--border-color); 
             width: 100%; 
             max-width: 440px; 
-            max-height: 90vh; /* Verhindert das vertikale Ausbrechen aus dem Bildschirm */
-            overflow-y: auto; /* Aktiviert den internen Scrollbalken für lange Formulare */
+            max-height: 90vh; 
+            overflow-y: auto; 
             position: relative;
             box-sizing: border-box; 
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -279,7 +279,7 @@
 <body>
 
     <header>
-        <h1 data-txt="main-title">COMMUNITY FEED</h1>
+        <h1 data-txt="comm-title">COMMUNITY FEED</h1>
         <nav class="main-nav">
             <a href="index.html" class="inactive" data-txt="nav-marketplace">Marktplatz</a>
             <a href="freie-matches.html" class="inactive" data-txt="nav-free-slots">Freie Match-Plätze</a>
@@ -287,7 +287,6 @@
             <a href="community.html" class="active" data-txt="nav-community">Community</a>
         </nav>
         <div class="header-controls">
-            <!-- Manueller Design-Schalter -->
             <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
 
             <select id="language-select" class="lang-switch">
@@ -303,38 +302,38 @@
     <div class="container">
         
         <div class="social-nav">
-            <button id="tab-feed-btn" class="social-tab active" onclick="switchTab('feed')">Beiträge</button>
-            <button id="tab-groups-btn" class="social-tab" onclick="switchTab('groups')">Gruppen</button>
+            <button id="tab-feed-btn" class="social-tab active" onclick="switchTab('feed')" data-txt="tab-posts">Beiträge</button>
+            <button id="tab-groups-btn" class="social-tab" onclick="switchTab('groups')" data-txt="tab-groups">Gruppen</button>
         </div>
 
         <div id="logged-out-msg">
-            <h2>Werde Teil der Community</h2>
-            <p style="color: var(--text-muted); margin-bottom: 20px;">Bitte logge dich ein, um Beiträge zu lesen und mit anderen Schützen zu diskutieren.</p>
-            <button onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" class="btn-auth" style="background: var(--accent-color); color: #fff; border-color: var(--accent-color);">Jetzt einloggen</button>
+            <h2 data-txt="comm-logged-out-title">Werde Teil der Community</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;" data-txt="comm-logged-out-desc">Bitte logge dich ein, um Beiträge zu lesen und mit anderen Schützen zu diskutieren.</p>
+            <button onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" class="btn-auth" style="background: var(--accent-color); color: #fff; border-color: var(--accent-color);" data-txt="comm-logged-out-btn">Jetzt einloggen</button>
         </div>
 
         <div id="username-setup-section" style="display: none; border-color: var(--accent-color);">
-            <h2>Wähle deinen Schützennamen</h2>
-            <p style="color: var(--text-muted); margin-bottom: 20px;">Bevor du in der Community starten kannst, wähle bitte einen Schützennamen / Anzeigenamen (z.B. IPSCShooter99).</p>
+            <h2 data-txt="comm-setup-title">Wähle deinen Schützennamen</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;" data-txt="comm-setup-desc">Bevor du in der Community starten kannst, wähle bitte einen Schützennamen / Anzeigenamen (z.B. IPSCShooter99).</p>
             <div style="max-width: 320px; margin: 0 auto 15px auto;" class="form-group">
                 <input type="text" id="initial-username" placeholder="z.B. AlphaShooter">
             </div>
-            <button onclick="saveInitialUsername()" style="background: var(--accent-color); color: #fff; width: auto; padding: 12px 30px; font-weight:bold; border:none; border-radius:var(--radius); cursor:pointer; box-shadow: var(--shadow-sm);">Namen speichern & starten</button>
+            <button onclick="saveInitialUsername()" style="background: var(--accent-color); color: #fff; width: auto; padding: 12px 30px; font-weight:bold; border:none; border-radius:var(--radius); cursor:pointer; box-shadow: var(--shadow-sm);" data-txt="comm-setup-btn">Namen speichern & starten</button>
         </div>
 
         <div id="feed-section" style="display: none;">
             <div id="posts-container">
-                <p style="color: var(--text-muted); text-align: center;">Lade Beiträge...</p>
+                <p style="color: var(--text-muted); text-align: center;" data-txt="comm-loading">Lade Beiträge...</p>
             </div>
             
-            <button class="fab" onclick="openPostModal()">
+            <button class="fab" onclick="openPostModal()" data-txt="fab-create-post">
                 <span style="font-size: 20px; margin-top: -2px;">+</span> Beitrag erstellen
             </button>
         </div>
 
         <div id="groups-section" style="display: none; text-align: center; padding: 40px; color: var(--text-muted);">
-            <h3>Gruppen-Funktion (Coming Soon)</h3>
-            <p>Hier wirst du bald private Squad-Gruppen oder Vereins-Kanäle erstellen können.</p>
+            <h3 data-txt="comm-groups-coming">Gruppen-Funktion (Coming Soon)</h3>
+            <p data-txt="comm-groups-desc">Hier wirst du bald private Squad-Gruppen oder Vereins-Kanäle erstellen können.</p>
         </div>
 
     </div>
@@ -343,15 +342,15 @@
         <div class="modal-content">
             <button class="modal-close-trigger" onclick="closePostModal()">&times;</button>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="margin: 0; color: var(--accent-color);">Neuer Beitrag</h3>
+                <h3 style="margin: 0; color: var(--accent-color);" data-txt="modal-new-post">Neuer Beitrag</h3>
             </div>
             <textarea id="post-content" placeholder="Was gibt's Neues rund um IPSC?"></textarea>
             
-            <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:5px; font-weight: 600;">Foto hinzufügen (Optional)</label>
+            <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:5px; font-weight: 600;" data-txt="lbl-add-photo">Foto hinzufügen (Optional)</label>
             <input type="file" id="post-image" accept="image/*" onchange="previewPostImage(this)" style="margin-bottom: 15px; color: var(--text-color); width:100%;">
             <img id="post-image-preview" style="width: 100%; border-radius: var(--radius); margin-bottom: 15px; display: none; object-fit: cover; max-height: 250px; border: 1px solid var(--border-color);">
             
-            <button class="btn-post" id="btn-submit-post" onclick="submitPost()">Teilen</button>
+            <button class="btn-post" id="btn-submit-post" onclick="submitPost()" data-txt="btn-share-post">Teilen</button>
         </div>
     </div>
 
@@ -360,7 +359,7 @@
             <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
             
             <div id="modal-login-view">
-                <h3>Anmelden</h3>
+                <h3 data-txt="modal-login-title">Anmelden</h3>
                 
                 <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
                     <span>📱</span> Login mit FaceID / Fingerabdruck
@@ -376,7 +375,7 @@
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                             <label style="margin-bottom: 0;">Passwort *</label>
-                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
+                            <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
                         </div>
                         <input type="password" id="login-password" required placeholder="••••••••">
                     </div>
@@ -389,7 +388,7 @@
             </div>
 
             <div id="modal-register-view" style="display: none;">
-                <h3>Konto erstellen</h3>
+                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
                     <div class="form-group">
                         <label data-txt="lbl-email">E-Mail *</label>
@@ -413,7 +412,7 @@
             </div>
 
             <div id="modal-forgot-view" style="display: none;">
-                <h3>Passwort vergessen</h3>
+                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
                 <form id="forgot-form">
                     <div class="form-group">
                         <label data-txt="lbl-email">Deine E-Mail-Adresse *</label>
@@ -425,7 +424,7 @@
             </div>
 
             <div id="modal-reset-view" style="display: none;">
-                <h3>Neues Passwort vergeben</h3>
+                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                 <form id="reset-password-form">
                     <div class="form-group">
                         <label data-txt="lbl-new-password">Neues Passwort *</label>
@@ -436,7 +435,7 @@
             </div>
 
             <div id="modal-settings-view" style="display: none;">
-                <h3>Konto-Einstellungen</h3>
+                <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
                 <div class="form-group" style="background-color: rgba(59, 130, 246, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
                     <label style="color: var(--info-color); font-weight: 700;">🔒 Passkey (Schnell-Login)</label>
@@ -551,7 +550,6 @@
                 if (!hasUsername) {
                     document.getElementById('username-setup-section').style.display = 'block';
                 } else {
-                    // NUTZT JETZT DIE SPRACHUNABHÄNGIGE ID-VARIABLE:
                     if (currentActiveTabId === 'feed') document.getElementById('feed-section').style.display = 'block';
                     else document.getElementById('groups-section').style.display = 'block';
                     loadPosts();
