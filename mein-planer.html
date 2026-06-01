@@ -262,16 +262,35 @@
             myMatches.forEach(match => {
                 const dateObj = new Date(match.match_date);
                 const displayDate = dateObj.toLocaleDateString('de-DE');
+                
+                // Sicheres Escapen für die URL-Übergabe
+                const safeName = encodeURIComponent(match.match_name);
+                const safeLocation = encodeURIComponent(match.match_location || '');
+                
                 container.innerHTML += `
                     <div class="match-item">
                         <div>
                             <h4>${escapeHtml(match.match_name)}</h4>
                             <p>📅 ${displayDate} | 📍 ${escapeHtml(match.match_location || '-')}</p>
                         </div>
-                        <button onclick="deleteMatch(${match.id})" class="delete-btn">Löschen</button>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button onclick="inserierenAufMarktplatz('${safeName}', '${match.match_date}', '${safeLocation}')" style="background-color: var(--accent-color); color: #000; width: auto; padding: 6px 12px; font-size: 12px;">📢 Inserieren</button>
+                            <button onclick="deleteMatch(${match.id})" class="delete-btn">Löschen</button>
+                        </div>
                     </div>
                 `;
             });
+        }
+        
+        // Neue Funktion für die Weiterleitung zum Marktplatz
+        function inserierenAufMarktplatz(name, date, location) {
+            const params = new URLSearchParams({
+                from_planner: 'true',
+                name: decodeURIComponent(name),
+                date: date,
+                location: decodeURIComponent(location)
+            });
+            window.location.href = 'index.html?' + params.toString();
         }
 
         function exportToCalendar() {
