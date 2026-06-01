@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freie Match-Plätze | Startplatz Börse</title>
     
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <style>
         :root {
             --bg-color: #1a1a1a;
@@ -16,8 +14,6 @@
             --text-muted: #aaaaaa;
             --danger-color: #ff4d4d;
             --success-color: #2ecc71;
-            --input-bg: #333333;
-            --info-color: #3498db;
         }
 
         body {
@@ -68,49 +64,6 @@
         }
         .main-nav a.inactive:hover {
             color: var(--text-color);
-        }
-
-        .header-controls {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        @media (max-width: 768px) {
-            .header-controls {
-                position: static !important;
-                justify-content: center;
-                margin-top: 15px;
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
-
-        .btn-auth {
-            background-color: transparent;
-            color: var(--accent-color);
-            border: 2px solid var(--accent-color);
-            padding: 8px 16px;
-            font-weight: bold;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .btn-auth:hover {
-            background-color: var(--accent-color);
-            color: #000;
-        }
-
-        .lang-select {
-            background: #222;
-            color: #fff;
-            border: 1px solid #444;
-            padding: 6px 10px;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 13px;
         }
 
         .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1;
@@ -208,16 +161,6 @@
 
         .loading-msg { text-align: center; color: var(--text-muted); padding: 4px; font-style: italic;
         }
-
-        /* Modal-Styling */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 6px; border: 1px solid var(--accent-color); width: 100%; max-width: 400px; box-sizing: border-box; }
-        .modal-content h3 { color: var(--accent-color); margin-top: 0; }
-        .modal-footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-        .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; }
-        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
-        .form-group label { display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 14px; font-weight: bold; }
-        .form-group input { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #555; background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box; font-family: inherit; }
 
         footer {
             background-color: #0f0f0f;
@@ -360,36 +303,26 @@
 <body>
 
     <header>
-        <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
-        <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Von Schützen für Schützen – Live Marktplatz</p>
+        <h1>IPSC STARTPLATZ-BÖRSE</h1>
+        <p style="color: var(--text-muted); margin: 5px 0 0 0;">Von Schützen für Schützen – Live Marktplatz</p>
         
         <nav class="main-nav">
-            <a href="index.html" class="inactive" data-txt="nav-marketplace">Marktplatz</a>
-            <a href="freie-matches.html" class="active" data-txt="nav-free-slots">Freie Match-Plätze</a>
-            <a href="mein-planer.html" class="inactive" data-txt="nav-my-planner">Mein Planer</a>
-            <a href="community.html" class="inactive" data-txt="nav-community">Community</a>
+            <a href="index.html" class="inactive">Marktplatz</a>
+            <a href="freie-matches.html" class="active">Freie Match-Plätze</a>
+            <a href="mein-planer.html" class="inactive">Mein Planer</a>
+            <a href="community.html" class="inactive">Community</a>
         </nav>
-
-        <div class="header-controls">
-            <select id="language-select" class="lang-select">
-                <option value="de">DE</option>
-                <option value="en">EN</option>
-            </select>
-            <div id="auth-status-container">
-                <button class="btn-auth" id="btn-open-login" onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" data-txt="btn-login-reg">Login / Registrieren</button>
-            </div>
-        </div>
     </header>
 
     
     <div class="container">
         
-        <div class="info-box" data-txt="free-info-box">
+        <div class="info-box">
             <strong>Info:</strong> Die Matches werden automatisch im Hintergrund aktualisiert.
             Es werden nur Turniere angezeigt, die eine Auslastung von unter 100% aufweisen (freie Startplätze).
         </div>
 
-        <h2 style="margin-bottom: 20px;" data-txt="free-list-title">Verfügbare Matches auf MatchSign (Auslastung &lt; 100%)</h2>
+        <h2 style="margin-bottom: 20px;">Verfügbare Matches auf MatchSign (Auslastung &lt; 100%)</h2>
 
         <div class="filter-container" id="match-filters" style="display: none;">
             <select id="filter-region">
@@ -406,91 +339,20 @@
         </div>
 
         <div class="match-list" id="js-match-container">
-            <p class="loading-msg" id="js-status-text" data-txt="free-loading">Lade aktuelle Matches...</p>
+            <p class="loading-msg" id="js-status-text">Lade aktuelle Matches...</p>
         </div>
 
-    </div>
-
-    <div class="modal" id="auth-modal">
-        <div class="modal-content">
-            <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
-            
-            <div id="modal-login-view">
-                <h3>Anmelden</h3>
-                <form id="login-form">
-                    <div class="form-group"><label>E-Mail *</label><input type="email" id="login-email" required></div>
-                    <div class="form-group">
-                        <label>Passwort *</label>
-                        <input type="password" id="login-password" required>
-                        <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;">Passwort vergessen?</a>
-                    </div>
-                    <button type="submit" class="btn-submit" style="width:100%;">Einloggen</button>
-                    <button type="button" onclick="loginWithPasskey()" style="width:100%; margin-top:10px; background-color:#34495e; color:#fff;">🔑 Mit Passkey einloggen (FaceID/TouchID)</button>
-                </form>
-                <div class="modal-footer"><span>Noch kein Konto?</span><a onclick="toggleAuthView('register')">Registrieren</a></div>
-            </div>
-
-            <div id="modal-register-view" style="display: none;">
-                <h3>Konto erstellen</h3>
-                <form id="register-form">
-                    <div class="form-group"><label>E-Mail *</label><input type="email" id="register-email" required></div>
-                    <div class="form-group"><label>Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
-                    <button type="submit" class="btn-submit" style="width:100%;">Konto erstellen</button>
-                </form>
-                <div class="modal-footer"><span>Bereits registriert?</span><a onclick="toggleAuthView('login')">Zum Login</a></div>
-            </div>
-
-            <div id="modal-forgot-view" style="display: none;">
-                <h3>Passwort zurücksetzen</h3>
-                <form id="forgot-form">
-                    <div class="form-group"><label>Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required></div>
-                    <button type="submit" class="btn-submit" style="width:100%;">Zurücksetzungs-Link senden</button>
-                </form>
-                <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')">Zurück zum Login</a></div>
-            </div>
-
-            <div id="modal-reset-view" style="display: none;">
-                <h3>Neues Passwort vergeben</h3>
-                <form id="reset-password-form">
-                    <div class="form-group"><label>Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
-                    <button type="submit" class="btn-submit" style="width:100%;">Speichern</button>
-                </form>
-            </div>
-
-            <div id="modal-settings-view" style="display: none;">
-                <h3>Konto-Einstellungen</h3>
-                <form id="settings-form">
-                    <div class="form-group">
-                        <label>Schützenname / Anzeigename</label>
-                        <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
-                    </div>
-                    <div class="form-group">
-                        <label>Profilbild (Optional)</label>
-                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
-                        <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
-                    </div>
-                    <div class="form-group">
-                        <label>Neues Passwort ändern (Optional)</label>
-                        <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
-                    </div>
-                    <button type="submit" class="btn-submit" style="width:100%;">Änderungen speichern</button>
-                </form>
-                <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
-                <button class="btn-danger-block" id="btn-delete-account">Konto & alle Einträge unwiderruflich löschen</button>
-            </div>
-        </div>
     </div>
 
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
-            <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">Impressum & Rechtliche Hinweise</a>
      
             <div style="margin-top: 15px; font-size: 11px;">&copy;
  2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
 
-    <script src="auth.js"></script>
     <script>
     let allMatches = [];
 
@@ -501,8 +363,7 @@
           const container = document.getElementById('js-match-container');
           
           if (allMatches.length === 0) {
-              const noMatchesTxt = window.currentLang === "en" ? "Currently all matches are 100% booked." : "Aktuell sind alle Matches zu 100% belegt.";
-              container.innerHTML = `<p>${noMatchesTxt}</p>`;
+              container.innerHTML = "<p>Aktuell sind alle Matches zu 100% belegt.</p>";
               document.getElementById('match-filters').style.display = 'none';
               return;
           }
@@ -513,15 +374,10 @@
       })
       .catch(err => {
           console.error("Fehler beim Laden:", err);
-          const errorTxt = window.currentLang === "en" ? "Error loading data. Please reload the page." : "Fehler beim Laden der Daten. Bitte lade die Seite neu.";
-          document.getElementById('js-match-container').innerHTML = `<p class='loading-msg'>${errorTxt}</p>`;
+          document.getElementById('js-match-container').innerHTML = "<p class='loading-msg'>Fehler beim Laden der Daten. Bitte lade die Seite neu.</p>";
       });
 
     function setupFilters(matches) {
-        const currentRegionVal = document.getElementById('filter-region').value || 'all';
-        const currentDisziplinVal = document.getElementById('filter-disziplin').value || 'all';
-        const currentLevelVal = document.getElementById('filter-level').value || 'all';
-
         const regions = [...new Set(matches.map(m => m.region))].filter(r => r && r !== "N/A" && r !== "-").sort();
         const disziplinen = [...new Set(matches.map(m => m.disziplin))].filter(d => d && d !== "-").sort();
         const levels = [...new Set(matches.map(m => m.level))].filter(l => l && l !== "-").sort();
@@ -530,25 +386,9 @@
         const disziplinSelect = document.getElementById('filter-disziplin');
         const levelSelect = document.getElementById('filter-level');
 
-        const allCountriesTxt = window.currentLang === "en" ? "All Countries" : "Alle Länder";
-        const allDisciplinesTxt = window.currentLang === "en" ? "All Disciplines" : "Alle Disziplinen";
-        const allLevelsTxt = window.currentLang === "en" ? "All Levels" : "Alle Level";
-
-        regionSelect.innerHTML = `<option value="all">${allCountriesTxt}</option>`;
-        disziplinSelect.innerHTML = `<option value="all">${allDisciplinesTxt}</option>`;
-        levelSelect.innerHTML = `<option value="all">${allLevelsTxt}</option>`;
-
         regions.forEach(r => regionSelect.innerHTML += `<option value="${r}">${r}</option>`);
         disziplinen.forEach(d => disziplinSelect.innerHTML += `<option value="${d}">${d}</option>`);
         levels.forEach(l => levelSelect.innerHTML += `<option value="${l}">Level ${l}</option>`);
-
-        regionSelect.value = currentRegionVal;
-        disziplinSelect.value = currentDisziplinVal;
-        levelSelect.value = currentLevelVal;
-
-        regionSelect.removeEventListener('change', applyFilters);
-        disziplinSelect.removeEventListener('change', applyFilters);
-        levelSelect.removeEventListener('change', applyFilters);
 
         regionSelect.addEventListener('change', applyFilters);
         disziplinSelect.addEventListener('change', applyFilters);
@@ -575,13 +415,9 @@
         const container = document.getElementById('js-match-container');
         
         if (matchesToDisplay.length === 0) {
-            const noComboTxt = window.currentLang === "en" ? "No matches found for this filter combination." : "Keine Matches für diese Filterkombination gefunden.";
-            container.innerHTML = `<p style="padding: 10px;">${noComboTxt}</p>`;
+            container.innerHTML = '<p style="padding: 10px;">Keine Matches für diese Filterkombination gefunden.</p>';
             return;
         }
-
-        const loadBadgeTxt = window.currentLang === "en" ? "Capacity:" : "Auslastung:";
-        const btnTxt = window.currentLang === "en" ? "Go to Match" : "Zum Match";
 
         let html = matchesToDisplay.map(match => `
             <a href="${match.url}" target="_blank" style="text-decoration: none; color: inherit; display: block;">
@@ -590,29 +426,20 @@
                         <h3>${match.name}</h3>
                         <div class="badge-container">
                             <span class="badge-datum">📅 ${match.datum || 'N/A'}</span>
-                            <span class="badge">${loadBadgeTxt} ${match.auslastung}</span>
+                            <span class="badge">Auslastung: ${match.auslastung}</span>
                             <span class="badge-region">Reg: ${match.region || '-'}</span>
                             <span class="badge-lvl">Level: ${match.level || '-'}</span>
                             <span class="badge-disziplin">${match.disziplin || '-'}</span>
                         </div>
                     </div>
                     <div class="card-actions">
-                        <span class="btn-contact">${btnTxt}</span>
+                        <span class="btn-contact">Zum Match</span>
                     </div>
                 </div>
             </a>
         `).join('');
         container.innerHTML = html;
     }
-
-    window.onLanguageChanged = () => { 
-        const selector = document.getElementById("language-select");
-        if (selector) selector.value = window.currentLang;
-        if (allMatches.length > 0) {
-            setupFilters(allMatches);
-            applyFilters();
-        }
-    };
     </script>
 
 </body>
