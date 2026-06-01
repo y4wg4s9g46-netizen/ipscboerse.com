@@ -69,17 +69,35 @@
             color: var(--text-color);
         }
 
+        /* HEADER CONTROLS ANGEPASST FÜR PROFILBILD-ZENTRIERUNG */
         .header-controls {
             position: absolute;
-            top: 20px;
+            top: 50%;
             right: 20px;
+            transform: translateY(-50%);
             display: flex;
             align-items: center;
             gap: 15px;
         }
 
+        #auth-status-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #btn-open-settings {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s ease;
+        }
+        #btn-open-settings:hover {
+            transform: scale(1.05);
+        }
+
         @media (max-width: 768px) {
-            .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; }
+            .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; transform: none; }
         }
 
         .lang-switch {
@@ -127,17 +145,35 @@
         .filter-bar.group { display: flex; align-items: center; gap: 10px; }
         .filter-group label { margin: 0; color: #fff; white-space: nowrap; }
 
+        /* MODAL POPUP FIXES (Höhe & Scrollbarkeit) */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000;
+            padding: 20px; box-sizing: border-box;
         }
 
         .modal-content {
             background-color: var(--card-bg); padding: 30px; border-radius: 6px;
             border: 1px solid var(--accent-color); width: 100%; max-width: 400px; box-sizing: border-box;
+            max-height: 90vh; overflow-y: auto; position: relative;
         }
 
-        .modal-content h3 { color: var(--accent-color); margin-top: 0; }
+        .modal-content h3 { color: var(--accent-color); margin-top: 0; padding-right: 30px; }
+        
+        /* DAS NEUE SCHLIESSEN-KREUZ (X) */
+        .modal-close-trigger {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: var(--text-muted);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            z-index: 1010;
+        }
+        .modal-close-trigger:hover { color: var(--accent-color); }
+
         .modal-content .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
         .modal-content input { background-color: #1a1a1a; border: 1px solid #555; color: #fff; padding: 10px; border-radius: 4px; }
         .modal-footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
@@ -279,6 +315,7 @@
                 gap: 12px !important;
                 margin-top: 10px !important;
                 width: 100% !important;
+                transform: none;
             }
             #auth-status-container {
                 display: flex !important;
@@ -497,88 +534,36 @@
 
     <div class="modal" id="auth-modal">
         <div class="modal-content">
-            <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
+            <!-- HIER IST DAS X EINGEFÜGT WORDEN -->
+            <span class="modal-close-trigger" id="btn-close-modal">&times;</span>
             
-            <!-- MODIFIZIERT: Login Ansicht mit Passkey Button erweitert -->
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
-                
-                <button type="button" class="btn-submit" style="width:100%; background-color: var(--accent-color); color: #1a1a1a; margin-bottom: 20px; font-size: 16px;" onclick="loginWithPasskey()">📱 Login mit FaceID / Fingerabdruck</button>
-                
-                <div style="text-align: center; margin-bottom: 20px; color: #777; font-size: 14px;">oder klassisch mit E-Mail</div>
-
                 <form id="login-form">
                     <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required></div>
-                    <div class="form-group">
-                        <label data-txt="lbl-password">Passwort *</label>
-                        <input type="password" id="login-password" required>
-                        <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
-                    </div>
-                    <button type="submit" class="btn-submit" style="width:100%; background-color: #555; color: white;" data-txt="modal-btn-login">Mit Passwort einloggen</button>
+                    <div class="form-group"><label data-txt="lbl-password">Passwort *</label><input type="password" id="login-password" required></div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-login">Einloggen</button>
                 </form>
                 <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a></div>
             </div>
 
-            <!-- MODIFIZIERT: Registrierungs-Ansicht mit AGB Checkbox -->
             <div id="modal-register-view" style="display: none;">
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
                     <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="register-email" required></div>
                     <div class="form-group"><label data-txt="lbl-password">Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
-                    
-                    <!-- NEU: AGB / Nutzungsbedingungen Checkbox -->
-                    <div class="form-group" style="flex-direction: row; align-items: flex-start; gap: 10px; margin-top: 5px; margin-bottom: 20px;">
-                        <input type="checkbox" id="register-agb" required style="margin-top: 3px; width: 16px; height: 16px; cursor: pointer;">
-                        <label for="register-agb" style="font-size: 12px; color: var(--text-muted); font-weight: normal; line-height: 1.4; margin: 0;">
-                            Ich akzeptiere die AGB und Nutzungsbedingungen. Weitere Details findest du im <a href="/impressum.html" target="_blank" style="color: var(--accent-color); text-decoration: underline;">Impressum</a>. *
-                        </label>
-                    </div>
-
                     <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-reg">Konto erstellen</button>
                 </form>
                 <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a></div>
             </div>
 
-            <div id="modal-forgot-view" style="display: none;">
-                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
-                <form id="forgot-form">
-                    <div class="form-group"><label data-txt="lbl-email">Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required></div>
-                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
-                </form>
-                <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a></div>
-            </div>
-
-            <div id="modal-reset-view" style="display: none;">
-                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
-                <form id="reset-password-form">
-                    <div class="form-group"><label data-txt="lbl-new-password">Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
-                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="btn-save">Speichern</button>
-                </form>
-            </div>
-
-            <!-- MODIFIZIERT: Einstellungs-Ansicht mit Passkey-Registrierung & IPSC Alias erweitert -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
-                
-                <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
-                    <label style="color: #3498db;">🔒 Passkey (Schnell-Login)</label>
-                    <p style="font-size: 12px; margin-top: 0; color: #ccc;">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()">Gerät als Passkey registrieren</button>
-                </div>
-
                 <form id="settings-form">
                     <div class="form-group">
                         <label data-txt="lbl-username">Schützenname / Anzeigename</label>
                         <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
                     </div>
-                    
-                    <!-- NEU: Das IPSC Alias Feld für den Trusted Badge -->
-                    <div class="form-group" style="background-color: rgba(46, 204, 113, 0.1); padding: 12px; border-radius: 4px; border-left: 3px solid #2ecc71; margin-bottom: 20px;">
-                        <label style="color: #2ecc71; margin-bottom: 2px;">🛡️ IPSC Alias / Mitgliedsnummer</label>
-                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: #ccc;">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
-                        <input type="text" id="settings-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
-                    </div>
-
                     <div class="form-group">
                         <label>Profilbild (Optional)</label>
                         <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
