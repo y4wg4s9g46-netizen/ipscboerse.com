@@ -499,6 +499,7 @@
         <div class="modal-content">
             <div style="text-align: right;"><span style="cursor:pointer; font-size: 20px;" id="btn-close-modal">&times;</span></div>
             
+            <!-- MODIFIZIERT: Login Ansicht mit Passkey Button erweitert -->
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
                 
@@ -529,7 +530,7 @@
             </div>
 
             <div id="modal-forgot-view" style="display: none;">
-                <h3 data-txt="modal-forgot-title">Passwort zurücksetzen</h3>
+                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
                 <form id="forgot-form">
                     <div class="form-group"><label data-txt="lbl-email">Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required></div>
                     <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
@@ -545,6 +546,7 @@
                 </form>
             </div>
 
+            <!-- MODIFIZIERT: Einstellungs-Ansicht mit Passkey-Registrierung & IPSC Alias erweitert -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
@@ -559,6 +561,14 @@
                         <label data-txt="lbl-username">Schützenname / Anzeigename</label>
                         <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
                     </div>
+                    
+                    <!-- NEU: Das IPSC Alias Feld für den Trusted Badge -->
+                    <div class="form-group" style="background-color: rgba(46, 204, 113, 0.1); padding: 12px; border-radius: 4px; border-left: 3px solid #2ecc71; margin-bottom: 20px;">
+                        <label style="color: #2ecc71; margin-bottom: 2px;">🛡️ IPSC Alias / Mitgliedsnummer</label>
+                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: #ccc;">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
+                        <input type="text" id="settings-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
+                    </div>
+
                     <div class="form-group">
                         <label>Profilbild (Optional)</label>
                         <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
