@@ -393,15 +393,15 @@
 
         <div class="filter-container" id="match-filters" style="display: none;">
             <select id="filter-region">
-                <option value="all" data-txt="free-all-countries">Alle Länder</option>
+                <option value="all">Alle Länder</option>
             </select>
             
             <select id="filter-disziplin">
-                <option value="all" data-txt="free-all-disciplines">Alle Disziplinen</option>
+                <option value="all">Alle Disziplinen</option>
             </select>
             
             <select id="filter-level">
-                <option value="all" data-txt="free-all-levels">Alle Level</option>
+                <option value="all">Alle Level</option>
             </select>
         </div>
 
@@ -481,7 +481,7 @@
         </div>
     </div>
 
-    <footer id="form-anchor">
+    <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
             <a href="/impressum.html" style="color: var(--accent-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
      
@@ -518,6 +518,10 @@
       });
 
     function setupFilters(matches) {
+        const currentRegionVal = document.getElementById('filter-region').value || 'all';
+        const currentDisziplinVal = document.getElementById('filter-disziplin').value || 'all';
+        const currentLevelVal = document.getElementById('filter-level').value || 'all';
+
         const regions = [...new Set(matches.map(m => m.region))].filter(r => r && r !== "N/A" && r !== "-").sort();
         const disziplinen = [...new Set(matches.map(m => m.disziplin))].filter(d => d && d !== "-").sort();
         const levels = [...new Set(matches.map(m => m.level))].filter(l => l && l !== "-").sort();
@@ -526,7 +530,6 @@
         const disziplinSelect = document.getElementById('filter-disziplin');
         const levelSelect = document.getElementById('filter-level');
 
-        // Standard-Optionen zurücksetzen, damit sie neu übersetzt werden können
         const allCountriesTxt = window.currentLang === "en" ? "All Countries" : "Alle Länder";
         const allDisciplinesTxt = window.currentLang === "en" ? "All Disciplines" : "Alle Disziplinen";
         const allLevelsTxt = window.currentLang === "en" ? "All Levels" : "Alle Level";
@@ -538,6 +541,14 @@
         regions.forEach(r => regionSelect.innerHTML += `<option value="${r}">${r}</option>`);
         disziplinen.forEach(d => disziplinSelect.innerHTML += `<option value="${d}">${d}</option>`);
         levels.forEach(l => levelSelect.innerHTML += `<option value="${l}">Level ${l}</option>`);
+
+        regionSelect.value = currentRegionVal;
+        disziplinSelect.value = currentDisziplinVal;
+        levelSelect.value = currentLevelVal;
+
+        regionSelect.removeEventListener('change', applyFilters);
+        disziplinSelect.removeEventListener('change', applyFilters);
+        levelSelect.removeEventListener('change', applyFilters);
 
         regionSelect.addEventListener('change', applyFilters);
         disziplinSelect.addEventListener('change', applyFilters);
@@ -565,7 +576,7 @@
         
         if (matchesToDisplay.length === 0) {
             const noComboTxt = window.currentLang === "en" ? "No matches found for this filter combination." : "Keine Matches für diese Filterkombination gefunden.";
-            container.innerHTML = `<p style="padding: 10px;">${noComboTxt}</p>';`;
+            container.innerHTML = `<p style="padding: 10px;">${noComboTxt}</p>`;
             return;
         }
 
