@@ -8,6 +8,22 @@ window.supabaseClient = supabaseClient;
 window.currentUser = null;
 window.currentLang = "de";
 
+// Globale Funktion für den Bilder-Upload in Supabase Storage
+window.uploadImage = async function(file, folder) {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+    const filePath = `${folder}/${fileName}`;
+
+    const { error: uploadError } = await window.supabaseClient.storage
+        .from('images')
+        .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data } = window.supabaseClient.storage.from('images').getPublicUrl(filePath);
+    return data.publicUrl;
+};
+
 window.translations = {
   de: {
     "main-title": "IPSC STARTPLATZ-BÖRSE",
@@ -172,9 +188,16 @@ async function checkUserStatus() {
   const user = window.currentUser;
   
   if (user) {
-    const displayName = user.user_metadata?.username || user.email;
+    const displayName = user.user_metadata?.username || user.email.split('@')[0];
+    const avatarUrl = user.user_metadata?.avatar_url;
+    
+    // Profilbild oder reiner Text
+    const avatarHtml = avatarUrl 
+        ? `<img src="${avatarUrl}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 2px solid var(--accent-color);">` 
+        : `<span style="font-weight:bold; color:var(--accent-color);">${escapeHtml(displayName)}</span>`;
+
     if (container) {
-      container.innerHTML = `<span id="btn-open-settings" style="cursor:pointer; font-weight:bold; text-decoration:underline; color:var(--accent-color); margin-right:10px;">${escapeHtml(displayName)}</span><button class="btn-auth" id="btn-logout" style="border-color: var(--danger-color); color: var(--danger-color);">${window.translations[window.currentLang]["logout"]}</button>`;
+      container.innerHTML = `<div id="btn-open-settings" style="cursor:pointer; display:flex; align-items:center; gap:10px; margin-right:15px;">${avatarHtml}</div><button class="btn-auth" id="btn-logout" style="border-color: var(--danger-color); color: var(--danger-color);">${window.translations[window.currentLang]["logout"]}</button>`;
     }
     if (emailField) { emailField.value = user.email; emailField.readOnly = true; }
   } else {
@@ -202,34 +225,36 @@ window.toggleAuthView = toggleAuthView;
 // 1. Klicks auf der ganzen Seite überwachen
 document.addEventListener("click", async (e) => {
     
-    // Login-Button geklickt
     if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
         document.getElementById("auth-modal").style.display = "flex";
         toggleAuthView("login");
     }
     
-    // Modal schließen geklickt
     if (e.target.id === "btn-close-modal" || e.target.closest("#btn-close-modal")) {
         document.getElementById("auth-modal").style.display = "none";
     }
     
-    // Logout geklickt
     if (e.target.id === "btn-logout" || e.target.closest("#btn-logout")) {
         await window.supabaseClient.auth.signOut();
         location.reload();
     }
     
-    // Einstellungen geklickt
     if (e.target.id === "btn-open-settings" || e.target.closest("#btn-open-settings")) {
         document.getElementById("auth-modal").style.display = "flex";
         toggleAuthView("settings");
+        
         const settingsUser = document.getElementById("settings-username");
         if (settingsUser && window.currentUser) {
             settingsUser.value = window.currentUser.user_metadata?.username || "";
         }
+
+        const previewImg = document.getElementById("settings-avatar-preview");
+        if (previewImg && window.currentUser?.user_metadata?.avatar_url) {
+            previewImg.src = window.currentUser.user_metadata.avatar_url;
+            previewImg.style.display = 'block';
+        }
     }
     
-    // Profil löschen geklickt
     if (e.target.id === "btn-delete-account") {
         e.preventDefault();
         if (!confirm("⚠️ WARNUNG:\n\nMöchtest du dein Profil und all deine aktiven Marktplatz-Inserate wirklich unwiderruflich löschen?")) return;
@@ -241,7 +266,19 @@ document.addEventListener("click", async (e) => {
     }
 });
 
-// 2. Formular-Absendungen auf der ganzen Seite überwachen (WICHTIG!)
+// Vorschau-Funktion für Datei-Upload im Menü
+window.previewSettingsAvatar = function(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.getElementById('settings-avatar-preview');
+            if (img) { img.src = e.target.result; img.style.display = 'block'; }
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// 2. Formular-Absendungen auf der ganzen Seite überwachen
 document.addEventListener("submit", async (e) => {
     
     // --- LOGIN ---
@@ -297,20 +334,38 @@ document.addEventListener("submit", async (e) => {
         }
     }
     
-    // --- KONTO EINSTELLUNGEN ---
+    // --- KONTO EINSTELLUNGEN (MIT BILD) ---
     else if (e.target.id === "settings-form") {
         e.preventDefault();
-        const newUsername = document.getElementById("settings-username").value;
-        const newPassword = document.getElementById("settings-password").value;
-        
-        let updates = { data: { username: newUsername } };
-        if (newPassword.trim().length >= 6) { updates.password = newPassword; }
+        const btn = e.target.querySelector('button[type="submit"]');
+        const oldText = btn.innerText;
+        btn.innerText = "Speichere... (Bild lädt hoch)";
 
-        const { error } = await window.supabaseClient.auth.updateUser(updates);
-        if (error) alert("Fehler beim Aktualisieren: " + error.message);
-        else { 
+        try {
+            const newUsername = document.getElementById("settings-username").value;
+            const newPassword = document.getElementById("settings-password").value;
+            
+            // Check if Avatar Input exists and a file is selected
+            const avatarInput = document.getElementById("settings-avatar");
+            const avatarFile = avatarInput && avatarInput.files.length > 0 ? avatarInput.files[0] : null;
+            
+            let updates = { data: { username: newUsername } };
+            if (newPassword.trim().length >= 6) { updates.password = newPassword; }
+
+            // Bild hochladen falls ausgewählt
+            if (avatarFile) {
+                const avatarUrl = await window.uploadImage(avatarFile, 'avatars');
+                updates.data.avatar_url = avatarUrl;
+            }
+
+            const { error } = await window.supabaseClient.auth.updateUser(updates);
+            if (error) throw error;
+            
             alert(window.currentLang === "en" ? "Account updated!" : "Konto erfolgreich aktualisiert!"); 
             location.reload(); 
+        } catch (err) {
+            btn.innerText = oldText;
+            alert("Fehler beim Speichern: " + err.message);
         }
     }
 });
@@ -323,12 +378,9 @@ document.addEventListener("change", (e) => {
 
 // === START LOGIK ===
 
-// Eine minimale Verzögerung gibt dem Planer-Skript Zeit, sich anzumelden, 
-// bevor wir versuchen, den Status zu updaten.
 setTimeout(async () => {
     applyLanguage("de");
     
-    // Aktive Session holen
     const { data: { session } } = await window.supabaseClient.auth.getSession();
     window.currentUser = session?.user || null;
     await checkUserStatus();
@@ -337,7 +389,6 @@ setTimeout(async () => {
         window.onAuthChange(window.currentUser); 
     }
 
-    // Auf zukünftige Änderungen (Logout etc) reagieren
     window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
         window.currentUser = session?.user || null;
         
