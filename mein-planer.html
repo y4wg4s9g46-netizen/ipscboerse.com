@@ -464,6 +464,8 @@
             link.click();
             document.body.removeChild(link);
         }
+
+        window.onLanguageChanged = () => { renderMatches(); };
     </script>
 </body>
 </html>
