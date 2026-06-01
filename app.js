@@ -43,7 +43,11 @@ function renderMatches(matches) {
     const squadBadge = m.match_squad ? `<span class="badge" style="background:#3498db; color:#fff; padding:2px 5px; border-radius:3px;">Squad ${escapeHtml(m.match_squad)}</span>` : "";
     const countryBadge = m.match_country ? `<span class="badge" style="background:#8e44ad; color:#fff; padding:2px 5px; border-radius:3px;">${escapeHtml(m.match_country)}</span>` : "";
 
-    const canManage = window.currentUser && window.currentUser.email === m.seller_email;
+    // Admin-Erkennung für die Steuerung der Buttons auf dem Marktplatz
+    const isSender = window.currentUser && window.currentUser.email === m.seller_email;
+    const isAdmin = window.currentUser && window.currentUser.email === "fabian-schoeps@gmx.de";
+    const canManage = isSender || isAdmin;
+
     const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
     const contactBtnClass = isWant ? "btn-contact btn-contact-want" : "btn-contact";
     const contactText = isWant ? window.translations[window.currentLang]["btn-contact-want"] : window.translations[window.currentLang]["btn-request"];
@@ -164,13 +168,20 @@ function resetFormState() {
 }
 document.getElementById("btn-cancel-edit")?.addEventListener("click", resetFormState);
 
-// Inserat löschen
+// Inserat löschen (Erlaubt dem Besitzer und dem Admin das Löschen)
 async function handleDelete(id, sellerEmail) {
-  if (!window.currentUser || window.currentUser.email !== sellerEmail) { 
+  const isAdmin = window.currentUser && window.currentUser.email === "fabian-schoeps@gmx.de";
+  const isOwner = window.currentUser && window.currentUser.email === sellerEmail;
+
+  if (!isOwner && !isAdmin) { 
       return alert("Fehler: Unberechtigt."); 
   }
   
-  if (!confirm("Möchtest du diesen Eintrag wirklich unwiderruflich löschen?")) return;
+  const text = isAdmin && !isOwner 
+    ? "Möchtest du diesen fremden Eintrag als ADMIN unwiderruflich löschen?" 
+    : "Möchtest du diesen Eintrag wirklich unwiderruflich löschen?";
+    
+  if (!confirm(text)) return;
   
   await window.supabaseClient.from("matches").delete().eq("id", id);
   
@@ -300,3 +311,4 @@ window.onLanguageChanged = () => { if (cachedMatches.length > 0) { renderMatches
 // Start (wird beim Skript-Laden sofort ausgeführt)
 enforceFutureDates();
 checkPlannerImport();
+fetchMatches();
