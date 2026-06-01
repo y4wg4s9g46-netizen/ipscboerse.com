@@ -19,7 +19,6 @@ try:
         if '%' in row.text:
             tds = row.find_all('td')
             if len(tds) >= 4:
-                # Basisdaten aus der Übersichtstabelle auslesen
                 disziplin = tds[0].text.strip()
                 level = tds[1].text.strip()
                 
@@ -28,23 +27,24 @@ try:
                     best_name = match_link.text.strip()
                     detail_url = urllib.parse.urljoin(base_url, match_link.get('href', ''))
                     
-                    # 1. Check in der Hauptübersicht, ob das Wort geschlossen vorkommt
                     is_closed = "geschlossen" in row.text.lower()
                     region = ""
 
-                    # Wenn es nicht offensichtlich geschlossen ist, prüfen wir die Detailseite
                     if not is_closed:
                         try:
-                            d_resp = requests.get(detail_url, headers=headers, timeout=5)
-                            d_text = d_resp.text
+                            # Detailseite laden
+                            d_resp = requests.get(detail_url, headers=headers, timeout=10)
+                            d_soup = BeautifulSoup(d_resp.text, 'html.parser')
                             
-                            # Prüfe, ob auf der Detailseite "Anmeldung geschlossen" steht
-                            if "Anmeldung geschlossen" in d_text:
+                            # Alles an HTML-Code entfernen und in Kleinbuchstaben umwandeln
+                            d_clean_text = d_soup.get_text(" ", strip=True).lower()
+                            
+                            # Der 100% sichere Check auf "anmeldung geschlossen"
+                            if "anmeldung geschlossen" in d_clean_text:
                                 is_closed = True
                             else:
-                                # Lese das Land / die Region aus der Detailseite aus
-                                # Sucht nach dem Wort "Region" gefolgt von einem Länderkürzel (z.B. GER, AUT, SUI)
-                                reg_match = re.search(r'Region.*?(GER|AUT|SUI|NED|BEL|FRA|CZE|POL|DEN|ITA|ESP)', d_text, re.IGNORECASE)
+                                # Region aus dem bereinigten Text suchen (jetzt mit POR und vielen mehr)
+                                reg_match = re.search(r'region.*?(GER|AUT|SUI|NED|BEL|FRA|CZE|POL|DEN|ITA|ESP|POR|GBR|HUN|SVK|SLO|CRO|GRE|FIN|SWE|NOR)', d_clean_text, re.IGNORECASE)
                                 if reg_match:
                                     region = reg_match.group(1).upper()
                                 else:
@@ -52,8 +52,6 @@ try:
                         except:
                             pass
                     
-                    # WICHTIG: Wenn das Match geschlossen ist, wird es sofort übersprungen 
-                    # und gar nicht erst in die json-Datei geschrieben!
                     if is_closed:
                         continue
                     
@@ -66,7 +64,6 @@ try:
                             "level": level,
                             "disziplin": disziplin,
                             "url": detail_url
-                            # Das Feld 'is_closed' haben wir entfernt, da geschlossene Matches ohnehin rausfliegen
                         })
 
     with open('matches.json', 'w', encoding='utf-8') as f:
