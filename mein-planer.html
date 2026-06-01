@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mein Wettkampfplaner | Startplatz Börse</title>
+    
+    <!-- Supabase SDK einbinden -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --accent-color: #ff9f43;
+            --text-color: #ffffff;
+            --text-muted: #aaaaaa;
+            --danger-color: #ff4d4d;
+            --success-color: #2ecc71;
+            --input-bg: #333333;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background-color: #0f0f0f; padding: 20px; text-align: center; border-bottom: 3px solid var(--accent-color); }
+        header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
+        .container { max-width: 800px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
+        
+        #auth-section, #planner-section { background-color: var(--card-bg); padding: 25px; border-radius: 8px; border: 1px solid #444; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 14px; }
+        .form-group input { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #555; background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box; font-family: inherit; }
+        
+        button { background-color: var(--accent-color); color: #000; border: none; padding: 12px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; transition: opacity 0.2s; }
+        button:hover { opacity: 0.9; }
+        .btn-secondary { background-color: #555; color: white; margin-top: 10px; }
+        .btn-danger { background-color: var(--danger-color); color: white; margin-top: 10px; }
+        .btn-success { background-color: var(--success-color); }
+
+        .match-item { background-color: rgba(255, 159, 67, 0.1); border-left: 4px solid var(--accent-color); padding: 15px; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .match-item h4 { margin: 0 0 5px 0; color: var(--text-color); }
+        .match-item p { margin: 0; font-size: 13px; color: var(--text-muted); }
+        .delete-btn { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); width: auto; padding: 5px 10px; font-size: 12px; }
+
+        footer { background-color: #0f0f0f; border-top: 1px solid #444; padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted); text-align: center; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>MEIN WETTKAMPFPLANER</h1>
+        <p style="color: var(--text-muted); margin: 5px 0 0 0;">Cloud-Sync & Kalender-Export</p>
+        <div style="margin-top: 15px;">
+            <a href="index.html" style="color: var(--accent-color); text-decoration: none; font-size: 14px;">&larr; Zurück zur Startseite</a>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- LOGIN / REGISTRIERUNG -->
+        <div id="auth-section">
+            <h2>Login</h2>
+            <p style="color: var(--text-muted); font-size: 14px;">Logge dich ein, um deine Matches zu synchronisieren.</p>
+            <div class="form-group">
+                <input type="email" id="email-input" placeholder="E-Mail Adresse">
+            </div>
+            <div class="form-group">
+                <input type="password" id="password-input" placeholder="Passwort">
+            </div>
+            <button onclick="loginUser()">Einloggen</button>
+            <button onclick="signUpUser()" class="btn-secondary">Neuen Account erstellen</button>
+            <p id="auth-message" style="color: var(--accent-color); text-align: center; margin-top: 10px;"></p>
+        </div>
+
+        <!-- PLANER BEREICH -->
+        <div id="planner-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 15px; margin-bottom: 20px;">
+                <h2 style="margin: 0;">Meine Matches</h2>
+                <button onclick="logoutUser()" class="btn-danger" style="width: auto; padding: 6px 12px; font-size: 12px; margin: 0;">Ausloggen</button>
+            </div>
+
+            <h3>Neues Match eintragen</h3>
+            <div class="form-group">
+                <label>Match-Name</label>
+                <input type="text" id="match-name" placeholder="z.B. Helmbrechts-Cup 2026">
+            </div>
+            <div style="display: flex; gap: 15px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>Datum</label>
+                    <input type="date" id="match-date">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Ort / Land</label>
+                    <input type="text" id="match-location" placeholder="z.B. Philippsburg">
+                </div>
+            </div>
+            <button onclick="addMatch()">Match in Cloud speichern</button>
+
+            <h3 style="margin-top: 40px;">Geplante Matches</h3>
+            <div id="my-matches-list">
+                <p style="color: var(--text-muted); font-style: italic;">Lade Daten aus Supabase...</p>
+            </div>
+
+            <button onclick="exportToCalendar()" class="btn-success" style="margin-top: 20px;">📅 In Kalender exportieren (.ics)</button>
+        </div>
+
+    </div>
+
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto;">
+            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+        </div>
+    </footer>
+
+    <script>
+        // === SUPABASE KONFIGURATION ===
+        // TRAGE HIER DEINE DATEN AUS DEM SUPABASE DASHBOARD EIN:
+        const SUPABASE_URL = 'https://DEINE-PROJEKT-URL.supabase.co';
+        const SUPABASE_ANON_KEY = 'DEIN-ANON-KEY';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentUser = null;
+        let myMatches = [];
+
+        // Prüfe ob User bereits eingeloggt ist (Session Cookie)
+        window.onload = async function() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                showPlanner();
+            }
+        };
+
+        // --- AUTH LOGIK ---
+        async function signUpUser() {
+            const email = document.getElementById('email-input').value;
+            const password = document.getElementById('password-input').value;
+            const msg = document.getElementById('auth-message');
+            
+            const { data, error } = await supabase.auth.signUp({ email, password });
+            if (error) { msg.innerText = error.message; }
+            else { msg.innerText = "Registrierung erfolgreich! (Bitte ggf. E-Mail bestätigen)"; }
+        }
+
+        async function loginUser() {
+            const email = document.getElementById('email-input').value;
+            const password = document.getElementById('password-input').value;
+            const msg = document.getElementById('auth-message');
+            
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) { 
+                msg.innerText = "Login fehlgeschlagen. Daten prüfen."; 
+            } else {
+                currentUser = data.user;
+                showPlanner();
+            }
+        }
+
+        async function logoutUser() {
+            await supabase.auth.signOut();
+            currentUser = null;
+            document.getElementById('planner-section').style.display = 'none';
+            document.getElementById('auth-section').style.display = 'block';
+            document.getElementById('email-input').value = '';
+            document.getElementById('password-input').value = '';
+        }
+
+        // --- DATENBANK LOGIK ---
+        function showPlanner() {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('planner-section').style.display = 'block';
+            loadMatchesFromSupabase();
+        }
+
+        async function loadMatchesFromSupabase() {
+            // Holt nur die Matches des eingeloggten Users (durch RLS gesichert)
+            const { data, error } = await supabase
+                .from('user_matches')
+                .select('*')
+                .order('match_date', { ascending: true });
+
+            if (error) {
+                console.error("Fehler beim Laden:", error);
+                return;
+            }
+            
+            myMatches = data;
+            renderMatches();
+        }
+
+        async function addMatch() {
+            const name = document.getElementById('match-name').value.trim();
+            const date = document.getElementById('match-date').value;
+            const location = document.getElementById('match-location').value.trim();
+
+            if (!name || !date) {
+                alert("Match-Name und Datum sind Pflichtfelder.");
+                return;
+            }
+
+            // In Supabase speichern
+            const { data, error } = await supabase
+                .from('user_matches')
+                .insert([
+                    { user_id: currentUser.id, match_name: name, match_date: date, match_location: location }
+                ]);
+
+            if (error) {
+                alert("Fehler beim Speichern: " + error.message);
+                return;
+            }
+
+            // Felder leeren und Liste neu laden
+            document.getElementById('match-name').value = '';
+            document.getElementById('match-date').value = '';
+            document.getElementById('match-location').value = '';
+            loadMatchesFromSupabase();
+        }
+
+        async function deleteMatch(id) {
+            const { error } = await supabase
+                .from('user_matches')
+                .delete()
+                .eq('id', id);
+
+            if (!error) {
+                loadMatchesFromSupabase();
+            }
+        }
+
+        // --- UI & KALENDER EXPORT ---
+        function renderMatches() {
+            const container = document.getElementById('my-matches-list');
+            container.innerHTML = '';
+
+            if (myMatches.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Noch keine Matches eingetragen.</p>';
+                return;
+            }
+
+            myMatches.forEach(match => {
+                const dateObj = new Date(match.match_date);
+                const displayDate = dateObj.toLocaleDateString('de-DE');
+
+                container.innerHTML += `
+                    <div class="match-item">
+                        <div>
+                            <h4>${match.match_name}</h4>
+                            <p>📅 ${displayDate} | 📍 ${match.match_location || '-'}</p>
+                        </div>
+                        <button onclick="deleteMatch(${match.id})" class="delete-btn">Löschen</button>
+                    </div>
+                `;
+            });
+        }
+
+        function exportToCalendar() {
+            if (myMatches.length === 0) { alert("Keine Matches zum Exportieren."); return; }
+
+            let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//IPSC Boerse//Wettkampfplaner//DE\nCALSCALE:GREGORIAN\n";
+            myMatches.forEach(match => {
+                const dateStr = match.match_date.replace(/-/g, '');
+                icsContent += "BEGIN:VEVENT\n";
+                icsContent += `DTSTART;VALUE=DATE:${dateStr}\n`;
+                const endDate = new Date(match.match_date);
+                endDate.setDate(endDate.getDate() + 1);
+                const endStr = endDate.toISOString().split('T')[0].replace(/-/g, '');
+                icsContent += `DTEND;VALUE=DATE:${endStr}\n`;
+                icsContent += `SUMMARY:${match.match_name}\n`;
+                if(match.match_location) icsContent += `LOCATION:${match.match_location}\n`;
+                icsContent += "DESCRIPTION:Wettkampf eingetragen über ipscboerse.com\n";
+                icsContent += "END:VEVENT\n";
+            });
+            icsContent += "END:VCALENDAR";
+
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'meine_ipsc_matches.ics';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+
+</body>
+</html>
