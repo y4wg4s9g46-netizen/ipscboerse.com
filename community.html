@@ -6,6 +6,8 @@
     <title>Community | Startplatz Börse</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nsfwjs@2.4.0/dist/browser/nsfwjs.min.js"></script>
 
     <style>
         :root {
@@ -329,7 +331,7 @@
                         <label>Neues Passwort ändern (Optional)</label>
                         <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
                     </div>
-                    <button type="submit" style="background: var(--accent-color); width:100%; padding: 10px; border: none; font-weight: bold; cursor: pointer;">Änderungen保存</button>
+                    <button type="submit" style="background: var(--accent-color); width:100%; padding: 10px; border: none; font-weight: bold; cursor: pointer;">Änderungen speichern</button>
                 </form>
                 <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
                 <button id="btn-delete-account" style="background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer;">Konto & alle Einträge unwiderruflich löschen</button>
@@ -485,7 +487,46 @@
 
             if (!content && !imageFile) return;
 
+            // === AUTOMATISCHER WORTFILTER (BLACK-LIST) ===
+            const blacklist = ["beleidigung1", "schimpfwort2", "spamlink", "betrug"];
+            
+            const containsBadWord = blacklist.some(word => content.toLowerCase().includes(word.toLowerCase()));
+            if (containsBadWord) {
+                alert("Dein Beitrag enthält Begriffe, die gegen unsere Community-Richtlinien verstoßen. Bitte passe deinen Text an.");
+                return;
+            }
+
+            // === NEU: AUTOMATISCHER BILD-FILTER (NSFW-DETECTION) ===
+            if (imageFile) {
+                const originalText = btn.innerText;
+                btn.innerText = "Prüfe Bild auf zulässige Inhalte...";
+                btn.style.opacity = "0.7";
+                
+                try {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = URL.createObjectURL(imageFile);
+                    
+                    await new Promise((resolve) => { imgElement.onload = resolve; });
+
+                    const model = await nsfwjs.load();
+                    const predictions = await model.classify(imgElement);
+                    
+                    // Prüft, ob Porn oder Hentai mit mehr als 65% Wahrscheinlichkeit erkannt werden
+                    const unsafe = predictions.find(p => (p.className === 'Porn' || p.className === 'Hentai') && p.probability > 0.65);
+                    
+                    if (unsafe) {
+                        alert("Das hochgeladene Bild verstößt gegen unsere Richtlinien (unzulässiger Inhalt erkannt).");
+                        btn.innerText = originalText;
+                        btn.style.opacity = "1";
+                        return;
+                    }
+                } catch (kiError) {
+                    console.error("KI-Filter Fehler:", kiError);
+                }
+            }
+
             btn.innerText = "Wird hochgeladen...";
+            btn.style.opacity = "0.7";
 
             try {
                 let imageUrl = null;
@@ -512,9 +553,11 @@
                 document.getElementById('post-content').value = '';
                 closePostModal();
                 btn.innerText = "Teilen";
+                btn.style.opacity = "1";
                 loadPosts(); 
             } catch (err) {
                 btn.innerText = "Teilen";
+                btn.style.opacity = "1";
                 alert("Fehler beim Posten: " + err.message);
             }
         }
