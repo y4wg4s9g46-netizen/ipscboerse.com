@@ -278,6 +278,7 @@
                         <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;">Passwort vergessen?</a>
                     </div>
                     <button type="submit" class="btn-submit" style="width:100%;">Einloggen</button>
+                    <button type="button" onclick="loginWithPasskey()" style="width:100%; margin-top:10px; background-color:#34495e; color:#fff;">🔑 Mit Passkey einloggen (FaceID/TouchID)</button>
                 </form>
                 <div class="modal-footer"><span>Noch kein Konto?</span><a onclick="toggleAuthView('register')">Registrieren</a></div>
             </div>
@@ -325,7 +326,7 @@
                         <label>Neues Passwort ändern (Optional)</label>
                         <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
                     </div>
-                    <button type="submit" class="btn-submit" style="width:100%;">Änderungen保存</button>
+                    <button type="submit" class="btn-submit" style="width:100%;">Änderungen speichern</button>
                 </form>
                 <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
                 <button class="btn-danger-block" id="btn-delete-account">Konto & alle Einträge unwiderruflich löschen</button>
