@@ -196,7 +196,7 @@ window.toggleAuthView = toggleAuthView;
 
 
 // ==========================================
-// --- ROBUSTE EVENT DELEGATION (NEU) ---
+// --- ROBUSTE EVENT DELEGATION ---
 // ==========================================
 
 // 1. Klicks auf der ganzen Seite überwachen
@@ -236,3 +236,121 @@ document.addEventListener("click", async (e) => {
         await window.supabaseClient.from("matches").delete().eq("seller_email", window.currentUser.email);
         await window.supabaseClient.auth.updateUser({ data: { deleted: true, username: "Gelöschter Schütze" } });
         await window.supabaseClient.auth.signOut();
+        alert("Dein Konto und deine Inserate wurden erfolgreich entfernt.");
+        location.reload();
+    }
+});
+
+// 2. Formular-Absendungen auf der ganzen Seite überwachen (WICHTIG!)
+document.addEventListener("submit", async (e) => {
+    
+    // --- LOGIN ---
+    if (e.target.id === "login-form") {
+        e.preventDefault(); 
+        const btn = e.target.querySelector('button[type="submit"]');
+        if (btn) btn.innerText = "Lade..."; 
+        
+        const { error } = await window.supabaseClient.auth.signInWithPassword({
+            email: document.getElementById("login-email").value,
+            password: document.getElementById("login-password").value,
+        });
+        
+        if (error) {
+            if (btn) btn.innerText = "Einloggen"; 
+            alert("Login fehlgeschlagen: " + error.message);
+        } else {
+            location.reload();
+        }
+    }
+    
+    // --- REGISTRIEREN ---
+    else if (e.target.id === "register-form") {
+        e.preventDefault();
+        const { error } = await window.supabaseClient.auth.signUp({
+            email: document.getElementById("register-email").value,
+            password: document.getElementById("register-password").value,
+        });
+        if (error) alert("Registrierung fehlgeschlagen: " + error.message);
+        else { alert("Konto erstellt! Bitte überprüfe dein Postfach."); toggleAuthView("login"); }
+    }
+    
+    // --- PASSWORT VERGESSEN ---
+    else if (e.target.id === "forgot-form") {
+        e.preventDefault();
+        const { error } = await window.supabaseClient.auth.resetPasswordForEmail(document.getElementById("forgot-email").value, {
+            redirectTo: window.location.origin + window.location.pathname,
+        });
+        if (error) alert("Fehler: " + error.message);
+        else { alert("Link zum Zurücksetzen gesendet!"); toggleAuthView("login"); }
+    }
+    
+    // --- PASSWORT ZURÜCKSETZEN ---
+    else if (e.target.id === "reset-password-form") {
+        e.preventDefault();
+        const { error } = await window.supabaseClient.auth.updateUser({
+            password: document.getElementById("reset-password-input").value
+        });
+        if (error) alert("Fehler: " + error.message);
+        else { 
+            alert(window.currentLang === "en" ? "Password updated! Confirmation email has been sent." : "Passwort erfolgreich aktualisiert! Eine Bestätigungs-E-Mail wurde versendet."); 
+            location.reload(); 
+        }
+    }
+    
+    // --- KONTO EINSTELLUNGEN ---
+    else if (e.target.id === "settings-form") {
+        e.preventDefault();
+        const newUsername = document.getElementById("settings-username").value;
+        const newPassword = document.getElementById("settings-password").value;
+        
+        let updates = { data: { username: newUsername } };
+        if (newPassword.trim().length >= 6) { updates.password = newPassword; }
+
+        const { error } = await window.supabaseClient.auth.updateUser(updates);
+        if (error) alert("Fehler beim Aktualisieren: " + error.message);
+        else { 
+            alert(window.currentLang === "en" ? "Account updated!" : "Konto erfolgreich aktualisiert!"); 
+            location.reload(); 
+        }
+    }
+});
+
+// Sprache wechseln
+document.addEventListener("change", (e) => {
+    if (e.target.id === "language-select") applyLanguage(e.target.value);
+});
+
+
+// === START LOGIK ===
+
+// Eine minimale Verzögerung gibt dem Planer-Skript Zeit, sich anzumelden, 
+// bevor wir versuchen, den Status zu updaten.
+setTimeout(async () => {
+    applyLanguage("de");
+    
+    // Aktive Session holen
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    window.currentUser = session?.user || null;
+    await checkUserStatus();
+    
+    if (typeof window.onAuthChange === "function") { 
+        window.onAuthChange(window.currentUser); 
+    }
+
+    // Auf zukünftige Änderungen (Logout etc) reagieren
+    window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        window.currentUser = session?.user || null;
+        
+        if (event === "PASSWORD_RECOVERY") {
+            const modal = document.getElementById("auth-modal");
+            if (modal) modal.style.display = "flex";
+            toggleAuthView("reset-password");
+        }
+        
+        await checkUserStatus();
+        
+        if (typeof window.onAuthChange === "function") { 
+            window.onAuthChange(window.currentUser); 
+        }
+    });
+}, 100);
