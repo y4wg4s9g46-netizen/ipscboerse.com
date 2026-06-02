@@ -383,20 +383,119 @@ function toggleAuthView(view) {
 }
 window.toggleAuthView = toggleAuthView;
 
+// GLOBALER ENTKOPPELTER PROFIL-LOADER FÜR JEDE UNTERSEITE (BEWERTUNGSSYSTEM)
+window.openUserProfile = async function(sellerEmail, authorName, authorAvatar, authorIpscAlias) {
+    const modal = document.getElementById("auth-modal");
+    if (!modal) return;
+    modal.style.display = "flex";
+    window.toggleAuthView("settings");
+
+    const title = document.querySelector("#modal-settings-view h3");
+    if (title) title.innerText = "Schützen-Profil von " + authorName;
+
+    const elementsToHide = [
+        document.querySelector("#modal-settings-view div[style*='3498db']"),
+        document.getElementById("settings-password")?.closest(".form-group"),
+        document.querySelector("#modal-settings-view button[type='submit']"),
+        document.getElementById("btn-delete-account"),
+        document.getElementById("settings-avatar")?.closest(".form-group")
+    ];
+    elementsToHide.forEach(el => { if(el) el.style.display = "none"; });
+
+    const usernameField = document.getElementById("settings-username");
+    if (usernameField) { usernameField.value = authorName; usernameField.readOnly = true; }
+
+    const aliasField = document.getElementById("settings-ipsc-alias");
+    if (aliasField) { aliasField.value = authorIpscAlias || "Kein Verband-Alias"; aliasField.readOnly = true; }
+
+    const previewImg = document.getElementById("settings-avatar-preview");
+    if (previewImg) {
+        if (authorAvatar) { previewImg.src = authorAvatar; previewImg.style.display = 'block'; }
+        else { previewImg.style.display = 'none'; }
+    }
+
+    try {
+        const salesRes = await window.supabaseClient.from('mediated_deals').select('*').eq('seller_email', sellerEmail);
+        const purchaseRes = await window.supabaseClient.from('mediated_deals').select('*').eq('buyer_email', sellerEmail);
+        
+        const salesData = salesRes.data || [];
+        const purchaseData = purchaseRes.data || [];
+
+        const salesCountEl = document.getElementById("profile-sales-count");
+        const purchaseCountEl = document.getElementById("profile-purchases-count");
+        if (salesCountEl) salesCountEl.innerText = salesData.length;
+        if (purchaseCountEl) purchaseCountEl.innerText = purchaseData.length;
+
+        let totalComm = 0, totalPay = 0, countComm = 0, countPay = 0;
+        
+        salesData.forEach(d => {
+            if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
+            if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
+        });
+        purchaseData.forEach(d => {
+            if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
+            if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
+        });
+
+        const ratingCommEl = document.getElementById("profile-rating-comm");
+        const ratingPayEl = document.getElementById("profile-rating-pay");
+        if (ratingCommEl) ratingCommEl.innerText = formatStars(countComm > 0 ? totalComm / countComm : 0);
+        if (ratingPayEl) ratingPayEl.innerText = formatStars(countPay > 0 ? totalPay / countPay : 0);
+    } catch(e) {
+        console.error("Fehler beim Laden der Reputationswerte:", e);
+    }
+
+    const closeBtn = document.getElementById("btn-close-modal");
+    if (closeBtn) {
+        const originalClose = closeBtn.onclick;
+        closeBtn.onclick = function() {
+            if (title) title.innerText = "Konto-Einstellungen";
+            elementsToHide.forEach(el => { if(el) el.style.display = "block"; });
+            if (usernameField) usernameField.readOnly = false;
+            if (aliasField) aliasField.readOnly = false;
+            modal.style.display = "none";
+            if (originalClose) closeBtn.onclick = originalClose;
+        };
+    }
+};
+
 document.addEventListener("click", async (e) => {
+    // REPARATUR: Exakte Target-Zuweisung verhindert das Blockieren von Schließen-Events
     if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
-        document.getElementById("auth-modal").style.display = "flex";
+        const m = document.getElementById("auth-modal");
+        if(m) m.style.display = "flex";
         toggleAuthView("login");
     }
-    if (e.target.id === "btn-close-modal" || e.target.closest("#btn-close-modal")) {
-        document.getElementById("auth-modal").style.display = "none";
+    if (e.target.id === "btn-close-modal" || e.target.classList.contains("modal-close-trigger") || e.target.closest(".modal-close-trigger")) {
+        // Schließt das Auth-Modal nur, wenn das Event auch von dort ausging
+        const authModal = document.getElementById("auth-modal");
+        if (authModal && (e.target.closest("#auth-modal") || e.target.id === "btn-close-modal")) {
+            authModal.style.display = "none";
+            // Setzt Ansichten-Titel zurück, falls es ein Fremdprofil war
+            const title = document.querySelector("#modal-settings-view h3");
+            if (title) title.innerText = "Konto-Einstellungen";
+            const usernameField = document.getElementById("settings-username");
+            const aliasField = document.getElementById("settings-ipsc-alias");
+            if (usernameField) usernameField.readOnly = false;
+            if (aliasField) aliasField.readOnly = false;
+            
+            const elementsToHide = [
+                document.querySelector("#modal-settings-view div[style*='3498db']"),
+                document.getElementById("settings-password")?.closest(".form-group"),
+                document.querySelector("#modal-settings-view button[type='submit']"),
+                document.getElementById("btn-delete-account"),
+                document.getElementById("settings-avatar")?.closest(".form-group")
+            ];
+            elementsToHide.forEach(el => { if(el) el.style.display = "block"; });
+        }
     }
     if (e.target.id === "btn-logout" || e.target.closest("#btn-logout")) {
         await window.supabaseClient.auth.signOut();
         location.reload();
     }
     if (e.target.id === "btn-open-settings" || e.target.closest("#btn-open-settings")) {
-        document.getElementById("auth-modal").style.display = "flex";
+        const m = document.getElementById("auth-modal");
+        if(m) m.style.display = "flex";
         toggleAuthView("settings");
         
         const settingsUser = document.getElementById("settings-username");
@@ -532,7 +631,7 @@ document.addEventListener("change", (e) => {
 function formatStars(value) {
     if (!value || isNaN(value) || value === 0) return "-";
     let fullStars = Math.round(value);
-    return "★".repeat(fullStars) + "box".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
+    return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
 }
 
 // === ROBUSTE INITIALISIERUNGS-SCHLEIFE GEGEN RACE CONDITIONS ===
