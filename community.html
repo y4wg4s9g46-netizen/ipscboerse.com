@@ -473,10 +473,54 @@
                         <label data-txt="lbl-new-password">Neues Passwort ändern (Optional)</label>
                         <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
                     </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Änderungen speichern</button>
+                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Änderungen保存 Speichern</button>
                 </form>
                 <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
                 <button class="btn-danger-block" id="btn-delete-account">Konto & alle Einträge unwiderruflich löschen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ENTKOPPELTES MODAL FÜR DEN PRIVAT-CHAT MIT E-MAIL-REMINDER -->
+    <div class="modal" id="chat-modal">
+        <div class="modal-content" style="max-width: 500px; padding: 25px;">
+            <div class="modal-close-container">
+                <span class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</span>
+            </div>
+            <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
+            <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
+            
+            <!-- Manuelle E-Mail-Anstups-Zeile direkt über dem Verlauf -->
+            <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <button type="button" class="btn-export" id="btn-chat-email-reminder" style="margin-top: 0; background-color: rgba(59, 130, 246, 0.1); color: var(--info-color); border-color: var(--info-color); padding: 6px 12px;" onclick="triggerChatEmailReminder()">
+                    ✉️ Schützen per E-Mail anstupsen
+                </button>
+            </div>
+            
+            <!-- Nachrichten-Verlauf -->
+            <div class="chat-history-area" id="chat-box-messages"></div>
+            
+            <!-- Eingabezeile -->
+            <form id="chat-send-form" style="display: flex; gap: 8px;">
+                <input type="hidden" id="chat-edit-id" value="">
+                <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
+                <button type="submit" id="btn-chat-send" class="btn-submit" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- GLOBALER POSTEINGANG / OVERLAY-LISTE FÜR BESTEHENDE CHATS -->
+    <div class="modal" id="global-inbox-modal">
+        <div class="modal-content" style="max-width: 450px; padding: 25px;">
+            <div class="modal-close-container">
+                <span class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</span>
+            </div>
+            <h3>Meine Nachrichten</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven Gespräche.</p>
+            
+            <!-- Liste der Chat-Partner -->
+            <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
+                <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
             </div>
         </div>
     </div>
