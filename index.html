@@ -296,10 +296,6 @@
         .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
         .btn-secondary-auth:hover { background-color: var(--border-color); }
 
-        .modal-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
-        .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; font-weight: 600; }
-        .modal-footer a:hover { text-decoration: underline; }
-
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
 
@@ -513,6 +509,7 @@
         </nav>
         
         <div class="header-controls">
+            <!-- Manueller Design-Schalter -->
             <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
 
             <select id="language-select" class="lang-switch">
@@ -612,6 +609,7 @@
 
     </div>
 
+    <!-- 6. POPUP FÜR ERFOLGREICHE VERMITTLUNG -->
     <div class="modal" id="mediated-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -628,6 +626,7 @@
                     <input type="email" id="buyer-email" required placeholder="kaeufer@beispiel.de">
                 </div>
                 
+                <!-- Sterne-Kriterien -->
                 <div class="form-group" style="margin-bottom: 15px;">
                     <label style="text-transform: none; font-size: 14px;">💬 Kommunikation</label>
                     <div class="star-rating-select">
@@ -655,12 +654,37 @@
         </div>
     </div>
 
+    <!-- NEU: NEWS POPUP FÜR DAS VERIFIZIERTE TRUSTED SHOOTER VERFAHREN -->
+    <div class="modal" id="news-modal">
+        <div class="modal-content" style="max-width: 500px; padding: 28px;">
+            <div class="modal-close-container">
+                <span class="modal-close-trigger" onclick="document.getElementById('news-modal').style.display = 'none';">&times;</span>
+            </div>
+            <h3 style="color: var(--accent-color); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">📢 Plattform Update: Trusted Shooter</h3>
+            <p style="font-size: 14px; font-weight: 600; margin-top: 0; margin-bottom: 15px;">
+                Ab sofort führen wir ein echtes, verifiziertes Vertrauens-System ein, um Betrug beim Ticket-Tausch vollständig zu unterbinden!
+            </p>
+            <div style="font-size: 13px; line-height: 1.6; display: flex; flex-direction: column; gap: 12px; color: var(--text-color);">
+                <div style="background: var(--bg-color); padding: 12px; border-radius: var(--radius); border-left: 4px solid var(--success-color);">
+                    <strong style="color: var(--success-color); display: block; margin-bottom: 4px;">🛡️ Option 1: Offizieller Verbandsnachweis</strong>
+                    Sende uns ein kurzes Foto deines IPSC-Ausweises, deiner SuRT-Bescheinigung oder deiner Lizenz an <a href="mailto:info@ipscboerse.com" style="color: var(--info-color); font-weight: bold;">info@ipscboerse.com</a>. Unser Support schaltet dein Profil manuell frei und du erhältst sofort das grüne <strong>Trusted</strong>-Badge an all deinen Inseraten!
+                </div>
+                <div style="background: var(--bg-color); padding: 12px; border-radius: var(--radius); border-left: 4px solid var(--accent-color);">
+                    <strong style="color: var(--accent-color); display: block; margin-bottom: 4px;">📈 Option 2: Community Reputation</strong>
+                    Schütze werden! Das grüne Vertrauenssiegel wird alternativ auch vollautomatisch aktiv, sobald du mindestens <strong>3 erfolgreiche Vermittlungen</strong> über den Button abgeschlossen hast und deine Sternebewertung sauber bleibt.
+                </div>
+            </div>
+            <button type="button" class="btn-submit" style="width: 100%; margin-top: 20px; background-color: var(--accent-color); color: #1a1a1a;" onclick="document.getElementById('news-modal').style.display = 'none';">Verstanden & Weiter</button>
+        </div>
+    </div>
+
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
                 <span id="btn-close-modal" class="modal-close-trigger">&times;</span>
             </div>
             
+            <!-- 1. LOGIN ANSICHT MIT PASSKEY BUTTON -->
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
                 
@@ -680,6 +704,7 @@
                 <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a></div>
             </div>
 
+            <!-- 2. REGISTRIERUNGS-ANSICHT -->
             <div id="modal-register-view" style="display: none;">
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
@@ -715,9 +740,11 @@
                 </form>
             </div>
 
+            <!-- 5. KONTO-EINSTELLUNGEN ANSICHT MIT ZÄHLER UND BEWERTUNG -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
+                <!-- Zähler & Bewertungssystem Box -->
                 <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
                     <label style="color: var(--success-color); font-weight: 700;">📈 Erfolgreiche Vermittlungen</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
@@ -731,6 +758,7 @@
                         </div>
                     </div>
                     
+                    <!-- Durchschnittliche Bewertungen -->
                     <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
                         <div>💬 Kommunikation: <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
                         <div>💳 Bezahlung: <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
