@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools & Training | Startplatz Börse</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* Modernes Variablen-System für Hell- und Dunkelmodus */
+        :root, html[data-theme="light"] {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --input-bg: #ffffff;
+            
+            --accent-color: #ff9f43; /* IPSC Orange */
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --info-color: #3b82f6;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --radius: 8px;
+        }
+
+        /* Dunkler Modus */
+        html[data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --input-bg: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            html:not([data-theme="light"]) {
+                --bg-color: #0f172a;
+                --card-bg: #1e293b;
+                --text-color: #f8fafc;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+                --input-bg: #0f172a;
+            }
+        }
+
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        header { background-color: var(--card-bg); padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
+        header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-color); }
+        
+        .main-nav { margin-top: 20px; display: flex; justify-content: center; gap: 12px; border-top: 1px solid var(--border-color); padding-top: 15px; flex-wrap: wrap; }
+        .main-nav a { text-decoration: none; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 16px; border-radius: var(--radius); transition: all 0.2s ease; }
+        .main-nav a.active { color: var(--text-color); background-color: var(--bg-color); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
+        .main-nav a.inactive { color: var(--text-muted); border: 1px solid transparent; }
+        .main-nav a.inactive:hover { color: var(--text-color); background-color: var(--bg-color); }
+
+        .header-controls { position: absolute; top: 50%; right: 20px; transform: translateY(-50%); display: flex; align-items: center; gap: 16px; }
+        #auth-status-container { display: flex; align-items: center; gap: 16px; }
+
+        .theme-toggle-btn { background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px; border-radius: var(--radius); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); transition: all 0.2s; width: 38px; height: 38px; }
+        .theme-toggle-btn:hover { border-color: var(--text-muted); background-color: var(--bg-color); }
+        .btn-auth { background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 16px; font-weight: 600; font-size: 13px; border-radius: var(--radius); cursor: pointer; box-shadow: var(--shadow-sm); transition: all 0.2s; }
+        .btn-auth:hover { background-color: var(--bg-color); border-color: var(--text-muted); }
+
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
+
+        .tool-section { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 30px; box-shadow: var(--shadow-sm); }
+        .tool-section h2 { margin-top: 0; font-size: 22px; color: var(--text-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+
+        /* Formular Elemente */
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        .form-group label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; }
+        .form-group input, .form-group select { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px 12px; border-radius: var(--radius); font-size: 14px; box-sizing: border-box; font-family: inherit; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent-color); }
+
+        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 20px; font-size: 15px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; transition: opacity 0.15s; }
+        .btn-submit:hover { opacity: 0.9; }
+        .btn-secondary { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 10px 15px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; }
+        .btn-secondary:hover { border-color: var(--text-muted); }
+
+        /* Dry-Fire Spezifisch */
+        .timer-display { font-size: 48px; font-weight: 900; text-align: center; margin: 20px 0; font-variant-numeric: tabular-nums; color: var(--text-color); }
+        .timer-status { text-align: center; font-size: 18px; font-weight: 600; color: var(--accent-color); height: 25px; margin-bottom: 15px; }
+        .drill-box { background: var(--bg-color); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); text-align: center; font-size: 15px; line-height: 1.5; margin-bottom: 20px; min-height: 60px; display: flex; align-items: center; justify-content: center; }
+
+        /* Hit-Factor Spezifisch */
+        .scoring-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; }
+        .scoring-grid .form-group { margin-bottom: 0; }
+        .scoring-grid input { text-align: center; font-weight: bold; font-size: 16px; }
+        .input-A { border-color: var(--success-color) !important; }
+        .input-M { border-color: var(--danger-color) !important; }
+
+        .leaderboard { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        .leaderboard th, .leaderboard td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .leaderboard th { font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 12px; }
+        .leaderboard tr:hover { background-color: rgba(255, 159, 67, 0.05); }
+        .rank-1 { font-weight: bold; color: var(--accent-color); font-size: 16px; }
+
+        /* Mobile Fixes */
+        @media (max-width: 768px) {
+            header { padding: 12px 8px !important; }
+            .header-controls { position: static !important; justify-content: center !important; margin-top: 10px !important; transform: none; width: 100%; }
+            .main-nav { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding-bottom: 5px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+            .main-nav::-webkit-scrollbar { display: none; }
+            .main-nav a { flex-shrink: 0; font-size: 12px; padding: 6px 12px; }
+            .scoring-grid { grid-template-columns: repeat(3, 1fr); }
+            .leaderboard th, .leaderboard td { padding: 8px 5px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
+        <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Von Schützen für Schützen – Live Marktplatz</p>
+        
+        <nav class="main-nav">
+            <a href="index.html" class="inactive">Marktplatz</a>
+            <a href="freie-matches.html" class="inactive">Freie Match-Plätze</a>
+            <a href="mein-planer.html" class="inactive">Mein Planer</a>
+            <a href="community.html" class="inactive">Community</a>
+            <a href="ipsc-hub.html" class="inactive">IPSC Hub</a>
+            <a href="tools.html" class="active">Tools & Training</a>
+        </nav>
+
+        <div class="header-controls">
+            <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
+            <div id="auth-status-container">
+                <button class="btn-auth" id="btn-open-login">Login / Registrieren</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- TOOL 1: HIT-FACTOR BATTLE -->
+        <div class="tool-section">
+            <h2>🏆 Hit-Factor Battle</h2>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Trage die Ergebnisse von dir und deinen Freunden ein, um eine Live-Rangliste für die Stage zu erstellen.</p>
+            
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+                <div class="form-group" style="flex: 2; min-width: 200px;">
+                    <label>Schützenname</label>
+                    <input type="text" id="hf-name" placeholder="z.B. Max Mustermann">
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 100px;">
+                    <label>Wertung</label>
+                    <select id="hf-pf">
+                        <option value="minor">Minor</option>
+                        <option value="major">Major</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 100px;">
+                    <label>Zeit (Sek.)</label>
+                    <input type="number" id="hf-time" step="0.01" min="0" placeholder="0.00">
+                </div>
+            </div>
+
+            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">Trefferaufnahme</label>
+            <div class="scoring-grid">
+                <div class="form-group"><label style="text-align: center; color: var(--success-color);">Alpha (A)</label><input type="number" id="hf-a" class="input-A" min="0" value="0"></div>
+                <div class="form-group"><label style="text-align: center;">Charlie (C)</label><input type="number" id="hf-c" min="0" value="0"></div>
+                <div class="form-group"><label style="text-align: center;">Delta (D)</label><input type="number" id="hf-d" min="0" value="0"></div>
+                <div class="form-group"><label style="text-align: center; color: var(--danger-color);">Miss (M)</label><input type="number" id="hf-m" class="input-M" min="0" value="0"></div>
+                <div class="form-group"><label style="text-align: center; color: var(--danger-color);">No-Shoot</label><input type="number" id="hf-ns" class="input-M" min="0" value="0"></div>
+            </div>
+
+            <button class="btn-submit" onclick="addShooterToRanking()">Schütze eintragen & berechnen</button>
+
+            <table class="leaderboard" id="ranking-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">#</th>
+                        <th>Name</th>
+                        <th>Pts</th>
+                        <th>Zeit</th>
+                        <th style="color: var(--accent-color);">Hit-Factor</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="ranking-body"></tbody>
+            </table>
+            <button id="btn-clear-ranking" class="btn-secondary" style="margin-top: 15px; display: none; width: 100%; color: var(--danger-color); border-color: var(--danger-color);" onclick="clearRanking()">Rangliste leeren</button>
+        </div>
+
+        <!-- TOOL 2: DRY-FIRE TIMER & GENERATOR -->
+        <div class="tool-section">
+            <h2>⏱️ Dry-Fire Timer & Drill Generator</h2>
+            
+            <div class="drill-box" id="drill-output">
+                Klicke auf den Button, um einen zufälligen Trockentrainings-Ablauf zu generieren.
+            </div>
+            <button class="btn-secondary" style="width: 100%; margin-bottom: 30px;" onclick="generateDrill()">🎲 Neuen Drill generieren</button>
+
+            <div style="border-top: 1px solid var(--border-color); padding-top: 20px;">
+                <div class="form-group" style="max-width: 200px; margin: 0 auto;">
+                    <label style="text-align: center;">Par-Zeit (Sekunden)</label>
+                    <input type="number" id="par-time" step="0.1" min="0.5" value="3.0" style="text-align: center; font-size: 18px; font-weight: bold;">
+                </div>
+
+                <div class="timer-display" id="timer-display">0.00</div>
+                <div class="timer-status" id="timer-status">Bereit</div>
+
+                <button class="btn-submit" id="btn-start-timer" style="background-color: var(--success-color);" onclick="startTimer()">Start Timer (Zufalls-Delay)</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- STANDARD MODALS FÜR LOGIN ETC (Abgekürzt für Funktionalität) -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <div class="modal-close-container"><button class="modal-close-trigger" id="btn-close-modal" onclick="document.getElementById('auth-modal').style.display='none'">&times;</button></div>
+            <div id="modal-login-view">
+                <h3>Anmelden</h3>
+                <p style="color: var(--text-muted); font-size: 14px;">Bitte nutze die Login-Funktion auf den anderen Seiten der Plattform.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;">Impressum & Rechtliche Hinweise</a>
+            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+        </div>
+    </footer>
+
+    <script>
+        // --- THEME LOGIK ---
+        function updateThemeToggleIcon(theme) {
+            const btn = document.getElementById('theme-toggle');
+            if (!btn) return;
+            if (theme === 'dark') btn.innerText = '☀️'; 
+            else if (theme === 'light') btn.innerText = '🌙'; 
+            else btn.innerText = window.matchMedia('(prefers-color-scheme: dark)').matches ? '☀️' : '🌙';
+        }
+
+        window.toggleTheme = function() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('selectedTheme', newTheme);
+            updateThemeToggleIcon(newTheme);
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
+            document.documentElement.setAttribute('data-theme', savedThemeSetting !== 'auto' ? savedThemeSetting : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+            updateThemeToggleIcon(savedThemeSetting);
+        });
+
+        // --- 1. HIT-FACTOR BATTLE LOGIK ---
+        let rankingData = [];
+
+        function addShooterToRanking() {
+            const name = document.getElementById('hf-name').value.trim() || `Schütze ${rankingData.length + 1}`;
+            const isMajor = document.getElementById('hf-pf').value === 'major';
+            const time = parseFloat(document.getElementById('hf-time').value) || 0;
+            
+            const a = parseInt(document.getElementById('hf-a').value) || 0;
+            const c = parseInt(document.getElementById('hf-c').value) || 0;
+            const d = parseInt(document.getElementById('hf-d').value) || 0;
+            const m = parseInt(document.getElementById('hf-m').value) || 0;
+            const ns = parseInt(document.getElementById('hf-ns').value) || 0;
+
+            if (time <= 0 && (a+c+d+m) > 0) {
+                alert("Bitte gib eine gültige Zeit ein!");
+                return;
+            }
+
+            // IPSC Punkte Berechnung
+            let pts = a * 5;
+            pts += c * (isMajor ? 4 : 3);
+            pts += d * (isMajor ? 2 : 1);
+            pts -= (m * 10);
+            pts -= (ns * 10);
+            
+            // Hit-Factor (Punkte / Zeit). Darf nicht negativ sein.
+            let hf = 0;
+            if (pts > 0 && time > 0) {
+                hf = pts / time;
+            }
+
+            rankingData.push({
+                id: Date.now(),
+                name: name,
+                points: pts,
+                time: time,
+                hf: hf,
+                pf: isMajor ? 'Maj' : 'Min'
+            });
+
+            // Sortieren nach Hit-Factor absteigend
+            rankingData.sort((a, b) => b.hf - a.hf);
+
+            // Formular zurücksetzen für den nächsten Schützen (Namen leer, Treffer auf 0)
+            document.getElementById('hf-name').value = '';
+            document.getElementById('hf-a').value = '0';
+            document.getElementById('hf-c').value = '0';
+            document.getElementById('hf-d').value = '0';
+            document.getElementById('hf-m').value = '0';
+            document.getElementById('hf-ns').value = '0';
+
+            renderRanking();
+        }
+
+        function removeShooter(id) {
+            rankingData = rankingData.filter(s => s.id !== id);
+            renderRanking();
+        }
+
+        function clearRanking() {
+            if(confirm("Bist du sicher, dass du die Rangliste löschen möchtest?")) {
+                rankingData = [];
+                renderRanking();
+            }
+        }
+
+        function renderRanking() {
+            const table = document.getElementById('ranking-table');
+            const tbody = document.getElementById('ranking-body');
+            const clearBtn = document.getElementById('btn-clear-ranking');
+
+            if (rankingData.length === 0) {
+                table.style.display = 'none';
+                clearBtn.style.display = 'none';
+                return;
+            }
+
+            table.style.display = 'table';
+            clearBtn.style.display = 'block';
+            tbody.innerHTML = '';
+
+            rankingData.forEach((shooter, index) => {
+                const rankClass = index === 0 ? 'rank-1' : '';
+                const hfDisplay = shooter.hf.toFixed(4);
+                const timeDisplay = shooter.time.toFixed(2);
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="${rankClass}">${index + 1}.</td>
+                        <td><strong>${shooter.name}</strong> <span style="font-size: 10px; color: var(--text-muted);">${shooter.pf}</span></td>
+                        <td>${shooter.points}</td>
+                        <td>${timeDisplay}s</td>
+                        <td style="font-weight: bold; color: var(--accent-color);">${hfDisplay}</td>
+                        <td style="text-align: right;"><button onclick="removeShooter(${shooter.id})" style="background:none; border:none; color:var(--danger-color); cursor:pointer; padding:5px;">&times;</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+
+        // --- 2. DRY-FIRE TIMER & GENERATOR LOGIK ---
+        
+        // Native Audio Context für die Timer-Pieptöne (Keine mp3-Dateien nötig!)
+        let audioCtx;
+
+        function playBeep(frequency, durationMs) {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.type = 'square'; // Aggressiver Ton, ähnlich einem echten Timer
+            oscillator.frequency.value = frequency; 
+            
+            // Verhindert ein "Knacken" am Ende des Tons
+            gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (durationMs / 1000));
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.start();
+            setTimeout(() => oscillator.stop(), durationMs);
+        }
+
+        let timerTimeout;
+        let isTimerRunning = false;
+
+        function startTimer() {
+            if (isTimerRunning) return; // Verhindert doppelte Klicks
+            
+            const btn = document.getElementById('btn-start-timer');
+            const status = document.getElementById('timer-status');
+            const display = document.getElementById('timer-display');
+            const parTimeSec = parseFloat(document.getElementById('par-time').value) || 3.0;
+            
+            isTimerRunning = true;
+            btn.style.opacity = '0.5';
+            btn.innerText = "Timer läuft...";
+            
+            // Audio-Kontext aufwecken (Notwendig für mobile Browser)
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            // Zufälliges Delay zwischen 1 und 3 Sekunden
+            const randomDelay = Math.floor(Math.random() * 2000) + 1000;
+            
+            display.innerText = "0.00";
+            status.innerText = "Standby...";
+            status.style.color = "var(--info-color)";
+
+            timerTimeout = setTimeout(() => {
+                // START BEEP (3000 Hz, 300ms)
+                playBeep(3000, 300);
+                status.innerText = "GO!";
+                status.style.color = "var(--success-color)";
+                
+                // Simuliere hochzählende Zeit (rein visuell für Par-Time)
+                let startTime = Date.now();
+                let interval = setInterval(() => {
+                    let elapsed = (Date.now() - startTime) / 1000;
+                    if (elapsed >= parTimeSec) {
+                        clearInterval(interval);
+                        display.innerText = parTimeSec.toFixed(2);
+                    } else {
+                        display.innerText = elapsed.toFixed(2);
+                    }
+                }, 50);
+
+                // PAR BEEP (Stopp)
+                setTimeout(() => {
+                    playBeep(3000, 300);
+                    status.innerText = "Par-Zeit abgelaufen";
+                    status.style.color = "var(--danger-color)";
+                    isTimerRunning = false;
+                    btn.style.opacity = '1';
+                    btn.innerText = "Start Timer (Zufalls-Delay)";
+                }, parTimeSec * 1000);
+
+            }, randomDelay);
+        }
+
+        // --- DRILL GENERATOR ---
+        const startPositions = [
+            "Hände entspannt an der Seite (Condition 1)",
+            "Hände über den Schultern (Surrender, Condition 1)",
+            "Waffe geladen auf dem Tisch, Hände flach auf dem Tisch",
+            "Waffe komplett entladen (Condition 3) im Holster",
+            "Rücken zum Ziel (Turn and Draw)",
+            "Starke Hand am Holster, schwache Hand entspannt"
+        ];
+
+        const actions = [
+            "Ziehen, 1 Schuss T1",
+            "Ziehen, 2 Schuss T1",
+            "Bill Drill (Ziehen, 6 Schuss auf T1)",
+            "Ziehen, 2 Schuss T1, Magazinwechsel, 2 Schuss T1",
+            "Ziehen, 2 Schuss T1, 2 Schuss T2 (Transition)",
+            "Ziehen, 1 Schuss starker Arm (Strong Hand Only)",
+            "El Presidente (Turn & Draw, 6 Schuss)"
+        ];
+
+        function generateDrill() {
+            const randomStart = startPositions[Math.floor(Math.random() * startPositions.length)];
+            const randomAction = actions[Math.floor(Math.random() * actions.length)];
+            
+            const html = `
+                <div style="text-align: left; width: 100%;">
+                    <strong style="color: var(--accent-color);">Startposition:</strong><br>
+                    ${randomStart}<br><br>
+                    <strong style="color: var(--accent-color);">Ablauf:</strong><br>
+                    ${randomAction}
+                </div>
+            `;
+            document.getElementById('drill-output').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
