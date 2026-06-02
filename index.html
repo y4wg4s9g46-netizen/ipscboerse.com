@@ -379,6 +379,64 @@
         }
         .btn-report:hover { background-color: var(--danger-color); color: #fff; }
 
+        /* Neue Optik-Klassen für Profilbilder und Bewertungen */
+        .match-header-flex {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .card-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            background-color: var(--input-bg);
+        }
+        .card-avatar:hover {
+            border-color: var(--accent-color);
+        }
+        .avatar-placeholder-flex {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--accent-color);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+        }
+        .btn-mediated {
+            background-color: var(--success-color);
+            color: #ffffff;
+            border: none;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 5px;
+            transition: opacity 0.2s;
+        }
+        .btn-mediated:hover {
+            opacity: 0.9;
+        }
+        .rating-badge {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 5px;
+        }
+
         footer {
             background-color: var(--card-bg); border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted); text-align: center;
         }
@@ -533,6 +591,27 @@
 
     </div>
 
+    <!-- 6. POPUP FÜR ERFOLGREICHE VERMITTLUNG (ZUSÄTZLICHER MODAL-BLOCK) -->
+    <div class="modal" id="mediated-modal">
+        <div class="modal-content">
+            <div class="modal-close-container">
+                <span class="modal-close-trigger" onclick="document.getElementById('mediated-modal').style.display = 'none';">&times;</span>
+            </div>
+            <h3>Startplatz erfolgreich vermittelt</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">
+                Trage hier die E-Mail-Adresse des Käufers ein, um die Transaktion abzuschließen. Die erfolgreiche Vermittlung wird in euren Profilstatistiken hinterlegt.
+            </p>
+            <form id="mediated-form">
+                <input type="hidden" id="mediated-match-id">
+                <div class="form-group">
+                    <label>E-Mail-Adresse des Käufers *</label>
+                    <input type="email" id="buyer-email" required placeholder="kaeufer@beispiel.de">
+                </div>
+                <button type="submit" class="btn-submit" style="width: 100%; background-color: var(--success-color);">Vermittlung bestätigen & Eintrag schließen</button>
+            </form>
+        </div>
+    </div>
+
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -550,7 +629,7 @@
                 <form id="login-form">
                     <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required placeholder="name@beispiel.de"></div>
                     <div class="form-group">
-                        <label style="margin-bottom: 6px;">Passwort *</label>
+                        <label data-txt="lbl-password">Passwort *</label>
                         <input type="password" id="login-password" required placeholder="••••••••">
                         <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
                     </div>
@@ -564,7 +643,7 @@
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
                     <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="register-email" required placeholder="name@beispiel.de"></div>
-                    <div class="form-group"><label style="margin-bottom: 6px;">Passwort *</label><input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen"></div>
+                    <div class="form-group"><label data-txt="lbl-password">Passwort *</label><input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen"></div>
                     
                     <div class="form-group" style="flex-direction: row; align-items: flex-start; gap: 10px; margin-top: 5px; margin-bottom: 20px;">
                         <input type="checkbox" id="register-agb" required style="margin-top: 3px; width: 16px; height: 16px; cursor: pointer;">
@@ -595,10 +674,25 @@
                 </form>
             </div>
 
-            <!-- 5. KONTO-EINSTELLUNGEN ANSICHT -->
+            <!-- 5. KONTO-EINSTELLUNGEN ANSICHT MIT ZÄHLER UND BEWERTUNG -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
+                <!-- Zähler & Bewertungssystem Box -->
+                <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <label style="color: var(--success-color); font-weight: 700;">📈 Erfolgreiche Vermittlungen</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Verkäufer</p>
+                        </div>
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Käufer</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
                     <label style="color: #3498db;">🔒 Passkey (Schnell-Login)</label>
                     <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
@@ -667,6 +761,106 @@
             const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
             if (typeof updateThemeToggleIcon === "function") {
                 updateThemeToggleIcon(savedThemeSetting);
+            }
+        });
+
+        // NATIVE ERWEITERUNG DER APP-LOGIK DIREKT IN DIE SEITE EINGEBETTET (RENNBEDINGUNGEN VERHINDERT)
+        window.openUserProfile = async function(sellerEmail, authorName, authorAvatar, authorIpscAlias) {
+            const modal = document.getElementById("auth-modal");
+            if (!modal) return;
+            modal.style.display = "flex";
+            window.toggleAuthView("settings");
+
+            const title = document.querySelector("#modal-settings-view h3");
+            if (title) title.innerText = "Schützen-Profil von " + authorName;
+
+            // Verstecke administrative Steuerelemente für Fremdprofile
+            const elementsToHide = [
+                document.querySelector("#modal-settings-view div[style*='3498db']"),
+                document.getElementById("settings-password")?.closest(".form-group"),
+                document.querySelector("#modal-settings-view button[type='submit']"),
+                document.getElementById("btn-delete-account"),
+                document.getElementById("settings-avatar")?.closest(".form-group")
+            ];
+            elementsToHide.forEach(el => { if(el) el.style.display = "none"; });
+
+            // Setze Profildaten ein
+            const usernameField = document.getElementById("settings-username");
+            if (usernameField) { usernameField.value = authorName; usernameField.readOnly = true; }
+
+            const aliasField = document.getElementById("settings-ipsc-alias");
+            if (aliasField) { aliasField.value = authorIpscAlias || "Kein Verband-Alias"; aliasField.readOnly = true; }
+
+            const previewImg = document.getElementById("settings-avatar-preview");
+            if (previewImg) {
+                if (authorAvatar) { previewImg.src = authorAvatar; previewImg.style.display = 'block'; }
+                else { previewImg.style.display = 'none'; }
+            }
+
+            // Hole Vermittlungsdaten asynchron aus der Supabase-Datenbank-Metadaten-Struktur über RPC oder Tabellen-Lookup
+            try {
+                // Dynamischer Abruf der erfolgreichen Verkäufe/Käufe über eine Abfrage der abgeschlossenen Transaktionen
+                const salesRes = await window.supabaseClient.from('mediated_deals').select('id', { count: 'exact' }).eq('seller_email', sellerEmail);
+                const purchaseRes = await window.supabaseClient.from('mediated_deals').select('id', { count: 'exact' }).eq('buyer_email', sellerEmail);
+                
+                document.getElementById("profile-sales-count").innerText = salesRes.count || 0;
+                document.getElementById("profile-purchases-count").innerText = purchaseRes.count || 0;
+            } catch(e) {
+                console.error("Fehler beim Laden der Reputationswerte:", e);
+            }
+
+            // Event-Listener beim Schließen, um Steuerelemente für den Eigentümer zurückzusetzen
+            const closeBtn = document.getElementById("btn-close-modal");
+            if (closeBtn) {
+                const originalClose = closeBtn.onclick;
+                closeBtn.onclick = function() {
+                    if (title) title.innerText = "Konto-Einstellungen";
+                    elementsToHide.forEach(el => { if(el) el.style.display = "block"; });
+                    if (usernameField) usernameField.readOnly = false;
+                    if (aliasField) aliasField.readOnly = false;
+                    modal.style.display = "none";
+                    if (originalClose) closeBtn.onclick = originalClose;
+                };
+            }
+        };
+
+        // Trigger für erfolgreiche Vermittlung
+        window.triggerMediatedModal = function(matchId) {
+            document.getElementById("mediated-match-id").value = matchId;
+            document.getElementById("mediated-modal").style.display = "flex";
+        };
+
+        // Formular-Handler für erfolgreiche Vermittlung
+        document.getElementById("mediated-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const matchId = document.getElementById("mediated-match-id").value;
+            const buyerEmailInput = document.getElementById("buyer-email").value.trim();
+
+            if(!window.currentUser) { alert("Du musst eingeloggt sein."); return; }
+
+            try {
+                // 1. Hole Match-Daten für das Inserat
+                const { data: matchData, error: matchErr } = await window.supabaseClient.from('matches').select('*').eq('id', matchId).single();
+                if(matchErr || !matchData) throw new Error("Match-Eintrag nicht gefunden.");
+
+                // 2. Dokumentiere den erfolgreichen Deal in der verknüpften Reputations-Tabelle 'mediated_deals'
+                const { error: dealErr } = await window.supabaseClient.from('mediated_deals').insert([{
+                    match_id: matchId,
+                    match_name: matchData.name,
+                    seller_email: window.currentUser.email,
+                    buyer_email: buyerEmailInput,
+                    created_at: new Date()
+                }]);
+                if(dealErr) throw dealErr;
+
+                // 3. Lösche oder deaktiviere das Match aus der aktiven Marktplatz-Tabelle
+                await window.supabaseClient.from('matches').delete().eq('id', matchId);
+
+                alert("✓ Deal erfolgreich abgeschlossen! Die Transaktion wurde in euren Profilstatistiken hinterlegt.");
+                document.getElementById('mediated-modal').style.display = 'none';
+                location.reload();
+            } catch(err) {
+                alert("Fehler beim Verarbeiten der Vermittlung: " + err.message);
             }
         });
     </script>
