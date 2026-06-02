@@ -101,6 +101,8 @@ function initTheme() {
     }
 }
 
+// ==========================================
+
 window.translations = {
   de: {
     "main-title": "IPSC STARTPLATZ-BÖRSE",
@@ -162,8 +164,8 @@ window.translations = {
     "btn-delete-acc": "Konto & alle Einträge unwiderruflich löschen",
     "email-subject-offer": "Interesse an deinem IPSC Startplatz: ",
     "email-subject-want": "Bezüglich deiner Suche nach einem IPSC Startplatz: ",
-    "email-body-offer": "Hallo,\n\ ich habe dein Inserat auf ipscboerse.com gesehen und interessiere mich für den von dir angebotenen Startplatz für das Match: ",
-    "email-body-want": "Hallo,\n\ ich habe dein Gesuch auf ipscboerse.com gesehen. Ich hätte einen Startplatz abzugeben für das Match: ",
+    "email-body-offer": "Hallo,\n\nich habe dein Inserat auf ipscboerse.com gesehen und interessiere mich für den von dir angebotenen Startplatz für das Match: ",
+    "email-body-want": "Hallo,\n\nich habe dein Gesuch auf ipscboerse.com gesehen. Ich hätte einen Startplatz abzugeben für das Match: ",
     "email-body-footer": "\n\nIst das Inserat noch aktuell?\n\nViele Grüße",
     "security-notice": "⚠️ WICHTIGER SICHERHEITSHINWEIS:\n\n1. Nutze für Zahlungen IMMER PayPal mit Käuferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prüfen, ob eine Umschreibung des Platzes überhaupt noch möglich ist!\n\nMöchtest du den E-Mail-Kontakt jetzt öffnen?",
     "spam-error": "Spam-Schutz: Du hast bereits einen Eintrag für dieses Match an diesem Datum erstellt!",
@@ -356,18 +358,17 @@ async function checkUserStatus() {
     const displayName = user.user_metadata?.username || user.email.split('@')[0];
     const avatarUrl = user.user_metadata?.avatar_url;
     
-    // REPARATUR: Verhindert Quetschen auf Mobilgeräten durch exaktes Einbetten der runden Auswahlelemente
     const avatarHtml = avatarUrl 
-        ? `<div id="btn-open-settings" style="cursor:pointer; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center;"><img src="${avatarUrl}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-color); box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: block;"></div>` 
-        : `<div id="btn-open-settings" style="cursor:pointer; display:inline-flex; align-items:center; font-weight:bold; color:var(--accent-color); font-size:12px; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(displayName)}</div>`;
+        ? `<img src="${avatarUrl}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-color); box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: block;">` 
+        : `<span style="font-weight:bold; color:var(--accent-color);">${escapeHtml(displayName)}</span>`;
 
     if (container) {
-      container.innerHTML = `${avatarHtml}<button class="btn-auth" id="btn-logout" style="border-color: var(--danger-color); color: var(--danger-color); margin-left: 4px; height:34px; display:inline-flex; align-items:center; padding:6px 10px;">${window.translations[window.currentLang]["logout"]}</button>`;
+      container.innerHTML = `<div id="btn-open-settings" style="cursor:pointer; display:flex; align-items:center;">${avatarHtml}</div><button class="btn-auth" id="btn-logout" style="border-color: var(--danger-color); color: var(--danger-color); margin-left: 4px;">${window.translations[window.currentLang]["logout"]}</button>`;
     }
     if (emailField) { emailField.value = user.email; emailField.readOnly = true; }
   } else {
     if (container) {
-      container.innerHTML = `<button class="btn-auth" id="btn-open-login" style="height:34px; display:inline-flex; align-items:center; padding:6px 10px;">${window.translations[window.currentLang]["btn-login-reg"]}</button>`;
+      container.innerHTML = `<button class="btn-auth" id="btn-open-login">${window.translations[window.currentLang]["btn-login-reg"]}</button>`;
     }
     if (emailField) { emailField.value = ""; emailField.placeholder = "Logge dich ein, um zu inserieren"; }
   }
@@ -382,125 +383,20 @@ function toggleAuthView(view) {
 }
 window.toggleAuthView = toggleAuthView;
 
-// GLOBALER PROFIL-LOADER FÜR ALLE UNTERSEITEN (REPUTATIONSSYSTEM)
-window.openUserProfile = async function(sellerEmail, authorName, authorAvatar, authorIpscAlias) {
-    const modal = document.getElementById("auth-modal");
-    if (!modal) return;
-    modal.style.display = "flex";
-    window.toggleAuthView("settings");
-
-    const title = document.querySelector("#modal-settings-view h3");
-    if (title) title.innerText = "Schützen-Profil von " + authorName;
-
-    const elementsToHide = [
-        document.querySelector("#modal-settings-view div[style*='3498db']"),
-        document.getElementById("settings-password")?.closest(".form-group"),
-        document.querySelector("#modal-settings-view button[type='submit']"),
-        document.getElementById("btn-delete-account"),
-        document.getElementById("settings-avatar")?.closest(".form-group")
-    ];
-    elementsToHide.forEach(el => { if(el) el.style.display = "none"; });
-
-    const usernameField = document.getElementById("settings-username");
-    if (usernameField) { usernameField.value = authorName; usernameField.readOnly = true; }
-
-    const aliasField = document.getElementById("settings-ipsc-alias");
-    if (aliasField) { aliasField.value = authorIpscAlias || "Kein Verband-Alias"; aliasField.readOnly = true; }
-
-    const previewImg = document.getElementById("settings-avatar-preview");
-    if (previewImg) {
-        if (authorAvatar) { previewImg.src = authorAvatar; previewImg.style.display = 'block'; }
-        else { previewImg.style.display = 'none'; }
-    }
-
-    try {
-        const salesRes = await window.supabaseClient.from('mediated_deals').select('*').eq('seller_email', sellerEmail);
-        const purchaseRes = await window.supabaseClient.from('mediated_deals').select('*').eq('buyer_email', sellerEmail);
-        
-        const salesData = salesRes.data || [];
-        const purchaseData = purchaseRes.data || [];
-
-        const salesCountEl = document.getElementById("profile-sales-count");
-        const purchaseCountEl = document.getElementById("profile-purchases-count");
-        if (salesCountEl) salesCountEl.innerText = salesData.length;
-        if (purchaseCountEl) purchaseCountEl.innerText = purchaseData.length;
-
-        let totalComm = 0, totalPay = 0, countComm = 0, countPay = 0;
-        
-        salesData.forEach(d => {
-            if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
-            if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
-        });
-        purchaseData.forEach(d => {
-            if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
-            if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
-        });
-
-        const ratingCommEl = document.getElementById("profile-rating-comm");
-        const ratingPayEl = document.getElementById("profile-rating-pay");
-        if (ratingCommEl) ratingCommEl.innerText = formatStars(countComm > 0 ? totalComm / countComm : 0);
-        if (ratingPayEl) ratingPayEl.innerText = formatStars(countPay > 0 ? totalPay / countPay : 0);
-    } catch(e) {
-        console.error("Fehler beim Laden der Reputationswerte:", e);
-    }
-
-    const closeBtn = document.getElementById("btn-close-modal");
-    if (closeBtn) {
-        const originalClose = closeBtn.onclick;
-        closeBtn.onclick = function() {
-            if (title) title.innerText = "Konto-Einstellungen";
-            elementsToHide.forEach(el => { if(el) el.style.display = "block"; });
-            if (usernameField) usernameField.readOnly = false;
-            if (aliasField) aliasField.readOnly = false;
-            modal.style.display = "none";
-            if (originalClose) closeBtn.onclick = originalClose;
-        };
-    }
-};
-
 document.addEventListener("click", async (e) => {
     if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
-        const m = document.getElementById("auth-modal");
-        if(m) m.style.display = "flex";
+        document.getElementById("auth-modal").style.display = "flex";
         toggleAuthView("login");
-        return;
     }
-    
-    // REPARATUR: Universeller Schließen-Trigger für alle Seiten und Popups
-    if (e.target.id === "btn-close-modal" || e.target.classList.contains("modal-close-trigger") || e.target.closest(".modal-close-trigger")) {
-        const activeModal = e.target.closest(".modal");
-        if (activeModal) {
-            activeModal.style.display = "none";
-            
-            if(activeModal.id === "auth-modal") {
-                const title = document.querySelector("#modal-settings-view h3");
-                if (title) title.innerText = "Konto-Einstellungen";
-                const usernameField = document.getElementById("settings-username");
-                const aliasField = document.getElementById("settings-ipsc-alias");
-                if (usernameField) usernameField.readOnly = false;
-                if (aliasField) aliasField.readOnly = false;
-                
-                const elementsToHide = [
-                    document.querySelector("#modal-settings-view div[style*='3498db']"),
-                    document.getElementById("settings-password")?.closest(".form-group"),
-                    document.querySelector("#modal-settings-view button[type='submit']"),
-                    document.getElementById("btn-delete-account"),
-                    document.getElementById("settings-avatar")?.closest(".form-group")
-                ];
-                elementsToHide.forEach(el => { if(el) el.style.display = "block"; });
-            }
-            return;
-        }
+    if (e.target.id === "btn-close-modal" || e.target.closest("#btn-close-modal")) {
+        document.getElementById("auth-modal").style.display = "none";
     }
-    
     if (e.target.id === "btn-logout" || e.target.closest("#btn-logout")) {
         await window.supabaseClient.auth.signOut();
         location.reload();
-        return;
     }
     if (e.target.id === "btn-open-settings" || e.target.closest("#btn-open-settings")) {
-        const m = document.getElementById("auth-modal");
-        if(m) m.style.display = "flex";
+        document.getElementById("auth-modal").style.display = "flex";
         toggleAuthView("settings");
         
         const settingsUser = document.getElementById("settings-username");
@@ -516,7 +412,6 @@ document.addEventListener("click", async (e) => {
             previewImg.src = window.currentUser.user_metadata.avatar_url;
             previewImg.style.display = 'block';
         }
-        return;
     }
     if (e.target.id === "btn-delete-account") {
         e.preventDefault();
@@ -633,17 +528,21 @@ document.addEventListener("change", (e) => {
     }
 });
 
+// Hilfsfunktion zur Formatierung des Sternen-Durchschnitts im eigenen Profil
 function formatStars(value) {
     if (!value || isNaN(value) || value === 0) return "-";
     let fullStars = Math.round(value);
-    return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
+    return "★".repeat(fullStars) + "box".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
 }
 
+// === ROBUSTE INITIALISIERUNGS-SCHLEIFE GEGEN RACE CONDITIONS ===
 const initAppLanguage = () => {
     initTheme();
     const savedLang = localStorage.getItem("selectedLanguage") || "de";
+    
     const selector = document.getElementById("language-select");
     if (selector) selector.value = savedLang;
+    
     applyLanguage(savedLang);
 };
 
@@ -653,11 +552,13 @@ if (document.readyState === "loading") {
     setTimeout(initAppLanguage, 50);
 }
 
+// Supabase Statusprüfung läuft entkoppelt weiter
 setTimeout(async () => {
     const { data: { session } } = await window.supabaseClient.auth.getSession();
     window.currentUser = session?.user || null;
     await checkUserStatus();
 
+    // Lädt deine eigenen Vermittlungsstatistiken direkt beim Seitenstart für das eigene Profil
     if (window.currentUser) {
         try {
             const salesRes = await window.supabaseClient.from('mediated_deals').select('*').eq('seller_email', window.currentUser.email);
@@ -672,6 +573,7 @@ setTimeout(async () => {
             if (salesCountEl) salesCountEl.innerText = salesData.length;
             if (purchaseCountEl) purchaseCountEl.innerText = purchaseData.length;
 
+            // Sterne-Berechnung für das eigene Profil
             let totalComm = 0, totalPay = 0, countComm = 0, countPay = 0;
             
             salesData.forEach(d => {
@@ -699,17 +601,21 @@ setTimeout(async () => {
 
     window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
         window.currentUser = session?.user || null;
+        
         if (event === "PASSWORD_RECOVERY") {
             const modal = document.getElementById("auth-modal");
             if (modal) modal.style.display = "flex";
             toggleAuthView("reset-password");
         }
+        
         await checkUserStatus();
+        
         if (typeof window.onAuthChange === "function") { 
             window.onAuthChange(window.currentUser); 
         }
     });
 
+    // --- NEU: AUTOMATISCHES NEWS-POPUP NACH INITIALISIERUNG ---
     const sessionKey = "news_popup_shown_2026";
     if (!sessionStorage.getItem(sessionKey)) {
         setTimeout(() => {
