@@ -129,6 +129,9 @@
         .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
         .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
 
+        /* NEUE KLASSE FÜR DIE ZWEI SPALTEN IM PLANER */
+        .planner-form-row { display: flex; gap: 15px; }
+
         .match-item { background-color: var(--bg-color); border-left: 4px solid var(--accent-color); padding: 15px; margin-bottom: 12px; border-radius: var(--radius); border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); }
         .match-item h4 { margin: 0 0 5px 0; color: var(--text-color); font-size: 16px; font-weight: 600; }
         .match-item p { margin: 0; font-size: 13px; color: var(--text-muted); }
@@ -261,6 +264,9 @@
             .match-item { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
             .match-item div[style*="display: flex"] { width: 100% !important; justify-content: space-between !important; }
             
+            /* HIER LÖST SICH DAS ÜBERLAGERUNGSPROBLEM IM PLANER AUF DEM HANDY */
+            .planner-form-row { flex-direction: column !important; gap: 0 !important; }
+
             /* Mobile Modal Fixes */
             .modal { padding: 10px !important; }
             .modal-content { padding: 24px 16px !important; max-height: 95vh !important; }
@@ -318,7 +324,9 @@
                 <label data-txt="planner-lbl-match-name">Match-Name</label>
                 <input type="text" id="match-name" placeholder="z.B. Helmbrechts-Cup 2026">
             </div>
-            <div style="display: flex; gap: 15px;">
+            
+            <!-- HIER WURDE DIE NEUE RESPONSIVE KLASSE EINGESETZT -->
+            <div class="planner-form-row">
                 <div class="form-group" style="flex: 1;">
                     <label data-txt="planner-lbl-match-date">Datum</label>
                     <input type="date" id="match-date">
@@ -419,6 +427,7 @@
                 </form>
             </div>
 
+            <!-- PERFEKTES KONTO-EINSTELLUNGEN MENÜ -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
