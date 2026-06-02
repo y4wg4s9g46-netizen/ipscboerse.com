@@ -101,8 +101,6 @@ function initTheme() {
     }
 }
 
-// ==========================================
-
 window.translations = {
   de: {
     "main-title": "IPSC STARTPLATZ-BÖRSE",
@@ -164,8 +162,8 @@ window.translations = {
     "btn-delete-acc": "Konto & alle Einträge unwiderruflich löschen",
     "email-subject-offer": "Interesse an deinem IPSC Startplatz: ",
     "email-subject-want": "Bezüglich deiner Suche nach einem IPSC Startplatz: ",
-    "email-body-offer": "Hallo,\n\nich habe dein Inserat auf ipscboerse.com gesehen und interessiere mich für den von dir angebotenen Startplatz für das Match: ",
-    "email-body-want": "Hallo,\n\nich habe dein Gesuch auf ipscboerse.com gesehen. Ich hätte einen Startplatz abzugeben für das Match: ",
+    "email-body-offer": "Hallo,\n\ ich habe dein Inserat auf ipscboerse.com gesehen und interessiere mich für den von dir angebotenen Startplatz für das Match: ",
+    "email-body-want": "Hallo,\n\ ich habe dein Gesuch auf ipscboerse.com gesehen. Ich hätte einen Startplatz abzugeben für das Match: ",
     "email-body-footer": "\n\nIst das Inserat noch aktuell?\n\nViele Grüße",
     "security-notice": "⚠️ WICHTIGER SICHERHEITSHINWEIS:\n\n1. Nutze für Zahlungen IMMER PayPal mit Käuferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prüfen, ob eine Umschreibung des Platzes überhaupt noch möglich ist!\n\nMöchtest du den E-Mail-Kontakt jetzt öffnen?",
     "spam-error": "Spam-Schutz: Du hast bereits einen Eintrag für dieses Match an diesem Datum erstellt!",
@@ -358,7 +356,7 @@ async function checkUserStatus() {
     const displayName = user.user_metadata?.username || user.email.split('@')[0];
     const avatarUrl = user.user_metadata?.avatar_url;
     
-    // REPARATUR: Verleiht dem geladenen Avatar-Container präzise Abmessungen für mobile Bildschirme, um Quetschen zu verhindern
+    // REPARATUR: Verhindert Quetschen auf Mobilgeräten durch exaktes Einbetten der runden Auswahlelemente
     const avatarHtml = avatarUrl 
         ? `<div id="btn-open-settings" style="cursor:pointer; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center;"><img src="${avatarUrl}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-color); box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: block;"></div>` 
         : `<div id="btn-open-settings" style="cursor:pointer; display:inline-flex; align-items:center; font-weight:bold; color:var(--accent-color); font-size:12px; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(displayName)}</div>`;
@@ -384,7 +382,7 @@ function toggleAuthView(view) {
 }
 window.toggleAuthView = toggleAuthView;
 
-// GLOBALER ENTKOPPELTER PROFIL-LOADER FÜR JEDE UNTERSEITE (BEWERTUNGSSYSTEM)
+// GLOBALER PROFIL-LOADER FÜR ALLE UNTERSEITEN (REPUTATIONSSYSTEM)
 window.openUserProfile = async function(sellerEmail, authorName, authorAvatar, authorIpscAlias) {
     const modal = document.getElementById("auth-modal");
     if (!modal) return;
@@ -461,7 +459,6 @@ window.openUserProfile = async function(sellerEmail, authorName, authorAvatar, a
 };
 
 document.addEventListener("click", async (e) => {
-    // REPARATUR: Exakte Target-Zuweisungen verhindern Fehltrigger
     if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
         const m = document.getElementById("auth-modal");
         if(m) m.style.display = "flex";
@@ -469,13 +466,12 @@ document.addEventListener("click", async (e) => {
         return;
     }
     
-    // REPARATUR: Spezifischer Schließen-Trigger fängt Klicks auf allen Modaltypen ab
+    // REPARATUR: Universeller Schließen-Trigger für alle Seiten und Popups
     if (e.target.id === "btn-close-modal" || e.target.classList.contains("modal-close-trigger") || e.target.closest(".modal-close-trigger")) {
         const activeModal = e.target.closest(".modal");
         if (activeModal) {
             activeModal.style.display = "none";
             
-            // Setzt Auth-Modal-Klassen zurück, falls nötig
             if(activeModal.id === "auth-modal") {
                 const title = document.querySelector("#modal-settings-view h3");
                 if (title) title.innerText = "Konto-Einstellungen";
@@ -637,21 +633,17 @@ document.addEventListener("change", (e) => {
     }
 });
 
-// Hilfsfunktion zur Formatierung des Sternen-Durchschnitts im eigenen Profil
 function formatStars(value) {
     if (!value || isNaN(value) || value === 0) return "-";
     let fullStars = Math.round(value);
     return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
 }
 
-// === ROBUSTE INITIALISIERUNGS-SCHLEIFE GEGEN RACE CONDITIONS ===
 const initAppLanguage = () => {
     initTheme();
     const savedLang = localStorage.getItem("selectedLanguage") || "de";
-    
     const selector = document.getElementById("language-select");
     if (selector) selector.value = savedLang;
-    
     applyLanguage(savedLang);
 };
 
@@ -661,13 +653,11 @@ if (document.readyState === "loading") {
     setTimeout(initAppLanguage, 50);
 }
 
-// Supabase Statusprüfung läuft entkoppelt weiter
 setTimeout(async () => {
     const { data: { session } } = await window.supabaseClient.auth.getSession();
     window.currentUser = session?.user || null;
     await checkUserStatus();
 
-    // Lädt deine eigenen Vermittlungsstatistiken direkt beim Seitenstart für das eigene Profil
     if (window.currentUser) {
         try {
             const salesRes = await window.supabaseClient.from('mediated_deals').select('*').eq('seller_email', window.currentUser.email);
@@ -682,7 +672,6 @@ setTimeout(async () => {
             if (salesCountEl) salesCountEl.innerText = salesData.length;
             if (purchaseCountEl) purchaseCountEl.innerText = purchaseData.length;
 
-            // Sterne-Berechnung für das eigene Profil
             let totalComm = 0, totalPay = 0, countComm = 0, countPay = 0;
             
             salesData.forEach(d => {
@@ -710,21 +699,17 @@ setTimeout(async () => {
 
     window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
         window.currentUser = session?.user || null;
-        
         if (event === "PASSWORD_RECOVERY") {
             const modal = document.getElementById("auth-modal");
             if (modal) modal.style.display = "flex";
             toggleAuthView("reset-password");
         }
-        
         await checkUserStatus();
-        
         if (typeof window.onAuthChange === "function") { 
             window.onAuthChange(window.currentUser); 
         }
     });
 
-    // --- NEU: AUTOMATISCHES NEWS-POPUP NACH INITIALISIERUNG ---
     const sessionKey = "news_popup_shown_2026";
     if (!sessionStorage.getItem(sessionKey)) {
         setTimeout(() => {
