@@ -455,6 +455,41 @@
             color: #ffca28;
         }
 
+        /* --- STYLING-KLASSEN FÜR DEN LIVE-CHAT INTERFACE-BEREICH --- */
+        .chat-history-area {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            border-radius: var(--radius);
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chat-bubble {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        .bubble-me {
+            background-color: var(--accent-color);
+            color: #1a1a1a;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+        .bubble-other {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            border: 1px solid var(--border-color);
+        }
+
         footer {
             background-color: var(--card-bg); border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted); text-align: center;
         }
@@ -675,6 +710,26 @@
                 </div>
             </div>
             <button type="button" class="btn-submit" style="width: 100%; margin-top: 20px; background-color: var(--accent-color); color: #1a1a1a;" onclick="document.getElementById('news-modal').style.display = 'none';">Verstanden & Weiter</button>
+        </div>
+    </div>
+
+    <!-- NEU: ENTKOPPELTES MODAL FÜR DEN PRIVAT-CHAT -->
+    <div class="modal" id="chat-modal">
+        <div class="modal-content" style="max-width: 500px; padding: 25px;">
+            <div class="modal-close-container">
+                <span class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</span>
+            </div>
+            <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
+            <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">Gesprächspartner: -</p>
+            
+            <!-- Nachrichten-Verlauf -->
+            <div class="chat-history-area" id="chat-box-messages"></div>
+            
+            <!-- Eingabezeile -->
+            <form id="chat-send-form" style="display: flex; gap: 8px;">
+                <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
+                <button type="submit" class="btn-submit" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
+            </form>
         </div>
     </div>
 
