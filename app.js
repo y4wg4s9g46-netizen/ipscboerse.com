@@ -70,6 +70,8 @@ function renderMatches(matches) {
             sellerAlias = aliasMap[m.seller_email];
         } else if (m.seller_profile && m.seller_profile.ipsc_alias) {
              sellerAlias = m.seller_profile.ipsc_alias;
+        } else if (m.author_ipsc_alias) {
+             sellerAlias = m.author_ipsc_alias;
         }
 
         const trustedBadge = (sellerAlias && sellerAlias.trim() !== "") 
@@ -83,17 +85,33 @@ function renderMatches(matches) {
         const contactBtnClass = isWant ? "btn-contact btn-contact-want" : "btn-contact";
         const contactText = isWant ? window.translations[window.currentLang]["btn-contact-want"] : window.translations[window.currentLang]["btn-request"];
 
+        // Profilbild-Struktur definieren (Fallback auf Initialen-Placeholder, falls kein Bild vorhanden)
+        const authorName = m.author_name || m.seller_email.split('@')[0];
+        const authorAvatar = m.author_avatar || '';
+        
+        const avatarHtml = authorAvatar 
+            ? `<img src="${authorAvatar}" class="card-avatar" onclick="openUserProfile('${m.seller_email}', '${window.escapeHtml(authorName)}', '${authorAvatar}', '${window.escapeHtml(sellerAlias || '')}')" title="Profil von ${window.escapeHtml(authorName)} ansehen">`
+            : `<div class="avatar-placeholder-flex" onclick="openUserProfile('${m.seller_email}', '${window.escapeHtml(authorName)}', '${authorAvatar}', '${window.escapeHtml(sellerAlias || '')}')" title="Profil von ${window.escapeHtml(authorName)} ansehen">${window.escapeHtml(authorName.charAt(0).toUpperCase())}</div>`;
+
         return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
           <div class="match-details">
-            <h3>
-              ${window.escapeHtml(m.match_name)} 
-              ${levelBadge} 
-              ${squadBadge} 
-              ${countryBadge}
-              <span class="badge">${isWant ? window.translations[window.currentLang]["tag-want"] : window.translations[window.currentLang]["tag-offer"]}</span>
-              ${trustedBadge}
-            </h3>
-            <p>${m.match_date} | ${window.escapeHtml(m.match_location)}</p>
+            <div class="match-header-flex">
+              ${avatarHtml}
+              <div>
+                <h3 style="margin: 0;">
+                  ${window.escapeHtml(m.match_name)} 
+                  ${levelBadge} 
+                  ${squadBadge} 
+                  ${countryBadge}
+                  <span class="badge">${isWant ? window.translations[window.currentLang]["tag-want"] : window.translations[window.currentLang]["tag-offer"]}</span>
+                  ${trustedBadge}
+                </h3>
+                <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">
+                  Inseriert von: <span style="color: var(--accent-color); font-weight: 600; cursor: pointer;" onclick="openUserProfile('${m.seller_email}', '${window.escapeHtml(authorName)}', '${authorAvatar}', '${window.escapeHtml(sellerAlias || '')}')">${window.escapeHtml(authorName)}</span>
+                </p>
+              </div>
+            </div>
+            <p style="margin-top: 12px;">${m.match_date} | ${window.escapeHtml(m.match_location)}</p>
           </div>
           <div class="card-actions">
             <p>${parseFloat(m.match_price).toFixed(2)} €</p>
@@ -103,6 +121,9 @@ function renderMatches(matches) {
                 <button class="btn-report" onclick="reportMatch(${m.id})">${window.translations[window.currentLang]["report-btn"]}</button>
             </div>
             ${canManage ? `
+              <div class="action-buttons-group">
+                <button class="btn-mediated" onclick="triggerMediatedModal(${m.id})">Erfolgreich vermittelt</button>
+              </div>
               <div class="action-buttons-group">
                 <button class="btn-edit" onclick="handleEditClick(${m.id})">${window.translations[window.currentLang]["btn-edit"]}</button>
                 <button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${window.translations[window.currentLang]["btn-delete"]}</button>
@@ -261,7 +282,10 @@ document.getElementById("match-form")?.addEventListener("submit", async (e) => {
     match_country: document.getElementById("match-country").value,
     match_price: document.getElementById("match-price").value,
     seller_email: window.currentUser.email,
-    type: document.getElementById("type-want").checked ? "want" : "offer"
+    type: document.getElementById("type-want").checked ? "want" : "offer",
+    author_name: window.currentUser.user_metadata?.username || window.currentUser.email.split('@')[0],
+    author_avatar: window.currentUser.user_metadata?.avatar_url || '',
+    author_ipsc_alias: window.currentUser.user_metadata?.ipsc_alias || ''
   };
   
   matchData.match_squad = document.getElementById("match-squad").value || null;
