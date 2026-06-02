@@ -288,16 +288,30 @@
             header { padding: 12px 8px !important; }
             header h1 { font-size: 19px !important; margin-bottom: 8px !important; }
             header p { font-size: 11px !important; margin-top: 2px !important; }
-            .header-controls { position: static !important; display: flex !important; flex-direction: row !important; justify-content: center !important; align-items: center !important; gap: 12px !important; margin-top: 10px !important; width: 100% !important; transform: none; }
-            #auth-status-container { display: flex !important; align-items: center !important; gap: 8px !important; }
+            
+            /* REPARATUR: Behebt das Quetschen im Header aus dem Screenshot */
+            .header-controls { position: static !important; display: flex !important; flex-direction: row !important; flex-wrap: wrap !important; justify-content: center !important; align-items: center !important; gap: 8px !important; margin-top: 12px !important; width: 100% !important; transform: none !important; }
+            #auth-status-container { display: flex !important; align-items: center !important; gap: 6px !important; }
             #btn-open-settings { margin-right: 0 !important; }
-            #btn-open-settings img { width: 28px !important; height: 28px !important; border-width: 1px !important; }
-            .btn-auth { padding: 5px 10px !important; font-size: 12px !important; }
-            .main-nav { margin-top: 12px !important; padding-top: 8px !important; display: flex !important; flex-direction: row !important; justify-content: flex-start !important; overflow-x: auto !important; white-space: nowrap !important; gap: 15px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; }
+            
+            /* REPARATUR: Vereinheitlicht die Größen der runden Control-Buttons mobil */
+            .theme-toggle-btn, #btn-open-settings, .lang-select { width: 34px !important; height: 34px !important; padding: 0 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; font-size: 14px !important; }
+            #btn-open-settings img { width: 24px !important; height: 24px !important; border-width: 1px !important; }
+            
+            /* REPARATUR: Macht den Abmelden-Button kompakter, damit er nicht umbricht */
+            .btn-auth { padding: 6px 10px !important; font-size: 12px !important; height: 34px !important; display: inline-flex !important; align-items: center !important; }
+            
+            /* REPARATUR: Verhindert horizontales Scrollen der Navigationsleiste auf iOS */
+            .main-nav { margin-top: 12px !important; padding-top: 8px !important; display: flex !important; flex-direction: row !important; justify-content: flex-start !important; overflow-x: auto !important; white-space: nowrap !important; gap: 8px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; width: 100% !important; box-sizing: border-box !important; }
             .main-nav::-webkit-scrollbar { display: none !important; }
-            .main-nav a { flex-shrink: 0 !important; font-size: 12px !important; padding-bottom: 2px !important; }
+            .main-nav a { flex-shrink: 0 !important; font-size: 11px !important; padding: 6px 10px !important; }
+            
             .container { padding: 0 10px !important; margin-top: 15px !important; width: 100% !important; box-sizing: border-box !important; }
-            .info-box, .form-section, .post-card, .match-card, #logged-out-section, #planner-section, #username-setup-section, #logged-out-msg { padding: 12px !important; margin-bottom: 12px !important; width: 100% !important; box-sizing: border-box !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
+            .info-box, .form-section, .post-card, .match-card, #logged-out-section, #planner-section, #username-setup-section, #logged-out-msg { padding: 16px !important; margin-bottom: 12px !important; width: 100% !important; box-sizing: border-box !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
+            
+            /* REPARATUR: Setzt Datum und Ort untereinander, statt sie nebeneinander einzupferchen */
+            #planner-section div[style*="display: flex; gap: 15px"] { flex-direction: column !important; gap: 0 !important; }
+            
             .form-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
             .toggle-selector { flex-direction: column !important; gap: 8px !important; align-items: flex-start !important; }
             button, .btn-submit { width: 100% !important; box-sizing: border-box !important; }
@@ -306,8 +320,11 @@
             .action-buttons-group { width: 100% !important; display: flex !important; gap: 6px !important; }
             .action-buttons-group button, .btn-contact { flex: 1 !important; text-align: center !important; width: 100% !important; }
             .fab { bottom: 15px !important; right: 15px !important; padding: 10px 16px !important; font-size: 13px !important; z-index: 999 !important; }
-            .match-item { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
-            .match-item div[style*="display: flex"] { width: 100% !important; justify-content: space-between !important; }
+            
+            /* REPARATUR: Optimiert die Listen-Einträge der geplanten Matches mobil */
+            .match-item { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; padding: 12px !important; }
+            .match-item div[style*="display: flex"] { width: 100% !important; justify-content: space-between !important; margin-top: 4px; }
+            .match-item button { flex: 1 !important; padding: 8px !important; text-align: center !important; }
         }
     </style>
 </head>
@@ -325,10 +342,8 @@
         </nav>
 
         <div class="header-controls">
-            <!-- Manueller Design-Schalter -->
             <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
 
-            <!-- Globaler Chat-Posteingang Button im Header -->
             <button id="header-chat-btn" class="theme-toggle-btn" onclick="toggleGlobalInbox()" style="position: relative; font-size: 18px;" title="Nachrichten">
                 💬
                 <span id="chat-badge-count" style="display: none; position: absolute; top: -4px; right: -4px; background: var(--danger-color); color: white; font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold;">0</span>
@@ -390,7 +405,6 @@
                 <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
             </div>
             
-            <!-- 1. LOGIN ANSICHT MIT PASSKEY BUTTON -->
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
                 
@@ -420,7 +434,6 @@
                 </div>
             </div>
 
-            <!-- 2. REGISTRIERUNGS-ANSICHT -->
             <div id="modal-register-view" style="display: none;">
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
@@ -440,7 +453,6 @@
                 </div>
             </div>
 
-            <!-- 3. PASSWORT VERGESSEN ANSICHT -->
             <div id="modal-forgot-view" style="display: none;">
                 <h3 data-txt="modal-forgot-title">Passforgot-title</h3>
                 <form id="forgot-form">
@@ -455,7 +467,6 @@
                 </div>
             </div>
 
-            <!-- 4. PASSWORT ZURÜCKSETZEN ANSICHT -->
             <div id="modal-reset-view" style="display: none;">
                 <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                 <form id="reset-password-form">
@@ -467,10 +478,28 @@
                 </form>
             </div>
 
-            <!-- 5. KONTO-EINSTELLUNGEN ANSICHT -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
+                <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <label style="color: var(--success-color); font-weight: 700;">📈 Erfolgreiche Vermittlungen</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Verkäufer</p>
+                        </div>
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Käufer</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
+                        <div>💬 Kommunikation: <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
+                        <div>💳 Bezahlung: <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
+                    </div>
+                </div>
+
                 <div class="form-group" style="background-color: rgba(59, 130, 246, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
                     <label style="color: var(--info-color); font-weight: 700;">🔒 Passkey (Schnell-Login)</label>
                     <p style="font-size: 12px; margin-top: 4px; margin-bottom: 12px; color: var(--text-muted); line-height: 1.4;">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
@@ -499,7 +528,6 @@
         </div>
     </div>
 
-    <!-- ENTKOPPELTES MODAL FÜR DEN PRIVAT-CHAT MIT E-MAIL-REMINDER -->
     <div class="modal" id="chat-modal">
         <div class="modal-content" style="max-width: 500px; padding: 25px;">
             <div class="modal-close-container">
@@ -508,17 +536,14 @@
             <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
             <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
             
-            <!-- Manuelle E-Mail-Anstups-Zeile direkt über dem Verlauf -->
             <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
                 <button type="button" class="btn-export" id="btn-chat-email-reminder" style="margin-top: 0; background-color: rgba(59, 130, 246, 0.1); color: var(--info-color); border-color: var(--info-color); padding: 6px 12px;" onclick="triggerChatEmailReminder()">
                     ✉️ Schützen per E-Mail anstupsen
                 </button>
             </div>
             
-            <!-- Nachrichten-Verlauf -->
             <div class="chat-history-area" id="chat-box-messages"></div>
             
-            <!-- Eingabezeile -->
             <form id="chat-send-form" style="display: flex; gap: 8px;">
                 <input type="hidden" id="chat-edit-id" value="">
                 <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
@@ -527,7 +552,6 @@
         </div>
     </div>
 
-    <!-- GLOBALER POSTEINGANG / OVERLAY-LISTE FÜR BESTEHENDE CHATS -->
     <div class="modal" id="global-inbox-modal">
         <div class="modal-content" style="max-width: 450px; padding: 25px;">
             <div class="modal-close-container">
@@ -536,7 +560,6 @@
             <h3>Meine Nachrichten</h3>
             <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven Gespräche.</p>
             
-            <!-- Liste der Chat-Partner -->
             <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
                 <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
             </div>
@@ -557,6 +580,13 @@
         let myMatches = [];
 
         function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
+
+        // Hilfsfunktion zur Formatierung des Sternen-Durchschnitts
+        function formatStars(value) {
+            if (!value || isNaN(value) || value === 0) return "-";
+            let fullStars = Math.round(value);
+            return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
+        }
 
         // Synchronisiert das Theme-Symbol beim Start
         document.addEventListener("DOMContentLoaded", () => {
