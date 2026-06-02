@@ -113,7 +113,6 @@
             background-color: var(--bg-color);
         }
 
-        /* HEADER CONTROLS MIT HORIZONTALEM FLEX-REALIGNMENT */
         .header-controls {
             position: absolute;
             top: 50%;
@@ -128,7 +127,6 @@
             .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; transform: none; }
         }
 
-        /* Styling für den Theme-Button im Header */
         .theme-toggle-btn {
             background: var(--card-bg);
             color: var(--text-color);
@@ -297,7 +295,6 @@
             animation: fadeIn 0.2s ease-out;
             padding: 20px;
             box-sizing: border-box;
-            overflow-y: auto; /* REPARATUR: Macht das Modal scrollbar bei langen Inhalten */
         }
 
         .modal-content { 
@@ -307,10 +304,12 @@
             border: 1px solid var(--border-color); 
             width: 100%; 
             max-width: 440px; 
+            max-height: 90vh; /* Scrollbar aktivieren */
+            overflow-y: auto; 
             box-sizing: border-box; 
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             position: relative;
-            margin: auto; /* REPARATUR: Hält das Modal auf Mobilgeräten zentriert und wahrt Abstände */
+            margin: auto;
         }
 
         .modal-content h3 { 
@@ -320,204 +319,72 @@
             font-size: 24px;
             font-weight: 700; 
             letter-spacing: -0.5px;
-            padding-right: 30px; /* REPARATUR: Genug Abstand zur rechten Seite für das X */
+            padding-right: 30px;
+        }
+
+        .modal-close-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1010;
         }
 
         .modal-close-trigger {
-            position: absolute;
-            top: 20px; /* REPARATUR: Harmonisch positioniert */
-            right: 20px; /* REPARATUR: Harmonisch positioniert */
             background: transparent;
             border: none;
             color: var(--text-muted);
-            font-size: 26px;
+            font-size: 28px;
             cursor: pointer;
             padding: 4px;
             line-height: 1;
             transition: color 0.15s;
-            z-index: 1010; 
         }
         .modal-close-trigger:hover {
             color: var(--text-color);
         }
 
-        .modal-content .form-group { 
-            margin-bottom: 20px; 
-            display: flex; 
-            flex-direction: column; 
-        }
-        .modal-content label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .modal-content input { 
-            background-color: var(--input-bg); 
-            border: 1px solid var(--border-color); 
-            color: var(--text-color); 
-            padding: 12px 14px; 
-            border-radius: var(--radius); 
-            font-size: 14px;
-            transition: all 0.15s ease;
-            box-shadow: var(--shadow-sm);
-        }
-        .modal-content input:focus { 
-            outline: none; 
-            border-color: var(--accent-color); 
-            box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); 
-        }
+        .modal-content .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
+        .modal-content label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .modal-content input { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px 14px; border-radius: var(--radius); font-size: 14px; transition: all 0.15s ease; box-shadow: var(--shadow-sm); }
+        .modal-content input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); }
 
         .modal-divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 12px;
-            font-weight: 500;
-            margin: 24px 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .modal-divider::before, .modal-divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid var(--border-color);
-        }
+        .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
         .modal-divider:not(:empty)::before { margin-right: .75em; }
         .modal-divider:not(:empty)::after { margin-left: .75em; }
 
-        .btn-primary-auth {
-            background-color: var(--accent-color);
-            color: #ffffff;
-            border: none;
-            padding: 12px 24px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: var(--radius);
-            cursor: pointer;
-            width: 100%;
-            box-shadow: var(--shadow-sm);
-            transition: opacity 0.15s;
-        }
-        .btn-primary-auth:hover {
-            opacity: 0.9;
-        }
+        .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; }
+        .btn-primary-auth:hover { opacity: 0.9; }
 
-        .btn-secondary-auth {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 12px 24px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: var(--radius);
-            cursor: pointer;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: var(--shadow-sm);
-            transition: background 0.15s;
-        }
-        .btn-secondary-auth:hover {
-            background-color: var(--border-color);
-        }
+        .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
+        .btn-secondary-auth:hover { background-color: var(--border-color); }
 
-        .modal-footer { 
-            margin-top: 24px; 
-            padding-top: 16px;
-            border-top: 1px solid var(--border-color);
-            display: flex; 
-            justify-content: center; 
-            gap: 6px;
-            font-size: 13px; 
-            color: var(--text-muted);
-        }
-        .modal-footer a { 
-            color: var(--accent-color); 
-            text-decoration: none; 
-            cursor: pointer; 
-            font-weight: 600; 
-        }
-        .modal-footer a:hover {
-            text-decoration: underline;
-        }
+        .modal-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
+        .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; font-weight: 600; }
+        .modal-footer a:hover { text-decoration: underline; }
 
         .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
         .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
 
         /* --- STYLING-KLASSEN FÜR DEN LIVE-CHAT INTERFACE-BEREICH --- */
-        .chat-history-area {
-            height: 300px;
-            overflow-y: auto;
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-color);
-            border-radius: var(--radius);
-            padding: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .chat-bubble {
-            max-width: 75%;
-            padding: 10px 14px;
-            border-radius: 14px;
-            font-size: 13px;
-            line-height: 1.4;
-            word-wrap: break-word;
-        }
-        .bubble-me {
-            background-color: var(--accent-color);
-            color: #1a1a1a;
-            align-self: flex-end;
-            border-bottom-right-radius: 2px;
-        }
-        .bubble-other {
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            align-self: flex-start;
-            border-bottom-left-radius: 2px;
-            border: 1px solid var(--border-color);
-        }
-        .chat-bubble-container {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 8px;
-            position: relative;
-        }
-        .chat-bubble-meta {
-            font-size: 10px;
-            color: var(--text-muted);
-            margin-top: 2px;
-            display: flex;
-            gap: 8px;
-        }
-        .chat-action-link {
-            cursor: pointer;
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: color 0.15s;
-        }
+        .chat-history-area { height: 300px; overflow-y: auto; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: var(--radius); padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .chat-bubble { max-width: 75%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.4; word-wrap: break-word; }
+        .bubble-me { background-color: var(--accent-color); color: #1a1a1a; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .bubble-other { background-color: var(--card-bg); color: var(--text-color); align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid var(--border-color); }
+        .chat-bubble-container { display: flex; flex-direction: column; margin-bottom: 8px; position: relative; }
+        .chat-bubble-meta { font-size: 10px; color: var(--text-muted); margin-top: 2px; display: flex; gap: 8px; }
+        .chat-action-link { cursor: pointer; color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
         .chat-action-link:hover { color: var(--text-color); }
         .chat-action-link.delete:hover { color: var(--danger-color); }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.98); }
-            to { opacity: 1; transform: scale(1); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        footer {
-            background-color: var(--card-bg);
-            border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted);
-        }
+        footer { background-color: var(--card-bg); border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted); }
 
         /* ========================================================
-           ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES (HAUPT-REPARATUR)
+           ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES
            ======================================================== */
         @media (max-width: 768px) {
             html, body { overflow-x: hidden !important; width: 100% !important; }
@@ -545,11 +412,11 @@
             .match-item { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
             .match-item div[style*="display: flex"] { width: 100% !important; justify-content: space-between !important; }
             
-            /* REPARATUR: Optimierte Darstellungen für das mobile Pop-Up-Inhaltsfenster */
+            /* Mobile Modal Fixes */
             .modal { padding: 10px !important; }
-            .modal-content { padding: 24px 16px !important; }
-            .modal-content h3 { font-size: 20px !important; margin-bottom: 18px !important; }
-            .modal-close-trigger { top: 14px !important; right: 14px !important; font-size: 28px !important; }
+            .modal-content { padding: 24px 16px !important; max-height: 95vh !important; }
+            .modal-close-container { top: 12px !important; right: 12px !important; }
+            .modal-close-trigger { font-size: 28px !important; }
         }
     </style>
 </head>
@@ -616,7 +483,9 @@
 
     <div class="modal" id="auth-modal">
         <div class="modal-content">
-            <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
+            <div class="modal-close-container">
+                <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
+            </div>
             
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
@@ -713,10 +582,10 @@
                     </div>
                 </div>
 
-                <div class="form-group" style="background-color: rgba(59, 130, 246, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
-                    <label style="color: var(--info-color); font-weight: 700;">🔒 Passkey (Schnell-Login)</label>
-                    <p style="font-size: 12px; margin-top: 4px; margin-bottom: 12px; color: var(--text-muted); line-height: 1.4;">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" class="btn-secondary-auth" style="background-color: var(--card-bg);" onclick="registerPasskey()">Gerät registrieren</button>
+                <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
+                    <label style="color: #3498db;">🔒 Passkey (Schnell-Login)</label>
+                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
+                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()">Gerät als Passkey registrieren</button>
                 </div>
 
                 <form id="settings-form">
@@ -733,8 +602,8 @@
 
                     <div class="form-group">
                         <label>Profilbild (Optional)</label>
-                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)" style="font-size: 13px; color: var(--text-muted);">
-                        <img id="settings-avatar-preview" style="max-width: 800px; width: 80px; height: 80px; object-fit: cover; margin-top: 12px; border-radius: 50%; display: none; border: 2px solid var(--border-color);">
+                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
+                        <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
                     </div>
                     <div class="form-group">
                         <label>Neues Passwort ändern (Optional)</label>
@@ -751,7 +620,7 @@
     <div class="modal" id="chat-modal">
         <div class="modal-content" style="max-width: 500px; padding: 25px;">
             <div class="modal-close-container">
-                <span class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</span>
+                <button class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</button>
             </div>
             <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
             <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
@@ -775,7 +644,7 @@
     <div class="modal" id="global-inbox-modal">
         <div class="modal-content" style="max-width: 450px; padding: 25px;">
             <div class="modal-close-container">
-                <span class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</span>
+                <button class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</button>
             </div>
             <h3>Meine Nachrichten</h3>
             <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven Gespräche.</p>
@@ -800,7 +669,6 @@
     window.activeChatRoom = null;
     window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new Date().toISOString();
 
-    // Synchronisiert das Theme-Symbol beim Start
     document.addEventListener("DOMContentLoaded", () => {
         const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
         if (typeof updateThemeToggleIcon === "function") {
@@ -808,14 +676,12 @@
         }
     });
 
-    // Hilfsfunktion zur Formatierung des Sternen-Durchschnitts
     function formatStars(value) {
         if (!value || isNaN(value) || value === 0) return "-";
         let fullStars = Math.round(value);
         return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
     }
 
-    // Erweitertes Profil-Popup-System für asynchrone Reputations-Berechnungen
     window.openUserProfile = async function(sellerEmail, authorName, authorAvatar, authorIpscAlias) {
         const modal = document.getElementById("auth-modal");
         if (!modal) return;
@@ -887,7 +753,6 @@
         }
     };
 
-    // === CHAT FUNKTIONEN DIREKT INTEGRIERT (VERHINDERT DAS ÜBERSCHREIBEN) ===
     async function openChatSystem(matchId, receiverEmail, matchName) {
       if (!window.currentUser) return alert(window.currentLang === "en" ? "Please log in." : "Bitte logge dich ein.");
       window.activeChatRoom = { matchId, receiverEmail, matchName };
@@ -966,7 +831,6 @@
     window.onAuthChange = () => { updateHeaderChatBadge(); };
     setTimeout(() => { updateHeaderChatBadge(); }, 1000);
 
-    // === BOTTurnier-Ladelogik ===
     fetch('matches.json?v=' + new Date().getTime())
       .then(res => res.json())
       .then(data => {
