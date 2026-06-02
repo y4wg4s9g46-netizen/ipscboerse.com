@@ -48,7 +48,7 @@ window.registerPasskey = async function() {
     const oldText = btn ? btn.innerText : "";
     if (btn) btn.innerText = "Bitte Sensor berühren...";
 
-    const { data, error } = await window.supabaseClient.auth.registerPasskey();
+    const { data, error = null } = await window.supabaseClient.auth.registerPasskey();
 
     if (error) {
         if (btn) btn.innerText = oldText;
@@ -523,24 +523,29 @@ document.addEventListener("submit", async (e) => {
 
 document.addEventListener("change", (e) => {
     if (e.target.id === "language-select") {
-        localStorage.setItem("selectedLanguage", e.target.value); // <-- FIX 2: Sichert Sprachauswahl sofort
+        localStorage.setItem("selectedLanguage", e.target.value); 
         applyLanguage(e.target.value);
     }
 });
+
+// Hilfsfunktion zur Formatierung des Sternen-Durchschnitts im eigenen Profil
+function formatStars(value) {
+    if (!value || isNaN(value) || value === 0) return "-";
+    let fullStars = Math.round(value);
+    return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
+}
 
 // === ROBUSTE INITIALISIERUNGS-SCHLEIFE GEGEN RACE CONDITIONS ===
 const initAppLanguage = () => {
     initTheme();
     const savedLang = localStorage.getItem("selectedLanguage") || "de";
     
-    // Setzt auch den visuellen Wert des Auswahlschalters im DOM zurück
     const selector = document.getElementById("language-select");
     if (selector) selector.value = savedLang;
     
     applyLanguage(savedLang);
 };
 
-// Startet die Übersetzung erst, wenn das DOM vollständig bereit ist
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => setTimeout(initAppLanguage, 50));
 } else {
@@ -552,6 +557,43 @@ setTimeout(async () => {
     const { data: { session } } = await window.supabaseClient.auth.getSession();
     window.currentUser = session?.user || null;
     await checkUserStatus();
+
+    // Lädt deine eigenen Vermittlungsstatistiken direkt beim Seitenstart für das eigene Profil
+    if (window.currentUser) {
+        try {
+            const salesRes = await window.supabaseClient.from('mediated_deals').select('*').eq('seller_email', window.currentUser.email);
+            const purchaseRes = await window.supabaseClient.from('mediated_deals').select('*').eq('buyer_email', window.currentUser.email);
+            
+            const salesData = salesRes.data || [];
+            const purchaseData = purchaseRes.data || [];
+            
+            const salesCountEl = document.getElementById("profile-sales-count");
+            const purchaseCountEl = document.getElementById("profile-purchases-count");
+            
+            if (salesCountEl) salesCountEl.innerText = salesData.length;
+            if (purchaseCountEl) purchaseCountEl.innerText = purchaseData.length;
+
+            // Sterne-Berechnung für das eigene Profil
+            let totalComm = 0, totalPay = 0, countComm = 0, countPay = 0;
+            
+            salesData.forEach(d => {
+                if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
+                if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
+            });
+            purchaseData.forEach(d => {
+                if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
+                if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
+            });
+
+            const ratingCommEl = document.getElementById("profile-rating-comm");
+            const ratingPayEl = document.getElementById("profile-rating-pay");
+
+            if (ratingCommEl) ratingCommEl.innerText = formatStars(countComm > 0 ? totalComm / countComm : 0);
+            if (ratingPayEl) ratingPayEl.innerText = formatStars(countPay > 0 ? totalPay / countPay : 0);
+        } catch(e) {
+            console.error("Fehler beim Laden der eigenen Profil-Statistiken:", e);
+        }
+    }
     
     if (typeof window.onAuthChange === "function") { 
         window.onAuthChange(window.currentUser); 
