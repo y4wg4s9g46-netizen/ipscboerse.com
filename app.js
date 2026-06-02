@@ -1,5 +1,6 @@
 let cachedMatches = [];
 window.editingMatchId = null; 
+window.activeChatRoom = null; // Speichert den aktiven Chat-Kontext
 
 // Verhindert das Auswählen von Daten in der Vergangenheit
 function enforceFutureDates() {
@@ -115,7 +116,12 @@ function renderMatches(matches) {
           </div>
           <div class="card-actions">
             <p>${parseFloat(m.match_price).toFixed(2)} €</p>
-            <button class="${contactBtnClass}" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">${contactText}</button>
+            
+            <div style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
+                <button class="${contactBtnClass}" onclick="openChatSystem(${m.id}, '${m.seller_email}', '${cleanMatchName}')">💬 Live-Chat</button>
+                <button class="${contactBtnClass}" style="background-color: #555;" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">✉️ ${contactText}</button>
+            </div>
+
             <div class="action-buttons-group">
                 <button class="btn-export" onclick="exportToIcs(${m.id})">${window.translations[window.currentLang]["btn-export"]}</button>
                 <button class="btn-report" onclick="reportMatch(${m.id})">${window.translations[window.currentLang]["report-btn"]}</button>
@@ -163,6 +169,107 @@ function handleContactClick(email, matchName, type) {
   window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
 }
 window.handleContactClick = handleContactClick;
+
+// === NATIVER LIVE-CHAT LOGIK-BLOCK ===
+async function openChatSystem(matchId, receiverEmail, matchName) {
+  if (!window.currentUser) {
+    return alert(window.currentLang === "en" ? "Please log in to chat." : "Bitte logge dich ein, um den Live-Chat zu nutzen.");
+  }
+
+  if (window.currentUser.email.toLowerCase() === receiverEmail.toLowerCase()) {
+    return alert(window.currentLang === "en" ? "You cannot start a chat with yourself." : "Du kannst keinen Chat mit dir selbst starten.");
+  }
+
+  window.activeChatRoom = { matchId, receiverEmail, matchName };
+
+  document.getElementById("chat-title-match").innerText = "Match: " + matchName;
+  document.getElementById("chat-title-partner").innerText = (window.currentLang === "en" ? "Chat partner: " : "Gesprächspartner: ") + receiverEmail;
+  document.getElementById("chat-box-messages").innerHTML = `<p style="color:var(--text-muted); font-style:italic;">${window.currentLang === "en" ? "Loading messages..." : "Lade Chat-Verlauf..."}</p>`;
+  document.getElementById("chat-modal").style.display = "flex";
+
+  // Alten Nachrichtenverlauf aus Supabase laden
+  const { data: messages, error } = await window.supabaseClient
+    .from("chat_messages")
+    .select("*")
+    .eq("match_id", matchId)
+    .or(`and(sender_email.eq.${window.currentUser.email},receiver_email.eq.${receiverEmail}),and(sender_email.eq.${receiverEmail},receiver_email.eq.${window.currentUser.email})`)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("Fehler beim Laden des Chats:", error);
+    document.getElementById("chat-box-messages").innerHTML = "";
+    return;
+  }
+
+  const box = document.getElementById("chat-box-messages");
+  box.innerHTML = "";
+  if (messages && messages.length > 0) {
+    messages.forEach(msg => {
+      const isMe = msg.sender_email.toLowerCase() === window.currentUser.email.toLowerCase();
+      box.innerHTML += `<div class="chat-bubble ${isMe ? 'bubble-me' : 'bubble-other'}">${window.escapeHtml(msg.message)}</div>`;
+    });
+  }
+  box.scrollTop = box.scrollHeight;
+}
+window.openChatSystem = openChatSystem;
+
+function closeChatSystem() {
+  window.activeChatRoom = null;
+  document.getElementById("chat-modal").style.display = "none";
+}
+window.closeChatSystem = closeChatSystem;
+
+// Senden einer neuen Nachricht
+document.getElementById("chat-send-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!window.activeChatRoom || !window.currentUser) return;
+
+  const input = document.getElementById("chat-message-input");
+  const messageText = input.value.trim();
+  if (!messageText) return;
+
+  const { error } = await window.supabaseClient.from("chat_messages").insert([{
+    match_id: window.activeChatRoom.matchId,
+    match_name: window.activeChatRoom.matchName,
+    sender_email: window.currentUser.email,
+    receiver_email: window.activeChatRoom.receiverEmail,
+    message: messageText
+  }]);
+
+  if (error) {
+    alert("Fehler beim Senden: " + error.message);
+  } else {
+    input.value = "";
+  }
+});
+
+// ABONNEMENT DER SUPABASE REALTIME-SCHNITTSTELLE FÜR LIVE-UPDATES
+setTimeout(() => {
+  if (window.supabaseClient) {
+    window.supabaseClient
+      .channel('public:chat_messages')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payload => {
+          const newMsg = payload.new;
+          if (!window.activeChatRoom || !window.currentUser) return;
+
+          // Prüfen, ob die empfangene Nachricht zum aktuell geöffneten Chatraum gehört
+          const matchMatch = newMsg.match_id == window.activeChatRoom.matchId;
+          const participantMatch = (newMsg.sender_email.toLowerCase() === window.currentUser.email.toLowerCase() && newMsg.receiver_email.toLowerCase() === window.activeChatRoom.receiverEmail.toLowerCase()) ||
+                                   (newMsg.sender_email.toLowerCase() === window.activeChatRoom.receiverEmail.toLowerCase() && newMsg.receiver_email.toLowerCase() === window.currentUser.email.toLowerCase());
+
+          if (matchMatch && participantMatch) {
+              const box = document.getElementById("chat-box-messages");
+              if (box) {
+                  const isMe = newMsg.sender_email.toLowerCase() === window.currentUser.email.toLowerCase();
+                  box.innerHTML += `<div class="chat-bubble ${isMe ? 'bubble-me' : 'bubble-other'}">${window.escapeHtml(newMsg.message)}</div>`;
+                  box.scrollTop = box.scrollHeight;
+              }
+          }
+      })
+      .subscribe();
+  }
+}, 1000);
+// =============================================
 
 function exportToIcs(id) {
   const match = cachedMatches.find(m => m.id === id);
