@@ -65,7 +65,6 @@
         .main-nav a.inactive { color: var(--text-muted); border: 1px solid transparent; }
         .main-nav a.inactive:hover { color: var(--text-color); background-color: var(--bg-color); }
 
-        /* PERFEKTE AUSRICHTUNG IM HEADER */
         .header-controls { 
             position: absolute; 
             top: 50%; 
@@ -80,7 +79,6 @@
             .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; transform: none; }
         }
 
-        /* Styling für den Theme-Button im Header */
         .theme-toggle-btn {
             background: var(--card-bg);
             color: var(--text-color);
@@ -157,7 +155,6 @@
 
         .fab { position: fixed; bottom: 30px; right: 30px; background-color: var(--accent-color); color: white; border: none; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-md); z-index: 100; display: flex; align-items: center; gap: 8px; transition: transform 0.15s; }
         .fab:hover { transform: translateY(-2px); }
-        @media (max-width: 768px) { .fab { bottom: 20px; right: 20px; padding: 10px 18px; font-size: 13px; } }
 
         /* --- Luxuriöses & Modernes Modal-Design --- */
         .modal { 
@@ -184,11 +181,12 @@
             border: 1px solid var(--border-color); 
             width: 100%; 
             max-width: 440px; 
-            max-height: 90vh; 
+            max-height: 90vh; /* Scrollbar aktivieren */
             overflow-y: auto; 
-            position: relative;
             box-sizing: border-box; 
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            position: relative;
+            margin: auto;
         }
 
         .modal-content h3 { 
@@ -198,22 +196,25 @@
             font-size: 24px;
             font-weight: 700; 
             letter-spacing: -0.5px;
-            padding-right: 20px;
+            padding-right: 30px;
+        }
+
+        .modal-close-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1010;
         }
 
         .modal-close-trigger {
-            position: absolute;
-            top: 24px;
-            right: 24px;
             background: transparent;
             border: none;
             color: var(--text-muted);
-            font-size: 26px;
+            font-size: 28px;
             cursor: pointer;
             padding: 4px;
             line-height: 1;
             transition: color 0.15s;
-            z-index: 1010;
         }
         .modal-close-trigger:hover { color: var(--text-color); }
 
@@ -246,7 +247,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
         /* ========================================================
-           ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES (HAUPT-REPARATUR)
+           ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES
            ======================================================== */
         @media (max-width: 768px) {
             html, body { overflow-x: hidden !important; width: 100% !important; }
@@ -273,6 +274,12 @@
             .fab { bottom: 15px !important; right: 15px !important; padding: 10px 16px !important; font-size: 13px !important; z-index: 999 !important; }
             .match-item { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
             .match-item div[style*="display: flex"] { width: 100% !important; justify-content: space-between !important; }
+            
+            /* Mobile Modal Fixes */
+            .modal { padding: 10px !important; }
+            .modal-content { padding: 24px 16px !important; max-height: 95vh !important; }
+            .modal-close-container { top: 12px !important; right: 12px !important; }
+            .modal-close-trigger { font-size: 28px !important; }
         }
     </style>
 </head>
@@ -289,10 +296,8 @@
             <a href="community.html" class="active" data-txt="nav-community">Community</a>
         </nav>
         <div class="header-controls">
-            <!-- Manueller Design-Schalter -->
             <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
 
-            <!-- Globaler Chat-Posteingang Button im Header -->
             <button id="header-chat-btn" class="theme-toggle-btn" onclick="toggleGlobalInbox()" style="position: relative; font-size: 18px;" title="Nachrichten">
                 💬
                 <span id="chat-badge-count" style="display: none; position: absolute; top: -4px; right: -4px; background: var(--danger-color); color: white; font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold;">0</span>
@@ -349,7 +354,9 @@
 
     <div class="modal" id="post-modal">
         <div class="modal-content">
-            <button class="modal-close-trigger" onclick="closePostModal()">&times;</button>
+            <div class="modal-close-container">
+                <button class="modal-close-trigger" onclick="closePostModal()">&times;</button>
+            </div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h3 style="margin: 0; color: var(--accent-color);" data-txt="modal-new-post">Neuer Beitrag</h3>
             </div>
@@ -365,7 +372,9 @@
 
     <div class="modal" id="auth-modal">
         <div class="modal-content">
-            <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
+            <div class="modal-close-container">
+                <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
+            </div>
             
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
@@ -446,10 +455,29 @@
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
-                <div class="form-group" style="background-color: rgba(59, 130, 246, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
-                    <label style="color: var(--info-color); font-weight: 700;">🔒 Passkey (Schnell-Login)</label>
-                    <p style="font-size: 12px; margin-top: 4px; margin-bottom: 12px; color: var(--text-muted); line-height: 1.4;">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" class="btn-secondary-auth" style="background-color: var(--card-bg);" onclick="registerPasskey()">Gerät registrieren</button>
+                <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <label style="color: var(--success-color); font-weight: 700;">📈 Erfolgreiche Vermittlungen</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Verkäufer</p>
+                        </div>
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Käufer</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
+                        <div>💬 Kommunikation: <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
+                        <div>💳 Bezahlung: <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
+                    <label style="color: #3498db;">🔒 Passkey (Schnell-Login)</label>
+                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
+                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()">Gerät als Passkey registrieren</button>
                 </div>
 
                 <form id="settings-form">
@@ -466,41 +494,37 @@
 
                     <div class="form-group">
                         <label>Profilbild (Optional)</label>
-                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)" style="font-size: 13px; color: var(--text-muted);">
-                        <img id="settings-avatar-preview" style="max-width: 800px; width: 80px; height: 80px; object-fit: cover; margin-top: 12px; border-radius: 50%; display: none; border: 2px solid var(--border-color);">
+                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
+                        <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
                     </div>
                     <div class="form-group">
                         <label data-txt="lbl-new-password">Neues Passwort ändern (Optional)</label>
                         <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
                     </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Änderungen保存 Speichern</button>
+                    <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
                 </form>
-                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
-                <button class="btn-danger-block" id="btn-delete-account">Konto & alle Einträge unwiderruflich löschen</button>
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+                <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
             </div>
         </div>
     </div>
 
-    <!-- ENTKOPPELTES MODAL FÜR DEN PRIVAT-CHAT MIT E-MAIL-REMINDER -->
     <div class="modal" id="chat-modal">
         <div class="modal-content" style="max-width: 500px; padding: 25px;">
             <div class="modal-close-container">
-                <span class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</span>
+                <button class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</button>
             </div>
             <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
             <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
             
-            <!-- Manuelle E-Mail-Anstups-Zeile direkt über dem Verlauf -->
             <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
                 <button type="button" class="btn-export" id="btn-chat-email-reminder" style="margin-top: 0; background-color: rgba(59, 130, 246, 0.1); color: var(--info-color); border-color: var(--info-color); padding: 6px 12px;" onclick="triggerChatEmailReminder()">
                     ✉️ Schützen per E-Mail anstupsen
                 </button>
             </div>
             
-            <!-- Nachrichten-Verlauf -->
             <div class="chat-history-area" id="chat-box-messages"></div>
             
-            <!-- Eingabezeile -->
             <form id="chat-send-form" style="display: flex; gap: 8px;">
                 <input type="hidden" id="chat-edit-id" value="">
                 <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
@@ -509,16 +533,14 @@
         </div>
     </div>
 
-    <!-- GLOBALER POSTEINGANG / OVERLAY-LISTE FÜR BESTEHENDE CHATS -->
     <div class="modal" id="global-inbox-modal">
         <div class="modal-content" style="max-width: 450px; padding: 25px;">
             <div class="modal-close-container">
-                <span class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</span>
+                <button class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</button>
             </div>
             <h3>Meine Nachrichten</h3>
             <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven Gespräche.</p>
             
-            <!-- Liste der Chat-Partner -->
             <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
                 <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
             </div>
@@ -544,40 +566,22 @@
     <script src="auth.js"></script>
     <script src="app.js"></script>
     <script>
-        // === ADMIN KONFIGURATION ===
         const ADMIN_EMAIL = 'fabian-schoeps@gmx.de';
 
-        // === GLOBALER INTELLIGENTER WORTFILTER ===
         function checkTextForBadWords(text) {
             if (!text) return false;
-            
-            let cleanText = text.toLowerCase()
-                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                .replace(/[^a-z0-9\s]/g, "");
-
-            const blacklist = [
-                "arsch", "arschloch", "arschkriecher", "asozial", "bastard", "depp", "ficker", "fotze", "hurensohn", "hure", "idiot", "miststueck", "miststück", "nutte", "schlampe", "schwachkopf", "wichser", "wixxer", "vollidiot", "spasti", "missgeburt", "pisser", "vogel", "hanswurst",
-                "nazi", "hitler", "neger", "kanake", "schwuchtel", "fascho", "antifa", "terrorist", "juden", "zionist", "heil hitler", "jude",
-                "casino", "slots", "poker", "bitcoin", "crypto", "kryptowaehrung", "kryptowährung", "geld verdienen", "schnelles geld", "reich werden", "investieren", "dividende", "aktien", "whatsapp", "telegram", "gewinnspiel", "jackpot", "bonuscode",
-                "sex", "porn", "porno", "erotik", "cam", "webcam", "dating", "singles", "ficken", "milf", "geile", "nackt", "onlyfans", "sugar daddy", "escort", "xxx", "hentai",
-                "hack", "warez", "crack", "phishing", "betrug", "scam", "gefaelscht", "gefälscht", "ausweis kaufen", "pass kaufen", "geldwaesche", "geldwäsche", "paypal betrug", "kredit ohne schufa"
-            ];
-            
+            let cleanText = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, "");
+            const blacklist = ["arsch", "arschloch", "arschkriecher", "asozial", "bastard", "depp", "ficker", "fotze", "hurensohn", "hure", "idiot", "miststueck", "miststück", "nutte", "schlampe", "schwachkopf", "wichser", "wixxer", "vollidiot", "spasti", "missgeburt", "pisser", "vogel", "hanswurst", "nazi", "hitler", "neger", "kanake", "schwuchtel", "fascho", "antifa", "terrorist", "juden", "zionist", "heil hitler", "jude", "casino", "slots", "poker", "bitcoin", "crypto", "kryptowaehrung", "kryptowährung", "geld verdienen", "schnelles geld", "reich werden", "investieren", "dividende", "aktien", "whatsapp", "telegram", "gewinnspiel", "jackpot", "bonuscode", "sex", "porn", "porno", "erotik", "cam", "webcam", "dating", "singles", "ficken", "milf", "geile", "nackt", "onlyfans", "sugar daddy", "escort", "xxx", "hentai", "hack", "warez", "crack", "phishing", "betrug", "scam", "gefaelscht", "gefälscht", "ausweis kaufen", "pass kaufen", "geldwaesche", "geldwäsche", "paypal betrug", "kredit ohne schufa"];
             let hasMatch = blacklist.some(word => cleanText.includes(word));
             if (hasMatch) return true;
-
             let tightText = cleanText.replace(/\s+/g, "");
             return blacklist.some(word => tightText.includes(word));
         }
 
-        // Variable zur sprachunabhängigen Speicherung des aktiven Tabs ('feed' oder 'groups')
         let currentActiveTabId = 'feed';
 
         function switchTab(tab) {
-            if (window.currentUser && (!window.currentUser.user_metadata?.username || window.currentUser.user_metadata.username.trim() === "")) {
-                return;
-            }
-            
+            if (window.currentUser && (!window.currentUser.user_metadata?.username || window.currentUser.user_metadata.username.trim() === "")) return;
             currentActiveTabId = tab;
             document.querySelectorAll('.social-tab').forEach(t => t.classList.remove('active'));
             document.getElementById('feed-section').style.display = 'none';
@@ -639,7 +643,6 @@
                 const displayDate = dateObj.toLocaleDateString('de-DE') + ' ' + dateObj.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
                 
                 const isAdmin = post.author_email && post.author_email.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim();
-                const cardClass = isAdmin ? 'post-card admin-post' : 'post-card';
                 const avatarClass = isAdmin ? 'avatar admin-avatar' : 'avatar';
                 const initial = post.author_name ? post.author_name.charAt(0).toUpperCase() : '?';
                 const adminBadge = isAdmin ? '<span class="admin-badge">Admin News</span>' : '';
@@ -695,104 +698,45 @@
             });
         }
 
-        // Like-Logik
         async function likePost(postId, currentLikes) {
-            const { error } = await window.supabaseClient
-                .from('community_posts')
-                .update({ likes: currentLikes + 1 })
-                .eq('id', postId);
-            
-            if (!error) {
-                const badge = document.getElementById(`likes-count-${postId}`);
-                if (badge) badge.innerText = currentLikes + 1;
-            }
+            const { error } = await window.supabaseClient.from('community_posts').update({ likes: currentLikes + 1 }).eq('id', postId);
+            if (!error) { const badge = document.getElementById(`likes-count-${postId}`); if (badge) badge.innerText = currentLikes + 1; }
         }
         window.likePost = likePost;
 
-        // Dislike-Logik
         async function dislikePost(postId, currentDislikes) {
-            const { error } = await window.supabaseClient
-                .from('community_posts')
-                .update({ dislikes: currentDislikes + 1 })
-                .eq('id', postId);
-            
-            if (!error) {
-                const badge = document.getElementById(`dislikes-count-${postId}`);
-                if (badge) badge.innerText = currentDislikes + 1;
-            }
+            const { error } = await window.supabaseClient.from('community_posts').update({ dislikes: currentDislikes + 1 }).eq('id', postId);
+            if (!error) { const badge = document.getElementById(`dislikes-count-${postId}`); if (badge) badge.innerText = currentDislikes + 1; }
         }
         window.dislikePost = dislikePost;
 
-        // Toggelt die Sichtbarkeit der Kommentare und lädt sie
         function toggleCommentsSection(postId) {
             const wrapper = document.getElementById(`comments-wrapper-${postId}`);
             if (!wrapper) return;
-            
-            if (wrapper.style.display === "block") {
-                wrapper.style.display = "none";
-            } else {
-                wrapper.style.display = "block";
-                loadComments(postId);
-            }
+            if (wrapper.style.display === "block") { wrapper.style.display = "none"; } else { wrapper.style.display = "block"; loadComments(postId); }
         }
         window.toggleCommentsSection = toggleCommentsSection;
 
-        // Lädt alle Kommentare für einen bestimmten Post
         async function loadComments(postId) {
             const container = document.getElementById(`comments-list-${postId}`);
             if (!container) return;
-
-            const { data, error } = await window.supabaseClient
-                .from('community_comments')
-                .select('*')
-                .eq('post_id', postId)
-                .order('created_at', { ascending: true });
-
-            if (error || !data || data.length === 0) {
-                container.innerHTML = '<p style="font-size:12px; color:var(--text-muted); font-style:italic; margin:0;">Noch keine Kommentare geschrieben.</p>';
-                return;
-            }
-
+            const { data, error } = await window.supabaseClient.from('community_comments').select('*').eq('post_id', postId).order('created_at', { ascending: true });
+            if (error || !data || data.length === 0) { container.innerHTML = '<p style="font-size:12px; color:var(--text-muted); font-style:italic; margin:0;">Noch keine Kommentare geschrieben.</p>'; return; }
             container.innerHTML = data.map(c => {
                 const dObj = new Date(c.created_at);
                 const dStr = dObj.toLocaleDateString('de-DE') + ' ' + dObj.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
-                return `
-                    <div class="comment-item">
-                        <div class="comment-meta">${escapeHtml(c.author_name)} <span>${dStr}</span></div>
-                        <div style="color: #ccc;">${escapeHtml(c.content)}</div>
-                    </div>
-                `;
+                return `<div class="comment-item"><div class="comment-meta">${escapeHtml(c.author_name)} <span>${dStr}</span></div><div style="color: #ccc;">${escapeHtml(c.content)}</div></div>`;
             }).join('');
         }
 
         async function submitComment(postId) {
             const input = document.getElementById(`comment-input-${postId}`);
             if (!input || !input.value.trim()) return;
-
             const text = input.value.trim();
-
-            if (checkTextForBadWords(text)) {
-                alert("Dein Kommentar enthält Begriffe, die gegen unsere Richtlinien verstoßen.");
-                return;
-            }
-
+            if (checkTextForBadWords(text)) { alert("Dein Kommentar enthält Begriffe, die gegen unsere Richtlinien verstoßen."); return; }
             const displayName = window.currentUser.user_metadata?.username || "Schütze";
-
-            const { error } = await window.supabaseClient
-                .from('community_comments')
-                .insert([{
-                    post_id: postId,
-                    user_id: window.currentUser.id,
-                    author_name: displayName,
-                    content: text
-                }]);
-
-            if (error) {
-                alert("Fehler beim Kommentieren: " + error.message);
-            } else {
-                input.value = '';
-                loadComments(postId);
-            }
+            const { error } = await window.supabaseClient.from('community_comments').insert([{ post_id: postId, user_id: window.currentUser.id, author_name: displayName, content: text }]);
+            if (error) alert("Fehler beim Kommentieren: " + error.message); else { input.value = ''; loadComments(postId); }
         }
         window.submitComment = submitComment;
 
@@ -806,62 +750,35 @@
         window.previewPostImage = function(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.getElementById('post-image-preview');
-                    if (img) { img.src = e.target.result; img.style.display = 'block'; }
-                }
+                reader.onload = function(e) { const img = document.getElementById('post-image-preview'); if (img) { img.src = e.target.result; img.style.display = 'block'; } }
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        function openPostModal() {
-            document.getElementById('post-modal').style.display = 'flex';
-            document.getElementById('post-content').focus();
-        }
+        function openPostModal() { document.getElementById('post-modal').style.display = 'flex'; document.getElementById('post-content').focus(); }
         
-        function closePostModal() {
-            document.getElementById('post-modal').style.display = 'none';
-            document.getElementById('post-image').value = '';
-            document.getElementById('post-image-preview').style.display = 'none';
-        }
+        function closePostModal() { document.getElementById('post-modal').style.display = 'none'; document.getElementById('post-image').value = ''; document.getElementById('post-image-preview').style.display = 'none'; }
 
         async function submitPost() {
             const content = document.getElementById('post-content').value.trim();
             const imageFile = document.getElementById('post-image').files[0];
             const btn = document.getElementById('btn-submit-post');
-
             if (!content && !imageFile) return;
-
-            if (checkTextForBadWords(content)) {
-                alert("Dein Beitrag enthält Begriffe, die gegen unsere Community-Richtlinien verstoßen. Bitte passe deinen Text an.");
-                return;
-            }
+            if (checkTextForBadWords(content)) { alert("Dein Beitrag enthält Begriffe, die gegen unsere Community-Richtlinien verstoßen. Bitte passe deinen Text an."); return; }
 
             if (imageFile) {
                 const originalText = btn.innerText;
                 btn.innerText = "Prüfe Bild auf zulässige Inhalte...";
                 btn.style.opacity = "0.7";
-                
                 try {
                     const imgElement = document.createElement('img');
                     imgElement.src = URL.createObjectURL(imageFile);
-                    
                     await new Promise((resolve) => { imgElement.onload = resolve; });
-
                     const model = await nsfwjs.load();
                     const predictions = await model.classify(imgElement);
-                    
                     const unsafe = predictions.find(p => (p.className === 'Porn' || p.className === 'Hentai') && p.probability > 0.65);
-                    
-                    if (unsafe) {
-                        alert("Das hochgeladene Bild verstößt gegen unsere Richtlinien (unzulässiger Inhalt erkannt).");
-                        btn.innerText = originalText;
-                        btn.style.opacity = "1";
-                        return;
-                    }
-                } catch (kiError) {
-                    console.error("KI-Filter Fehler:", kiError);
-                }
+                    if (unsafe) { alert("Das hochgeladene Bild verstößt gegen unsere Richtlinien (unzulässiger Inhalt erkannt)."); btn.innerText = originalText; btn.style.opacity = "1"; return; }
+                } catch (kiError) { console.error("KI-Filter Fehler:", kiError); }
             }
 
             btn.innerText = "Wird hochgeladen...";
@@ -869,52 +786,22 @@
 
             try {
                 let imageUrl = null;
-                if (imageFile) {
-                    imageUrl = await window.uploadImage(imageFile, 'posts');
-                }
-
+                if (imageFile) { imageUrl = await window.uploadImage(imageFile, 'posts'); }
                 const displayName = window.currentUser.user_metadata?.username || "Schütze";
                 const avatarUrl = window.currentUser.user_metadata?.avatar_url || null;
-
-                const { error } = await window.supabaseClient
-                    .from('community_posts')
-                    .insert([{
-                        user_id: window.currentUser.id, 
-                        author_name: displayName,
-                        author_email: window.currentUser.email,
-                        author_avatar: avatarUrl,
-                        content: content,
-                        image_url: imageUrl
-                    }]);
-
+                const { error } = await window.supabaseClient.from('community_posts').insert([{ user_id: window.currentUser.id, author_name: displayName, author_email: window.currentUser.email, author_avatar: avatarUrl, content: content, image_url: imageUrl }]);
                 if (error) throw error;
-
-                document.getElementById('post-content').value = '';
-                closePostModal();
-                btn.innerText = "Teilen";
-                btn.style.opacity = "1";
-                loadPosts();
-            } catch (err) {
-                btn.innerText = "Teilen";
-                btn.style.opacity = "1";
-                alert("Fehler beim Posten: " + err.message);
-            }
+                document.getElementById('post-content').value = ''; closePostModal(); btn.innerText = "Teilen"; btn.style.opacity = "1"; loadPosts();
+            } catch (err) { btn.innerText = "Teilen"; btn.style.opacity = "1"; alert("Fehler beim Posten: " + err.message); }
         }
 
-        async function deletePost(id) {
-            if(!confirm("Beitrag wirklich löschen?")) return;
-            const { error } = await window.supabaseClient.from('community_posts').delete().eq('id', id);
-            if(!error) loadPosts();
-        }
+        async function deletePost(id) { if(!confirm("Beitrag wirklich löschen?")) return; const { error } = await window.supabaseClient.from('community_posts').delete().eq('id', id); if(!error) loadPosts(); }
 
         function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
         
-        // Synchronisiert das Theme-Symbol beim Laden der Seite
         document.addEventListener("DOMContentLoaded", () => {
             const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
-            if (typeof updateThemeToggleIcon === "function") {
-                updateThemeToggleIcon(savedThemeSetting);
-            }
+            if (typeof updateThemeToggleIcon === "function") { updateThemeToggleIcon(savedThemeSetting); }
         });
     </script>
 </body>
