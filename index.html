@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -524,7 +524,7 @@
             .card-actions { align-items: flex-start !important; width: 100% !important; border-top: 1px solid var(--border-color) !important; padding-top: 10px !important; }
             .action-buttons-group { width: 100% !important; display: flex !important; gap: 6px !important; }
             .action-buttons-group button, .btn-contact { flex: 1 !important; text-align: center !important; width: 100% !important; }
-            .fab { bottom: 15px !important; right: 15px !important; padding: 10px 16px !important; font-size: 13px !important; z-index: 999 !important; }
+            .fab { bottom: 15px !important; right: 15px !important; padding: 10px 16px !important; font-size: 13px !important; z-index: 999 !important; z-index: 999 !important; }
             .match-item { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
             .match-item div[style*="display: flex"] { width: 100% !important; justify-content: space-between !important; }
         }
@@ -546,6 +546,12 @@
         <div class="header-controls">
             <!-- Manueller Design-Schalter -->
             <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
+
+            <!-- NEU: Globaler Chat-Posteingang Button im Header -->
+            <button id="header-chat-btn" class="theme-toggle-btn" onclick="toggleGlobalInbox()" style="position: relative; font-size: 18px;" title="Nachrichten">
+                💬
+                <span id="chat-badge-count" style="display: none; position: absolute; top: -4px; right: -4px; background: var(--danger-color); color: white; font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold;">0</span>
+            </button>
 
             <select id="language-select" class="lang-switch">
                 <option value="de">DE</option>
@@ -689,38 +695,49 @@
         </div>
     </div>
 
-    <!-- NEU: NEWS POPUP FÜR DAS VERIFIZIERTE TRUSTED SHOOTER VERFAHREN -->
+    <!-- NATIVES POPUP FÜR TRUSTED SHOOTER + ERWEITERT UM DIE INFO ZUR NEUEN CHAT FUNKTION -->
     <div class="modal" id="news-modal">
         <div class="modal-content" style="max-width: 500px; padding: 28px;">
             <div class="modal-close-container">
                 <span class="modal-close-trigger" onclick="document.getElementById('news-modal').style.display = 'none';">&times;</span>
             </div>
-            <h3 style="color: var(--accent-color); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">📢 Plattform Update: Trusted Shooter</h3>
+            <h3 style="color: var(--accent-color); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">📢 Plattform Update: Live-Chat &amp; Trusted Status</h3>
             <p style="font-size: 14px; font-weight: 600; margin-top: 0; margin-bottom: 15px;">
-                Ab sofort führen wir ein echtes, verifiziertes Vertrauens-System ein, um Betrug beim Ticket-Tausch vollständig zu unterbinden!
+                Ab sofort führen wir einen integrierten Live-Chat sowie ein verifiziertes Vertrauens-System ein, um den Ticket-Tausch noch sicherer zu machen[span_1](start_span)[span_1](end_span)!
             </p>
             <div style="font-size: 13px; line-height: 1.6; display: flex; flex-direction: column; gap: 12px; color: var(--text-color);">
+                <div style="background: var(--bg-color); padding: 12px; border-radius: var(--radius); border-left: 4px solid var(--info-color);">
+                    <strong style="color: var(--info-color); display: block; margin-bottom: 4px;">💬 Wahlweise Live-Chat oder E-Mail</strong>
+                    Du kannst andere Schützen jetzt direkt auf der Plattform anschreiben! Falls der Partner mal nicht online antwortet, kannst du ihn im Chatfenster ganz bequem mit dem Button <strong>„Schützen per E-Mail anstupsen“</strong> direkt anstupsen.[span_2](start_span)[span_2](end_span)
+                </div>
                 <div style="background: var(--bg-color); padding: 12px; border-radius: var(--radius); border-left: 4px solid var(--success-color);">
                     <strong style="color: var(--success-color); display: block; margin-bottom: 4px;">🛡️ Option 1: Offizieller Verbandsnachweis</strong>
-                    Sende uns ein kurzes Foto deines IPSC-Ausweises, deiner SuRT-Bescheinigung oder deiner Lizenz an <a href="mailto:info@ipscboerse.com" style="color: var(--info-color); font-weight: bold;">info@ipscboerse.com</a>. Unser Support schaltet dein Profil manuell frei und du erhältst sofort das grüne <strong>Trusted</strong>-Badge an all deinen Inseraten!
+                    Sende uns ein kurzes Foto deines IPSC-Ausweises, deiner SuRT-Bescheinigung oder deiner Lizenz an <a href="mailto:info@ipscboerse.com" style="color: var(--info-color); font-weight: bold;">info@ipscboerse.com</a>. Unser Support schaltet dein Profil manuell frei und du erhältst sofort das grüne <strong>Trusted</strong>-Badge an all deinen Inseraten[span_3](start_span)[span_3](end_span)!
                 </div>
                 <div style="background: var(--bg-color); padding: 12px; border-radius: var(--radius); border-left: 4px solid var(--accent-color);">
                     <strong style="color: var(--accent-color); display: block; margin-bottom: 4px;">📈 Option 2: Community Reputation</strong>
-                    Schütze werden! Das grüne Vertrauenssiegel wird alternativ auch vollautomatisch aktiv, sobald du mindestens <strong>3 erfolgreiche Vermittlungen</strong> über den Button abgeschlossen hast und deine Sternebewertung sauber bleibt.
+                    Schütze werden! Das grüne Vertrauenssiegel wird alternativ auch vollautomatisch aktiv, sobald du mindestens <strong>3 erfolgreiche Vermittlungen</strong> über den Button abgeschlossen hast und deine Sternebewertung sauber bleibt.[span_4](start_span)[span_4](end_span)
                 </div>
             </div>
             <button type="button" class="btn-submit" style="width: 100%; margin-top: 20px; background-color: var(--accent-color); color: #1a1a1a;" onclick="document.getElementById('news-modal').style.display = 'none';">Verstanden & Weiter</button>
         </div>
     </div>
 
-    <!-- NEU: ENTKOPPELTES MODAL FÜR DEN PRIVAT-CHAT -->
+    <!-- ENTKOPPELTES MODAL FÜR DEN PRIVAT-CHAT MIT E-MAIL-REMINDER -->
     <div class="modal" id="chat-modal">
         <div class="modal-content" style="max-width: 500px; padding: 25px;">
             <div class="modal-close-container">
                 <span class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</span>
             </div>
             <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
-            <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">Gesprächspartner: -</p>
+            <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
+            
+            <!-- Manuelle E-Mail-Anstups-Zeile direkt über dem Verlauf -->
+            <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <button type="button" class="btn-export" id="btn-chat-email-reminder" style="margin-top: 0; background-color: rgba(59, 130, 246, 0.1); color: var(--info-color); border-color: var(--info-color); padding: 6px 12px;" onclick="triggerChatEmailReminder()">
+                    ✉️ Schützen per E-Mail anstupsen
+                </button>
+            </div>
             
             <!-- Nachrichten-Verlauf -->
             <div class="chat-history-area" id="chat-box-messages"></div>
@@ -730,6 +747,22 @@
                 <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
                 <button type="submit" class="btn-submit" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
             </form>
+        </div>
+    </div>
+
+    <!-- GLOBALER POSTEINGANG / OVERLAY-LISTE FÜR BESTEHENDE CHATS -->
+    <div class="modal" id="global-inbox-modal">
+        <div class="modal-content" style="max-width: 450px; padding: 25px;">
+            <div class="modal-close-container">
+                <span class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</span>
+            </div>
+            <h3>Meine Nachrichten</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven Gespräche.</p>
+            
+            <!-- Liste der Chat-Partner -->
+            <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
+                <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
+            </div>
         </div>
     </div>
 
