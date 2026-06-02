@@ -2,6 +2,9 @@ let cachedMatches = [];
 window.editingMatchId = null; 
 window.activeChatRoom = null; // Speichert den aktiven Chat-Kontext
 
+// Behebt den Badge-Zähler-Fehler: Filtert alte gelesene Nachrichten heraus
+window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new Date().toISOString();
+
 // Verhindert das Auswählen von Daten in der Vergangenheit
 function enforceFutureDates() {
   const dateInput = document.getElementById("match-date");
@@ -191,32 +194,91 @@ async function openChatSystem(matchId, receiverEmail, matchName) {
   const box = document.getElementById("chat-box-messages");
   if (box) box.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">${window.currentLang === "en" ? "Loading messages..." : "Lade Chat-Verlauf..."}</p>`;
 
-  // Alten Nachrichtenverlauf aus Supabase laden
+  // Reset Editier-Eingabestatus bei Raumwechsel
+  const editIdInput = document.getElementById("chat-edit-id");
+  if (editIdInput) editIdInput.value = "";
+  const msgInput = document.getElementById("chat-message-input");
+  if (msgInput) msgInput.value = "";
+  const sendBtn = document.getElementById("btn-chat-send");
+  if (sendBtn) sendBtn.innerText = window.currentLang === "en" ? "Send" : "Senden";
+
+  await loadChatMessages();
+}
+window.openChatSystem = openChatSystem;
+
+// Ausgelagerte Render-Funktion für Chat-Nachrichten inkl. Inline-Aktionen (Bearbeiten, Löschen, Melden)
+async function loadChatMessages() {
+  if (!window.activeChatRoom || !window.currentUser) return;
+  const box = document.getElementById("chat-box-messages");
+  if (!box) return;
+
   const { data: messages, error } = await window.supabaseClient
     .from("chat_messages")
     .select("*")
-    .eq("match_id", matchId)
-    .or(`and(sender_email.eq.${window.currentUser.email},receiver_email.eq.${receiverEmail}),and(sender_email.eq.${receiverEmail},receiver_email.eq.${window.currentUser.email})`)
+    .eq("match_id", window.activeChatRoom.matchId)
+    .or(`and(sender_email.eq.${window.currentUser.email},receiver_email.eq.${window.activeChatRoom.receiverEmail}),and(sender_email.eq.${window.activeChatRoom.receiverEmail},receiver_email.eq.${window.currentUser.email})`)
     .order("created_at", { ascending: true });
 
   if (error) {
     console.error("Fehler beim Laden des Chats:", error);
-    if (box) box.innerHTML = "";
+    box.innerHTML = "";
     return;
   }
 
-  if (box) {
-    box.innerHTML = "";
-    if (messages && messages.length > 0) {
-      messages.forEach(msg => {
-        const isMe = msg.sender_email.toLowerCase() === window.currentUser.email.toLowerCase();
-        box.innerHTML += `<div class="chat-bubble ${isMe ? 'bubble-me' : 'bubble-other'}">${window.escapeHtml(msg.message)}</div>`;
-      });
-    }
-    box.scrollTop = box.scrollHeight;
+  box.innerHTML = "";
+  if (messages && messages.length > 0) {
+    messages.forEach(msg => {
+      const isMe = msg.sender_email.toLowerCase() === window.currentUser.email.toLowerCase();
+      
+      let metaHtml = "";
+      if (isMe) {
+         metaHtml = `
+           <div class="chat-bubble-meta" style="justify-content: flex-end;">
+             <span class="chat-action-link" onclick="editChatMessage(${msg.id}, '${msg.message.replace(/'/g, "\\'")}')">✏️ ${window.currentLang === 'en' ? 'Edit' : 'Bearbeiten'}</span>
+             <span class="chat-action-link delete" onclick="deleteChatMessage(${msg.id})">🗑️ ${window.currentLang === 'en' ? 'Delete' : 'Löschen'}</span>
+           </div>`;
+      } else {
+         metaHtml = `
+           <div class="chat-bubble-meta">
+             <span class="chat-action-link" style="color: var(--danger-color);" onclick="reportChatMessage(${msg.id})">⚠️ ${window.currentLang === 'en' ? 'Report' : 'Melden'}</span>
+           </div>`;
+      }
+
+      box.innerHTML += `
+        <div class="chat-bubble-container" id="msg-container-${msg.id}">
+          <div class="chat-bubble ${isMe ? 'bubble-me' : 'bubble-other'}">${window.escapeHtml(msg.message)}</div>
+          ${metaHtml}
+        </div>`;
+    });
   }
+  box.scrollTop = box.scrollHeight;
 }
-window.openChatSystem = openChatSystem;
+
+// Bereitet ein bestehendes Textfeld auf das Update vor
+window.editChatMessage = function(id, text) {
+  const editIdInput = document.getElementById("chat-edit-id");
+  const msgInput = document.getElementById("chat-message-input");
+  const sendBtn = document.getElementById("btn-chat-send");
+  
+  if (editIdInput) editIdInput.value = id;
+  if (msgInput) { msgInput.value = text; msgInput.focus(); }
+  if (sendBtn) sendBtn.innerText = window.currentLang === "en" ? "Save" : "Speichern";
+};
+
+// Führt ein physisches Löschen der Nachricht in Supabase aus
+window.deleteChatMessage = async function(id) {
+  if (!confirm(window.currentLang === "en" ? "Delete this message?" : "Möchtest du diese Nachricht wirklich löschen?")) return;
+  const { error } = await window.supabaseClient.from("chat_messages").delete().eq("id", id);
+  if (error) alert("Fehler: " + error.message);
+  else await loadChatMessages();
+};
+
+// Generiert einen mailto-Report-Link zur Benachrichtigung des Admins
+window.reportChatMessage = function(id) {
+  const subject = encodeURIComponent("Chat-Meldung: Nachricht ID " + id);
+  const body = encodeURIComponent("Hallo Support,\n\nich möchte die Chat-Nachricht mit der ID " + id + " wegen eines Richtlinienverstoßes melden.\n\nGrund:\n");
+  window.location.href = `mailto:info@ipscboerse.com?subject=${subject}&body=${body}`;
+};
 
 function closeChatSystem() {
   window.activeChatRoom = null;
@@ -224,27 +286,45 @@ function closeChatSystem() {
 }
 window.closeChatSystem = closeChatSystem;
 
-// Senden einer neuen Nachricht
+// Senden oder Aktualisieren einer Nachricht über dasselbe Formular
 document.getElementById("chat-send-form")?.addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!window.activeChatRoom || !window.currentUser) return;
 
   const input = document.getElementById("chat-message-input");
+  const editIdInput = document.getElementById("chat-edit-id");
   const messageText = input.value.trim();
   if (!messageText) return;
 
-  const { error } = await window.supabaseClient.from("chat_messages").insert([{
-    match_id: window.activeChatRoom.matchId,
-    match_name: window.activeChatRoom.matchName,
-    sender_email: window.currentUser.email,
-    receiver_email: window.activeChatRoom.receiverEmail,
-    message: messageText
-  }]);
+  const editId = editIdInput ? editIdInput.value : "";
 
-  if (error) {
-    alert("Fehler beim Senden: " + error.message);
+  if (editId) {
+    // UPDATE Modus ausführen
+    const { error } = await window.supabaseClient.from("chat_messages").update({ message: messageText }).eq("id", editId);
+    if (error) {
+      alert("Fehler beim Aktualisieren: " + error.message);
+    } else {
+      if (editIdInput) editIdInput.value = "";
+      input.value = "";
+      const sendBtn = document.getElementById("btn-chat-send");
+      if (sendBtn) sendBtn.innerText = window.currentLang === "en" ? "Send" : "Senden";
+      await loadChatMessages();
+    }
   } else {
-    input.value = "";
+    // Klassischer INSERT Modus
+    const { error } = await window.supabaseClient.from("chat_messages").insert([{
+      match_id: window.activeChatRoom.matchId,
+      match_name: window.activeChatRoom.matchName,
+      sender_email: window.currentUser.email,
+      receiver_email: window.activeChatRoom.receiverEmail,
+      message: messageText
+    }]);
+
+    if (error) {
+      alert("Fehler beim Senden: " + error.message);
+    } else {
+      input.value = "";
+    }
   }
 });
 
@@ -279,6 +359,12 @@ async function toggleGlobalInbox() {
   }
   
   modal.style.display = "flex";
+
+  // Fix für falsche Rote "1": Klick auf Inbox setzt den Gelesen-Zeitstempel auf JETZT
+  window.lastChatCheckedTimestamp = new Date().toISOString();
+  localStorage.setItem("lastChatChecked", window.lastChatCheckedTimestamp);
+  updateHeaderChatBadge(); // Badge direkt visuell löschen
+
   const listContainer = document.getElementById("global-inbox-list");
   listContainer.innerHTML = `<p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Lade Gespräche...</p>`;
 
@@ -320,13 +406,14 @@ async function toggleGlobalInbox() {
 }
 window.toggleGlobalInbox = toggleGlobalInbox;
 
-// Live-Zähler im Header bei neuen Nachrichten aktualisieren
+// Live-Zähler im Header korrigiert: Holt nur ungesehene Nachrichten seit dem letzten Inbox-Klick
 function updateHeaderChatBadge() {
   if (!window.currentUser) return;
   window.supabaseClient
     .from("chat_messages")
     .select("id", { count: 'exact' })
     .eq("receiver_email", window.currentUser.email)
+    .gt("created_at", window.lastChatCheckedTimestamp)
     .then(({ count, error }) => {
        const badge = document.getElementById("chat-badge-count");
        if (badge) {
@@ -346,24 +433,25 @@ setTimeout(() => {
   if (window.supabaseClient) {
     window.supabaseClient
       .channel('public:chat_messages')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payload => {
-          const newMsg = payload.new;
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_messages' }, payload => {
           updateHeaderChatBadge();
           
           if (!window.activeChatRoom || !window.currentUser) return;
 
+          // Bei Updates oder Löschvorgängen wird der Verlauf sofort für beide Anwesenden neu geladen
+          if (payload.eventType === "UPDATE" || payload.eventType === "DELETE") {
+              loadChatMessages();
+              return;
+          }
+
+          const newMsg = payload.new;
           // Prüfen, ob die empfangene Nachricht zum aktuell geöffneten Chatraum gehört
           const matchMatch = newMsg.match_id == window.activeChatRoom.matchId;
           const participantMatch = (newMsg.sender_email.toLowerCase() === window.currentUser.email.toLowerCase() && newMsg.receiver_email.toLowerCase() === window.activeChatRoom.receiverEmail.toLowerCase()) ||
                                    (newMsg.sender_email.toLowerCase() === window.activeChatRoom.receiverEmail.toLowerCase() && newMsg.receiver_email.toLowerCase() === window.currentUser.email.toLowerCase());
 
           if (matchMatch && participantMatch) {
-              const box = document.getElementById("chat-box-messages");
-              if (box) {
-                  const isMe = newMsg.sender_email.toLowerCase() === window.currentUser.email.toLowerCase();
-                  box.innerHTML += `<div class="chat-bubble ${isMe ? 'bubble-me' : 'bubble-other'}">${window.escapeHtml(newMsg.message)}</div>`;
-                  box.scrollTop = box.scrollHeight;
-              }
+              loadChatMessages();
           }
       })
       .subscribe();
@@ -537,7 +625,7 @@ function checkPlannerImport() {
   }
 }
 
-window.onAuthChange = () => { fetchMatches(); };
+window.onAuthChange = () => { fetchMatches(); updateHeaderChatBadge(); };
 window.onLanguageChanged = () => { if (cachedMatches.length > 0) { renderMatches(cachedMatches); } };
 
 enforceFutureDates();
