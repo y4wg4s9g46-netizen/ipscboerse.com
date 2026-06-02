@@ -358,17 +358,18 @@ async function checkUserStatus() {
     const displayName = user.user_metadata?.username || user.email.split('@')[0];
     const avatarUrl = user.user_metadata?.avatar_url;
     
+    // REPARATUR: Verleiht dem geladenen Avatar-Container präzise Abmessungen für mobile Bildschirme, um Quetschen zu verhindern
     const avatarHtml = avatarUrl 
-        ? `<img src="${avatarUrl}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-color); box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: block;">` 
-        : `<span style="font-weight:bold; color:var(--accent-color);">${escapeHtml(displayName)}</span>`;
+        ? `<div id="btn-open-settings" style="cursor:pointer; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center;"><img src="${avatarUrl}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-color); box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: block;"></div>` 
+        : `<div id="btn-open-settings" style="cursor:pointer; display:inline-flex; align-items:center; font-weight:bold; color:var(--accent-color); font-size:12px; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(displayName)}</div>`;
 
     if (container) {
-      container.innerHTML = `<div id="btn-open-settings" style="cursor:pointer; display:flex; align-items:center;">${avatarHtml}</div><button class="btn-auth" id="btn-logout" style="border-color: var(--danger-color); color: var(--danger-color); margin-left: 4px;">${window.translations[window.currentLang]["logout"]}</button>`;
+      container.innerHTML = `${avatarHtml}<button class="btn-auth" id="btn-logout" style="border-color: var(--danger-color); color: var(--danger-color); margin-left: 4px; height:34px; display:inline-flex; align-items:center; padding:6px 10px;">${window.translations[window.currentLang]["logout"]}</button>`;
     }
     if (emailField) { emailField.value = user.email; emailField.readOnly = true; }
   } else {
     if (container) {
-      container.innerHTML = `<button class="btn-auth" id="btn-open-login">${window.translations[window.currentLang]["btn-login-reg"]}</button>`;
+      container.innerHTML = `<button class="btn-auth" id="btn-open-login" style="height:34px; display:inline-flex; align-items:center; padding:6px 10px;">${window.translations[window.currentLang]["btn-login-reg"]}</button>`;
     }
     if (emailField) { emailField.value = ""; emailField.placeholder = "Logge dich ein, um zu inserieren"; }
   }
@@ -460,38 +461,46 @@ window.openUserProfile = async function(sellerEmail, authorName, authorAvatar, a
 };
 
 document.addEventListener("click", async (e) => {
-    // REPARATUR: Exakte Target-Zuweisung verhindert das Blockieren von Schließen-Events
+    // REPARATUR: Exakte Target-Zuweisungen verhindern Fehltrigger
     if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
         const m = document.getElementById("auth-modal");
         if(m) m.style.display = "flex";
         toggleAuthView("login");
+        return;
     }
+    
+    // REPARATUR: Spezifischer Schließen-Trigger fängt Klicks auf allen Modaltypen ab
     if (e.target.id === "btn-close-modal" || e.target.classList.contains("modal-close-trigger") || e.target.closest(".modal-close-trigger")) {
-        // Schließt das Auth-Modal nur, wenn das Event auch von dort ausging
-        const authModal = document.getElementById("auth-modal");
-        if (authModal && (e.target.closest("#auth-modal") || e.target.id === "btn-close-modal")) {
-            authModal.style.display = "none";
-            // Setzt Ansichten-Titel zurück, falls es ein Fremdprofil war
-            const title = document.querySelector("#modal-settings-view h3");
-            if (title) title.innerText = "Konto-Einstellungen";
-            const usernameField = document.getElementById("settings-username");
-            const aliasField = document.getElementById("settings-ipsc-alias");
-            if (usernameField) usernameField.readOnly = false;
-            if (aliasField) aliasField.readOnly = false;
+        const activeModal = e.target.closest(".modal");
+        if (activeModal) {
+            activeModal.style.display = "none";
             
-            const elementsToHide = [
-                document.querySelector("#modal-settings-view div[style*='3498db']"),
-                document.getElementById("settings-password")?.closest(".form-group"),
-                document.querySelector("#modal-settings-view button[type='submit']"),
-                document.getElementById("btn-delete-account"),
-                document.getElementById("settings-avatar")?.closest(".form-group")
-            ];
-            elementsToHide.forEach(el => { if(el) el.style.display = "block"; });
+            // Setzt Auth-Modal-Klassen zurück, falls nötig
+            if(activeModal.id === "auth-modal") {
+                const title = document.querySelector("#modal-settings-view h3");
+                if (title) title.innerText = "Konto-Einstellungen";
+                const usernameField = document.getElementById("settings-username");
+                const aliasField = document.getElementById("settings-ipsc-alias");
+                if (usernameField) usernameField.readOnly = false;
+                if (aliasField) aliasField.readOnly = false;
+                
+                const elementsToHide = [
+                    document.querySelector("#modal-settings-view div[style*='3498db']"),
+                    document.getElementById("settings-password")?.closest(".form-group"),
+                    document.querySelector("#modal-settings-view button[type='submit']"),
+                    document.getElementById("btn-delete-account"),
+                    document.getElementById("settings-avatar")?.closest(".form-group")
+                ];
+                elementsToHide.forEach(el => { if(el) el.style.display = "block"; });
+            }
+            return;
         }
     }
+    
     if (e.target.id === "btn-logout" || e.target.closest("#btn-logout")) {
         await window.supabaseClient.auth.signOut();
         location.reload();
+        return;
     }
     if (e.target.id === "btn-open-settings" || e.target.closest("#btn-open-settings")) {
         const m = document.getElementById("auth-modal");
@@ -511,6 +520,7 @@ document.addEventListener("click", async (e) => {
             previewImg.src = window.currentUser.user_metadata.avatar_url;
             previewImg.style.display = 'block';
         }
+        return;
     }
     if (e.target.id === "btn-delete-account") {
         e.preventDefault();
