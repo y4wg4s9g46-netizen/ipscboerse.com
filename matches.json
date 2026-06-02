@@ -2,7 +2,7 @@
     {
         "name": "Offene IPSC-LM Niedersachsen und Bremen 2026 Part ...",
         "datum": "14.06.2026",
-        "auslastung": "91%",
+        "auslastung": "90%",
         "region": "GER",
         "level": "2",
         "disziplin": "HG",
@@ -20,7 +20,7 @@
     {
         "name": "TSV Régional Martinique 2026",
         "datum": "20.06.2026",
-        "auslastung": "30%",
+        "auslastung": "40%",
         "region": "FRA",
         "level": "2",
         "disziplin": "HG",
@@ -47,7 +47,7 @@
     {
         "name": "RLP Shotgun Cup 2026",
         "datum": "26.07.2026",
-        "auslastung": "76%",
+        "auslastung": "77%",
         "region": "GER",
         "level": "3",
         "disziplin": "SG",
@@ -126,15 +126,6 @@
         "url": "https://www.ipscmatch.de/index.pl?match=2026_Level_II_Series_PCC_Beginners_II"
     },
     {
-        "name": "The Hunger Games 2026",
-        "datum": "20.09.2026",
-        "auslastung": "98%",
-        "region": "GER",
-        "level": "2",
-        "disziplin": "HG",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_The_Hunger_Games_2026"
-    },
-    {
         "name": "11. Heidberg-Cup",
         "datum": "26.09.2026",
         "auslastung": "20%",
@@ -173,7 +164,7 @@
     {
         "name": "360° PCC powered by 3G",
         "datum": "18.10.2026",
-        "auslastung": "86%",
+        "auslastung": "88%",
         "region": "POL",
         "level": "3",
         "disziplin": "PCC",
@@ -191,7 +182,7 @@
     {
         "name": "LM LV4 2027 Prd, PdO",
         "datum": "10.01.2027",
-        "auslastung": "85%",
+        "auslastung": "86%",
         "region": "GER",
         "level": "3",
         "disziplin": "HG",
