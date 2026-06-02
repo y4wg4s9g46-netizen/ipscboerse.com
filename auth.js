@@ -284,7 +284,7 @@ window.translations = {
     "planner-logged-out-title": "Not logged in",
     "planner-logged-out-desc": "Log in to manage your matches and sync them to the cloud.",
     "planner-logged-out-btn": "Log in now",
-    "planner-title-my-matches": "My Matches",
+    "planner-title-my-matches": "Mine Matches",
     "planner-subtitle-new": "Add New Match",
     "planner-lbl-match-name": "Match Name",
     "planner-lbl-match-date": "Date",
@@ -415,7 +415,7 @@ document.addEventListener("click", async (e) => {
     }
     if (e.target.id === "btn-delete-account") {
         e.preventDefault();
-        if (!confirm("⚠️ WARNUNG:\n\nMöchtest du dein Profil und all deine aktiven Marktplatz-Inserate wirklich unwiderruflich löschen?")) return;
+        if (!confirm("⚠️ WARNUNG:\n\nMöchtest du dein Profil und all deine active Marktplatz-Inserate wirklich unwiderruflich löschen?")) return;
         await window.supabaseClient.from("matches").delete().eq("seller_email", window.currentUser.email);
         await window.supabaseClient.auth.updateUser({ data: { deleted: true, username: "Gelöschter Schütze" } });
         await window.supabaseClient.auth.signOut();
@@ -532,7 +532,7 @@ document.addEventListener("change", (e) => {
 function formatStars(value) {
     if (!value || isNaN(value) || value === 0) return "-";
     let fullStars = Math.round(value);
-    return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
+    return "★".repeat(fullStars) + "box".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
 }
 
 // === ROBUSTE INITIALISIERUNGS-SCHLEIFE GEGEN RACE CONDITIONS ===
@@ -614,4 +614,16 @@ setTimeout(async () => {
             window.onAuthChange(window.currentUser); 
         }
     });
+
+    // --- NEU: AUTOMATISCHES NEWS-POPUP NACH INITIALISIERUNG ---
+    const sessionKey = "news_popup_shown_2026";
+    if (!sessionStorage.getItem(sessionKey)) {
+        setTimeout(() => {
+            const newsModal = document.getElementById("news-modal");
+            if (newsModal) {
+                newsModal.style.display = "flex";
+                sessionStorage.setItem(sessionKey, "true");
+            }
+        }, 1000);
+    }
 }, 150);
