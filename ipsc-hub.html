@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPSC Hub | Startplatz Börse</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* Modernes Variablen-System für Hell- und Dunkelmodus */
+        :root, html[data-theme="light"] {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --input-bg: #ffffff;
+            
+            --accent-color: #ff9f43; /* IPSC Orange */
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --info-color: #3b82f6;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --radius: 8px;
+        }
+
+        /* Dunkler Modus */
+        html[data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --input-bg: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            html:not([data-theme="light"]) {
+                --bg-color: #0f172a;
+                --card-bg: #1e293b;
+                --text-color: #f8fafc;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+                --input-bg: #0f172a;
+                --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+                --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        header { background-color: var(--card-bg); padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
+        header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-color); }
+        
+        .main-nav { margin-top: 20px; display: flex; justify-content: center; gap: 12px; border-top: 1px solid var(--border-color); padding-top: 15px; }
+        .main-nav a { text-decoration: none; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 16px; border-radius: var(--radius); transition: all 0.2s ease; }
+        .main-nav a.active { color: var(--text-color); background-color: var(--bg-color); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
+        .main-nav a.inactive { color: var(--text-muted); border: 1px solid transparent; }
+        .main-nav a.inactive:hover { color: var(--text-color); background-color: var(--bg-color); }
+
+        .header-controls { position: absolute; top: 50%; right: 20px; transform: translateY(-50%); display: flex; align-items: center; gap: 16px; }
+        #auth-status-container { display: flex; align-items: center; gap: 16px; }
+
+        .theme-toggle-btn { background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px; border-radius: var(--radius); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); transition: all 0.2s; width: 38px; height: 38px; }
+        .theme-toggle-btn:hover { border-color: var(--text-muted); background-color: var(--bg-color); }
+        
+        #btn-open-settings { display: flex; align-items: center; justify-content: center; transition: transform 0.15s ease; }
+        #btn-open-settings:hover { transform: scale(1.05); }
+        .btn-auth { background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 16px; font-weight: 600; font-size: 13px; border-radius: var(--radius); cursor: pointer; box-shadow: var(--shadow-sm); transition: all 0.2s; }
+        .btn-auth:hover { background-color: var(--bg-color); border-color: var(--text-muted); }
+        .lang-select { background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 7px 10px; border-radius: var(--radius); font-weight: 600; cursor: pointer; font-size: 13px; box-shadow: var(--shadow-sm); }
+
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
+        
+        /* --- KACHEL-DESIGN (GRID) FÜR DEN IPSC HUB --- */
+        .hub-header-area { text-align: center; margin-bottom: 40px; }
+        .hub-header-area h2 { font-size: 28px; font-weight: 800; margin-bottom: 10px; color: var(--text-color); }
+        .hub-header-area p { color: var(--text-muted); font-size: 15px; max-width: 600px; margin: 0 auto; }
+
+        .hub-category-title { margin-top: 40px; margin-bottom: 20px; font-size: 20px; color: var(--text-color); border-bottom: 2px solid var(--border-color); padding-bottom: 8px; font-weight: 700; }
+        
+        .hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        
+        .hub-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: var(--shadow-sm); transition: all 0.2s ease; text-decoration: none; color: inherit; position: relative; overflow: hidden; }
+        .hub-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--accent-color); }
+        .hub-card::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: var(--accent-color); transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease; }
+        .hub-card:hover::after { transform: scaleX(1); }
+
+        .hub-card-header { display: flex; align-items: center; gap: 15px; }
+        .hub-icon { width: 50px; height: 50px; border-radius: 10px; background: var(--bg-color); display: flex; justify-content: center; align-items: center; font-size: 24px; border: 1px solid var(--border-color); flex-shrink: 0; }
+        
+        /* Bilder-Icons (Falls du echte Logos hochladen willst, einfach <img> im HTML nutzen. Aktuell mit Emojis als stylischer Platzhalter) */
+        .hub-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
+
+        .hub-title { margin: 0; font-size: 18px; font-weight: 700; color: var(--text-color); }
+        .hub-desc { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.5; flex-grow: 1; }
+        
+        .hub-btn { background: var(--bg-color); color: var(--accent-color); border: 1px solid var(--accent-color); padding: 8px 15px; border-radius: 6px; text-align: center; font-weight: 600; font-size: 13px; transition: all 0.2s; margin-top: auto; }
+        .hub-card:hover .hub-btn { background: var(--accent-color); color: #fff; }
+
+        /* --- Modals CSS (Exakt wie auf den anderen Seiten) --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease-out; padding: 20px; box-sizing: border-box; }
+        .modal-content { background-color: var(--card-bg); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative; margin: auto; }
+        .modal-content h3 { color: var(--text-color); margin-top: 0; margin-bottom: 24px; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; padding-right: 30px; }
+        .modal-close-container { position: absolute; top: 20px; right: 20px; z-index: 1010; }
+        .modal-close-trigger { background: transparent; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; padding: 4px; line-height: 1; transition: color 0.15s; }
+        .modal-close-trigger:hover { color: var(--text-color); }
+        .modal-content .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
+        .modal-content label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .modal-content input { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px 14px; border-radius: var(--radius); font-size: 14px; transition: all 0.15s ease; box-shadow: var(--shadow-sm); }
+        .modal-content input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); }
+        .modal-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
+        .modal-divider:not(:empty)::before { margin-right: .75em; }
+        .modal-divider:not(:empty)::after { margin-left: .75em; }
+        .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; }
+        .btn-primary-auth:hover { opacity: 0.9; }
+        .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
+        .btn-secondary-auth:hover { background-color: var(--border-color); }
+        .modal-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
+        .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; font-weight: 600; }
+        .modal-footer a:hover { text-decoration: underline; }
+        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
+        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
+
+        /* Chat Styles */
+        .chat-history-area { height: 300px; overflow-y: auto; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: var(--radius); padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .chat-bubble { max-width: 75%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.4; word-wrap: break-word; }
+        .bubble-me { background-color: var(--accent-color); color: #1a1a1a; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .bubble-other { background-color: var(--card-bg); color: var(--text-color); align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid var(--border-color); }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+        /* Mobile Fixes */
+        @media (max-width: 768px) {
+            html, body { overflow-x: hidden !important; width: 100% !important; }
+            header { padding: 12px 8px !important; }
+            header h1 { font-size: 19px !important; margin-bottom: 8px !important; }
+            header p { font-size: 11px !important; margin-top: 2px !important; }
+            .header-controls { position: static !important; display: flex !important; flex-direction: row !important; justify-content: center !important; align-items: center !important; gap: 12px !important; margin-top: 10px !important; width: 100% !important; transform: none; }
+            #auth-status-container { display: flex !important; align-items: center !important; gap: 8px !important; }
+            #btn-open-settings { margin-right: 0 !important; }
+            #btn-open-settings img { width: 28px !important; height: 28px !important; border-width: 1px !important; }
+            .btn-auth { padding: 5px 10px !important; font-size: 12px !important; }
+            .main-nav { margin-top: 12px !important; padding-top: 8px !important; display: flex !important; flex-direction: row !important; justify-content: flex-start !important; overflow-x: auto !important; white-space: nowrap !important; gap: 15px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; }
+            .main-nav::-webkit-scrollbar { display: none !important; }
+            .main-nav a { flex-shrink: 0 !important; font-size: 12px !important; padding-bottom: 2px !important; }
+            .container { padding: 0 10px !important; margin-top: 15px !important; width: 100% !important; box-sizing: border-box !important; }
+            
+            .hub-header-area h2 { font-size: 22px; }
+            .hub-grid { grid-template-columns: 1fr; }
+            
+            .modal { padding: 10px !important; }
+            .modal-content { padding: 24px 16px !important; max-height: 95vh !important; }
+            .modal-close-container { top: 12px !important; right: 12px !important; }
+            .modal-close-trigger { font-size: 28px !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
+        <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Von Schützen für Schützen – Live Marktplatz</p>
+        
+        <nav class="main-nav">
+            <a href="index.html" class="inactive" data-txt="nav-marketplace">Marktplatz</a>
+            <a href="freie-matches.html" class="inactive" data-txt="nav-free-slots">Freie Match-Plätze</a>
+            <a href="mein-planer.html" class="inactive" data-txt="nav-my-planner">Mein Planer</a>
+            <a href="community.html" class="inactive" data-txt="nav-community">Community</a>
+            <a href="ipsc-hub.html" class="active">IPSC Hub</a>
+        </nav>
+
+        <div class="header-controls">
+            <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
+
+            <button id="header-chat-btn" class="theme-toggle-btn" onclick="toggleGlobalInbox()" style="position: relative; font-size: 18px;" title="Nachrichten">
+                💬
+                <span id="chat-badge-count" style="display: none; position: absolute; top: -4px; right: -4px; background: var(--danger-color); color: white; font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold;">0</span>
+            </button>
+
+            <select id="language-select" class="lang-select">
+                <option value="de">DE</option>
+                <option value="en">EN</option>
+            </select>
+            <div id="auth-status-container">
+                <button class="btn-auth" id="btn-open-login">Login / Registrieren</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="hub-header-area">
+            <h2>IPSC Hub – Alle wichtigen Links</h2>
+            <p>Schluss mit dem ewigen Suchen: Hier findest du zentral gebündelt alle wichtigen Plattformen für Match-Anmeldungen, Ergebnisse und Verbandsinfos rund um unser Hobby.</p>
+        </div>
+
+        <h3 class="hub-category-title">🎯 Match-Anmeldungen & Verwaltung</h3>
+        <div class="hub-grid">
+            <a href="https://ipsc-match.de" target="_blank" class="hub-card">
+                <div class="hub-card-header">
+                    <div class="hub-icon">🇩🇪</div>
+                    <h3 class="hub-title">MatchSign</h3>
+                </div>
+                <p class="hub-desc">Die bekannteste und meistgenutzte Plattform für IPSC Match-Anmeldungen in Deutschland.</p>
+                <div class="hub-btn">Zu MatchSign</div>
+            </a>
+            
+            <a href="https://portal.ipscess.org/portal/login" target="_blank" class="hub-card">
+                <div class="hub-card-header">
+                    <div class="hub-icon">🛡️</div>
+                    <h3 class="hub-title">IPSCess Portal</h3>
+                </div>
+                <p class="hub-desc">Offizielles Portal für die Verwaltung von Lizenzen, Matchpunkten und dem IPSC-Ausweis.</p>
+                <div class="hub-btn">Zum IPSCess Portal</div>
+            </a>
+
+            <a href="https://practiscore.com/" target="_blank" class="hub-card">
+                <div class="hub-card-header">
+                    <div class="hub-icon">🇺🇸</div>
+                    <h3 class="hub-title">PractiScore</h3>
+                </div>
+                <p class="hub-desc">Das internationale System. Unverzichtbar für ausländische Matches und Live-Scoring vor Ort.</p>
+                <div class="hub-btn">Zu PractiScore</div>
+            </a>
+
+            <a href="https://www.makeready.info/" target="_blank" class="hub-card">
+                <div class="hub-card-header">
+                    <div class="hub-icon">🌍</div>
+                    <h3 class="hub-title">MOS (MakeReady)</h3>
+                </div>
+                <p class="hub-desc">Häufig genutzt für große internationale Turniere und Matches im europäischen Umland.</p>
+                <div class="hub-btn">Zu MakeReady</div>
+            </a>
+        </div>
+
+        <h3 class="hub-category-title">📊 Statistiken & Rankings</h3>
+        <div class="hub-grid">
+            <a href="https://ipscelo.com" target="_blank" class="hub-card">
+                <div class="hub-card-header">
+                    <div class="hub-icon">📈</div>
+                    <h3 class="hub-title">IPSCelo</h3>
+                </div>
+                <p class="hub-desc">Inoffizielles, aber fantastisches Elo-Ranking und Statistik-Tool basierend auf deutschen Match-Ergebnissen.</p>
+                <div class="hub-btn">Zu IPSCelo</div>
+            </a>
+        </div>
+
+        <h3 class="hub-category-title">📖 Verbände & Regelwerke</h3>
+        <div class="hub-grid">
+            <a href="https://www.bdsnet.de/" target="_blank" class="hub-card">
+                <div class="hub-card-header">
+                    <div class="hub-icon">🏛️</div>
+                    <h3 class="hub-title">BDS Website</h3>
+                </div>
+                <p class="hub-desc">Der Bund Deutscher Sportschützen. Offizielle Anlaufstelle für Sportordnung, Befürwortungen und Termine.</p>
+                <div class="hub-btn">Zum BDS</div>
+            </a>
+
+            <a href="https://www.ipsc.org/rules/" target="_blank" class="hub-card">
+                <div class="hub-card-header">
+                    <div class="hub-icon">📚</div>
+                    <h3 class="hub-title">IPSC Rulebooks</h3>
+                </div>
+                <p class="hub-desc">Die aktuellen internationalen Regelwerke (Handgun, Rifle, PCC, Shotgun) direkt als PDF zum Download.</p>
+                <div class="hub-btn">Zu den Rulebooks</div>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Modals (Exakt wie auf den anderen Seiten) -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <div class="modal-close-container">
+                <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
+            </div>
+            
+            <div id="modal-login-view">
+                <h3 data-txt="modal-login-title">Anmelden</h3>
+                <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()"><span>📱</span> Login mit FaceID / Fingerabdruck</button>
+                <div class="modal-divider">oder klassisch mit E-Mail</div>
+                <form id="login-form">
+                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required placeholder="name@beispiel.de"></div>
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="margin-bottom: 0;">Passwort *</label>
+                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;">Passwort vergessen?</a>
+                        </div>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn-primary-auth">Mit Passwort einloggen</button>
+                </form>
+                <div class="modal-footer"><span>Noch kein Konto?</span><a onclick="toggleAuthView('register')">Registrieren</a></div>
+            </div>
+
+            <div id="modal-register-view" style="display: none;">
+                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
+                <form id="register-form">
+                    <div class="form-group"><label>E-Mail *</label><input type="email" id="register-email" required placeholder="name@beispiel.de"></div>
+                    <div class="form-group"><label>Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
+                    <button type="submit" class="btn-primary-auth">Konto erstellen</button>
+                </form>
+                <div class="modal-footer"><span>Bereits registriert?</span><a onclick="toggleAuthView('login')">Zum Login</a></div>
+            </div>
+
+            <div id="modal-forgot-view" style="display: none;">
+                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
+                <form id="forgot-form">
+                    <div class="form-group"><label>Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required placeholder="name@beispiel.de"></div>
+                    <button type="submit" class="btn-primary-auth">Zurücksetzungs-Link senden</button>
+                </form>
+                <div class="modal-footer"><a onclick="toggleAuthView('login')">Zurück zum Login</a></div>
+            </div>
+
+            <div id="modal-reset-view" style="display: none;">
+                <h3>Neues Passwort vergeben</h3>
+                <form id="reset-password-form">
+                    <div class="form-group"><label>Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
+                    <button type="submit" class="btn-primary-auth">Speichern</button>
+                </form>
+            </div>
+
+            <!-- KONTO-EINSTELLUNGEN -->
+            <div id="modal-settings-view" style="display: none;">
+                <h3>Konto-Einstellungen</h3>
+                <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <label style="color: var(--success-color); font-weight: 700;">📈 Erfolgreiche Vermittlungen</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);"><span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span><p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Verkäufer</p></div>
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);"><span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span><p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Käufer</p></div>
+                    </div>
+                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
+                        <div>💬 Kommunikation: <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
+                        <div>💳 Bezahlung: <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
+                    <label style="color: #3498db;">🔒 Passkey (Schnell-Login)</label>
+                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
+                    <button type="button" style="width:100%; padding:10px; background-color: #3498db; color: white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;" onclick="registerPasskey()">Gerät als Passkey registrieren</button>
+                </div>
+
+                <form id="settings-form">
+                    <div class="form-group"><label>Schützenname / Anzeigename</label><input type="text" id="settings-username" placeholder="z.B. IPSCShooter99"></div>
+                    <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 4px; border-left: 3px solid var(--success-color); margin-bottom: 20px;">
+                        <label style="color: var(--success-color); margin-bottom: 2px;">🛡️ IPSC Alias / Mitgliedsnummer</label>
+                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
+                        <input type="text" id="settings-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
+                    </div>
+                    <div class="form-group"><label>Profilbild (Optional)</label><input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)"><img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;"></div>
+                    <div class="form-group"><label>Neues Passwort ändern (Optional)</label><input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen"></div>
+                    <button type="submit" class="btn-primary-auth">Änderungen speichern</button>
+                </form>
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
+                <button class="btn-danger-block" id="btn-delete-account">Konto & alle Einträge unwiderruflich löschen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHAT MODALS -->
+    <div class="modal" id="chat-modal">
+        <div class="modal-content" style="max-width: 500px; padding: 25px;">
+            <div class="modal-close-container">
+                <button class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</button>
+            </div>
+            <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
+            <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
+            <div class="chat-history-area" id="chat-box-messages"></div>
+            <form id="chat-send-form" style="display: flex; gap: 8px;">
+                <input type="hidden" id="chat-edit-id" value="">
+                <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
+                <button type="submit" style="background:var(--accent-color); color:white; border:none; padding:10px 20px; border-radius:var(--radius); font-weight:bold; cursor:pointer;">Senden</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="global-inbox-modal">
+        <div class="modal-content" style="max-width: 450px; padding: 25px;">
+            <div class="modal-close-container">
+                <button class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</button>
+            </div>
+            <h3>Meine Nachrichten</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven Gespräche.</p>
+            <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
+                <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;">Impressum & Rechtliche Hinweise</a>
+            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+        </div>
+    </footer>
+
+    <!-- WICHTIG: Deine bestehenden JavaScript-Dateien -->
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Init Theme and Language
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
+            if (typeof updateThemeToggleIcon === "function") {
+                updateThemeToggleIcon(savedThemeSetting);
+            }
+        });
+        
+        window.onAuthChange = () => { 
+            if(typeof updateHeaderChatBadge === 'function') {
+                updateHeaderChatBadge(); 
+            }
+        };
+    </script>
+</body>
+</html>
