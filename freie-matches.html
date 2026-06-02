@@ -306,8 +306,7 @@
             border: 1px solid var(--border-color); 
             width: 100%; 
             max-width: 440px; 
-            max-height: 90vh; /* Verhindert das vertikale Ausbrechen aus dem Bildschirm */
-            overflow-y: auto; /* Aktiviert den internen Scrollbalken für lange Formulare */
+            max-height: 90vh; 
             box-sizing: border-box; 
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             position: relative;
@@ -320,7 +319,7 @@
             font-size: 24px;
             font-weight: 700; 
             letter-spacing: -0.5px;
-            padding-right: 20px; /* Erzeugt Freiraum für das Schließen-Kreuz */
+            padding-right: 20px; 
         }
 
         .modal-close-trigger {
@@ -335,7 +334,7 @@
             padding: 4px;
             line-height: 1;
             transition: color 0.15s;
-            z-index: 1010; /* Bleibt bei internen Formular-Scrolls immer oben drüber fixiert */
+            z-index: 1010; 
         }
         .modal-close-trigger:hover {
             color: var(--text-color);
@@ -695,6 +694,27 @@
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
+                <!-- Zähler & Bewertungssystem Box -->
+                <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <label style="color: var(--success-color); font-weight: 700;">📈 Erfolgreiche Vermittlungen</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Verkäufer</p>
+                        </div>
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Käufer</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Durchschnittliche Bewertungen -->
+                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
+                        <div>💬 Kommunikation: <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
+                        <div>💳 Bezahlung: <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
+                    </div>
+                </div>
+
                 <div class="form-group" style="background-color: rgba(59, 130, 246, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
                     <label style="color: var(--info-color); font-weight: 700;">🔒 Passkey (Schnell-Login)</label>
                     <p style="font-size: 12px; margin-top: 4px; margin-bottom: 12px; color: var(--text-muted); line-height: 1.4;">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
@@ -725,7 +745,7 @@
                     <button type="submit" class="btn-primary-auth" data-txt="btn-save">Änderungen speichern</button>
                 </form>
                 <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
-                <button class="btn-danger-block">Konto & alle Einträge unwiderruflich löschen</button>
+                <button class="btn-danger-block" id="btn-delete-account">Konto & alle Einträge unwiderruflich löschen</button>
             </div>
         </div>
     </div>
@@ -778,15 +798,15 @@
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
             <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
      
-            <div style="margin-top: 15px; font-size: 11px;">&copy;
- 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
 
     <script src="auth.js"></script>
-    <script src="app.js"></script>
     <script>
     let allMatches = [];
+    window.activeChatRoom = null;
+    window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new Date().toISOString();
 
     // Synchronisiert das Theme-Symbol beim Start
     document.addEventListener("DOMContentLoaded", () => {
@@ -796,6 +816,165 @@
         }
     });
 
+    // Hilfsfunktion zur Formatierung des Sternen-Durchschnitts
+    function formatStars(value) {
+        if (!value || isNaN(value) || value === 0) return "-";
+        let fullStars = Math.round(value);
+        return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
+    }
+
+    // Erweitertes Profil-Popup-System für asynchrone Reputations-Berechnungen
+    window.openUserProfile = async function(sellerEmail, authorName, authorAvatar, authorIpscAlias) {
+        const modal = document.getElementById("auth-modal");
+        if (!modal) return;
+        modal.style.display = "flex";
+        window.toggleAuthView("settings");
+
+        const title = document.querySelector("#modal-settings-view h3");
+        if (title) title.innerText = "Schützen-Profil von " + authorName;
+
+        const elementsToHide = [
+            document.querySelector("#modal-settings-view div[style*='3498db']"),
+            document.getElementById("settings-password")?.closest(".form-group"),
+            document.querySelector("#modal-settings-view button[type='submit']"),
+            document.getElementById("btn-delete-account"),
+            document.getElementById("settings-avatar")?.closest(".form-group")
+        ];
+        elementsToHide.forEach(el => { if(el) el.style.display = "none"; });
+
+        const usernameField = document.getElementById("settings-username");
+        if (usernameField) { usernameField.value = authorName; usernameField.readOnly = true; }
+
+        const aliasField = document.getElementById("settings-ipsc-alias");
+        if (aliasField) { aliasField.value = authorIpscAlias || "Kein Verband-Alias"; aliasField.readOnly = true; }
+
+        const previewImg = document.getElementById("settings-avatar-preview");
+        if (previewImg) {
+            if (authorAvatar) { previewImg.src = authorAvatar; previewImg.style.display = 'block'; }
+            else { previewImg.style.display = 'none'; }
+        }
+
+        try {
+            const salesRes = await window.supabaseClient.from('mediated_deals').select('*').eq('seller_email', sellerEmail);
+            const purchaseRes = await window.supabaseClient.from('mediated_deals').select('*').eq('buyer_email', sellerEmail);
+            
+            const salesData = salesRes.data || [];
+            const purchaseData = purchaseRes.data || [];
+
+            document.getElementById("profile-sales-count").innerText = salesData.length;
+            document.getElementById("profile-purchases-count").innerText = purchaseData.length;
+
+            let totalComm = 0, totalPay = 0, countComm = 0, countPay = 0;
+            
+            salesData.forEach(d => {
+                if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
+                if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
+            });
+            purchaseData.forEach(d => {
+                if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
+                if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
+            });
+
+            document.getElementById("profile-rating-comm").innerText = formatStars(countComm > 0 ? totalComm / countComm : 0);
+            document.getElementById("profile-rating-pay").innerText = formatStars(countPay > 0 ? totalPay / countPay : 0);
+        } catch(e) {
+            console.error("Fehler beim Laden der Reputationswerte:", e);
+        }
+
+        const closeBtn = document.getElementById("btn-close-modal");
+        if (closeBtn) {
+            const originalClose = closeBtn.onclick;
+            closeBtn.onclick = function() {
+                if (title) title.innerText = "Konto-Einstellungen";
+                elementsToHide.forEach(el => { if(el) el.style.display = "block"; });
+                if (usernameField) usernameField.readOnly = false;
+                if (aliasField) aliasField.readOnly = false;
+                modal.style.display = "none";
+                if (originalClose) closeBtn.onclick = originalClose;
+            };
+        }
+    };
+
+    // === CHAT FUNKTIONEN DIREKT INTEGRIERT (VERHINDERT DAS ÜBERSCHREIBEN) ===
+    async function openChatSystem(matchId, receiverEmail, matchName) {
+      if (!window.currentUser) return alert(window.currentLang === "en" ? "Please log in." : "Bitte logge dich ein.");
+      window.activeChatRoom = { matchId, receiverEmail, matchName };
+      document.getElementById("chat-modal").style.display = "flex";
+      document.getElementById("chat-title-match").innerText = "Match: " + matchName;
+      document.getElementById("chat-title-partner").innerText = "Partner: " + receiverEmail;
+      await loadChatMessages();
+    }
+
+    async function loadChatMessages() {
+      if (!window.activeChatRoom || !window.currentUser) return;
+      const box = document.getElementById("chat-box-messages");
+      const { data: messages, error } = await window.supabaseClient
+        .from("chat_messages")
+        .select("*")
+        .eq("match_id", window.activeChatRoom.matchId)
+        .or(`and(sender_email.eq.${window.currentUser.email},receiver_email.eq.${window.activeChatRoom.receiverEmail}),and(sender_email.eq.${window.activeChatRoom.receiverEmail},receiver_email.eq.${window.currentUser.email})`)
+        .order("created_at", { ascending: true });
+
+      if (error || !box) return;
+      box.innerHTML = "";
+      messages.forEach(msg => {
+        const isMe = msg.sender_email.toLowerCase() === window.currentUser.email.toLowerCase();
+        box.innerHTML += `<div class="chat-bubble ${isMe ? 'bubble-me' : 'bubble-other'}">${msg.message}</div>`;
+      });
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function closeChatSystem() { window.activeChatRoom = null; document.getElementById("chat-modal").style.display = "none"; }
+    
+    document.getElementById("chat-send-form")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = document.getElementById("chat-message-input");
+      if (!window.activeChatRoom || !input.value.trim()) return;
+      await window.supabaseClient.from("chat_messages").insert([{
+        match_id: window.activeChatRoom.matchId, match_name: window.activeChatRoom.matchName,
+        sender_email: window.currentUser.email, receiver_email: window.activeChatRoom.receiverEmail, message: input.value.trim()
+      }]);
+      input.value = "";
+      await loadChatMessages();
+    });
+
+    async function toggleGlobalInbox() {
+      const modal = document.getElementById("global-inbox-modal");
+      if (!modal || !window.currentUser) return;
+      if (modal.style.display === "flex") { modal.style.display = "none"; return; }
+      modal.style.display = "flex";
+      window.lastChatCheckedTimestamp = new Date().toISOString();
+      localStorage.setItem("lastChatChecked", window.lastChatCheckedTimestamp);
+      updateHeaderChatBadge();
+
+      const { data: allMsgs } = await window.supabaseClient.from("chat_messages").select("*").or(`sender_email.eq.${window.currentUser.email},receiver_email.eq.${window.currentUser.email}`).order("created_at", { ascending: false });
+      const listContainer = document.getElementById("global-inbox-list");
+      if (!allMsgs || allMsgs.length === 0) { listContainer.innerHTML = "<p>Keine Nachrichten.</p>"; return; }
+      
+      let uniqueChats = {};
+      allMsgs.forEach(msg => {
+        const partner = msg.sender_email.toLowerCase() === window.currentUser.email.toLowerCase() ? msg.receiver_email : msg.sender_email;
+        uniqueChats[`${msg.match_id}_${partner}`] = { matchId: msg.match_id, matchName: msg.match_name, partnerEmail: partner, lastMessage: msg.message };
+      });
+
+      listContainer.innerHTML = Object.values(uniqueChats).map(c => `
+        <div style="background:var(--bg-color); border:1px solid var(--border-color); padding:12px; border-radius:var(--radius); cursor:pointer; margin-bottom:6px;" onclick="document.getElementById('global-inbox-modal').style.display='none'; openChatSystem(${c.matchId}, '${c.partnerEmail}', '${c.matchName}')">
+          <strong>${c.matchName}</strong><br><span style="font-size:11px;color:var(--text-muted);">Mit: ${c.partnerEmail}</span><p style="margin:4px 0 0 0; font-size:12px;">${c.lastMessage}</p>
+        </div>`).join('');
+    }
+
+    function updateHeaderChatBadge() {
+      if (!window.currentUser) return;
+      window.supabaseClient.from("chat_messages").select("id", { count: 'exact' }).eq("receiver_email", window.currentUser.email).gt("created_at", window.lastChatCheckedTimestamp).then(({ count, error }) => {
+         const badge = document.getElementById("chat-badge-count");
+         if (badge) { badge.style.display = (!error && count > 0) ? "block" : "none"; if(count > 0) badge.innerText = count; }
+      });
+    }
+
+    window.onAuthChange = () => { updateHeaderChatBadge(); };
+    setTimeout(() => { updateHeaderChatBadge(); }, 1000);
+
+    // === BOTTurnier-Ladelogik ===
     fetch('matches.json?v=' + new Date().getTime())
       .then(res => res.json())
       .then(data => {
