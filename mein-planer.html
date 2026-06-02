@@ -61,7 +61,6 @@
         .main-nav a.inactive { color: var(--text-muted); border: 1px solid transparent; }
         .main-nav a.inactive:hover { color: var(--text-color); background-color: var(--bg-color); }
 
-        /* HEADER CONTROLS MIT HORIZONTALEM FLEX-REALIGNMENT */
         .header-controls { 
             position: absolute; 
             top: 50%; 
@@ -78,7 +77,6 @@
             gap: 16px;
         }
 
-        /* Styling für den Theme-Button im Header */
         .theme-toggle-btn {
             background: var(--card-bg);
             color: var(--text-color);
@@ -113,7 +111,6 @@
         .btn-auth { background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 16px; font-weight: 600; font-size: 13px; border-radius: var(--radius); cursor: pointer; box-shadow: var(--shadow-sm); transition: all 0.2s; }
         .btn-auth:hover { background-color: var(--bg-color); border-color: var(--text-muted); }
 
-        /* Sprachumschalter Styling */
         .lang-select { background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 7px 10px; border-radius: var(--radius); font-weight: 600; cursor: pointer; font-size: 13px; box-shadow: var(--shadow-sm); }
 
         .container { max-width: 800px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
@@ -163,11 +160,12 @@
             border: 1px solid var(--border-color); 
             width: 100%; 
             max-width: 440px; 
-            max-height: 90vh; /* Verhindert das vertikale Ausbrechen aus dem Bildschirm */
-            overflow-y: auto; /* Aktiviert den internen Scrollbalken für lange Formulare */
-            position: relative;
+            max-height: 90vh; /* Scrollbar aktivieren */
+            overflow-y: auto; 
             box-sizing: border-box; 
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            position: relative;
+            margin: auto;
         }
 
         .modal-content h3 { 
@@ -177,22 +175,21 @@
             font-size: 24px;
             font-weight: 700; 
             letter-spacing: -0.5px;
-            padding-right: 20px;
+            padding-right: 30px;
         }
 
         .modal-close-container {
             position: absolute;
-            top: 24px;
-            right: 24px;
+            top: 20px;
+            right: 20px;
             z-index: 1010;
-            line-height: 1;
         }
 
         .modal-close-trigger {
             background: transparent;
             border: none;
             color: var(--text-muted);
-            font-size: 26px;
+            font-size: 28px;
             cursor: pointer;
             padding: 4px;
             line-height: 1;
@@ -223,65 +220,20 @@
         .modal-footer a:hover { text-decoration: underline; }
 
         /* --- LOGIK-KLASSEN FÜR LIVE-CHAT BEREICH --- */
-        .chat-history-area {
-            height: 300px;
-            overflow-y: auto;
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-color);
-            border-radius: var(--radius);
-            padding: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .chat-bubble {
-            max-width: 75%;
-            padding: 10px 14px;
-            border-radius: 14px;
-            font-size: 13px;
-            line-height: 1.4;
-            word-wrap: break-word;
-        }
-        .bubble-me {
-            background-color: var(--accent-color);
-            color: #1a1a1a;
-            align-self: flex-end;
-            border-bottom-right-radius: 2px;
-        }
-        .bubble-other {
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            align-self: flex-start;
-            border-bottom-left-radius: 2px;
-            border: 1px solid var(--border-color);
-        }
-        .chat-bubble-container {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 8px;
-            position: relative;
-        }
-        .chat-bubble-meta {
-            font-size: 10px;
-            color: var(--text-muted);
-            margin-top: 2px;
-            display: flex;
-            gap: 8px;
-        }
-        .chat-action-link {
-            cursor: pointer;
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: color 0.15s;
-        }
+        .chat-history-area { height: 300px; overflow-y: auto; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: var(--radius); padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .chat-bubble { max-width: 75%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.4; word-wrap: break-word; }
+        .bubble-me { background-color: var(--accent-color); color: #1a1a1a; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .bubble-other { background-color: var(--card-bg); color: var(--text-color); align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid var(--border-color); }
+        .chat-bubble-container { display: flex; flex-direction: column; margin-bottom: 8px; position: relative; }
+        .chat-bubble-meta { font-size: 10px; color: var(--text-muted); margin-top: 2px; display: flex; gap: 8px; }
+        .chat-action-link { cursor: pointer; color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
         .chat-action-link:hover { color: var(--text-color); }
         .chat-action-link.delete:hover { color: var(--danger-color); }
 
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
         /* ========================================================
-           ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES (HAUPT-REPARATUR)
+           ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES
            ======================================================== */
         @media (max-width: 768px) {
             html, body { overflow-x: hidden !important; width: 100% !important; }
@@ -308,6 +260,12 @@
             .fab { bottom: 15px !important; right: 15px !important; padding: 10px 16px !important; font-size: 13px !important; z-index: 999 !important; }
             .match-item { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
             .match-item div[style*="display: flex"] { width: 100% !important; justify-content: space-between !important; }
+            
+            /* Mobile Modal Fixes */
+            .modal { padding: 10px !important; }
+            .modal-content { padding: 24px 16px !important; max-height: 95vh !important; }
+            .modal-close-container { top: 12px !important; right: 12px !important; }
+            .modal-close-trigger { font-size: 28px !important; }
         }
     </style>
 </head>
@@ -325,10 +283,8 @@
         </nav>
 
         <div class="header-controls">
-            <!-- Manueller Design-Schalter -->
             <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
 
-            <!-- Globaler Chat-Posteingang Button im Header -->
             <button id="header-chat-btn" class="theme-toggle-btn" onclick="toggleGlobalInbox()" style="position: relative; font-size: 18px;" title="Nachrichten">
                 💬
                 <span id="chat-badge-count" style="display: none; position: absolute; top: -4px; right: -4px; background: var(--danger-color); color: white; font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold;">0</span>
@@ -390,7 +346,6 @@
                 <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
             </div>
             
-            <!-- 1. LOGIN ANSICHT MIT PASSKEY BUTTON -->
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
                 
@@ -420,7 +375,6 @@
                 </div>
             </div>
 
-            <!-- 2. REGISTRIERUNGS-ANSICHT -->
             <div id="modal-register-view" style="display: none;">
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
@@ -440,9 +394,8 @@
                 </div>
             </div>
 
-            <!-- 3. PASSWORT VERGESSEN ANSICHT -->
             <div id="modal-forgot-view" style="display: none;">
-                <h3 data-txt="modal-forgot-title">Passforgot-title</h3>
+                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
                 <form id="forgot-form">
                     <div class="form-group">
                         <label>Deine E-Mail-Adresse *</label>
@@ -455,7 +408,6 @@
                 </div>
             </div>
 
-            <!-- 4. PASSWORT ZURÜCKSETZEN ANSICHT -->
             <div id="modal-reset-view" style="display: none;">
                 <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                 <form id="reset-password-form">
@@ -467,14 +419,32 @@
                 </form>
             </div>
 
-            <!-- 5. KONTO-EINSTELLUNGEN ANSICHT -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
-                <div class="form-group" style="background-color: rgba(59, 130, 246, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
-                    <label style="color: var(--info-color); font-weight: 700;">🔒 Passkey (Schnell-Login)</label>
-                    <p style="font-size: 12px; margin-top: 4px; margin-bottom: 12px; color: var(--text-muted); line-height: 1.4;">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" class="btn-secondary-auth" style="background-color: var(--card-bg);" onclick="registerPasskey()">Gerät registrieren</button>
+                <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <label style="color: var(--success-color); font-weight: 700;">📈 Erfolgreiche Vermittlungen</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Verkäufer</p>
+                        </div>
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Käufer</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
+                        <div>💬 Kommunikation: <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
+                        <div>💳 Bezahlung: <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
+                    <label style="color: #3498db;">🔒 Passkey (Schnell-Login)</label>
+                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
+                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()">Gerät als Passkey registrieren</button>
                 </div>
 
                 <form id="settings-form">
@@ -482,10 +452,17 @@
                         <label data-txt="lbl-username">Schützenname / Anzeigename</label>
                         <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
                     </div>
+                    
+                    <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 4px; border-left: 3px solid var(--success-color); margin-bottom: 20px;">
+                        <label style="color: var(--success-color); margin-bottom: 2px;">🛡️ IPSC Alias / Mitgliedsnummer</label>
+                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
+                        <input type="text" id="settings-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
+                    </div>
+
                     <div class="form-group">
                         <label>Profilbild (Optional)</label>
-                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)" style="font-size: 13px; color: var(--text-muted);">
-                        <img id="settings-avatar-preview" style="max-width: 800px; width: 80px; height: 80px; object-fit: cover; margin-top: 12px; border-radius: 50%; display: none; border: 2px solid var(--border-color);">
+                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
+                        <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
                     </div>
                     <div class="form-group">
                         <label>Neues Passwort ändern (Optional)</label>
@@ -494,31 +471,27 @@
                     <button type="submit" class="btn-primary-auth" data-txt="btn-save">Änderungen speichern</button>
                 </form>
                 <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
-                <button class="btn-danger-block">Konto & alle Einträge unwiderruflich löschen</button>
+                <button class="btn-danger-block" id="btn-delete-account">Konto & alle Einträge unwiderruflich löschen</button>
             </div>
         </div>
     </div>
 
-    <!-- ENTKOPPELTES MODAL FÜR DEN PRIVAT-CHAT MIT E-MAIL-REMINDER -->
     <div class="modal" id="chat-modal">
         <div class="modal-content" style="max-width: 500px; padding: 25px;">
             <div class="modal-close-container">
-                <span class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</span>
+                <button class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</button>
             </div>
             <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
             <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
             
-            <!-- Manuelle E-Mail-Anstups-Zeile direkt über dem Verlauf -->
             <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
                 <button type="button" class="btn-export" id="btn-chat-email-reminder" style="margin-top: 0; background-color: rgba(59, 130, 246, 0.1); color: var(--info-color); border-color: var(--info-color); padding: 6px 12px;" onclick="triggerChatEmailReminder()">
                     ✉️ Schützen per E-Mail anstupsen
                 </button>
             </div>
             
-            <!-- Nachrichten-Verlauf -->
             <div class="chat-history-area" id="chat-box-messages"></div>
             
-            <!-- Eingabezeile -->
             <form id="chat-send-form" style="display: flex; gap: 8px;">
                 <input type="hidden" id="chat-edit-id" value="">
                 <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
@@ -527,16 +500,14 @@
         </div>
     </div>
 
-    <!-- GLOBALER POSTEINGANG / OVERLAY-LISTE FÜR BESTEHENDE CHATS -->
     <div class="modal" id="global-inbox-modal">
         <div class="modal-content" style="max-width: 450px; padding: 25px;">
             <div class="modal-close-container">
-                <span class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</span>
+                <button class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</button>
             </div>
             <h3>Meine Nachrichten</h3>
             <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven Gespräche.</p>
             
-            <!-- Liste der Chat-Partner -->
             <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
                 <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
             </div>
@@ -558,7 +529,6 @@
 
         function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
 
-        // Synchronisiert das Theme-Symbol beim Start
         document.addEventListener("DOMContentLoaded", () => {
             const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
             if (typeof updateThemeToggleIcon === "function") {
@@ -580,11 +550,7 @@
 
         async function loadMatchesFromSupabase() {
             if (!window.currentUser) return;
-            const { data, error } = await window.supabaseClient
-                .from('user_matches')
-                .select('*')
-                .order('match_date', { ascending: true });
-
+            const { data, error } = await window.supabaseClient.from('user_matches').select('*').order('match_date', { ascending: true });
             if (error) { console.error("Fehler beim Laden:", error); return; }
             myMatches = data || [];
             renderMatches();
@@ -596,11 +562,7 @@
             const location = document.getElementById('match-location').value.trim();
 
             if (!name || !date) { alert("Match-Name und Datum sind Pflichtfelder."); return; }
-
-            const { error = null } = await window.supabaseClient
-                .from('user_matches')
-                .insert([{ user_id: window.currentUser.id, match_name: name, match_date: date, match_location: location }]);
-
+            const { error = null } = await window.supabaseClient.from('user_matches').insert([{ user_id: window.currentUser.id, match_name: name, match_date: date, match_location: location }]);
             if (error) { alert("Fehler beim Speichern: " + error.message); return; }
 
             document.getElementById('match-name').value = '';
@@ -627,7 +589,6 @@
             myMatches.forEach(match => {
                 const dateObj = new Date(match.match_date);
                 const displayDate = dateObj.toLocaleDateString('de-DE');
-                
                 const safeName = encodeURIComponent(match.match_name);
                 const safeLocation = encodeURIComponent(match.match_location || '');
                 
@@ -647,12 +608,7 @@
         }
         
         function inserierenAufMarktplatz(name, date, location) {
-            const params = new URLSearchParams({
-                from_planner: 'true',
-                name: decodeURIComponent(name),
-                date: date,
-                location: decodeURIComponent(location)
-            });
+            const params = new URLSearchParams({ from_planner: 'true', name: decodeURIComponent(name), date: date, location: decodeURIComponent(location) });
             window.location.href = 'index.html?' + params.toString();
         }
 
