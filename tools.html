@@ -75,7 +75,9 @@
         /* Formular Elemente */
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
         .form-group label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; }
-        .form-group input, .form-group select { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px 12px; border-radius: var(--radius); font-size: 14px; box-sizing: border-box; font-family: inherit; }
+        
+        /* FIX: width 100% hält das Layout auf Handys zusammen! */
+        .form-group input, .form-group select { width: 100%; background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px 12px; border-radius: var(--radius); font-size: 14px; box-sizing: border-box; font-family: inherit; }
         .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent-color); }
 
         .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 20px; font-size: 15px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; transition: opacity 0.15s; }
@@ -101,15 +103,26 @@
         .leaderboard tr:hover { background-color: rgba(255, 159, 67, 0.05); }
         .rank-1 { font-weight: bold; color: var(--accent-color); font-size: 16px; }
 
-        /* Mobile Fixes */
+        /* ========================================================
+           ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES (BEHEBT DAS LAYOUT-PROBLEM)
+           ======================================================== */
         @media (max-width: 768px) {
+            html, body { overflow-x: hidden !important; width: 100% !important; }
             header { padding: 12px 8px !important; }
             .header-controls { position: static !important; justify-content: center !important; margin-top: 10px !important; transform: none; width: 100%; }
             .main-nav { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding-bottom: 5px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
             .main-nav::-webkit-scrollbar { display: none; }
             .main-nav a { flex-shrink: 0; font-size: 12px; padding: 6px 12px; }
-            .scoring-grid { grid-template-columns: repeat(3, 1fr); }
-            .leaderboard th, .leaderboard td { padding: 8px 5px; font-size: 12px; }
+            
+            .container { padding: 0 10px !important; margin-top: 15px !important; width: 100% !important; box-sizing: border-box !important; }
+            .tool-section { padding: 15px !important; margin-bottom: 15px !important; }
+            
+            /* Scoring Grid Fixes für Handys (3 Felder oben, 2 unten) */
+            .scoring-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .scoring-grid label { font-size: 11px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+            .scoring-grid input { padding: 8px 4px !important; font-size: 14px !important; width: 100% !important; box-sizing: border-box !important; }
+            
+            .leaderboard th, .leaderboard td { padding: 8px 4px; font-size: 12px; }
         }
     </style>
 </head>
@@ -144,7 +157,7 @@
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Trage die Ergebnisse von dir und deinen Freunden ein, um eine Live-Rangliste für die Stage zu erstellen.</p>
             
             <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
-                <div class="form-group" style="flex: 2; min-width: 200px;">
+                <div class="form-group" style="flex: 1 1 100%;">
                     <label>Schützenname</label>
                     <input type="text" id="hf-name" placeholder="z.B. Max Mustermann">
                 </div>
@@ -163,28 +176,30 @@
 
             <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">Trefferaufnahme</label>
             <div class="scoring-grid">
-                <div class="form-group"><label style="text-align: center; color: var(--success-color);">Alpha (A)</label><input type="number" id="hf-a" class="input-A" min="0" value="0"></div>
-                <div class="form-group"><label style="text-align: center;">Charlie (C)</label><input type="number" id="hf-c" min="0" value="0"></div>
-                <div class="form-group"><label style="text-align: center;">Delta (D)</label><input type="number" id="hf-d" min="0" value="0"></div>
-                <div class="form-group"><label style="text-align: center; color: var(--danger-color);">Miss (M)</label><input type="number" id="hf-m" class="input-M" min="0" value="0"></div>
-                <div class="form-group"><label style="text-align: center; color: var(--danger-color);">No-Shoot</label><input type="number" id="hf-ns" class="input-M" min="0" value="0"></div>
+                <div class="form-group"><label style="color: var(--success-color);">Alpha (A)</label><input type="number" id="hf-a" class="input-A" min="0" value="0"></div>
+                <div class="form-group"><label>Charlie (C)</label><input type="number" id="hf-c" min="0" value="0"></div>
+                <div class="form-group"><label>Delta (D)</label><input type="number" id="hf-d" min="0" value="0"></div>
+                <div class="form-group"><label style="color: var(--danger-color);">Miss (M)</label><input type="number" id="hf-m" class="input-M" min="0" value="0"></div>
+                <div class="form-group"><label style="color: var(--danger-color);">No-Shoot</label><input type="number" id="hf-ns" class="input-M" min="0" value="0"></div>
             </div>
 
             <button class="btn-submit" onclick="addShooterToRanking()">Schütze eintragen & berechnen</button>
 
-            <table class="leaderboard" id="ranking-table" style="display: none;">
-                <thead>
-                    <tr>
-                        <th style="width: 40px;">#</th>
-                        <th>Name</th>
-                        <th>Pts</th>
-                        <th>Zeit</th>
-                        <th style="color: var(--accent-color);">Hit-Factor</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="ranking-body"></tbody>
-            </table>
+            <div style="overflow-x: auto;">
+                <table class="leaderboard" id="ranking-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th style="width: 30px;">#</th>
+                            <th>Name</th>
+                            <th>Pts</th>
+                            <th>Zeit</th>
+                            <th style="color: var(--accent-color);">HF</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="ranking-body"></tbody>
+                </table>
+            </div>
             <button id="btn-clear-ranking" class="btn-secondary" style="margin-top: 15px; display: none; width: 100%; color: var(--danger-color); border-color: var(--danger-color);" onclick="clearRanking()">Rangliste leeren</button>
         </div>
 
@@ -357,7 +372,6 @@
 
         // --- 2. DRY-FIRE TIMER & GENERATOR LOGIK ---
         
-        // Native Audio Context für die Timer-Pieptöne (Keine mp3-Dateien nötig!)
         let audioCtx;
 
         function playBeep(frequency, durationMs) {
@@ -367,10 +381,9 @@
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
             
-            oscillator.type = 'square'; // Aggressiver Ton, ähnlich einem echten Timer
+            oscillator.type = 'square'; 
             oscillator.frequency.value = frequency; 
             
-            // Verhindert ein "Knacken" am Ende des Tons
             gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (durationMs / 1000));
             
@@ -385,7 +398,7 @@
         let isTimerRunning = false;
 
         function startTimer() {
-            if (isTimerRunning) return; // Verhindert doppelte Klicks
+            if (isTimerRunning) return; 
             
             const btn = document.getElementById('btn-start-timer');
             const status = document.getElementById('timer-status');
@@ -396,11 +409,9 @@
             btn.style.opacity = '0.5';
             btn.innerText = "Timer läuft...";
             
-            // Audio-Kontext aufwecken (Notwendig für mobile Browser)
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
-            // Zufälliges Delay zwischen 1 und 3 Sekunden
             const randomDelay = Math.floor(Math.random() * 2000) + 1000;
             
             display.innerText = "0.00";
@@ -408,12 +419,10 @@
             status.style.color = "var(--info-color)";
 
             timerTimeout = setTimeout(() => {
-                // START BEEP (3000 Hz, 300ms)
                 playBeep(3000, 300);
                 status.innerText = "GO!";
                 status.style.color = "var(--success-color)";
                 
-                // Simuliere hochzählende Zeit (rein visuell für Par-Time)
                 let startTime = Date.now();
                 let interval = setInterval(() => {
                     let elapsed = (Date.now() - startTime) / 1000;
@@ -425,7 +434,6 @@
                     }
                 }, 50);
 
-                // PAR BEEP (Stopp)
                 setTimeout(() => {
                     playBeep(3000, 300);
                     status.innerText = "Par-Zeit abgelaufen";
