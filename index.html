@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -499,6 +499,33 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
+        /* Zusätzliche Styles für Chat-Aktionen (Editieren, Löschen, Melden) */
+        .chat-bubble-container {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        .chat-bubble-meta {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            display: flex;
+            gap: 8px;
+        }
+        .chat-action-link {
+            cursor: pointer;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+        .chat-action-link:hover {
+            color: var(--text-color);
+        }
+        .chat-action-link.delete:hover {
+            color: var(--danger-color);
+        }
+
         /* ========================================================
            ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES (HAUPT-REPARATUR)
            ======================================================== */
@@ -703,20 +730,20 @@
             </div>
             <h3 style="color: var(--accent-color); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">📢 Plattform Update: Live-Chat &amp; Trusted Status</h3>
             <p style="font-size: 14px; font-weight: 600; margin-top: 0; margin-bottom: 15px;">
-                Ab sofort führen wir einen integrierten Live-Chat sowie ein verifiziertes Vertrauens-System ein, um den Ticket-Tausch noch sicherer zu machen[span_1](start_span)[span_1](end_span)!
+                Ab sofort führen wir einen integrierten Live-Chat sowie ein verifiziertes Vertrauens-System ein, um den Ticket-Tausch noch sicherer zu machen!
             </p>
             <div style="font-size: 13px; line-height: 1.6; display: flex; flex-direction: column; gap: 12px; color: var(--text-color);">
                 <div style="background: var(--bg-color); padding: 12px; border-radius: var(--radius); border-left: 4px solid var(--info-color);">
                     <strong style="color: var(--info-color); display: block; margin-bottom: 4px;">💬 Wahlweise Live-Chat oder E-Mail</strong>
-                    Du kannst andere Schützen jetzt direkt auf der Plattform anschreiben! Falls der Partner mal nicht online antwortet, kannst du ihn im Chatfenster ganz bequem mit dem Button <strong>„Schützen per E-Mail anstupsen“</strong> direkt anstupsen.[span_2](start_span)[span_2](end_span)
+                    Du kannst andere Schützen jetzt direkt auf der Plattform anschreiben! Falls der Partner mal nicht online antwortet, kannst du ihn im Chatfenster ganz bequem mit dem Button <strong>„Schützen per E-Mail anstupsen“</strong> direkt anstupsen.
                 </div>
                 <div style="background: var(--bg-color); padding: 12px; border-radius: var(--radius); border-left: 4px solid var(--success-color);">
                     <strong style="color: var(--success-color); display: block; margin-bottom: 4px;">🛡️ Option 1: Offizieller Verbandsnachweis</strong>
-                    Sende uns ein kurzes Foto deines IPSC-Ausweises, deiner SuRT-Bescheinigung oder deiner Lizenz an <a href="mailto:info@ipscboerse.com" style="color: var(--info-color); font-weight: bold;">info@ipscboerse.com</a>. Unser Support schaltet dein Profil manuell frei und du erhältst sofort das grüne <strong>Trusted</strong>-Badge an all deinen Inseraten[span_3](start_span)[span_3](end_span)!
+                    Sende uns ein kurzes Foto deines IPSC-Ausweises, deiner SuRT-Bescheinigung oder deiner Lizenz an <a href="mailto:info@ipscboerse.com" style="color: var(--info-color); font-weight: bold;">info@ipscboerse.com</a>. Unser Support schaltet dein Profil manuell frei und du erhältst sofort das grüne <strong>Trusted</strong>-Badge an all deinen Inseraten!
                 </div>
                 <div style="background: var(--bg-color); padding: 12px; border-radius: var(--radius); border-left: 4px solid var(--accent-color);">
                     <strong style="color: var(--accent-color); display: block; margin-bottom: 4px;">📈 Option 2: Community Reputation</strong>
-                    Schütze werden! Das grüne Vertrauenssiegel wird alternativ auch vollautomatisch aktiv, sobald du mindestens <strong>3 erfolgreiche Vermittlungen</strong> über den Button abgeschlossen hast und deine Sternebewertung sauber bleibt.[span_4](start_span)[span_4](end_span)
+                    Schütze werden! Das grüne Vertrauenssiegel wird alternativ auch vollautomatisch aktiv, sobald du mindestens <strong>3 erfolgreiche Vermittlungen</strong> über den Button abgeschlossen hast und deine Sternebewertung sauber bleibt.
                 </div>
             </div>
             <button type="button" class="btn-submit" style="width: 100%; margin-top: 20px; background-color: var(--accent-color); color: #1a1a1a;" onclick="document.getElementById('news-modal').style.display = 'none';">Verstanden & Weiter</button>
@@ -744,8 +771,9 @@
             
             <!-- Eingabezeile -->
             <form id="chat-send-form" style="display: flex; gap: 8px;">
+                <input type="hidden" id="chat-edit-id" value="">
                 <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
-                <button type="submit" class="btn-submit" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
+                <button type="submit" id="btn-chat-send" class="btn-submit" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
             </form>
         </div>
     </div>
