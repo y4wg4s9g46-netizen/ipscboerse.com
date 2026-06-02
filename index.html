@@ -436,6 +436,28 @@
             font-weight: 700;
             margin-left: 5px;
         }
+        
+        /* Stern-Auswahl CSS */
+        .star-rating-select {
+            display: inline-flex;
+            flex-direction: row-reverse;
+            gap: 4px;
+        }
+        .star-rating-select input {
+            display: none;
+        }
+        .star-rating-select label {
+            font-size: 26px;
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.15s;
+            margin: 0;
+        }
+        .star-rating-select input:checked ~ label,
+        .star-rating-select label:hover,
+        .star-rating-select label:hover ~ label {
+            color: #ffca28;
+        }
 
         footer {
             background-color: var(--card-bg); border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted); text-align: center;
@@ -491,7 +513,6 @@
         </nav>
         
         <div class="header-controls">
-            <!-- Manueller Design-Schalter -->
             <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
 
             <select id="language-select" class="lang-switch">
@@ -591,7 +612,6 @@
 
     </div>
 
-    <!-- 6. POPUP FÜR ERFOLGREICHE VERMITTLUNG (ZUSÄTZLICHER MODAL-BLOCK) -->
     <div class="modal" id="mediated-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -599,7 +619,7 @@
             </div>
             <h3>Startplatz erfolgreich vermittelt</h3>
             <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">
-                Trage hier die E-Mail-Adresse des Käufers ein, um die Transaktion abzuschließen. Die erfolgreiche Vermittlung wird in euren Profilstatistiken hinterlegt.
+                Trage hier die E-Mail-Adresse des Käufers ein und bewerte die Transaktion, um sie abzuschließen. Die erfolgreiche Vermittlung wird in euren Profilstatistiken hinterlegt.
             </p>
             <form id="mediated-form">
                 <input type="hidden" id="mediated-match-id">
@@ -607,6 +627,29 @@
                     <label>E-Mail-Adresse des Käufers *</label>
                     <input type="email" id="buyer-email" required placeholder="kaeufer@beispiel.de">
                 </div>
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="text-transform: none; font-size: 14px;">💬 Kommunikation</label>
+                    <div class="star-rating-select">
+                        <input type="radio" id="star-comm-5" name="rating-comm" value="5" required><label for="star-comm-5">★</label>
+                        <input type="radio" id="star-comm-4" name="rating-comm" value="4"><label for="star-comm-4">★</label>
+                        <input type="radio" id="star-comm-3" name="rating-comm" value="3"><label for="star-comm-3">★</label>
+                        <input type="radio" id="star-comm-2" name="rating-comm" value="2"><label for="star-comm-2">★</label>
+                        <input type="radio" id="star-comm-1" name="rating-comm" value="1"><label for="star-comm-1">★</label>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="text-transform: none; font-size: 14px;">💳 Bezahlung</label>
+                    <div class="star-rating-select">
+                        <input type="radio" id="star-pay-5" name="rating-pay" value="5" required><label for="star-pay-5">★</label>
+                        <input type="radio" id="star-pay-4" name="rating-pay" value="4"><label for="star-pay-4">★</label>
+                        <input type="radio" id="star-pay-3" name="rating-pay" value="3"><label for="star-pay-3">★</label>
+                        <input type="radio" id="star-pay-2" name="rating-pay" value="2"><label for="star-pay-2">★</label>
+                        <input type="radio" id="star-pay-1" name="rating-pay" value="1"><label for="star-pay-1">★</label>
+                    </div>
+                </div>
+
                 <button type="submit" class="btn-submit" style="width: 100%; background-color: var(--success-color);">Vermittlung bestätigen & Eintrag schließen</button>
             </form>
         </div>
@@ -618,7 +661,6 @@
                 <span id="btn-close-modal" class="modal-close-trigger">&times;</span>
             </div>
             
-            <!-- 1. LOGIN ANSICHT MIT PASSKEY BUTTON -->
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
                 
@@ -629,7 +671,7 @@
                 <form id="login-form">
                     <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required placeholder="name@beispiel.de"></div>
                     <div class="form-group">
-                        <label data-txt="lbl-password">Passwort *</label>
+                        <label style="margin-bottom: 6px;">Passwort *</label>
                         <input type="password" id="login-password" required placeholder="••••••••">
                         <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
                     </div>
@@ -638,12 +680,11 @@
                 <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a></div>
             </div>
 
-            <!-- 2. REGISTRIERUNGS-ANSICHT -->
             <div id="modal-register-view" style="display: none;">
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
                     <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="register-email" required placeholder="name@beispiel.de"></div>
-                    <div class="form-group"><label data-txt="lbl-password">Passwort *</label><input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen"></div>
+                    <div class="form-group"><label style="margin-bottom: 6px;">Passwort *</label><input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen"></div>
                     
                     <div class="form-group" style="flex-direction: row; align-items: flex-start; gap: 10px; margin-top: 5px; margin-bottom: 20px;">
                         <input type="checkbox" id="register-agb" required style="margin-top: 3px; width: 16px; height: 16px; cursor: pointer;">
@@ -674,11 +715,9 @@
                 </form>
             </div>
 
-            <!-- 5. KONTO-EINSTELLUNGEN ANSICHT MIT ZÄHLER UND BEWERTUNG -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
-                <!-- Zähler & Bewertungssystem Box -->
                 <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
                     <label style="color: var(--success-color); font-weight: 700;">📈 Erfolgreiche Vermittlungen</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
@@ -690,6 +729,11 @@
                             <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
                             <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Käufer</p>
                         </div>
+                    </div>
+                    
+                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
+                        <div>💬 Kommunikation: <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
+                        <div>💳 Bezahlung: <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
                     </div>
                 </div>
 
@@ -764,6 +808,13 @@
             }
         });
 
+        // Hilfsfunktion zur Formatierung des Sternen-Durchschnitts
+        function formatStars(value) {
+            if (!value || isNaN(value) || value === 0) return "-";
+            let fullStars = Math.round(value);
+            return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
+        }
+
         // NATIVE ERWEITERUNG DER APP-LOGIK DIREKT IN DIE SEITE EINGEBETTET (RENNBEDINGUNGEN VERHINDERT)
         window.openUserProfile = async function(sellerEmail, authorName, authorAvatar, authorIpscAlias) {
             const modal = document.getElementById("auth-modal");
@@ -799,12 +850,29 @@
 
             // Hole Vermittlungsdaten asynchron aus der Supabase-Datenbank-Metadaten-Struktur über RPC oder Tabellen-Lookup
             try {
-                // Dynamischer Abruf der erfolgreichen Verkäufe/Käufe über eine Abfrage der abgeschlossenen Transaktionen
-                const salesRes = await window.supabaseClient.from('mediated_deals').select('id', { count: 'exact' }).eq('seller_email', sellerEmail);
-                const purchaseRes = await window.supabaseClient.from('mediated_deals').select('id', { count: 'exact' }).eq('buyer_email', sellerEmail);
+                const salesRes = await window.supabaseClient.from('mediated_deals').select('*').eq('seller_email', sellerEmail);
+                const purchaseRes = await window.supabaseClient.from('mediated_deals').select('*').eq('buyer_email', sellerEmail);
                 
-                document.getElementById("profile-sales-count").innerText = salesRes.count || 0;
-                document.getElementById("profile-purchases-count").innerText = purchaseRes.count || 0;
+                const salesData = salesRes.data || [];
+                const purchaseData = purchaseRes.data || [];
+
+                document.getElementById("profile-sales-count").innerText = salesData.length;
+                document.getElementById("profile-purchases-count").innerText = purchaseData.length;
+
+                // Sterne-Berechnung (Durchschnitt aller Deals, bei denen dieser User Verkäufer oder Käufer war)
+                let totalComm = 0, totalPay = 0, countComm = 0, countPay = 0;
+                
+                salesData.forEach(d => {
+                    if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
+                    if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
+                });
+                purchaseData.forEach(d => {
+                    if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
+                    if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
+                });
+
+                document.getElementById("profile-rating-comm").innerText = formatStars(countComm > 0 ? totalComm / countComm : 0);
+                document.getElementById("profile-rating-pay").innerText = formatStars(countPay > 0 ? totalPay / countPay : 0);
             } catch(e) {
                 console.error("Fehler beim Laden der Reputationswerte:", e);
             }
@@ -827,6 +895,7 @@
         // Trigger für erfolgreiche Vermittlung
         window.triggerMediatedModal = function(matchId) {
             document.getElementById("mediated-match-id").value = matchId;
+            document.getElementById("mediated-form").reset();
             document.getElementById("mediated-modal").style.display = "flex";
         };
 
@@ -834,9 +903,19 @@
         document.getElementById("mediated-form").addEventListener("submit", async (e) => {
             e.preventDefault();
             const matchId = document.getElementById("mediated-match-id").value;
-            const buyerEmailInput = document.getElementById("buyer-email").value.trim();
+            const buyerEmailInput = document.getElementById("buyer-email").value.trim().toLowerCase();
 
             if(!window.currentUser) { alert("Du musst eingeloggt sein."); return; }
+
+            // Schutz vor Selbst-Vermittlung
+            if (buyerEmailInput === window.currentUser.email.toLowerCase()) {
+                alert(window.currentLang === "en" ? "Error: You cannot use your own email address as the buyer!" : "Fehler: Du kannst nicht deine eigene E-Mail-Adresse als Käufer angeben!");
+                return;
+            }
+
+            // Bewertungsdaten auslesen
+            const ratingComm = document.querySelector('input[name="rating-comm"]:checked')?.value;
+            const ratingPay = document.querySelector('input[name="rating-pay"]:checked')?.value;
 
             try {
                 // 1. Hole Match-Daten für das Inserat
@@ -849,6 +928,9 @@
                     match_name: matchData.name,
                     seller_email: window.currentUser.email,
                     buyer_email: buyerEmailInput,
+                    user_id: window.currentUser.id,
+                    rating_communication: parseInt(ratingComm),
+                    rating_payment: parseInt(ratingPay),
                     created_at: new Date()
                 }]);
                 if(dealErr) throw dealErr;
@@ -856,7 +938,7 @@
                 // 3. Lösche oder deaktiviere das Match aus der aktiven Marktplatz-Tabelle
                 await window.supabaseClient.from('matches').delete().eq('id', matchId);
 
-                alert("✓ Deal erfolgreich abgeschlossen! Die Transaktion wurde in euren Profilstatistiken hinterlegt.");
+                alert("✓ Deal erfolgreich abgeschlossen! Die Transaktion und Bewertungen wurden in euren Profilstatistiken hinterlegt.");
                 document.getElementById('mediated-modal').style.display = 'none';
                 location.reload();
             } catch(err) {
