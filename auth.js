@@ -40,6 +40,9 @@ window.loginWithPasskey = async function() {
         alert("Passkey-Login fehlgeschlagen oder abgebrochen: " + error.message);
     } else {
         if (btn) btn.innerText = "Erfolgreich!";
+        // FIX: Lädt die Seite nach erfolgreichem Passkey-Login neu, 
+        // schließt das Modal und aktualisiert die Ansicht!
+        location.reload();
     }
 };
 
@@ -532,7 +535,7 @@ document.addEventListener("change", (e) => {
 function formatStars(value) {
     if (!value || isNaN(value) || value === 0) return "-";
     let fullStars = Math.round(value);
-    return "★".repeat(fullStars) + "box".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
+    return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
 }
 
 // === ROBUSTE INITIALISIERUNGS-SCHLEIFE GEGEN RACE CONDITIONS ===
