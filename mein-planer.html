@@ -258,8 +258,8 @@
 <body>
 
     <header>
-        <h1>MEIN WETTKAMPFPLANER</h1>
-        <p style="color: var(--text-muted); margin: 5px 0 0 0;">Cloud-Sync & Kalender-Export</p>
+        <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
+        <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Von Schützen für Schützen – Live Marktplatz</p>
         
         <nav class="main-nav">
             <a href="index.html" class="inactive" data-txt="nav-marketplace">Marktplatz</a>
@@ -271,6 +271,12 @@
         <div class="header-controls">
             <!-- Manueller Design-Schalter -->
             <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
+
+            <!-- Globaler Chat-Posteingang Button im Header -->
+            <button id="header-chat-btn" class="theme-toggle-btn" onclick="toggleGlobalInbox()" style="position: relative; font-size: 18px;" title="Nachrichten">
+                💬
+                <span id="chat-badge-count" style="display: none; position: absolute; top: -4px; right: -4px; background: var(--danger-color); color: white; font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold;">0</span>
+            </button>
 
             <select id="language-select" class="lang-select">
                 <option value="de">DE</option>
@@ -380,7 +386,7 @@
 
             <!-- 3. PASSWORT VERGESSEN ANSICHT -->
             <div id="modal-forgot-view" style="display: none;">
-                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
+                <h3 data-txt="modal-forgot-title">Passforgot-title</h3>
                 <form id="forgot-form">
                     <div class="form-group">
                         <label>Deine E-Mail-Adresse *</label>
@@ -441,8 +447,7 @@
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
             <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
      
-            <div style="margin-top: 15px; font-size: 11px;">&copy;
- 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
 
