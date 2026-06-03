@@ -209,9 +209,6 @@
         .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; font-weight: 600; }
         .modal-footer a:hover { text-decoration: underline; }
 
-        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
-        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
-
         .chat-history-area { height: 300px; overflow-y: auto; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: var(--radius); padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
         .chat-bubble { max-width: 75%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.4; word-wrap: break-word; }
         .bubble-me { background-color: var(--accent-color); color: #1a1a1a; align-self: flex-end; border-bottom-right-radius: 2px; }
@@ -441,7 +438,7 @@
     document.addEventListener("DOMContentLoaded", () => {
         const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
         if (typeof updateThemeToggleIcon === "function") {
-            updateThemeToggleIcon(savedThemeSetting);
+             updateThemeToggleIcon(savedThemeSetting);
         }
     });
 
@@ -516,83 +513,7 @@
             };
         }
     };
-    
-    async function openChatSystem(matchId, receiverEmail, matchName) {
-      if (!window.currentUser) return alert(window.currentLang === "en" ? "Please log in." : "Bitte logge dich ein.");
-      window.activeChatRoom = { matchId, receiverEmail, matchName };
-      document.getElementById("chat-modal").style.display = "flex";
-      document.getElementById("chat-title-match").innerText = "Match: " + matchName;
-      document.getElementById("chat-title-partner").innerText = "Partner: " + receiverEmail;
-      await loadChatMessages();
-    }
 
-    async function loadChatMessages() {
-      if (!window.activeChatRoom || !window.currentUser) return;
-      const box = document.getElementById("chat-box-messages");
-      const { data: messages, error } = await window.supabaseClient
-        .from("chat_messages")
-        .select("*")
-        .eq("match_id", window.activeChatRoom.matchId)
-        .or(`and(sender_email.eq.${window.currentUser.email},receiver_email.eq.${window.activeChatRoom.receiverEmail}),and(sender_email.eq.${window.activeChatRoom.receiverEmail},receiver_email.eq.${window.currentUser.email})`)
-        .order("created_at", { ascending: true });
-      if (error || !box) return;
-      box.innerHTML = "";
-      messages.forEach(msg => {
-        const isMe = msg.sender_email.toLowerCase() === window.currentUser.email.toLowerCase();
-        box.innerHTML += `<div class="chat-bubble ${isMe ? 'bubble-me' : 'bubble-other'}">${msg.message}</div>`;
-      });
-      box.scrollTop = box.scrollHeight;
-    }
-
-    function closeChatSystem() { window.activeChatRoom = null; document.getElementById("chat-modal").style.display = "none"; }
-    
-    document.getElementById("chat-send-form")?.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const input = document.getElementById("chat-message-input");
-      if (!window.activeChatRoom || !input.value.trim()) return;
-      await window.supabaseClient.from("chat_messages").insert([{
-        match_id: window.activeChatRoom.matchId, match_name: window.activeChatRoom.matchName,
-        sender_email: window.currentUser.email, receiver_email: window.activeChatRoom.receiverEmail, message: input.value.trim()
-      }]);
-      input.value = "";
-      await loadChatMessages();
-    });
-    
-    async function toggleGlobalInbox() {
-      const modal = document.getElementById("global-inbox-modal");
-      if (!modal || !window.currentUser) return;
-      if (modal.style.display === "flex") { modal.style.display = "none"; return; }
-      modal.style.display = "flex";
-      window.lastChatCheckedTimestamp = new Date().toISOString();
-      localStorage.setItem("lastChatChecked", window.lastChatCheckedTimestamp);
-      updateHeaderChatBadge();
-
-      const { data: allMsgs } = await window.supabaseClient.from("chat_messages").select("*").or(`sender_email.eq.${window.currentUser.email},receiver_email.eq.${window.currentUser.email}`).order("created_at", { ascending: false });
-      const listContainer = document.getElementById("global-inbox-list");
-      if (!allMsgs || allMsgs.length === 0) { listContainer.innerHTML = "<p>Keine Nachrichten.</p>"; return; }
-      
-      let uniqueChats = {};
-      allMsgs.forEach(msg => {
-        const partner = msg.sender_email.toLowerCase() === window.currentUser.email.toLowerCase() ? msg.receiver_email : msg.sender_email;
-        uniqueChats[`${msg.match_id}_${partner}`] = { matchId: msg.match_id, matchName: msg.match_name, partnerEmail: partner, lastMessage: msg.message };
-      });
-      listContainer.innerHTML = Object.values(uniqueChats).map(c => `
-        <div style="background:var(--bg-color); border:1px solid var(--border-color); padding:12px; border-radius:var(--radius); cursor:pointer; margin-bottom:6px;" onclick="document.getElementById('global-inbox-modal').style.display='none'; openChatSystem(${c.matchId}, '${c.partnerEmail}', '${c.matchName}')">
-          <strong>${c.matchName}</strong><br><span style="font-size:11px;color:var(--text-muted);">Mit: ${c.partnerEmail}</span><p style="margin:4px 0 0 0; font-size:12px;">${c.lastMessage}</p>
-        </div>`).join('');
-    }
-
-    function updateHeaderChatBadge() {
-      if (!window.currentUser) return;
-      window.supabaseClient.from("chat_messages").select("id", { count: 'exact' }).eq("receiver_email", window.currentUser.email).gt("created_at", window.lastChatCheckedTimestamp).then(({ count, error }) => {
-         const badge = document.getElementById("chat-badge-count");
-         if (badge) { badge.style.display = (!error && count > 0) ? "block" : "none"; if(count > 0) badge.innerText = count; }
-      });
-    }
-
-    window.onAuthChange = () => { updateHeaderChatBadge(); };
-    setTimeout(() => { updateHeaderChatBadge(); }, 1000);
-    
     // HIER WIRD DIE JSON GELADEN
     fetch('matches.json?v=' + new Date().getTime())
       .then(res => res.json())
@@ -608,8 +529,8 @@
           }
 
           document.getElementById('match-filters').style.display = 'flex';
-          setupFilters(allMatches);
-          renderMatches(allMatches);
+          setupFreeFilters(allMatches);
+          renderFreeMatches(allMatches);
       })
       .catch(err => {
           console.error("Fehler beim Laden:", err);
@@ -617,7 +538,7 @@
           document.getElementById('js-match-container').innerHTML = `<p class='loading-msg'>${errorTxt}</p>`;
       });
 
-    function setupFilters(matches) {
+    function setupFreeFilters(matches) {
         const currentRegionVal = document.getElementById('filter-region').value || 'all';
         const currentDisziplinVal = document.getElementById('filter-disziplin').value || 'all';
         const currentLevelVal = document.getElementById('filter-level').value || 'all';
@@ -643,16 +564,16 @@
         disziplinSelect.value = currentDisziplinVal;
         levelSelect.value = currentLevelVal;
 
-        regionSelect.removeEventListener('change', applyFilters);
-        disziplinSelect.removeEventListener('change', applyFilters);
-        levelSelect.removeEventListener('change', applyFilters);
+        regionSelect.removeEventListener('change', applyFreeFilters);
+        disziplinSelect.removeEventListener('change', applyFreeFilters);
+        levelSelect.removeEventListener('change', applyFreeFilters);
 
-        regionSelect.addEventListener('change', applyFilters);
-        disziplinSelect.addEventListener('change', applyFilters);
-        levelSelect.addEventListener('change', applyFilters);
+        regionSelect.addEventListener('change', applyFreeFilters);
+        disziplinSelect.addEventListener('change', applyFreeFilters);
+        levelSelect.addEventListener('change', applyFreeFilters);
     }
 
-    function applyFilters() {
+    function applyFreeFilters() {
         const selectedRegion = document.getElementById('filter-region').value;
         const selectedDisziplin = document.getElementById('filter-disziplin').value;
         const selectedLevel = document.getElementById('filter-level').value;
@@ -664,10 +585,10 @@
             return matchesRegion && matchesDisziplin && matchesLevel;
         });
 
-        renderMatches(filteredMatches);
+        renderFreeMatches(filteredMatches);
     }
 
-    function renderMatches(matchesToDisplay) {
+    function renderFreeMatches(matchesToDisplay) {
         const container = document.getElementById('js-match-container');
         if (matchesToDisplay.length === 0) {
             const noComboTxt = window.currentLang === "en" ? "No matches found for this filter combination." : "Keine Matches für diese Filterkombination gefunden.";
@@ -703,8 +624,8 @@
         const selector = document.getElementById("language-select");
         if (selector) selector.value = window.currentLang;
         if (allMatches.length > 0) {
-            setupFilters(allMatches);
-            applyFilters();
+            setupFreeFilters(allMatches);
+            applyFreeFilters();
         }
     };
     </script>
