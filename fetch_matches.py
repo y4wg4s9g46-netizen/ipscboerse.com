@@ -16,65 +16,71 @@ try:
     matches = []
 
     for row in soup.find_all('tr'):
-        if '%' in row.text:
-            tds = row.find_all('td')
-            if len(tds) >= 4:
-                disziplin = tds[0].text.strip()
-                level = tds[1].text.strip()
+        tds = row.find_all('td')
+        
+        # Die Tabelle auf der Website hat 8 Spalten
+        if len(tds) >= 8:
+            auslastung_text = tds[7].text.strip()
+            
+            if '%' in auslastung_text:
+                prozent_match = re.search(r'(\d{1,3})', auslastung_text)
                 
-                match_link = tds[3].find('a')
-                if match_link:
-                    best_name = match_link.text.strip()
-                    detail_url = urllib.parse.urljoin(base_url, match_link.get('href', ''))
+                if prozent_match:
+                    auslastung_int = int(prozent_match.group(1))
                     
-                    # --- NEU: Datum kugelsicher auslesen ---
-                    datum = "N/A"
-                    # Sucht nach 15.09.2024 oder 15.09. - 16.09.2024
-                    datum_match = re.search(r'\d{2}\.\d{2}\.(?:\s*-\s*\d{2}\.\d{2}\.)?\s*\d{2,4}', row.text)
-                    if datum_match:
-                        datum = datum_match.group(0).strip()
-                    
-                    # Glättet den Text der Tabellenzeile
-                    row_text_clean = re.sub(r'\s+', ' ', row.text.lower())
-                    is_closed = "geschlossen" in row_text_clean
-                    region = ""
+                    # 1. FILTER: Wir machen NUR weiter, wenn die Auslastung unter 100% liegt!
+                    if auslastung_int < 100:
+                        status_text = tds[6].text.strip().lower()
+                        
+                        # 2. FILTER: Wenn schon in der Übersicht storniert/geschlossen steht -> direkt überspringen
+                        if "cancelled" in status_text or "geschlossen" in status_text or "closed" in status_text:
+                            continue
+                            
+                        disziplin = tds[0].text.strip()
+                        level = tds[1].text.strip()
+                        region = tds[2].text.strip() # Region gibt es jetzt praktischerweise direkt in der Tabelle!
+                        
+                        match_link = tds[3].find('a')
+                        if match_link:
+                            best_name = match_link.text.strip()
+                            detail_url = urllib.parse.urljoin(base_url, match_link.get('href', ''))
+                            
+                            is_closed = False
+                            
+                            # 3. DETAIL-CHECK: Jetzt laden wir die Detailseite (aber eben nur für die Handvoll offener Matches!)
+                            try:
+                                d_resp = requests.get(detail_url, headers=headers, timeout=10)
+                                d_soup = BeautifulSoup(d_resp.text, 'html.parser')
+                                d_clean_text = re.sub(r'\s+', ' ', d_soup.get_text(" ", strip=True).lower())
+                                
+                                if "anmeldung geschlossen" in d_clean_text or "closed" in d_clean_text:
+                                    is_closed = True
+                            except Exception as e:
+                                print(f"Warnung: Konnte Detailseite für {best_name} nicht prüfen ({e})")
+                            
+                            # Wenn auf der Detailseite "geschlossen" steht, verwerfen wir das Match
+                            if is_closed:
+                                continue
+                            
+                            # Datum aus der Spalte auslesen und bereinigen
+                            datum_raw = tds[5].text.strip()
+                            datum_match = re.search(r'\d{2}\.\d{2}\.(?:\s*-\s*\d{2}\.\d{2}\.)?\s*\d{2,4}', datum_raw)
+                            datum = datum_match.group(0).strip() if datum_match else (datum_raw if datum_raw else "N/A")
 
-                    if not is_closed:
-                        try:
-                            d_resp = requests.get(detail_url, headers=headers, timeout=10)
-                            d_soup = BeautifulSoup(d_resp.text, 'html.parser')
-                            
-                            d_clean_text = re.sub(r'\s+', ' ', d_soup.get_text(" ", strip=True).lower())
-                            
-                            if "anmeldung geschlossen" in d_clean_text or "closed" in d_clean_text:
-                                is_closed = True
-                            else:
-                                reg_match = re.search(r'region.*?(GER|AUT|SUI|NED|BEL|FRA|CZE|POL|DEN|ITA|ESP|POR|GBR|HUN|SVK|SLO|CRO|GRE|FIN|SWE|NOR)', d_clean_text, re.IGNORECASE)
-                                if reg_match:
-                                    region = reg_match.group(1).upper()
-                                else:
-                                    region = "N/A"
-                        except:
-                            pass
-                    
-                    if is_closed:
-                        continue
-                    
-                    prozent_match = re.search(r'(\d{1,3})\s*%', row.text)
-                    if prozent_match and int(prozent_match.group(1)) < 100:
-                        matches.append({
-                            "name": best_name,
-                            "datum": datum, # Gibt das Datum an deine Website weiter
-                            "auslastung": f"{prozent_match.group(1)}%",
-                            "region": region,
-                            "level": level,
-                            "disziplin": disziplin,
-                            "url": detail_url
-                        })
+                            # Match ist unter 100% UND die Anmeldung ist noch offen -> ab in die Börse!
+                            matches.append({
+                                "name": best_name,
+                                "datum": datum,
+                                "auslastung": f"{auslastung_int}%",
+                                "region": region,
+                                "level": level,
+                                "disziplin": disziplin,
+                                "url": detail_url
+                            })
 
     with open('matches.json', 'w', encoding='utf-8') as f:
         json.dump(matches, f, ensure_ascii=False, indent=4)
-    print(f"Erfolgreich {len(matches)} offene Matches gefunden.")
+    print(f"Erfolgreich {len(matches)} offene Matches gefunden und in matches.json gespeichert.")
 
 except Exception as e:
     print(f"Fehler: {e}")
