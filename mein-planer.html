@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mein Wettkampfplaner | Startplatz Börse</title>
     
+    <!-- PWA & App-Icons -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="IPSC Börse">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -286,6 +294,8 @@
             <a href="freie-matches.html" class="inactive" data-txt="nav-free-slots">Freie Match-Plätze</a>
             <a href="mein-planer.html" class="active" data-txt="nav-my-planner">Mein Planer</a>
             <a href="community.html" class="inactive" data-txt="nav-community">Community</a>
+            <a href="ipsc-hub.html" class="inactive">IPSC Hub</a>
+            <a href="tools.html" class="inactive">Tools & Training</a>
         </nav>
 
         <div class="header-controls">
@@ -653,6 +663,17 @@
             if (selector) selector.value = window.currentLang;
             renderMatches(); 
         };
+    </script>
+    
+    <!-- PWA Service Worker Registrierung -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('PWA Service Worker registriert!', reg.scope))
+                    .catch(err => console.error('PWA Fehler:', err));
+            });
+        }
     </script>
 </body>
 </html>
