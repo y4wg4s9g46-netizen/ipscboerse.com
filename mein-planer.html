@@ -285,37 +285,8 @@
 </head>
 <body>
 
-    <header>
-        <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
-        <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Von Schützen für Schützen – Live Marktplatz</p>
-        
-        <nav class="main-nav">
-    <a href="index.html" class="inactive">Startseite</a>
-    <a href="marktplatz.html" class="inactive">Marktplatz</a>
-    <a href="freie-matches.html" class="inactive">Freie Match-Plätze</a>
-    <a href="mein-planer.html" class="active">Mein Planer</a>
-    <a href="community.html" class="inactive">Community</a>
-    <a href="ipsc-hub.html" class="inactive">IPSC Hub</a>
-    <a href="tools.html" class="inactive">Tools & Training</a>
-</nav>
-
-        <div class="header-controls">
-            <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
-
-            <button id="header-chat-btn" class="theme-toggle-btn" onclick="toggleGlobalInbox()" style="position: relative; font-size: 18px;" title="Nachrichten">
-                💬
-                <span id="chat-badge-count" style="display: none; position: absolute; top: -4px; right: -4px; background: var(--danger-color); color: white; font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold;">0</span>
-            </button>
-
-            <select id="language-select" class="lang-select">
-                <option value="de">DE</option>
-                <option value="en">EN</option>
-            </select>
-            <div id="auth-status-container">
-                <button class="btn-auth" id="btn-open-login">Login / Registrieren</button>
-            </div>
-        </div>
-    </header>
+    <header></header>
+    <script src="header.js"></script>
 
     <div class="container">
         
@@ -350,7 +321,7 @@
             <button onclick="addMatch()" data-txt="planner-btn-save">Match in Cloud speichern</button>
 
             <h3 style="margin-top: 40px;" data-txt="planner-subtitle-planned">Geplante Matches</h3>
-            <div id="my-matches-list">
+            <div id="match-list">
                 <p style="color: var(--text-muted); font-style: italic;" data-txt="planner-loading">Lade Daten aus Supabase...</p>
             </div>
 
@@ -564,7 +535,7 @@
             } else {
                 document.getElementById('logged-out-section').style.display = 'block';
                 document.getElementById('planner-section').style.display = 'none';
-                document.getElementById('my-matches-list').innerHTML = '';
+                document.getElementById('match-list').innerHTML = '';
             }
         };
 
@@ -597,7 +568,7 @@
         }
 
         function renderMatches() {
-            const container = document.getElementById('my-matches-list');
+            const container = document.getElementById('match-list');
             if (!container) return;
             container.innerHTML = '';
 
@@ -629,7 +600,7 @@
         
         function inserierenAufMarktplatz(name, date, location) {
             const params = new URLSearchParams({ from_planner: 'true', name: decodeURIComponent(name), date: date, location: decodeURIComponent(location) });
-            window.location.href = 'index.html?' + params.toString();
+            window.location.href = 'marktplatz.html?' + params.toString();
         }
 
         function exportToCalendar() {
