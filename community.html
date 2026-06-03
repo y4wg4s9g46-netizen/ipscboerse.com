@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Community | Startplatz Börse</title>
     
+    <!-- PWA & App-Icons -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="IPSC Börse">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/nsfwjs@2.4.0/dist/browser/nsfwjs.min.js"></script>
@@ -181,7 +189,7 @@
             border: 1px solid var(--border-color); 
             width: 100%; 
             max-width: 440px; 
-            max-height: 90vh; /* Scrollbar aktivieren */
+            max-height: 90vh; 
             overflow-y: auto; 
             box-sizing: border-box; 
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -295,10 +303,14 @@
             <a href="mein-planer.html" class="inactive" data-txt="nav-my-planner">Mein Planer</a>
             <a href="community.html" class="active" data-txt="nav-community">Community</a>
             <a href="ipsc-hub.html" class="inactive">IPSC Hub</a>
+            <a href="tools.html" class="inactive">Tools & Training</a>
         </nav>
+
         <div class="header-controls">
+            <!-- Manueller Design-Schalter -->
             <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
 
+            <!-- Globaler Chat-Posteingang Button im Header -->
             <button id="header-chat-btn" class="theme-toggle-btn" onclick="toggleGlobalInbox()" style="position: relative; font-size: 18px;" title="Nachrichten">
                 💬
                 <span id="chat-badge-count" style="display: none; position: absolute; top: -4px; right: -4px; background: var(--danger-color); color: white; font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold;">0</span>
@@ -353,6 +365,7 @@
 
     </div>
 
+    <!-- MODAL NEUER BEITRAG -->
     <div class="modal" id="post-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -371,6 +384,7 @@
         </div>
     </div>
 
+    <!-- AUTH MODAL -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -510,6 +524,7 @@
         </div>
     </div>
 
+    <!-- ENTKOPPELTES MODAL FÜR DEN PRIVAT-CHAT MIT E-MAIL-REMINDER -->
     <div class="modal" id="chat-modal">
         <div class="modal-content" style="max-width: 500px; padding: 25px;">
             <div class="modal-close-container">
@@ -518,14 +533,17 @@
             <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
             <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
             
+            <!-- Manuelle E-Mail-Anstups-Zeile direkt über dem Verlauf -->
             <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
                 <button type="button" class="btn-export" id="btn-chat-email-reminder" style="margin-top: 0; background-color: rgba(59, 130, 246, 0.1); color: var(--info-color); border-color: var(--info-color); padding: 6px 12px;" onclick="triggerChatEmailReminder()">
                     ✉️ Schützen per E-Mail anstupsen
                 </button>
             </div>
             
+            <!-- Nachrichten-Verlauf -->
             <div class="chat-history-area" id="chat-box-messages"></div>
             
+            <!-- Eingabezeile -->
             <form id="chat-send-form" style="display: flex; gap: 8px;">
                 <input type="hidden" id="chat-edit-id" value="">
                 <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
@@ -534,6 +552,7 @@
         </div>
     </div>
 
+    <!-- GLOBALER POSTEINGANG / OVERLAY-LISTE FÜR BESTEHENDE CHATS -->
     <div class="modal" id="global-inbox-modal">
         <div class="modal-content" style="max-width: 450px; padding: 25px;">
             <div class="modal-close-container">
@@ -542,6 +561,7 @@
             <h3>Meine Nachrichten</h3>
             <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven Gespräche.</p>
             
+            <!-- Liste der Chat-Partner -->
             <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
                 <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
             </div>
@@ -564,6 +584,7 @@
         </div>
     </footer>
 
+    <!-- SKRIPTE VERKNÜPFEN -->
     <script src="auth.js"></script>
     <script src="app.js"></script>
     <script>
@@ -580,14 +601,12 @@
         }
 
         let currentActiveTabId = 'feed';
-
         function switchTab(tab) {
             if (window.currentUser && (!window.currentUser.user_metadata?.username || window.currentUser.user_metadata.username.trim() === "")) return;
             currentActiveTabId = tab;
             document.querySelectorAll('.social-tab').forEach(t => t.classList.remove('active'));
             document.getElementById('feed-section').style.display = 'none';
             document.getElementById('groups-section').style.display = 'none';
-
             if(tab === 'feed') {
                 document.getElementById('tab-feed-btn').classList.add('active');
                 if (window.currentUser) document.getElementById('feed-section').style.display = 'block';
@@ -633,7 +652,6 @@
             const { data, error } = await window.supabaseClient.from('community_posts').select('*').order('created_at', { ascending: false }).limit(50);
             if (error) { container.innerHTML = 'Fehler beim Laden.'; return; }
             container.innerHTML = '';
-            
             if(data.length === 0) {
                 container.innerHTML = '<p style="text-align:center; color:#888;">Noch keine Beiträge. Mach den Anfang!</p>';
                 return;
@@ -655,10 +673,8 @@
                 const postImageHtml = post.image_url
                     ? `<img src="${post.image_url}" style="width: 100%; border-radius: 8px; margin-top: 15px; border: 1px solid #444;">`
                     : '';
-
                 const isOwner = window.currentUser.email === post.author_email || window.currentUser.email === ADMIN_EMAIL;
                 const deleteBtn = isOwner ? `<button onclick="deletePost(${post.id})" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size:12px; float:right;">Löschen</button>` : '';
-
                 container.innerHTML += `
                     <div class="post-card ${isAdmin ? 'admin-post' : ''}">
                         ${deleteBtn}
@@ -704,20 +720,20 @@
             if (!error) { const badge = document.getElementById(`likes-count-${postId}`); if (badge) badge.innerText = currentLikes + 1; }
         }
         window.likePost = likePost;
-
+        
         async function dislikePost(postId, currentDislikes) {
             const { error } = await window.supabaseClient.from('community_posts').update({ dislikes: currentDislikes + 1 }).eq('id', postId);
             if (!error) { const badge = document.getElementById(`dislikes-count-${postId}`); if (badge) badge.innerText = currentDislikes + 1; }
         }
         window.dislikePost = dislikePost;
-
+        
         function toggleCommentsSection(postId) {
             const wrapper = document.getElementById(`comments-wrapper-${postId}`);
             if (!wrapper) return;
             if (wrapper.style.display === "block") { wrapper.style.display = "none"; } else { wrapper.style.display = "block"; loadComments(postId); }
         }
         window.toggleCommentsSection = toggleCommentsSection;
-
+        
         async function loadComments(postId) {
             const container = document.getElementById(`comments-list-${postId}`);
             if (!container) return;
@@ -740,14 +756,14 @@
             if (error) alert("Fehler beim Kommentieren: " + error.message); else { input.value = ''; loadComments(postId); }
         }
         window.submitComment = submitComment;
-
+        
         function reportPost(postId) {
             const subject = encodeURIComponent("Regelverstoß Community-Eintrag ID: " + postId);
             const body = encodeURIComponent("Hallo Support-Team,\n\nich möchte den folgenden Beitrag zur Überprüfung melden:\nPlattform-ID: " + postId + "\n\nGrund der Meldung:\n");
             window.location.href = `mailto:info@ipscboerse.com?subject=${subject}&body=${body}`;
         }
         window.reportPost = reportPost;
-
+        
         window.previewPostImage = function(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -796,7 +812,9 @@
             } catch (err) { btn.innerText = "Teilen"; btn.style.opacity = "1"; alert("Fehler beim Posten: " + err.message); }
         }
 
-        async function deletePost(id) { if(!confirm("Beitrag wirklich löschen?")) return; const { error } = await window.supabaseClient.from('community_posts').delete().eq('id', id); if(!error) loadPosts(); }
+        async function deletePost(id) { if(!confirm("Beitrag wirklich löschen?")) return;
+            const { error } = await window.supabaseClient.from('community_posts').delete().eq('id', id); if(!error) loadPosts();
+        }
 
         function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
         
@@ -804,6 +822,17 @@
             const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
             if (typeof updateThemeToggleIcon === "function") { updateThemeToggleIcon(savedThemeSetting); }
         });
+    </script>
+    
+    <!-- PWA Service Worker Registrierung -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('PWA Service Worker registriert!', reg.scope))
+                    .catch(err => console.error('PWA Fehler:', err));
+            });
+        }
     </script>
 </body>
 </html>
