@@ -33,7 +33,7 @@
             --radius: 8px;
         }
 
-        /* Dunkler Modus (wird über data-theme oder Systempräferenz gesteuert) */
+        /* Dunkler Modus */
         html[data-theme="dark"] {
             --bg-color: #0f172a;
             --card-bg: #1e293b;
@@ -45,7 +45,6 @@
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
         }
 
-        /* Falls der Nutzer noch nichts gewählt hat, gilt die System-Einstellung */
         @media (prefers-color-scheme: dark) {
             html:not([data-theme="light"]) {
                 --bg-color: #0f172a;
@@ -78,120 +77,6 @@
             border-bottom: 1px solid var(--border-color);
             position: relative;
         }
-
-        header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-color); }
-
-        .main-nav {
-            margin-top: 20px;
-            display: flex; 
-            justify-content: center; 
-            gap: 12px; 
-            border-top: 1px solid var(--border-color); 
-            padding-top: 15px;
-        }
-        .main-nav a {
-            text-decoration: none;
-            font-weight: 600; 
-            font-size: 13px; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px; 
-            padding: 8px 16px;
-            border-radius: var(--radius);
-            transition: all 0.2s ease;
-        }
-        .main-nav a.active {
-            color: var(--text-color);
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
-        }
-        .main-nav a.inactive {
-            color: var(--text-muted);
-            border: 1px solid transparent;
-        }
-        .main-nav a.inactive:hover {
-            color: var(--text-color);
-            background-color: var(--bg-color);
-        }
-
-        /* HEADER CONTROLS MIT HORIZONTALEM FLEX-REALIGNMENT */
-        .header-controls {
-            position: absolute;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        @media (max-width: 768px) {
-            .header-controls { position: static; justify-content: center; margin-top: 15px; flex-direction: column; gap: 10px; transform: none; }
-        }
-
-        /* Styling für den Theme-Button im Header */
-        .theme-toggle-btn {
-            background: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 8px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.2s;
-            width: 38px;
-            height: 38px;
-        }
-        .theme-toggle-btn:hover {
-            border-color: var(--text-muted);
-            background-color: var(--bg-color);
-        }
-
-        .lang-switch {
-            background: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 7px 10px;
-            border-radius: var(--radius);
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 13px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        #auth-status-container {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        #btn-open-settings {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.15s ease;
-        }
-        #btn-open-settings:hover {
-            transform: scale(1.05);
-        }
-
-        .btn-auth {
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 8px 16px;
-            font-weight: 600;
-            font-size: 13px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.2s;
-        }
-        .btn-auth:hover { background-color: var(--bg-color); border-color: var(--text-muted); }
 
         .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; }
 
@@ -520,21 +405,10 @@
         .chat-action-link.delete:hover { color: var(--danger-color); }
 
         /* ========================================================
-           ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES (HAUPT-REPARATUR)
+           ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES
            ======================================================== */
         @media (max-width: 768px) {
             html, body { overflow-x: hidden !important; width: 100% !important; }
-            header { padding: 12px 8px !important; }
-            header h1 { font-size: 19px !important; margin-bottom: 8px !important; }
-            header p { font-size: 11px !important; margin-top: 2px !important; }
-            .header-controls { position: static !important; display: flex !important; flex-direction: row !important; justify-content: center !important; align-items: center !important; gap: 12px !important; margin-top: 10px !important; width: 100% !important; transform: none; }
-            #auth-status-container { display: flex !important; align-items: center !important; gap: 8px !important; }
-            #btn-open-settings { margin-right: 0 !important; }
-            #btn-open-settings img { width: 28px !important; height: 28px !important; border-width: 1px !important; }
-            .btn-auth { padding: 5px 10px !important; font-size: 12px !important; }
-            .main-nav { margin-top: 12px !important; padding-top: 8px !important; display: flex !important; flex-direction: row !important; justify-content: flex-start !important; overflow-x: auto !important; white-space: nowrap !important; gap: 15px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; }
-            .main-nav::-webkit-scrollbar { display: none !important; }
-            .main-nav a { flex-shrink: 0 !important; font-size: 12px !important; padding-bottom: 2px !important; }
             .container { padding: 0 10px !important; margin-top: 15px !important; width: 100% !important; box-sizing: border-box !important; }
             .info-box, .form-section, .post-card, .match-card, #logged-out-section, #planner-section, #username-setup-section, #logged-out-msg { padding: 12px !important; margin-bottom: 12px !important; width: 100% !important; box-sizing: border-box !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
             .form-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
@@ -544,9 +418,6 @@
             .card-actions { align-items: flex-start !important; width: 100% !important; border-top: 1px solid var(--border-color) !important; padding-top: 10px !important; }
             .action-buttons-group { width: 100% !important; display: flex !important; gap: 6px !important; }
             .action-buttons-group button, .btn-contact { flex: 1 !important; text-align: center !important; width: 100% !important; }
-            .fab { bottom: 15px !important; right: 15px !important; padding: 10px 16px !important; font-size: 13px !important; z-index: 999 !important; }
-            .match-item { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
-            .match-item div[style*="display: flex"] { width: 100% !important; justify-content: space-between !important; }
         }
     </style>
 </head>
@@ -642,6 +513,7 @@
 
     </div>
 
+    <!-- MODAL BEREICH VERMITTELT -->
     <div class="modal" id="mediated-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -685,6 +557,7 @@
         </div>
     </div>
 
+    <!-- CHAT MODALS -->
     <div class="modal" id="chat-modal">
         <div class="modal-content" style="max-width: 500px; padding: 25px;">
             <div class="modal-close-container">
@@ -709,6 +582,7 @@
         </div>
     </div>
 
+    <!-- GLOBAL INBOX -->
     <div class="modal" id="global-inbox-modal">
         <div class="modal-content" style="max-width: 450px; padding: 25px;">
             <div class="modal-close-container">
@@ -723,6 +597,7 @@
         </div>
     </div>
 
+    <!-- LOGINS & SETTINGS (REPARIERT & ÜBERSETZBAR) -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -731,11 +606,8 @@
             
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
-                
                 <button type="button" class="btn-submit" style="width:100%; background-color: var(--accent-color); color: #1a1a1a; margin-bottom: 20px; font-size: 16px;" onclick="loginWithPasskey()">📱 Login mit FaceID / Fingerabdruck</button>
-                
                 <div class="modal-divider">oder klassisch mit E-Mail</div>
-
                 <form id="login-form">
                     <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required placeholder="name@beispiel.de"></div>
                     <div class="form-group">
@@ -783,58 +655,59 @@
                 </form>
             </div>
 
+            <!-- GLOBAL REPARIERTES KONTO-EINSTELLUNGEN POPUP -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
                 <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
-                    <label style="color: var(--success-color); font-weight: 700;">📈 Erfolgreiche Vermittlungen</label>
+                    <label style="color: var(--success-color); font-weight: 700;" data-txt="modal-settings-deals">📈 Erfolgreiche Vermittlungen</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
                         <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
                             <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
-                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Verkäufer</p>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-seller">Als Verkäufer</p>
                         </div>
                         <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
                             <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
-                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Käufer</p>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-buyer">Als Käufer</p>
                         </div>
                     </div>
                     
                     <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
-                        <div>💬 Kommunikation: <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
-                        <div>💳 Bezahlung: <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
+                        <div><span data-txt="modal-settings-comm">💬 Kommunikation:</span> <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
+                        <div><span data-txt="modal-settings-pay">💳 Bezahlung:</span> <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
                     </div>
                 </div>
 
                 <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
-                    <label style="color: #3498db;">🔒 Passkey (Schnell-Login)</label>
-                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);">Hinterlege dein alkali Gerat, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()">Gerät als Passkey registrieren</button>
+                    <label style="color: #3498db;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</label>
+                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
+                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
                 </div>
 
                 <form id="settings-form">
                     <div class="form-group">
                         <label data-txt="lbl-username">Schützenname / Anzeigename</label>
-                        <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
+                        <input type="text" id="settings-username" data-txt-ph="ph-username" placeholder="z.B. IPSCShooter99">
                     </div>
                     
                     <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 4px; border-left: 3px solid var(--success-color); margin-bottom: 20px;">
-                        <label style="color: var(--success-color); margin-bottom: 2px;">🛡️ IPSC Alias / Mitgliedsnummer</label>
-                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
-                        <input type="text" id="settings-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
+                        <label style="color: var(--success-color); margin-bottom: 2px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
+                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-ipsc-alias-desc">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
+                        <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
                     </div>
 
                     <div class="form-group">
-                        <label>Profilbild (Optional)</label>
+                        <label data-txt="lbl-profile-pic">Profilbild (Optional)</label>
                         <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
                         <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
                     </div>
                     <div class="form-group">
-                        <label data-txt="lbl-new-password">Neues Passwort ändern (Optional)</label>
-                        <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
+                        <label data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
+                        <input type="password" id="settings-password" minlength="6" data-txt-ph="ph-password" placeholder="Mindestens 6 Zeichen">
                     </div>
                     <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
                 </form>
-                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
                 <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
             </div>
         </div>
@@ -862,7 +735,6 @@
     <script src="lang.js"></script>
     <script src="app.js"></script>
     <script>
-        // Synchronisiert die Schalter-Auswahlen direkt beim Laden mit dem Browser-Speicher
         document.addEventListener("DOMContentLoaded", () => {
             const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
             const languageSelectorDropdown = document.getElementById("language-select");
@@ -870,21 +742,18 @@
                 languageSelectorDropdown.value = savedLanguageSetting;
             }
             
-            // Abgleich für das Theme-Symbol beim Start
             const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
             if (typeof updateThemeToggleIcon === "function") {
                 updateThemeToggleIcon(savedThemeSetting);
             }
         });
 
-        // Hilfsfunktion zur Formatierung des Sternen-Durchschnitts
         function formatStars(value) {
             if (!value || isNaN(value) || value === 0) return "-";
             let fullStars = Math.round(value);
-            return "★".repeat(fullStars) + "Certified" + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
+            return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
         }
 
-        // NATIVE ERWEITERUNG DER APP-LOGIK DIREKT IN DIE SEITE EINGEBETTET (RENNBEDINGUNGEN VERHINDERT)
         window.openUserProfile = async function(sellerEmail, authorName, authorAvatar, authorIpscAlias) {
             const modal = document.getElementById("auth-modal");
             if (!modal) return;
@@ -894,7 +763,6 @@
             const title = document.querySelector("#modal-settings-view h3");
             if (title) title.innerText = "Schützen-Profil von " + authorName;
 
-            // Verstecke administrative Steuerelemente für Fremdprofile
             const elementsToHide = [
                 document.querySelector("#modal-settings-view div[style*='3498db']"),
                 document.getElementById("settings-password")?.closest(".form-group"),
@@ -904,7 +772,6 @@
             ];
             elementsToHide.forEach(el => { if(el) el.style.display = "none"; });
 
-            // Setze Profildaten ein
             const usernameField = document.getElementById("settings-username");
             if (usernameField) { usernameField.value = authorName; usernameField.readOnly = true; }
 
@@ -917,7 +784,6 @@
                 else { previewImg.style.display = 'none'; }
             }
 
-            // Hole Vermittlungsdaten asynchron aus der Supabase-Datenbank-Metadaten-Struktur über RPC oder Tabellen-Lookup
             try {
                 const salesRes = await window.supabaseClient.from('mediated_deals').select('*').eq('seller_email', sellerEmail);
                 const purchaseRes = await window.supabaseClient.from('mediated_deals').select('*').eq('buyer_email', sellerEmail);
@@ -927,7 +793,6 @@
                 document.getElementById("profile-sales-count").innerText = salesData.length;
                 document.getElementById("profile-purchases-count").innerText = purchaseData.length;
 
-                // Sterne-Berechnung (Durchschnitt aller Deals, bei denen dieser User Verkäufer oder Käufer war)
                 let totalComm = 0, totalPay = 0, countComm = 0, countPay = 0;
                 salesData.forEach(d => {
                     if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
@@ -943,7 +808,6 @@
                 console.error("Fehler beim Laden der Reputationswerte:", e);
             }
 
-            // Event-Listener beim Schließen, um Steuerelemente für den Eigentümer zurückzusetzen
             const closeBtn = document.getElementById("btn-close-modal");
             if (closeBtn) {
                 const originalClose = closeBtn.onclick;
@@ -958,14 +822,12 @@
             }
         };
 
-        // Trigger für erfolgreiche Vermittlung
         window.triggerMediatedModal = function(matchId) {
             document.getElementById("mediated-match-id").value = matchId;
             document.getElementById("mediated-form").reset();
             document.getElementById("mediated-modal").style.display = "flex";
         };
 
-        // Formular-Handler für erfolgreiche Vermittlung
         document.getElementById("mediated-form").addEventListener("submit", async (e) => {
             e.preventDefault();
             const matchId = document.getElementById("mediated-match-id").value;
@@ -973,21 +835,17 @@
 
             if(!window.currentUser) { alert("Du musst eingeloggt sein."); return; }
 
-            // Schutz vor Selbst-Vermittlung
             if (buyerEmailInput === window.currentUser.email.toLowerCase()) {
                 alert(window.currentLang === "en" ? "Error: You cannot use your own email address as the buyer!" : "Fehler: Du kannst nicht deine eigene E-Mail-Adresse als Käufer angeben!");
                 return;
             }
 
-            // Bewertungsdaten auslesen
             const ratingComm = document.querySelector('input[name="rating-comm"]:checked')?.value;
             const ratingPay = document.querySelector('input[name="rating-pay"]:checked')?.value;
             try {
-                // 1. Hole Match-Daten für das Inserat
                 const { data: matchData, error: matchErr = null } = await window.supabaseClient.from('matches').select('*').eq('id', matchId).single();
                 if(matchErr || !matchData) throw new Error("Match-Eintrag nicht gefunden.");
 
-                // 2. Dokumentiere den erfolgreichen Deal in der verknüpften Reputations-Tabelle 'mediated_deals'
                 const { error: dealErr } = await window.supabaseClient.from('mediated_deals').insert([{
                     match_id: matchId,
                     match_name: matchData.name,
@@ -1000,7 +858,6 @@
                 }]);
                 if(dealErr) throw dealErr;
 
-                // 3. Lösche oder deaktiviere das Match aus der aktiven Marktplatz-Tabelle
                 await window.supabaseClient.from('matches').delete().eq('id', matchId);
                 alert("✓ Deal erfolgreich abgeschlossen! Die Transaktion und Bewertungen wurden in euren Profilstatistiken hinterlegt.");
                 document.getElementById('mediated-modal').style.display = 'none';
@@ -1012,7 +869,6 @@
     </script>
     
     <script>
-        // Service Worker registrieren (Macht die Seite zur PWA)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
