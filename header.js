@@ -57,13 +57,13 @@
             header { position: relative; }
             
             /* =========================================
-               ERZWINGT DIE EXAKTE TOOLS-OPTIK AUF ALLEN SEITEN
+               ERZWINGT DIE EXAKTE STARTSEITEN-OPTIK AUF ALLEN SEITEN
             ========================================= */
             header .main-nav { 
                 margin-top: 20px !important; 
                 display: flex !important; 
                 justify-content: center !important; 
-                gap: 12px !important; 
+                gap: 8px !important; 
                 border-top: 1px solid var(--border-color) !important; 
                 padding-top: 15px !important; 
                 flex-wrap: wrap !important; 
@@ -71,11 +71,11 @@
             header .main-nav a { 
                 text-decoration: none !important; 
                 font-weight: 600 !important; 
-                font-size: 13px !important; 
+                font-size: 12px !important; 
                 text-transform: uppercase !important; 
-                letter-spacing: 0.5px !important; 
+                letter-spacing: 0.3px !important; 
                 padding: 8px 16px !important; 
-                border-radius: 8px !important; 
+                border-radius: 20px !important; 
                 transition: all 0.2s ease !important; 
                 white-space: nowrap !important; 
                 flex-shrink: 0 !important; 
@@ -92,15 +92,14 @@
             }
             header .main-nav a.inactive { 
                 color: var(--text-muted) !important; 
-                background-color: rgba(0, 0, 0, 0.03) !important; 
+                background-color: transparent !important; 
             }
             html[data-theme="dark"] header .main-nav a.inactive { 
-                background-color: rgba(255, 255, 255, 0.04) !important; 
                 color: var(--text-muted) !important; 
             }
             header .main-nav a.inactive:hover { 
                 color: var(--text-color) !important; 
-                background-color: rgba(0, 0, 0, 0.06) !important; 
+                background-color: rgba(0, 0, 0, 0.05) !important; 
             }
             
             header .header-controls button.theme-toggle-btn { 
@@ -136,7 +135,7 @@
                     scroll-snap-type: x mandatory !important; flex-wrap: nowrap !important;
                 }
                 header .main-nav::-webkit-scrollbar { display: none !important; }
-                header .main-nav a { padding: 8px 14px !important; font-size: 11px !important; border-radius: 8px !important; scroll-snap-align: start !important; }
+                header .main-nav a { padding: 8px 14px !important; font-size: 11px !important; border-radius: 20px !important; scroll-snap-align: start !important; }
                 
                 .modal-content { padding: 24px 16px !important; }
             }
