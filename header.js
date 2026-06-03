@@ -3,12 +3,10 @@
         const header = document.querySelector('header');
         if (!header) return;
 
-        // 1. Aktuellen Dateinamen ermitteln
         const path = window.location.pathname;
         let page = path.split("/").pop() || "index.html";
         if (page === "") page = "index.html";
 
-        // 2. Zentrale Menüstruktur festlegen
         const links = [
             { href: "index.html", text: "Startseite" },
             { href: "marktplatz.html", text: "Marktplatz" },
@@ -26,7 +24,6 @@
             navHtml += `<a href="${link.href}" class="${className}">${link.text}</a>`;
         });
 
-        // 3. HTML-Struktur in den Header injizieren
         header.innerHTML = `
             <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
             <p style="color: var(--text-muted); margin: 5px 0 0 0; font-size: 13px;">Von Schützen für Schützen</p>
@@ -53,7 +50,6 @@
             </nav>
         `;
 
-        // 4. Globales, hochspezifisches CSS injizieren (Wehrt aggressive Seiten-Styles ab)
         const style = document.createElement('style');
         style.innerHTML = `
             header { position: relative; }
@@ -64,56 +60,35 @@
             html[data-theme="dark"] .main-nav a.inactive { background-color: rgba(255, 255, 255, 0.04) !important; color: var(--text-muted) !important; }
             .main-nav a.inactive:hover { color: var(--text-color) !important; background-color: rgba(0, 0, 0, 0.06) !important; }
             
-            /* CSS-Schutzschild: Schützt die Header-Buttons vor 'width: 100%' Amok-Regeln alter Seiten */
             header .header-controls button.theme-toggle-btn { 
-                width: 38px !important; 
-                height: 38px !important; 
-                display: flex !important; 
-                align-items: center !important; 
-                justify-content: center !important;
-                flex-shrink: 0 !important;
-                padding: 0 !important;
+                width: 38px !important; height: 38px !important; display: flex !important; 
+                align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; padding: 0 !important;
             }
-            header .header-controls select.lang-select {
-                width: auto !important;
-                padding: 7px 10px !important;
-                box-sizing: border-box !important;
-                flex-shrink: 0 !important;
-            }
-            header .header-controls .btn-auth {
-                width: auto !important;
-            }
-            header #auth-status-container {
-                width: auto !important;
-                display: flex !important;
-            }
+            header .header-controls select.lang-select { width: auto !important; padding: 7px 10px !important; box-sizing: border-box !important; flex-shrink: 0 !important; }
+            header .header-controls .btn-auth { width: auto !important; }
+            header #auth-status-container { width: auto !important; display: flex !important; }
 
             @media (max-width: 768px) {
                 header { padding: 16px 12px 8px 12px !important; }
                 header h1 { font-size: 20px !important; margin-bottom: 4px !important; }
                 
                 header .header-controls { 
-                    position: static !important; 
-                    display: flex !important; 
-                    flex-direction: row !important; 
-                    justify-content: center !important; 
-                    align-items: center !important; 
-                    gap: 8px !important; 
-                    margin-top: 10px !important; 
-                    width: 100% !important; 
-                    transform: none !important; 
-                    flex-wrap: wrap !important;
+                    position: static !important; display: flex !important; flex-direction: row !important; 
+                    justify-content: center !important; align-items: center !important; gap: 8px !important; 
+                    margin-top: 10px !important; width: 100% !important; transform: none !important; flex-wrap: wrap !important;
                 }
                 header #auth-status-container { display: flex !important; align-items: center !important; gap: 8px !important; width: auto !important; }
                 header .btn-auth { padding: 6px 12px !important; font-size: 12px !important; width: auto !important; }
                 
+                /* Aktiviert das automatische Einrasten im Wischfenster */
                 header .main-nav { 
                     margin-top: 15px !important; padding: 10px 4px 4px 4px !important; justify-content: flex-start !important; 
                     flex-wrap: nowrap !important; overflow-x: auto !important; white-space: nowrap !important; 
-                    gap: 8px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; 
+                    gap: 8px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important;
+                    scroll-snap-type: x mandatory !important;
                 }
                 header .main-nav::-webkit-scrollbar { display: none !important; }
-                header .main-nav a { padding: 8px 14px !important; font-size: 11px !important; }
+                header .main-nav a { padding: 8px 14px !important; font-size: 11px !important; scroll-snap-align: start !important; }
             }
         `;
         document.head.appendChild(style);
