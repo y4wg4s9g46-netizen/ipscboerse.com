@@ -55,8 +55,9 @@
         const style = document.createElement('style');
         style.innerHTML = `
             header { position: relative; }
-            .main-nav { margin-top: 20px !important; display: flex !important; justify-content: center !important; gap: 8px !important; border-top: 1px solid var(--border-color) !important; padding-top: 15px !important; }
-            .main-nav a { text-decoration: none !important; font-weight: 600 !important; font-size: 12px !important; text-transform: uppercase !important; letter-spacing: 0.3px !important; padding: 8px 16px !important; border-radius: 20px !important; transition: all 0.2s ease !important; white-space: nowrap !important; }
+            /* EXAKTE ABMESSUNGEN DER TOOLS-NAVIGATION ERZWINGEN */
+            .main-nav { margin-top: 20px !important; display: flex !important; justify-content: center !important; gap: 12px !important; border-top: 1px solid var(--border-color) !important; padding-top: 15px !important; flex-wrap: nowrap !important; }
+            .main-nav a { text-decoration: none !important; font-weight: 600 !important; font-size: 13px !important; text-transform: uppercase !important; letter-spacing: 0.5px !important; padding: 8px 16px !important; border-radius: 8px !important; transition: all 0.2s ease !important; white-space: nowrap !important; flex-shrink: 0 !important; display: inline-block !important; line-height: 1.4 !important; box-sizing: border-box !important; }
             .main-nav a.active { color: #ffffff !important; background-color: var(--accent-color) !important; box-shadow: var(--shadow-sm) !important; }
             .main-nav a.inactive { color: var(--text-muted) !important; background-color: rgba(0, 0, 0, 0.03) !important; border: none !important; }
             html[data-theme="dark"] .main-nav a.inactive { background-color: rgba(255, 255, 255, 0.04) !important; color: var(--text-muted) !important; }
@@ -91,16 +92,13 @@
                 
                 header .main-nav { 
                     margin-top: 15px !important; padding: 10px 4px 4px 4px !important; justify-content: flex-start !important; 
-                    flex-wrap: nowrap !important; overflow-x: auto !important; white-space: nowrap !important; 
-                    gap: 8px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important;
+                    overflow-x: auto !important; white-space: nowrap !important; gap: 8px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important;
                     scroll-snap-type: x mandatory !important;
                 }
                 header .main-nav::-webkit-scrollbar { display: none !important; }
-                header .main-nav a { padding: 8px 14px !important; font-size: 11px !important; scroll-snap-align: start !important; }
+                header .main-nav a { padding: 8px 14px !important; font-size: 11px !important; border-radius: 8px !important; scroll-snap-align: start !important; }
                 
-                .modal-content { 
-                    padding: 24px 16px !important; 
-                }
+                .modal-content { padding: 24px 16px !important; }
             }
         `;
         document.head.appendChild(style);
