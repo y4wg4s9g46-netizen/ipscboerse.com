@@ -1,6 +1,6 @@
 import requests
 import json
-from bs4 import BeautifulSoup
+from bs4 Beautifulsoup
 import re
 import urllib.parse
 
@@ -28,17 +28,34 @@ try:
                 if prozent_match:
                     auslastung_int = int(prozent_match.group(1))
                     
-                    # 1. FILTER: Wir machen NUR weiter, wenn die Auslastung unter 100% liegt!
+                    # 1. FILTER: Nur weiter, wenn die Auslastung unter 100% liegt
                     if auslastung_int < 100:
                         status_text = tds[6].text.strip().lower()
                         
-                        # 2. FILTER: Wenn schon in der Übersicht storniert/geschlossen steht -> direkt überspringen
+                        # 2. FILTER: Wenn storniert oder geschlossen -> überspringen
                         if "cancelled" in status_text or "geschlossen" in status_text or "closed" in status_text:
                             continue
                             
                         disziplin = tds[0].text.strip()
                         level = tds[1].text.strip()
-                        region = tds[2].text.strip() # Region gibt es jetzt praktischerweise direkt in der Tabelle!
+                        
+                        # --- REGION KUGELSICHER AUSLESEN (Da es ein Flaggen-Bild ist) ---
+                        region = tds[2].text.strip()
+                        if not region:
+                            img = tds[2].find('img')
+                            if img:
+                                # Holt das Land aus dem 'title' oder 'alt' Attribut des Bildes (z.B. "GER")
+                                region = img.get('title', img.get('alt', '')).strip().upper()
+                                
+                                # Extra-Fallback: Falls es im Dateinamen steht (z.B. "flags/ger.png")
+                                if not region and img.get('src'):
+                                    src_match = re.search(r'([a-zA-Z]{3})\.(?:png|jpg|gif)', img.get('src'))
+                                    if src_match:
+                                        region = src_match.group(1).upper()
+                        
+                        # Falls alle Stricke reißen, kriegt es einen Platzhalter
+                        if not region:
+                            region = "N/A"
                         
                         match_link = tds[3].find('a')
                         if match_link:
@@ -47,7 +64,7 @@ try:
                             
                             is_closed = False
                             
-                            # 3. DETAIL-CHECK: Jetzt laden wir die Detailseite (aber eben nur für die Handvoll offener Matches!)
+                            # 3. DETAIL-CHECK: Nur für potenziell offene Matches die Detailseite prüfen
                             try:
                                 d_resp = requests.get(detail_url, headers=headers, timeout=10)
                                 d_soup = BeautifulSoup(d_resp.text, 'html.parser')
@@ -58,7 +75,6 @@ try:
                             except Exception as e:
                                 print(f"Warnung: Konnte Detailseite für {best_name} nicht prüfen ({e})")
                             
-                            # Wenn auf der Detailseite "geschlossen" steht, verwerfen wir das Match
                             if is_closed:
                                 continue
                             
@@ -67,7 +83,6 @@ try:
                             datum_match = re.search(r'\d{2}\.\d{2}\.(?:\s*-\s*\d{2}\.\d{2}\.)?\s*\d{2,4}', datum_raw)
                             datum = datum_match.group(0).strip() if datum_match else (datum_raw if datum_raw else "N/A")
 
-                            # Match ist unter 100% UND die Anmeldung ist noch offen -> ab in die Börse!
                             matches.append({
                                 "name": best_name,
                                 "datum": datum,
