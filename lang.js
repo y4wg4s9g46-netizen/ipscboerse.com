@@ -22,7 +22,7 @@ window.portalTranslations = {
         "news-body-2": "Ab sofort stehen dir mächtige Trainingshelfer zur Verfügung. Berechne präzise deinen Hit-Factor direkt auf der Range oder nutze unseren reaktionsschnellen Dry-Fire-Timer für dein Trockentraining zu Hause.",
         "news-date-3": "April 2026",
         "news-heading-3": "🛡️ 'Trusted Shooter' Reputationssystem",
-        "news-body-3": "Um die Sicherheit auf dem Marktplatz zu maximieren, wurde ein Reputationssystem eingeführt. Durch Hinterlegen deines IPSC-Alias erhältst du ein verifiziertes Abzeichen, zudem können erfolgreiche Vermittlungen gegenseitig bewertet werden.",
+        "news-body-3": "Um die Sicherheit auf dem Marktplatz zu maximieren, wurde ein Reputationssystem eingeführt. Durch Hinterlegen dienes IPSC-Alias erhältst du ein verifiziertes Abzeichen, zudem können erfolgreiche Vermittlungen gegenseitig bewertet werden.",
         "card-title-market": "Marktplatz",
         "card-desc-market": "Suche nach verfügbaren Startplätzen für ausgebuchte Matches oder biete dein eigenes Ticket zum Tausch an.",
         "card-action-market": "Zum Marktplatz &rarr;",
@@ -64,7 +64,21 @@ window.portalTranslations = {
         "list-title": "Aktuelle Marktplatz-Einträge",
         "loading": "Lade aktuelle Startplätze...",
 
-        // --- MARKTPLATZ DYNAMIC JAVASCRIPT TEXTS (app.js) ---
+        // --- MARKTPLATZ ERWEITERTE NEW & MEDIATED MODALS ---
+        "mediated-title": "Startplatz erfolgreich vermittelt",
+        "mediated-desc": "Trage hier die E-Mail-Adresse des Käufers ein und bewerte die Transaktion, um sie abzuschließen. Die erfolgreiche Vermittlung wird in euren Profilstatistiken hinterlegt.",
+        "lbl-buyer-email": "E-Mail-Adresse des Käufers *",
+        "lbl-rating-comm": "💬 Kommunikation",
+        "lbl-rating-pay": "💳 Bezahlung",
+        "btn-mediated-submit": "Vermittlung bestätigen & Eintrag schließen",
+        "news-modal-title": "📢 Plattform Update: Live-Chat & Trusted Status",
+        "news-modal-desc": "Ab sofort führen wir einen integrierten Live-Chat sowie ein verifiziertes Vertrauens-System ein, um den Ticket-Tausch noch sicherer zu machen!",
+        "news-modal-b1": "<strong>💬 Wahlweise Live-Chat oder E-Mail</strong><br>Du kannst andere Schützen jetzt direkt auf der Plattform anschreiben! Falls der Partner mal nicht online antwortet, kannst du ihn im Chatfenster ganz bequem mit dem Button <strong>„Schützen per E-Mail anstupsen“</strong> direkt anstupsen.",
+        "news-modal-b2": "<strong>🛡️ Option 1: Offizieller Verbandsnachweis</strong><br>Sende uns ein kurzes Foto deines IPSC-Ausweises, deiner SuRT-Bescheinigung oder deiner Lizenz an <a href='mailto:info@ipscboerse.com' style='color: var(--info-color); font-weight: bold;'>info@ipscboerse.com</a>. Unser Support schaltet dein Profil manuell frei und du erhältst sofort das grüne <strong>Trusted</strong>-Badge an all deinen Inseraten!",
+        "news-modal-b3": "<strong>📈 Option 2: Community Reputation</strong><br>Schütze werden! Das grüne Vertrauenssiegel wird alternativ auch vollautomatisch aktiv, sobald du mindestens <strong>3 erfolgreiche Vermittlungen</strong> über den Button abgeschlossen hast und deine Sternebewertung sauber bleibt.",
+        "news-modal-btn": "Verstanden & Weiter",
+
+        // --- MARKTPLATZ DYNAMIC TEXTS (app.js) ---
         "no-slots": "Aktuell keine Einträge verfügbar.",
         "btn-request": "Anbieter kontaktieren",
         "btn-contact-want": "Schützen kontaktieren",
@@ -100,7 +114,7 @@ window.portalTranslations = {
         "planner-lbl-match-name": "Match-Name",
         "planner-lbl-match-date": "Datum",
         "planner-lbl-match-location": "Ort / Land",
-        "planner-btn-save": "Match in Cloud speichern",
+        "planner-btn-save": "Match in Cloud保存",
         "planner-subtitle-planned": "Geplante Matches",
         "planner-loading": "Lade Daten aus Supabase...",
         "planner-btn-export": "📅 In Kalender exportieren (.ics)",
@@ -165,7 +179,7 @@ window.portalTranslations = {
         "tools-df-status-ready": "Bereit",
         "tools-df-btn-start": "Start Timer (Zufalls-Delay)",
 
-        // --- IPSC HUB DEUTSCH (GEFEHLTE KACHELN REPARIERT) ---
+        // --- IPSC HUB ---
         "hub-main-title": "IPSC Hub – Alle wichtigen Links",
         "hub-main-desc": "Schluss mit dem ewigen Suchen: Hier findest du zentral gebündelt alle wichtigen Plattformen für Match-Anmeldungen, Ergebnisse und Verbandsinfos rund um unser Hobby.",
         "hub-cat-management": "🎯 Match-Anmeldungen & Verwaltung",
@@ -249,6 +263,20 @@ window.portalTranslations = {
         "filter-wants": "Requests Only (Buying)",
         "list-title": "Current Marketplace Entries",
         "loading": "Loading available slots...",
+
+        // --- MARKTPLATZ ERWEITERTE NEW & MEDIATED MODALS ---
+        "mediated-title": "Slot Successfully Mediated",
+        "mediated-desc": "Enter the buyer's email address here and rate the transaction to complete it. The successful mediation will be stored in your profile statistics.",
+        "lbl-buyer-email": "Buyer's Email Address *",
+        "lbl-rating-comm": "💬 Communication",
+        "lbl-rating-pay": "💳 Payment",
+        "btn-mediated-submit": "Confirm Mediation & Close Entry",
+        "news-modal-title": "📢 Platform Update: Live Chat & Trusted Status",
+        "news-modal-desc": "From now on, we are introducing an integrated live chat and a verified trust system to make slot swapping even safer!",
+        "news-modal-b1": "<strong>💬 Live Chat or Email</strong><br>You can now message other shooters directly on the platform! If your partner doesn't reply online, you can easily nudge them with the <strong>'Nudge shooter via email'</strong> button in the chat window.",
+        "news-modal-b2": "<strong>🛡️ Option 1: Official Association Proof</strong><br>Send a short photo of your IPSC ID card, your safety course certificate, or license to <a href='mailto:info@ipscboerse.com' style='color: var(--info-color); font-weight: bold;'>info@ipscboerse.com</a>. Our support will unlock your profile manually, and you will instantly receive the green <strong>Trusted</strong> badge on all your listings!",
+        "news-modal-b3": "<strong>📈 Option 2: Community Reputation</strong><br>Become a trusted shooter! The green trust seal automatically activates as soon as you have completed at least <strong>3 successful mediations</strong> via the button and your star rating remains clean.",
+        "news-modal-btn": "Understood & Continue",
 
         // --- MARKETPLACE DYNAMIC JAVASCRIPT TEXTS (app.js) ---
         "no-slots": "No marketplace entries available.",
