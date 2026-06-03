@@ -13,6 +13,8 @@
     <meta name="apple-mobile-web-app-title" content="IPSC Börse">
     <link rel="apple-touch-icon" href="icon-192.png">
     
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         /* Modernes Variablen-System für Hell- und Dunkelmodus */
         :root, html[data-theme="light"] {
@@ -32,7 +34,7 @@
             --radius: 8px;
         }
 
-        /* Dunkler Modus (gesteuert über data-theme oder Systempräferenz) */
+        /* Dunkler Modus */
         html[data-theme="dark"] {
             --bg-color: #0f172a;
             --card-bg: #1e293b;
@@ -44,7 +46,6 @@
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
         }
 
-        /* Falls der Nutzer noch nichts gewählt hat, gilt die System-Einstellung */
         @media (prefers-color-scheme: dark) {
             html:not([data-theme="light"]) {
                 --bg-color: #0f172a;
@@ -53,8 +54,6 @@
                 --text-muted: #94a3b8;
                 --border-color: #334155;
                 --input-bg: #0f172a;
-                --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-                --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
             }
         }
 
@@ -69,58 +68,6 @@
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
             line-height: 1.6;
-        }
-
-        header {
-            background-color: var(--card-bg);
-            padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
-            position: relative;
-        }
-
-        header h1 { 
-            margin: 0; 
-            font-size: 22px; 
-            font-weight: 700; 
-            letter-spacing: -0.5px; 
-            color: var(--text-color); 
-            text-transform: uppercase;
-        }
-
-        .header-controls {
-            position: absolute;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        @media (max-width: 768px) {
-            .header-controls { position: static; justify-content: center; margin-top: 15px; transform: none; }
-        }
-
-        .theme-toggle-btn {
-            background: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 8px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.2s;
-            width: 38px;
-            height: 38px;
-        }
-        .theme-toggle-btn:hover {
-            border-color: var(--text-muted);
-            background-color: var(--bg-color);
         }
 
         .container { 
@@ -152,105 +99,71 @@
             font-weight: 600;
         }
 
-        p, li {
-            font-size: 14px;
-            color: var(--text-color);
-        }
-
-        a { 
-            color: var(--info-color); 
-            text-decoration: none; 
-            font-weight: 500;
-        }
-        a:hover { 
-            text-decoration: underline; 
-        }
+        p, li { font-size: 14px; color: var(--text-color); }
+        a { color: var(--info-color); text-decoration: none; font-weight: 500; }
+        a:hover { text-decoration: underline; }
 
         .back-btn { 
-            display: inline-flex; 
-            align-items: center;
-            margin-bottom: 25px; 
-            background-color: var(--bg-color); 
-            color: var(--text-color); 
-            padding: 8px 16px; 
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius); 
-            text-decoration: none; 
-            font-weight: 600; 
-            font-size: 13px;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.2s;
+            display: inline-flex; align-items: center; margin-bottom: 25px; background-color: var(--bg-color); color: var(--text-color); padding: 8px 16px; border: 1px solid var(--border-color); border-radius: var(--radius); text-decoration: none; font-weight: 600; font-size: 13px; box-shadow: var(--shadow-sm); transition: all 0.2s; 
         }
-        .back-btn:hover { 
-            background-color: var(--border-color);
-            border-color: var(--text-muted);
-        }
+        .back-btn:hover { background-color: var(--border-color); border-color: var(--text-muted); }
+        html[data-theme="dark"] .back-btn:hover { background-color: var(--border-color); }
 
-        html[data-theme="dark"] .back-btn:hover {
-            background-color: var(--border-color);
-        }
+        hr { border: 0; border-top: 1px solid var(--border-color); margin: 40px 0; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
 
-        hr {
-            border: 0; 
-            border-top: 1px solid var(--border-color); 
-            margin: 40px 0;
-        }
+        .alert-box { background-color: rgba(255, 159, 67, 0.08); border-left: 4px solid var(--accent-color); padding: 15px; margin: 25px 0; border-radius: var(--radius); border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+        .highlight { color: var(--danger-color); font-weight: 600; }
 
-        ul {
-            padding-left: 20px;
-        }
+        /* --- Modals CSS --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease-out; padding: 20px; box-sizing: border-box; }
+        .modal-content { background-color: var(--card-bg); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative; margin: auto; }
+        .modal-content h3 { color: var(--text-color); margin-top: 0; margin-bottom: 24px; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; padding-right: 30px; }
+        .modal-close-container { position: absolute; top: 20px; right: 20px; z-index: 1010; }
+        .modal-close-trigger { background: transparent; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; padding: 4px; line-height: 1; transition: color 0.15s; }
+        .modal-close-trigger:hover { color: var(--text-color); }
+        .modal-content .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
+        .modal-content label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .modal-content input { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px 14px; border-radius: var(--radius); font-size: 14px; transition: all 0.15s ease; box-shadow: var(--shadow-sm); }
+        .modal-content input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); }
+        .modal-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
+        .modal-divider:not(:empty)::before { margin-right: .75em; }
+        .modal-divider:not(:empty)::after { margin-left: .75em; }
+        .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; }
+        .btn-primary-auth:hover { opacity: 0.9; }
+        .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
+        .btn-secondary-auth:hover { background-color: var(--border-color); }
+        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 30px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 10px; box-shadow: var(--shadow-sm); }
+        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
+        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
 
-        li {
-            margin-bottom: 8px;
-        }
+        .chat-history-area { height: 300px; overflow-y: auto; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: var(--radius); padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        .alert-box {
-            background-color: rgba(255, 159, 67, 0.08);
-            border-left: 4px solid var(--accent-color);
-            padding: 15px;
-            margin: 25px 0;
-            border-radius: var(--radius);
-            border-top: 1px solid var(--border-color);
-            border-right: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .highlight {
-            color: var(--danger-color);
-            font-weight: 600;
-        }
-
-        footer {
-            background-color: var(--card-bg); 
-            border-top: 1px solid var(--border-color); 
-            padding: 30px 20px; 
-            margin-top: auto; 
-            font-size: 13px; 
-            color: var(--text-muted); 
-            text-align: center;
-        }
+        footer { background-color: var(--card-bg); border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: auto; font-size: 13px; color: var(--text-muted); text-align: center; }
 
         @media (max-width: 768px) {
+            html, body { overflow-x: hidden !important; width: 100% !important; }
             .container { padding: 20px; margin: 15px auto; width: calc(100% - 20px); }
-            header h1 { font-size: 19px; }
             h2 { font-size: 18px; }
             .back-btn { width: 100%; box-sizing: border-box; justify-content: center; }
+            .modal { padding: 10px !important; }
+            .modal-content { padding: 24px 16px !important; max-height: 95vh !important; }
+            .modal-close-container { top: 12px !important; right: 12px !important; }
+            .modal-close-trigger { font-size: 28px !important; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>IPSC STARTPLATZ-BÖRSE</h1>
-        <p style="color: var(--text-muted); margin: 5px 0 0 0; font-size: 13px;">Rechtliche Hinweise: Impressum, AGB &amp; Datenschutz</p>
-        
-        <div class="header-controls">
-            <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
-        </div>
-    </header>
+    <header></header>
+    <script src="header.js"></script>
 
     <div class="container">
-        <a href="index.html" class="back-btn">← Zurück zum Marktplatz</a>
+        <a href="index.html" class="back-btn">← Zurück zur Startseite</a>
 
         <!-- 1. IMPRESSUM -->
         <h2>1. Impressum</h2>
@@ -344,38 +257,174 @@
         <p>Nach der DSGVO hast du das Recht auf unentgeltliche Auskunft über deine gespeicherten Daten, Berichtigung, Sperrung oder Löschung dieser Daten sowie das Recht auf Datenübertragbarkeit. Wende dich hierfür jederzeit an die im Impressum angegebene E-Mail-Adresse.</p>
     </div>
 
+    <!-- LOGINS & KONTO-EINSTELLUNGEN MODAL -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <div class="modal-close-container">
+                <span id="btn-close-modal" class="modal-close-trigger">&times;</span>
+            </div>
+            
+            <div id="modal-login-view">
+                <h3 data-txt="modal-login-title">Anmelden</h3>
+                <button type="button" class="btn-submit" style="width:100%; background-color: var(--accent-color); color: #1a1a1a; margin-bottom: 20px; font-size: 16px;" onclick="loginWithPasskey()">📱 Login mit FaceID / Fingerabdruck</button>
+                <div class="modal-divider">oder klassisch mit E-Mail</div>
+                <form id="login-form">
+                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required placeholder="name@beispiel.de"></div>
+                    <div class="form-group">
+                        <label style="margin-bottom: 6px;">Passwort *</label>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                        <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
+                    </div>
+                    <button type="submit" class="btn-submit" style="width:100%; background-color: #555; color: white;" data-txt="modal-btn-login">Mit Passwort einloggen</button>
+                </form>
+                <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a></div>
+            </div>
+
+            <div id="modal-register-view" style="display: none;">
+                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
+                <form id="register-form">
+                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="register-email" required placeholder="name@beispiel.de"></div>
+                    <div class="form-group"><label style="margin-bottom: 6px;">Passwort *</label><input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen"></div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-reg">Konto erstellen</button>
+                </form>
+                <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a></div>
+            </div>
+
+            <div id="modal-forgot-view" style="display: none;">
+                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
+                <form id="forgot-form">
+                    <div class="form-group"><label data-txt="lbl-email">Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required placeholder="name@beispiel.de"></div>
+                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
+                </form>
+                <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a></div>
+            </div>
+
+            <div id="modal-reset-view" style="display: none;">
+                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
+                <form id="reset-password-form">
+                    <div class="form-group"><label data-txt="lbl-new-password">Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
+                    <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Speichern</button>
+                </form>
+            </div>
+
+            <!-- EINSTELLUNGS-MODAL (100% ÜBERSETZBAR & RICHTIG VERANKERT) -->
+            <div id="modal-settings-view" style="display: none;">
+                <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
+                
+                <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <label style="color: var(--success-color); font-weight: 700;" data-txt="modal-settings-deals">📈 Erfolgreiche Vermittlungen</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-seller">Als Verkäufer</p>
+                        </div>
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-buyer">Als Käufer</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
+                        <div><span data-txt="modal-settings-comm">💬 Kommunikation:</span> <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
+                        <div><span data-txt="modal-settings-pay">💳 Bezahlung:</span> <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
+                    <label style="color: #3498db;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</label>
+                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
+                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
+                </div>
+
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
+                        <input type="text" id="settings-username" data-txt-ph="ph-username" placeholder="z.B. IPSCShooter99">
+                    </div>
+                    
+                    <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 4px; border-left: 3px solid var(--success-color); margin-bottom: 20px;">
+                        <label style="color: var(--success-color); margin-bottom: 2px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
+                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-ipsc-alias-desc">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
+                        <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
+                    </div>
+
+                    <div class="form-group">
+                        <label data-txt="lbl-profile-pic">Profilbild (Optional)</label>
+                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
+                        <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
+                    </div>
+                    <div class="form-group">
+                        <label data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
+                        <input type="password" id="settings-password" minlength="6" data-txt-ph="ph-password" placeholder="Mindestens 6 Zeichen">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
+                </form>
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
+                <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHAT MODAL -->
+    <div class="modal" id="chat-modal">
+        <div class="modal-content" style="max-width: 500px; padding: 25px;">
+            <div class="modal-close-container">
+                <button class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</button>
+            </div>
+            <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
+            <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
+            <div class="chat-history-area" id="chat-box-messages"></div>
+            <form id="chat-send-form" style="display: flex; gap: 8px;">
+                <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
+                <button type="submit" id="btn-chat-send" class="btn-submit" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- GLOBAL INBOX -->
+    <div class="modal" id="global-inbox-modal">
+        <div class="modal-content" style="max-width: 450px; padding: 25px;">
+            <div class="modal-close-container">
+                <button class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</button>
+            </div>
+            <h3>Meine Nachrichten</h3>
+            <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
+                <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
-            <div style="font-size: 11px;">
-                &copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.
-            </div>
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
 
+    <!-- SKRIPTE VERKNÜPFEN IN KORREKTER REIHENFOLGE -->
+    <script src="auth.js"></script>
+    <script src="lang.js"></script>
+    <script src="app.js"></script>
+
     <script>
-        // Synchronisiert das Theme-Symbol beim Start der Seite
         document.addEventListener("DOMContentLoaded", () => {
+            const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
+            const languageSelectorDropdown = document.getElementById("language-select");
+            if (languageSelectorDropdown) {
+                languageSelectorDropdown.value = savedLanguageSetting;
+            }
             const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
             if (typeof updateThemeToggleIcon === "function") {
                 updateThemeToggleIcon(savedThemeSetting);
             }
         });
 
-        // Simulierter globaler Fallback für den Theme-Wechsel, falls auth.js asynchron lädt
-        function toggleTheme() {
-            if (window.toggleTheme && typeof window.toggleTheme === "function") {
-                window.toggleTheme();
-            } else {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', newTheme);
-                localStorage.setItem('selectedTheme', newTheme);
-            }
-        }
+        window.onLanguageChanged = () => { 
+            const selector = document.getElementById("language-select");
+            if (selector) selector.value = window.currentLang;
+        };
     </script>
-    <script src="auth.js"></script>
     
-    <!-- PWA Service Worker Registrierung -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
