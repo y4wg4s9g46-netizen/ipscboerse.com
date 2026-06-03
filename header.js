@@ -56,9 +56,116 @@
         style.innerHTML = `
             header { position: relative; }
             
-            /* =========================================
-               ERZWINGT DIE EXAKTE STARTSEITEN-OPTIK AUF ALLEN SEITEN
-            ========================================= */
+            /* ========================================================
+               ULTRA-STYLING FÜR DIE OBERE KONTROLL-LEISTE (KONTROLL-BUTTONS)
+               ======================================================== */
+            header .header-controls {
+                position: absolute !important;
+                top: 50% !important;
+                right: 20px !important;
+                transform: translateY(-50%) !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 10px !important;
+                flex-direction: row !important;
+            }
+
+            /* Einheitliche Buttons für Theme und Chat */
+            header .theme-toggle-btn { 
+                width: 38px !important; 
+                height: 38px !important; 
+                display: flex !important; 
+                align-items: center !important; 
+                justify-content: center !important; 
+                flex-shrink: 0 !important; 
+                padding: 0 !important;
+                background: var(--card-bg) !important;
+                color: var(--text-color) !important;
+                border: 1px solid var(--border-color) !important;
+                border-radius: 8px !important;
+                cursor: pointer !important;
+                box-shadow: var(--shadow-sm) !important;
+                font-size: 16px !important;
+            }
+            header .theme-toggle-btn:hover {
+                border-color: var(--text-muted) !important;
+                background-color: var(--bg-color) !important;
+            }
+
+            /* Einheitliches Dropdown-Menü */
+            header .lang-select { 
+                width: auto !important; 
+                height: 38px !important;
+                padding: 0 10px !important; 
+                box-sizing: border-box !important; 
+                flex-shrink: 0 !important; 
+                background: var(--card-bg) !important;
+                color: var(--text-color) !important;
+                border: 1px solid var(--border-color) !important;
+                border-radius: 8px !important;
+                font-weight: 600 !important;
+                font-size: 13px !important;
+                box-shadow: var(--shadow-sm) !important;
+                cursor: pointer !important;
+            }
+
+            /* Authentifizierungs-Container */
+            header #auth-status-container { 
+                width: auto !important; 
+                display: flex !important; 
+                align-items: center !important;
+                gap: 8px !important;
+            }
+
+            /* Anmelde- und Abmeldebuttons */
+            header .btn-auth { 
+                width: auto !important; 
+                height: 38px !important;
+                padding: 0 16px !important;
+                font-weight: 600 !important;
+                font-size: 13px !important;
+                border-radius: 8px !important;
+                cursor: pointer !important;
+                box-shadow: var(--shadow-sm) !important;
+                transition: all 0.2s !important;
+                background-color: var(--card-bg) !important;
+                color: var(--text-color) !important;
+                border: 1px solid var(--border-color) !important;
+                box-sizing: border-box !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            header .btn-auth:hover { 
+                background-color: var(--bg-color) !important; 
+                border-color: var(--text-muted) !important; 
+            }
+
+            /* Spezifisches, sauberes Design für den Logout-Button */
+            header #btn-logout {
+                border: 1px solid var(--danger-color) !important;
+                color: var(--danger-color) !important;
+                background: transparent !important;
+            }
+            header #btn-logout:hover {
+                background-color: var(--danger-color) !important;
+                color: #ffffff !important;
+            }
+
+            /* Perfekte Skalierung für das runde Avatarbild */
+            header #btn-open-settings img {
+                width: 38px !important;
+                height: 38px !important;
+                border-radius: 50% !important;
+                object-fit: cover !important;
+                border: 2px solid var(--accent-color) !important;
+                box-shadow: var(--shadow-sm) !important;
+                display: block !important;
+            }
+
+            /* ========================================================
+               HAUPTNAVIGATION (PILLS IM RECHTECKIGEN STARTSEITEN-LOOK)
+               ======================================================== */
             header .main-nav { 
                 margin-top: 20px !important; 
                 display: flex !important; 
@@ -92,23 +199,16 @@
             }
             header .main-nav a.inactive { 
                 color: var(--text-muted) !important; 
-                background-color: transparent !important; 
+                background-color: rgba(0, 0, 0, 0.03) !important; 
             }
             html[data-theme="dark"] header .main-nav a.inactive { 
+                background-color: rgba(255, 255, 255, 0.04) !important; 
                 color: var(--text-muted) !important; 
             }
             header .main-nav a.inactive:hover { 
                 color: var(--text-color) !important; 
-                background-color: rgba(0, 0, 0, 0.05) !important; 
+                background-color: rgba(0, 0, 0, 0.06) !important; 
             }
-            
-            header .header-controls button.theme-toggle-btn { 
-                width: 38px !important; height: 38px !important; display: flex !important; 
-                align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; padding: 0 !important;
-            }
-            header .header-controls select.lang-select { width: auto !important; padding: 7px 10px !important; box-sizing: border-box !important; flex-shrink: 0 !important; }
-            header .header-controls .btn-auth { width: auto !important; }
-            header #auth-status-container { width: auto !important; display: flex !important; }
 
             .modal-content { 
                 max-height: 85vh !important; 
@@ -117,22 +217,35 @@
                 -webkit-overflow-scrolling: touch !important;
             }
 
+            /* Responsive Smartphone-Optimierung */
             @media (max-width: 768px) {
                 header { padding: 16px 12px 8px 12px !important; }
                 header h1 { font-size: 20px !important; margin-bottom: 4px !important; }
                 
                 header .header-controls { 
-                    position: static !important; display: flex !important; flex-direction: row !important; 
-                    justify-content: center !important; align-items: center !important; gap: 8px !important; 
-                    margin-top: 10px !important; width: 100% !important; transform: none !important; flex-wrap: wrap !important;
+                    position: static !important; 
+                    display: flex !important; 
+                    flex-direction: row !important; 
+                    justify-content: center !important; 
+                    align-items: center !important; 
+                    gap: 8px !important; 
+                    margin-top: 10px !important; 
+                    width: 100% !important; 
+                    transform: none !important; 
+                    flex-wrap: wrap !important;
                 }
-                header #auth-status-container { display: flex !important; align-items: center !important; gap: 8px !important; width: auto !important; }
-                header .btn-auth { padding: 6px 12px !important; font-size: 12px !important; width: auto !important; }
                 
                 header .main-nav { 
-                    margin-top: 15px !important; padding: 10px 4px 4px 4px !important; justify-content: flex-start !important; 
-                    overflow-x: auto !important; white-space: nowrap !important; gap: 8px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important;
-                    scroll-snap-type: x mandatory !important; flex-wrap: nowrap !important;
+                    margin-top: 15px !important; 
+                    padding: 10px 4px 4px 4px !important; 
+                    justify-content: flex-start !important; 
+                    gap: 8px !important; 
+                    -webkit-overflow-scrolling: touch !important; 
+                    scrollbar-width: none !important;
+                    scroll-snap-type: x mandatory !important; 
+                    flex-wrap: nowrap !important;
+                    overflow-x: auto !important; 
+                    white-space: nowrap !important; 
                 }
                 header .main-nav::-webkit-scrollbar { display: none !important; }
                 header .main-nav a { padding: 8px 14px !important; font-size: 11px !important; border-radius: 20px !important; scroll-snap-align: start !important; }
