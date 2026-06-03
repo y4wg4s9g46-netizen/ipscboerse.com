@@ -63,11 +63,13 @@
         header { background-color: var(--card-bg); padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
         header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-color); }
         
-        .main-nav { margin-top: 20px; display: flex; justify-content: center; gap: 12px; border-top: 1px solid var(--border-color); padding-top: 15px; flex-wrap: wrap; }
-        .main-nav a { text-decoration: none; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 16px; border-radius: var(--radius); transition: all 0.2s ease; }
-        .main-nav a.active { color: var(--text-color); background-color: var(--bg-color); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
-        .main-nav a.inactive { color: var(--text-muted); border: 1px solid transparent; }
-        .main-nav a.inactive:hover { color: var(--text-color); background-color: var(--bg-color); }
+        /* Modernisierte Pill-Navigation für Desktop */
+        .main-nav { margin-top: 20px; display: flex; justify-content: center; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 15px; }
+        .main-nav a { text-decoration: none; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; padding: 8px 16px; border-radius: 20px; transition: all 0.2s ease; white-space: nowrap; }
+        .main-nav a.active { color: #ffffff !important; background-color: var(--accent-color) !important; box-shadow: var(--shadow-sm); }
+        .main-nav a.inactive { color: var(--text-muted); background-color: rgba(0, 0, 0, 0.03); }
+        html[data-theme="dark"] .main-nav a.inactive { background-color: rgba(255, 255, 255, 0.04); }
+        .main-nav a.inactive:hover { color: var(--text-color); background-color: rgba(0, 0, 0, 0.06); }
 
         .header-controls { position: absolute; top: 50%; right: 20px; transform: translateY(-50%); display: flex; align-items: center; gap: 16px; }
         #auth-status-container { display: flex; align-items: center; gap: 16px; }
@@ -133,17 +135,45 @@
         
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        /* Mobile Fixes */
+        /* ========================================================
+           ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES (SMART WRAP)
+           ======================================================== */
         @media (max-width: 768px) {
             html, body { overflow-x: hidden !important; width: 100% !important; }
-            header { padding: 12px 8px !important; }
-            header h1 { font-size: 19px !important; margin-bottom: 8px !important; }
-            .header-controls { position: static !important; display: flex !important; flex-direction: row !important; flex-wrap: wrap; justify-content: center !important; align-items: center !important; gap: 12px !important; margin-top: 10px !important; width: 100% !important; transform: none; }
+            header { padding: 16px 12px 8px 12px !important; }
+            header h1 { font-size: 20px !important; margin-bottom: 4px !important; }
+            
+            /* Kontrolltasten sauber zentriert in einer flexiblen Reihe anordnen */
+            .header-controls { 
+                position: static !important; 
+                display: flex !important; 
+                flex-direction: row !important; 
+                justify-content: center !important; 
+                align-items: center !important; 
+                gap: 8px !important; 
+                margin-top: 10px !important; 
+                width: 100% !important; 
+                transform: none !important;
+                flex-wrap: wrap !important;
+            }
             #auth-status-container { display: flex !important; align-items: center !important; gap: 8px !important; }
-            .btn-auth { padding: 5px 10px !important; font-size: 12px !important; }
-            .main-nav { margin-top: 12px !important; padding-top: 8px !important; display: flex !important; flex-direction: row !important; justify-content: flex-start !important; overflow-x: auto !important; white-space: nowrap !important; gap: 15px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; }
+            .btn-auth { padding: 6px 12px !important; font-size: 12px !important; }
+            
+            /* Das magische Wisch-Menü (Kein Umbrechen mehr!) */
+            .main-nav { 
+                margin-top: 15px !important; 
+                padding: 10px 4px 4px 4px !important; 
+                justify-content: flex-start !important; 
+                flex-wrap: nowrap !important; 
+                overflow-x: auto !important; 
+                white-space: nowrap !important; 
+                gap: 8px !important; 
+                -webkit-overflow-scrolling: touch !important; 
+                scrollbar-width: none !important; 
+            }
             .main-nav::-webkit-scrollbar { display: none !important; }
-            .main-nav a { flex-shrink: 0 !important; font-size: 12px !important; padding-bottom: 2px !important; }
+            .main-nav a { padding: 8px 14px !important; font-size: 11px !important; }
+            
             .container { padding: 0 10px !important; margin-top: 15px !important; width: 100% !important; box-sizing: border-box !important; }
             
             .hero-section { padding: 25px 15px; margin-bottom: 20px; }
@@ -199,7 +229,7 @@
             <p>Die zentrale Anlaufstelle für IPSC-Schützen im deutschsprachigen Raum. Tausche Startplätze, finde freie Match-Plätze, diskutiere in der Community oder nutze unsere interaktiven Trainingstools.</p>
         </div>
 
-        <!-- ADMIN NEWS ERWEITERUNG (Jetzt nach oben verschoben!) -->
+        <!-- ADMIN NEWS ERWEITERUNG -->
         <div class="news-section">
             <h3 class="news-section-title">📢 Neueste Plattform-Updates</h3>
             <div class="news-timeline">
