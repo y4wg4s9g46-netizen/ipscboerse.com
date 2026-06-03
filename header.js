@@ -53,7 +53,7 @@
             </nav>
         `;
 
-        // 4. Globales CSS injizieren
+        // 4. Globales CSS injizieren (Jetzt mit erzwungener Scrollbarkeit für Modals)
         const style = document.createElement('style');
         style.innerHTML = `
             header { position: relative; }
@@ -92,16 +92,23 @@
                 }
                 header .main-nav::-webkit-scrollbar { display: none !important; }
                 header .main-nav a { padding: 8px 14px !important; font-size: 11px !important; scroll-snap-align: start !important; }
+                
+                /* FIX: Garantiert die Scrollbarkeit langer Modals (z.B. Konto-Einstellungen) auf Handys */
+                .modal-content { 
+                    padding: 24px 16px !important; 
+                    max-height: 90vh !important; 
+                    overflow-y: auto !important; 
+                }
             }
         `;
         document.head.appendChild(style);
 
-        // 5. JETZT NEU: Den aktiven Tab beim Laden der Seite automatisch ins Sichtfeld scrollen
+        // 5. Den aktiven Tab beim Laden der Seite automatisch ins Sichtfeld scrollen
         const activeLink = header.querySelector('.main-nav a.active');
         if (activeLink) {
             setTimeout(() => {
                 activeLink.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
-            }, 150); // Kleiner Delay, damit der Browser die Element-Breite fehlerfrei berechnet
+            }, 150);
         }
     };
 
