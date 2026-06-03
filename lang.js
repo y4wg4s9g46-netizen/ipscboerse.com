@@ -5,6 +5,7 @@ window.portalTranslations = {
         "main-title": "IPSC STARTPLATZ-BÖRSE",
         "sub-title": "Von Schützen für Schützen",
         "btn-login-reg": "Login / Registrieren",
+        "logout": "Abmelden",
         "footer-impressum-link": "Impressum & Rechtliche Hinweise",
         "buy-coffee": "Kaffee spendieren",
         "btn-save": "Speichern",
@@ -41,7 +42,7 @@ window.portalTranslations = {
         "card-desc-tools": "Interaktiver Hit-Factor-Rechner, Stage-Planungs-Assistent und ein konfigurierbarer Dry-Fire-Timer für dein Training.",
         "card-action-tools": "Zu den Tools &rarr;",
 
-        // --- MARKTPLATZ (marktplatz.html) ---
+        // --- MARKTPLATZ STATIC ELEMENTS (marktplatz.html) ---
         "info-msg": "<strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgültige Umschreibung des Startplatzes muss zwingend über den jeweiligen Match Director durchgeführt werden!",
         "form-title": "Eintrag erstellen",
         "opt-offer": "Ich BIETE einen Startplatz an",
@@ -62,6 +63,28 @@ window.portalTranslations = {
         "filter-wants": "Nur Gesuche (Suche)",
         "list-title": "Aktuelle Marktplatz-Einträge",
         "loading": "Lade aktuelle Startplätze...",
+
+        // --- MARKTPLATZ DYNAMIC JAVASCRIPT TEXTS (app.js) ---
+        "no-slots": "Aktuell keine Einträge verfügbar.",
+        "btn-request": "Anbieter kontaktieren",
+        "btn-contact-want": "Schützen kontaktieren",
+        "btn-delete": "Löschen",
+        "btn-edit": "Bearbeiten",
+        "btn-export": "Export (.ics)",
+        "report-btn": "Melden",
+        "form-title-edit": "Eintrag bearbeiten ✏️",
+        "btn-save-edit": "Änderungen speichern",
+        "login-required": "Nur eingeloggte Nutzer können Schützen kontaktieren.",
+        "tag-offer": "BIETE",
+        "tag-want": "SUCHE",
+        "spam-error": "Spam-Schutz: Du hast bereits einen Eintrag für dieses Match an diesem Datum erstellt!",
+        "email-subject-offer": "Interesse an deinem IPSC Startplatz: ",
+        "email-subject-want": "Bezüglich deiner Suche nach einem IPSC Startplatz: ",
+        "email-body-offer": "Hallo,\n\nich habe dein Inserat auf ipscboerse.com gesehen und interessiere mich für den von dir angebotenen Startplatz für das Match: ",
+        "email-body-want": "Hallo,\n\nich habe dein Gesuch auf ipscboerse.com gesehen. Ich hätte einen Startplatz abzugeben für das Match: ",
+        "email-body-footer": "\n\nIst das Inserat noch aktuell?\n\nViele Grüße",
+        "security-checklist": "\n\nSicherheits-Checkliste vor der E-Mail:\n- Match-Daten geprüft?\n- Match Director kontaktiert?",
+        "security-notice": "⚠️ WICHTIGER SICHERHEITSHINWEIS:\n\n1. Nutze für Zahlungen IMMER PayPal mit Käuferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prüfen, ob eine Umschreibung des Platzes überhaupt noch möglich ist!\n\nMöchtest du den E-Mail-Kontakt jetzt öffnen?",
 
         // --- FREIE MATCH-PLÄTZE (freie-matches.html) ---
         "free-info-box": "<strong>Info:</strong> Die Matches werden automatisch im Hintergrund aktualisiert. Es werden nur Turniere angezeigt, die eine Auslastung von unter 100% aufweisen (freie Startplätze).",
@@ -115,38 +138,60 @@ window.portalTranslations = {
         "lbl-new-password": "Neues Passwort *",
         "modal-settings-title": "Konto-Einstellungen",
         "lbl-username": "Schützenname / Anzeigename",
-        "btn-delete-acc": "Konto & alle Einträge unwiderruflich löschen"
+        "btn-delete-acc": "Konto & alle Einträge unwiderruflich löschen",
 
+        // --- TOOLS (tools.html) ---
         "tools-hf-title": "🏆 Hit-Factor Battle",
-"tools-hf-desc": "Trage die Ergebnisse von dir und deinen Freunden ein, um eine Live-Rangliste für die Stage zu erstellen.",
-"tools-hf-name": "Schützenname",
-"tools-hf-pf": "Wertung",
-"tools-hf-time": "Zeit (Sek.)",
-"tools-hf-scoring": "Trefferaufnahme",
-"tools-hf-alpha": "Alpha (A)",
-"tools-hf-charlie": "Charlie (C)",
-"tools-hf-delta": "Delta (D)",
-"tools-hf-miss": "Miss (M)",
-"tools-hf-ns": "No-Shoot",
-"tools-hf-btn-submit": "Schütze eintragen & berechnen",
-"tools-th-name": "Name",
-"tools-th-pts": "Pts",
-"tools-th-time": "Zeit",
-"tools-th-hf": "HF",
-"tools-hf-btn-clear": "Rangliste leeren",
-"tools-df-title": "⏱️ Dry-Fire Timer & Drill Generator",
-"tools-df-placeholder": "Klicke auf den Button, um einen zufälligen Trockentrainings-Ablauf zu generieren.",
-"tools-df-btn-gen": "🎲 Neuen Drill generieren",
-"tools-df-par": "Par-Zeit (Sekunden)",
-"tools-df-status-ready": "Bereit",
-"tools-df-btn-start": "Start Timer (Zufalls-Delay)",
+        "tools-hf-desc": "Trage die Ergebnisse von dir und deinen Freunden ein, um eine Live-Rangliste für die Stage zu erstellen.",
+        "tools-hf-name": "Schützenname",
+        "tools-hf-pf": "Wertung",
+        "tools-hf-time": "Zeit (Sek.)",
+        "tools-hf-scoring": "Trefferaufnahme",
+        "tools-hf-alpha": "Alpha (A)",
+        "tools-hf-charlie": "Charlie (C)",
+        "tools-hf-delta": "Delta (D)",
+        "tools-hf-miss": "Miss (M)",
+        "tools-hf-ns": "No-Shoot",
+        "tools-hf-btn-submit": "Schütze eintragen & berechnen",
+        "tools-th-name": "Name",
+        "tools-th-pts": "Pts",
+        "tools-th-time": "Zeit",
+        "tools-th-hf": "HF",
+        "tools-hf-btn-clear": "Rangliste leeren",
+        "tools-df-title": "⏱️ Dry-Fire Timer & Drill Generator",
+        "tools-df-placeholder": "Klicke auf den Button, um einen zufälligen Trockentrainings-Ablauf zu generieren.",
+        "tools-df-btn-gen": "🎲 Neuen Drill generieren",
+        "tools-df-par": "Par-Zeit (Sekunden)",
+        "tools-df-status-ready": "Bereit",
+        "tools-df-btn-start": "Start Timer (Zufalls-Delay)",
 
+        // --- IPSC HUB DEUTSCH (GEFEHLTE KACHELN REPARIERT) ---
+        "hub-main-title": "IPSC Hub – Alle wichtigen Links",
+        "hub-main-desc": "Schluss mit dem ewigen Suchen: Hier findest du zentral gebündelt alle wichtigen Plattformen für Match-Anmeldungen, Ergebnisse und Verbandsinfos rund um unser Hobby.",
+        "hub-cat-management": "🎯 Match-Anmeldungen & Verwaltung",
+        "hub-desc-matchsign": "Die bekannteste und meistgenutzte Plattform für IPSC Match-Anmeldungen in Deutschland.",
+        "hub-btn-matchsign": "Zu MatchSign",
+        "hub-desc-ipscess": "Offizielles Portal für die Verwaltung von Lizenzen, Matchpunkten und dem IPSC-Ausweis.",
+        "hub-btn-ipscess": "Zum IPSCess Portal",
+        "hub-desc-practiscore": "Das internationale System. Unverzichtbar für ausländische Matches und Live-Scoring vor Ort.",
+        "hub-btn-practiscore": "Zu PractiScore",
+        "hub-desc-makeready": "Häufig genutzt für große internationale Turniere und Matches im europäischen Umland.",
+        "hub-btn-makeready": "Zu MakeReady",
+        "hub-cat-stats": "📊 Statistiken & Rankings",
+        "hub-desc-ipscelo": "Inoffizielles, aber fantastisches Elo-Ranking und Statistik-Tool basierend auf deutschen Match-Ergebnissen.",
+        "hub-btn-ipscelo": "Zu IPSCelo",
+        "hub-cat-rules": "📖 Verbände & Regelwerke",
+        "hub-desc-bds": "Der Bund Deutscher Sportschützen. Offizielle Anlaufstelle für Sportordnung, Befürwortungen und Termine.",
+        "hub-btn-bds": "Zum BDS",
+        "hub-desc-rules": "Die aktuellen internationalen Regelwerke (Handgun, Rifle, PCC, Shotgun) direkt als PDF zum Download.",
+        "hub-btn-rules": "Zu den Rulebooks"
     },
     en: {
         // --- COMMON ELEMENTS & HEADER/FOOTER ---
         "main-title": "IPSC SLOT MARKETPLACE",
         "sub-title": "By Shooters for Shooters",
         "btn-login-reg": "Login / Register",
+        "logout": "Logout",
         "footer-impressum-link": "Legal Notice & Disclaimers",
         "buy-coffee": "Buy me a coffee",
         "btn-save": "Save Changes",
@@ -183,7 +228,7 @@ window.portalTranslations = {
         "card-desc-tools": "Interactive hit factor calculator, stage planning assistant and a configurable dry-fire timer for your training.",
         "card-action-tools": "To Tools &rarr;",
 
-        // --- MARKETPLACE (marktplatz.html) ---
+        // --- MARKETPLACE STATIC ELEMENTS (marktplatz.html) ---
         "info-msg": "<strong>Important Notice:</strong> This platform is for mediation purposes only. The final reassignment of the starting slot must be processed by the respective Match Director!",
         "form-title": "Create Entry",
         "opt-offer": "I AM OFFERING a starting slot",
@@ -204,6 +249,28 @@ window.portalTranslations = {
         "filter-wants": "Requests Only (Buying)",
         "list-title": "Current Marketplace Entries",
         "loading": "Loading available slots...",
+
+        // --- MARKETPLACE DYNAMIC JAVASCRIPT TEXTS (app.js) ---
+        "no-slots": "No marketplace entries available.",
+        "btn-request": "Contact Seller",
+        "btn-contact-want": "Contact Shooter",
+        "btn-delete": "Delete",
+        "btn-edit": "Edit",
+        "btn-export": "Export (.ics)",
+        "report-btn": "Report",
+        "form-title-edit": "Edit Entry ✏️",
+        "btn-save-edit": "Save Changes",
+        "login-required": "Only logged-in users can contact shooters.",
+        "tag-offer": "OFFER",
+        "tag-want": "WANTED",
+        "spam-error": "Spam protection: You have already posted an entry for this match on this date!",
+        "email-subject-offer": "Inquiry regarding your IPSC slot: ",
+        "email-subject-want": "Regarding your request for an IPSC slot: ",
+        "email-body-offer": "Hello,\n\nI saw your listing on ipscboerse.com and I am interested in the slot you offered for the match: ",
+        "email-body-want": "Hello,\n\nI saw your request on ipscboerse.com. I have an available slot to give away for the match: ",
+        "email-body-footer": "\n\nIs this listing still available?\n\nBest regards",
+        "security-checklist": "\n\nSecurity checklist before email:\n- Match details verified?\n- Match Director contacted?",
+        "security-notice": "⚠️ IMPORTANT SAFETY NOTICE:\n\n1. ALWAYS use PayPal with Buyer Protection for payments (never use 'Friends & Family').\n2. You MUST contact the Match Director BEFORE making any payment to confirm if a slot transfer is still permitted!\n\nDo you want to open the email client now?",
 
         // --- AVAILABLE MATCH SLOTS (freie-matches.html) ---
         "free-info-box": "<strong>Info:</strong> Matches are updated automatically in the background. Only tournaments with a capacity under 100% are displayed (free slots available).",
@@ -257,60 +324,74 @@ window.portalTranslations = {
         "lbl-new-password": "New Password *",
         "modal-settings-title": "Account Settings",
         "lbl-username": "Shooter Name / Display Name",
-        "btn-delete-acc": "Irrevocably delete account & all entries"
+        "btn-delete-acc": "Irrevocably delete account & all entries",
 
-    "tools-hf-title": "🏆 Hit-Factor Battle",
-"tools-hf-desc": "Enter the results of you and your friends to create a live leaderboard for the stage.",
-"tools-hf-name": "Shooter Name",
-"tools-hf-pf": "Power Factor",
-"tools-hf-time": "Time (Sec.)",
-"tools-hf-scoring": "Scoring / Hits",
-"tools-hf-alpha": "Alpha (A)",
-"tools-hf-charlie": "Charlie (C)",
-"tools-hf-delta": "Delta (D)",
-"tools-hf-miss": "Miss (M)",
-"tools-hf-ns": "No-Shoot",
-"tools-hf-btn-submit": "Enter Shooter & Calculate",
-"tools-th-name": "Name",
-"tools-th-pts": "Pts",
-"tools-th-time": "Time",
-"tools-th-hf": "HF",
-"tools-hf-btn-clear": "Clear Leaderboard",
-"tools-df-title": "⏱️ Dry-Fire Timer & Drill Generator",
-"tools-df-placeholder": "Click the button to generate a random dry fire training drill.",
-"tools-df-btn-gen": "🎲 Generate New Drill",
-"tools-df-par": "Par Time (Seconds)",
-"tools-df-status-ready": "Ready",
-"tools-df-btn-start": "Start Timer (Random Delay)",
-
+        // --- TOOLS & HUB ERWEITERUNGEN ---
+        "tools-hf-title": "🏆 Hit-Factor Battle",
+        "tools-hf-desc": "Enter the results of you and your friends to create a live leaderboard for the stage.",
+        "tools-hf-name": "Shooter Name",
+        "tools-hf-pf": "Power Factor",
+        "tools-hf-time": "Time (Sec.)",
+        "tools-hf-scoring": "Scoring / Hits",
+        "tools-hf-alpha": "Alpha (A)",
+        "tools-hf-charlie": "Charlie (C)",
+        "tools-hf-delta": "Delta (D)",
+        "tools-hf-miss": "Miss (M)",
+        "tools-hf-ns": "No-Shoot",
+        "tools-hf-btn-submit": "Enter Shooter & Calculate",
+        "tools-th-name": "Name",
+        "tools-th-pts": "Pts",
+        "tools-th-time": "Time",
+        "tools-th-hf": "HF",
+        "tools-hf-btn-clear": "Clear Leaderboard",
+        "tools-df-title": "⏱️ Dry-Fire Timer & Drill Generator",
+        "tools-df-placeholder": "Click the button to generate a random dry fire training drill.",
+        "tools-df-btn-gen": "🎲 Generate New Drill",
+        "tools-df-par": "Par Time (Seconds)",
+        "tools-df-status-ready": "Ready",
+        "tools-df-btn-start": "Start Timer (Random Delay)",
+        "hub-main-title": "IPSC Hub – All Important Links",
+        "hub-main-desc": "No more endless searching: All important links to MatchSign, PractiScore, IPSCess, associations and rulebooks bundled.",
+        "hub-cat-management": "🎯 Match Registrations & Management",
+        "hub-desc-matchsign": "The most well-known and used platform for IPSC match registrations in Germany.",
+        "hub-btn-matchsign": "Go to MatchSign",
+        "hub-desc-ipscess": "Official portal for managing licenses, match points, and the IPSC ID card.",
+        "hub-btn-ipscess": "Go to IPSCess Portal",
+        "hub-desc-practiscore": "The international system. Essential for foreign matches and live scoring on-site.",
+        "hub-btn-practiscore": "Go to PractiScore",
+        "hub-desc-makeready": "Frequently used for large international tournaments and matches in neighboring European countries.",
+        "hub-btn-makeready": "Go to MakeReady",
+        "hub-cat-stats": "📊 Statistics & Rankings",
+        "hub-desc-ipscelo": "Unofficial but fantastic Elo ranking and statistics tool based on German match results.",
+        "hub-btn-ipscelo": "Go to IPSCelo",
+        "hub-cat-rules": "📖 Associations & Rulebooks",
+        "hub-desc-bds": "The Federation of German Sport Shooters. Official contact point for sports regulations, endorsements, and dates.",
+        "hub-btn-bds": "Go to BDS",
+        "hub-desc-rules": "The current international rulebooks (Handgun, Rifle, PCC, Shotgun) directly as PDF for download.",
+        "hub-btn-rules": "Go to Rulebooks"
     }
 };
 
-// Automatischer, fehlerfreier Übersetzungs-Ablauf
+// Automatischer Übersetzungs-Ablauf für statische Elemente
 window.translatePortalPage = function() {
     const lang = localStorage.getItem("selectedLanguage") || "de";
     window.currentLang = lang;
     
     document.querySelectorAll("[data-txt]").forEach(el => {
         const key = el.getAttribute("data-txt");
-        
-        // 1. In der neuen zentralen Datenbank suchen
         if (window.portalTranslations[lang] && window.portalTranslations[lang][key]) {
             el.innerHTML = window.portalTranslations[lang][key];
-        } 
-        // 2. Fallback auf das alte System der app.js (verhindert Kompatibilitätsprobleme)
-        else if (window.translations && window.translations[lang] && window.translations[lang][key]) {
-            el.innerHTML = window.translations[lang][key];
         }
     });
     
-    // Trigger für Seiten-Scripte (z.B. Filter-Aktualisierungen)
     if (typeof window.onLanguageChanged === "function") {
         window.onLanguageChanged();
     }
 };
 
-// Event-Listener für das Dropdown-Menü im Header abfangen
+// UNSICHTBARE BRÜCKE: Überschreibt die alten app.js Übersetzungen vollautomatisch!
+window.translations = window.portalTranslations;
+
 document.addEventListener("change", (e) => {
     if (e.target && e.target.id === "language-select") {
         localStorage.setItem("selectedLanguage", e.target.value);
@@ -318,7 +399,6 @@ document.addEventListener("change", (e) => {
     }
 });
 
-// Sofort beim Laden der Seite ausführen
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', window.translatePortalPage);
 } else {
