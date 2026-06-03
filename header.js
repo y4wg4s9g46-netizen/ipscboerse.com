@@ -26,9 +26,12 @@
             navHtml += `<a href="${link.href}" class="${className}">${link.text}</a>`;
         });
 
+        // Hier wurde der <a> Tag um h1 und p hinzugefügt
         header.innerHTML = `
-            <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
-            <p style="color: var(--text-muted); margin: 5px 0 0 0; font-size: 13px;" data-txt="sub-title">Von Schützen für Schützen</p>
+            <a href="index.html" style="text-decoration: none; color: inherit; display: inline-block; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Zur Startseite">
+                <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
+                <p style="color: var(--text-muted); margin: 5px 0 0 0; font-size: 13px;" data-txt="sub-title">Von Schützen für Schützen</p>
+            </a>
             
             <div class="header-controls">
                 <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
