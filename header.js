@@ -1,5 +1,4 @@
 (function() {
-    // Wartet kurz, bis das Header-Element im DOM verfügbar ist
     const injectHeader = () => {
         const header = document.querySelector('header');
         if (!header) return;
@@ -54,34 +53,67 @@
             </nav>
         `;
 
-        // 4. Globales, modernes CSS injizieren (überschreibt alte Header-Fehler im gesamten Portal)
+        // 4. Globales, hochspezifisches CSS injizieren (Wehrt aggressive Seiten-Styles ab)
         const style = document.createElement('style');
         style.innerHTML = `
             header { position: relative; }
             .main-nav { margin-top: 20px; display: flex; justify-content: center; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 15px; }
             .main-nav a { text-decoration: none; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; padding: 8px 16px; border-radius: 20px; transition: all 0.2s ease; white-space: nowrap; }
             .main-nav a.active { color: #ffffff !important; background-color: var(--accent-color) !important; box-shadow: var(--shadow-sm); }
-            .main-nav a.inactive { color: var(--text-muted) !important; background-color: rgba(0, 0, 0, 0.03) !important; }
+            .main-nav a.inactive { color: var(--text-muted) !important; background-color: rgba(0, 0, 0, 0.03) !important; border: none !important; }
             html[data-theme="dark"] .main-nav a.inactive { background-color: rgba(255, 255, 255, 0.04) !important; color: var(--text-muted) !important; }
             .main-nav a.inactive:hover { color: var(--text-color) !important; background-color: rgba(0, 0, 0, 0.06) !important; }
             
+            /* CSS-Schutzschild: Schützt die Header-Buttons vor 'width: 100%' Amok-Regeln alter Seiten */
+            header .header-controls button.theme-toggle-btn { 
+                width: 38px !important; 
+                height: 38px !important; 
+                display: flex !important; 
+                align-items: center !important; 
+                justify-content: center !important;
+                flex-shrink: 0 !important;
+                padding: 0 !important;
+            }
+            header .header-controls select.lang-select {
+                width: auto !important;
+                padding: 7px 10px !important;
+                box-sizing: border-box !important;
+                flex-shrink: 0 !important;
+            }
+            header .header-controls .btn-auth {
+                width: auto !important;
+            }
+            header #auth-status-container {
+                width: auto !important;
+                display: flex !important;
+            }
+
             @media (max-width: 768px) {
                 header { padding: 16px 12px 8px 12px !important; }
                 header h1 { font-size: 20px !important; margin-bottom: 4px !important; }
-                .header-controls { 
-                    position: static !important; display: flex !important; flex-direction: row !important; 
-                    justify-content: center !important; align-items: center !important; gap: 8px !important; 
-                    margin-top: 10px !important; width: 100% !important; transform: none !important; flex-wrap: wrap !important;
+                
+                header .header-controls { 
+                    position: static !important; 
+                    display: flex !important; 
+                    flex-direction: row !important; 
+                    justify-content: center !important; 
+                    align-items: center !important; 
+                    gap: 8px !important; 
+                    margin-top: 10px !important; 
+                    width: 100% !important; 
+                    transform: none !important; 
+                    flex-wrap: wrap !important;
                 }
-                #auth-status-container { display: flex !important; align-items: center !important; gap: 8px !important; }
-                .btn-auth { padding: 6px 12px !important; font-size: 12px !important; }
-                .main-nav { 
+                header #auth-status-container { display: flex !important; align-items: center !important; gap: 8px !important; width: auto !important; }
+                header .btn-auth { padding: 6px 12px !important; font-size: 12px !important; width: auto !important; }
+                
+                header .main-nav { 
                     margin-top: 15px !important; padding: 10px 4px 4px 4px !important; justify-content: flex-start !important; 
                     flex-wrap: nowrap !important; overflow-x: auto !important; white-space: nowrap !important; 
                     gap: 8px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; 
                 }
-                .main-nav::-webkit-scrollbar { display: none !important; }
-                .main-nav a { padding: 8px 14px !important; font-size: 11px !important; }
+                header .main-nav::-webkit-scrollbar { display: none !important; }
+                header .main-nav a { padding: 8px 14px !important; font-size: 11px !important; }
             }
         `;
         document.head.appendChild(style);
