@@ -1,6 +1,6 @@
 import requests
 import json
-from bs4 Beautifulsoup
+from bs4 import BeautifulSoup
 import re
 import urllib.parse
 
