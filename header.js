@@ -3,14 +3,12 @@
         const header = document.querySelector('header');
         if (!header) return false;
 
-        // 1. Aktuellen Dateinamen und gespeicherte Sprache ermitteln
         const path = window.location.pathname;
         let page = path.split("/").pop() || "index.html";
         if (page === "") page = "index.html";
 
         const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
 
-        // 2. Zentrale Menüstruktur festlegen
         const links = [
             { href: "index.html", text: "Startseite" },
             { href: "marktplatz.html", text: "Marktplatz" },
@@ -28,7 +26,6 @@
             navHtml += `<a href="${link.href}" class="${className}">${link.text}</a>`;
         });
 
-        // 3. HTML-Struktur in den Header injizieren (Jetzt mit ALLEN originalen data-txt Attributen!)
         header.innerHTML = `
             <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
             <p style="color: var(--text-muted); margin: 5px 0 0 0; font-size: 13px;" data-txt="sub-title">Von Schützen für Schützen</p>
@@ -55,13 +52,12 @@
             </nav>
         `;
 
-        // 4. Globales CSS injizieren
         const style = document.createElement('style');
         style.innerHTML = `
             header { position: relative; }
-            .main-nav { margin-top: 20px; display: flex; justify-content: center; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 15px; }
-            .main-nav a { text-decoration: none; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; padding: 8px 16px; border-radius: 20px; transition: all 0.2s ease; white-space: nowrap; }
-            .main-nav a.active { color: #ffffff !important; background-color: var(--accent-color) !important; box-shadow: var(--shadow-sm); }
+            .main-nav { margin-top: 20px !important; display: flex !important; justify-content: center !important; gap: 8px !important; border-top: 1px solid var(--border-color) !important; padding-top: 15px !important; }
+            .main-nav a { text-decoration: none !important; font-weight: 600 !important; font-size: 12px !important; text-transform: uppercase !important; letter-spacing: 0.3px !important; padding: 8px 16px !important; border-radius: 20px !important; transition: all 0.2s ease !important; white-space: nowrap !important; }
+            .main-nav a.active { color: #ffffff !important; background-color: var(--accent-color) !important; box-shadow: var(--shadow-sm) !important; }
             .main-nav a.inactive { color: var(--text-muted) !important; background-color: rgba(0, 0, 0, 0.03) !important; border: none !important; }
             html[data-theme="dark"] .main-nav a.inactive { background-color: rgba(255, 255, 255, 0.04) !important; color: var(--text-muted) !important; }
             .main-nav a.inactive:hover { color: var(--text-color) !important; background-color: rgba(0, 0, 0, 0.06) !important; }
@@ -73,6 +69,13 @@
             header .header-controls select.lang-select { width: auto !important; padding: 7px 10px !important; box-sizing: border-box !important; flex-shrink: 0 !important; }
             header .header-controls .btn-auth { width: auto !important; }
             header #auth-status-container { width: auto !important; display: flex !important; }
+
+            .modal-content { 
+                max-height: 85vh !important; 
+                overflow-y: auto !important; 
+                display: block !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
 
             @media (max-width: 768px) {
                 header { padding: 16px 12px 8px 12px !important; }
@@ -97,8 +100,6 @@
                 
                 .modal-content { 
                     padding: 24px 16px !important; 
-                    max-height: 90vh !important; 
-                    overflow-y: auto !important; 
                 }
             }
         `;
