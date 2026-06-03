@@ -144,7 +144,6 @@
             header { padding: 16px 12px 8px 12px !important; }
             header h1 { font-size: 20px !important; margin-bottom: 4px !important; }
             
-            /* Kontrolltasten sauber zentriert in einer flexiblen Reihe anordnen */
             .header-controls { 
                 position: static !important; 
                 display: flex !important; 
@@ -160,7 +159,6 @@
             #auth-status-container { display: flex !important; align-items: center !important; gap: 8px !important; }
             .btn-auth { padding: 6px 12px !important; font-size: 12px !important; }
             
-            /* Das magische Wisch-Menü (Kein Umbrechen mehr!) */
             .main-nav { 
                 margin-top: 15px !important; 
                 padding: 10px 4px 4px 4px !important; 
@@ -197,28 +195,28 @@
         
         <!-- HERO AREA -->
         <div class="hero-section">
-            <h2>DVC – Willkommen auf deiner IPSC-Plattform</h2>
-            <p>Die zentrale Anlaufstelle für IPSC-Schützen im deutschsprachigen Raum. Tausche Startplätze, finde freie Match-Plätze, diskutiere in der Community oder nutze unsere interaktiven Trainingstools.</p>
+            <h2 data-txt="hero-title">DVC – Willkommen auf deiner IPSC-Plattform</h2>
+            <p data-txt="hero-desc">Die zentrale Anlaufstelle für IPSC-Schützen im deutschsprachigen Raum. Tausche Startplätze, finde freie Match-Plätze, diskutiere in der Community oder nutze unsere interaktiven Trainingstools.</p>
         </div>
 
         <!-- ADMIN NEWS ERWEITERUNG -->
         <div class="news-section">
-            <h3 class="news-section-title">📢 Neueste Plattform-Updates</h3>
+            <h3 class="news-section-title" data-txt="news-title">📢 Neueste Plattform-Updates</h3>
             <div class="news-timeline">
                 <div class="news-item">
-                    <div class="news-date">Juni 2026</div>
-                    <h4 class="news-item-title">📱 Die IPSC-Börse als echte App (PWA)</h4>
-                    <p class="news-item-body">Wir haben die Plattform "App-ready" gemacht! Du kannst die Seite jetzt ganz einfach über deinen mobilen Browser (Safari/Chrome) über "Zum Home-Bildschirm hinzufügen" als vollwertige App auf deinem Smartphone installieren – inklusive schickem IPSC-Scheiben-Icon.</p>
+                    <div class="news-date" data-txt="news-date-1">Juni 2026</div>
+                    <h4 class="news-item-title" data-txt="news-heading-1">📱 Die IPSC-Börse als echte App (PWA)</h4>
+                    <p class="news-item-body" data-txt="news-body-1">Wir haben die Plattform "App-ready" gemacht! Du kannst die Seite jetzt ganz einfach über deinen mobilen Browser (Safari/Chrome) über "Zum Home-Bildschirm hinzufügen" als vollwertige App auf deinem Smartphone installieren – inklusive schickem IPSC-Scheiben-Icon.</p>
                 </div>
                 <div class="news-item">
-                    <div class="news-date">Mai 2026</div>
-                    <h4 class="news-item-title">⏱️ Neue Sektion: Tools &amp; Training integriert</h4>
-                    <p class="news-item-body">Ab sofort stehen dir mächtige Trainingshelfer zur Verfügung. Berechne präzise deinen Hit-Factor direkt auf der Range oder nutze unseren reaktionsschnellen Dry-Fire-Timer für dein Trockentraining zu Hause.</p>
+                    <div class="news-date" data-txt="news-date-2">Mai 2026</div>
+                    <h4 class="news-item-title" data-txt="news-heading-2">⏱️ Neue Sektion: Tools &amp; Training integriert</h4>
+                    <p class="news-item-body" data-txt="news-body-2">Ab sofort stehen dir mächtige Trainingshelfer zur Verfügung. Berechne präzise deinen Hit-Factor direkt auf der Range oder nutze unseren reaktionsschnellen Dry-Fire-Timer für dein Trockentraining zu Hause.</p>
                 </div>
                 <div class="news-item">
-                    <div class="news-date">April 2026</div>
-                    <h4 class="news-item-title">🛡️ "Trusted Shooter" Reputationssystem</h4>
-                    <p class="news-item-body">Um die Sicherheit auf dem Marktplatz zu maximieren, wurde ein Reputationssystem eingeführt. Durch Hinterlegen deines IPSC-Alias erhältst du ein verifiziertes Abzeichen, zudem können erfolgreiche Vermittlungen gegenseitig bewertet werden.</p>
+                    <div class="news-date" data-txt="news-date-3">April 2026</div>
+                    <h4 class="news-item-title" data-txt="news-heading-3">🛡️ "Trusted Shooter" Reputationssystem</h4>
+                    <p class="news-item-body" data-txt="news-body-3">Um die Sicherheit auf dem Marktplatz zu maximieren, wurde ein Reputationssystem eingeführt. Durch Hinterlegen deines IPSC-Alias erhältst du ein verifiziertes Abzeichen, zudem können erfolgreiche Vermittlungen gegenseitig bewertet werden.</p>
                 </div>
             </div>
         </div>
@@ -228,55 +226,55 @@
             <a href="marktplatz.html" class="dash-card">
                 <div class="dash-card-header">
                     <div class="dash-icon">🛒</div>
-                    <h3 class="dash-title">Marktplatz</h3>
+                    <h3 class="dash-title" data-txt="card-title-market">Marktplatz</h3>
                 </div>
-                <p class="dash-desc">Suche nach verfügbaren Startplätzen für ausgebuchte Matches oder biete dein eigenes Ticket zum Tausch an.</p>
-                <div class="dash-action">Zum Marktplatz &rarr;</div>
+                <p class="dash-desc" data-txt="card-desc-market">Suche nach verfügbaren Startplätzen für ausgebuchte Matches oder biete dein eigenes Ticket zum Tausch an.</p>
+                <div class="dash-action" data-txt="card-action-market">Zum Marktplatz &rarr;</div>
             </a>
 
             <a href="freie-matches.html" class="dash-card">
                 <div class="dash-card-header">
                     <div class="dash-icon">🎯</div>
-                    <h3 class="dash-title">Freie Match-Plätze</h3>
+                    <h3 class="dash-title" data-txt="card-title-free">Freie Match-Plätze</h3>
                 </div>
-                <p class="dash-desc">Live-Auslastungs-Tracker für MatchSign. Finde sofort Turniere, die aktuell noch freie Plätze aufweisen.</p>
-                <div class="dash-action">Freie Plätze prüfen &rarr;</div>
+                <p class="dash-desc" data-txt="card-desc-free">Live-Auslastungs-Tracker für MatchSign. Finde sofort Turniere, die aktuell noch freie Plätze aufweisen.</p>
+                <div class="dash-action" data-txt="card-action-free">Freie Plätze prüfen &rarr;</div>
             </a>
 
             <a href="mein-planer.html" class="dash-card">
                 <div class="dash-card-header">
                     <div class="dash-icon">📅</div>
-                    <h3 class="dash-title">Mein Planer</h3>
+                    <h3 class="dash-title" data-txt="card-title-planer">Mein Planer</h3>
                 </div>
-                <p class="dash-desc">Plane deine perfekte IPSC-Saison, halte Fristen im Auge und exportiere deine Matches direkt in deinen Kalender.</p>
-                <div class="dash-action">Saison planen &rarr;</div>
+                <p class="dash-desc" data-txt="card-desc-planer">Plane deine perfekte IPSC-Saison, halte Fristen im Auge und exportiere deine Matches direkt in deinen Kalender.</p>
+                <div class="dash-action" data-txt="card-action-planer">Saison planen &rarr;</div>
             </a>
 
             <a href="community.html" class="dash-card">
                 <div class="dash-card-header">
                     <div class="dash-icon">👥</div>
-                    <h3 class="dash-title">Community</h3>
+                    <h3 class="dash-title" data-txt="card-title-comm">Community</h3>
                 </div>
-                <p class="dash-desc">Vernetze dich mit anderen Schützen, diskutiere über Ausrüstung und teile Beiträge im sozialen Feed.</p>
-                <div class="dash-action">Zur Community &rarr;</div>
+                <p class="dash-desc" data-txt="card-desc-comm">Vernetze dich mit anderen Schützen, diskutiere über Ausrüstung und teile Beiträge im sozialen Feed.</p>
+                <div class="dash-action" data-txt="card-action-comm">Zur Community &rarr;</div>
             </a>
 
             <a href="ipsc-hub.html" class="dash-card">
                 <div class="dash-card-header">
                     <div class="dash-icon">🔗</div>
-                    <h3 class="dash-title">IPSC Hub</h3>
+                    <h3 class="dash-title" data-txt="card-title-hub">IPSC Hub</h3>
                 </div>
-                <p class="dash-desc">Schluss mit Suchen: Alle wichtigen Links zu MatchSign, PractiScore, IPSCess, Verbänden und Regelwerken gebündelt.</p>
-                <div class="dash-action">Zum Link-Hub &rarr;</div>
+                <p class="dash-desc" data-txt="card-desc-hub">Schluss mit Suchen: Alle wichtigen Links zu MatchSign, PractiScore, IPSCess, Verbänden und Regelwerken gebündelt.</p>
+                <div class="dash-action" data-txt="card-action-hub">Zum Link-Hub &rarr;</div>
             </a>
 
             <a href="tools.html" class="dash-card">
                 <div class="dash-card-header">
                     <div class="dash-icon">⏱️</div>
-                    <h3 class="dash-title">Tools &amp; Training</h3>
+                    <h3 class="dash-title" data-txt="card-title-tools">Tools &amp; Training</h3>
                 </div>
-                <p class="dash-desc">Interaktiver Hit-Factor-Rechner, Stage-Planungs-Assistent und ein konfigurierbarer Dry-Fire-Timer für dein Training.</p>
-                <div class="dash-action">Zu den Tools &rarr;</div>
+                <p class="dash-desc" data-txt="card-desc-tools">Interaktiver Hit-Factor-Rechner, Stage-Planungs-Assistent und ein konfigurierbarer Dry-Fire-Timer für dein Training.</p>
+                <div class="dash-action" data-txt="card-action-tools">Zu den Tools &rarr;</div>
             </a>
         </div>
 
@@ -445,6 +443,7 @@
 
     <!-- SKRIPTE -->
     <script src="auth.js"></script>
+    <script src="lang.js"></script>
     <script src="app.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
