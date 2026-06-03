@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tools & Training | Startplatz Börse</title>
     
+    <!-- PWA & App-Icons -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="IPSC Börse">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -125,9 +133,6 @@
         .btn-primary-auth:hover { opacity: 0.9; }
         .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
         .btn-secondary-auth:hover { background-color: var(--border-color); }
-        .modal-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
-        .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; font-weight: 600; }
-        .modal-footer a:hover { text-decoration: underline; }
         .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
         .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
 
@@ -622,6 +627,17 @@
                 </div>
             `;
             document.getElementById('drill-output').innerHTML = html;
+        }
+    </script>
+    
+    <!-- PWA Service Worker Registrierung -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('PWA Service Worker registriert!', reg.scope))
+                    .catch(err => console.error('PWA Fehler:', err));
+            });
         }
     </script>
 </body>
