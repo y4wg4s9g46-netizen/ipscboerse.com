@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IPSC Hub | Startplatz Börse</title>
     
+    <!-- PWA & App-Icons -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="IPSC Börse">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -55,7 +63,7 @@
         header { background-color: var(--card-bg); padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
         header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-color); }
         
-        .main-nav { margin-top: 20px; display: flex; justify-content: center; gap: 12px; border-top: 1px solid var(--border-color); padding-top: 15px; }
+        .main-nav { margin-top: 20px; display: flex; justify-content: center; gap: 12px; border-top: 1px solid var(--border-color); padding-top: 15px; flex-wrap: wrap; }
         .main-nav a { text-decoration: none; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 16px; border-radius: var(--radius); transition: all 0.2s ease; }
         .main-nav a.active { color: var(--text-color); background-color: var(--bg-color); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
         .main-nav a.inactive { color: var(--text-muted); border: 1px solid transparent; }
@@ -92,7 +100,7 @@
         .hub-card-header { display: flex; align-items: center; gap: 15px; }
         .hub-icon { width: 50px; height: 50px; border-radius: 10px; background: var(--bg-color); display: flex; justify-content: center; align-items: center; font-size: 24px; border: 1px solid var(--border-color); flex-shrink: 0; }
         
-        /* Bilder-Icons (Falls du echte Logos hochladen willst, einfach <img> im HTML nutzen. Aktuell mit Emojis als stylischer Platzhalter) */
+        /* Bilder-Icons */
         .hub-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
 
         .hub-title { margin: 0; font-size: 18px; font-weight: 700; color: var(--text-color); }
@@ -101,7 +109,7 @@
         .hub-btn { background: var(--bg-color); color: var(--accent-color); border: 1px solid var(--accent-color); padding: 8px 15px; border-radius: 6px; text-align: center; font-weight: 600; font-size: 13px; transition: all 0.2s; margin-top: auto; }
         .hub-card:hover .hub-btn { background: var(--accent-color); color: #fff; }
 
-        /* --- Modals CSS (Exakt wie auf den anderen Seiten) --- */
+        /* --- Modals CSS --- */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease-out; padding: 20px; box-sizing: border-box; }
         .modal-content { background-color: var(--card-bg); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative; margin: auto; }
         .modal-content h3 { color: var(--text-color); margin-top: 0; margin-bottom: 24px; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; padding-right: 30px; }
@@ -120,9 +128,7 @@
         .btn-primary-auth:hover { opacity: 0.9; }
         .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
         .btn-secondary-auth:hover { background-color: var(--border-color); }
-        .modal-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
-        .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; font-weight: 600; }
-        .modal-footer a:hover { text-decoration: underline; }
+        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 30px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 10px; box-shadow: var(--shadow-sm); }
         .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
         .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
 
@@ -172,6 +178,7 @@
             <a href="mein-planer.html" class="inactive" data-txt="nav-my-planner">Mein Planer</a>
             <a href="community.html" class="inactive" data-txt="nav-community">Community</a>
             <a href="ipsc-hub.html" class="active">IPSC Hub</a>
+            <a href="tools.html" class="inactive">Tools & Training</a>
         </nav>
 
         <div class="header-controls">
@@ -187,7 +194,7 @@
                 <option value="en">EN</option>
             </select>
             <div id="auth-status-container">
-                <button class="btn-auth" id="btn-open-login">Login / Registrieren</button>
+                <button class="btn-auth" id="btn-open-login" data-txt="btn-login-reg">Login / Registrieren</button>
             </div>
         </div>
     </header>
@@ -273,7 +280,7 @@
 
     </div>
 
-    <!-- Modals (Exakt wie auf den anderen Seiten) -->
+    <!-- MODAL BEREICH -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -282,58 +289,101 @@
             
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
-                <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()"><span>📱</span> Login mit FaceID / Fingerabdruck</button>
+                
+                <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
+                    <span>📱</span> Login mit FaceID / Fingerabdruck
+                </button>
+                
                 <div class="modal-divider">oder klassisch mit E-Mail</div>
+
                 <form id="login-form">
-                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required placeholder="name@beispiel.de"></div>
+                    <div class="form-group">
+                        <label data-txt="lbl-email">E-Mail *</label>
+                        <input type="email" id="login-email" required placeholder="name@beispiel.de">
+                    </div>
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                             <label style="margin-bottom: 0;">Passwort *</label>
-                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;">Passwort vergessen?</a>
+                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
                         </div>
                         <input type="password" id="login-password" required placeholder="••••••••">
                     </div>
-                    <button type="submit" class="btn-primary-auth">Mit Passwort einloggen</button>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
                 </form>
-                <div class="modal-footer"><span>Noch kein Konto?</span><a onclick="toggleAuthView('register')">Registrieren</a></div>
+                <div class="modal-footer">
+                    <span data-txt="modal-no-acc">Noch kein Konto?</span>
+                    <a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a>
+                </div>
             </div>
 
             <div id="modal-register-view" style="display: none;">
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
-                    <div class="form-group"><label>E-Mail *</label><input type="email" id="register-email" required placeholder="name@beispiel.de"></div>
-                    <div class="form-group"><label>Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
-                    <button type="submit" class="btn-primary-auth">Konto erstellen</button>
+                    <div class="form-group">
+                        <label data-txt="lbl-email">E-Mail *</label>
+                        <input type="email" id="register-email" required placeholder="name@beispiel.de">
+                    </div>
+                    <div class="form-group">
+                        <label>Passwort *</label>
+                        <input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen">
+                    </div>
+                    
+                    <div class="form-group" style="flex-direction: row; align-items: flex-start; gap: 10px; margin-top: 5px; margin-bottom: 20px;">
+                        <input type="checkbox" id="register-agb" required style="margin-top: 3px; width: 16px; height: 16px; cursor: pointer;">
+                        <label for="register-agb" style="font-size: 12px; color: var(--text-muted); font-weight: normal; line-height: 1.4; margin: 0;">
+                            Ich akzeptiere die AGB und Nutzungsbedingungen. Weitere Details findest du im <a href="/impressum.html" target="_blank" style="color: var(--accent-color); text-decoration: underline;">Impressum</a>. *
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-reg">Konto erstellen</button>
                 </form>
-                <div class="modal-footer"><span>Bereits registriert?</span><a onclick="toggleAuthView('login')">Zum Login</a></div>
+                <div class="modal-footer">
+                    <span data-txt="modal-has-acc">Bereits registriert?</span>
+                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a>
+                </div>
             </div>
 
             <div id="modal-forgot-view" style="display: none;">
                 <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
                 <form id="forgot-form">
-                    <div class="form-group"><label>Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required placeholder="name@beispiel.de"></div>
-                    <button type="submit" class="btn-primary-auth">Zurücksetzungs-Link senden</button>
+                    <div class="form-group">
+                        <label>Deine E-Mail-Adresse *</label>
+                        <input type="email" id="forgot-email" required placeholder="name@beispiel.de">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
                 </form>
-                <div class="modal-footer"><a onclick="toggleAuthView('login')">Zurück zum Login</a></div>
+                <div class="modal-footer">
+                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a>
+                </div>
             </div>
 
             <div id="modal-reset-view" style="display: none;">
-                <h3>Neues Passwort vergeben</h3>
+                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                 <form id="reset-password-form">
-                    <div class="form-group"><label>Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
-                    <button type="submit" class="btn-primary-auth">Speichern</button>
+                    <div class="form-group">
+                        <label data-txt="lbl-new-password">Neues Passwort *</label>
+                        <input type="password" id="reset-password-input" required minlength="6" placeholder="Mindestens 6 Zeichen">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Speichern</button>
                 </form>
             </div>
 
-            <!-- KONTO-EINSTELLUNGEN -->
             <div id="modal-settings-view" style="display: none;">
-                <h3>Konto-Einstellungen</h3>
+                <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
+                
                 <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
                     <label style="color: var(--success-color); font-weight: 700;">📈 Erfolgreiche Vermittlungen</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);"><span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span><p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Verkäufer</p></div>
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);"><span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span><p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Käufer</p></div>
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Verkäufer</p>
+                        </div>
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);">Als Käufer</p>
+                        </div>
                     </div>
+                    
                     <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
                         <div>💬 Kommunikation: <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
                         <div>💳 Bezahlung: <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
@@ -343,19 +393,31 @@
                 <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
                     <label style="color: #3498db;">🔒 Passkey (Schnell-Login)</label>
                     <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" style="width:100%; padding:10px; background-color: #3498db; color: white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;" onclick="registerPasskey()">Gerät als Passkey registrieren</button>
+                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()">Gerät als Passkey registrieren</button>
                 </div>
 
                 <form id="settings-form">
-                    <div class="form-group"><label>Schützenname / Anzeigename</label><input type="text" id="settings-username" placeholder="z.B. IPSCShooter99"></div>
+                    <div class="form-group">
+                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
+                        <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
+                    </div>
+                    
                     <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 4px; border-left: 3px solid var(--success-color); margin-bottom: 20px;">
                         <label style="color: var(--success-color); margin-bottom: 2px;">🛡️ IPSC Alias / Mitgliedsnummer</label>
                         <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
                         <input type="text" id="settings-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
                     </div>
-                    <div class="form-group"><label>Profilbild (Optional)</label><input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)"><img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;"></div>
-                    <div class="form-group"><label>Neues Passwort ändern (Optional)</label><input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen"></div>
-                    <button type="submit" class="btn-primary-auth">Änderungen speichern</button>
+
+                    <div class="form-group">
+                        <label>Profilbild (Optional)</label>
+                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
+                        <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
+                    </div>
+                    <div class="form-group">
+                        <label>Neues Passwort ändern (Optional)</label>
+                        <input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen für keine Änderung">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Änderungen speichern</button>
                 </form>
                 <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
                 <button class="btn-danger-block" id="btn-delete-account">Konto & alle Einträge unwiderruflich löschen</button>
@@ -371,15 +433,24 @@
             </div>
             <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
             <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
+            
+            <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <button type="button" class="btn-export" id="btn-chat-email-reminder" style="margin-top: 0; background-color: rgba(59, 130, 246, 0.1); color: var(--info-color); border-color: var(--info-color); padding: 6px 12px;" onclick="triggerChatEmailReminder()">
+                    ✉️ Schützen per E-Mail anstupsen
+                </button>
+            </div>
+            
             <div class="chat-history-area" id="chat-box-messages"></div>
+            
             <form id="chat-send-form" style="display: flex; gap: 8px;">
                 <input type="hidden" id="chat-edit-id" value="">
                 <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
-                <button type="submit" style="background:var(--accent-color); color:white; border:none; padding:10px 20px; border-radius:var(--radius); font-weight:bold; cursor:pointer;">Senden</button>
+                <button type="submit" id="btn-chat-send" class="btn-submit" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
             </form>
         </div>
     </div>
 
+    <!-- GLOBAL INBOX -->
     <div class="modal" id="global-inbox-modal">
         <div class="modal-content" style="max-width: 450px; padding: 25px;">
             <div class="modal-close-container">
@@ -387,6 +458,7 @@
             </div>
             <h3>Meine Nachrichten</h3>
             <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven Gespräche.</p>
+            
             <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
                 <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
             </div>
@@ -395,12 +467,12 @@
 
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
-            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;">Impressum & Rechtliche Hinweise</a>
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
             <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
 
-    <!-- WICHTIG: Deine bestehenden JavaScript-Dateien -->
+    <!-- SKRIPTE -->
     <script src="auth.js"></script>
     <script src="app.js"></script>
     <script>
@@ -417,6 +489,17 @@
                 updateHeaderChatBadge(); 
             }
         };
+    </script>
+    
+    <!-- PWA Service Worker Registrierung -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('PWA Service Worker registriert!', reg.scope))
+                    .catch(err => console.error('PWA Fehler:', err));
+            });
+        }
     </script>
 </body>
 </html>
