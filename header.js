@@ -1,12 +1,14 @@
 (function() {
     const injectHeader = () => {
         const header = document.querySelector('header');
-        if (!header) return;
+        if (!header) return false; // Falls nicht gefunden, bricht es ab und wartet auf DOMContentLoaded
 
-        // 1. Aktuellen Dateinamen ermitteln
+        // 1. Aktuellen Dateinamen und gespeicherte Sprache ermitteln
         const path = window.location.pathname;
         let page = path.split("/").pop() || "index.html";
         if (page === "") page = "index.html";
+
+        const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
 
         // 2. Zentrale Menüstruktur festlegen
         const links = [
@@ -40,8 +42,8 @@
                 </button>
 
                 <select id="language-select" class="lang-select lang-switch">
-                    <option value="de">DE</option>
-                    <option value="en">EN</option>
+                    <option value="de" ${savedLanguageSetting === 'de' ? 'selected' : ''}>DE</option>
+                    <option value="en" ${savedLanguageSetting === 'en' ? 'selected' : ''}>EN</option>
                 </select>
                 <div id="auth-status-container">
                     <button class="btn-auth" id="btn-open-login">Login / Registrieren</button>
@@ -53,7 +55,7 @@
             </nav>
         `;
 
-        // 4. Globales CSS injizieren (Jetzt mit erzwungener Scrollbarkeit für Modals)
+        // 4. Globales CSS injizieren
         const style = document.createElement('style');
         style.innerHTML = `
             header { position: relative; }
@@ -93,7 +95,6 @@
                 header .main-nav::-webkit-scrollbar { display: none !important; }
                 header .main-nav a { padding: 8px 14px !important; font-size: 11px !important; scroll-snap-align: start !important; }
                 
-                /* FIX: Garantiert die Scrollbarkeit langer Modals (z.B. Konto-Einstellungen) auf Handys */
                 .modal-content { 
                     padding: 24px 16px !important; 
                     max-height: 90vh !important; 
@@ -110,11 +111,12 @@
                 activeLink.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
             }, 150);
         }
+
+        return true;
     };
 
-    if (document.readyState === 'loading') {
+    // Sofort ausführen, falls <header> bereits im DOM ist (verhindert Blockade von app.js)
+    if (!injectHeader()) {
         document.addEventListener('DOMContentLoaded', injectHeader);
-    } else {
-        injectHeader();
     }
 })();
