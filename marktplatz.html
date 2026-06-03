@@ -647,19 +647,19 @@
             <div class="modal-close-container">
                 <span class="modal-close-trigger" onclick="document.getElementById('mediated-modal').style.display = 'none';">&times;</span>
             </div>
-            <h3>Startplatz erfolgreich vermittelt</h3>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">
+            <h3 data-txt="mediated-title">Startplatz erfolgreich vermittelt</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;" data-txt="mediated-desc">
                 Trage hier die E-Mail-Adresse des Käufers ein und bewerte die Transaktion, um sie abzuschließen. Die erfolgreiche Vermittlung wird in euren Profilstatistiken hinterlegt.
             </p>
             <form id="mediated-form">
                 <input type="hidden" id="mediated-match-id">
                 <div class="form-group">
-                    <label>E-Mail-Adresse des Käufers *</label>
+                    <label data-txt="lbl-buyer-email">E-Mail-Adresse des Käufers *</label>
                     <input type="email" id="buyer-email" required placeholder="kaeufer@beispiel.de">
                 </div>
                 
                 <div class="form-group" style="margin-bottom: 15px;">
-                    <label style="text-transform: none; font-size: 14px;">💬 Kommunikation</label>
+                    <label style="text-transform: none; font-size: 14px;" data-txt="lbl-rating-comm">💬 Kommunikation</label>
                     <div class="star-rating-select">
                         <input type="radio" id="star-comm-5" name="rating-comm" value="5" required><label for="star-comm-5">★</label>
                         <input type="radio" id="star-comm-4" name="rating-comm" value="4"><label for="star-comm-4">★</label>
@@ -670,7 +670,7 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="text-transform: none; font-size: 14px;">💳 Bezahlung</label>
+                    <label style="text-transform: none; font-size: 14px;" data-txt="lbl-rating-pay">💳 Bezahlung</label>
                     <div class="star-rating-select">
                         <input type="radio" id="star-pay-5" name="rating-pay" value="5" required><label for="star-pay-5">★</label>
                         <input type="radio" id="star-pay-4" name="rating-pay" value="4"><label for="star-pay-4">★</label>
@@ -680,35 +680,8 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn-submit" style="width: 100%; background-color: var(--success-color);">Vermittlung bestätigen & Eintrag schließen</button>
+                <button type="submit" class="btn-submit" style="width: 100%; background-color: var(--success-color);" data-txt="btn-mediated-submit">Vermittlung bestätigen & Eintrag schließen</button>
             </form>
-        </div>
-    </div>
-
-    <div class="modal" id="news-modal">
-        <div class="modal-content" style="max-width: 500px; padding: 28px;">
-            <div class="modal-close-container">
-                <span class="modal-close-trigger" onclick="document.getElementById('news-modal').style.display = 'none';">&times;</span>
-            </div>
-            <h3 style="color: var(--accent-color); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">📢 Plattform Update: Live-Chat &amp; Trusted Status</h3>
-            <p style="font-size: 14px; font-weight: 600; margin-top: 0; margin-bottom: 15px;">
-                Ab sofort führen wir einen integrierten Live-Chat sowie ein verifiziertes Vertrauens-System ein, um den Ticket-Tausch noch sicherer zu machen!
-            </p>
-            <div style="font-size: 13px; line-height: 1.6; display: flex; flex-direction: column; gap: 12px; color: var(--text-color);">
-                <div style="background: var(--bg-color); padding: 12px; border-radius: var(--radius); border-left: 4px solid var(--info-color);">
-                    <strong style="color: var(--info-color); display: block; margin-bottom: 4px;">💬 Wahlweise Live-Chat oder E-Mail</strong>
-                    Du kannst andere Schützen jetzt direkt auf der Plattform anschreiben! Falls der Partner mal nicht online antwortet, kannst du ihn im Chatfenster ganz bequem mit dem Button <strong>„Schützen per E-Mail anstupsen“</strong> direkt anstupsen.
-                </div>
-                <div style="background: var(--bg-color); padding: 12px; border-radius: var(--radius); border-left: 4px solid var(--success-color);">
-                    <strong style="color: var(--success-color); display: block; margin-bottom: 4px;">🛡️ Option 1: Offizieller Verbandsnachweis</strong>
-                    Sende uns ein kurzes Foto deines IPSC-Ausweises, deiner SuRT-Bescheinigung oder deiner Lizenz an <a href="mailto:info@ipscboerse.com" style="color: var(--info-color); font-weight: bold;">info@ipscboerse.com</a>. Unser Support schaltet dein Profil manuell frei und du erhältst sofort das grüne <strong>Trusted</strong>-Badge an all deinen Inseraten!
-                </div>
-                <div style="background: var(--bg-color); padding: 12px; border-radius: var(--radius); border-left: 4px solid var(--accent-color);">
-                    <strong style="color: var(--accent-color); display: block; margin-bottom: 4px;">📈 Option 2: Community Reputation</strong>
-                    Schütze werden! Das grüne Vertrauenssiegel wird alternativ auch vollautomatisch aktiv, sobald du mindestens <strong>3 erfolgreiche Vermittlungen</strong> über den Button abgeschlossen hast und deine Sternebewertung sauber bleibt.
-                </div>
-            </div>
-            <button type="button" class="btn-submit" style="width: 100%; margin-top: 20px; background-color: var(--accent-color); color: #1a1a1a;" onclick="document.getElementById('news-modal').style.display = 'none';">Verstanden & Weiter</button>
         </div>
     </div>
 
@@ -834,7 +807,7 @@
 
                 <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
                     <label style="color: #3498db;">🔒 Passkey (Schnell-Login)</label>
-                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
+                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);">Hinterlege dein alkali Gerat, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
                     <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()">Gerät als Passkey registrieren</button>
                 </div>
 
@@ -886,6 +859,7 @@
     </footer>
 
     <script src="auth.js"></script>
+    <script src="lang.js"></script>
     <script src="app.js"></script>
     <script>
         // Synchronisiert die Schalter-Auswahlen direkt beim Laden mit dem Browser-Speicher
@@ -907,7 +881,7 @@
         function formatStars(value) {
             if (!value || isNaN(value) || value === 0) return "-";
             let fullStars = Math.round(value);
-            return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
+            return "★".repeat(fullStars) + "Certified" + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
         }
 
         // NATIVE ERWEITERUNG DER APP-LOGIK DIREKT IN DIE SEITE EINGEBETTET (RENNBEDINGUNGEN VERHINDERT)
@@ -1010,7 +984,7 @@
             const ratingPay = document.querySelector('input[name="rating-pay"]:checked')?.value;
             try {
                 // 1. Hole Match-Daten für das Inserat
-                const { data: matchData, error: matchErr } = await window.supabaseClient.from('matches').select('*').eq('id', matchId).single();
+                const { data: matchData, error: matchErr = null } = await window.supabaseClient.from('matches').select('*').eq('id', matchId).single();
                 if(matchErr || !matchData) throw new Error("Match-Eintrag nicht gefunden.");
 
                 // 2. Dokumentiere den erfolgreichen Deal in der verknüpften Reputations-Tabelle 'mediated_deals'
