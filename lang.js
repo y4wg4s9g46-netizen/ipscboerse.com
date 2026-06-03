@@ -22,7 +22,7 @@ window.portalTranslations = {
         "news-body-2": "Ab sofort stehen dir mächtige Trainingshelfer zur Verfügung. Berechne präzise deinen Hit-Factor direkt auf der Range oder nutze unseren reaktionsschnellen Dry-Fire-Timer für dein Trockentraining zu Hause.",
         "news-date-3": "April 2026",
         "news-heading-3": "🛡️ 'Trusted Shooter' Reputationssystem",
-        "news-body-3": "Um die Sicherheit auf dem Marktplatz zu maximieren, wurde ein Reputationssystem eingeführt. Durch Hinterlegen dienes IPSC-Alias erhältst du ein verifiziertes Abzeichen, zudem können erfolgreiche Vermittlungen gegenseitig bewertet werden.",
+        "news-body-3": "Um die Sicherheit auf dem Marktplatz zu maximieren, wurde ein Reputationssystem eingeführt. Durch Hinterlegen deines IPSC-Alias erhältst du ein verifiziertes Abzeichen, zudem können erfolgreiche Vermittlungen gegenseitig bewertet werden.",
         "card-title-market": "Marktplatz",
         "card-desc-market": "Suche nach verfügbaren Startplätzen für ausgebuchte Matches oder biete dein eigenes Ticket zum Tausch an.",
         "card-action-market": "Zum Marktplatz &rarr;",
@@ -41,6 +41,28 @@ window.portalTranslations = {
         "card-title-tools": "Tools & Training",
         "card-desc-tools": "Interaktiver Hit-Factor-Rechner, Stage-Planungs-Assistent und ein konfigurierbarer Dry-Fire-Timer für dein Training.",
         "card-action-tools": "Zu den Tools &rarr;",
+
+        // --- KONTO-EINSTELLUNGEN MODAL (ALLE SEITEN) ---
+        "modal-settings-title": "Konto-Einstellungen",
+        "modal-settings-deals": "📈 Erfolgreiche Vermittlungen",
+        "modal-settings-seller": "Als Verkäufer",
+        "modal-settings-buyer": "Als Käufer",
+        "modal-settings-comm": "💬 Kommunikation:",
+        "modal-settings-pay": "💳 Bezahlung:",
+        "modal-settings-passkey-title": "🔒 Passkey (Schnell-Login)",
+        "modal-settings-passkey-desc": "Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.",
+        "modal-settings-passkey-btn": "Gerät als Passkey registrieren",
+        "lbl-username": "Schützenname / Anzeigename",
+        "lbl-ipsc-alias": "🛡️ IPSC Alias / Mitgliedsnummer",
+        "lbl-ipsc-alias-desc": "Füllst du dieses Feld aus, erhältst du das 'Trusted Shooter' Badge an deinen Inseraten!",
+        "lbl-profile-pic": "Profilbild (Optional)",
+        "lbl-change-password": "Neues Passwort ändern (Optional)",
+        "btn-delete-acc": "Konto & alle Einträge unwiderruflich löschen",
+        
+        // --- PLATZHALTER-ÜBERSETZUNGEN ---
+        "ph-username": "z.B. IPSCShooter99",
+        "ph-ipsc-alias": "z.B. GER1234 (Optional)",
+        "ph-password": "Mindestens 6 Zeichen (Unverändert lassen für keine Änderung)",
 
         // --- MARKTPLATZ STATIC ELEMENTS (marktplatz.html) ---
         "info-msg": "<strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgültige Umschreibung des Startplatzes muss zwingend über den jeweiligen Match Director durchgeführt werden!",
@@ -64,19 +86,13 @@ window.portalTranslations = {
         "list-title": "Aktuelle Marktplatz-Einträge",
         "loading": "Lade aktuelle Startplätze...",
 
-        // --- MARKTPLATZ ERWEITERTE NEW & MEDIATED MODALS ---
+        // --- MARKTPLATZ ERWEITERTE POPUPS ---
         "mediated-title": "Startplatz erfolgreich vermittelt",
         "mediated-desc": "Trage hier die E-Mail-Adresse des Käufers ein und bewerte die Transaktion, um sie abzuschließen. Die erfolgreiche Vermittlung wird in euren Profilstatistiken hinterlegt.",
         "lbl-buyer-email": "E-Mail-Adresse des Käufers *",
         "lbl-rating-comm": "💬 Kommunikation",
         "lbl-rating-pay": "💳 Bezahlung",
         "btn-mediated-submit": "Vermittlung bestätigen & Eintrag schließen",
-        "news-modal-title": "📢 Plattform Update: Live-Chat & Trusted Status",
-        "news-modal-desc": "Ab sofort führen wir einen integrierten Live-Chat sowie ein verifiziertes Vertrauens-System ein, um den Ticket-Tausch noch sicherer zu machen!",
-        "news-modal-b1": "<strong>💬 Wahlweise Live-Chat oder E-Mail</strong><br>Du kannst andere Schützen jetzt direkt auf der Plattform anschreiben! Falls der Partner mal nicht online antwortet, kannst du ihn im Chatfenster ganz bequem mit dem Button <strong>„Schützen per E-Mail anstupsen“</strong> direkt anstupsen.",
-        "news-modal-b2": "<strong>🛡️ Option 1: Offizieller Verbandsnachweis</strong><br>Sende uns ein kurzes Foto deines IPSC-Ausweises, deiner SuRT-Bescheinigung oder deiner Lizenz an <a href='mailto:info@ipscboerse.com' style='color: var(--info-color); font-weight: bold;'>info@ipscboerse.com</a>. Unser Support schaltet dein Profil manuell frei und du erhältst sofort das grüne <strong>Trusted</strong>-Badge an all deinen Inseraten!",
-        "news-modal-b3": "<strong>📈 Option 2: Community Reputation</strong><br>Schütze werden! Das grüne Vertrauenssiegel wird alternativ auch vollautomatisch aktiv, sobald du mindestens <strong>3 erfolgreiche Vermittlungen</strong> über den Button abgeschlossen hast und deine Sternebewertung sauber bleibt.",
-        "news-modal-btn": "Verstanden & Weiter",
 
         // --- MARKTPLATZ DYNAMIC TEXTS (app.js) ---
         "no-slots": "Aktuell keine Einträge verfügbar.",
@@ -94,8 +110,8 @@ window.portalTranslations = {
         "spam-error": "Spam-Schutz: Du hast bereits einen Eintrag für dieses Match an diesem Datum erstellt!",
         "email-subject-offer": "Interesse an deinem IPSC Startplatz: ",
         "email-subject-want": "Bezüglich deiner Suche nach einem IPSC Startplatz: ",
-        "email-body-offer": "Hallo,\n\nich habe dein Inserat auf ipscboerse.com gesehen und interessiere mich für den von dir angebotenen Startplatz für das Match: ",
-        "email-body-want": "Hallo,\n\nich habe dein Gesuch auf ipscboerse.com gesehen. Ich hätte einen Startplatz abzugeben für das Match: ",
+        "email-body-offer": "Hallo,\n\ ich habe dein Inserat auf ipscboerse.com gesehen und interessiere mich für den von dir angebotenen Startplatz für das Match: ",
+        "email-body-want": "Hallo,\n\ ich habe dein Gesuch auf ipscboerse.com gesehen. Ich hätte einen Startplatz abzugeben für das Match: ",
         "email-body-footer": "\n\nIst das Inserat noch aktuell?\n\nViele Grüße",
         "security-checklist": "\n\nSicherheits-Checkliste vor der E-Mail:\n- Match-Daten geprüft?\n- Match Director kontaktiert?",
         "security-notice": "⚠️ WICHTIGER SICHERHEITSHINWEIS:\n\n1. Nutze für Zahlungen IMMER PayPal mit Käuferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prüfen, ob eine Umschreibung des Platzes überhaupt noch möglich ist!\n\nMöchtest du den E-Mail-Kontakt jetzt öffnen?",
@@ -114,7 +130,7 @@ window.portalTranslations = {
         "planner-lbl-match-name": "Match-Name",
         "planner-lbl-match-date": "Datum",
         "planner-lbl-match-location": "Ort / Land",
-        "planner-btn-save": "Match in Cloud保存",
+        "planner-btn-save": "Match in Cloud speichern",
         "planner-subtitle-planned": "Geplante Matches",
         "planner-loading": "Lade Daten aus Supabase...",
         "planner-btn-export": "📅 In Kalender exportieren (.ics)",
@@ -150,9 +166,6 @@ window.portalTranslations = {
         "modal-btn-forgot": "Zurücksetzungs-Link senden",
         "modal-reset-title": "Neues Passwort vergeben",
         "lbl-new-password": "Neues Passwort *",
-        "modal-settings-title": "Konto-Einstellungen",
-        "lbl-username": "Schützenname / Anzeigename",
-        "btn-delete-acc": "Konto & alle Einträge unwiderruflich löschen",
 
         // --- TOOLS (tools.html) ---
         "tools-hf-title": "🏆 Hit-Factor Battle",
@@ -242,6 +255,28 @@ window.portalTranslations = {
         "card-desc-tools": "Interactive hit factor calculator, stage planning assistant and a configurable dry-fire timer for your training.",
         "card-action-tools": "To Tools &rarr;",
 
+        // --- KONTO-EINSTELLUNGEN MODAL (ALLE SEITEN) ---
+        "modal-settings-title": "Account Settings",
+        "modal-settings-deals": "📈 Successful Mediations",
+        "modal-settings-seller": "As Seller",
+        "modal-settings-buyer": "As Buyer",
+        "modal-settings-comm": "💬 Communication:",
+        "modal-settings-pay": "💳 Payment:",
+        "modal-settings-passkey-title": "🔒 Passkey (Quick Login)",
+        "modal-settings-passkey-desc": "Link your current device to log in without a password via FaceID, fingerprint, or PIN in the future.",
+        "modal-settings-passkey-btn": "Register device as Passkey",
+        "lbl-username": "Shooter Name / Display Name",
+        "lbl-ipsc-alias": "🛡️ IPSC Alias / Member Number",
+        "lbl-ipsc-alias-desc": "If you fill in this field, you will receive the 'Trusted Shooter' badge on your listings!",
+        "lbl-profile-pic": "Profile Picture (Optional)",
+        "lbl-change-password": "Change New Password (Optional)",
+        "btn-delete-acc": "Irrevocably delete account & all entries",
+        
+        // --- PLATZHALTER-ÜBERSETZUNGEN ---
+        "ph-username": "e.g. IPSCShooter99",
+        "ph-ipsc-alias": "e.g. GER1234 (Optional)",
+        "ph-password": "At least 6 characters (Leave blank to keep current)",
+
         // --- MARKETPLACE STATIC ELEMENTS (marktplatz.html) ---
         "info-msg": "<strong>Important Notice:</strong> This platform is for mediation purposes only. The final reassignment of the starting slot must be processed by the respective Match Director!",
         "form-title": "Create Entry",
@@ -264,19 +299,13 @@ window.portalTranslations = {
         "list-title": "Current Marketplace Entries",
         "loading": "Loading available slots...",
 
-        // --- MARKTPLATZ ERWEITERTE NEW & MEDIATED MODALS ---
+        // --- MARKETPLACE ERWEITERTE POPUPS ---
         "mediated-title": "Slot Successfully Mediated",
         "mediated-desc": "Enter the buyer's email address here and rate the transaction to complete it. The successful mediation will be stored in your profile statistics.",
         "lbl-buyer-email": "Buyer's Email Address *",
         "lbl-rating-comm": "💬 Communication",
         "lbl-rating-pay": "💳 Payment",
         "btn-mediated-submit": "Confirm Mediation & Close Entry",
-        "news-modal-title": "📢 Platform Update: Live Chat & Trusted Status",
-        "news-modal-desc": "From now on, we are introducing an integrated live chat and a verified trust system to make slot swapping even safer!",
-        "news-modal-b1": "<strong>💬 Live Chat or Email</strong><br>You can now message other shooters directly on the platform! If your partner doesn't reply online, you can easily nudge them with the <strong>'Nudge shooter via email'</strong> button in the chat window.",
-        "news-modal-b2": "<strong>🛡️ Option 1: Official Association Proof</strong><br>Send a short photo of your IPSC ID card, your safety course certificate, or license to <a href='mailto:info@ipscboerse.com' style='color: var(--info-color); font-weight: bold;'>info@ipscboerse.com</a>. Our support will unlock your profile manually, and you will instantly receive the green <strong>Trusted</strong> badge on all your listings!",
-        "news-modal-b3": "<strong>📈 Option 2: Community Reputation</strong><br>Become a trusted shooter! The green trust seal automatically activates as soon as you have completed at least <strong>3 successful mediations</strong> via the button and your star rating remains clean.",
-        "news-modal-btn": "Understood & Continue",
 
         // --- MARKETPLACE DYNAMIC JAVASCRIPT TEXTS (app.js) ---
         "no-slots": "No marketplace entries available.",
@@ -350,11 +379,8 @@ window.portalTranslations = {
         "modal-btn-forgot": "Send Reset Link",
         "modal-reset-title": "Assign New Password",
         "lbl-new-password": "New Password *",
-        "modal-settings-title": "Account Settings",
-        "lbl-username": "Shooter Name / Display Name",
-        "btn-delete-acc": "Irrevocably delete account & all entries",
 
-        // --- TOOLS & HUB ERWEITERUNGEN ---
+        // --- TOOLS (tools.html) ---
         "tools-hf-title": "🏆 Hit-Factor Battle",
         "tools-hf-desc": "Enter the results of you and your friends to create a live leaderboard for the stage.",
         "tools-hf-name": "Shooter Name",
@@ -378,6 +404,8 @@ window.portalTranslations = {
         "tools-df-par": "Par Time (Seconds)",
         "tools-df-status-ready": "Ready",
         "tools-df-btn-start": "Start Timer (Random Delay)",
+
+        // --- IPSC HUB ---
         "hub-main-title": "IPSC Hub – All Important Links",
         "hub-main-desc": "No more endless searching: All important links to MatchSign, PractiScore, IPSCess, associations and rulebooks bundled.",
         "hub-cat-management": "🎯 Match Registrations & Management",
@@ -400,15 +428,24 @@ window.portalTranslations = {
     }
 };
 
-// Automatischer Übersetzungs-Ablauf für statische Elemente
+// Automatischer Übersetzungs-Ablauf für statische Elemente und Input-Platzhalter
 window.translatePortalPage = function() {
     const lang = localStorage.getItem("selectedLanguage") || "de";
     window.currentLang = lang;
     
+    // 1. Standard-Labels übersetzen
     document.querySelectorAll("[data-txt]").forEach(el => {
         const key = el.getAttribute("data-txt");
         if (window.portalTranslations[lang] && window.portalTranslations[lang][key]) {
             el.innerHTML = window.portalTranslations[lang][key];
+        }
+    });
+
+    // 2. Input-Platzhalter übersetzen
+    document.querySelectorAll("[data-txt-ph]").forEach(el => {
+        const key = el.getAttribute("data-txt-ph");
+        if (window.portalTranslations[lang] && window.portalTranslations[lang][key]) {
+            el.placeholder = window.portalTranslations[lang][key];
         }
     });
     
@@ -417,7 +454,6 @@ window.translatePortalPage = function() {
     }
 };
 
-// UNSICHTBARE BRÜCKE: Überschreibt die alten app.js Übersetzungen vollautomatisch!
 window.translations = window.portalTranslations;
 
 document.addEventListener("change", (e) => {
