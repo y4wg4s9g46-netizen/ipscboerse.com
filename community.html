@@ -293,39 +293,8 @@
 </head>
 <body>
 
-    <header>
-        <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
-        <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Von Schützen für Schützen – Live Marktplatz</p>
-        
-        <nav class="main-nav">
-    <a href="index.html" class="inactive">Startseite</a>
-    <a href="marktplatz.html" class="inactive">Marktplatz</a>
-    <a href="freie-matches.html" class="inactive">Freie Match-Plätze</a>
-    <a href="mein-planer.html" class="inactive">Mein Planer</a>
-    <a href="community.html" class="active">Community</a>
-    <a href="ipsc-hub.html" class="inactive">IPSC Hub</a>
-    <a href="tools.html" class="inactive">Tools & Training</a>
-        </nav>
-
-        <div class="header-controls">
-            <!-- Manueller Design-Schalter -->
-            <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
-
-            <!-- Globaler Chat-Posteingang Button im Header -->
-            <button id="header-chat-btn" class="theme-toggle-btn" onclick="toggleGlobalInbox()" style="position: relative; font-size: 18px;" title="Nachrichten">
-                💬
-                <span id="chat-badge-count" style="display: none; position: absolute; top: -4px; right: -4px; background: var(--danger-color); color: white; font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold;">0</span>
-            </button>
-
-            <select id="language-select" class="lang-switch">
-                <option value="de">DE</option>
-                <option value="en">EN</option>
-            </select>
-            <div id="auth-status-container">
-                <button class="btn-auth" id="btn-open-login" data-txt="btn-login-reg">Login / Registrieren</button>
-            </div>
-        </div>
-    </header>
+    <header></header>
+    <script src="header.js"></script>
 
     <div class="container">
         
