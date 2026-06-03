@@ -3,10 +3,12 @@
         const header = document.querySelector('header');
         if (!header) return;
 
+        // 1. Aktuellen Dateinamen ermitteln
         const path = window.location.pathname;
         let page = path.split("/").pop() || "index.html";
         if (page === "") page = "index.html";
 
+        // 2. Zentrale Menüstruktur festlegen
         const links = [
             { href: "index.html", text: "Startseite" },
             { href: "marktplatz.html", text: "Marktplatz" },
@@ -24,6 +26,7 @@
             navHtml += `<a href="${link.href}" class="${className}">${link.text}</a>`;
         });
 
+        // 3. HTML-Struktur in den Header injizieren
         header.innerHTML = `
             <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
             <p style="color: var(--text-muted); margin: 5px 0 0 0; font-size: 13px;">Von Schützen für Schützen</p>
@@ -50,6 +53,7 @@
             </nav>
         `;
 
+        // 4. Globales CSS injizieren
         const style = document.createElement('style');
         style.innerHTML = `
             header { position: relative; }
@@ -80,7 +84,6 @@
                 header #auth-status-container { display: flex !important; align-items: center !important; gap: 8px !important; width: auto !important; }
                 header .btn-auth { padding: 6px 12px !important; font-size: 12px !important; width: auto !important; }
                 
-                /* Aktiviert das automatische Einrasten im Wischfenster */
                 header .main-nav { 
                     margin-top: 15px !important; padding: 10px 4px 4px 4px !important; justify-content: flex-start !important; 
                     flex-wrap: nowrap !important; overflow-x: auto !important; white-space: nowrap !important; 
@@ -92,6 +95,14 @@
             }
         `;
         document.head.appendChild(style);
+
+        // 5. JETZT NEU: Den aktiven Tab beim Laden der Seite automatisch ins Sichtfeld scrollen
+        const activeLink = header.querySelector('.main-nav a.active');
+        if (activeLink) {
+            setTimeout(() => {
+                activeLink.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+            }, 150); // Kleiner Delay, damit der Browser die Element-Breite fehlerfrei berechnet
+        }
     };
 
     if (document.readyState === 'loading') {
