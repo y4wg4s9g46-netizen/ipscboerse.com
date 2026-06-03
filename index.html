@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Startseite | IPSC Startplatz-Börse</title>
     
-    <!-- PWA & App-Icons -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e293b">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -28,7 +27,7 @@
             
             --accent-color: #ff9f43; /* IPSC Orange */
             --danger-color: #ef4444;
-            --success-color: #10b981;
+            --success-color: #10 b981;
             --info-color: #3b82f6;
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
@@ -144,6 +143,7 @@
             header { padding: 16px 12px 8px 12px !important; }
             header h1 { font-size: 20px !important; margin-bottom: 4px !important; }
             
+            /* Kontrolltasten sauber zentriert in einer flexiblen Reihe anordnen */
             .header-controls { 
                 position: static !important; 
                 display: flex !important; 
@@ -159,6 +159,7 @@
             #auth-status-container { display: flex !important; align-items: center !important; gap: 8px !important; }
             .btn-auth { padding: 6px 12px !important; font-size: 12px !important; }
             
+            /* Das magische Wisch-Menü (Kein Umbrechen mehr!) */
             .main-nav { 
                 margin-top: 15px !important; 
                 padding: 10px 4px 4px 4px !important; 
@@ -193,13 +194,11 @@
 
     <div class="container">
         
-        <!-- HERO AREA -->
         <div class="hero-section">
             <h2 data-txt="hero-title">DVC – Willkommen auf deiner IPSC-Plattform</h2>
             <p data-txt="hero-desc">Die zentrale Anlaufstelle für IPSC-Schützen im deutschsprachigen Raum. Tausche Startplätze, finde freie Match-Plätze, diskutiere in der Community oder nutze unsere interaktiven Trainingstools.</p>
         </div>
 
-        <!-- ADMIN NEWS ERWEITERUNG -->
         <div class="news-section">
             <h3 class="news-section-title" data-txt="news-title">📢 Neueste Plattform-Updates</h3>
             <div class="news-timeline">
@@ -216,12 +215,11 @@
                 <div class="news-item">
                     <div class="news-date" data-txt="news-date-3">April 2026</div>
                     <h4 class="news-item-title" data-txt="news-heading-3">🛡️ "Trusted Shooter" Reputationssystem</h4>
-                    <p class="news-item-body" data-txt="news-body-3">Um die Sicherheit auf dem Marktplatz zu maximieren, wurde ein Reputationssystem eingeführt. Durch Hinterlegen deines IPSC-Alias erhältst du ein verifiziertes Abzeichen, zudem können erfolgreiche Vermittlungen gegenseitig bewertet werden.</p>
+                    <p class="news-item-body" data-txt="news-body-3">Um die Sicherheit auf dem Marktplatz zu maximieren, wurde ein Reputationssystem eingeführt. Durch Hinterlegen dienes IPSC-Alias erhältst du ein verifiziertes Abzeichen, zudem können erfolgreiche Vermittlungen gegenseitig bewertet werden.</p>
                 </div>
             </div>
         </div>
 
-        <!-- DASHBOARD GRID -->
         <div class="dashboard-grid">
             <a href="marktplatz.html" class="dash-card">
                 <div class="dash-card-header">
@@ -280,7 +278,6 @@
 
     </div>
 
-    <!-- MODAL BEREICH -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -288,36 +285,36 @@
             </div>
             
             <div id="modal-login-view">
-                <h3>Anmelden</h3>
+                <h3 data-txt="modal-login-title">Anmelden</h3>
                 <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
                     <span>📱</span> Login mit FaceID / Fingerabdruck
                 </button>
                 <div class="modal-divider">oder klassisch mit E-Mail</div>
                 <form id="login-form">
                     <div class="form-group">
-                        <label>E-Mail *</label>
+                        <label data-txt="lbl-email">E-Mail *</label>
                         <input type="email" id="login-email" required placeholder="name@beispiel.de">
                     </div>
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                             <label style="margin-bottom: 0;">Passwort *</label>
-                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;">Passwort vergessen?</a>
+                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
                         </div>
                         <input type="password" id="login-password" required placeholder="••••••••">
                     </div>
-                    <button type="submit" class="btn-primary-auth">Mit Passwort einloggen</button>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
                 </form>
                 <div class="modal-footer">
-                    <span>Noch kein Konto?</span>
-                    <a onclick="toggleAuthView('register')">Registrieren</a>
+                    <span data-txt="modal-no-acc">Noch kein Konto?</span>
+                    <a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a>
                 </div>
             </div>
 
             <div id="modal-register-view" style="display: none;">
-                <h3>Konto erstellen</h3>
+                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
                     <div class="form-group">
-                        <label>E-Mail *</label>
+                        <label data-txt="lbl-email">E-Mail *</label>
                         <input type="email" id="register-email" required placeholder="name@beispiel.de">
                     </div>
                     <div class="form-group">
@@ -332,41 +329,41 @@
                         </label>
                     </div>
 
-                    <button type="submit" class="btn-primary-auth">Konto erstellen</button>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-reg">Konto erstellen</button>
                 </form>
                 <div class="modal-footer">
-                    <span>Bereits registriert?</span>
-                    <a onclick="toggleAuthView('login')">Zum Login</a>
+                    <span data-txt="modal-has-acc">Bereits registriert?</span>
+                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a>
                 </div>
             </div>
 
             <div id="modal-forgot-view" style="display: none;">
-                <h3>Passwort vergessen</h3>
+                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
                 <form id="forgot-form">
                     <div class="form-group">
                         <label>Deine E-Mail-Adresse *</label>
                         <input type="email" id="forgot-email" required placeholder="name@beispiel.de">
                     </div>
-                    <button type="submit" class="btn-primary-auth">Zurücksetzungs-Link senden</button>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
                 </form>
                 <div class="modal-footer">
-                    <a onclick="toggleAuthView('login')">Zurück zum Login</a>
+                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a>
                 </div>
             </div>
 
             <div id="modal-reset-view" style="display: none;">
-                <h3>Neues Passwort vergeben</h3>
+                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                 <form id="reset-password-form">
                     <div class="form-group">
-                        <label>Neues Passwort *</label>
+                        <label data-txt="lbl-new-password">Neues Passwort *</label>
                         <input type="password" id="reset-password-input" required minlength="6" placeholder="Mindestens 6 Zeichen">
                     </div>
-                    <button type="submit" class="btn-primary-auth">Speichern</button>
+                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Speichern</button>
                 </form>
             </div>
 
             <div id="modal-settings-view" style="display: none;">
-                <h3>Konto-Einstellungen</h3>
+                <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
                 <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
                     <label style="color: var(--success-color); font-weight: 700;">📈 Erfolgreiche Vermittlungen</label>
@@ -390,22 +387,21 @@
 
                 <form id="settings-form">
                     <div class="form-group">
-                        <label>Schützenname / Anzeigename</label>
+                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
                         <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
                     </div>
                     <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 4px; border-left: 3px solid var(--success-color); margin-bottom: 20px;">
                         <label style="color: var(--success-color); margin-bottom: 2px;">🛡️ IPSC Alias / Mitgliedsnummer</label>
                         <input type="text" id="settings-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
                     </div>
-                    <button type="submit" class="btn-primary-auth">Änderungen speichern</button>
+                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Änderungen speichern</button>
                 </form>
                 <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
-                <button class="btn-danger-block" id="btn-delete-account">Konto & alle Einträge unwiderruflich löschen</button>
+                <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
             </div>
         </div>
     </div>
 
-    <!-- CHAT MODAL -->
     <div class="modal" id="chat-modal">
         <div class="modal-content" style="max-width: 500px; padding: 25px;">
             <div class="modal-close-container">
@@ -421,7 +417,6 @@
         </div>
     </div>
 
-    <!-- GLOBAL INBOX -->
     <div class="modal" id="global-inbox-modal">
         <div class="modal-content" style="max-width: 450px; padding: 25px;">
             <div class="modal-close-container">
@@ -436,12 +431,11 @@
 
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
-            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;">Impressum & Rechtliche Hinweise</a>
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
             <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
 
-    <!-- SKRIPTE -->
     <script src="auth.js"></script>
     <script src="lang.js"></script>
     <script src="app.js"></script>
@@ -460,7 +454,6 @@
         };
     </script>
     
-    <!-- PWA Service Worker Registrierung -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -470,9 +463,5 @@
             });
         }
     </script>
-    <script src="auth.js"></script>
-<script src="lang.js"></script> <!-- DIESE ZEILE HIER BEI ALLEN ERGÄNZEN! -->
-<script src="app.js"></script>
-
 </body>
 </html>
