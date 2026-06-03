@@ -116,6 +116,31 @@ window.portalTranslations = {
         "modal-settings-title": "Konto-Einstellungen",
         "lbl-username": "Schützenname / Anzeigename",
         "btn-delete-acc": "Konto & alle Einträge unwiderruflich löschen"
+
+        "tools-hf-title": "🏆 Hit-Factor Battle",
+"tools-hf-desc": "Trage die Ergebnisse von dir und deinen Freunden ein, um eine Live-Rangliste für die Stage zu erstellen.",
+"tools-hf-name": "Schützenname",
+"tools-hf-pf": "Wertung",
+"tools-hf-time": "Zeit (Sek.)",
+"tools-hf-scoring": "Trefferaufnahme",
+"tools-hf-alpha": "Alpha (A)",
+"tools-hf-charlie": "Charlie (C)",
+"tools-hf-delta": "Delta (D)",
+"tools-hf-miss": "Miss (M)",
+"tools-hf-ns": "No-Shoot",
+"tools-hf-btn-submit": "Schütze eintragen & berechnen",
+"tools-th-name": "Name",
+"tools-th-pts": "Pts",
+"tools-th-time": "Zeit",
+"tools-th-hf": "HF",
+"tools-hf-btn-clear": "Rangliste leeren",
+"tools-df-title": "⏱️ Dry-Fire Timer & Drill Generator",
+"tools-df-placeholder": "Klicke auf den Button, um einen zufälligen Trockentrainings-Ablauf zu generieren.",
+"tools-df-btn-gen": "🎲 Neuen Drill generieren",
+"tools-df-par": "Par-Zeit (Sekunden)",
+"tools-df-status-ready": "Bereit",
+"tools-df-btn-start": "Start Timer (Zufalls-Delay)",
+
     },
     en: {
         // --- COMMON ELEMENTS & HEADER/FOOTER ---
@@ -233,6 +258,31 @@ window.portalTranslations = {
         "modal-settings-title": "Account Settings",
         "lbl-username": "Shooter Name / Display Name",
         "btn-delete-acc": "Irrevocably delete account & all entries"
+
+    "tools-hf-title": "🏆 Hit-Factor Battle",
+"tools-hf-desc": "Enter the results of you and your friends to create a live leaderboard for the stage.",
+"tools-hf-name": "Shooter Name",
+"tools-hf-pf": "Power Factor",
+"tools-hf-time": "Time (Sec.)",
+"tools-hf-scoring": "Scoring / Hits",
+"tools-hf-alpha": "Alpha (A)",
+"tools-hf-charlie": "Charlie (C)",
+"tools-hf-delta": "Delta (D)",
+"tools-hf-miss": "Miss (M)",
+"tools-hf-ns": "No-Shoot",
+"tools-hf-btn-submit": "Enter Shooter & Calculate",
+"tools-th-name": "Name",
+"tools-th-pts": "Pts",
+"tools-th-time": "Time",
+"tools-th-hf": "HF",
+"tools-hf-btn-clear": "Clear Leaderboard",
+"tools-df-title": "⏱️ Dry-Fire Timer & Drill Generator",
+"tools-df-placeholder": "Click the button to generate a random dry fire training drill.",
+"tools-df-btn-gen": "🎲 Generate New Drill",
+"tools-df-par": "Par Time (Seconds)",
+"tools-df-status-ready": "Ready",
+"tools-df-btn-start": "Start Timer (Random Delay)",
+
     }
 };
 
