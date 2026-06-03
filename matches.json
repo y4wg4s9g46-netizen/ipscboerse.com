@@ -3,7 +3,7 @@
         "name": "Offene IPSC-LM Niedersachsen und Bremen 2026 Part ...",
         "datum": "14.06.2026",
         "auslastung": "90%",
-        "region": "",
+        "region": "GER",
         "level": "2",
         "disziplin": "HG",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_IPSC_BSV_HG-3"
@@ -12,7 +12,7 @@
         "name": "Summer Cup Guyane 2026",
         "datum": "14.06.2026",
         "auslastung": "37%",
-        "region": "",
+        "region": "FRA",
         "level": "2",
         "disziplin": "HG",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_Summer_Cup_Guyane"
@@ -21,7 +21,7 @@
         "name": "TSV Régional Martinique 2026",
         "datum": "20.06.2026",
         "auslastung": "40%",
-        "region": "",
+        "region": "FRA",
         "level": "2",
         "disziplin": "HG",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_TSV-REGIONAL-MARTINIQUE"
@@ -30,7 +30,7 @@
         "name": "Bracara Augusta Match 2026",
         "datum": "11.07.2026",
         "auslastung": "79%",
-        "region": "",
+        "region": "POR",
         "level": "3",
         "disziplin": "HG",
         "url": "https://www.ipscmatch.de/index.pl?match=Bracara_Augusta_Match_-_2026"
@@ -39,7 +39,7 @@
         "name": "Guga Ribas Cup 2026",
         "datum": "12.07.2026",
         "auslastung": "83%",
-        "region": "",
+        "region": "FRA",
         "level": "3",
         "disziplin": "HG, PCC",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_Guga_Ribas_Cup"
@@ -48,7 +48,7 @@
         "name": "RLP Shotgun Cup 2026",
         "datum": "26.07.2026",
         "auslastung": "77%",
-        "region": "",
+        "region": "GER",
         "level": "3",
         "disziplin": "SG",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_LV5_LM_IPSC_SG"
@@ -57,7 +57,7 @@
         "name": "Siegerland Challenge part I",
         "datum": "26.07.2026",
         "auslastung": "98%",
-        "region": "",
+        "region": "GER",
         "level": "2",
         "disziplin": "HG",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_Siegerland_Challenge"
@@ -66,7 +66,7 @@
         "name": "Bracara Action Air 2026",
         "datum": "09.08.2026",
         "auslastung": "1%",
-        "region": "",
+        "region": "POR",
         "level": "",
         "disziplin": "Action Air",
         "url": "https://www.ipscmatch.de/index.pl?match=Bracara_Action_Air_-_2026"
@@ -75,7 +75,7 @@
         "name": "Thuringian Open - offene LM Handgun LV 13 2026",
         "datum": "09.08.2026",
         "auslastung": "94%",
-        "region": "",
+        "region": "GER",
         "level": "3",
         "disziplin": "HG",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_VM_Thueringen"
@@ -84,25 +84,16 @@
         "name": "Shotgun Cup 2026",
         "datum": "23.08.2026",
         "auslastung": "92%",
-        "region": "",
+        "region": "GER",
         "level": "3",
         "disziplin": "SG",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_Shotgun_Cup"
     },
     {
-        "name": "Hubertus Summercup 2026 Handgun",
-        "datum": "31.08.2026",
-        "auslastung": "98%",
-        "region": "",
-        "level": "2",
-        "disziplin": "HG",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_Hubertus_Summercup_Handgun"
-    },
-    {
         "name": "Hubertus Summercup 2026 PCC",
         "datum": "31.08.2026",
-        "auslastung": "83%",
-        "region": "",
+        "auslastung": "85%",
+        "region": "GER",
         "level": "2",
         "disziplin": "PCC",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_Hubertus_Summercup_PCC"
@@ -111,7 +102,7 @@
         "name": "Racan Shotgun Trophy 2026",
         "datum": "05.09.2026",
         "auslastung": "72%",
-        "region": "",
+        "region": "FRA",
         "level": "3",
         "disziplin": "SG",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_Racan_Shotgun_Trophy_2026"
@@ -120,7 +111,7 @@
         "name": "Level II Series - PCC Beginners II 2026",
         "datum": "12.09.2026",
         "auslastung": "95%",
-        "region": "",
+        "region": "GER",
         "level": "2",
         "disziplin": "PCC",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_Level_II_Series_PCC_Beginners_II"
@@ -129,7 +120,7 @@
         "name": "11. Heidberg-Cup",
         "datum": "26.09.2026",
         "auslastung": "20%",
-        "region": "",
+        "region": "GER",
         "level": "2",
         "disziplin": "HG",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_11._Heidberg_Cup"
@@ -138,7 +129,7 @@
         "name": "11. Heidberg-Cup KK",
         "datum": "27.09.2026",
         "auslastung": "40%",
-        "region": "",
+        "region": "GER",
         "level": "2",
         "disziplin": ".22LR HG",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_11._Heidberg_Cup_KK"
@@ -147,7 +138,7 @@
         "name": "Adeje Shooters Cup",
         "datum": "03.10.2026",
         "auslastung": "6%",
-        "region": "",
+        "region": "ESP",
         "level": "2",
         "disziplin": "HG, PCC, MR",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_V_Adeje_Shooters_Cup"
@@ -156,7 +147,7 @@
         "name": "V Extreme Adeje Shooters",
         "datum": "11.10.2026",
         "auslastung": "11%",
-        "region": "",
+        "region": "ESP",
         "level": "3",
         "disziplin": "HG, PCC, MR",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_V_Extreme_Adeje_Shooters"
@@ -165,7 +156,7 @@
         "name": "360° PCC powered by 3G",
         "datum": "18.10.2026",
         "auslastung": "89%",
-        "region": "",
+        "region": "POL",
         "level": "3",
         "disziplin": "PCC",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_360_PCC_by_3G"
@@ -174,7 +165,7 @@
         "name": "Tenerife Open 2026",
         "datum": "13.12.2026",
         "auslastung": "37%",
-        "region": "",
+        "region": "ESP",
         "level": "3",
         "disziplin": "HG, PCC, MR",
         "url": "https://www.ipscmatch.de/index.pl?match=TENERIFE_OPEN_2026"
@@ -183,7 +174,7 @@
         "name": "LM LV4 2027 Prd, PdO",
         "datum": "10.01.2027",
         "auslastung": "86%",
-        "region": "",
+        "region": "GER",
         "level": "3",
         "disziplin": "HG",
         "url": "https://www.ipscmatch.de/index.pl?match=2027_LM_Prd"
@@ -192,7 +183,7 @@
         "name": "Tenerife Masters Frontera 2027",
         "datum": "24.01.2027",
         "auslastung": "8%",
-        "region": "",
+        "region": "ESP",
         "level": "3",
         "disziplin": "HG, PCC, MR",
         "url": "https://www.ipscmatch.de/index.pl?match=2027_TENERIFE_MASTERS_FRONTERA"
