@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Impressum, AGB & Datenschutz | IPSC Börse</title>
+
+    <!-- PWA & App-Icons -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="IPSC Börse">
+    <link rel="apple-touch-icon" href="icon-192.png">
     
     <style>
         /* Modernes Variablen-System für Hell- und Dunkelmodus */
@@ -178,7 +186,7 @@
             border-color: var(--text-muted);
         }
 
-        /html[data-theme="dark"] .back-btn:hover {
+        html[data-theme="dark"] .back-btn:hover {
             background-color: var(--border-color);
         }
 
@@ -366,5 +374,16 @@
         }
     </script>
     <script src="auth.js"></script>
+    
+    <!-- PWA Service Worker Registrierung -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('PWA Service Worker registriert!', reg.scope))
+                    .catch(err => console.error('PWA Fehler:', err));
+            });
+        }
+    </script>
 </body>
 </html>
