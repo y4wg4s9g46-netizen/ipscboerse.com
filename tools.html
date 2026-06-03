@@ -178,81 +178,81 @@
         
         <!-- TOOL 1: HIT-FACTOR BATTLE -->
         <div class="tool-section">
-            <h2>🏆 Hit-Factor Battle</h2>
-            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Trage die Ergebnisse von dir und deinen Freunden ein, um eine Live-Rangliste für die Stage zu erstellen.</p>
+            <h2 data-txt="tools-hf-title">🏆 Hit-Factor Battle</h2>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="tools-hf-desc">Trage die Ergebnisse von dir und deinen Freunden ein, um eine Live-Rangliste für die Stage zu erstellen.</p>
             
             <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
                 <div class="form-group" style="flex: 1 1 100%;">
-                    <label>Schützenname</label>
+                    <label data-txt="tools-hf-name">Schützenname</label>
                     <input type="text" id="hf-name" placeholder="z.B. Max Mustermann">
                 </div>
                 <div class="form-group" style="flex: 1; min-width: 100px;">
-                    <label>Wertung</label>
+                    <label data-txt="tools-hf-pf">Wertung</label>
                     <select id="hf-pf">
                         <option value="minor">Minor</option>
                         <option value="major">Major</option>
                     </select>
                 </div>
                 <div class="form-group" style="flex: 1; min-width: 100px;">
-                    <label>Zeit (Sek.)</label>
+                    <label data-txt="tools-hf-time">Zeit (Sek.)</label>
                     <input type="number" id="hf-time" step="0.01" min="0" placeholder="0.00">
                 </div>
             </div>
 
-            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">Trefferaufnahme</label>
+            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;" data-txt="tools-hf-scoring">Trefferaufnahme</label>
             <div class="scoring-grid">
-                <div class="form-group"><label style="color: var(--success-color);">Alpha (A)</label><input type="number" id="hf-a" class="input-A" min="0" value="0"></div>
-                <div class="form-group"><label>Charlie (C)</label><input type="number" id="hf-c" min="0" value="0"></div>
-                <div class="form-group"><label>Delta (D)</label><input type="number" id="hf-d" min="0" value="0"></div>
-                <div class="form-group"><label style="color: var(--danger-color);">Miss (M)</label><input type="number" id="hf-m" class="input-M" min="0" value="0"></div>
-                <div class="form-group"><label style="color: var(--danger-color);">No-Shoot</label><input type="number" id="hf-ns" class="input-M" min="0" value="0"></div>
+                <div class="form-group"><label style="color: var(--success-color);" data-txt="tools-hf-alpha">Alpha (A)</label><input type="number" id="hf-a" class="input-A" min="0" value="0"></div>
+                <div class="form-group"><label data-txt="tools-hf-charlie">Charlie (C)</label><input type="number" id="hf-c" min="0" value="0"></div>
+                <div class="form-group"><label data-txt="tools-hf-delta">Delta (D)</label><input type="number" id="hf-d" min="0" value="0"></div>
+                <div class="form-group"><label style="color: var(--danger-color);" data-txt="tools-hf-miss">Miss (M)</label><input type="number" id="hf-m" class="input-M" min="0" value="0"></div>
+                <div class="form-group"><label style="color: var(--danger-color);" data-txt="tools-hf-ns">No-Shoot</label><input type="number" id="hf-ns" class="input-M" min="0" value="0"></div>
             </div>
 
-            <button class="btn-submit" onclick="addShooterToRanking()">Schütze eintragen & berechnen</button>
+            <button class="btn-submit" onclick="addShooterToRanking()" data-txt="tools-hf-btn-submit">Schütze eintragen & berechnen</button>
 
             <div style="overflow-x: auto;">
                 <table class="leaderboard" id="ranking-table" style="display: none;">
                     <thead>
                         <tr>
                             <th style="width: 30px;">#</th>
-                            <th>Name</th>
-                            <th>Pts</th>
-                            <th>Zeit</th>
-                            <th style="color: var(--accent-color);">HF</th>
+                            <th data-txt="tools-th-name">Name</th>
+                            <th data-txt="tools-th-pts">Pts</th>
+                            <th data-txt="tools-th-time">Zeit</th>
+                            <th style="color: var(--accent-color);" data-txt="tools-th-hf">HF</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody id="ranking-body"></tbody>
                 </table>
             </div>
-            <button id="btn-clear-ranking" class="btn-secondary" style="margin-top: 15px; display: none; width: 100%; color: var(--danger-color); border-color: var(--danger-color);" onclick="clearRanking()">Rangliste leeren</button>
+            <button id="btn-clear-ranking" class="btn-secondary" style="margin-top: 15px; display: none; width: 100%; color: var(--danger-color); border-color: var(--danger-color);" onclick="clearRanking()" data-txt="tools-hf-btn-clear">Rangliste leeren</button>
         </div>
 
         <!-- TOOL 2: DRY-FIRE TIMER & GENERATOR -->
         <div class="tool-section">
-            <h2>⏱️ Dry-Fire Timer & Drill Generator</h2>
+            <h2 data-txt="tools-df-title">⏱️ Dry-Fire Timer & Drill Generator</h2>
             
-            <div class="drill-box" id="drill-output">
+            <div class="drill-box" id="drill-output" data-txt="tools-df-placeholder">
                 Klicke auf den Button, um einen zufälligen Trockentrainings-Ablauf zu generieren.
             </div>
-            <button class="btn-secondary" style="width: 100%; margin-bottom: 30px;" onclick="generateDrill()">🎲 Neuen Drill generieren</button>
+            <button class="btn-secondary" style="width: 100%; margin-bottom: 30px;" onclick="generateDrill()" data-txt="tools-df-btn-gen">🎲 Neuen Drill generieren</button>
 
             <div style="border-top: 1px solid var(--border-color); padding-top: 20px;">
                 <div class="form-group" style="max-width: 200px; margin: 0 auto;">
-                    <label style="text-align: center;">Par-Zeit (Sekunden)</label>
+                    <label style="text-align: center;" data-txt="tools-df-par">Par-Zeit (Sekunden)</label>
                     <input type="number" id="par-time" step="0.1" min="0.5" value="3.0" style="text-align: center; font-size: 18px; font-weight: bold;">
                 </div>
 
                 <div class="timer-display" id="timer-display">0.00</div>
-                <div class="timer-status" id="timer-status">Bereit</div>
+                <div class="timer-status" id="timer-status" data-txt="tools-df-status-ready">Bereit</div>
 
-                <button class="btn-submit" id="btn-start-timer" style="background-color: var(--success-color);" onclick="startTimer()">Start Timer (Zufalls-Delay)</button>
+                <button class="btn-submit" id="btn-start-timer" style="background-color: var(--success-color);" onclick="startTimer()" data-txt="tools-df-btn-start">Start Timer (Zufalls-Delay)</button>
             </div>
         </div>
 
     </div>
 
-    <!-- MODALS FÜR LOGIN, EINSTELLUNGEN UND CHAT -->
+    <!-- MODALS BEREICH -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -260,52 +260,52 @@
             </div>
             
             <div id="modal-login-view">
-                <h3>Anmelden</h3>
+                <h3 data-txt="modal-login-title">Anmelden</h3>
                 <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()"><span>📱</span> Login mit FaceID / Fingerabdruck</button>
                 <div class="modal-divider">oder klassisch mit E-Mail</div>
                 <form id="login-form">
-                    <div class="form-group"><label>E-Mail *</label><input type="email" id="login-email" required placeholder="name@beispiel.de"></div>
+                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required placeholder="name@beispiel.de"></div>
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                             <label style="margin-bottom: 0;">Passwort *</label>
-                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;">Passwort vergessen?</a>
+                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
                         </div>
                         <input type="password" id="login-password" required placeholder="••••••••">
                     </div>
-                    <button type="submit" class="btn-primary-auth">Mit Passwort einloggen</button>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
                 </form>
-                <div class="modal-footer"><span>Noch kein Konto?</span><a onclick="toggleAuthView('register')">Registrieren</a></div>
+                <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a></div>
             </div>
 
             <div id="modal-register-view" style="display: none;">
-                <h3>Konto erstellen</h3>
+                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
-                    <div class="form-group"><label>E-Mail *</label><input type="email" id="register-email" required placeholder="name@beispiel.de"></div>
+                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="register-email" required placeholder="name@beispiel.de"></div>
                     <div class="form-group"><label>Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
-                    <button type="submit" class="btn-primary-auth">Konto erstellen</button>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-reg">Konto erstellen</button>
                 </form>
-                <div class="modal-footer"><span>Bereits registriert?</span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a></div>
+                <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a></div>
             </div>
 
             <div id="modal-forgot-view" style="display: none;">
-                <h3>Passwort vergessen</h3>
+                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
                 <form id="forgot-form">
-                    <div class="form-group"><label>Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required placeholder="name@beispiel.de"></div>
-                    <button type="submit" class="btn-primary-auth">Zurücksetzungs-Link senden</button>
+                    <div class="form-group"><label data-txt="lbl-email">Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required placeholder="name@beispiel.de"></div>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
                 </form>
-                <div class="modal-footer"><a onclick="toggleAuthView('login')">Zurück zum Login</a></div>
+                <div class="modal-footer"><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a></div>
             </div>
 
             <div id="modal-reset-view" style="display: none;">
-                <h3>Neues Passwort vergeben</h3>
+                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                 <form id="reset-password-form">
-                    <div class="form-group"><label>Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
-                    <button type="submit" class="btn-primary-auth">Speichern</button>
+                    <div class="form-group"><label data-txt="lbl-new-password">Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
+                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Speichern</button>
                 </form>
             </div>
 
             <div id="modal-settings-view" style="display: none;">
-                <h3>Konto-Einstellungen</h3>
+                <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
                     <label style="color: var(--success-color); font-weight: 700;">📈 Erfolgreiche Vermittlungen</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
@@ -325,7 +325,7 @@
                 </div>
 
                 <form id="settings-form">
-                    <div class="form-group"><label>Schützenname / Anzeigename</label><input type="text" id="settings-username" placeholder="z.B. IPSCShooter99"></div>
+                    <div class="form-group"><label data-txt="lbl-username">Schützenname / Anzeigename</label><input type="text" id="settings-username" placeholder="z.B. IPSCShooter99"></div>
                     <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 4px; border-left: 3px solid var(--success-color); margin-bottom: 20px;">
                         <label style="color: var(--success-color); margin-bottom: 2px;">🛡️ IPSC Alias / Mitgliedsnummer</label>
                         <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
@@ -333,10 +333,10 @@
                     </div>
                     <div class="form-group"><label>Profilbild (Optional)</label><input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)"><img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;"></div>
                     <div class="form-group"><label>Neues Passwort ändern (Optional)</label><input type="password" id="settings-password" minlength="6" placeholder="Unverändert lassen"></div>
-                    <button type="submit" class="btn-primary-auth">Änderungen speichern</button>
+                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Änderungen speichern</button>
                 </form>
                 <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
-                <button class="btn-danger-block" id="btn-delete-account">Konto & alle Einträge unwiderruflich löschen</button>
+                <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
             </div>
         </div>
     </div>
@@ -378,8 +378,9 @@
         </div>
     </footer>
 
-    <!-- SKRIPTE VERKNÜPFEN (Wichtig für Login & Chat) -->
+    <!-- SKRIPTE VERKNÜPFEN -->
     <script src="auth.js"></script>
+    <script src="lang.js"></script>
     <script src="app.js"></script>
     <script>
         // --- THEME LOGIK & CHAT BADGE ---
@@ -423,7 +424,7 @@
             const ns = parseInt(document.getElementById('hf-ns').value) || 0;
 
             if (time <= 0 && (a+c+d+m) > 0) {
-                alert("Bitte gib eine gültige Zeit ein!");
+                alert(window.currentLang === 'en' ? "Please enter a valid time!" : "Bitte gib eine gültige Zeit ein!");
                 return;
             }
 
@@ -465,7 +466,8 @@
         }
 
         function clearRanking() {
-            if(confirm("Bist du sicher, dass du die Rangliste löschen möchtest?")) {
+            const msg = window.currentLang === 'en' ? "Are you sure you want to clear the leaderboard?" : "Bist du sicher, dass du die Rangliste löschen möchtest?";
+            if(confirm(msg)) {
                 rankingData = [];
                 renderRanking();
             }
@@ -535,6 +537,7 @@
         function startTimer() {
             if (isTimerRunning) return; 
             
+            const isEn = (window.currentLang === 'en');
             const btn = document.getElementById('btn-start-timer');
             const status = document.getElementById('timer-status');
             const display = document.getElementById('timer-display');
@@ -542,7 +545,7 @@
             
             isTimerRunning = true;
             btn.style.opacity = '0.5';
-            btn.innerText = "Timer läuft...";
+            btn.innerText = isEn ? "Timer running..." : "Timer läuft...";
             
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -571,18 +574,26 @@
 
                 setTimeout(() => {
                     playBeep(3000, 300);
-                    status.innerText = "Par-Zeit abgelaufen";
+                    status.innerText = isEn ? "Par time expired" : "Par-Zeit abgelaufen";
                     status.style.color = "var(--danger-color)";
                     isTimerRunning = false;
                     btn.style.opacity = '1';
-                    btn.innerText = "Start Timer (Zufalls-Delay)";
+                    btn.innerText = isEn ? "Start Timer (Random Delay)" : "Start Timer (Zufalls-Delay)";
                 }, parTimeSec * 1000);
 
             }, randomDelay);
         }
 
         // --- DRILL GENERATOR ---
-        const startPositions = [
+        const startPositionsEN = [
+            "Hands relaxed at sides (Condition 1)",
+            "Hands above shoulders (Surrender, Condition 1)",
+            "Gun loaded on the table, hands flat on table",
+            "Gun completely unloaded (Condition 3) in holster",
+            "Facing away from targets (Turn and Draw)",
+            "Strong hand on holster, weak hand relaxed"
+        ];
+        const startPositionsDE = [
             "Hände entspannt an der Seite (Condition 1)",
             "Hände über den Schultern (Surrender, Condition 1)",
             "Waffe geladen auf dem Tisch, Hände flach auf dem Tisch",
@@ -591,7 +602,16 @@
             "Starke Hand am Holster, schwache Hand entspannt"
         ];
 
-        const actions = [
+        const actionsEN = [
+            "Draw, 1 shot on T1",
+            "Draw, 2 shots on T1",
+            "Bill Drill (Draw, 6 shots on T1)",
+            "Draw, 2 shots on T1, reload, 2 shots on T1",
+            "Draw, 2 shots on T1, 2 shots on T2 (Transition)",
+            "Draw, 1 shot strong hand only (Strong Hand Only)",
+            "El Presidente (Turn & Draw, 6 shots)"
+        ];
+        const actionsDE = [
             "Ziehen, 1 Schuss T1",
             "Ziehen, 2 Schuss T1",
             "Bill Drill (Ziehen, 6 Schuss auf T1)",
@@ -602,35 +622,26 @@
         ];
 
         function generateDrill() {
-            const randomStart = startPositions[Math.floor(Math.random() * startPositions.length)];
-            const randomAction = actions[Math.floor(Math.random() * actions.length)];
+            const isEn = (window.currentLang === 'en');
+            const starts = isEn ? startPositionsEN : startPositionsDE;
+            const acts = isEn ? actionsEN : actionsDE;
+            
+            const randomStart = starts[Math.floor(Math.random() * starts.length)];
+            const randomAction = acts[Math.floor(Math.random() * acts.length)];
+            
+            const labelStart = isEn ? "Start Position:" : "Startposition:";
+            const labelAction = isEn ? "Procedure:" : "Ablauf:";
             
             const html = `
                 <div style="text-align: left; width: 100%;">
-                    <strong style="color: var(--accent-color);">Startposition:</strong><br>
+                    <strong style="color: var(--accent-color);">${labelStart}</strong><br>
                     ${randomStart}<br><br>
-                    <strong style="color: var(--accent-color);">Ablauf:</strong><br>
+                    <strong style="color: var(--accent-color);">${labelAction}</strong><br>
                     ${randomAction}
                 </div>
             `;
             document.getElementById('drill-output').innerHTML = html;
         }
     </script>
-    
-    <!-- PWA Service Worker Registrierung -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('PWA Service Worker registriert!', reg.scope))
-                    .catch(err => console.error('PWA Fehler:', err));
-            });
-        }
-    </script>
-        <script src="auth.js"></script>
-<script src="lang.js"></script>
-<script src="app.js"></script>
-
-
 </body>
 </html>
