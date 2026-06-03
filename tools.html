@@ -171,35 +171,8 @@
 </head>
 <body>
 
-    <header>
-        <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
-        <p style="color: var(--text-muted); margin: 5px 0 0 0;" data-txt="sub-title">Von Schützen für Schützen – Live Marktplatz</p>
-        
-        <nav class="main-nav">
-    <a href="index.html" class="inactive">Startseite</a>
-    <a href="marktplatz.html" class="inactive">Marktplatz</a>
-    <a href="freie-matches.html" class="inactive">Freie Match-Plätze</a>
-    <a href="mein-planer.html" class="inactive">Mein Planer</a>
-    <a href="community.html" class="inactive">Community</a>
-    <a href="ipsc-hub.html" class="inactive">IPSC Hub</a>
-    <a href="tools.html" class="active">Tools & Training</a>
-</nav>
-
-        <div class="header-controls">
-            <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
-            <button id="header-chat-btn" class="theme-toggle-btn" onclick="toggleGlobalInbox()" style="position: relative; font-size: 18px;" title="Nachrichten">
-                💬
-                <span id="chat-badge-count" style="display: none; position: absolute; top: -4px; right: -4px; background: var(--danger-color); color: white; font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold;">0</span>
-            </button>
-            <select id="language-select" class="lang-select">
-                <option value="de">DE</option>
-                <option value="en">EN</option>
-            </select>
-            <div id="auth-status-container">
-                <button class="btn-auth" id="btn-open-login">Login / Registrieren</button>
-            </div>
-        </div>
-    </header>
+    <header></header>
+    <script src="header.js"></script>
 
     <div class="container">
         
@@ -311,7 +284,7 @@
                     <div class="form-group"><label>Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
                     <button type="submit" class="btn-primary-auth">Konto erstellen</button>
                 </form>
-                <div class="modal-footer"><span>Bereits registriert?</span><a onclick="toggleAuthView('login')">Zum Login</a></div>
+                <div class="modal-footer"><span>Bereits registriert?</span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a></div>
             </div>
 
             <div id="modal-forgot-view" style="display: none;">
@@ -348,7 +321,7 @@
                 <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
                     <label style="color: #3498db;">🔒 Passkey (Schnell-Login)</label>
                     <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" style="width:100%; padding:10px; background-color: #3498db; color: white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;" onclick="registerPasskey()">Gerät als Passkey registrieren</button>
+                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()">Gerät als Passkey registrieren</button>
                 </div>
 
                 <form id="settings-form">
@@ -414,12 +387,25 @@
             const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
             document.documentElement.setAttribute('data-theme', savedThemeSetting !== 'auto' ? savedThemeSetting : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
             if (typeof updateThemeToggleIcon === "function") updateThemeToggleIcon(savedThemeSetting);
+
+            // Sprache beim Start synchronisieren
+            const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
+            const languageSelectorDropdown = document.getElementById("language-select");
+            if (languageSelectorDropdown) {
+                languageSelectorDropdown.value = savedLanguageSetting;
+            }
         });
 
         window.onAuthChange = () => { 
             if(typeof updateHeaderChatBadge === 'function') {
                 updateHeaderChatBadge(); 
             }
+        };
+
+        // FIX: Verhindert den Absturz des Übersetzungssystems auf dieser Seite
+        window.onLanguageChanged = () => { 
+            const selector = document.getElementById("language-select");
+            if (selector) selector.value = window.currentLang;
         };
 
         // --- 1. HIT-FACTOR BATTLE LOGIK ---
