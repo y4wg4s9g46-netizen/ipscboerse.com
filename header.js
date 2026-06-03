@@ -1,7 +1,7 @@
 (function() {
     const injectHeader = () => {
         const header = document.querySelector('header');
-        if (!header) return false; // Falls nicht gefunden, bricht es ab und wartet auf DOMContentLoaded
+        if (!header) return false;
 
         // 1. Aktuellen Dateinamen und gespeicherte Sprache ermitteln
         const path = window.location.pathname;
@@ -28,10 +28,10 @@
             navHtml += `<a href="${link.href}" class="${className}">${link.text}</a>`;
         });
 
-        // 3. HTML-Struktur in den Header injizieren
+        // 3. HTML-Struktur in den Header injizieren (Jetzt mit ALLEN originalen data-txt Attributen!)
         header.innerHTML = `
             <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
-            <p style="color: var(--text-muted); margin: 5px 0 0 0; font-size: 13px;">Von Schützen für Schützen</p>
+            <p style="color: var(--text-muted); margin: 5px 0 0 0; font-size: 13px;" data-txt="sub-title">Von Schützen für Schützen</p>
             
             <div class="header-controls">
                 <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
@@ -46,7 +46,7 @@
                     <option value="en" ${savedLanguageSetting === 'en' ? 'selected' : ''}>EN</option>
                 </select>
                 <div id="auth-status-container">
-                    <button class="btn-auth" id="btn-open-login">Login / Registrieren</button>
+                    <button class="btn-auth" id="btn-open-login" data-txt="btn-login-reg">Login / Registrieren</button>
                 </div>
             </div>
 
@@ -104,7 +104,6 @@
         `;
         document.head.appendChild(style);
 
-        // 5. Den aktiven Tab beim Laden der Seite automatisch ins Sichtfeld scrollen
         const activeLink = header.querySelector('.main-nav a.active');
         if (activeLink) {
             setTimeout(() => {
@@ -115,7 +114,6 @@
         return true;
     };
 
-    // Sofort ausführen, falls <header> bereits im DOM ist (verhindert Blockade von app.js)
     if (!injectHeader()) {
         document.addEventListener('DOMContentLoaded', injectHeader);
     }
