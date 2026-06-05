@@ -103,7 +103,7 @@ window.portalTranslations = {
         "btn-export": "Export (.ics)",
         "report-btn": "Melden",
         "form-title-edit": "Eintrag bearbeiten ✏️",
-        "btn-save-edit": "Änderungen speichern",
+        "btn-save-edit": "Änderungen保存",
         "login-required": "Nur eingeloggte Nutzer können Schützen kontaktieren.",
         "tag-offer": "BIETE",
         "tag-want": "SUCHE",
