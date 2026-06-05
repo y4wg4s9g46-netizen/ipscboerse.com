@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tools & Training | Startplatz Börse</title>
     
-    <!-- PWA & App-Icons -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e293b">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -69,7 +68,7 @@
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
         .form-group label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; }
         .form-group input, .form-group select { width: 100%; background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px 12px; border-radius: var(--radius); font-size: 14px; box-sizing: border-box; font-family: inherit; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent-color); }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(255, 159, 67, 0.15); }
 
         .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 20px; font-size: 15px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; transition: opacity 0.15s; }
         .btn-submit:hover { opacity: 0.9; }
@@ -93,6 +92,24 @@
         .leaderboard th { font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 12px; }
         .leaderboard tr:hover { background-color: rgba(255, 159, 67, 0.05); }
         .rank-1 { font-weight: bold; color: var(--accent-color); font-size: 16px; }
+
+        /* Ultra-Clean Grid Layout für den neuen Power-Factor Manager */
+        .pf-input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .pf-full-row { grid-column: span 2; }
+
+        /* Luxuriöseres Dashboard-Widget für das Rechenergebnis */
+        .pf-dashboard-card {
+            background: rgba(15, 23, 42, 0.3); border: 1px solid var(--border-color);
+            padding: 20px; border-radius: var(--radius); text-align: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; margin-top: 10px;
+        }
+        .pf-display-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 700; }
+        .pf-display-number { font-size: 36px; font-weight: 900; color: var(--text-color); font-variant-numeric: tabular-nums; line-height: 1; }
+        .pf-status-badge {
+            display: inline-block; padding: 5px 12px; font-size: 12px; font-weight: 700; 
+            border-radius: 20px; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;
+            box-shadow: var(--shadow-sm); margin-top: 2px;
+        }
 
         /* --- Luxuriöses Modal CSS --- */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease-out; padding: 20px; box-sizing: border-box; }
@@ -129,6 +146,11 @@
             .scoring-grid label { font-size: 11px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
             .scoring-grid input { padding: 8px 4px !important; font-size: 14px !important; width: 100% !important; box-sizing: border-box !important; }
             .leaderboard th, .leaderboard td { padding: 8px 4px; font-size: 12px; }
+            
+            /* Stapelt die Inputfelder auf Smartphones sauber untereinander */
+            .pf-input-grid { grid-template-columns: 1fr; gap: 12px; }
+            .pf-full-row { grid-column: span 1; }
+
             .modal { padding: 10px !important; }
             .modal-content { padding: 24px 16px !important; }
             .modal-close-container { top: 12px !important; right: 12px !important; }
@@ -143,7 +165,6 @@
 
     <div class="container">
         
-        <!-- TOOL 1: HIT-FACTOR BATTLE -->
         <div class="tool-section">
             <h2 data-txt="tools-hf-title">🏆 Hit-Factor Battle</h2>
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="tools-hf-desc">Trage die Ergebnisse von dir und deinen Freunden ein, um eine Live-Rangliste für die Stage zu erstellen.</p>
@@ -195,21 +216,20 @@
             <button id="btn-clear-ranking" class="btn-secondary" style="margin-top: 15px; display: none; width: 100%; color: var(--danger-color); border-color: var(--danger-color);" onclick="clearRanking()" data-txt="tools-hf-btn-clear">Rangliste leeren</button>
         </div>
 
-        <!-- NEW TOOL 2: IPSC POWER-FACTOR RECHNER -->
         <div class="tool-section">
             <h2>⏱️ IPSC Power-Factor Manager</h2>
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Berechne den Power Factor deiner Laborierung und überprüfe den Status für das Match.</p>
             
-            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
-                <div class="form-group" style="flex: 1; min-width: 140px;">
+            <div class="pf-input-grid">
+                <div class="form-group">
                     <label>Geschossgewicht (Grains)</label>
                     <input type="number" id="pf-weight" value="124" min="1" step="0.1" oninput="calculatePowerFactor()">
                 </div>
-                <div class="form-group" style="flex: 1; min-width: 140px;">
+                <div class="form-group">
                     <label>Geschwindigkeit (fps)</label>
                     <input type="number" id="pf-velocity" value="1030" min="1" oninput="calculatePowerFactor()">
                 </div>
-                <div class="form-group" style="flex: 1; min-width: 140px;">
+                <div class="form-group pf-full-row">
                     <label>Angestrebte Wertung</label>
                     <select id="pf-target-type" onchange="calculatePowerFactor()">
                         <option value="minor">Minor (Mindest-Faktor 125)</option>
@@ -218,13 +238,13 @@
                 </div>
             </div>
 
-            <div style="background: var(--bg-color); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); text-align: center; font-size: 16px; font-weight: bold;">
-                Power Factor: <span id="pf-result-value" style="color: var(--accent-color);">0.00</span> 
-                (<span id="pf-result-status">-</span>)
+            <div class="pf-dashboard-card">
+                <div class="pf-display-label">Errechneter Power Factor</div>
+                <div class="pf-display-number" id="pf-result-value">0.00</div>
+                <div class="pf-status-badge" id="pf-result-status">-</div>
             </div>
         </div>
 
-        <!-- TOOL 3: DRY-FIRE TIMER & GENERATOR -->
         <div class="tool-section">
             <h2 data-txt="tools-df-title">⏱️ Dry-Fire Timer & Drill Generator</h2>
             
@@ -248,7 +268,6 @@
 
     </div>
 
-    <!-- MODALS BEREICH -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -300,7 +319,6 @@
                 </form>
             </div>
 
-            <!-- GLOBAL REPARIERTES KONTO-EINSTELLUNGEN POPUP -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
@@ -358,7 +376,6 @@
         </div>
     </div>
 
-    <!-- CHAT MODALS -->
     <div class="modal" id="chat-modal">
         <div class="modal-content" style="max-width: 500px; padding: 25px;">
             <div class="modal-close-container">
@@ -395,7 +412,6 @@
         </div>
     </footer>
 
-    <!-- SKRIPTE VERKNÜPFEN -->
     <script src="auth.js"></script>
     <script src="lang.js"></script>
     <script src="app.js"></script>
@@ -526,7 +542,7 @@
             });
         }
 
-        // --- NEW: POWER FACTOR RECHNER METHODE ---
+        // --- NEW: POWER FACTOR RECHNER METHODE (VISUELL AUFGEWERTET) ---
         function calculatePowerFactor() {
             const weight = parseFloat(document.getElementById('pf-weight').value) || 0;
             const velocity = parseFloat(document.getElementById('pf-velocity').value) || 0;
@@ -541,21 +557,21 @@
             if (targetType === 'major') {
                 if (pf >= 160) {
                     statusEl.innerText = isEn ? "MAJOR REACHED" : "MAJOR ERREICHT";
-                    statusEl.style.color = "var(--success-color)";
+                    statusEl.style.backgroundColor = "var(--success-color)";
                 } else if (pf >= 125) {
                     statusEl.innerText = isEn ? "MINOR ONLY (Major missed!)" : "NUR MINOR (Major unterlaufen!)";
-                    statusEl.style.color = "var(--info-color)";
+                    statusEl.style.backgroundColor = "var(--info-color)";
                 } else {
                     statusEl.innerText = isEn ? "SUB-MINOR (Not scored)" : "SUB-MINOR (Nicht gewertet)";
-                    statusEl.style.color = "var(--danger-color)";
+                    statusEl.style.backgroundColor = "var(--danger-color)";
                 }
             } else {
                 if (pf >= 125) {
                     statusEl.innerText = isEn ? "MINOR REACHED" : "MINOR ERREICHT";
-                    statusEl.style.color = "var(--success-color)";
+                    statusEl.style.backgroundColor = "var(--success-color)";
                 } else {
                     statusEl.innerText = isEn ? "SUB-MINOR (Not scored)" : "SUB-MINOR (Nicht gewertet)";
-                    statusEl.style.color = "var(--danger-color)";
+                    statusEl.style.backgroundColor = "var(--danger-color)";
                 }
             }
         }
