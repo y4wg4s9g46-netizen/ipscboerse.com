@@ -1,99 +1,192 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPSC Stage-Planer Prototyp</title>
+    <title>IPSC Stage-Planer Pro</title>
     <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #3b82f6;
+            --danger: #ef4444;
+            --text: #f8fafc;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
             padding: 15px;
-            background-color: #121212;
-            color: #ffffff;
+            background-color: var(--bg-color);
+            color: var(--text);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        h2 { margin-bottom: 10px; font-size: 1.2rem; }
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
 
-        /* WICHTIG: Erlaubt dem Browser nicht, die Seite beim Zeichnen zu scrollen */
+        header {
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        h2 { margin: 0; font-size: 1.4rem; color: #fff; }
+        p { margin: 5px 0 0; font-size: 0.85rem; color: #94a3b8; }
+
+        /* Elegant gestylter Upload-Button für Kamera & Dateien */
+        .btn-upload {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+            transition: transform 0.1s;
+        }
+        .btn-upload:active { transform: scale(0.98); }
+        input[type="file"] { display: none; }
+
+        /* Canvas Bereich */
+        .canvas-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
         #stageCanvas {
             touch-action: none; 
-            border: 2px dashed #444;
+            border: 2px solid #334155;
             max-width: 100%;
             height: auto;
-            background-color: #222;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
         }
 
-        .controls {
-            margin-top: 15px;
+        /* Werkzeugleiste (Toolbar) */
+        .toolbar {
+            background-color: var(--card-bg);
+            padding: 12px;
+            border-radius: 14px;
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            width: 100%;
-            max-width: 400px;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        button, label {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        .btn-upload { background-color: #007bff; color: white; }
-        .btn-clear { background-color: #dc3545; color: white; }
-        
-        .color-picker {
+        .tool-group {
             display: flex;
             gap: 8px;
+            width: 100%;
+        }
+
+        .btn-tool {
+            flex: 1;
+            background-color: #334155;
+            border: none;
+            color: #94a3b8;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
             align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .btn-tool.active {
+            background-color: var(--primary);
+            color: #fff;
+        }
+
+        /* Spezial-Tasten für X und R optisch hervorheben */
+        .btn-tool[data-tool="X"].active { background-color: #ef4444; }
+        .btn-tool[data-tool="R"].active { background-color: #eab308; }
+
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            padding: 4px 0;
         }
 
         .color-dot {
-            width: 35px;
-            height: 35px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            border: 2px solid transparent;
-            padding: 0;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: transform 0.1s;
         }
-
         .color-dot.active {
-            border-color: white;
+            border-color: #fff;
             transform: scale(1.1);
         }
 
-        input[type="file"] { display: none; }
-        .canvas-container { width: 100%; display: flex; justify-content: center; }
+        .btn-clear {
+            background-color: #475569;
+            color: #f1f5f9;
+        }
     </style>
 </head>
 <body>
 
-    <h2>🎯 IPSC Stage Walkthrough-Planer</h2>
+    <div class="app-container">
+        <header>
+            <h2>🎯 Stage Walkthrough-Planer</h2>
+            <p>Foto schießen oder Datei aus E-Mail/Galerie laden</p>
+        </header>
 
-    <label class="btn-upload" for="imageLoader">📸 Stage-Foto aufnehmen</label>
-    <input type="file" id="imageLoader" accept="image/*" capture="environment">
+        <!-- Universeller Datei- & Kamera-Upload -->
+        <label class="btn-upload" for="imageLoader">
+            📂 Plan laden / Foto machen
+        </label>
+        <input type="file" id="imageLoader" accept="image/*">
 
-    <br>
-
-    <div class="canvas-container">
-        <canvas id="stageCanvas" width="300" height="400"></canvas>
-    </div>
-
-    <div class="controls">
-        <div class="color-picker">
-            <button class="color-dot active" data-color="#ff0055" style="background-color: #ff0055;"></button>
-            <button class="color-dot" data-color="#0088ff" style="background-color: #0088ff;"></button>
-            <button class="color-dot" data-color="#00ff66" style="background-color: #00ff66;"></button>
+        <!-- Zeichenfläche -->
+        <div class="canvas-container">
+            <canvas id="stageCanvas" width="350" height="450"></canvas>
         </div>
-        <button class="btn-clear" id="clearBtn">❌ Löschen</button>
+
+        <!-- Die neue Pro-Toolbar -->
+        <div class="toolbar">
+            <!-- Modus-Auswahl -->
+            <div class="tool-group">
+                <button class="btn-tool active" data-tool="draw">✏️ Linie</button>
+                <button class="btn-tool" data-tool="X">❌ Stand (X)</button>
+                <button class="btn-tool" data-tool="R">🔄 Reload (R)</button>
+            </div>
+
+            <!-- Farben & Reset -->
+            <div class="tool-group" style="align-items: center;">
+                <div class="color-picker" style="flex: 2;">
+                    <div class="color-dot active" data-color="#38bdf8" style="background-color: #38bdf8;"></div>
+                    <div class="color-dot" data-color="#f43f5e" style="background-color: #f43f5e;"></div>
+                    <div class="color-dot" data-color="#4ade80" style="background-color: #4ade80;"></div>
+                    <div class="color-dot" data-color="#fbbf24" style="background-color: #fbbf24;"></div>
+                </div>
+                <button class="btn-tool btn-clear" id="clearBtn" style="flex: 1;">🗑️ Reset</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -102,13 +195,16 @@
         const imageLoader = document.getElementById('imageLoader');
         const clearBtn = document.getElementById('clearBtn');
         const colorDots = document.querySelectorAll('.color-dot');
+        const toolButtons = document.querySelectorAll('.btn-tool[data-tool]');
 
         let isDrawing = false;
-        let currentColor = '#ff0055'; // Standard: Rot
+        let currentTool = 'draw'; // Modi: 'draw', 'X', 'R'
+        let currentColor = '#38bdf8'; 
         let currentImage = null;
 
-        // 1. FOTO LADEN & AUF CANVAS ZEICHNEN
+        // 1. FLEXIBLER UPLOAD (Kamera oder Datei aus E-Mail)
         imageLoader.addEventListener('change', function(e) {
+            if(!e.target.files.length) return;
             const reader = new FileReader();
             reader.onload = function(event) {
                 const img = new Image();
@@ -123,9 +219,7 @@
 
         function resizeAndDrawImage() {
             if (!currentImage) return;
-
-            // Auflösung für scharfe Linien auf Handys deckeln (z.B. max 1000px Breite)
-            const maxDim = 1000;
+            const maxDim = 1200;
             let width = currentImage.width;
             let height = currentImage.height;
 
@@ -144,59 +238,83 @@
             ctx.drawImage(currentImage, 0, 0, width, height);
         }
 
-        // 2. KOORDINATEN RECHNEN (für Skalierung wichtig!)
         function getCoordinates(e) {
             const rect = canvas.getBoundingClientRect();
-            // Schaut ob es ein Touch-Event (Handy) oder Mouse-Event (PC) ist
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             
-            // Rechnet die CSS-Größe exakt auf die interne Canvas-Auflösung um
             return {
                 x: (clientX - rect.left) * (canvas.width / rect.width),
                 y: (clientY - rect.top) * (canvas.height / rect.height)
             };
         }
 
-        // 3. ZEICHEN-LOGIK (Touch & Maus)
-        function startDrawing(e) {
-            isDrawing = true;
+        // 2. AKTION BEI KLICK / TOUCH
+        function handleStart(e) {
             const coords = getCoordinates(e);
-            ctx.beginPath();
-            ctx.moveTo(coords.x, coords.y);
-            
-            // Schickere Linienenden
-            ctx.lineWidth = canvas.width / 100; // Dynamische Dicke je nach Bildgröße
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.strokeStyle = currentColor;
+
+            if (currentTool === 'draw') {
+                // Normaler Linienmodus
+                isDrawing = true;
+                ctx.beginPath();
+                ctx.moveTo(coords.x, coords.y);
+                ctx.lineWidth = canvas.width / 90; 
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.strokeStyle = currentColor;
+            } else {
+                // Stempelmodus für X oder R
+                stampText(currentTool, coords.x, coords.y);
+            }
         }
 
-        function draw(e) {
-            if (!isDrawing) return;
-            e.preventDefault(); // Verhindert Ruckeln auf manchen Androids
+        function handleMove(e) {
+            if (!isDrawing || currentTool !== 'draw') return;
+            e.preventDefault(); 
             const coords = getCoordinates(e);
             ctx.lineTo(coords.x, coords.y);
             ctx.stroke();
         }
 
-        function stopDrawing() {
+        function handleEnd() {
             isDrawing = false;
-            ctx.closePath();
+            if(currentTool === 'draw') ctx.closePath();
         }
 
-        // Event-Listener für Touch (Smartphone)
-        canvas.addEventListener('touchstart', startDrawing);
-        canvas.addEventListener('touchmove', draw);
-        canvas.addEventListener('touchend', stopDrawing);
+        // 3. X UND R STEMPELN
+        function stampText(text, x, y) {
+            const fontSize = Math.round(canvas.width / 10); // Dynamische Größe basierend auf Bildgröße
+            ctx.font = `bold ${fontSize}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
 
-        // Event-Listener für Maus (PC-Test)
-        canvas.addEventListener('mousedown', startDrawing);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseup', stopDrawing);
-        canvas.addEventListener('mouseleave', stopDrawing);
+            // Kontur/Schatten hinzufügen, damit man das Symbol auf JEDEM Hintergrund (hell/dunkel) sieht
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = fontSize / 4;
+            ctx.strokeText(text, x, y);
 
-        // 4. CONTROLS (Farben & Reset)
+            // Eigentlicher Buchstabe
+            ctx.fillStyle = text === 'X' ? '#ef4444' : '#eab308'; // Festgelegte Signalfarben für X und R
+            ctx.fillText(text, x, y);
+        }
+
+        // Event-Hinterlegungen
+        canvas.addEventListener('touchstart', handleStart);
+        canvas.addEventListener('touchmove', handleMove);
+        canvas.addEventListener('touchend', handleEnd);
+        canvas.addEventListener('mousedown', handleStart);
+        canvas.addEventListener('mousemove', handleMove);
+        canvas.addEventListener('mouseup', handleEnd);
+
+        // 4. TOOLBAR LOGIK
+        toolButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelector('.btn-tool.active').classList.remove('active');
+                btn.classList.add('active');
+                currentTool = btn.getAttribute('data-tool');
+            });
+        });
+
         colorDots.forEach(dot => {
             dot.addEventListener('click', (e) => {
                 document.querySelector('.color-dot.active').classList.remove('active');
@@ -207,7 +325,6 @@
 
         clearBtn.addEventListener('click', () => {
             if (currentImage) {
-                // Wenn ein Bild geladen ist, zeichne es einfach sauber neu
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
             } else {
