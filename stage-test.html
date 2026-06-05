@@ -2,11 +2,20 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Stage Planer Pro | Startplatz Börse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPSC Trainings-Tools | Startplatz Börse</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="IPSC Börse">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* Integriert sich nahtlos in dein bestehendes Farbsystem[span_0](start_span)[span_0](end_span)[span_1](start_span)[span_1](end_span) */
+        /* Modernes Variablen-System aus deiner originalen Marktplatz-Datei */
         :root, html[data-theme="light"] {
             --bg-color: #f8f9fa;
             --card-bg: #ffffff;
@@ -14,10 +23,12 @@
             --text-muted: #64748b;
             --border-color: #e2e8f0;
             --input-bg: #ffffff;
-            --accent-color: #ff9f43;
+            --accent-color: #ff9f43; /* IPSC Orange */
             --danger-color: #ef4444;
             --success-color: #10b981;
             --info-color: #3b82f6;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
             --radius: 8px;
         }
 
@@ -28,329 +39,293 @@
             --text-muted: #94a3b8;
             --border-color: #334155;
             --input-bg: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0; padding: 10px;
+            margin: 0; padding: 0;
             display: flex; flex-direction: column; min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .container { max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; }
 
-        .form-section {
+        /* Dashboard Zwei-Spalten-Layout */
+        .tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+
+        .tool-section {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius); padding: 15px; margin-bottom: 15px;
+            border-radius: var(--radius); padding: 25px; box-shadow: var(--shadow-sm);
+            display: flex; flex-direction: column;
         }
 
-        .btn-upload {
-            background-color: var(--info-color); color: white; padding: 12px;
-            border-radius: var(--radius); font-weight: 600; text-align: center;
-            cursor: pointer; display: block; margin-bottom: 15px;
+        .tool-section h2 { margin-top: 0; font-size: 20px; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        label { font-size: 13px; margin-bottom: 6px; font-weight: 600; }
+        input, select {
+            background-color: var(--input-bg); border: 1px solid var(--border-color);
+            color: var(--text-color); padding: 10px 12px; border-radius: var(--radius); font-size: 14px;
         }
-        input[type="file"] { display: none; }
-
-        /* --- VIEWPORT --- */
-        .viewport-container {
-            width: 100%; height: 60vh; position: relative;
-            border: 1px solid var(--border-color); border-radius: var(--radius);
-            overflow: hidden; background: #1a1a1a; touch-action: none;
-        }
-
-        .zoom-wrapper {
-            position: absolute; top: 0; left: 0;
-            transform-origin: 0 0; width: 100%; height: 100%;
-        }
-
-        #stage-image {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: auto; display: block; pointer-events: none;
-        }
-
-        #draw-canvas {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%; z-index: 2;
-        }
-
-        .marker-layer {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%; z-index: 3; pointer-events: none;
-        }
-
-        /* --- FILIGRANE MARKER & TARGET-INPUTS --- */
-        .pin-container {
-            position: absolute; transform: translate(-50%, -50%);
-            display: flex; flex-direction: column; align-items: center;
-            pointer-events: auto; z-index: 10;
-        }
-
-        /* Deutlich verkleinerte Pins */
-        .tactical-pin {
-            width: 22px; height: 22px; font-weight: 800; font-size: 11px;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 50%; border: 1.5px solid #fff; color: #fff;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.5); position: relative;
-        }
-        .pin-x { background-color: var(--danger-color); }
-        .pin-r { background-color: #eab308; }
-
-        /* Kleines, unauffälliges Textfeld direkt unter dem X-Standpunkt */
-        .target-input {
-            background: rgba(15, 23, 42, 0.9);
-            border: 1px solid var(--border-color); color: #fff;
-            font-size: 9px; padding: 2px 4px; border-radius: 4px;
-            margin-top: 3px; width: 45px; text-align: center;
-            font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            transition: width 0.15s;
-        }
-        .target-input:focus {
-            outline: none; border-color: var(--accent-color); width: 75px;
-        }
-
-        /* Kleines Lösch-Kreuz oben links am Pin */
-        .btn-delete-pin {
-            position: absolute; top: -6px; left: -6px;
-            background: var(--danger-color); color: white;
-            border: 1px solid white; border-radius: 50%;
-            width: 12px; height: 12px; font-size: 8px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; z-index: 11; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-
-        /* --- CONTROLS MODUL --- */
-        .control-panel {
-            background: var(--card-bg); border: 1px solid var(--border-color);
-            border-radius: var(--radius); padding: 12px;
-            display: flex; flex-direction: column; gap: 12px;
-        }
-
-        .zoom-bar {
-            display: flex; align-items: center; gap: 10px; font-size: 14px;
-            font-weight: 600; background: var(--bg-color); padding: 8px; border-radius: 6px;
-        }
-        .zoom-bar input { flex: 1; accent-color: var(--accent-color); }
-
-        .tool-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        input:focus, select:focus { outline: none; border-color: var(--accent-color); }
 
         .btn-action {
-            flex: 1; min-width: 100px; background-color: var(--bg-color);
-            border: 1px solid var(--border-color); color: var(--text-color);
-            padding: 12px 8px; border-radius: 6px; font-weight: 600;
-            font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;
+            background-color: var(--accent-color); color: #fff; border: none;
+            padding: 10px 15px; font-size: 14px; font-weight: 600; border-radius: var(--radius);
+            cursor: pointer; box-shadow: var(--shadow-sm); text-align: center;
         }
-        .btn-action.active {
-            background-color: var(--accent-color); color: #fff; border-color: var(--accent-color);
+        .btn-action:hover { opacity: 0.9; }
+        .btn-secondary { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); }
+
+        /* Spezifische Styles für den Spickzettel */
+        .position-card {
+            background: var(--bg-color); border: 1px solid var(--border-color);
+            padding: 12px; border-radius: var(--radius); margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
         }
-        .btn-reset { background-color: rgba(239, 68, 68, 0.1); color: var(--danger-color); border: none; }
+        .position-card input { width: 60px; text-align: center; padding: 6px; }
+        .badge-warning-box {
+            background: rgba(239, 68, 68, 0.1); color: var(--danger-color);
+            border: 1px dashed var(--danger-color); padding: 10px; border-radius: var(--radius);
+            font-size: 13px; font-weight: bold; margin-top: 15px; display: none;
+        }
+
+        /* Chrono-Tabelle */
+        .chrono-inputs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 15px; }
+        .chrono-inputs input { text-align: center; padding: 8px 4px; }
+        .result-box {
+            background: rgba(16, 185, 129, 0.08); border-left: 4px solid var(--success-color);
+            padding: 15px; border-radius: var(--radius); margin-top: auto; font-size: 14px;
+        }
+
+        footer { background-color: var(--card-bg); border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted); text-align: center; }
+
+        @media (max-width: 768px) {
+            .tools-grid { grid-template-columns: 1fr; gap: 20px; }
+            .container { padding: 0 10px; margin-top: 15px; }
+            .tool-section { padding: 15px; }
+            .chrono-inputs { grid-template-columns: repeat(3, 1fr); }
+        }
     </style>
 </head>
 <body>
 
+    <header></header>
+    <script src="header.js"></script>
+
     <div class="container">
-        <div class="form-section">
-            <label class="btn-upload" for="imageLoader">📂 Stage-Plan / Foto laden</label>
-            <input type="file" id="imageLoader" accept="image/*">
+        <div class="tools-grid">
+            
+            <div class="tool-section">
+                <h2>📋 Taktischer Stage-Spickzettel</h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 0;">Berechnet deine Magazinkapazität und warnt dich vor leeren Magazinen auf der Stage.</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>Waffen-Division (Startkapazität)</label>
+                        <select id="stage-division" onchange="updateStagePlanner()">
+                            <option value="15">Production (15 + 1)</option>
+                            <option value="18">Standard Minor/Major (18 + 1)</option>
+                            <option value="29">Open (29 + 1)</option>
+                            <option value="10">Classic / Sonder (10 + 1)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Mindest-Schussanzahl Stage</label>
+                        <input type="number" id="stage-min-rounds" value="24" min="1" oninput="updateStagePlanner()">
+                    </div>
+                </div>
 
-            <div class="viewport-container" id="viewport">
-                <div class="zoom-wrapper" id="zoomWrapper">
-                    <img id="stage-image" src="" alt="">
-                    <canvas id="draw-canvas"></canvas>
-                    <div class="marker-layer" id="markerLayer"></div>
+                <h3 style="font-size: 15px; margin: 15px 0 10px 0;">Schusspositionen & Strategie</h3>
+                <div id="positions-container">
+                    </div>
+
+                <button type="button" class="btn-action btn-secondary" style="margin-top: 5px;" onclick="addPosition()">➕ Position hinzufügen</button>
+
+                <div class="badge-warning-box" id="ammo-warning">
+                    ⚠️ Warnung: Magazin leer! Du hast an Position X mehr Schuss verplant, als sich in der Waffe befinden. Plane einen Reload (R) ein!
                 </div>
             </div>
 
-            <div class="control-panel" id="controls" style="display: none;">
-                <div class="zoom-bar">
-                    <span>🔍 Zoom:</span>
-                    <input type="range" id="zoomSlider" min="1" max="4" step="0.1" value="1">
+            <div class="tool-section">
+                <h2>⏱️ IPSC Chrono- & Faktor-Manager</h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 0;">Prüfe, ob deine Laborierung den Mindestfaktor knackt und wie sicher deine Reserve ist.</p>
+                
+                <div class="form-group">
+                    <label>Geschossgewicht (Grains)</label>
+                    <input type="number" id="chrono-weight" value="124" min="1" step="0.1" oninput="calculateChrono()">
                 </div>
 
-                <div class="tool-row">
-                    <button class="btn-action active" data-mode="move">🖐️ Verschieben</button>
-                    <button class="btn-action" data-mode="draw">✏️ Laufweg (Fault Lines)</button>
-                    <button class="btn-action" data-mode="set-x">❌ Stand (X)</button>
-                    <button class="btn-action" data-mode="set-r">🔄 Reload (R)</button>
-                    <button class="btn-action btn-reset" id="clearBtn">🗑️ Reset</button>
+                <label>Messwerte Chronograph (Geschwindigkeit in fps)</label>
+                <div class="chrono-inputs">
+                    <input type="number" class="fps-input" placeholder="#1" value="1030" oninput="calculateChrono()">
+                    <input type="number" class="fps-input" placeholder="#2" value="1042" oninput="calculateChrono()">
+                    <input type="number" class="fps-input" placeholder="#3" value="1028" oninput="calculateChrono()">
+                    <input type="number" class="fps-input" placeholder="#4" value="1035" oninput="calculateChrono()">
+                    <input type="number" class="fps-input" placeholder="#5" value="1040" oninput="calculateChrono()">
+                </div>
+
+                <div class="result-box">
+                    <div style="margin-bottom: 8px;"><strong>Ø Geschwindigkeit:</strong> <span id="res-avg-fps">0</span> fps</div>
+                    <div style="margin-bottom: 8px;"><strong>Errechneter Power Factor:</strong> <span id="res-pf" style="font-weight: bold; color: var(--accent-color);">0.00</span></div>
+                    <div style="margin-bottom: 8px;"><strong>Wertung Status:</strong> <span id="res-status" style="font-weight: bold;">-</span></div>
+                    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 10px 0;">
+                    <div style="font-size: 12px; color: var(--text-muted);" id="res-safety">Trage Werte ein, um die Sicherheitsmarge zu analysieren.</div>
                 </div>
             </div>
+
         </div>
     </div>
 
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+        </div>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="lang.js"></script>
+    <script src="app.js"></script>
+
     <script>
-        const imageLoader = document.getElementById('imageLoader');
-        const viewport = document.getElementById('viewport');
-        const zoomWrapper = document.getElementById('zoomWrapper');
-        const stageImage = document.getElementById('stage-image');
-        const canvas = document.getElementById('draw-canvas');
-        const ctx = canvas.getContext('2d');
-        const markerLayer = document.getElementById('markerLayer');
-        const zoomSlider = document.getElementById('zoomSlider');
-        const controls = document.getElementById('controls');
-        const clearBtn = document.getElementById('clearBtn');
+        // ==========================================
+        // LOGIK FÜR TOOL 1: STAGE-SPICKZETTEL
+        // ==========================================
+        let positionCount = 0;
 
-        let currentMode = 'move';
-        let scale = 1;
-        let panX = 0, panY = 0;
-        let isPanning = false, isDrawing = false;
-        let startX, startY;
-
-        imageLoader.addEventListener('change', function(e) {
-            if(!e.target.files.length) return;
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const img = new Image();
-                img.onload = function() {
-                    stageImage.src = img.src;
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    zoomWrapper.style.width = img.width + 'px';
-                    zoomWrapper.style.height = img.height + 'px';
-                    controls.style.display = 'flex';
-                    resetAll();
-                }
-                img.src = event.target.result;
-            }
-            reader.readAsDataURL(e.target.files[0]);
-        });
-
-        function updateTransform() {
-            zoomWrapper.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+        function addPosition() {
+            positionCount++;
+            const container = document.getElementById('positions-container');
+            const card = document.createElement('div');
+            card.classList.add('position-card');
+            card.id = `pos-card-${positionCount}`;
+            
+            card.innerHTML = `
+                <div style="font-weight: bold; font-size: 14px;">Pos ${positionCount}</div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <label style="margin:0; font-size:12px;">Schuss:</label>
+                    <input type="number" class="pos-rounds" value="6" min="0" oninput="updateStagePlanner()">
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <input type="checkbox" class="pos-reload" onchange="updateStagePlanner()"> 
+                    <label style="margin:0; font-size:12px; color: var(--accent-color);">Reload danach</label>
+                </div>
+                <button type="button" class="delete-btn" style="background:transparent; border:none; color:var(--danger-color); cursor:pointer; font-weight:bold;" onclick="removePosition(${positionCount})">✕</button>
+            `;
+            container.appendChild(card);
+            updateStagePlanner();
         }
 
-        zoomSlider.addEventListener('input', (e) => {
-            scale = parseFloat(e.target.value);
-            updateTransform();
-        });
-
-        function getCanvasCoords(e) {
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return {
-                x: (clientX - rect.left) * (canvas.width / rect.width),
-                y: (clientY - rect.top) * (canvas.height / rect.height)
-            };
-        }
-
-        function handleStart(e) {
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-            if (currentMode === 'move') {
-                isPanning = true;
-                startX = clientX - panX;
-                startY = clientY - panY;
-            } else if (currentMode === 'draw') {
-                isDrawing = true;
-                const coords = getCanvasCoords(e);
-                ctx.beginPath();
-                ctx.moveTo(coords.x, coords.y);
-                ctx.lineWidth = canvas.width / 140; // Etwas filigranere Fault-Line Spur
-                ctx.strokeStyle = 'rgba(255, 159, 67, 0.65)'; // IPSC Orange als Textmarker-Pfad[span_2](start_span)[span_2](end_span)
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-            } else if (currentMode === 'set-x' || currentMode === 'set-r') {
-                const coords = getCanvasCoords(e);
-                const pctX = (coords.x / canvas.width) * 100;
-                const pctY = (coords.y / canvas.height) * 100;
-                placeTacticalPin(currentMode === 'set-x' ? 'X' : 'R', pctX, pctY);
-            }
-        }
-
-        function handleMove(e) {
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-            if (isPanning && currentMode === 'move') {
-                panX = clientX - startX;
-                panY = clientY - startY;
-                updateTransform();
-            } else if (isDrawing && currentMode === 'draw') {
-                e.preventDefault();
-                const coords = getCanvasCoords(e);
-                ctx.lineTo(coords.x, coords.y);
-                ctx.stroke();
-            }
-        }
-
-        function handleEnd() {
-            isPanning = false;
-            if (isDrawing) {
-                isDrawing = false;
-                ctx.closePath();
-            }
-        }
-
-        viewport.addEventListener('mousedown', handleStart);
-        viewport.addEventListener('mousemove', handleMove);
-        viewport.addEventListener('mouseup', handleEnd);
-        viewport.addEventListener('mouseleave', handleEnd);
-
-        viewport.addEventListener('touchstart', handleStart, {passive: false});
-        viewport.addEventListener('touchmove', handleMove, {passive: false});
-        viewport.addEventListener('touchend', handleEnd);
-
-        // --- NEU: SMARTES PIN-MANAGEMENT ---
-        function placeTacticalPin(type, pctX, pctY) {
-            const container = document.createElement('div');
-            container.classList.add('pin-container');
-            container.style.left = `${pctX}%`;
-            container.style.top = `${pctY}%`;
-
-            // Kleines Löschkreuz erzeugen
-            const deleteBtn = document.createElement('div');
-            deleteBtn.classList.add('btn-delete-pin');
-            deleteBtn.textContent = '×';
-            deleteBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                container.remove();
+        function removePosition(id) {
+            document.getElementById(`pos-card-${id}`).remove();
+            // Nummerierung neu ordnen
+            const cards = document.querySelectorAll('#positions-container .position-card');
+            positionCount = 0;
+            cards.forEach((card) => {
+                positionCount++;
+                card.id = `pos-card-${positionCount}`;
+                card.querySelector('div').innerText = `Pos ${positionCount}`;
+                card.querySelector('button').setAttribute('onclick', `removePosition(${positionCount})`);
             });
-            container.appendChild(deleteBtn);
+            updateStagePlanner();
+        }
 
-            // Eigentlichen Pin erzeugen
-            const pin = document.createElement('div');
-            pin.classList.add('tactical-pin', type === 'X' ? 'pin-x' : 'pin-r');
-            pin.textContent = type;
-            container.appendChild(pin);
+        function updateStagePlanner() {
+            const startCap = parseInt(document.getElementById('stage-division').value) + 1; // +1 im Patronenlager
+            const posCards = document.querySelectorAll('#positions-container .position-card');
+            const warningBox = document.getElementById('ammo-warning');
+            
+            let currentInGun = startCap;
+            let warningTriggered = false;
+            let activeWarningText = "";
 
-            // Ziel-Eingabefeld hinzufügen (NUR für Standpunkte X sinnvoll)
-            if (type === 'X') {
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.classList.add('target-input');
-                input.placeholder = 'Ziele...';
-                
-                // Verhindert, dass Tippen ins Feld unerwünschte Canvas-Aktionen triggert
-                input.addEventListener('click', (e) => e.stopPropagation());
-                input.addEventListener('touchstart', (e) => e.stopPropagation());
-                
-                container.appendChild(input);
+            posCards.forEach((card, idx) => {
+                const roundsInput = card.querySelector('.pos-rounds');
+                const reloadCheck = card.querySelector('.pos-reload');
+                const roundsShot = parseInt(roundsInput.value) || 0;
+
+                currentInGun -= roundsShot;
+
+                // Wenn Magazin im Minus ist, Fehler anzeigen
+                if (currentInGun < 0 && !warningTriggered) {
+                    warningTriggered = true;
+                    activeWarningText = `⚠️ Warnung: Magazin leer auf **Position ${idx + 1}**! Du schießt ${Math.abs(currentInGun)} Schuss trocken. Setze auf Pos ${idx} einen Haken bei "Reload danach"!`;
+                }
+
+                // Wenn nach der Position nachgeladen wird, Magazin wieder voll machen
+                if (reloadCheck.checked) {
+                    currentInGun = parseInt(document.getElementById('stage-division').value); // Nachgeladenes Magazin ohne +1
+                }
+            });
+
+            if (warningTriggered) {
+                warningBox.innerHTML = activeWarningText;
+                warningBox.style.display = 'block';
+            } else {
+                warningBox.style.display = 'none';
             }
-
-            markerLayer.appendChild(container);
         }
 
-        document.getElementById('controls').addEventListener('click', (e) => {
-            const btn = e.target.closest('.btn-action');
-            if (!btn || btn.id === 'clearBtn') return;
+        // Initialize mit 2 Standard-Positionen
+        addPosition();
+        addPosition();
 
-            document.querySelectorAll('.btn-action').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentMode = btn.getAttribute('data-mode');
-        });
+        // ==========================================
+        // LOGIK FÜR TOOL 2: CHRONO RECHNER
+        // ==========================================
+        function calculateChrono() {
+            const weight = parseFloat(document.getElementById('chrono-weight').value) || 0;
+            const inputs = document.querySelectorAll('.fps-input');
+            
+            let totalFps = 0;
+            let validCount = 0;
 
-        function resetAll() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            markerLayer.innerHTML = '';
-            panX = 0; panY = 0; scale = 1;
-            zoomSlider.value = 1;
-            updateTransform();
+            inputs.forEach(input => {
+                const val = parseFloat(input.value);
+                if (val > 0) {
+                    totalFps += val;
+                    validCount++;
+                }
+            });
+
+            if (weight === 0 || validCount === 0) return;
+
+            const avgFps = totalFps / validCount;
+            document.getElementById('res-avg-fps').innerText = Math.round(avgFps);
+
+            // IPSC Power Factor Formel
+            const powerFactor = (weight * avgFps) / 1000;
+            document.getElementById('res-pf').innerText = powerFactor.toFixed(2);
+
+            const statusEl = document.getElementById('res-status');
+            const safetyEl = document.getElementById('res-safety');
+
+            // IPSC Limit Faktorenbestimmung (Minor = 125, Major = 160)
+            if (powerFactor >= 160) {
+                statusEl.innerText = "🚀 MAJOR FACTOR";
+                statusEl.style.color = "var(--success-color)";
+                let margin = ((powerFactor - 160) / 160) * 100;
+                safetyEl.innerText = `Du liegst ${margin.toFixed(1)}% über dem Major-Limit (160). Sehr sichere Ladung!`;
+            } else if (powerFactor >= 125) {
+                statusEl.innerText = "🎯 MINOR FACTOR";
+                statusEl.style.color = "var(--info-color)";
+                let margin = ((powerFactor - 125) / 125) * 100;
+                safetyEl.innerText = `Du liegst ${margin.toFixed(1)}% über dem Minor-Limit (125). Wenn es kalt ist oder Match-Chronos abweichen, bist du sicher.`;
+            } else {
+                statusEl.innerText = "❌ SUB-MINOR (Faktor unterlaufen!)";
+                statusEl.style.color = "var(--danger-color)";
+                safetyEl.innerText = "Achtung! Du wirst beim Match nicht gewertet (0 Punkte). Erhöhe dringend die Pulvermenge oder das Geschossgewicht!";
+            }
         }
 
-        clearBtn.addEventListener('click', resetAll);
+        // Erstberechnung direkt beim Laden ausführen
+        calculateChrono();
     </script>
 </body>
 </html>
