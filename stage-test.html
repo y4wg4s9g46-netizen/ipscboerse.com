@@ -2,20 +2,11 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stage Planer | Startplatz Börse</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1e293b">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="IPSC Börse">
-    <link rel="apple-touch-icon" href="icon-192.png">
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Stage Planer Pro | Startplatz Börse</title>
     
     <style>
-        /* Verwendet exakt dein bestehendes Farb- und Modisystem */
+        /* Integriert sich nahtlos in dein bestehendes Farbsystem[span_0](start_span)[span_0](end_span)[span_1](start_span)[span_1](end_span) */
         :root, html[data-theme="light"] {
             --bg-color: #f8f9fa;
             --card-bg: #ffffff;
@@ -23,12 +14,10 @@
             --text-muted: #64748b;
             --border-color: #e2e8f0;
             --input-bg: #ffffff;
-            --accent-color: #ff9f43; /* IPSC Orange */
+            --accent-color: #ff9f43;
             --danger-color: #ef4444;
             --success-color: #10b981;
             --info-color: #3b82f6;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
             --radius: 8px;
         }
 
@@ -39,338 +28,329 @@
             --text-muted: #94a3b8;
             --border-color: #334155;
             --input-bg: #0f172a;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-        }
-
-        @media (prefers-color-scheme: dark) {
-            html:not([data-theme="light"]) {
-                --bg-color: #0f172a;
-                --card-bg: #1e293b;
-                --text-color: #f8fafc;
-                --text-muted: #94a3b8;
-                --border-color: #334155;
-                --input-bg: #0f172a;
-            }
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
+            margin: 0; padding: 10px;
+            display: flex; flex-direction: column; min-height: 100vh;
         }
 
-        .container { max-width: 800px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
-
-        .info-box {
-            background-color: rgba(255, 159, 67, 0.08);
-            border-left: 4px solid var(--accent-color);
-            color: var(--text-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius);
-            font-size: 14px; line-height: 1.5; border: 1px solid var(--border-color);
-            border-left: 4px solid var(--accent-color);
-        }
+        .container { max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; }
 
         .form-section {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius); padding: 25px; margin-bottom: 20px; box-shadow: var(--shadow-sm);
+            border-radius: var(--radius); padding: 15px; margin-bottom: 15px;
         }
 
-        .form-section h2 { margin-top: 0; font-size: 20px; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-
-        /* Integrierter Upload-Button im Stil des Marktplatzes */
         .btn-upload {
-            background-color: var(--info-color);
-            color: white; padding: 12px; border-radius: var(--radius);
-            font-weight: 600; text-align: center; cursor: pointer;
-            display: block; margin-bottom: 20px; box-shadow: var(--shadow-sm);
+            background-color: var(--info-color); color: white; padding: 12px;
+            border-radius: var(--radius); font-weight: 600; text-align: center;
+            cursor: pointer; display: block; margin-bottom: 15px;
         }
         input[type="file"] { display: none; }
 
-        /* --- INTERAKTIVER CANVAS / GRID BEREICH --- */
-        .stage-wrapper {
-            position: relative; width: 100%; display: flex; justify-content: center; margin-bottom: 25px;
+        /* --- VIEWPORT --- */
+        .viewport-container {
+            width: 100%; height: 60vh; position: relative;
+            border: 1px solid var(--border-color); border-radius: var(--radius);
+            overflow: hidden; background: #1a1a1a; touch-action: none;
         }
 
-        .stage-view {
-            position: relative; border: 1px solid var(--border-color);
-            border-radius: var(--radius); overflow: hidden;
-            box-shadow: var(--shadow-md); background: var(--input-bg);
-            max-width: 100%;
+        .zoom-wrapper {
+            position: absolute; top: 0; left: 0;
+            transform-origin: 0 0; width: 100%; height: 100%;
         }
 
-        #stage-image { display: block; max-width: 100%; height: auto; }
-
-        /* Das digitale 2D-Strategieraster */
-        #grid-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: grid; grid-template-columns: repeat(16, 1fr); grid-template-rows: repeat(16, 1fr);
-            cursor: crosshair; z-index: 3;
+        #stage-image {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: auto; display: block; pointer-events: none;
         }
 
-        .grid-cell {
-            border: 1px solid rgba(148, 163, 184, 0.15); box-sizing: border-box;
-        }
-        .grid-cell:hover { background-color: rgba(255, 159, 67, 0.15); }
-
-        /* Vektorebene für die automatischen Laufwege */
-        #path-svg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 1;
+        #draw-canvas {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; z-index: 2;
         }
 
-        /* Taktische Marker-Anzeige */
-        .marker {
+        .marker-layer {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; z-index: 3; pointer-events: none;
+        }
+
+        /* --- FILIGRANE MARKER & TARGET-INPUTS --- */
+        .pin-container {
             position: absolute; transform: translate(-50%, -50%);
-            width: 28px; height: 28px; font-weight: 800; font-size: 13px;
+            display: flex; flex-direction: column; align-items: center;
+            pointer-events: auto; z-index: 10;
+        }
+
+        /* Deutlich verkleinerte Pins */
+        .tactical-pin {
+            width: 22px; height: 22px; font-weight: 800; font-size: 11px;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 50%; user-select: none; pointer-events: none;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4); z-index: 2;
-            border: 2px solid #ffffff; color: #ffffff;
+            border-radius: 50%; border: 1.5px solid #fff; color: #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5); position: relative;
         }
-        .marker-x { background-color: var(--danger-color); }
-        .marker-r { background-color: #eab308; } /* Warn-Gelb für Reloads */
+        .pin-x { background-color: var(--danger-color); }
+        .pin-r { background-color: #eab308; }
 
-        /* Nummerierung für die Chronologie des Laufwegs */
-        .marker-index {
-            position: absolute; top: -6px; right: -6px; background: #000;
-            color: #fff; font-size: 9px; width: 14px; height: 14px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            border: 1px solid #fff;
+        /* Kleines, unauffälliges Textfeld direkt unter dem X-Standpunkt */
+        .target-input {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--border-color); color: #fff;
+            font-size: 9px; padding: 2px 4px; border-radius: 4px;
+            margin-top: 3px; width: 45px; text-align: center;
+            font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            transition: width 0.15s;
         }
-
-        /* --- STEUERUNGSBAR --- */
-        .toolbar {
-            background-color: var(--card-bg); border: 1px solid var(--border-color);
-            padding: 12px; border-radius: var(--radius); display: flex; gap: 10px;
-            box-shadow: var(--shadow-sm); margin-bottom: 30px;
+        .target-input:focus {
+            outline: none; border-color: var(--accent-color); width: 75px;
         }
 
-        .btn-tool {
-            flex: 1; background-color: var(--bg-color); border: 1px solid var(--border-color);
-            color: var(--text-color); padding: 10px; border-radius: 6px;
-            font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.15s;
+        /* Kleines Lösch-Kreuz oben links am Pin */
+        .btn-delete-pin {
+            position: absolute; top: -6px; left: -6px;
+            background: var(--danger-color); color: white;
+            border: 1px solid white; border-radius: 50%;
+            width: 12px; height: 12px; font-size: 8px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 11; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
-        .btn-tool.active {
-            background-color: var(--accent-color); color: #ffffff; border-color: var(--accent-color);
-        }
-        .btn-clear { background-color: rgba(239, 68, 68, 0.1); color: var(--danger-color); border: none; }
-        .btn-clear:hover { background-color: var(--danger-color); color: white; }
 
-        footer { background-color: var(--card-bg); border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: auto; font-size: 13px; color: var(--text-muted); text-align: center; }
-
-        @media (max-width: 768px) {
-            .container { padding: 0 10px; margin-top: 15px; }
-            .toolbar { flex-direction: column; gap: 8px; }
-            .btn-tool { width: 100%; }
+        /* --- CONTROLS MODUL --- */
+        .control-panel {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: var(--radius); padding: 12px;
+            display: flex; flex-direction: column; gap: 12px;
         }
+
+        .zoom-bar {
+            display: flex; align-items: center; gap: 10px; font-size: 14px;
+            font-weight: 600; background: var(--bg-color); padding: 8px; border-radius: 6px;
+        }
+        .zoom-bar input { flex: 1; accent-color: var(--accent-color); }
+
+        .tool-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .btn-action {
+            flex: 1; min-width: 100px; background-color: var(--bg-color);
+            border: 1px solid var(--border-color); color: var(--text-color);
+            padding: 12px 8px; border-radius: 6px; font-weight: 600;
+            font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;
+        }
+        .btn-action.active {
+            background-color: var(--accent-color); color: #fff; border-color: var(--accent-color);
+        }
+        .btn-reset { background-color: rgba(239, 68, 68, 0.1); color: var(--danger-color); border: none; }
     </style>
 </head>
 <body>
 
-    <header></header>
-    <script src="header.js"></script>
-
     <div class="container">
-        
-        <div class="info-box" id="stage-info-box" data-txt="stage-desc">
-            Lade einen Stage-Plan (Foto oder E-Mail-Anhang) hoch. Setze präzise Standpunkte (X) und Reloads (R) über das digitale Raster. Ein sauberer Laufweg wird automatisch gezeichnet.
-        </div>
-
         <div class="form-section">
-            <h2 data-txt="stage-title">🎯 Interaktiver Stage-Walkthrough Planer</h2>
-            
-            <label class="btn-upload" for="imageLoader" data-txt="stage-load">
-                📂 Plan laden / Foto machen
-            </label>
+            <label class="btn-upload" for="imageLoader">📂 Stage-Plan / Foto laden</label>
             <input type="file" id="imageLoader" accept="image/*">
 
-            <div class="stage-wrapper">
-                <div class="stage-view" id="stageView" style="display:none;">
-                    <svg id="path-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <path id="walkway-path" d="" fill="none" stroke="#3b82f6" stroke-width="0.6" stroke-dasharray="1.5" vector-effect="non-scaling-stroke"/>
-                    </svg>
-                    
-                    <img id="stage-image" src="" alt="Stage Plan">
-                    
-                    <div id="grid-overlay"></div>
-                    
-                    <div id="markers-layer"></div>
+            <div class="viewport-container" id="viewport">
+                <div class="zoom-wrapper" id="zoomWrapper">
+                    <img id="stage-image" src="" alt="">
+                    <canvas id="draw-canvas"></canvas>
+                    <div class="marker-layer" id="markerLayer"></div>
                 </div>
             </div>
 
-            <div class="toolbar" id="planner-tools" style="display:none;">
-                <button class="btn-tool active" data-action="set-x" data-txt="tool-x">❌ Standpunkt (X)</button>
-                <button class="btn-tool" data-action="set-r" data-txt="tool-r">🔄 Reload (R)</button>
-                <button class="btn-tool btn-clear" id="btn-reset" data-txt="btn-reset-stage">🗑️ Plan zurücksetzen</button>
+            <div class="control-panel" id="controls" style="display: none;">
+                <div class="zoom-bar">
+                    <span>🔍 Zoom:</span>
+                    <input type="range" id="zoomSlider" min="1" max="4" step="0.1" value="1">
+                </div>
+
+                <div class="tool-row">
+                    <button class="btn-action active" data-mode="move">🖐️ Verschieben</button>
+                    <button class="btn-action" data-mode="draw">✏️ Laufweg (Fault Lines)</button>
+                    <button class="btn-action" data-mode="set-x">❌ Stand (X)</button>
+                    <button class="btn-action" data-mode="set-r">🔄 Reload (R)</button>
+                    <button class="btn-action btn-reset" id="clearBtn">🗑️ Reset</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <footer>
-        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
-            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
-            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
-        </div>
-    </footer>
-
-    <script src="auth.js"></script>
-    <script src="lang.js"></script>
-    <script src="app.js"></script>
-
     <script>
-        const GRID_SIZE = 16; // Kompakteres 16x16 Gitter für bessere Bedienbarkeit am Handy
         const imageLoader = document.getElementById('imageLoader');
-        const stageView = document.getElementById('stageView');
+        const viewport = document.getElementById('viewport');
+        const zoomWrapper = document.getElementById('zoomWrapper');
         const stageImage = document.getElementById('stage-image');
-        const gridOverlay = document.getElementById('grid-overlay');
-        const markersLayer = document.getElementById('markers-layer');
-        const toolbar = document.getElementById('planner-tools');
-        const walkwayPath = document.getElementById('walkway-path');
-        const resetBtn = document.getElementById('btn-reset');
+        const canvas = document.getElementById('draw-canvas');
+        const ctx = canvas.getContext('2d');
+        const markerLayer = document.getElementById('markerLayer');
+        const zoomSlider = document.getElementById('zoomSlider');
+        const controls = document.getElementById('controls');
+        const clearBtn = document.getElementById('clearBtn');
 
-        let currentAction = 'set-x';
-        let placedMarkers = []; // Hält die Chronologie der Wegpunkte fest
+        let currentMode = 'move';
+        let scale = 1;
+        let panX = 0, panY = 0;
+        let isPanning = false, isDrawing = false;
+        let startX, startY;
 
-        // 1. DYNAMISCHES ERWEITERN DEINES TRANSLATION-SYSTEMS (lang.js Kompatibilität)
-        if (window.portalTranslations) {
-            const extensions = {
-                de: {
-                    "stage-title": "🎯 Interaktiver Stage-Walkthrough Planer",
-                    "stage-desc": "Lade einen Stage-Plan (Foto oder E-Mail-Anhang) hoch. Setze präzise Standpunkte (X) und Reloads (R) über das digitale Raster. Ein sauberer Laufweg wird automatisch gezeichnet.",
-                    "stage-load": "📂 Plan laden / Foto machen",
-                    "tool-x": "❌ Standpunkt (X)",
-                    "tool-r": "🔄 Reload (R)",
-                    "btn-reset-stage": "🗑️ Plan zurücksetzen"
-                },
-                en: {
-                    "stage-title": "🎯 Interactive Stage Walkthrough Planner",
-                    "stage-desc": "Upload a stage plan (photo or email attachment). Place precise standing positions (X) and reloads (R) via the digital grid. A clean path is drawn automatically.",
-                    "stage-load": "📂 Load Plan / Take Photo",
-                    "tool-x": "❌ Position (X)",
-                    "tool-r": "🔄 Reload (R)",
-                    "btn-reset-stage": "🗑️ Reset Plan"
-                }
-            };
-            Object.assign(window.portalTranslations.de, extensions.de);
-            Object.assign(window.portalTranslations.en, extensions.en);
-        }
-
-        // 2. THEME COMPATIBILITY
-        document.addEventListener("DOMContentLoaded", () => {
-            const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
-            if (typeof updateThemeToggleIcon === "function") {
-                updateThemeToggleIcon(savedThemeSetting);
-            }
-            if(typeof translatePortalPage === "function") {
-                translatePortalPage();
-            }
-        });
-
-        // 3. IMAGE UPLOAD & GRID INITIALISIERUNG
         imageLoader.addEventListener('change', function(e) {
             if(!e.target.files.length) return;
             const reader = new FileReader();
             reader.onload = function(event) {
-                stageImage.onload = function() {
-                    initGrid();
-                    stageView.style.display = 'block';
-                    toolbar.style.display = 'flex';
-                    resetPlanner();
+                const img = new Image();
+                img.onload = function() {
+                    stageImage.src = img.src;
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    zoomWrapper.style.width = img.width + 'px';
+                    zoomWrapper.style.height = img.height + 'px';
+                    controls.style.display = 'flex';
+                    resetAll();
                 }
-                stageImage.src = event.target.result;
+                img.src = event.target.result;
             }
             reader.readAsDataURL(e.target.files[0]);
         });
 
-        function initGrid() {
-            gridOverlay.innerHTML = '';
-            for (let row = 0; row < GRID_SIZE; row++) {
-                for (let col = 0; col < GRID_SIZE; col++) {
-                    const cell = document.createElement('div');
-                    cell.classList.add('grid-cell');
-                    // Berechnet die Prozent-Koordinaten für die responsive SVG-Linie
-                    cell.dataset.pctX = ((col + 0.5) / GRID_SIZE) * 100;
-                    cell.dataset.pctY = ((row + 0.5) / GRID_SIZE) * 100;
-                    cell.addEventListener('click', handleGridClick);
-                    gridOverlay.appendChild(cell);
-                }
+        function updateTransform() {
+            zoomWrapper.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+        }
+
+        zoomSlider.addEventListener('input', (e) => {
+            scale = parseFloat(e.target.value);
+            updateTransform();
+        });
+
+        function getCanvasCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: (clientX - rect.left) * (canvas.width / rect.width),
+                y: (clientY - rect.top) * (canvas.height / rect.height)
+            };
+        }
+
+        function handleStart(e) {
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            if (currentMode === 'move') {
+                isPanning = true;
+                startX = clientX - panX;
+                startY = clientY - panY;
+            } else if (currentMode === 'draw') {
+                isDrawing = true;
+                const coords = getCanvasCoords(e);
+                ctx.beginPath();
+                ctx.moveTo(coords.x, coords.y);
+                ctx.lineWidth = canvas.width / 140; // Etwas filigranere Fault-Line Spur
+                ctx.strokeStyle = 'rgba(255, 159, 67, 0.65)'; // IPSC Orange als Textmarker-Pfad[span_2](start_span)[span_2](end_span)
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+            } else if (currentMode === 'set-x' || currentMode === 'set-r') {
+                const coords = getCanvasCoords(e);
+                const pctX = (coords.x / canvas.width) * 100;
+                const pctY = (coords.y / canvas.height) * 100;
+                placeTacticalPin(currentMode === 'set-x' ? 'X' : 'R', pctX, pctY);
             }
         }
 
-        // 4. WORKFLOW LOGIK (MARKER SETZEN & PFAD ZEICHNEN)
-        function handleGridClick(e) {
-            const cell = e.target;
-            const pctX = parseFloat(cell.dataset.pctX);
-            const pctY = parseFloat(cell.dataset.pctY);
+        function handleMove(e) {
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
-            // Neuen Punkt generieren
-            const type = currentAction === 'set-x' ? 'X' : 'R';
-            const markerData = { type, pctX, pctY };
-            
-            placedMarkers.push(markerData);
-            renderMarkersAndPaths();
+            if (isPanning && currentMode === 'move') {
+                panX = clientX - startX;
+                panY = clientY - startY;
+                updateTransform();
+            } else if (isDrawing && currentMode === 'draw') {
+                e.preventDefault();
+                const coords = getCanvasCoords(e);
+                ctx.lineTo(coords.x, coords.y);
+                ctx.stroke();
+            }
         }
 
-        function renderMarkersAndPaths() {
-            markersLayer.innerHTML = '';
-            let pathD = '';
+        function handleEnd() {
+            isPanning = false;
+            if (isDrawing) {
+                isDrawing = false;
+                ctx.closePath();
+            }
+        }
 
-            placedMarkers.forEach((marker, index) => {
-                // HTML Pin erzeugen
-                const pin = document.createElement('div');
-                pin.classList.add('marker', marker.type === 'X' ? 'marker-x' : 'marker-r');
-                pin.style.left = `${marker.pctX}%`;
-                pin.style.top = `${marker.pctY}%`;
-                pin.textContent = marker.type;
+        viewport.addEventListener('mousedown', handleStart);
+        viewport.addEventListener('mousemove', handleMove);
+        viewport.addEventListener('mouseup', handleEnd);
+        viewport.addEventListener('mouseleave', handleEnd);
 
-                // Chronologische Nummerierung oben rechts am Pin anheften
-                const indexBadge = document.createElement('div');
-                indexBadge.classList.add('marker-index');
-                indexBadge.textContent = index + 1;
-                pin.appendChild(indexBadge);
+        viewport.addEventListener('touchstart', handleStart, {passive: false});
+        viewport.addEventListener('touchmove', handleMove, {passive: false});
+        viewport.addEventListener('touchend', handleEnd);
 
-                markersLayer.appendChild(pin);
+        // --- NEU: SMARTES PIN-MANAGEMENT ---
+        function placeTacticalPin(type, pctX, pctY) {
+            const container = document.createElement('div');
+            container.classList.add('pin-container');
+            container.style.left = `${pctX}%`;
+            container.style.top = `${pctY}%`;
 
-                // SVG-Pfad-String zusammenbauen
-                if (index === 0) {
-                    pathD += `M ${marker.pctX} ${marker.pctY}`;
-                } else {
-                    pathD += ` L ${marker.pctX} ${marker.pctY}`;
-                }
+            // Kleines Löschkreuz erzeugen
+            const deleteBtn = document.createElement('div');
+            deleteBtn.classList.add('btn-delete-pin');
+            deleteBtn.textContent = '×';
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                container.remove();
             });
+            container.appendChild(deleteBtn);
 
-            walkwayPath.setAttribute('d', pathD);
+            // Eigentlichen Pin erzeugen
+            const pin = document.createElement('div');
+            pin.classList.add('tactical-pin', type === 'X' ? 'pin-x' : 'pin-r');
+            pin.textContent = type;
+            container.appendChild(pin);
+
+            // Ziel-Eingabefeld hinzufügen (NUR für Standpunkte X sinnvoll)
+            if (type === 'X') {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.classList.add('target-input');
+                input.placeholder = 'Ziele...';
+                
+                // Verhindert, dass Tippen ins Feld unerwünschte Canvas-Aktionen triggert
+                input.addEventListener('click', (e) => e.stopPropagation());
+                input.addEventListener('touchstart', (e) => e.stopPropagation());
+                
+                container.appendChild(input);
+            }
+
+            markerLayer.appendChild(container);
         }
 
-        // 5. CONTROLS (Toolbar & Reset)
-        toolbar.addEventListener('click', (e) => {
-            const btn = e.target.closest('.btn-tool');
-            if (!btn || btn.id === 'btn-reset') return;
+        document.getElementById('controls').addEventListener('click', (e) => {
+            const btn = e.target.closest('.btn-action');
+            if (!btn || btn.id === 'clearBtn') return;
 
-            document.querySelectorAll('.btn-tool').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.btn-action').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            currentAction = btn.getAttribute('data-action');
+            currentMode = btn.getAttribute('data-mode');
         });
 
-        function resetPlanner() {
-            placedMarkers = [];
-            markersLayer.innerHTML = '';
-            walkwayPath.setAttribute('d', '');
+        function resetAll() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            markerLayer.innerHTML = '';
+            panX = 0; panY = 0; scale = 1;
+            zoomSlider.value = 1;
+            updateTransform();
         }
 
-        resetBtn.addEventListener('click', resetPlanner);
-
-        window.onLanguageChanged = () => {
-            const selector = document.getElementById("language-select");
-            if (selector) selector.value = window.currentLang;
-        };
+        clearBtn.addEventListener('click', resetAll);
     </script>
 </body>
 </html>
