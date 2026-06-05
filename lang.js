@@ -191,6 +191,14 @@ window.portalTranslations = {
         "tools-df-par": "Par-Zeit (Sekunden)",
         "tools-df-status-ready": "Bereit",
         "tools-df-btn-start": "Start Timer (Zufalls-Delay)",
+        "tools-pf-title": "⏱️ IPSC Power-Factor Manager",
+        "tools-pf-desc": "Berechne den Power Factor deiner Laborierung und überprüfe den Status für das Match.",
+        "tools-pf-weight": "Geschossgewicht (Grains)",
+        "tools-pf-velocity": "Geschwindigkeit (fps)",
+        "tools-pf-target": "Angestrebte Wertung",
+        "tools-pf-opt-minor": "Minor (Mindest-Faktor 125)",
+        "tools-pf-opt-major": "Major (Mindest-Faktor 160)",
+        "tools-pf-result-label": "Errechneter Power Factor",
 
         // --- IPSC HUB ---
         "hub-main-title": "IPSC Hub – Alle wichtigen Links",
@@ -404,6 +412,14 @@ window.portalTranslations = {
         "tools-df-par": "Par Time (Seconds)",
         "tools-df-status-ready": "Ready",
         "tools-df-btn-start": "Start Timer (Random Delay)",
+        "tools-pf-title": "⏱️ IPSC Power-Factor Manager",
+        "tools-pf-desc": "Calculate the power factor of your load and check the match status.",
+        "tools-pf-weight": "Bullet Weight (Grains)",
+        "tools-pf-velocity": "Velocity (fps)",
+        "tools-pf-target": "Target Scoring",
+        "tools-pf-opt-minor": "Minor (Minimum Factor 125)",
+        "tools-pf-opt-major": "Major (Minimum Factor 160)",
+        "tools-pf-result-label": "Calculated Power Factor",
 
         // --- IPSC HUB ---
         "hub-main-title": "IPSC Hub – All Important Links",
