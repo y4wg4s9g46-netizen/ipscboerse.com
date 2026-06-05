@@ -165,7 +165,6 @@
 
     <div class="container">
         
-        <!-- TOOL 1: HIT-FACTOR BATTLE -->
         <div class="tool-section">
             <h2 data-txt="tools-hf-title">🏆 Hit-Factor Battle</h2>
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="tools-hf-desc">Trage die Ergebnisse von dir und deinen Freunden ein, um eine Live-Rangliste für die Stage zu erstellen.</p>
@@ -217,7 +216,6 @@
             <button id="btn-clear-ranking" class="btn-secondary" style="margin-top: 15px; display: none; width: 100%; color: var(--danger-color); border-color: var(--danger-color);" onclick="clearRanking()" data-txt="tools-hf-btn-clear">Rangliste leeren</button>
         </div>
 
-        <!-- NEW TOOL 2: IPSC POWER-FACTOR RECHNER (SAUBER REFRESHED) -->
         <div class="tool-section">
             <h2 data-txt="tools-pf-title">⏱️ IPSC Power-Factor Manager</h2>
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="tools-pf-desc">Berechne den Power Factor deiner Laborierung und überprüfe den Status für das Match.</p>
@@ -247,10 +245,63 @@
             </div>
         </div>
 
-        <!-- TOOL 3: DRY-FIRE TIMER & GENERATOR -->
+        <div class="tool-section">
+            <h2 data-txt="tools-db-title">📦 Meine Wiederlade-Rezepte</h2>
+            
+            <div id="reloading-logged-out" style="text-align: center; padding: 25px 10px;">
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="tools-db-logged-out">Logge dich ein, um deine persönliche Wiederlade-Datenbank zu nutzen und Rezepte in der Cloud zu speichern.</p>
+                <button type="button" class="btn-submit" style="width: auto; padding: 12px 30px;" onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" data-txt="planner-logged-out-btn">Jetzt einloggen</button>
+            </div>
+
+            <div id="reloading-content" style="display: none;">
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="tools-db-desc">Speichere deine bewährten Laborierungen dauerhaft in deiner Cloud ab.</p>
+                
+                <div class="pf-input-grid">
+                    <div class="form-group">
+                        <label data-txt="tools-db-caliber">Kaliber</label>
+                        <select id="db-load-caliber">
+                            <option value="9mm Luger">9mm Luger</option>
+                            <option value=".40 S&W">.40 S&W</option>
+                            <option value=".38 Super">.38 Super Auto</option>
+                            <option value="9x21">9x21</option>
+                            <option value=".223 Rem">.223 Rem</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-txt="tools-pf-weight">Geschossgewicht (Grains)</label>
+                        <input type="number" id="db-load-weight" value="124" min="1" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label data-txt="tools-db-bullet-type">Geschosstyp / Hersteller</label>
+                        <input type="text" id="db-load-bullet-type" data-txt-ph="tools-db-bullet-type-ph" placeholder="z.B. LOS HP oder H&N HS">
+                    </div>
+                    <div class="form-group">
+                        <label data-txt="tools-db-powder">Pulver (Sorte & Menge)</label>
+                        <input type="text" id="db-load-powder" data-txt-ph="tools-db-powder-ph" placeholder="z.B. 3.7gr N320">
+                    </div>
+                    <div class="form-group">
+                        <label data-txt="tools-pf-velocity">Geschwindigkeit (fps)</label>
+                        <input type="number" id="db-load-velocity" value="1030" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>OAL (mm)</label>
+                        <input type="text" id="db-load-oal" data-txt-ph="tools-db-oal-ph" placeholder="z.B. 29.00">
+                    </div>
+                    <div class="form-group pf-full-row">
+                        <label data-txt="tools-db-notes">Notizen / Waffe (Optional)</label>
+                        <input type="text" id="db-load-notes" data-txt-ph="tools-db-notes-ph" placeholder="z.B. Sicherer Minor-Faktor aus CZ Shadow 2">
+                    </div>
+                </div>
+
+                <button class="btn-submit" onclick="saveReloadingLoad()" data-txt="tools-db-btn-save" style="margin-bottom: 25px;">💾 Rezept in Cloud speichern</button>
+
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;" data-txt="tools-db-saved-title">Gespeicherte Cloud-Laborierungen</h3>
+                <div id="db-loads-list-container" style="display: flex; flex-direction: column; gap: 12px;"></div>
+            </div>
+        </div>
+
         <div class="tool-section">
             <h2 data-txt="tools-df-title">⏱️ Dry-Fire Timer & Drill Generator</h2>
-            
             <div class="drill-box" id="drill-output" data-txt="tools-df-placeholder">
                 Klicke auf den Button, um einen zufälligen Trockentrainings-Ablauf zu generieren.
             </div>
@@ -271,7 +322,6 @@
 
     </div>
 
-    <!-- MODALS BEREICH -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -420,6 +470,14 @@
     <script src="lang.js"></script>
     <script src="app.js"></script>
     <script>
+        let reloadingLoads = [];
+
+        function escapeHtml(text) { 
+            const div = document.createElement("div"); 
+            div.textContent = text; 
+            return div.innerHTML; 
+        }
+
         // --- THEME LOGIK & CHAT BADGE ---
         document.addEventListener("DOMContentLoaded", () => {
             const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
@@ -435,11 +493,32 @@
             
             // Erstberechnung für den integrierten Power-Factor Rechner ausführen
             calculatePowerFactor();
+
+            // MANUELLER INITIATOR-TRIGGER: Verhindert Race-Condition mit ungeladenen Event-Handlern
+            setTimeout(() => {
+                if (window.currentUser) {
+                    window.onAuthChange(window.currentUser);
+                }
+            }, 250);
         });
 
-        window.onAuthChange = () => { 
+        window.onAuthChange = (user) => { 
             if(typeof updateHeaderChatBadge === 'function') {
-                updateHeaderChatBadge(); 
+                updateHeaderChatBadge();
+            }
+
+            const loggedOutEl = document.getElementById('reloading-logged-out');
+            const contentEl = document.getElementById('reloading-content');
+            
+            if (user) {
+                if (loggedOutEl) loggedOutEl.style.display = 'none';
+                if (contentEl) contentEl.style.display = 'block';
+                loadReloadingLoads();
+            } else {
+                if (loggedOutEl) loggedOutEl.style.display = 'block';
+                if (contentEl) contentEl.style.display = 'none';
+                const container = document.getElementById('db-loads-list-container');
+                if (container) container.innerHTML = '';
             }
         };
 
@@ -447,22 +526,20 @@
         window.onLanguageChanged = () => { 
             const selector = document.getElementById("language-select");
             if (selector) selector.value = window.currentLang;
+            renderReloadingLoads();
         };
 
         // --- 1. HIT-FACTOR BATTLE LOGIK ---
         let rankingData = [];
-
         function addShooterToRanking() {
             const name = document.getElementById('hf-name').value.trim() || `Schütze ${rankingData.length + 1}`;
             const isMajor = document.getElementById('hf-pf').value === 'major';
             const time = parseFloat(document.getElementById('hf-time').value) || 0;
-            
             const a = parseInt(document.getElementById('hf-a').value) || 0;
             const c = parseInt(document.getElementById('hf-c').value) || 0;
             const d = parseInt(document.getElementById('hf-d').value) || 0;
             const m = parseInt(document.getElementById('hf-m').value) || 0;
             const ns = parseInt(document.getElementById('hf-ns').value) || 0;
-
             if (time <= 0 && (a+c+d+m) > 0) {
                 alert(window.currentLang === 'en' ? "Please enter a valid time!" : "Bitte gib eine gültige Zeit ein!");
                 return;
@@ -487,7 +564,6 @@
                 hf: hf,
                 pf: isMajor ? 'Maj' : 'Min'
             });
-
             rankingData.sort((a, b) => b.hf - a.hf);
 
             document.getElementById('hf-name').value = '';
@@ -546,7 +622,7 @@
             });
         }
 
-        // --- NEW: POWER FACTOR RECHNER METHODE (VISUELL AUFGEWERTET) ---
+        // --- 2. POWER FACTOR RECHNER METHODE (VISUELL AUFGEWERTET) ---
         function calculatePowerFactor() {
             const weight = parseFloat(document.getElementById('pf-weight').value) || 0;
             const velocity = parseFloat(document.getElementById('pf-velocity').value) || 0;
@@ -557,7 +633,6 @@
             
             const statusEl = document.getElementById('pf-result-status');
             const isEn = (window.currentLang === 'en');
-
             if (targetType === 'major') {
                 if (pf >= 160) {
                     statusEl.innerText = isEn ? "MAJOR REACHED" : "MAJOR ERREICHT";
@@ -580,18 +655,107 @@
             }
         }
 
+        // --- 3. CLOUD-WIEDERLADE-DATENBANK LOGIK ---
+        async function loadReloadingLoads() {
+            if (!window.currentUser) return;
+            const { data, error } = await window.supabaseClient
+                .from('user_reloading_loads')
+                .select('*')
+                .order('created_at', { ascending: false });
+                
+            if (error) { console.error("Fehler beim Rezept-Fetch:", error); return; }
+            reloadingLoads = data || [];
+            renderReloadingLoads();
+        }
 
-        // --- 3. DRY-FIRE TIMER & GENERATOR LOGIK ---
-        
+        async function saveReloadingLoad() {
+            if (!window.currentUser) return;
+            
+            const caliber = document.getElementById('db-load-caliber').value;
+            const weight = parseFloat(document.getElementById('db-load-weight').value) || 0;
+            const bulletType = document.getElementById('db-load-bullet-type').value.trim();
+            const powder = document.getElementById('db-load-powder').value.trim();
+            const velocity = parseFloat(document.getElementById('db-load-velocity').value) || 0;
+            const oal = document.getElementById('db-load-oal').value.trim();
+            const notes = document.getElementById('db-load-notes').value.trim();
+
+            if (!bulletType || !powder) {
+                alert(window.currentLang === 'en' ? "Please fill in Bullet Type and Powder!" : "Bitte Geschosstyp und Pulver eintragen!");
+                return;
+            }
+
+            const computedPf = (weight * velocity) / 1000;
+
+            const { error } = await window.supabaseClient.from('user_reloading_loads').insert([{
+                user_id: window.currentUser.id,
+                caliber: caliber,
+                bullet_weight: weight,
+                bullet_type: bulletType,
+                powder: powder,
+                velocity: velocity,
+                computed_pf: computedPf,
+                oal: oal || '-',
+                notes: notes || '-'
+            }]);
+
+            if (error) { alert("Fehler beim Cloud-Speichern: " + error.message); return; }
+
+            document.getElementById('db-load-bullet-type').value = '';
+            document.getElementById('db-load-powder').value = '';
+            document.getElementById('db-load-oal').value = '';
+            document.getElementById('db-load-notes').value = '';
+            
+            loadReloadingLoads();
+        }
+
+        async function deleteReloadingLoad(id) {
+            const { error } = await window.supabaseClient.from('user_reloading_loads').delete().eq('id', id);
+            if (!error) loadReloadingLoads();
+        }
+
+        function renderReloadingLoads() {
+            const container = document.getElementById('db-loads-list-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const isEn = (window.currentLang === 'en');
+
+            if (reloadingLoads.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-muted); font-style: italic; font-size: 13px; text-align: center; margin: 10px 0;">${isEn ? "No recipes saved in cloud yet." : "Noch keine Rezepte in der Cloud gespeichert."}</p>`;
+                return;
+            }
+
+            reloadingLoads.forEach(load => {
+                const pfDisplay = parseFloat(load.computed_pf || 0).toFixed(2);
+                container.innerHTML += `
+                    <div style="background: rgba(15, 23, 42, 0.25); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); position: relative; display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; margin-bottom: 2px;">
+                            <strong style="color: var(--accent-color); font-size: 15px;">📌 ${escapeHtml(load.caliber)}</strong>
+                            <button onclick="deleteReloadingLoad(${load.id})" style="background: none; border: none; color: var(--danger-color); font-size: 18px; cursor: pointer; padding: 0 5px; line-height: 1;">&times;</button>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px;">
+                            <div><span style="color: var(--text-muted);">${isEn ? "Bullet" : "Geschoss"}:</span> <strong>${load.bullet_weight}gr ${escapeHtml(load.bullet_type)}</strong></div>
+                            <div><span style="color: var(--text-muted);">${isEn ? "Powder" : "Pulver"}:</span> <strong>${escapeHtml(load.powder)}</strong></div>
+                            <div><span style="color: var(--text-muted);">${isEn ? "Velocity" : "Velo"}:</span> <strong>${load.velocity} fps</strong></div>
+                            <div><span style="color: var(--text-muted);">Factor:</span> <strong style="color: var(--accent-color);">${pfDisplay}</strong></div>
+                            <div style="grid-column: span 2;"><span style="color: var(--text-muted);">OAL:</span> <strong>${escapeHtml(load.oal)} mm</strong></div>
+                        </div>
+                        <div style="font-size: 12px; font-style: italic; color: var(--text-muted); background: rgba(0,0,0,0.15); padding: 6px; border-radius: 4px; margin-top: 4px; word-break: break-word;">
+                            💬 ${escapeHtml(load.notes)}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- 4. DRY-FIRE TIMER & GENERATOR LOGIK ---
         let audioCtx;
-
         function playBeep(frequency, durationMs) {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
-            
             oscillator.type = 'square'; 
             oscillator.frequency.value = frequency; 
             
@@ -607,10 +771,8 @@
 
         let timerTimeout;
         let isTimerRunning = false;
-
         function startTimer() {
-            if (isTimerRunning) return; 
-            
+            if (isTimerRunning) return;
             const isEn = (window.currentLang === 'en');
             const btn = document.getElementById('btn-start-timer');
             const status = document.getElementById('timer-status');
@@ -623,13 +785,11 @@
             
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
-
             const randomDelay = Math.floor(Math.random() * 2000) + 1000;
             
             display.innerText = "0.00";
             status.innerText = "Standby...";
             status.style.color = "var(--info-color)";
-
             timerTimeout = setTimeout(() => {
                 playBeep(3000, 300);
                 status.innerText = "GO!";
@@ -675,7 +835,6 @@
             "Rücken zum Ziel (Turn and Draw)",
             "Starke Hand am Holster, schwache Hand entspannt"
         ];
-
         const actionsEN = [
             "Draw, 1 shot on T1",
             "Draw, 2 shots on T1",
@@ -694,18 +853,15 @@
             "Ziehen, 1 Schuss starker Arm (Strong Hand Only)",
             "El Presidente (Turn & Draw, 6 Schuss)"
         ];
-
         function generateDrill() {
             const isEn = (window.currentLang === 'en');
             const starts = isEn ? startPositionsEN : startPositionsDE;
             const acts = isEn ? actionsEN : actionsDE;
-            
             const randomStart = starts[Math.floor(Math.random() * starts.length)];
             const randomAction = acts[Math.floor(Math.random() * acts.length)];
             
             const labelStart = isEn ? "Start Position:" : "Startposition:";
             const labelAction = isEn ? "Procedure:" : "Ablauf:";
-            
             const html = `
                 <div style="text-align: left; width: 100%;">
                     <strong style="color: var(--accent-color);">${labelStart}</strong><br>
@@ -719,4 +875,3 @@
     </script>
 </body>
 </html>
-
