@@ -165,6 +165,7 @@
 
     <div class="container">
         
+        <!-- TOOL 1: HIT-FACTOR BATTLE -->
         <div class="tool-section">
             <h2 data-txt="tools-hf-title">🏆 Hit-Factor Battle</h2>
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="tools-hf-desc">Trage die Ergebnisse von dir und deinen Freunden ein, um eine Live-Rangliste für die Stage zu erstellen.</p>
@@ -216,35 +217,37 @@
             <button id="btn-clear-ranking" class="btn-secondary" style="margin-top: 15px; display: none; width: 100%; color: var(--danger-color); border-color: var(--danger-color);" onclick="clearRanking()" data-txt="tools-hf-btn-clear">Rangliste leeren</button>
         </div>
 
+        <!-- NEW TOOL 2: IPSC POWER-FACTOR RECHNER (SAUBER REFRESHED) -->
         <div class="tool-section">
-            <h2>⏱️ IPSC Power-Factor Manager</h2>
-            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Berechne den Power Factor deiner Laborierung und überprüfe den Status für das Match.</p>
+            <h2 data-txt="tools-pf-title">⏱️ IPSC Power-Factor Manager</h2>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="tools-pf-desc">Berechne den Power Factor deiner Laborierung und überprüfe den Status für das Match.</p>
             
             <div class="pf-input-grid">
                 <div class="form-group">
-                    <label>Geschossgewicht (Grains)</label>
+                    <label data-txt="tools-pf-weight">Geschossgewicht (Grains)</label>
                     <input type="number" id="pf-weight" value="124" min="1" step="0.1" oninput="calculatePowerFactor()">
                 </div>
                 <div class="form-group">
-                    <label>Geschwindigkeit (fps)</label>
+                    <label data-txt="tools-pf-velocity">Geschwindigkeit (fps)</label>
                     <input type="number" id="pf-velocity" value="1030" min="1" oninput="calculatePowerFactor()">
                 </div>
                 <div class="form-group pf-full-row">
-                    <label>Angestrebte Wertung</label>
+                    <label data-txt="tools-pf-target">Angestrebte Wertung</label>
                     <select id="pf-target-type" onchange="calculatePowerFactor()">
-                        <option value="minor">Minor (Mindest-Faktor 125)</option>
-                        <option value="major">Major (Mindest-Faktor 160)</option>
+                        <option value="minor" data-txt="tools-pf-opt-minor">Minor (Mindest-Faktor 125)</option>
+                        <option value="major" data-txt="tools-pf-opt-major">Major (Mindest-Faktor 160)</option>
                     </select>
                 </div>
             </div>
 
             <div class="pf-dashboard-card">
-                <div class="pf-display-label">Errechneter Power Factor</div>
+                <div class="pf-display-label" data-txt="tools-pf-result-label">Errechneter Power Factor</div>
                 <div class="pf-display-number" id="pf-result-value">0.00</div>
                 <div class="pf-status-badge" id="pf-result-status">-</div>
             </div>
         </div>
 
+        <!-- TOOL 3: DRY-FIRE TIMER & GENERATOR -->
         <div class="tool-section">
             <h2 data-txt="tools-df-title">⏱️ Dry-Fire Timer & Drill Generator</h2>
             
@@ -268,6 +271,7 @@
 
     </div>
 
+    <!-- MODALS BEREICH -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
