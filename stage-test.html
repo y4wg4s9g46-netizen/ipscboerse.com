@@ -1,336 +1,376 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPSC Stage-Planer Pro</title>
+    <title>Stage Planer | Startplatz Börse</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="IPSC Börse">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
-        :root {
+        /* Verwendet exakt dein bestehendes Farb- und Modisystem */
+        :root, html[data-theme="light"] {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --input-bg: #ffffff;
+            --accent-color: #ff9f43; /* IPSC Orange */
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --info-color: #3b82f6;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --radius: 8px;
+        }
+
+        html[data-theme="dark"] {
             --bg-color: #0f172a;
             --card-bg: #1e293b;
-            --primary: #3b82f6;
-            --danger: #ef4444;
-            --text: #f8fafc;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --input-bg: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            html:not([data-theme="light"]) {
+                --bg-color: #0f172a;
+                --card-bg: #1e293b;
+                --text-color: #f8fafc;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+                --input-bg: #0f172a;
+            }
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0;
-            padding: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
-            color: var(--text);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .app-container {
-            width: 100%;
-            max-width: 500px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .container { max-width: 800px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
+
+        .info-box {
+            background-color: rgba(255, 159, 67, 0.08);
+            border-left: 4px solid var(--accent-color);
+            color: var(--text-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius);
+            font-size: 14px; line-height: 1.5; border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-color);
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 5px;
+        .form-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius); padding: 25px; margin-bottom: 20px; box-shadow: var(--shadow-sm);
         }
 
-        h2 { margin: 0; font-size: 1.4rem; color: #fff; }
-        p { margin: 5px 0 0; font-size: 0.85rem; color: #94a3b8; }
+        .form-section h2 { margin-top: 0; font-size: 20px; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
 
-        /* Elegant gestylter Upload-Button für Kamera & Dateien */
+        /* Integrierter Upload-Button im Stil des Marktplatzes */
         .btn-upload {
-            background-color: var(--primary);
-            color: white;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: 600;
-            text-align: center;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
-            transition: transform 0.1s;
+            background-color: var(--info-color);
+            color: white; padding: 12px; border-radius: var(--radius);
+            font-weight: 600; text-align: center; cursor: pointer;
+            display: block; margin-bottom: 20px; box-shadow: var(--shadow-sm);
         }
-        .btn-upload:active { transform: scale(0.98); }
         input[type="file"] { display: none; }
 
-        /* Canvas Bereich */
-        .canvas-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            position: relative;
+        /* --- INTERAKTIVER CANVAS / GRID BEREICH --- */
+        .stage-wrapper {
+            position: relative; width: 100%; display: flex; justify-content: center; margin-bottom: 25px;
         }
 
-        #stageCanvas {
-            touch-action: none; 
-            border: 2px solid #334155;
+        .stage-view {
+            position: relative; border: 1px solid var(--border-color);
+            border-radius: var(--radius); overflow: hidden;
+            box-shadow: var(--shadow-md); background: var(--input-bg);
             max-width: 100%;
-            height: auto;
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
         }
 
-        /* Werkzeugleiste (Toolbar) */
+        #stage-image { display: block; max-width: 100%; height: auto; }
+
+        /* Das digitale 2D-Strategieraster */
+        #grid-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: grid; grid-template-columns: repeat(16, 1fr); grid-template-rows: repeat(16, 1fr);
+            cursor: crosshair; z-index: 3;
+        }
+
+        .grid-cell {
+            border: 1px solid rgba(148, 163, 184, 0.15); box-sizing: border-box;
+        }
+        .grid-cell:hover { background-color: rgba(255, 159, 67, 0.15); }
+
+        /* Vektorebene für die automatischen Laufwege */
+        #path-svg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1;
+        }
+
+        /* Taktische Marker-Anzeige */
+        .marker {
+            position: absolute; transform: translate(-50%, -50%);
+            width: 28px; height: 28px; font-weight: 800; font-size: 13px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; user-select: none; pointer-events: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4); z-index: 2;
+            border: 2px solid #ffffff; color: #ffffff;
+        }
+        .marker-x { background-color: var(--danger-color); }
+        .marker-r { background-color: #eab308; } /* Warn-Gelb für Reloads */
+
+        /* Nummerierung für die Chronologie des Laufwegs */
+        .marker-index {
+            position: absolute; top: -6px; right: -6px; background: #000;
+            color: #fff; font-size: 9px; width: 14px; height: 14px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            border: 1px solid #fff;
+        }
+
+        /* --- STEUERUNGSBAR --- */
         .toolbar {
-            background-color: var(--card-bg);
-            padding: 12px;
-            border-radius: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .tool-group {
-            display: flex;
-            gap: 8px;
-            width: 100%;
+            background-color: var(--card-bg); border: 1px solid var(--border-color);
+            padding: 12px; border-radius: var(--radius); display: flex; gap: 10px;
+            box-shadow: var(--shadow-sm); margin-bottom: 30px;
         }
 
         .btn-tool {
-            flex: 1;
-            background-color: #334155;
-            border: none;
-            color: #94a3b8;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            transition: all 0.2s;
+            flex: 1; background-color: var(--bg-color); border: 1px solid var(--border-color);
+            color: var(--text-color); padding: 10px; border-radius: 6px;
+            font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.15s;
         }
-
         .btn-tool.active {
-            background-color: var(--primary);
-            color: #fff;
+            background-color: var(--accent-color); color: #ffffff; border-color: var(--accent-color);
         }
+        .btn-clear { background-color: rgba(239, 68, 68, 0.1); color: var(--danger-color); border: none; }
+        .btn-clear:hover { background-color: var(--danger-color); color: white; }
 
-        /* Spezial-Tasten für X und R optisch hervorheben */
-        .btn-tool[data-tool="X"].active { background-color: #ef4444; }
-        .btn-tool[data-tool="R"].active { background-color: #eab308; }
+        footer { background-color: var(--card-bg); border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: auto; font-size: 13px; color: var(--text-muted); text-align: center; }
 
-        .color-picker {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            align-items: center;
-            padding: 4px 0;
-        }
-
-        .color-dot {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 3px solid transparent;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-        .color-dot.active {
-            border-color: #fff;
-            transform: scale(1.1);
-        }
-
-        .btn-clear {
-            background-color: #475569;
-            color: #f1f5f9;
+        @media (max-width: 768px) {
+            .container { padding: 0 10px; margin-top: 15px; }
+            .toolbar { flex-direction: column; gap: 8px; }
+            .btn-tool { width: 100%; }
         }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <header>
-            <h2>🎯 Stage Walkthrough-Planer</h2>
-            <p>Foto schießen oder Datei aus E-Mail/Galerie laden</p>
-        </header>
+    <header></header>
+    <script src="header.js"></script>
 
-        <!-- Universeller Datei- & Kamera-Upload -->
-        <label class="btn-upload" for="imageLoader">
-            📂 Plan laden / Foto machen
-        </label>
-        <input type="file" id="imageLoader" accept="image/*">
-
-        <!-- Zeichenfläche -->
-        <div class="canvas-container">
-            <canvas id="stageCanvas" width="350" height="450"></canvas>
+    <div class="container">
+        
+        <div class="info-box" id="stage-info-box" data-txt="stage-desc">
+            Lade einen Stage-Plan (Foto oder E-Mail-Anhang) hoch. Setze präzise Standpunkte (X) und Reloads (R) über das digitale Raster. Ein sauberer Laufweg wird automatisch gezeichnet.
         </div>
 
-        <!-- Die neue Pro-Toolbar -->
-        <div class="toolbar">
-            <!-- Modus-Auswahl -->
-            <div class="tool-group">
-                <button class="btn-tool active" data-tool="draw">✏️ Linie</button>
-                <button class="btn-tool" data-tool="X">❌ Stand (X)</button>
-                <button class="btn-tool" data-tool="R">🔄 Reload (R)</button>
+        <div class="form-section">
+            <h2 data-txt="stage-title">🎯 Interaktiver Stage-Walkthrough Planer</h2>
+            
+            <label class="btn-upload" for="imageLoader" data-txt="stage-load">
+                📂 Plan laden / Foto machen
+            </label>
+            <input type="file" id="imageLoader" accept="image/*">
+
+            <div class="stage-wrapper">
+                <div class="stage-view" id="stageView" style="display:none;">
+                    <svg id="path-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <path id="walkway-path" d="" fill="none" stroke="#3b82f6" stroke-width="0.6" stroke-dasharray="1.5" vector-effect="non-scaling-stroke"/>
+                    </svg>
+                    
+                    <img id="stage-image" src="" alt="Stage Plan">
+                    
+                    <div id="grid-overlay"></div>
+                    
+                    <div id="markers-layer"></div>
+                </div>
             </div>
 
-            <!-- Farben & Reset -->
-            <div class="tool-group" style="align-items: center;">
-                <div class="color-picker" style="flex: 2;">
-                    <div class="color-dot active" data-color="#38bdf8" style="background-color: #38bdf8;"></div>
-                    <div class="color-dot" data-color="#f43f5e" style="background-color: #f43f5e;"></div>
-                    <div class="color-dot" data-color="#4ade80" style="background-color: #4ade80;"></div>
-                    <div class="color-dot" data-color="#fbbf24" style="background-color: #fbbf24;"></div>
-                </div>
-                <button class="btn-tool btn-clear" id="clearBtn" style="flex: 1;">🗑️ Reset</button>
+            <div class="toolbar" id="planner-tools" style="display:none;">
+                <button class="btn-tool active" data-action="set-x" data-txt="tool-x">❌ Standpunkt (X)</button>
+                <button class="btn-tool" data-action="set-r" data-txt="tool-r">🔄 Reload (R)</button>
+                <button class="btn-tool btn-clear" id="btn-reset" data-txt="btn-reset-stage">🗑️ Plan zurücksetzen</button>
             </div>
         </div>
     </div>
 
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+        </div>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="lang.js"></script>
+    <script src="app.js"></script>
+
     <script>
-        const canvas = document.getElementById('stageCanvas');
-        const ctx = canvas.getContext('2d');
+        const GRID_SIZE = 16; // Kompakteres 16x16 Gitter für bessere Bedienbarkeit am Handy
         const imageLoader = document.getElementById('imageLoader');
-        const clearBtn = document.getElementById('clearBtn');
-        const colorDots = document.querySelectorAll('.color-dot');
-        const toolButtons = document.querySelectorAll('.btn-tool[data-tool]');
+        const stageView = document.getElementById('stageView');
+        const stageImage = document.getElementById('stage-image');
+        const gridOverlay = document.getElementById('grid-overlay');
+        const markersLayer = document.getElementById('markers-layer');
+        const toolbar = document.getElementById('planner-tools');
+        const walkwayPath = document.getElementById('walkway-path');
+        const resetBtn = document.getElementById('btn-reset');
 
-        let isDrawing = false;
-        let currentTool = 'draw'; // Modi: 'draw', 'X', 'R'
-        let currentColor = '#38bdf8'; 
-        let currentImage = null;
+        let currentAction = 'set-x';
+        let placedMarkers = []; // Hält die Chronologie der Wegpunkte fest
 
-        // 1. FLEXIBLER UPLOAD (Kamera oder Datei aus E-Mail)
+        // 1. DYNAMISCHES ERWEITERN DEINES TRANSLATION-SYSTEMS (lang.js Kompatibilität)
+        if (window.portalTranslations) {
+            const extensions = {
+                de: {
+                    "stage-title": "🎯 Interaktiver Stage-Walkthrough Planer",
+                    "stage-desc": "Lade einen Stage-Plan (Foto oder E-Mail-Anhang) hoch. Setze präzise Standpunkte (X) und Reloads (R) über das digitale Raster. Ein sauberer Laufweg wird automatisch gezeichnet.",
+                    "stage-load": "📂 Plan laden / Foto machen",
+                    "tool-x": "❌ Standpunkt (X)",
+                    "tool-r": "🔄 Reload (R)",
+                    "btn-reset-stage": "🗑️ Plan zurücksetzen"
+                },
+                en: {
+                    "stage-title": "🎯 Interactive Stage Walkthrough Planner",
+                    "stage-desc": "Upload a stage plan (photo or email attachment). Place precise standing positions (X) and reloads (R) via the digital grid. A clean path is drawn automatically.",
+                    "stage-load": "📂 Load Plan / Take Photo",
+                    "tool-x": "❌ Position (X)",
+                    "tool-r": "🔄 Reload (R)",
+                    "btn-reset-stage": "🗑️ Reset Plan"
+                }
+            };
+            Object.assign(window.portalTranslations.de, extensions.de);
+            Object.assign(window.portalTranslations.en, extensions.en);
+        }
+
+        // 2. THEME COMPATIBILITY
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
+            if (typeof updateThemeToggleIcon === "function") {
+                updateThemeToggleIcon(savedThemeSetting);
+            }
+            if(typeof translatePortalPage === "function") {
+                translatePortalPage();
+            }
+        });
+
+        // 3. IMAGE UPLOAD & GRID INITIALISIERUNG
         imageLoader.addEventListener('change', function(e) {
             if(!e.target.files.length) return;
             const reader = new FileReader();
             reader.onload = function(event) {
-                const img = new Image();
-                img.onload = function() {
-                    currentImage = img;
-                    resizeAndDrawImage();
+                stageImage.onload = function() {
+                    initGrid();
+                    stageView.style.display = 'block';
+                    toolbar.style.display = 'flex';
+                    resetPlanner();
                 }
-                img.src = event.target.result;
+                stageImage.src = event.target.result;
             }
             reader.readAsDataURL(e.target.files[0]);
         });
 
-        function resizeAndDrawImage() {
-            if (!currentImage) return;
-            const maxDim = 1200;
-            let width = currentImage.width;
-            let height = currentImage.height;
-
-            if (width > maxDim || height > maxDim) {
-                if (width > height) {
-                    height *= maxDim / width;
-                    width = maxDim;
-                } else {
-                    width *= maxDim / height;
-                    height = maxDim;
+        function initGrid() {
+            gridOverlay.innerHTML = '';
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('grid-cell');
+                    // Berechnet die Prozent-Koordinaten für die responsive SVG-Linie
+                    cell.dataset.pctX = ((col + 0.5) / GRID_SIZE) * 100;
+                    cell.dataset.pctY = ((row + 0.5) / GRID_SIZE) * 100;
+                    cell.addEventListener('click', handleGridClick);
+                    gridOverlay.appendChild(cell);
                 }
             }
-
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(currentImage, 0, 0, width, height);
         }
 
-        function getCoordinates(e) {
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        // 4. WORKFLOW LOGIK (MARKER SETZEN & PFAD ZEICHNEN)
+        function handleGridClick(e) {
+            const cell = e.target;
+            const pctX = parseFloat(cell.dataset.pctX);
+            const pctY = parseFloat(cell.dataset.pctY);
+
+            // Neuen Punkt generieren
+            const type = currentAction === 'set-x' ? 'X' : 'R';
+            const markerData = { type, pctX, pctY };
             
-            return {
-                x: (clientX - rect.left) * (canvas.width / rect.width),
-                y: (clientY - rect.top) * (canvas.height / rect.height)
-            };
+            placedMarkers.push(markerData);
+            renderMarkersAndPaths();
         }
 
-        // 2. AKTION BEI KLICK / TOUCH
-        function handleStart(e) {
-            const coords = getCoordinates(e);
+        function renderMarkersAndPaths() {
+            markersLayer.innerHTML = '';
+            let pathD = '';
 
-            if (currentTool === 'draw') {
-                // Normaler Linienmodus
-                isDrawing = true;
-                ctx.beginPath();
-                ctx.moveTo(coords.x, coords.y);
-                ctx.lineWidth = canvas.width / 90; 
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                ctx.strokeStyle = currentColor;
-            } else {
-                // Stempelmodus für X oder R
-                stampText(currentTool, coords.x, coords.y);
-            }
-        }
+            placedMarkers.forEach((marker, index) => {
+                // HTML Pin erzeugen
+                const pin = document.createElement('div');
+                pin.classList.add('marker', marker.type === 'X' ? 'marker-x' : 'marker-r');
+                pin.style.left = `${marker.pctX}%`;
+                pin.style.top = `${marker.pctY}%`;
+                pin.textContent = marker.type;
 
-        function handleMove(e) {
-            if (!isDrawing || currentTool !== 'draw') return;
-            e.preventDefault(); 
-            const coords = getCoordinates(e);
-            ctx.lineTo(coords.x, coords.y);
-            ctx.stroke();
-        }
+                // Chronologische Nummerierung oben rechts am Pin anheften
+                const indexBadge = document.createElement('div');
+                indexBadge.classList.add('marker-index');
+                indexBadge.textContent = index + 1;
+                pin.appendChild(indexBadge);
 
-        function handleEnd() {
-            isDrawing = false;
-            if(currentTool === 'draw') ctx.closePath();
-        }
+                markersLayer.appendChild(pin);
 
-        // 3. X UND R STEMPELN
-        function stampText(text, x, y) {
-            const fontSize = Math.round(canvas.width / 10); // Dynamische Größe basierend auf Bildgröße
-            ctx.font = `bold ${fontSize}px sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            // Kontur/Schatten hinzufügen, damit man das Symbol auf JEDEM Hintergrund (hell/dunkel) sieht
-            ctx.strokeStyle = '#000000';
-            ctx.lineWidth = fontSize / 4;
-            ctx.strokeText(text, x, y);
-
-            // Eigentlicher Buchstabe
-            ctx.fillStyle = text === 'X' ? '#ef4444' : '#eab308'; // Festgelegte Signalfarben für X und R
-            ctx.fillText(text, x, y);
-        }
-
-        // Event-Hinterlegungen
-        canvas.addEventListener('touchstart', handleStart);
-        canvas.addEventListener('touchmove', handleMove);
-        canvas.addEventListener('touchend', handleEnd);
-        canvas.addEventListener('mousedown', handleStart);
-        canvas.addEventListener('mousemove', handleMove);
-        canvas.addEventListener('mouseup', handleEnd);
-
-        // 4. TOOLBAR LOGIK
-        toolButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelector('.btn-tool.active').classList.remove('active');
-                btn.classList.add('active');
-                currentTool = btn.getAttribute('data-tool');
+                // SVG-Pfad-String zusammenbauen
+                if (index === 0) {
+                    pathD += `M ${marker.pctX} ${marker.pctY}`;
+                } else {
+                    pathD += ` L ${marker.pctX} ${marker.pctY}`;
+                }
             });
+
+            walkwayPath.setAttribute('d', pathD);
+        }
+
+        // 5. CONTROLS (Toolbar & Reset)
+        toolbar.addEventListener('click', (e) => {
+            const btn = e.target.closest('.btn-tool');
+            if (!btn || btn.id === 'btn-reset') return;
+
+            document.querySelectorAll('.btn-tool').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentAction = btn.getAttribute('data-action');
         });
 
-        colorDots.forEach(dot => {
-            dot.addEventListener('click', (e) => {
-                document.querySelector('.color-dot.active').classList.remove('active');
-                e.target.classList.add('active');
-                currentColor = e.target.getAttribute('data-color');
-            });
-        });
+        function resetPlanner() {
+            placedMarkers = [];
+            markersLayer.innerHTML = '';
+            walkwayPath.setAttribute('d', '');
+        }
 
-        clearBtn.addEventListener('click', () => {
-            if (currentImage) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
-            } else {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }
-        });
+        resetBtn.addEventListener('click', resetPlanner);
+
+        window.onLanguageChanged = () => {
+            const selector = document.getElementById("language-select");
+            if (selector) selector.value = window.currentLang;
+        };
     </script>
 </body>
 </html>
