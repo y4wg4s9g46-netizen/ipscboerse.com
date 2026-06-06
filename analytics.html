@@ -90,7 +90,6 @@
     <div class="container">
         <div class="tool-section" style="max-width: 600px; margin: 0 auto; padding: 20px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: var(--shadow-sm);">
             
-            <!-- Der Header ist jetzt flex-wrap gesichert und hat keinen data-txt Tag mehr -->
             <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px;">
                 <h2 style="font-size: 22px; font-weight: 800; margin: 0;">🏆 Analytics Pro</h2>
                 <button class="btn-small" style="font-size: 12px; padding: 6px 12px; background: rgba(59, 130, 246, 0.1); color: var(--info-color); border-color: var(--info-color);">👥 Buddy Radar</button>
@@ -152,12 +151,25 @@
         </div>
     </div>
 
-    <!-- Das neue Hit-Editor Modal -->
+    <!-- Das neue Hit-Editor Modal mit Smart Paste -->
     <div id="hit-editor-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-top: 0; margin-bottom: 5px; color: var(--text-color);">✏️ Treffer eintragen</h3>
-            <p id="hit-editor-stage-name" style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px; margin-top: 0;"></p>
+            <p id="hit-editor-stage-name" style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px; margin-top: 0;"></p>
             
+            <!-- SMART PASTE FELD -->
+            <div style="margin-bottom: 20px; text-align: center;">
+                <textarea id="smart-paste-area" placeholder="📋 Email-Text hier einfügen (Smart Paste)" rows="2" style="width: 100%; border-radius: 8px; border: 1px dashed var(--accent-color); padding: 10px; background: rgba(255,159,67,0.05); color: var(--text-color); font-size: 12px; resize: none; font-weight: bold; font-family: monospace; box-sizing: border-box;"></textarea>
+                <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Fügt A, C, D und M automatisch aus dem Email-Text ein.</div>
+            </div>
+
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                <span style="font-size: 10px; color: var(--text-muted); padding: 0 10px; text-transform: uppercase;">Oder manuell prüfen</span>
+                <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+            </div>
+            
+            <!-- MANUELLE FELDER -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
                 <div class="hit-input-group">
                     <label style="color: var(--success-color);">Alphas (A)</label>
@@ -401,7 +413,7 @@
         document.getElementById("bar-deltas").style.width = `${dPerc}%`;
     }
 
-    // --- HIT EDITOR LOGIK ---
+    // --- HIT EDITOR & SMART PASTE LOGIK ---
     window.openHitEditor = function(stageName) {
         const matchId = document.getElementById("match-selector").value;
         const stage = allUserStages.find(s => s.match_id === matchId && s.stage_name === stageName);
@@ -413,6 +425,7 @@
         document.getElementById('edit-c').value = stage.charlies || 0;
         document.getElementById('edit-d').value = stage.deltas || 0;
         document.getElementById('edit-m').value = stage.misses || 0;
+        document.getElementById('smart-paste-area').value = '';
         
         document.getElementById('hit-editor-modal').style.display = 'flex';
     }
@@ -421,6 +434,45 @@
         document.getElementById('hit-editor-modal').style.display = 'none';
         currentEditStage = null;
     }
+
+    // Smart Paste Parser
+    document.getElementById('smart-paste-area').addEventListener('input', function(e) {
+        let text = e.target.value;
+        if (!text || text.trim() === '') return;
+
+        let cleanText = text.replace(/[\r\n\t]+/g, ' ');
+        let a = 0, c = 0, d = 0, m = 0, success = false;
+
+        // Suche nach "A C D" und schnappe die 3 Zahlen danach
+        let idxACD = cleanText.search(/A\s+C\s+D/i);
+        if (idxACD !== -1) {
+            let nums = cleanText.substring(idxACD + 5).match(/\b\d+\b/g);
+            if (nums && nums.length >= 3) {
+                a = nums[0]; c = nums[1]; d = nums[2];
+                success = true;
+            }
+        }
+
+        // Suche nach "Miss" und schnappe die 1 Zahl danach
+        let idxMiss = cleanText.search(/Miss/i);
+        if (idxMiss !== -1) {
+            let nums = cleanText.substring(idxMiss + 4).match(/\b\d+\b/g);
+            if (nums && nums.length >= 1) {
+                m = nums[0];
+            }
+        }
+
+        if (success) {
+            document.getElementById('edit-a').value = a;
+            document.getElementById('edit-c').value = c;
+            document.getElementById('edit-d').value = d;
+            document.getElementById('edit-m').value = m;
+            
+            e.target.value = '';
+            e.target.placeholder = '✅ Treffer erfolgreich erkannt!';
+            setTimeout(() => e.target.placeholder = '📋 Email-Text hier einfügen (Smart Paste)', 3000);
+        }
+    });
 
     window.saveHits = async function() {
         if(!currentEditStage) return;
@@ -442,7 +494,6 @@
                 
             if (error) throw error;
             
-            // Lokale Daten sofort updaten
             currentEditStage.alphas = a;
             currentEditStage.charlies = c;
             currentEditStage.deltas = d;
