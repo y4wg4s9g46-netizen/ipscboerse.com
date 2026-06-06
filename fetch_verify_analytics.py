@@ -71,7 +71,7 @@ def discover_matches_automatically():
 
                     if match_id and match_id not in seen_ids:
                         seen_ids.add(match_id)
-                        matches_to_scrape.append({"id": str(match_id), "name": f"{match_link.text.strip()} ({datum_raw})" marketing}"})
+                        matches_to_scrape.append({"id": str(match_id), "name": f"{match_link.text.strip()} ({datum_raw})"})
         except Exception as e:
             print(f"   ⚠️ Fehler beim Scannen von {url}: {e}")
             
@@ -135,7 +135,6 @@ def scrape_verify_list():
         match_id = match["id"]
         match_name = match["name"]
         
-        # PRÜFT JETZT ALLE MÖGLICHEN ERGEBNIS-DATEIEN LIVE
         filenames_to_try = ["verify.html", "overall.html", "stage.html"]
         
         for filename in filenames_to_try:
@@ -156,7 +155,6 @@ def scrape_verify_list():
                         min_len = 11 if is_verify else 9
                         if len(cells) < min_len: continue
                         
-                        # SPALTEN-UNABHÄNGIG: Durchsucht die gesamte Text-Zeile nach deinem Namen!
                         row_text = row.get_text()
                         for shooter in shooters:
                             if name_matches(shooter["real_name"], row_text):
