@@ -10,6 +10,10 @@ window.portalTranslations = {
         "buy-coffee": "Kaffee spendieren",
         "btn-save": "Speichern",
 
+        // --- NAVIGATION KEYS ---
+        "nav-startseite": "Startseite",
+        "nav-wiederladen": "Wiederladen",
+
         // --- STARTSEITE (index.html) ---
         "hero-title": "DVC – Willkommen auf deiner IPSC-Plattform",
         "hero-desc": "Die zentrale Anlaufstelle für IPSC-Schützen im deutschsprachigen Raum. Tausche Startplätze, finde freie Match-Plätze, diskutiere in der Community oder nutze unsere interaktiven Trainingstools.",
@@ -199,6 +203,20 @@ window.portalTranslations = {
         "tools-pf-opt-minor": "Minor (Mindest-Faktor 125)",
         "tools-pf-opt-major": "Major (Mindest-Faktor 160)",
         "tools-pf-result-label": "Errechneter Power Factor",
+        "tools-db-title": "📦 Meine Wiederlade-Rezepte",
+        "tools-db-desc": "Speichere deine bewährten Laborierungen dauerhaft in deiner Cloud ab.",
+        "tools-db-logged-out": "Logge dich ein, um deine persönliche Wiederlade-Datenbank zu nutzen und Rezepte in der Cloud zu speichern.",
+        "tools-db-caliber": "Kaliber",
+        "tools-db-bullet-type": "Geschosstyp / Hersteller",
+        "tools-db-bullet-type-ph": "z.B. LOS HP oder H&N HS",
+        "tools-db-powder": "Pulver (Sorte & Menge)",
+        "tools-db-powder-ph": "z.B. 3.7gr N320",
+        "tools-db-oal": "OAL (mm)",
+        "tools-db-oal-ph": "z.B. 29.00",
+        "tools-db-notes": "Notizen / Waffe (Optional)",
+        "tools-db-notes-ph": "z.B. Sicherer Minor-Faktor aus CZ Shadow 2",
+        "tools-db-btn-save": "💾 Rezept in Cloud speichern",
+        "tools-db-saved-title": "Gespeicherte Cloud-Laborierungen",
 
         // --- IPSC HUB ---
         "hub-main-title": "IPSC Hub – Alle wichtigen Links",
@@ -230,6 +248,10 @@ window.portalTranslations = {
         "footer-impressum-link": "Legal Notice & Disclaimers",
         "buy-coffee": "Buy me a coffee",
         "btn-save": "Save Changes",
+
+        // --- NAVIGATION KEYS ---
+        "nav-startseite": "Home",
+        "nav-wiederladen": "Reloading",
 
         // --- HOME PAGE (index.html) ---
         "hero-title": "DVC – Welcome to your IPSC Platform",
@@ -420,6 +442,20 @@ window.portalTranslations = {
         "tools-pf-opt-minor": "Minor (Minimum Factor 125)",
         "tools-pf-opt-major": "Major (Minimum Factor 160)",
         "tools-pf-result-label": "Calculated Power Factor",
+        "tools-db-title": "📦 My Reloading Recipes",
+        "tools-db-desc": "Save your proven loads permanently to your secure cloud database.",
+        "tools-db-logged-out": "Log in to access your personal reloading recipe database and synchronize files with the cloud.",
+        "tools-db-caliber": "Caliber",
+        "tools-db-bullet-type": "Bullet Type / Maker",
+        "tools-db-bullet-type-ph": "e.g. LOS HP or H&N HS",
+        "tools-db-powder": "Powder (Type & Amount)",
+        "tools-db-powder-ph": "e.g. 3.7gr N320",
+        "tools-db-oal": "OAL (mm)",
+        "tools-db-oal-ph": "e.g. 29.00",
+        "tools-db-notes": "Notes / Gun (Optional)",
+        "tools-db-notes-ph": "e.g. Safe minor factor out of CZ Shadow 2",
+        "tools-db-btn-save": "💾 Save Recipe to Cloud",
+        "tools-db-saved-title": "Saved Cloud Loads",
 
         // --- IPSC HUB ---
         "hub-main-title": "IPSC Hub – All Important Links",
