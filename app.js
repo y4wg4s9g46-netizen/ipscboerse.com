@@ -625,8 +625,60 @@ function checkPlannerImport() {
   }
 }
 
-window.onAuthChange = () => { fetchMatches(); updateHeaderChatBadge(); };
-window.onLanguageChanged = () => { if (cachedMatches.length > 0) { renderMatches(cachedMatches); } };
+// =========================================================================
+// NEU: AUTOMATISCHE LADEN & SPEICHERN LOGIK FÜR DEN ECHTEN CLAR-NAMEN
+// =========================================================================
+async function loadUserSettingsProfile() {
+  if (!window.currentUser) return;
+  const { data: profile, error } = await window.supabaseClient
+    .from("profiles")
+    .select("username, ipsc_alias, real_name")
+    .eq("id", window.currentUser.id)
+    .single();
+  
+  if (!error && profile) {
+    if (document.getElementById("settings-username")) document.getElementById("settings-username").value = profile.username || "";
+    if (document.getElementById("settings-ipsc-alias")) document.getElementById("settings-ipsc-alias").value = profile.ipsc_alias || "";
+    if (document.getElementById("settings-real-name")) document.getElementById("settings-real-name").value = profile.real_name || "";
+  }
+}
+
+// Bestehenden Auth-Hook erweitern, ohne die alte Logik zu überschreiben
+const originalOnAuthChange = window.onAuthChange;
+window.onAuthChange = () => {
+  if (typeof originalOnAuthChange === "function") originalOnAuthChange();
+  loadUserSettingsProfile();
+};
+
+// Event-Listener für das Absenden des Einstellungs-Formulars abfangen und wegschreiben
+document.getElementById("settings-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!window.currentUser) return;
+
+  const username = document.getElementById("settings-username")?.value.trim();
+  const ipscAlias = document.getElementById("settings-ipsc-alias")?.value.trim();
+  const realName = document.getElementById("settings-real-name")?.value.trim();
+
+  const { error } = await window.supabaseClient
+    .from("profiles")
+    .update({
+      username: username,
+      ipsc_alias: ipscAlias,
+      real_name: realName
+    })
+    .eq("id", window.currentUser.id);
+
+  if (error) {
+    alert(window.currentLang === "en" ? "Error saving profile: " + error.message : "Fehler beim Speichern des Profils: " + error.message);
+  } else {
+    alert(window.currentLang === "en" ? "Profile updated successfully!" : "Profil erfolgreich aktualisiert!");
+    if (window.currentUser.user_metadata) {
+      window.currentUser.user_metadata.username = username;
+      window.currentUser.user_metadata.ipsc_alias = ipscAlias;
+    }
+    fetchMatches();
+  }
+});
 
 enforceFutureDates();
 checkPlannerImport();
