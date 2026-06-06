@@ -4,8 +4,15 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import re
 import urllib.parse
+import io
 from bs4 import BeautifulSoup
 from supabase import create_client, Client
+
+try:
+    from PyPDF2 import PdfReader
+except ImportError:
+    print("❌ Fehler: PyPDF2 ist nicht installiert! Bitte in der GitHub Action hinzufügen.")
+    exit(1)
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
@@ -16,7 +23,6 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# --- STOSSDÄMPFER FÜR GITHUB-NETZWERKAUSFÄLLE ---
 session = requests.Session()
 retry = Retry(total=5, backoff_factor=1, status_forcelist=[ 500, 502, 503, 504 ])
 adapter = HTTPAdapter(max_retries=retry)
@@ -48,7 +54,7 @@ def get_active_shooters():
         print(f"❌ Fehler beim Laden der Profile: {e}")
         return []
 
-def parse_and_save_row(shooter_id, real_name, match_id, match_name, stage_title, cells, is_verify_mode):
+def parse_and_save_html_row(shooter_id, match_id, match_name, stage_title, cells, is_verify_mode):
     try:
         if is_verify_mode and len(cells) >= 11:
             scoring_type = cells[3].text.strip()
@@ -79,9 +85,34 @@ def parse_and_save_row(shooter_id, real_name, match_id, match_name, stage_title,
         }
 
         supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
-        print(f"      🎯 TREFFER GESPEICHERT: {stage_title} ({match_name})")
+        print(f"      🎯 HTML-TREFFER GESPEICHERT: {stage_title} ({match_name})")
     except:
         pass
+
+def parse_and_save_pdf_row(shooter_id, match_id, match_name, line_text):
+    try:
+        # Sucht nach den typischen WinMSS PDF-Zahlenformaten (z.B. 57,64 und 1112,3646)
+        numbers = re.findall(r'\d+,\d+', line_text)
+        percentage = 0.0
+        points = 0.0
+        
+        if len(numbers) >= 2:
+            percentage = float(numbers[0].replace(',', '.'))
+            points = float(numbers[1].replace(',', '.'))
+            
+        payload = {
+            "user_id": shooter_id, "match_id": str(match_id), "match_name": match_name,
+            "stage_name": "Overall Match Results (PDF)", "scoring_type": "Comstock",
+            "alphas": 0, "charlies": 0, "deltas": 0,
+            "misses": 0, "no_shoots": 0, 
+            "stage_time": percentage, # Wir speichern die % vorübergehend in stage_time
+            "hit_factor": points      # Wir speichern die Gesamtpunkte im hit_factor
+        }
+
+        supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
+        print(f"      🎯 PDF-TREFFER GESPEICHERT: {match_name} ({percentage}%)")
+    except Exception as e:
+        print(f"      ⚠️ Fehler beim Speichern des PDF-Treffers: {e}")
 
 def load_master_page():
     print("🔍 Lade die magische Gesamtliste (long=1)...")
@@ -89,10 +120,9 @@ def load_master_page():
     try:
         res = session.get(url, headers=HEADERS, timeout=20)
         if res.status_code == 200:
-            print("✅ Gesamtliste erfolgreich geladen!")
             return BeautifulSoup(res.text, 'html.parser')
     except Exception as e:
-        print(f"❌ Netzwerkfehler bei Gesamtliste: {e}")
+        pass
     return None
 
 def scrape_verify_list():
@@ -102,13 +132,12 @@ def scrape_verify_list():
     soup = load_master_page()
     if not soup: return
 
-    matches_found = {}
+    matches_found = []
 
     for row in soup.find_all('tr'):
         tds = row.find_all('td')
         if len(tds) >= 4:
             text = row.get_text()
-            # Nur relevante Jahre ab 2023 scannen
             if any(y in text for y in ['2023', '2024', '2025', '2026', '2027']):
                 match_link = tds[3].find('a')
                 if match_link:
@@ -122,56 +151,75 @@ def scrape_verify_list():
                     elif "/matches/" in href:
                         m_id = href.split("/matches/")[-1].split("/")[0].split("?")[0]
                         
-                    if m_id and m_id not in matches_found:
+                    if m_id:
                         result_links = []
-                        # Sammelt alle Links, die ganz hinten in der Spalte für Ergebnisse stehen
                         for a in row.find_all('a', href=True):
                             l_href = a['href'].lower()
-                            if "/matches/" in l_href and "match=" not in l_href:
+                            if "match=" not in l_href:
                                 result_links.append(urllib.parse.urljoin(BASE_URL, a['href']))
-                        
-                        matches_found[m_id] = {"name": m_name, "links": result_links}
+                        matches_found.append({"id": m_id, "name": m_name, "links": result_links})
 
-    print(f"📋 {len(matches_found)} Turniere seit 2023 gefunden. Analysiere Ergebnis-Links...")
+    print(f"📋 {len(matches_found)} Turniere gefunden. Starte PDF- und HTML-Analyse...")
 
-    for m_id, data in matches_found.items():
+    for index, data in enumerate(matches_found, 1):
+        m_id = data["id"]
         m_name = data["name"]
         row_links = data["links"]
         
-        # Falls die Seite keine Links in der Spalte hat, probieren wir unsere Standard-Pfade
+        if index % 50 == 0:
+            print(f"🔄 Verarbeite Turnier {index} von {len(matches_found)}...")
+        
         links_to_check = row_links if row_links else [
+            f"https://www.ipscmatch.de/matches/{m_id}/overall.pdf",
             f"https://www.ipscmatch.de/matches/{m_id}/verify.html",
             f"https://www.ipscmatch.de/matches/{m_id}/overall.html"
         ]
         
         for url in links_to_check:
-            if '.pdf' in url.lower():
-                print(f"   📄 PDF gefunden für {m_name} (wird übersprungen)")
+            # --- NEU: PDF AUSWERTUNG ---
+            if url.lower().endswith('.pdf'):
+                try:
+                    res_pdf = session.get(url, headers=HEADERS, timeout=12)
+                    if res_pdf.status_code == 200:
+                        print(f"📄 PDF erfolgreich geladen: {url}")
+                        pdf_file = io.BytesIO(res_pdf.content)
+                        reader = PdfReader(pdf_file)
+                        
+                        for page in reader.pages:
+                            page_text = page.extract_text()
+                            if not page_text: continue
+                            
+                            for line in page_text.split('\n'):
+                                for shooter in shooters:
+                                    if name_matches(shooter["real_name"], line):
+                                        print(f"   🔥 Schütze {shooter['real_name']} im PDF gefunden!")
+                                        parse_and_save_pdf_row(shooter["id"], m_id, m_name, line)
+                except Exception:
+                    pass
                 continue
-                
+
+            # --- HTML AUSWERTUNG ---
             try:
                 res_sub = session.get(url, headers=HEADERS, timeout=8)
-                if res_sub.status_code == 200:
+                if res_sub.status_code == 200 and len(res_sub.text) > 1000:
                     sub_soup = BeautifulSoup(res_sub.text, 'html.parser')
                     sub_rows = sub_soup.find_all('tr')
-                    if len(sub_rows) < 3: continue
                     
-                    print(f"🟢 HTML-Liste geöffnet: {url}")
-                    is_verify = "verify" in url.lower()
-                    
-                    title_el = sub_soup.find(['h1', 'h2', 'h3'])
-                    stage_title = title_el.text.strip() if title_el else "Stage"
-                    
-                    for sub_row in sub_rows:
-                        cells = sub_row.find_all('td')
-                        if len(cells) < 7: continue
+                    if len(sub_rows) >= 3:
+                        is_verify = "verify" in url.lower()
+                        title_el = sub_soup.find(['h1', 'h2', 'h3'])
+                        stage_title = title_el.text.strip() if title_el else "Stage"
                         
-                        row_text = sub_row.get_text()
-                        for shooter in shooters:
-                            if name_matches(shooter["real_name"], row_text):
-                                print(f"   🔥 Schütze {shooter['real_name']} erkannt!")
-                                current_title = cells[2].text.strip() if is_verify else stage_title
-                                parse_and_save_row(shooter["id"], shooter["real_name"], m_id, m_name, current_title, cells, is_verify_mode=is_verify)
+                        for sub_row in sub_rows:
+                            cells = sub_row.find_all('td')
+                            if len(cells) < 7: continue
+                            
+                            row_text = sub_row.get_text()
+                            for shooter in shooters:
+                                if name_matches(shooter["real_name"], row_text):
+                                    print(f"   🔥 Schütze {shooter['real_name']} in HTML gefunden!")
+                                    current_title = cells[2].text.strip() if is_verify else stage_title
+                                    parse_and_save_html_row(shooter["id"], m_id, m_name, current_title, cells, is_verify_mode=is_verify)
             except Exception:
                 pass
 
