@@ -25,22 +25,19 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 session = requests.Session()
-# Bot ist jetzt hartnäckiger: 5 Versuche, längere Wartezeit dazwischen
 retry = Retry(total=5, backoff_factor=3, status_forcelist=[403, 429, 500, 502, 503, 504])
 adapter = HTTPAdapter(max_retries=retry)
 session.mount('http://', adapter)
 session.mount('https://', adapter)
 
 BASE_URL = "https://www.ipscmatch.de/"
-
-# 🛡️ Die neue Tarnkappe: Wir tun so, als wären wir ein echter Google Chrome Browser
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
     "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
     "Connection": "keep-alive"
 }
-TIMEOUT_SECONDS = 30 # Erhöht, falls der Server wieder trödelt
+TIMEOUT_SECONDS = 30
 
 KNOWN_DIVISIONS = ["Production Optics", "Optics", "Production", "Standard", "Open", "Classic", "Revolver", "PCC", "Modified"]
 
@@ -76,7 +73,7 @@ def get_active_shooters():
 
 def extract_float(text):
     try:
-        return float(re.sub(r'[^0-9,.]', '', text).replace(',', '.'))
+        return float(re.sub(r'[^0-9,.-]', '', text).replace(',', '.'))
     except:
         return 0.0
 
@@ -99,9 +96,7 @@ def scrape_verify_list():
     if not shooters: return
 
     soup = load_master_page()
-    if not soup: 
-        print("⚠️ Abbruch: Ohne Hauptseite können wir keine Turniere scannen.")
-        return
+    if not soup: return
 
     matches_found = []
 
@@ -151,7 +146,7 @@ def scrape_verify_list():
             visited_urls.add(url)
             
             print(f"   🔗 Scanne: {url}")
-            time.sleep(0.5) # Etwas langsamer machen, damit wir nicht wieder geblockt werden
+            time.sleep(0.5)
             
             try:
                 res = session.get(url, headers=HEADERS, timeout=TIMEOUT_SECONDS)
@@ -159,36 +154,86 @@ def scrape_verify_list():
                 
                 content_type = res.headers.get('Content-Type', '').lower()
                 
+                # --- PDF SMART PARSER ---
                 if 'application/pdf' in content_type:
                     pdf_file = io.BytesIO(res.content)
                     reader = PdfReader(pdf_file)
+                    
                     current_div_pdf = "Unknown"
+                    current_stage_pdf = "Overall Match Results"
+                    current_winner_hf_pdf = 0.0
+                    
                     for page in reader.pages:
                         page_text = page.extract_text()
                         if not page_text: continue
                         for line in page_text.split('\n'):
+                            line = line.strip()
+                            
+                            # Division erkennen
                             for div in KNOWN_DIVISIONS:
-                                if div.upper() in line.upper():
+                                if f"{div.upper()} --" in line.upper() or line.upper().startswith(div.upper()):
                                     current_div_pdf = div
                                     break
+                            
+                            # Stage erkennen (z.B. "Stage 1 -- Stage 1 - R1")
+                            stage_match = re.search(r'(Stage\s+\d+\s+--\s+.*)', line, re.IGNORECASE)
+                            if stage_match:
+                                current_stage_pdf = stage_match.group(1).split('--')[0].strip()
+                                current_winner_hf_pdf = 0.0 # Neuer Stage-Sieger
+                                
+                            if "Overall Match Results" in line:
+                                current_stage_pdf = "Overall Match Results"
+
+                            # Spalten intelligent von links nach rechts lesen
+                            tokens = line.split()
+                            numeric_vals = []
+                            for t in tokens:
+                                if re.match(r'^-?\d+([.,]\d+)?$', t):
+                                    numeric_vals.append(float(t.replace(',', '.')))
+                                else:
+                                    break # Text fängt an (Name)
                                     
+                            # Stage Winner HF merken
+                            if len(numeric_vals) >= 6:
+                                if int(numeric_vals[0]) == 1 or int(numeric_vals[0]) == 100:
+                                    if numeric_vals[3] > 0: current_winner_hf_pdf = numeric_vals[3]
+
+                            # Schütze gefunden?
                             for shooter in shooters:
                                 if name_matches(shooter["real_name"], line):
-                                    numbers = re.findall(r'\d+[.,]\d+', line)
-                                    percentage, points = 0.0, 0.0
-                                    if len(numbers) >= 2:
-                                        percentage = float(numbers[0].replace(',', '.'))
-                                        points = float(numbers[1].replace(',', '.'))
+                                    if len(numeric_vals) >= 6: # Das ist ein Stage-Ergebnis!
+                                        rank_val = int(numeric_vals[0])
+                                        time_val = numeric_vals[2]
+                                        hf_val = numeric_vals[3]
                                         
-                                    payload = {
-                                        "user_id": shooter["id"], "match_id": str(m_id), "match_name": m_name,
-                                        "stage_name": "Overall Match Results (PDF)", "scoring_type": "Comstock",
-                                        "stage_time": percentage, "hit_factor": points,
-                                        "division": current_div_pdf
-                                    }
-                                    supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
-                                    print(f"   🔥 {shooter['real_name']} in PDF gefunden! ({current_div_pdf} - {percentage}%)")
-                
+                                        payload = {
+                                            "user_id": shooter["id"], "match_id": str(m_id), "match_name": m_name,
+                                            "stage_name": current_stage_pdf, "scoring_type": "Comstock",
+                                            "hit_factor": hf_val, "stage_time": time_val,
+                                            "division": current_div_pdf,
+                                            "stage_rank": rank_val,
+                                            "winner_hit_factor": current_winner_hf_pdf
+                                        }
+                                        supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
+                                        print(f"   🔥 {shooter['real_name']} in PDF (Stage) gespeichert! ({current_div_pdf} | {current_stage_pdf} | HF: {hf_val})")
+                                        
+                                    elif len(numeric_vals) >= 3 and current_stage_pdf == "Overall Match Results": # Das ist das Match-Ergebnis
+                                        rank_val = int(numeric_vals[0])
+                                        percentage = numeric_vals[1]
+                                        points = numeric_vals[2]
+                                        
+                                        payload = {
+                                            "user_id": shooter["id"], "match_id": str(m_id), "match_name": m_name,
+                                            "stage_name": "Overall Match Results (PDF)", "scoring_type": "Comstock",
+                                            "stage_time": percentage, "hit_factor": points,
+                                            "division": current_div_pdf,
+                                            "stage_rank": rank_val,
+                                            "winner_hit_factor": 100.0
+                                        }
+                                        supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
+                                        print(f"   🔥 {shooter['real_name']} in PDF (Overall) gespeichert! ({current_div_pdf} - {percentage}%)")
+
+                # --- HTML SMART PARSER (Bleibt unverändert stark) ---
                 elif 'text/html' in content_type:
                     sub_soup = BeautifulSoup(res.text, 'html.parser')
                     
@@ -267,7 +312,6 @@ def scrape_verify_list():
                                     except: pass
 
                                     supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
-                                    print(f"   🎯 {shooter['real_name']} gespeichert! (Stage: {stage_name_to_save} | Div: {current_division} | Rank: {rank_val} | HF: {hf} | Winner-HF: {current_winner_hf})")
             except Exception as e:
                 pass
                 
