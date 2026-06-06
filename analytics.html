@@ -1,62 +1,8 @@
-<div class="tool-section" style="max-width: 600px; margin: 0 auto; padding: 15px;">
-    
-    <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 5px;">🏆 IPSC Performance Analytics</h2>
-    <p id="analytics-loader" style="color: #718096; font-size: 14px; margin-bottom: 20px;">
-        Prüfe Verbindung zur Datenbank...
-    </p>
-
-    <div id="analytics-empty-state" style="display: none; background: rgba(255,193,7,0.1); border: 1px dashed #text-warning; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
-        <span style="font-size: 24px;">ℹ️</span>
-        <h4 style="margin: 10px 0 5px 0;">Noch keine Daten für 2026 geladen</h4>
-        <p style="font-size: 13px; color: #718096; margin: 0;">Sobald der Scraper deine Matches zugeordnet hat, erscheinen sie hier. Stelle sicher, dass dein 'real_name' in Supabase exakt mit der Ergebnisliste übereinstimmt!</p>
-    </div>
-
-    <div id="analytics-dashboard-content" style="display: none;">
-        
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px;">
-            <div style="background: rgba(15, 23, 42, 0.05); border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 11px; text-transform: uppercase; color: #718096; font-weight: 700;">Matches Gesamt</div>
-                <div id="kpi-total-matches" style="font-size: 26px; font-weight: 900; margin-top: 4px;">0</div>
-            </div>
-            <div style="background: rgba(15, 23, 42, 0.05); border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 11px; text-transform: uppercase; color: #718096; font-weight: 700;">Ø Hit Factor</div>
-                <div id="kpi-avg-hf" style="font-size: 26px; font-weight: 900; color: #3182ce; margin-top: 4px;">0.00</div>
-            </div>
-        </div>
-
-        <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px;">📈 Hit-Factor Trend (Letzte 5 Stages)</h3>
-        <div style="background: rgba(0,0,0,0.03); border: 1px solid #e2e8f0; padding: 25px 15px 15px 15px; border-radius: 8px; margin-bottom: 25px;">
-            <div id="analytics-chart-container" style="display: flex; justify-content: space-between; align-items: flex-end; height: 130px; padding-bottom: 5px; gap: 10px;">
-                </div>
-        </div>
-
-        <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 10px;">🎯 Treffer-Verteilung (Präzision)</h3>
-        <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
-                <span style="color: #718096;">Treffer-Verhältnis</span>
-                <strong id="analytics-alpha-badge" style="color: #38a169;">0% Alphas</strong>
-            </div>
-            
-            <div style="width: 100%; height: 14px; background: #edf2f7; border-radius: 7px; overflow: hidden; display: flex;">
-                <div id="bar-alphas" style="width: 0%; background: #38a169; transition: width 0.6s ease;"></div>
-                <div id="bar-charlies" style="width: 0%; background: #dd6b20; transition: width 0.6s ease;"></div>
-                <div id="bar-deltas" style="width: 0%; background: #e53e3e; transition: width 0.6s ease;"></div>
-            </div>
-            
-            <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 11px; color: #718096;">
-                <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: #38a169; border-radius: 50%;"></div> A: <span id="count-alphas" style="font-weight: 600; color: #2d3748;">0</span></div>
-                <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: #dd6b20; border-radius: 50%;"></div> C: <span id="count-charlies" style="font-weight: 600; color: #2d3748;">0</span></div>
-                <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: #e53e3e; border-radius: 50%;"></div> D: <span id="count-deltas" style="font-weight: 600; color: #2d3748;">0</span></div>
-                <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: #718096; border-radius: 50%;"></div> M: <span id="count-misses" style="font-weight: 600; color: #2d3748;">0</span></div>
-            </div>
-        </div>
-
-    </div>
-</div>
-
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    // 🔍 WICHTIG: Passe 'window.supabaseClient' oder 'supabase' hier an deinen Projektnamen an!
+// Diese Funktion startet die gesamte Abfrage-Pipeline
+function startAnalyticsPipeline() {
+    // 🔍 WICHTIG: Falls dein Supabase-Client in einem anderen Skript z.B. "const sb" heißt, 
+    // musst du hier "window.sb" ergänzen!
     const client = window.supabaseClient || window.supabase;
     
     if (client) {
@@ -75,7 +21,14 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }, 200);
     }
-});
+}
+
+// 🛡️ SICHERER START-CHECK (Exakt wie in deiner lang.js)
+if (document.readyState === 'loading') {
+    document.addEventListener("DOMContentLoaded", startAnalyticsPipeline);
+} else {
+    startAnalyticsPipeline(); // Seite ist schon fertig? Dann direkt starten!
+}
 
 async function initAnalytics(supabase) {
     try {
@@ -121,7 +74,7 @@ async function initAnalytics(supabase) {
         const cPerc = totalHits > 0 ? Math.round((totalC / totalHits) * 100) : 0;
         const dPerc = totalHits > 0 ? Math.round((totalD / totalHits) * 100) : 0;
 
-        // 4. UI füllen (Deine echten 2 Matches werden jetzt hier eingesetzt!)
+        // 4. UI füllen
         document.getElementById("kpi-total-matches").innerText = uniqueMatches;
         document.getElementById("kpi-avg-hf").innerText = avgHitFactor;
         document.getElementById("count-alphas").innerText = totalA;
