@@ -154,10 +154,17 @@ def scrape_verify_list():
                         result_links = []
                         for a in row.find_all('a', href=True):
                             l_href = a['href'].lower()
-                            # === NEUER FILTER: NUR RELEVANTE LINKS ===
+                            l_text = a.text.lower()
+                            
                             if "match=" not in l_href:
-                                if any(keyword in l_href for keyword in ['overall', 'verify', 'stage', 'ergebnisse']):
-                                    result_links.append(urllib.parse.urljoin(BASE_URL, a['href']))
+                                # === BLACKLIST STATT WHITELIST ===
+                                # Wenn das Wort "Urkunden", "Team", "Category" oder "Region" im Link ODER im sichtbaren Text steht -> überspringen
+                                if any(bad in l_text for bad in ['urkunden', 'team', 'category', 'region']):
+                                    continue
+                                if any(bad in l_href for bad in ['urkunden', 'team', 'category', 'region']):
+                                    continue
+                                    
+                                result_links.append(urllib.parse.urljoin(BASE_URL, a['href']))
                         
                         matches_found.append({"id": m_id, "name": m_name, "links": result_links})
 
@@ -183,7 +190,7 @@ def scrape_verify_list():
         for url in links_to_check:
             if url.lower().endswith('.pdf'):
                 try:
-                    res_pdf = session.get(url, headers=HEADERS, timeout=12)
+                    res_pdf = session.get(url, headers=HEADERS, timeout=15)
                     if res_pdf.status_code == 200:
                         pdf_file = io.BytesIO(res_pdf.content)
                         reader = PdfReader(pdf_file)
@@ -202,7 +209,7 @@ def scrape_verify_list():
                 continue
 
             try:
-                res_sub = session.get(url, headers=HEADERS, timeout=8)
+                res_sub = session.get(url, headers=HEADERS, timeout=10)
                 if res_sub.status_code == 200 and len(res_sub.text) > 1000:
                     sub_soup = BeautifulSoup(res_sub.text, 'html.parser')
                     sub_rows = sub_soup.find_all('tr')
