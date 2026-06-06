@@ -59,7 +59,6 @@
         const style = document.createElement('style');
         style.innerHTML = `
             header { position: relative; }
-            
             header .header-controls {
                 position: absolute !important;
                 top: 50% !important;
@@ -70,177 +69,38 @@
                 gap: 10px !important;
                 flex-direction: row !important;
             }
-
             header .theme-toggle-btn { 
-                width: 38px !important; 
-                height: 38px !important; 
-                display: flex !important; 
-                align-items: center !important; 
-                justify-content: center !important; 
-                flex-shrink: 0 !important; 
-                padding: 0 !important;
-                background: var(--card-bg) !important;
-                color: var(--text-color) !important;
-                border: 1px solid var(--border-color) !important;
-                border-radius: 8px !important;
-                cursor: pointer !important;
-                box-shadow: var(--shadow-sm) !important;
-                font-size: 16px !important;
+                width: 38px !important; height: 38px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; padding: 0 !important;
+                background: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: var(--shadow-sm) !important; font-size: 16px !important;
             }
-            header .theme-toggle-btn:hover {
-                border-color: var(--text-muted) !important;
-                background-color: var(--bg-color) !important;
-            }
-
+            header .theme-toggle-btn:hover { border-color: var(--text-muted) !important; background-color: var(--bg-color) !important; }
             header .lang-select { 
-                width: auto !important; 
-                height: 38px !important;
-                padding: 0 10px !important; 
-                box-sizing: border-box !important; 
-                flex-shrink: 0 !important; 
-                background: var(--card-bg) !important;
-                color: var(--text-color) !important;
-                border: 1px solid var(--border-color) !important;
-                border-radius: 8px !important;
-                font-weight: 600 !important;
-                font-size: 13px !important;
-                box-shadow: var(--shadow-sm) !important;
-                cursor: pointer !important;
+                width: auto !important; height: 38px !important; padding: 0 10px !important; box-sizing: border-box !important; flex-shrink: 0 !important; 
+                background: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; font-weight: 600 !important; font-size: 13px !important; box-shadow: var(--shadow-sm) !important; cursor: pointer !important;
             }
-
-            header #auth-status-container { 
-                width: auto !important; 
-                display: flex !important; 
-                align-items: center !important;
-                gap: 8px !important;
-            }
-
+            header #auth-status-container { width: auto !important; display: flex !important; align-items: center !important; gap: 8px !important; }
             header .btn-auth { 
-                width: auto !important; 
-                height: 38px !important;
-                padding: 0 16px !important;
-                font-weight: 600 !important;
-                font-size: 13px !important;
-                border-radius: 8px !important;
-                cursor: pointer !important;
-                box-shadow: var(--shadow-sm) !important;
-                transition: all 0.2s !important;
-                background-color: var(--card-bg) !important;
-                color: var(--text-color) !important;
-                border: 1px solid var(--border-color) !important;
-                box-sizing: border-box !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                justify-content: center !important;
+                width: auto !important; height: 38px !important; padding: 0 16px !important; font-weight: 600 !important; font-size: 13px !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: var(--shadow-sm) !important; transition: all 0.2s !important; background-color: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; box-sizing: border-box !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;
             }
-            header .btn-auth:hover { 
-                background-color: var(--bg-color) !important; 
-                border-color: var(--text-muted) !important; 
-            }
-
-            header #btn-logout {
-                border: 1px solid var(--danger-color) !important;
-                color: var(--danger-color) !important;
-                background: transparent !important;
-            }
-            header #btn-logout:hover {
-                background-color: var(--danger-color) !important;
-                color: #ffffff !important;
-            }
-
-            header #btn-open-settings img {
-                width: 38px !important;
-                height: 38px !important;
-                border-radius: 50% !important;
-                object-fit: cover !important;
-                border: 2px solid var(--accent-color) !important;
-                box-shadow: var(--shadow-sm) !important;
-                display: block !important;
-            }
-
-            header .main-nav { 
-                margin-top: 20px !important; 
-                display: flex !important; 
-                justify-content: center !important; 
-                gap: 8px !important; 
-                border-top: 1px solid var(--border-color) !important; 
-                padding-top: 15px !important; 
-                flex-wrap: wrap !important; 
-            }
-            header .main-nav a { 
-                text-decoration: none !important; 
-                font-weight: 600 !important; 
-                font-size: 12px !important; 
-                text-transform: uppercase !important; 
-                letter-spacing: 0.3px !important; 
-                padding: 8px 16px !important; 
-                border-radius: 20px !important; 
-                transition: all 0.2s ease !important; 
-                white-space: nowrap !important; 
-                flex-shrink: 0 !important; 
-                display: inline-block !important; 
-                line-height: 1.4 !important; 
-                box-sizing: border-box !important;
-                border: 1px solid transparent !important;
-            }
-            header .main-nav a.active { 
-                color: #ffffff !important; 
-                background-color: var(--accent-color) !important; 
-                box-shadow: var(--shadow-sm) !important; 
-                border-color: var(--accent-color) !important;
-            }
-            header .main-nav a.inactive { 
-                color: var(--text-muted) !important; 
-                background-color: rgba(0, 0, 0, 0.03) !important; 
-            }
-            html[data-theme="dark"] header .main-nav a.inactive { 
-                background-color: rgba(255, 255, 255, 0.04) !important; 
-                color: var(--text-muted) !important; 
-            }
-            header .main-nav a.inactive:hover { 
-                color: var(--text-color) !important; 
-                background-color: rgba(0, 0, 0, 0.06) !important; 
-            }
-
-            .modal-content { 
-                max-height: 85vh !important; 
-                overflow-y: auto !important; 
-                display: block !important;
-                -webkit-overflow-scrolling: touch !important;
-            }
+            header .btn-auth:hover { background-color: var(--bg-color) !important; border-color: var(--text-muted) !important; }
+            header #btn-logout { border: 1px solid var(--danger-color) !important; color: var(--danger-color) !important; background: transparent !important; }
+            header #btn-logout:hover { background-color: var(--danger-color) !important; color: #ffffff !important; }
+            header #btn-open-settings img { width: 38px !important; height: 38px !important; border-radius: 50% !important; object-fit: cover !important; border: 2px solid var(--accent-color) !important; box-shadow: var(--shadow-sm) !important; display: block !important; }
+            header .main-nav { margin-top: 20px !important; display: flex !important; justify-content: center !important; gap: 8px !important; border-top: 1px solid var(--border-color) !important; padding-top: 15px !important; flex-wrap: wrap !important; }
+            header .main-nav a { text-decoration: none !important; font-weight: 600 !important; font-size: 12px !important; text-transform: uppercase !important; letter-spacing: 0.3px !important; padding: 8px 16px !important; border-radius: 20px !important; transition: all 0.2s ease !important; white-space: nowrap !important; flex-shrink: 0 !important; display: inline-block !important; line-height: 1.4 !important; box-sizing: border-box !important; border: 1px solid transparent !important; }
+            header .main-nav a.active { color: #ffffff !important; background-color: var(--accent-color) !important; box-shadow: var(--shadow-sm) !important; border-color: var(--accent-color) !important; }
+            header .main-nav a.inactive { color: var(--text-muted) !important; background-color: rgba(0, 0, 0, 0.03) !important; }
+            html[data-theme="dark"] header .main-nav a.inactive { background-color: rgba(255, 255, 255, 0.04) !important; color: var(--text-muted) !important; }
+            header .main-nav a.inactive:hover { color: var(--text-color) !important; background-color: rgba(0, 0, 0, 0.06) !important; }
+            .modal-content { max-height: 85vh !important; overflow-y: auto !important; display: block !important; -webkit-overflow-scrolling: touch !important; }
 
             @media (max-width: 768px) {
                 header { padding: 16px 12px 8px 12px !important; }
                 header h1 { font-size: 20px !important; margin-bottom: 4px !important; }
-                
-                header .header-controls { 
-                    position: static !important; 
-                    display: flex !important; 
-                    flex-direction: row !important; 
-                    justify-content: center !important; 
-                    align-items: center !important; 
-                    gap: 8px !important; 
-                    margin-top: 10px !important; 
-                    width: 100% !important; 
-                    transform: none !important; 
-                    flex-wrap: wrap !important;
-                }
-                
-                header .main-nav { 
-                    margin-top: 15px !important; 
-                    padding: 10px 4px 4px 4px !important; 
-                    justify-content: flex-start !important; 
-                    gap: 8px !important; 
-                    -webkit-overflow-scrolling: touch !important; 
-                    scrollbar-width: none !important;
-                    scroll-snap-type: x mandatory !important; 
-                    flex-wrap: nowrap !important;
-                    overflow-x: auto !important; 
-                    white-space: nowrap !important; 
-                }
+                header .header-controls { position: static !important; display: flex !important; flex-direction: row !important; justify-content: center !important; align-items: center !important; gap: 8px !important; margin-top: 10px !important; width: 100% !important; transform: none !important; flex-wrap: wrap !important; }
+                header .main-nav { margin-top: 15px !important; padding: 10px 4px 4px 4px !important; justify-content: flex-start !important; gap: 8px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; scroll-snap-type: x mandatory !important; flex-wrap: nowrap !important; overflow-x: auto !important; white-space: nowrap !important; }
                 header .main-nav::-webkit-scrollbar { display: none !important; }
                 header .main-nav a { padding: 8px 14px !important; font-size: 11px !important; border-radius: 20px !important; scroll-snap-align: start !important; }
-                
                 .modal-content { padding: 24px 16px !important; }
             }
         `;
@@ -259,4 +119,94 @@
     if (!injectHeader()) {
         document.addEventListener('DOMContentLoaded', injectHeader);
     }
+
+    // =========================================================================
+    // ⚡ INJEKTION DER UNSICHTBAREN SPA-ROUTING-ENGINE ⚡
+    // =========================================================================
+    window.loadSpaPage = async function(url, pushState = true) {
+        try {
+            const currentContainer = document.querySelector('.container');
+            if (!currentContainer) return;
+
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Netzwerkfehler");
+
+            const text = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            const newContainer = doc.querySelector('.container');
+
+            if (!newContainer) return;
+
+            // Tausche exklusiv den inneren Seiteninhalt aus (Modals bleiben unberührt!)
+            currentContainer.innerHTML = newContainer.innerHTML;
+
+            // Führe Skripte der neuen Unterseite manuell aus (da innerHTML Skripte blockiert)
+            newContainer.querySelectorAll('script').forEach(oldScript => {
+                const newScript = document.createElement('script');
+                if (oldScript.src) {
+                    // Globale Core-Skripte ignorieren (laufen bereits im Hintergrund)
+                    if (oldScript.src.includes('auth.js') || oldScript.src.includes('lang.js') || oldScript.src.includes('app.js') || oldScript.src.includes('header.js')) {
+                        return;
+                    }
+                    newScript.src = oldScript.src;
+                } else {
+                    newScript.textContent = oldScript.textContent;
+                }
+                document.body.appendChild(newScript);
+                newScript.remove(); 
+            });
+
+            // Übersetzungen für die frisch reingeladenen HTML-Elemente triggern
+            if (typeof window.translatePortalPage === 'function') {
+                window.translatePortalPage();
+            }
+
+            // URL im Browser updaten (ohne die Seite physisch neu zu laden)
+            if (pushState) {
+                history.pushState({ url }, '', url);
+            }
+
+            // Menü-Highlight (Active-Klasse) visuell umschalten
+            const pageName = url.split("/").pop() || "index.html";
+            document.querySelectorAll('header .main-nav a').forEach(a => {
+                a.className = (a.getAttribute('href') === pageName) ? 'active' : 'inactive';
+            });
+
+            // Trigger für app.js/auth.js Daten-Reload, falls man zur Startseite zurückkehrt
+            if (typeof window.onAuthChange === 'function' && pageName === 'index.html') {
+                window.onAuthChange();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        } catch (err) {
+            console.error("SPA Routing-Fehler, wechsle auf Fallback-Load:", err);
+            window.location.href = url; // Bei Fehlern klassischer Seitenwechsel
+        }
+    };
+
+    // Globaler Klick-Abfänger für alle internen Navigations-Links
+    document.addEventListener('click', (e) => {
+        const anchor = e.target.closest('header .main-nav a, .dashboard-grid a, a[href$=".html"]');
+        if (!anchor) return;
+
+        const href = anchor.getAttribute('href');
+        if (!href || href.startsWith('http') || href.startsWith('//') || href.startsWith('mailto:') || href.startsWith('#')) {
+            return;
+        }
+
+        e.preventDefault();
+        window.loadSpaPage(href);
+    });
+
+    // Abfangen des Zurück-Buttons im Browser
+    window.addEventListener('popstate', (e) => {
+        if (e.state && e.state.url) {
+            window.loadSpaPage(e.state.url, false);
+        } else {
+            window.loadSpaPage(window.location.pathname, false);
+        }
+    });
+
 })();
