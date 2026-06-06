@@ -91,7 +91,6 @@ def parse_and_save_html_row(shooter_id, match_id, match_name, stage_title, cells
 
 def parse_and_save_pdf_row(shooter_id, match_id, match_name, line_text):
     try:
-        # Sucht nach den typischen WinMSS PDF-Zahlenformaten (z.B. 57,64 und 1112,3646)
         numbers = re.findall(r'\d+,\d+', line_text)
         percentage = 0.0
         points = 0.0
@@ -105,8 +104,8 @@ def parse_and_save_pdf_row(shooter_id, match_id, match_name, line_text):
             "stage_name": "Overall Match Results (PDF)", "scoring_type": "Comstock",
             "alphas": 0, "charlies": 0, "deltas": 0,
             "misses": 0, "no_shoots": 0, 
-            "stage_time": percentage, # Wir speichern die % vorübergehend in stage_time
-            "hit_factor": points      # Wir speichern die Gesamtpunkte im hit_factor
+            "stage_time": percentage, 
+            "hit_factor": points      
         }
 
         supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
@@ -155,11 +154,14 @@ def scrape_verify_list():
                         result_links = []
                         for a in row.find_all('a', href=True):
                             l_href = a['href'].lower()
+                            # === NEUER FILTER: NUR RELEVANTE LINKS ===
                             if "match=" not in l_href:
-                                result_links.append(urllib.parse.urljoin(BASE_URL, a['href']))
+                                if any(keyword in l_href for keyword in ['overall', 'verify', 'stage', 'ergebnisse']):
+                                    result_links.append(urllib.parse.urljoin(BASE_URL, a['href']))
+                        
                         matches_found.append({"id": m_id, "name": m_name, "links": result_links})
 
-    print(f"📋 {len(matches_found)} Turniere gefunden. Starte PDF- und HTML-Analyse...")
+    print(f"📋 {len(matches_found)} Turniere gefunden. Starte gefilterte Analyse...")
 
     for index, data in enumerate(matches_found, 1):
         m_id = data["id"]
@@ -175,13 +177,14 @@ def scrape_verify_list():
             f"https://www.ipscmatch.de/matches/{m_id}/overall.html"
         ]
         
+        # Doppelte Links entfernen
+        links_to_check = list(set(links_to_check))
+        
         for url in links_to_check:
-            # --- NEU: PDF AUSWERTUNG ---
             if url.lower().endswith('.pdf'):
                 try:
                     res_pdf = session.get(url, headers=HEADERS, timeout=12)
                     if res_pdf.status_code == 200:
-                        print(f"📄 PDF erfolgreich geladen: {url}")
                         pdf_file = io.BytesIO(res_pdf.content)
                         reader = PdfReader(pdf_file)
                         
@@ -198,7 +201,6 @@ def scrape_verify_list():
                     pass
                 continue
 
-            # --- HTML AUSWERTUNG ---
             try:
                 res_sub = session.get(url, headers=HEADERS, timeout=8)
                 if res_sub.status_code == 200 and len(res_sub.text) > 1000:
