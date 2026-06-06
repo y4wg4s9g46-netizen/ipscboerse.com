@@ -66,9 +66,17 @@
         .bar-me.high { background: var(--success-color); }
 
         .insight-box { background: rgba(255, 159, 67, 0.1); border-left: 3px solid var(--accent-color); padding: 10px; font-size: 12px; margin-top: 10px; border-radius: 0 4px 4px 0; color: var(--text-color); }
-        .btn-small { background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); font-size: 10px; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .btn-small { background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); font-size: 10px; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
         .btn-small:hover { background: var(--border-color); }
         
+        /* Modal Styles */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(2px); }
+        .modal-content { background: var(--card-bg); padding: 20px; border-radius: 12px; width: 100%; max-width: 350px; box-shadow: var(--shadow-md); border: 1px solid var(--border-color); }
+        .hit-input-group { display: flex; flex-direction: column; }
+        .hit-input-group label { font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
+        .hit-input-group input { padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 16px; font-weight: bold; text-align: center; }
+        .hit-input-group input:focus { outline: none; border-color: var(--accent-color); }
+
         @media (max-width: 768px) {
             .container { padding: 0 10px !important; margin-top: 15px !important; }
         }
@@ -82,8 +90,9 @@
     <div class="container">
         <div class="tool-section" style="max-width: 600px; margin: 0 auto; padding: 20px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: var(--shadow-sm);">
             
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 data-txt="analytics-title" style="font-size: 22px; font-weight: 800; margin: 0;">🏆 Analytics Pro</h2>
+            <!-- Der Header ist jetzt flex-wrap gesichert und hat keinen data-txt Tag mehr -->
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px;">
+                <h2 style="font-size: 22px; font-weight: 800; margin: 0;">🏆 Analytics Pro</h2>
                 <button class="btn-small" style="font-size: 12px; padding: 6px 12px; background: rgba(59, 130, 246, 0.1); color: var(--info-color); border-color: var(--info-color);">👥 Buddy Radar</button>
             </div>
             
@@ -143,6 +152,38 @@
         </div>
     </div>
 
+    <!-- Das neue Hit-Editor Modal -->
+    <div id="hit-editor-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="margin-top: 0; margin-bottom: 5px; color: var(--text-color);">✏️ Treffer eintragen</h3>
+            <p id="hit-editor-stage-name" style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px; margin-top: 0;"></p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                <div class="hit-input-group">
+                    <label style="color: var(--success-color);">Alphas (A)</label>
+                    <input type="number" id="edit-a" min="0" onfocus="this.select()">
+                </div>
+                <div class="hit-input-group">
+                    <label style="color: var(--accent-color);">Charlies (C)</label>
+                    <input type="number" id="edit-c" min="0" onfocus="this.select()">
+                </div>
+                <div class="hit-input-group">
+                    <label style="color: var(--danger-color);">Deltas (D)</label>
+                    <input type="number" id="edit-d" min="0" onfocus="this.select()">
+                </div>
+                <div class="hit-input-group">
+                    <label style="color: var(--text-muted);">Misses (M)</label>
+                    <input type="number" id="edit-m" min="0" onfocus="this.select()">
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button onclick="closeHitEditor()" style="padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); cursor: pointer; font-weight: bold;">Abbrechen</button>
+                <button id="btn-save-hits" onclick="saveHits()" style="padding: 10px 15px; border-radius: 6px; border: none; background: var(--accent-color); color: #fff; font-weight: bold; cursor: pointer;">Speichern</button>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center; padding: 20px 0;">
             <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;">Impressum & Hinweise</a>
@@ -157,6 +198,7 @@
     <script>
     let allUserStages = [];
     let uniqueMatches = [];
+    let currentEditStage = null;
 
     (function() {
         function startAnalyticsPipeline() {
@@ -269,7 +311,6 @@
             let myColorClass = "bar-me";
             if(myPerc >= 85) myColorClass += " high"; 
 
-            // 1. Stage Typ Erkennung (Short/Medium/Long)
             let courseTag = "";
             if (!isOverall) {
                 if (stagePoints <= 60) courseTag = '<span class="course-badge">Short</span>';
@@ -279,7 +320,6 @@
                 courseTag = '<span class="course-badge" style="background:var(--accent-color); color:#fff;">Match Result</span>';
             }
 
-            // 2. Zeit-Orakel: Target Time für Platz 1
             let insightHtml = "";
             if (!isOverall && winHf > 0 && time > 0) {
                 const targetTime = (stagePoints / winHf).toFixed(2);
@@ -319,7 +359,7 @@
                         <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color); font-weight: 700; color: var(--text-color);">💯 ${stagePoints} PTS</span>
                         <span style="flex-grow: 1; text-align: right;">
                             🎯 A:${stage.alphas||0} C:${stage.charlies||0} D:${stage.deltas||0} 
-                            <button class="btn-small" style="margin-left: 5px;" onclick="alert('Manueller Treffer-Editor kommt im nächsten Update!')">✏️</button>
+                            <button class="btn-small" style="margin-left: 5px;" onclick="openHitEditor('${stage.stage_name.replace(/'/g, "\\'")}')">✏️</button>
                         </span>
                     </div>
                 </div>
@@ -328,20 +368,17 @@
 
         document.getElementById("stages-container").innerHTML = stagesHtml;
 
-        // KPI Update - Durchschnitt & Konstanz
         const realStages = matchStages.filter(s => !s.stage_name.includes("Overall Match Results"));
         const avgHf = realStages.length > 0 ? (sumHf / realStages.length).toFixed(2) : "0.00";
         document.getElementById("kpi-avg-hf").innerText = avgHf;
         document.getElementById("kpi-division").innerText = division;
 
-        // Hero or Zero Konstanz berechnen
         if (stagePercents.length > 1) {
             const maxP = Math.max(...stagePercents);
             const minP = Math.min(...stagePercents);
             const variance = (maxP - minP).toFixed(0);
             const varEl = document.getElementById("kpi-variance");
             varEl.innerText = `± ${variance}%`;
-            // Wenn die Schwankung gering ist (unter 15%), ist das exzellent. Über 30% ist eine wilde Achterbahn.
             if (variance <= 15) varEl.style.color = "var(--success-color)";
             else if (variance >= 35) varEl.style.color = "var(--danger-color)";
         } else {
@@ -362,6 +399,63 @@
         document.getElementById("bar-alphas").style.width = `${aPerc}%`;
         document.getElementById("bar-charlies").style.width = `${cPerc}%`;
         document.getElementById("bar-deltas").style.width = `${dPerc}%`;
+    }
+
+    // --- HIT EDITOR LOGIK ---
+    window.openHitEditor = function(stageName) {
+        const matchId = document.getElementById("match-selector").value;
+        const stage = allUserStages.find(s => s.match_id === matchId && s.stage_name === stageName);
+        if(!stage) return;
+        
+        currentEditStage = stage;
+        document.getElementById('hit-editor-stage-name').innerText = stage.stage_name;
+        document.getElementById('edit-a').value = stage.alphas || 0;
+        document.getElementById('edit-c').value = stage.charlies || 0;
+        document.getElementById('edit-d').value = stage.deltas || 0;
+        document.getElementById('edit-m').value = stage.misses || 0;
+        
+        document.getElementById('hit-editor-modal').style.display = 'flex';
+    }
+
+    window.closeHitEditor = function() {
+        document.getElementById('hit-editor-modal').style.display = 'none';
+        currentEditStage = null;
+    }
+
+    window.saveHits = async function() {
+        if(!currentEditStage) return;
+        
+        const a = parseInt(document.getElementById('edit-a').value) || 0;
+        const c = parseInt(document.getElementById('edit-c').value) || 0;
+        const d = parseInt(document.getElementById('edit-d').value) || 0;
+        const m = parseInt(document.getElementById('edit-m').value) || 0;
+        
+        const btn = document.getElementById('btn-save-hits');
+        btn.innerText = "Speichere...";
+        
+        try {
+            const client = window.supabaseClient || window.supabase;
+            const { error } = await client
+                .from('user_match_analytics')
+                .update({ alphas: a, charlies: c, deltas: d, misses: m })
+                .eq('id', currentEditStage.id);
+                
+            if (error) throw error;
+            
+            // Lokale Daten sofort updaten
+            currentEditStage.alphas = a;
+            currentEditStage.charlies = c;
+            currentEditStage.deltas = d;
+            currentEditStage.misses = m;
+            
+            closeHitEditor();
+            renderSelectedMatch(); // Frontend lädt die Präzisionsbalken direkt neu!
+        } catch (err) {
+            console.error(err);
+            alert("Fehler beim Speichern in der Datenbank!");
+        } finally {
+            btn.innerText = "Speichern";
+        }
     }
     </script>
 </body>
