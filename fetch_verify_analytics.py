@@ -49,7 +49,12 @@ def name_matches(real_name, text_to_search):
 def get_active_shooters():
     try:
         response = supabase.table("profiles").select("id, real_name").not_.is_("real_name", "null").execute()
-        return response.data
+        # Filtern, damit keine leeren Einträge mitrutschen
+        shooters = [s for s in response.data if s.get("real_name") and str(s["real_name"]).strip() != ""]
+        
+        # NEU: Gibt aus, nach wem überhaupt gesucht wird!
+        print(f"👥 INFO: Geladene Schützen aus Supabase: {[s['real_name'] for s in shooters]}")
+        return shooters
     except Exception as e:
         print(f"❌ Fehler beim Laden der Profile: {e}")
         return []
@@ -126,7 +131,9 @@ def load_master_page():
 
 def scrape_verify_list():
     shooters = get_active_shooters()
-    if not shooters: return
+    if not shooters:
+        print("⚠️ Keine Schützen mit 'real_name' gefunden. Beende Durchlauf.")
+        return
 
     soup = load_master_page()
     if not soup: return
@@ -157,8 +164,6 @@ def scrape_verify_list():
                             l_text = a.text.lower()
                             
                             if "match=" not in l_href:
-                                # === BLACKLIST STATT WHITELIST ===
-                                # Wenn das Wort "Urkunden", "Team", "Category" oder "Region" im Link ODER im sichtbaren Text steht -> überspringen
                                 if any(bad in l_text for bad in ['urkunden', 'team', 'category', 'region']):
                                     continue
                                 if any(bad in l_href for bad in ['urkunden', 'team', 'category', 'region']):
@@ -184,11 +189,11 @@ def scrape_verify_list():
             f"https://www.ipscmatch.de/matches/{m_id}/overall.html"
         ]
         
-        # Doppelte Links entfernen
         links_to_check = list(set(links_to_check))
         
         for url in links_to_check:
-            if url.lower().endswith('.pdf'):
+            # NEU: .split('?')[0] entfernt störende Parameter wie overall.pdf?v=1
+            if url.lower().split('?')[0].endswith('.pdf'):
                 try:
                     res_pdf = session.get(url, headers=HEADERS, timeout=15)
                     if res_pdf.status_code == 200:
