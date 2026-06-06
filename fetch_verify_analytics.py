@@ -36,17 +36,28 @@ HEADERS = {
 }
 TIMEOUT_SECONDS = 10
 
-def clean_and_normalize(text):
-    if not text: return ""
-    text = text.lower().strip()
-    text = text.replace("ö", "oe").replace("ä", "ae").replace("ü", "ue").replace("ß", "ss")
-    return re.sub(r'[^a-z0-9]', '', text)
+def clean_variants(name_part):
+    """Erzeugt verschiedene Varianten für einen Namen, um PDF-Codierungsfehler (kaputte Umlaute) abzufangen."""
+    part = name_part.lower().strip()
+    variants = [
+        re.sub(r'[^a-z0-9]', '', part), # Normal (fabian)
+        re.sub(r'[^a-z0-9]', '', part.replace('ö','oe').replace('ä','ae').replace('ü','ue').replace('ß','ss')), # schoeps
+        re.sub(r'[^a-z0-9]', '', part.replace('ö','o').replace('ä','a').replace('ü','u').replace('ß','s')), # schops
+        re.sub(r'[^a-z0-9]', '', part.replace('ö','').replace('ä','').replace('ü','')) # schps (PDF-Bug)
+    ]
+    return [v for v in variants if v]
 
 def name_matches(real_name, text_to_search):
     if not real_name or not text_to_search: return False
-    search_normalized = clean_and_normalize(text_to_search)
+    text_clean = re.sub(r'[^a-z0-9]', '', text_to_search.lower())
     real_parts = [p.strip() for p in re.split(r'[\s,.-]+', real_name) if p.strip()]
-    return all(clean_and_normalize(part) in search_normalized for part in real_parts) if real_parts else False
+    
+    # Prüfe, ob von JEDEM Namensteil (Vor- und Nachname) eine der Schreibweisen im Text vorkommt
+    for part in real_parts:
+        part_variants = clean_variants(part)
+        if not any(variant in text_clean for variant in part_variants):
+            return False
+    return True
 
 def get_active_shooters():
     try:
@@ -87,15 +98,13 @@ def parse_and_save_html_row(shooter_id, match_id, match_name, stage_title, cells
             "alphas": alphas, "charlies": charlies, "deltas": deltas,
             "misses": misses, "no_shoots": no_shoots, "stage_time": stage_time, "hit_factor": hit_factor
         }
-
         supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
-        print(f"      🎯 HTML-TREFFER GESPEICHERT: {stage_title}")
     except Exception:
         pass
 
 def parse_and_save_pdf_row(shooter_id, match_id, match_name, line_text):
     try:
-        numbers = re.findall(r'\d+,\d+', line_text)
+        numbers = re.findall(r'\d+[.,]\d+', line_text)
         percentage, points = 0.0, 0.0
         
         if len(numbers) >= 2:
@@ -110,9 +119,7 @@ def parse_and_save_pdf_row(shooter_id, match_id, match_name, line_text):
             "stage_time": percentage, 
             "hit_factor": points      
         }
-
         supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
-        print(f"      🎯 PDF-TREFFER GESPEICHERT: {percentage}%")
     except Exception:
         pass
 
@@ -160,64 +167,63 @@ def scrape_verify_list():
                         if any(bad in l_text for bad in ['urkunden', 'team', 'category', 'region']): continue
                         if any(bad in l_href for bad in ['urkunden', 'team', 'category', 'region']): continue
                         
-                        # 🚀 NEU: "ergebnis" und "ergebnisse" in den Radar aufgenommen!
-                        if any(good in l_href or good in l_text for good in ["results", "verify", ".pdf", "ergebnis", "ergebnisse"]):
+                        if any(good in l_href or good in l_text for good in ["results", "verify", ".pdf", "ergebnis", "overall"]):
                             result_links.append(urllib.parse.urljoin(BASE_URL, a['href']))
                     
                     if result_links:
                         matches_found.append({"id": m_id, "name": m_name, "links": result_links})
 
-    print(f"📋 {len(matches_found)} Turniere mit Ergebnis-Links gefunden. Starte Analyse...")
+    print(f"📋 {len(matches_found)} Turniere gefunden. Starte Analyse...")
 
     for data in matches_found:
         m_id = data["id"]
         m_name = data["name"]
-        links_to_check = list(set(data["links"]))
         
-        i = 0
-        while i < len(links_to_check):
-            url = links_to_check[i]
-            i += 1
+        visited_urls = set()
+        links_queue = list(set(data["links"]))
+        
+        while links_queue:
+            url = links_queue.pop(0)
+            if url in visited_urls: continue
+            visited_urls.add(url)
             
             print(f"   🔗 Scanne: {url}")
             time.sleep(0.1)
             
-            # Prüfen, ob die URL mit .pdf endet ODER ob "ergebnis" im Dateinamen steckt und es ein PDF-Inhalt sein könnte
-            if url.lower().split('?')[0].endswith('.pdf') or "pdf" in url.lower():
-                try:
-                    res_pdf = session.get(url, headers=HEADERS, timeout=TIMEOUT_SECONDS)
-                    # Wir prüfen auch, ob der Server uns wirklich ein PDF zurückschickt
-                    if res_pdf.status_code == 200 and 'application/pdf' in res_pdf.headers.get('Content-Type', ''):
-                        pdf_file = io.BytesIO(res_pdf.content)
-                        reader = PdfReader(pdf_file)
-                        for page in reader.pages:
-                            page_text = page.extract_text()
-                            if not page_text: continue
-                            for line in page_text.split('\n'):
-                                for shooter in shooters:
-                                    if name_matches(shooter["real_name"], line):
-                                        print(f"   🔥 {shooter['real_name']} in PDF gefunden! ({m_name})")
-                                        parse_and_save_pdf_row(shooter["id"], m_id, m_name, line)
-                        continue # Wenn es ein PDF war, brauchen wir nicht mehr als HTML parsen
-                except Exception:
-                    pass
-
-            # HTML parsen (wenn es keine reine PDF ist)
             try:
-                res_sub = session.get(url, headers=HEADERS, timeout=TIMEOUT_SECONDS)
-                if res_sub.status_code == 200 and 'text/html' in res_sub.headers.get('Content-Type', ''):
-                    sub_soup = BeautifulSoup(res_sub.text, 'html.parser')
+                res = session.get(url, headers=HEADERS, timeout=TIMEOUT_SECONDS)
+                if res.status_code != 200: continue
+                
+                content_type = res.headers.get('Content-Type', '').lower()
+                
+                # Wenn es ECHTE PDF-Daten sind, egal wie der Link heißt!
+                if 'application/pdf' in content_type:
+                    pdf_file = io.BytesIO(res.content)
+                    reader = PdfReader(pdf_file)
+                    for page in reader.pages:
+                        page_text = page.extract_text()
+                        if not page_text: continue
+                        for line in page_text.split('\n'):
+                            for shooter in shooters:
+                                if name_matches(shooter["real_name"], line):
+                                    print(f"   🔥 {shooter['real_name']} in PDF gefunden! ({m_name})")
+                                    parse_and_save_pdf_row(shooter["id"], m_id, m_name, line)
+                
+                # Wenn es eine HTML-Seite ist, suchen wir Tabellen UND weitere Links (wie "Overall")
+                elif 'text/html' in content_type:
+                    sub_soup = BeautifulSoup(res.text, 'html.parser')
                     
-                    # Suche nach tiefer verlinkten PDFs (auch hier nach "ergebnis" Ausschau halten)
+                    # 1. Neue Links finden
                     for a in sub_soup.find_all('a', href=True):
                         h_low = a['href'].lower()
                         t_low = a.text.lower()
-                        if ".pdf" in h_low or "ergebnis" in h_low or "ergebnis" in t_low:
-                            pdf_url = urllib.parse.urljoin(BASE_URL, a['href'])
-                            if pdf_url not in links_to_check:
-                                links_to_check.append(pdf_url)
-                                print(f"      📄 Zusätzliche Datei entdeckt: {pdf_url}")
-                    
+                        if any(good in h_low or good in t_low for good in [".pdf", "ergebnis", "overall", "results", "stage"]):
+                            new_url = urllib.parse.urljoin(BASE_URL, a['href'])
+                            if any(bad in new_url.lower() for bad in ['urkunden', 'team', 'category', 'region']): continue
+                            if new_url not in visited_urls and new_url not in links_queue:
+                                links_queue.append(new_url)
+                                
+                    # 2. HTML Tabellen lesen
                     sub_rows = sub_soup.find_all('tr')
                     if len(sub_rows) >= 3:
                         is_verify = "verify" in url.lower()
