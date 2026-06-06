@@ -49,12 +49,12 @@
         .select-wrapper { position: relative; margin-bottom: 20px; }
         .select-wrapper::after { content: '▼'; position: absolute; right: 15px; top: 14px; font-size: 12px; color: var(--text-muted); pointer-events: none; }
 
-        /* Benchmark Chart Styles */
-        .stage-card { background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .stage-card { background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 15px; position: relative; }
         html[data-theme="dark"] .stage-card { background: rgba(255,255,255, 0.02); }
         .stage-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .stage-title { font-weight: 700; font-size: 15px; color: var(--text-color); }
+        .stage-title { font-weight: 700; font-size: 15px; color: var(--text-color); display: flex; align-items: center; gap: 8px; }
         .stage-rank { background: var(--bg-color); border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; color: var(--accent-color); }
+        .course-badge { font-size: 10px; padding: 3px 6px; border-radius: 4px; background: var(--border-color); color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
         
         .bar-container { margin-bottom: 8px; }
         .bar-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
@@ -64,6 +64,10 @@
         .bar-winner { background: var(--text-muted); }
         .bar-me { background: var(--accent-color); }
         .bar-me.high { background: var(--success-color); }
+
+        .insight-box { background: rgba(255, 159, 67, 0.1); border-left: 3px solid var(--accent-color); padding: 10px; font-size: 12px; margin-top: 10px; border-radius: 0 4px 4px 0; color: var(--text-color); }
+        .btn-small { background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); font-size: 10px; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .btn-small:hover { background: var(--border-color); }
         
         @media (max-width: 768px) {
             .container { padding: 0 10px !important; margin-top: 15px !important; }
@@ -78,17 +82,17 @@
     <div class="container">
         <div class="tool-section" style="max-width: 600px; margin: 0 auto; padding: 20px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: var(--shadow-sm);">
             
-            <h2 data-txt="analytics-title" style="font-size: 22px; font-weight: 800; margin-bottom: 5px; margin-top: 0;">🏆 IPSC Benchmark Analytics</h2>
-            <p id="analytics-loader" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
-                Lade Profi-Datenbank...
-            </p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 data-txt="analytics-title" style="font-size: 22px; font-weight: 800; margin: 0;">🏆 Analytics Pro</h2>
+                <button class="btn-small" style="font-size: 12px; padding: 6px 12px; background: rgba(59, 130, 246, 0.1); color: var(--info-color); border-color: var(--info-color);">👥 Buddy Radar</button>
+            </div>
+            
+            <p id="analytics-loader" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Lade Profi-Datenbank...</p>
 
             <div id="analytics-empty-state" style="display: none; background: rgba(255,159,67,0.05); border: 1px dashed var(--accent-color); padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
                 <span style="font-size: 24px;">ℹ️</span>
                 <h4 style="margin: 10px 0 8px 0; font-weight: 700;">Noch keine Match-Daten gefunden</h4>
-                <p style="font-size: 13px; color: var(--text-muted); margin: 0; line-height: 1.5; text-align: left;">
-                    Stelle sicher, dass du deinen Klarnamen in den Einstellungen hinterlegt hast. Der Bot sucht aktuell nach deinen Stage-Ergebnissen!
-                </p>
+                <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Der Bot sucht aktuell nach deinen Stage-Ergebnissen!</p>
             </div>
 
             <div id="analytics-dashboard-content" style="display: none;">
@@ -97,20 +101,25 @@
                     <select id="match-selector" onchange="renderSelectedMatch()"></select>
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px;">
-                    <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Division</div>
-                        <div id="kpi-division" style="font-size: 20px; font-weight: 900; margin-top: 4px; color: var(--info-color);">Optics</div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px;">
+                    <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); padding: 12px 5px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Division</div>
+                        <div id="kpi-division" style="font-size: 18px; font-weight: 900; margin-top: 4px; color: var(--info-color);">Optics</div>
                     </div>
-                    <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Ø Hit Factor</div>
-                        <div id="kpi-avg-hf" style="font-size: 20px; font-weight: 900; color: var(--text-color); margin-top: 4px;">0.00</div>
+                    <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); padding: 12px 5px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Ø Hit Factor</div>
+                        <div id="kpi-avg-hf" style="font-size: 18px; font-weight: 900; color: var(--text-color); margin-top: 4px;">0.00</div>
+                    </div>
+                    <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); padding: 12px 5px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Konstanz</div>
+                        <div id="kpi-variance" style="font-size: 18px; font-weight: 900; color: var(--text-color); margin-top: 4px;">0%</div>
                     </div>
                 </div>
 
+                <!-- TREFFER-PRÄZISION -->
                 <div style="background: rgba(15, 23, 42, 0.01); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 25px;">
                     <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
-                        <span style="font-weight: 700; color: var(--text-color);">🎯 Match-Präzision</span>
+                        <span style="font-weight: 700; color: var(--text-color);">🎯 Erfasste Match-Präzision</span>
                         <strong id="analytics-alpha-badge" style="color: var(--success-color);">0% Alphas</strong>
                     </div>
                     <div style="width: 100%; height: 14px; background: var(--bg-color); border-radius: 7px; overflow: hidden; display: flex;">
@@ -194,8 +203,6 @@
                 }
 
                 allUserStages = stages;
-                
-                // Extrahiere einzigartige Matches
                 const matchMap = new Map();
                 stages.forEach(s => {
                     if(!matchMap.has(s.match_id)) {
@@ -204,8 +211,6 @@
                 });
                 
                 uniqueMatches = Array.from(matchMap, ([id, name]) => ({ id, name }));
-                
-                // Fülle Dropdown
                 const selector = document.getElementById("match-selector");
                 selector.innerHTML = "";
                 uniqueMatches.forEach(m => {
@@ -217,9 +222,7 @@
 
                 document.getElementById("analytics-loader").style.display = "none";
                 document.getElementById("analytics-dashboard-content").style.display = "block";
-                
-                renderSelectedMatch(); // Render das erste Match direkt
-
+                renderSelectedMatch();
             } catch (err) {
                 console.error(err);
                 document.getElementById("analytics-loader").innerText = "❌ Fehler beim Laden.";
@@ -227,15 +230,14 @@
         }
     })();
 
-    // Hauptfunktion zum Rendern der Benchmark-Graphen
     window.renderSelectedMatch = function() {
         const matchId = document.getElementById("match-selector").value;
         const matchStages = allUserStages.filter(s => s.match_id === matchId);
         
         let sumHf = 0, tA = 0, tC = 0, tD = 0, tM = 0;
         let division = "Unbekannt";
+        let stagePercents = [];
 
-        // Sortiere Stages alphabetisch oder nach Zahl (falls Stage 1, Stage 2 etc.)
         matchStages.sort((a,b) => a.stage_name.localeCompare(b.stage_name, undefined, {numeric: true, sensitivity: 'base'}));
 
         const stagesHtml = matchStages.map(stage => {
@@ -243,14 +245,12 @@
             const winHf = stage.winner_hit_factor ? parseFloat(stage.winner_hit_factor) : 0;
             const rank = stage.stage_rank ? stage.stage_rank : "-";
             const time = stage.stage_time ? parseFloat(stage.stage_time) : 0;
+            const isOverall = stage.stage_name.includes("Overall Match Results");
             
-            // 🎯 NEU: Nimm die echten PTS aus der Datenbank! Fallback: HF * Time
-            const stagePoints = stage.pts ? parseFloat(stage.pts).toFixed(4) : (hf * time).toFixed(4);
-
+            const stagePoints = stage.pts ? parseFloat(stage.pts).toFixed(0) : (hf * time).toFixed(0);
             if(stage.division && stage.division !== "Unknown") division = stage.division;
 
-            // Verhindere, dass Overall % den Durchschnitts-HF kaputt macht
-            if (!stage.stage_name.includes("Overall Match Results")) {
+            if (!isOverall) {
                 sumHf += hf;
             }
 
@@ -259,20 +259,42 @@
             tD += stage.deltas || 0;
             tM += stage.misses || 0;
 
-            // Berechne Balken-Prozente
             let maxHf = Math.max(hf, winHf);
-            if(maxHf === 0) maxHf = 1; // Division by Zero abfangen
+            if(maxHf === 0) maxHf = 1; 
             
             let winPerc = (winHf / maxHf) * 100;
             let myPerc = (hf / maxHf) * 100;
+            if (!isOverall) stagePercents.push(myPerc);
             
             let myColorClass = "bar-me";
-            if(myPerc >= 85) myColorClass += " high"; // Grün wenn sehr nah am Sieger
+            if(myPerc >= 85) myColorClass += " high"; 
+
+            // 1. Stage Typ Erkennung (Short/Medium/Long)
+            let courseTag = "";
+            if (!isOverall) {
+                if (stagePoints <= 60) courseTag = '<span class="course-badge">Short</span>';
+                else if (stagePoints <= 120) courseTag = '<span class="course-badge">Medium</span>';
+                else courseTag = '<span class="course-badge">Long</span>';
+            } else {
+                courseTag = '<span class="course-badge" style="background:var(--accent-color); color:#fff;">Match Result</span>';
+            }
+
+            // 2. Zeit-Orakel: Target Time für Platz 1
+            let insightHtml = "";
+            if (!isOverall && winHf > 0 && time > 0) {
+                const targetTime = (stagePoints / winHf).toFixed(2);
+                const timeDiff = (time - targetTime).toFixed(2);
+                if (timeDiff > 0.1) {
+                    insightHtml = `<div class="insight-box">⏱️ Für Platz 1 hättest du deine Punkte in <b>${targetTime}s</b> schießen müssen (Du warst ${timeDiff}s zu langsam).</div>`;
+                } else if (timeDiff < -0.1 && myPerc >= 95) {
+                    insightHtml = `<div class="insight-box" style="border-color: var(--success-color);">🚀 Wahnsinn! Du warst schneller als die Target-Time des Siegers!</div>`;
+                }
+            }
 
             return `
                 <div class="stage-card">
                     <div class="stage-header">
-                        <span class="stage-title">${stage.stage_name}</span>
+                        <span class="stage-title">${stage.stage_name} ${courseTag}</span>
                         <span class="stage-rank">Platz ${rank}</span>
                     </div>
                     
@@ -290,10 +312,15 @@
                         </div>
                     </div>
                     
-                    <div style="display: flex; gap: 15px; margin-top: 12px; font-size: 11px; color: var(--text-muted); flex-wrap: wrap;">
-                        <span>⏱️ ${time > 0 ? time.toFixed(2) + 's' : '-'}</span>
-                        <span style="font-weight: 600; color: var(--text-color);">💯 ${stagePoints} PTS</span>
-                        <span>🎯 A:${stage.alphas||0} C:${stage.charlies||0} D:${stage.deltas||0} M:${stage.misses||0}</span>
+                    ${insightHtml}
+
+                    <div style="display: flex; gap: 15px; margin-top: 15px; font-size: 11px; color: var(--text-muted); flex-wrap: wrap; align-items: center;">
+                        <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color);">⏱️ ${time > 0 ? time.toFixed(2) + 's' : '-'}</span>
+                        <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color); font-weight: 700; color: var(--text-color);">💯 ${stagePoints} PTS</span>
+                        <span style="flex-grow: 1; text-align: right;">
+                            🎯 A:${stage.alphas||0} C:${stage.charlies||0} D:${stage.deltas||0} 
+                            <button class="btn-small" style="margin-left: 5px;" onclick="alert('Manueller Treffer-Editor kommt im nächsten Update!')">✏️</button>
+                        </span>
                     </div>
                 </div>
             `;
@@ -301,13 +328,26 @@
 
         document.getElementById("stages-container").innerHTML = stagesHtml;
 
-        // KPI Update - Filtere die Overall-Prozente aus dem Durchschnitts-HF raus!
+        // KPI Update - Durchschnitt & Konstanz
         const realStages = matchStages.filter(s => !s.stage_name.includes("Overall Match Results"));
         const avgHf = realStages.length > 0 ? (sumHf / realStages.length).toFixed(2) : "0.00";
         document.getElementById("kpi-avg-hf").innerText = avgHf;
         document.getElementById("kpi-division").innerText = division;
 
-        // Präzisions-Balken Update
+        // Hero or Zero Konstanz berechnen
+        if (stagePercents.length > 1) {
+            const maxP = Math.max(...stagePercents);
+            const minP = Math.min(...stagePercents);
+            const variance = (maxP - minP).toFixed(0);
+            const varEl = document.getElementById("kpi-variance");
+            varEl.innerText = `± ${variance}%`;
+            // Wenn die Schwankung gering ist (unter 15%), ist das exzellent. Über 30% ist eine wilde Achterbahn.
+            if (variance <= 15) varEl.style.color = "var(--success-color)";
+            else if (variance >= 35) varEl.style.color = "var(--danger-color)";
+        } else {
+            document.getElementById("kpi-variance").innerText = "-";
+        }
+
         const totalHits = tA + tC + tD;
         const aPerc = totalHits > 0 ? Math.round((tA / totalHits) * 100) : 0;
         const cPerc = totalHits > 0 ? Math.round((tC / totalHits) * 100) : 0;
