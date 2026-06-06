@@ -1,0 +1,31 @@
+name: IPSC Verify Analytics Updater
+
+on:
+  schedule:
+    # Läuft vollautomatisch jede Nacht um 02:00 Uhr UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Erlaubt es dir, das Skript jederzeit manuell in GitHub zu starten
+
+jobs:
+  update-analytics:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Code auschecken
+      uses: actions/checkout@v4
+
+    - name: Python installieren
+      uses: actions/setup-python@v5
+      with:
+        python-python-version: '3.10'
+
+    - name: Bibliotheken installieren
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests beautifulsoup4 supabase
+
+    - name: Scraper ausführen
+      env:
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      run: python fetch_verify_analytics.py
