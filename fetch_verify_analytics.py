@@ -21,7 +21,6 @@ def discover_matches_automatically():
     stichtag = datetime(2025, 1, 1)
     
     try:
-        # Erst holen wir uns die IDs, die wir SCHON in unserer DB haben
         existing_response = supabase.table("matches").select("id").execute()
         existing_ids = [str(m["id"]) for m in existing_response.data] if existing_response.data else []
 
@@ -34,12 +33,10 @@ def discover_matches_automatically():
         discovered = []
         matches_to_scrape = []
 
-        # Wir gehen durch alle Tabellenzeilen der Match-Liste
         for row in soup.find_all('tr'):
             cells = row.find_all('td')
             row_text = row.get_text()
             
-            # Datum in der Zeile suchen (Format: TT.MM.JJJJ)
             date_match = re.search(r'(\d{2})\.(\d{2})\.(\d{4})', row_text)
             if not date_match:
                 continue
@@ -50,11 +47,9 @@ def discover_matches_automatically():
             except ValueError:
                 continue
             
-            # Filter: Nur Matches ab 01.01.2025
             if match_date < stichtag:
                 continue
 
-            # Match-ID aus dem Link extrahieren
             link = row.find('a', href=True)
             if not link:
                 continue
@@ -76,27 +71,15 @@ def discover_matches_automatically():
                 match_data = {"id": match_id_str, "name": formatted_name}
                 discovered.append(match_data)
 
-                # --- DER INTELLIGENTE FILTER ---
-                # Wie alt ist das Match in Tagen?
                 alter_in_tagen = (datetime.now() - match_date).days
-                
-                # Wir scrapen nur, wenn das Match BRANDNEU ist (noch nicht in DB)
-                # ODER wenn es jünger als 7 Tage ist (da sich Ergebnisse noch ändern können)
                 if match_id_str not in existing_ids or alter_in_tagen <= 7:
                     matches_to_scrape.append(match_data)
-                else:
-                    # Match ist alt und bereits gespeichert -> Überspringen!
-                    pass
 
-        print(f"🔗 {len(discovered)} Matches ab 2025 auf Startseite erkannt.")
-        print(f"⚡ {len(matches_to_scrape)} Matches müssen aktiv gescannt werden (der Rest ist bereits sicher gespeichert).")
+        print(f"🔗 {len(discovered)} Matches ab 2025 erkannt.")
+        print(f"⚡ {len(matches_to_scrape)} Matches werden aktiv überprüft.")
 
-        # Alle entdeckten Matches einmal in der Übersichtstabelle speichern/aktualisieren
         for match in discovered:
-            supabase.table("matches").upsert(
-                {"id": match["id"], "name": match["name"]},
-                on_conflict="id"
-            ).execute()
+            supabase.table("matches").upsert({"id": match["id"], "name": match["name"]}, on_conflict="id").execute()
             
         return matches_to_scrape
 
@@ -112,12 +95,53 @@ def get_active_shooters():
         print(f"Fehler beim Laden der Profile: {e}")
         return []
 
-def scrape_verify_list():
-    # Holt NUR die Matches, die laut unserem Filter Zuwendung benötigen
-    matches_to_process = discover_matches_automatically()
+def parse_and_save_row(shooter_id, real_name, match_id, match_name, stage_title, cells, is_verify_mode):
+    """Verarbeitet eine Tabellenzeile und speichert sie in Supabase"""
+    try:
+        # Standard-Werte für Fallback-Modus (Stage-Ergebnisse ohne A/C/D-Details)
+        alphas, charlies, deltas, misses, no_shoots = 0, 0, 0, 0, 0
+        scoring_type = "Comstock"
 
+        if is_verify_mode:
+            # Zeilen-Index für verify.html (A, C, D, M, NS vorhanden)
+            scoring_type = cells[3].text.strip()
+            alphas = int(cells[4].text.strip())
+            charlies = int(cells[5].text.strip())
+            deltas = int(cells[6].text.strip())
+            misses = int(cells[7].text.strip())
+            no_shoots = int(cells[8].text.strip())
+            stage_time = float(cells[9].text.strip().replace(',', '.'))
+            hit_factor = float(cells[10].text.strip().replace(',', '.'))
+        else:
+            # Zeilen-Index für die standardmäßige stage.html (WinMSS Export Layout)
+            # Spalten: Pos | Name | Reg | Sq | Div | Cat | Time | Pts | HitF
+            stage_time = float(cells[6].text.strip().replace(',', '.'))
+            hit_factor = float(cells[8].text.strip().replace(',', '.'))
+
+        payload = {
+            "user_id": shooter_id, 
+            "match_id": str(match_id),
+            "match_name": match_name,
+            "stage_name": stage_title,
+            "scoring_type": scoring_type,
+            "alphas": alphas,
+            "charlies": charlies,
+            "deltas": deltas,
+            "misses": misses,
+            "no_shoots": no_shoots,
+            "stage_time": stage_time,
+            "hit_factor": hit_factor
+        }
+
+        supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
+        print(f"   ⚡ Daten erfasst ({'Verify' if is_verify_mode else 'Stage-Liste'}): {real_name} -> {stage_title}")
+    except Exception as e:
+        pass
+
+def scrape_verify_list():
+    matches_to_process = discover_matches_automatically()
     if not matches_to_process:
-        print("☕ Alles up to date. Keine alten Matches müssen geladen werden.")
+        print("☕ Alles up to date.")
         return
 
     shooters = get_active_shooters()
@@ -125,55 +149,67 @@ def scrape_verify_list():
         print("ℹ️ Keine Schützen mit hinterlegtem Klarnamen gefunden.")
         return
 
-    print(f"🚀 Starte Daten-Abgleich für {len(shooters)} Schütze(n) über {len(matches_to_process)} relevante Matches...")
-
     for match in matches_to_process:
         match_id = match["id"]
         match_name = match["name"]
-        url = f"https://ipscmatch.de/matches/{match_id}/verify.html"
-
-        try:
-            response = requests.get(url, timeout=15)
-            if response.status_code != 200:
-                url = f"https://ipscmatch.de/index.pl?match={match_id}&action=verify"
-                response = requests.get(url, timeout=15)
-                if response.status_code != 200:
-                    continue
-
+        
+        # ─── PLAN A: VERSUCHE VERIFY.HTML (Volle Daten) ───
+        url_verify = f"https://ipscmatch.de/matches/{match_id}/verify.html"
+        print(f"Scanne Match {match_id} (Plan A: Verify)...")
+        response = requests.get(url_verify, timeout=10)
+        
+        if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
             for row in soup.find_all('tr'):
                 cells = row.find_all('td')
-                if len(cells) < 11:
-                    continue
+                if len(cells) < 11: continue
+                web_name = cells[1].text.strip().lower()
+                for shooter in shooters:
+                    if shooter["real_name"].lower() in web_name:
+                        parse_and_save_row(shooter["id"], shooter["real_name"], match_id, match_name, cells[2].text.strip(), cells, is_verify_mode=True)
+            continue # Gefunden und verarbeitet, weiter zum nächsten Match!
+
+        # ─── PLAN B: FALLBACK AUF STAGE.HTML (Immer verfügbar!) ───
+        print(f"ℹ️ Plan A nicht verfügbar für Match {match_id}. Wechsle auf Plan B (Stage-Ergebnisse)...")
+        url_stage_root = f"https://ipscmatch.de/matches/{match_id}/stage.html"
+        response_stage = requests.get(url_stage_root, timeout=10)
+        
+        if response_stage.status_code != 200:
+            continue # Match hat keinerlei HTML-Ergebnisse online
+
+        soup_stage = BeautifulSoup(response_stage.text, 'html.parser')
+        
+        # Sammle alle Links zu den einzelnen Stages (z.B. stage_01.html, stg_1.html)
+        stage_links = []
+        for a in soup_stage.find_all('a', href=True):
+            href = a['href']
+            if 'stage_' in href.lower() or 'stg' in href.lower():
+                if href not in stage_links: stage_links.append(href)
+
+        # Falls die Tabelle direkt auf der Hauptseite eingebettet ist
+        if not stage_links:
+            stage_links = ["stage.html"]
+
+        # Scrape jede einzelne Unter-Stage
+        for file_path in stage_links:
+            url_sub_stage = f"https://ipscmatch.de/matches/{match_id}/{file_path}" if file_path != "stage.html" else url_stage_root
+            res_sub = requests.get(url_sub_stage, timeout=10)
+            if res_sub.status_code != 200: continue
+            
+            sub_soup = BeautifulSoup(res_sub.text, 'html.parser')
+            
+            # Ermittle den Stage Namen aus der Überschrift (h1, h2, h3)
+            title_el = sub_soup.find(['h1', 'h2', 'h3'])
+            stage_title = title_el.text.strip() if title_el else f"Stage ({file_path.split('.')[0]})"
+
+            for row in sub_soup.find_all('tr'):
+                cells = row.find_all('td')
+                if len(cells) < 9: continue # Standard WinMSS Stage-Tabelle hat mind. 9 Spalten
                 
                 web_name = cells[1].text.strip().lower()
-
                 for shooter in shooters:
-                    real_name = shooter["real_name"].lower()
-
-                    if real_name in web_name or web_name in real_name:
-                        try:
-                            payload = {
-                                "user_id": shooter["id"], 
-                                "match_id": str(match_id),
-                                "match_name": match_name,
-                                "stage_name": cells[2].text.strip(),
-                                "scoring_type": cells[3].text.strip(),
-                                "alphas": int(cells[4].text.strip()),
-                                "charlies": int(cells[5].text.strip()),
-                                "deltas": int(cells[6].text.strip()),
-                                "misses": int(cells[7].text.strip()),
-                                "no_shoots": int(cells[8].text.strip()),
-                                "stage_time": float(cells[9].text.strip().replace(',', '.')),
-                                "hit_factor": float(cells[10].text.strip().replace(',', '.'))
-                            }
-
-                            supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
-                            print(f"   ⚡ Treffer erfasst: {shooter['real_name']} -> {payload['stage_name']} ({match_name})")
-                        except Exception:
-                            pass
-        except Exception as conn_error:
-            print(f"❌ Verbindung fehlgeschlagen für Match {match_id}: {conn_error}")
+                    if shooter["real_name"].lower() in web_name:
+                        parse_and_save_row(shooter["id"], shooter["real_name"], match_id, match_name, stage_title, cells, is_verify_mode=False)
 
 if __name__ == "__main__":
     scrape_verify_list()
