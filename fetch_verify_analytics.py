@@ -14,12 +14,24 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+def name_matches(real_name, web_name):
+    """Prüft krisensicher, ob Vor- und Nachname unabhängig von der Reihenfolge matchen"""
+    if not real_name or not web_name:
+        return False
+    # Zerlegt z.B. "Fabian Schöps" in ['fabian', 'schöps']
+    real_parts = [p.strip().lower() for p in re.split(r'[\s,]+', real_name) if p.strip()]
+    web_clean = web_name.lower()
+    
+    if not real_parts:
+        return False
+    # Prüft, ob JEDES einzelne Namenselement in der Tabellenzeile existiert
+    return all(part in web_clean for part in real_parts)
+
 def discover_matches_automatically():
     """Scant ipscmatch.de (inkl. Archiv) und importiert neue Matches ab dem 01.01.2023"""
     print("🔍 Suche auf ipscmatch.de nach Matches ab dem 01.01.2023...")
     stichtag = datetime(2023, 1, 1)
     
-    # Wir scannen die Startseite UND die Archiv-Seiten (hinter dem roten Button)
     urls_to_scan = [
         "https://ipscmatch.de/",
         "https://ipscmatch.de/index.pl?archiv=1",
@@ -53,7 +65,6 @@ def discover_matches_automatically():
                     except ValueError:
                         continue
                     
-                    # FILTER: Jetzt radikal runter auf alle Matches seit 2023!
                     if match_date < stichtag:
                         continue
 
@@ -78,7 +89,6 @@ def discover_matches_automatically():
                         match_data = {"id": match_id_str, "name": formatted_name}
                         discovered.append(match_data)
 
-                        # Matches älter als 14 Tage müssen nur einmal gescannt werden (wenn nicht in DB)
                         alter_in_tagen = (datetime.now() - match_date).days
                         if match_id_str not in existing_ids or alter_in_tagen <= 14:
                             matches_to_scrape.append(match_data)
@@ -169,7 +179,7 @@ def scrape_verify_list():
                 if len(cells) < 11: continue
                 web_name = cells[1].text.strip().lower()
                 for shooter in shooters:
-                    if shooter["real_name"].lower() in web_name:
+                    if name_matches(shooter["real_name"], web_name):
                         parse_and_save_row(shooter["id"], shooter["real_name"], match_id, match_name, cells[2].text.strip(), cells, is_verify_mode=True)
             continue
 
@@ -202,7 +212,7 @@ def scrape_verify_list():
                 
                 web_name = cells[1].text.strip().lower()
                 for shooter in shooters:
-                    if shooter["real_name"].lower() in web_name:
+                    if name_matches(shooter["real_name"], web_name):
                         parse_and_save_row(shooter["id"], shooter["real_name"], match_id, match_name, stage_title, cells, is_verify_mode=False)
 
 if __name__ == "__main__":
