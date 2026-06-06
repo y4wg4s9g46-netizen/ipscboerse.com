@@ -4,14 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistiken | IPSC Startplatz-Börse</title>
-    
-    <!-- AUTOMATISCHER FEHLERSUCHER -->
-    <script>
-        window.onerror = function(msg, url, line) {
-            alert("⚠️ JavaScript-Fehler gefunden:\n\nFehler: " + msg + "\nZeile: " + line + "\nDatei: " + url);
-            return false;
-        };
-    </script>
 
     <link class="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e293b">
@@ -20,7 +12,6 @@
     <meta name="apple-mobile-web-app-title" content="IPSC Börse">
     <link rel="apple-touch-icon" href="icon-192.png">
     
-    <!-- Supabase Core CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -47,37 +38,33 @@
             --text-muted: #94a3b8;
             --border-color: #334155;
             --input-bg: #0f172a;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
         }
 
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; }
         header { background-color: var(--card-bg); padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
         .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
         
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease-out; padding: 20px; box-sizing: border-box; }
-        .modal-content { background-color: var(--card-bg); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative; margin: auto; }
-        .modal-content h3 { color: var(--text-color); margin-top: 0; margin-bottom: 24px; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; padding-right: 30px; }
-        .modal-close-container { position: absolute; top: 20px; right: 20px; z-index: 1010; }
-        .modal-close-trigger { background: transparent; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; padding: 4px; line-height: 1; transition: color 0.15s; }
-        .modal-close-trigger:hover { color: var(--text-color); }
-        .modal-content .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
-        .modal-content label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .modal-content input { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px 14px; border-radius: var(--radius); font-size: 14px; transition: all 0.15s ease; box-shadow: var(--shadow-sm); }
-        .modal-content input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); }
-        .modal-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px; }
-        .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
+        select { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px 14px; border-radius: var(--radius); font-size: 15px; font-weight: 600; width: 100%; box-shadow: var(--shadow-sm); cursor: pointer; outline: none; appearance: none; }
+        select:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(255, 159, 67, 0.15); }
+        .select-wrapper { position: relative; margin-bottom: 20px; }
+        .select-wrapper::after { content: '▼'; position: absolute; right: 15px; top: 14px; font-size: 12px; color: var(--text-muted); pointer-events: none; }
+
+        /* Benchmark Chart Styles */
+        .stage-card { background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        html[data-theme="dark"] .stage-card { background: rgba(255,255,255, 0.02); }
+        .stage-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .stage-title { font-weight: 700; font-size: 15px; color: var(--text-color); }
+        .stage-rank { background: var(--bg-color); border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; color: var(--accent-color); }
         
-        .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; }
-        .btn-primary-auth:hover { opacity: 0.9; }
-        .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
-        .btn-secondary-auth:hover { background-color: var(--border-color); }
-        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 30px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 10px; box-shadow: var(--shadow-sm); }
-        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
-        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-
+        .bar-container { margin-bottom: 8px; }
+        .bar-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+        .bar-track { width: 100%; height: 20px; background: var(--bg-color); border-radius: 4px; overflow: hidden; position: relative; border: 1px solid var(--border-color); }
+        .bar-fill { height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-size: 11px; font-weight: 700; color: #fff; transition: width 0.8s ease; }
+        
+        .bar-winner { background: var(--text-muted); }
+        .bar-me { background: var(--accent-color); }
+        .bar-me.high { background: var(--success-color); }
+        
         @media (max-width: 768px) {
             .container { padding: 0 10px !important; margin-top: 15px !important; }
         }
@@ -85,263 +72,111 @@
 </head>
 <body>
 
-    <!-- Navigations-Header -->
     <header></header>
     <script src="header.js"></script>
 
-    <!-- Content-Bereich -->
     <div class="container">
-        <div class="tool-section" style="max-width: 600px; margin: 0 auto; padding: 15px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: var(--shadow-sm);">
+        <div class="tool-section" style="max-width: 600px; margin: 0 auto; padding: 20px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: var(--shadow-sm);">
             
-            <h2 data-txt="analytics-title" style="font-size: 22px; font-weight: 800; margin-bottom: 5px;">🏆 IPSC Performance Analytics</h2>
-            <p id="analytics-loader" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="analytics-desc">
-                Prüfe Verbindung zur Datenbank...
+            <h2 data-txt="analytics-title" style="font-size: 22px; font-weight: 800; margin-bottom: 5px; margin-top: 0;">🏆 IPSC Benchmark Analytics</h2>
+            <p id="analytics-loader" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+                Lade Profi-Datenbank...
             </p>
 
-            <!-- ERKLÄRENDER LEERZUSTAND -->
             <div id="analytics-empty-state" style="display: none; background: rgba(255,159,67,0.05); border: 1px dashed var(--accent-color); padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
                 <span style="font-size: 24px;">ℹ️</span>
-                <h4 style="margin: 10px 0 8px 0; font-weight: 700;">Noch keine Match-Daten zugeordnet</h4>
+                <h4 style="margin: 10px 0 8px 0; font-weight: 700;">Noch keine Match-Daten gefunden</h4>
                 <p style="font-size: 13px; color: var(--text-muted); margin: 0; line-height: 1.5; text-align: left;">
-                    Damit dieses Tool deine persönlichen Statistiken und Diagramme automatisch erstellen kann, muss das System wissen, nach welchen Treffern gesucht werden soll.
-                    <br><br>
-                    <strong>So aktivierst du das Tool:</strong>
-                    <br>
-                    Gehe einfach oben in deine <strong>Konto-Einstellungen</strong> und hinterlege dort deinen <strong>echten Namen (Klarnamen)</strong>, exakt so wie er auf den offiziellen Ergebnislisten der Matches steht. Das System synchronisiert deine Daten danach vollautomatisch im Hintergrund!
+                    Stelle sicher, dass du deinen Klarnamen in den Einstellungen hinterlegt hast. Der Bot sucht aktuell nach deinen Stage-Ergebnissen!
                 </p>
             </div>
 
-            <!-- DASHBOARD CONTENT -->
             <div id="analytics-dashboard-content" style="display: none;">
                 
+                <div class="select-wrapper">
+                    <select id="match-selector" onchange="renderSelectedMatch()"></select>
+                </div>
+
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px;">
                     <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;" data-txt="analytics-kpi-matches">Matches Gesamt</div>
-                        <div id="kpi-total-matches" style="font-size: 26px; font-weight: 900; margin-top: 4px;">0</div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Division</div>
+                        <div id="kpi-division" style="font-size: 20px; font-weight: 900; margin-top: 4px; color: var(--info-color);">Optics</div>
                     </div>
                     <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;" data-txt="analytics-kpi-avg-hf">Ø Hit Factor</div>
-                        <div id="kpi-avg-hf" style="font-size: 26px; font-weight: 900; color: #3182ce; margin-top: 4px;">0.00</div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Ø Hit Factor</div>
+                        <div id="kpi-avg-hf" style="font-size: 20px; font-weight: 900; color: var(--text-color); margin-top: 4px;">0.00</div>
                     </div>
                 </div>
 
-                <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px;" data-txt="analytics-chart-title">📈 Hit-Factor Trend (Letzte 5 Stages)</h3>
-                <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); padding: 25px 15px 15px 15px; border-radius: 8px; margin-bottom: 25px;">
-                    <div id="analytics-chart-container" style="display: flex; justify-content: space-between; align-items: flex-end; height: 130px; padding-bottom: 5px; gap: 10px;"></div>
-                </div>
-
-                <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 10px;" data-txt="analytics-acc-title">🎯 Treffer-Verteilung (Präzision)</h3>
-                <div style="background: rgba(15, 23, 42, 0.01); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <div style="background: rgba(15, 23, 42, 0.01); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 25px;">
                     <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
-                        <span style="color: var(--text-muted);">Treffer-Verhältnis</span>
+                        <span style="font-weight: 700; color: var(--text-color);">🎯 Match-Präzision</span>
                         <strong id="analytics-alpha-badge" style="color: var(--success-color);">0% Alphas</strong>
                     </div>
-                    
                     <div style="width: 100%; height: 14px; background: var(--bg-color); border-radius: 7px; overflow: hidden; display: flex;">
                         <div id="bar-alphas" style="width: 0%; background: var(--success-color); transition: width 0.6s ease;"></div>
                         <div id="bar-charlies" style="width: 0%; background: var(--accent-color); transition: width 0.6s ease;"></div>
                         <div id="bar-deltas" style="width: 0%; background: var(--danger-color); transition: width 0.6s ease;"></div>
                     </div>
-                    
                     <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 11px; color: var(--text-muted);">
-                        <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--success-color); border-radius: 50%;"></div> A: <span id="count-alphas" style="font-weight: 600; color: var(--text-color);">0</span></div>
-                        <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--accent-color); border-radius: 50%;"></div> C: <span id="count-charlies" style="font-weight: 600; color: var(--text-color);">0</span></div>
-                        <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--danger-color); border-radius: 50%;"></div> D: <span id="count-deltas" style="font-weight: 600; color: var(--text-color);">0</span></div>
-                        <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--text-muted); border-radius: 50%;"></div> M: <span id="count-misses" style="font-weight: 600; color: var(--text-color);">0</span></div>
+                        <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--success-color); border-radius: 50%;"></div> A: <span id="count-alphas" style="font-weight: 600;">0</span></div>
+                        <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--accent-color); border-radius: 50%;"></div> C: <span id="count-charlies" style="font-weight: 600;">0</span></div>
+                        <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--danger-color); border-radius: 50%;"></div> D: <span id="count-deltas" style="font-weight: 600;">0</span></div>
+                        <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--text-muted); border-radius: 50%;"></div> M: <span id="count-misses" style="font-weight: 600;">0</span></div>
                     </div>
                 </div>
 
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL BEREICH (100% EXAKT GESPIEGELT VON INDEX.HTML) -->
-    <div class="modal" id="auth-modal">
-        <div class="modal-content">
-            <div class="modal-close-container">
-                <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
-            </div>
-            
-            <div id="modal-login-view">
-                <h3 data-txt="modal-login-title">Anmelden</h3>
-                <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
-                    <span>📱</span> Login mit FaceID / Fingerabdruck
-                </button>
-                <div class="modal-divider">oder klassisch mit E-Mail</div>
-                <form id="login-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-email">E-Mail *</label>
-                        <input type="email" id="login-email" required placeholder="name@beispiel.de">
-                    </div>
-                    <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <label style="margin-bottom: 0;">Passwort *</label>
-                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
-                        </div>
-                        <input type="password" id="login-password" required placeholder="••••••••">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
-                </form>
-                <div class="modal-footer">
-                    <span data-txt="modal-no-acc">Noch kein Konto?</span>
-                    <a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a>
-                </div>
-            </div>
-
-            <div id="modal-register-view" style="display: none;">
-                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
-                <form id="register-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-email">E-Mail *</label>
-                        <input type="email" id="register-email" required placeholder="name@beispiel.de">
-                    </div>
-                    <div class="form-group">
-                        <label>Passwort *</label>
-                        <input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-reg">Konto erstellen</button>
-                </form>
-                <div class="modal-footer">
-                    <span data-txt="modal-has-acc">Bereits registriert?</span>
-                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a>
-                </div>
-            </div>
-
-            <div id="modal-forgot-view" style="display: none;">
-                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
-                <form id="forgot-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-email">Deine E-Mail-Adresse *</label>
-                        <input type="email" id="forgot-email" required placeholder="name@beispiel.de">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
-                </form>
-            </div>
-
-            <div id="modal-reset-view" style="display: none;">
-                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
-                <form id="reset-password-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-new-password">Neues Passwort *</label>
-                        <input type="password" id="reset-password-input" required minlength="6" placeholder="Mindestens 6 Zeichen">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Speichern</button>
-                </form>
-            </div>
-
-            <!-- EINSTELLUNGS-MODAL (KOMPLETT GESPIEGELT AUS INDEX.HTML) -->
-            <div id="modal-settings-view" style="display: none;">
-                <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
+                <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 15px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">📊 Stage Benchmark Vergleich</h3>
                 
-                <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
-                    <label style="color: var(--success-color); font-weight: 700;" data-txt="modal-settings-deals">📈 Erfolgreiche Vermittlungen</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
-                            <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
-                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted); HTML" data-txt="modal-settings-seller">Als Verkäufer</p>
-                        </div>
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
-                            <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
-                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-buyer">Als Käufer</p>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
-                        <div><span data-txt="modal-settings-comm">💬 Kommunikation:</span> <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
-                        <div><span data-txt="modal-settings-pay">💳 Bezahlung:</span> <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
-                    </div>
-                </div>
+                <div id="stages-container"></div>
 
-                <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
-                    <label style="color: #3498db;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</label>
-                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
-                </div>
-
-                <form id="settings-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
-                        <input type="text" id="settings-username" data-txt-ph="ph-username" placeholder="z.B. IPSCShooter99">
-                    </div>
-                    
-                    <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 4px; border-left: 3px solid var(--success-color); margin-bottom: 20px;">
-                        <label style="color: var(--success-color); margin-bottom: 2px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
-                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-ipsc-alias-desc">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
-                        <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
-                    </div>
-
-                    <!-- Eingabefeld für den echten Klarnamen -->
-                    <div class="form-group" style="background-color: rgba(59, 130, 246, 0.04); padding: 12px; border-radius: 4px; border-left: 3px solid var(--info-color); margin-bottom: 20px;">
-                        <label style="color: var(--info-color); margin-bottom: 2px;" data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
-                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-real-name-desc">Trage hier deinen Klarnamen ein. Dieser Name wird niemals öffentlich auf der Seite gezeigt.</p>
-                        <input type="text" id="settings-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann">
-                    </div>
-
-                    <div class="form-group">
-                        <label data-txt="lbl-profile-pic">Profilbild (Optional)</label>
-                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
-                        <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
-                    </div>
-                    <div class="form-group">
-                        <label data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
-                        <input type="password" id="settings-password" minlength="6" data-txt-ph="ph-password" placeholder="Mindestens 6 Zeichen">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
-                </form>
-                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
-                <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
             </div>
         </div>
     </div>
 
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center; padding: 20px 0;">
-            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Hinweise</a>
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;">Impressum & Hinweise</a>
             <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
 
-    <!-- Globale Skripte laden -->
     <script src="auth.js"></script>
     <script src="lang.js"></script>
     <script src="app.js"></script>
 
-    <!-- Isolierte Ausführungspipeline -->
     <script>
+    let allUserStages = [];
+    let uniqueMatches = [];
+
     (function() {
         function startAnalyticsPipeline() {
             const client = window.supabaseClient || window.supabase;
-            if (client) {
-                initAnalytics(client);
-            } else {
-                let versucht = 0;
+            if (client) { initAnalytics(client); } 
+            else {
+                let attempts = 0;
                 const checkCtx = setInterval(() => {
-                    versucht++;
+                    attempts++;
                     const retryClient = window.supabaseClient || window.supabase;
                     if (retryClient) {
                         clearInterval(checkCtx);
                         initAnalytics(retryClient);
-                    } else if (versucht > 15) {
+                    } else if (attempts > 15) {
                         clearInterval(checkCtx);
-                        const loader = document.getElementById("analytics-loader");
-                        if (loader) loader.innerText = "❌ Supabase-Verbindung fehlgeschlagen. Variable prüfen!";
+                        document.getElementById("analytics-loader").innerText = "❌ Datenbank-Fehler.";
                     }
                 }, 200);
             }
         }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener("DOMContentLoaded", startAnalyticsPipeline);
-        } else {
-            startAnalyticsPipeline();
-        }
+        if (document.readyState === 'loading') { document.addEventListener("DOMContentLoaded", startAnalyticsPipeline); } 
+        else { startAnalyticsPipeline(); }
 
         async function initAnalytics(supabase) {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
                 if (!session) {
-                    const loader = document.getElementById("analytics-loader");
-                    if (loader) loader.innerText = "❌ Bitte logge dich ein, um deine Daten zu sehen.";
+                    document.getElementById("analytics-loader").innerText = "❌ Bitte logge dich ein.";
                     return;
                 }
 
@@ -353,85 +188,130 @@
                 if (error) throw error;
 
                 if (!stages || stages.length === 0) {
-                    const loader = document.getElementById("analytics-loader");
-                    const emptyState = document.getElementById("analytics-empty-state");
-                    if (loader) loader.style.display = "none";
-                    if (emptyState) emptyState.style.display = "block";
+                    document.getElementById("analytics-loader").style.display = "none";
+                    document.getElementById("analytics-empty-state").style.display = "block";
                     return;
                 }
 
-                const totalStages = stages.length;
-                const uniqueMatches = [...new Set(stages.map(s => s.match_id))].length;
+                allUserStages = stages;
                 
-                let sumHitFactor = 0, totalA = 0, totalC = 0, totalD = 0, totalM = 0;
-
-                stages.forEach(stage => {
-                    sumHitFactor += parseFloat(stage.hit_factor || 0);
-                    totalA += parseInt(stage.alphas || 0);
-                    totalC += parseInt(stage.charlies || 0);
-                    totalD += parseInt(stage.deltas || 0);
-                    totalM += parseInt(stage.misses || 0);
+                // Extrahiere einzigartige Matches
+                const matchMap = new Map();
+                stages.forEach(s => {
+                    if(!matchMap.has(s.match_id)) {
+                        matchMap.set(s.match_id, s.match_name);
+                    }
+                });
+                
+                uniqueMatches = Array.from(matchMap, ([id, name]) => ({ id, name }));
+                
+                // Fülle Dropdown
+                const selector = document.getElementById("match-selector");
+                selector.innerHTML = "";
+                uniqueMatches.forEach(m => {
+                    let opt = document.createElement("option");
+                    opt.value = m.id;
+                    opt.textContent = m.name;
+                    selector.appendChild(opt);
                 });
 
-                const avgHitFactor = (sumHitFactor / totalStages).toFixed(2);
-                const totalHits = totalA + totalC + totalD;
-
-                const aPerc = totalHits > 0 ? Math.round((totalA / totalHits) * 100) : 0;
-                const cPerc = totalHits > 0 ? Math.round((totalC / totalHits) * 100) : 0;
-                const dPerc = totalHits > 0 ? Math.round((totalD / totalHits) * 100) : 0;
-
-                const kpiMatches = document.getElementById("kpi-total-matches");
-                const kpiHf = document.getElementById("kpi-avg-hf");
-                if (kpiMatches) kpiMatches.innerText = uniqueMatches;
-                if (kpiHf) kpiHf.innerText = avgHitFactor;
+                document.getElementById("analytics-loader").style.display = "none";
+                document.getElementById("analytics-dashboard-content").style.display = "block";
                 
-                if (document.getElementById("count-alphas")) document.getElementById("count-alphas").innerText = totalA;
-                if (document.getElementById("count-charlies")) document.getElementById("count-charlies").innerText = totalC;
-                if (document.getElementById("count-deltas")) document.getElementById("count-deltas").innerText = totalD;
-                if (document.getElementById("count-misses")) document.getElementById("count-misses").innerText = totalM;
-
-                if (document.getElementById("analytics-alpha-badge")) document.getElementById("analytics-alpha-badge").innerText = `${aPerc}% Alphas`;
-                if (document.getElementById("bar-alphas")) document.getElementById("bar-alphas").style.width = `${aPerc}%`;
-                if (document.getElementById("bar-charlies")) document.getElementById("bar-charlies").style.width = `${cPerc}%`;
-                if (document.getElementById("bar-deltas")) document.getElementById("bar-deltas").style.width = `${dPerc}%`;
-
-                const chartContainer = document.getElementById("analytics-chart-container");
-                if (chartContainer) {
-                    chartContainer.innerHTML = '';
-                    const lastFive = stages.slice(-5);
-                    const maxHF = Math.max(...lastFive.map(s => s.hit_factor ? parseFloat(s.hit_factor) : 0.0), 1);
-
-                    lastFive.forEach((stage, i) => {
-                        const hf = stage.hit_factor ? parseFloat(stage.hit_factor) : 0.0;
-                        const hPerc = (hf / maxHF) * 100;
-                        
-                        let bColor = 'var(--info-color)'; 
-                        if (parseInt(stage.misses || 0) > 0) bColor = 'var(--danger-color)'; 
-                        else if (hPerc > 80) bColor = 'var(--success-color)'; 
-
-                        const sName = stage.stage_name || 'Stage';
-                        const shortName = sName.length > 7 ? sName.substring(0, 6) + '..' : sName;
-
-                        chartContainer.insertAdjacentHTML('beforeend', `
-                            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
-                                <span style="font-size: 11px; font-weight: 700; color: var(--text-color);">${hf.toFixed(2)}</span>
-                                <div style="width: 100%; height: ${hPerc}%; background: ${bColor}; border-radius: 4px 4px 0 0; min-height: 4px;"></div>
-                                <span style="font-size: 10px; color: var(--text-muted);">${shortName}</span>
-                            </div>
-                        `);
-                    });
-                }
-
-                if (document.getElementById("analytics-loader")) document.getElementById("analytics-loader").style.display = "none";
-                if (document.getElementById("analytics-dashboard-content")) document.getElementById("analytics-dashboard-content").style.display = "block";
+                renderSelectedMatch(); // Render das erste Match direkt
 
             } catch (err) {
                 console.error(err);
-                const loader = document.getElementById("analytics-loader");
-                if (loader) loader.innerText = "❌ Fehler beim Laden der echten Daten.";
+                document.getElementById("analytics-loader").innerText = "❌ Fehler beim Laden.";
             }
         }
     })();
+
+    // Hauptfunktion zum Rendern der Benchmark-Graphen
+    window.renderSelectedMatch = function() {
+        const matchId = document.getElementById("match-selector").value;
+        const matchStages = allUserStages.filter(s => s.match_id === matchId);
+        
+        let sumHf = 0, tA = 0, tC = 0, tD = 0, tM = 0;
+        let division = "Unbekannt";
+
+        // Sortiere Stages alphabetisch oder nach Zahl (falls Stage 1, Stage 2 etc.)
+        matchStages.sort((a,b) => a.stage_name.localeCompare(b.stage_name, undefined, {numeric: true, sensitivity: 'base'}));
+
+        const stagesHtml = matchStages.map(stage => {
+            const hf = stage.hit_factor ? parseFloat(stage.hit_factor) : 0;
+            const winHf = stage.winner_hit_factor ? parseFloat(stage.winner_hit_factor) : 0;
+            const rank = stage.stage_rank ? stage.stage_rank : "-";
+            if(stage.division && stage.division !== "Unknown") division = stage.division;
+
+            sumHf += hf;
+            tA += stage.alphas || 0;
+            tC += stage.charlies || 0;
+            tD += stage.deltas || 0;
+            tM += stage.misses || 0;
+
+            // Berechne Balken-Prozente (Sieger ist immer 100%, außer My HF ist höher durch Bug/Bonus)
+            let maxHf = Math.max(hf, winHf);
+            if(maxHf === 0) maxHf = 1; // Division by Zero abfangen
+            
+            let winPerc = (winHf / maxHf) * 100;
+            let myPerc = (hf / maxHf) * 100;
+            
+            let myColorClass = "bar-me";
+            if(myPerc >= 85) myColorClass += " high"; // Grün wenn sehr nah am Sieger
+
+            return `
+                <div class="stage-card">
+                    <div class="stage-header">
+                        <span class="stage-title">${stage.stage_name}</span>
+                        <span class="stage-rank">Platz ${rank}</span>
+                    </div>
+                    
+                    <div class="bar-container">
+                        <div class="bar-label"><span>Stage Sieger</span> <span>${winHf.toFixed(4)} HF</span></div>
+                        <div class="bar-track">
+                            <div class="bar-fill bar-winner" style="width: ${winPerc}%;">${winPerc > 10 ? '100%' : ''}</div>
+                        </div>
+                    </div>
+
+                    <div class="bar-container">
+                        <div class="bar-label"><span style="color: var(--text-color);">Mein Hit Factor</span> <span>${hf.toFixed(4)} HF</span></div>
+                        <div class="bar-track">
+                            <div class="bar-fill ${myColorClass}" style="width: ${myPerc}%;">${myPerc > 10 ? myPerc.toFixed(1) + '%' : ''}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; margin-top: 12px; font-size: 11px; color: var(--text-muted);">
+                        <span>⏱️ ${stage.stage_time ? parseFloat(stage.stage_time).toFixed(2) + 's' : '-'}</span>
+                        <span>🎯 A:${stage.alphas||0} C:${stage.charlies||0} D:${stage.deltas||0} M:${stage.misses||0}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        document.getElementById("stages-container").innerHTML = stagesHtml;
+
+        // KPI Update
+        const avgHf = matchStages.length > 0 ? (sumHf / matchStages.length).toFixed(2) : "0.00";
+        document.getElementById("kpi-avg-hf").innerText = avgHf;
+        document.getElementById("kpi-division").innerText = division;
+
+        // Präzisions-Balken Update
+        const totalHits = tA + tC + tD;
+        const aPerc = totalHits > 0 ? Math.round((tA / totalHits) * 100) : 0;
+        const cPerc = totalHits > 0 ? Math.round((tC / totalHits) * 100) : 0;
+        const dPerc = totalHits > 0 ? Math.round((tD / totalHits) * 100) : 0;
+
+        document.getElementById("count-alphas").innerText = tA;
+        document.getElementById("count-charlies").innerText = tC;
+        document.getElementById("count-deltas").innerText = tD;
+        document.getElementById("count-misses").innerText = tM;
+
+        document.getElementById("analytics-alpha-badge").innerText = `${aPerc}% Alphas`;
+        document.getElementById("bar-alphas").style.width = `${aPerc}%`;
+        document.getElementById("bar-charlies").style.width = `${cPerc}%`;
+        document.getElementById("bar-deltas").style.width = `${dPerc}%`;
+    }
     </script>
 </body>
 </html>
