@@ -83,49 +83,34 @@ def parse_and_save_row(shooter_id, real_name, match_id, match_name, stage_title,
     except:
         pass
 
-def load_pages_with_red_button():
-    print("🔍 Lade Startseite und suche den roten Button ('Ältere Veranstaltungen')...")
+def load_overview_pages():
+    print("🔍 Lade Startseite und Archivseite direkt über URL...")
     pages = []
-    try:
-        res = session.get(BASE_URL, headers=HEADERS, timeout=15)
-        soup = BeautifulSoup(res.text, 'html.parser')
-        pages.append(soup)
-        
-        # Sucht den roten Button (meistens in einem Formular)
-        red_button = soup.find(lambda tag: tag.name in ['input', 'button'] and 'ltere' in tag.get('value', tag.text))
-        
-        if red_button:
-            form = red_button.find_parent('form')
-            if form:
-                action = form.get('action', '')
-                method = form.get('method', 'get').lower()
-                target_url = urllib.parse.urljoin(BASE_URL, action)
-                
-                data = {inp.get('name'): inp.get('value', '') for inp in form.find_all(['input', 'button']) if inp.get('name')}
-                
-                print(f"🔘 Roter Button gefunden! Lade das Archiv...")
-                if method == 'post':
-                    arch_res = session.post(target_url, data=data, headers=HEADERS, timeout=15)
-                else:
-                    arch_res = session.get(target_url, params=data, headers=HEADERS, timeout=15)
-                    
-                pages.append(BeautifulSoup(arch_res.text, 'html.parser'))
-                print("✅ Archiv erfolgreich geladen!")
-        else:
-            print("⚠️ Konnte roten Button nicht finden. Scanne nur die Startseite.")
-    except Exception as e:
-        print(f"❌ Netzwerkfehler: {e}")
     
+    # Wir springen direkt auf die Startseite UND ins Archiv, ohne Buttons zu suchen
+    urls = [
+        "https://www.ipscmatch.de/",
+        "https://www.ipscmatch.de/index.pl?action=archiv"
+    ]
+    
+    for url in urls:
+        try:
+            res = session.get(url, headers=HEADERS, timeout=20)
+            if res.status_code == 200:
+                pages.append(BeautifulSoup(res.text, 'html.parser'))
+                print(f"✅ Seite erfolgreich geladen: {url}")
+        except Exception as e:
+            print(f"❌ Netzwerkfehler bei {url}: {e}")
+            
     return pages
 
 def scrape_verify_list():
     shooters = get_active_shooters()
     if not shooters: return
 
-    pages = load_pages_with_red_button()
+    pages = load_overview_pages()
     matches_found = {}
 
-    # Durchsucht beide Seiten (Startseite + Archivseite hinter dem roten Button)
     for soup in pages:
         for row in soup.find_all('tr'):
             tds = row.find_all('td')
@@ -161,7 +146,6 @@ def scrape_verify_list():
         m_name = data["name"]
         row_links = data["links"]
         
-        # Falls der Verein keine extra Links "hinten" hat, probieren wir die Standard-Pfade
         links_to_check = row_links if row_links else [
             f"https://www.ipscmatch.de/matches/{m_id}/verify.html",
             f"https://www.ipscmatch.de/matches/{m_id}/overall.html"
@@ -169,7 +153,7 @@ def scrape_verify_list():
         
         for url in links_to_check:
             if '.pdf' in url.lower():
-                print(f"   📄 PDF-Datei gefunden für {m_name} (wird übersprungen, da nicht als HTML lesbar)")
+                print(f"   📄 PDF gefunden für {m_name} (wird übersprungen)")
                 continue
                 
             try:
