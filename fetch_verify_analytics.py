@@ -25,18 +25,23 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 session = requests.Session()
-retry = Retry(total=3, backoff_factor=2, status_forcelist=[500, 502, 503, 504])
+# Bot ist jetzt hartnäckiger: 5 Versuche, längere Wartezeit dazwischen
+retry = Retry(total=5, backoff_factor=3, status_forcelist=[403, 429, 500, 502, 503, 504])
 adapter = HTTPAdapter(max_retries=retry)
 session.mount('http://', adapter)
 session.mount('https://', adapter)
 
 BASE_URL = "https://www.ipscmatch.de/"
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-}
-TIMEOUT_SECONDS = 10
 
-# Bekannte IPSC Divisionen für die automatische Erkennung
+# 🛡️ Die neue Tarnkappe: Wir tun so, als wären wir ein echter Google Chrome Browser
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+    "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Connection": "keep-alive"
+}
+TIMEOUT_SECONDS = 30 # Erhöht, falls der Server wieder trödelt
+
 KNOWN_DIVISIONS = ["Production Optics", "Optics", "Production", "Standard", "Open", "Classic", "Revolver", "PCC", "Modified"]
 
 def clean_variants(name_part):
@@ -76,13 +81,17 @@ def extract_float(text):
         return 0.0
 
 def load_master_page():
-    print("🔍 Lade Gesamtliste...")
+    print("🔍 Verbinde mit IPSC-Server und lade Gesamtliste...")
     url = "https://www.ipscmatch.de/index.pl?long=1"
     try:
         res = session.get(url, headers=HEADERS, timeout=TIMEOUT_SECONDS)
-        if res.status_code == 200: return BeautifulSoup(res.text, 'html.parser')
-    except Exception:
-        pass
+        if res.status_code == 200: 
+            print("✅ Hauptseite erfolgreich geladen!")
+            return BeautifulSoup(res.text, 'html.parser')
+        else:
+            print(f"❌ Server hat uns geblockt! HTTP-Status: {res.status_code}")
+    except Exception as e:
+        print(f"❌ Netzwerkfehler beim Laden der Liste: {e}")
     return None
 
 def scrape_verify_list():
@@ -90,7 +99,9 @@ def scrape_verify_list():
     if not shooters: return
 
     soup = load_master_page()
-    if not soup: return
+    if not soup: 
+        print("⚠️ Abbruch: Ohne Hauptseite können wir keine Turniere scannen.")
+        return
 
     matches_found = []
 
@@ -119,7 +130,6 @@ def scrape_verify_list():
                         if any(bad in l_text for bad in ['urkunden', 'team', 'category', 'region']): continue
                         if any(bad in l_href for bad in ['urkunden', 'team', 'category', 'region']): continue
                         
-                        # Wir suchen jetzt auch explizit nach "stage" Ergebnissen!
                         if any(good in l_href or good in l_text for good in ["results", "verify", ".pdf", "ergebnis", "overall", "stage"]):
                             result_links.append(urllib.parse.urljoin(BASE_URL, a['href']))
                     
@@ -141,7 +151,7 @@ def scrape_verify_list():
             visited_urls.add(url)
             
             print(f"   🔗 Scanne: {url}")
-            time.sleep(0.1)
+            time.sleep(0.5) # Etwas langsamer machen, damit wir nicht wieder geblockt werden
             
             try:
                 res = session.get(url, headers=HEADERS, timeout=TIMEOUT_SECONDS)
@@ -157,7 +167,6 @@ def scrape_verify_list():
                         page_text = page.extract_text()
                         if not page_text: continue
                         for line in page_text.split('\n'):
-                            # Versuche Division aus PDF-Header zu lesen
                             for div in KNOWN_DIVISIONS:
                                 if div.upper() in line.upper():
                                     current_div_pdf = div
@@ -183,7 +192,6 @@ def scrape_verify_list():
                 elif 'text/html' in content_type:
                     sub_soup = BeautifulSoup(res.text, 'html.parser')
                     
-                    # Links sammeln
                     for a in sub_soup.find_all('a', href=True):
                         h_low = a['href'].lower()
                         t_low = a.text.lower()
@@ -193,7 +201,6 @@ def scrape_verify_list():
                             if new_url not in visited_urls and new_url not in links_queue:
                                 links_queue.append(new_url)
                                 
-                    # --- SMART HTML PARSER ---
                     current_division = "Unknown"
                     current_stage_title = "Stage"
                     current_winner_hf = 0.0
@@ -202,7 +209,6 @@ def scrape_verify_list():
                     for el in sub_soup.find_all(['h1', 'h2', 'h3', 'h4', 'tr']):
                         text = el.get_text().strip()
                         
-                        # 1. Überschriften scannen (Division & Stage erkennen)
                         if el.name in ['h1', 'h2', 'h3', 'h4']:
                             for div in KNOWN_DIVISIONS:
                                 if div.lower() in text.lower():
@@ -210,15 +216,13 @@ def scrape_verify_list():
                                     break
                             if "stage" in text.lower():
                                 current_stage_title = text
-                                current_winner_hf = 0.0 # Reset für neue Stage
+                                current_winner_hf = 0.0
                             continue
                             
-                        # 2. Tabellen-Zeilen (tr) scannen
                         if el.name == 'tr':
                             cells = el.find_all(['td', 'th'])
                             if not cells: continue
                             
-                            # Manchmal steht die Division in einer breiten Tabellenzeile
                             if len(cells) == 1:
                                 for div in KNOWN_DIVISIONS:
                                     if div.lower() in cells[0].get_text().lower():
@@ -229,25 +233,19 @@ def scrape_verify_list():
                                 
                             if len(cells) < 7: continue
                             
-                            # Werte auslesen
                             row_text = el.get_text()
                             rank_str = cells[0].get_text().strip().replace('.', '')
                             
-                            # HFs finden (unterschiedliche Spalten je nach HTML)
                             hf = 0.0
                             if len(cells) >= 11: hf = extract_float(cells[10].text)
                             elif len(cells) >= 8: hf = extract_float(cells[8].text) if cells[8].text else extract_float(cells[7].text)
 
-                            # Wenn es Platz 1 ist, merke dir den Sieger-Hit-Factor!
                             if rank_str == '1' or rank_str == '100,00':
                                 if hf > 0: current_winner_hf = hf
 
-                            # Wenn wir den Schützen finden -> Speichern!
                             for shooter in shooters:
                                 if name_matches(shooter["real_name"], row_text):
                                     stage_name_to_save = cells[2].text.strip() if is_verify else current_stage_title
-                                    
-                                    # Fallback für Rank, wenn leer
                                     rank_val = int(rank_str) if rank_str.isdigit() else 0
                                     
                                     payload = {
@@ -259,7 +257,6 @@ def scrape_verify_list():
                                         "winner_hit_factor": current_winner_hf
                                     }
                                     
-                                    # Optionale Details speichern
                                     try:
                                         if len(cells) >= 11:
                                             payload["alphas"] = int(cells[4].text.strip())
