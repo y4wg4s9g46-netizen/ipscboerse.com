@@ -83,69 +83,62 @@ def parse_and_save_row(shooter_id, real_name, match_id, match_name, stage_title,
     except:
         pass
 
-def load_overview_pages():
-    print("🔍 Lade Startseite und Archivseite direkt über URL...")
-    pages = []
-    
-    # Wir springen direkt auf die Startseite UND ins Archiv, ohne Buttons zu suchen
-    urls = [
-        "https://www.ipscmatch.de/",
-        "https://www.ipscmatch.de/index.pl?action=archiv"
-    ]
-    
-    for url in urls:
-        try:
-            res = session.get(url, headers=HEADERS, timeout=20)
-            if res.status_code == 200:
-                pages.append(BeautifulSoup(res.text, 'html.parser'))
-                print(f"✅ Seite erfolgreich geladen: {url}")
-        except Exception as e:
-            print(f"❌ Netzwerkfehler bei {url}: {e}")
-            
-    return pages
+def load_master_page():
+    print("🔍 Lade die magische Gesamtliste (long=1)...")
+    url = "https://www.ipscmatch.de/index.pl?long=1"
+    try:
+        res = session.get(url, headers=HEADERS, timeout=20)
+        if res.status_code == 200:
+            print("✅ Gesamtliste erfolgreich geladen!")
+            return BeautifulSoup(res.text, 'html.parser')
+    except Exception as e:
+        print(f"❌ Netzwerkfehler bei Gesamtliste: {e}")
+    return None
 
 def scrape_verify_list():
     shooters = get_active_shooters()
     if not shooters: return
 
-    pages = load_overview_pages()
+    soup = load_master_page()
+    if not soup: return
+
     matches_found = {}
 
-    for soup in pages:
-        for row in soup.find_all('tr'):
-            tds = row.find_all('td')
-            if len(tds) >= 4:
-                text = row.get_text()
-                # Nur relevante Jahre scannen
-                if any(y in text for y in ['2023', '2024', '2025', '2026', '2027']):
-                    match_link = tds[3].find('a')
-                    if match_link:
-                        m_name = match_link.text.strip()
-                        href = match_link.get('href', '')
-                        m_id = None
+    for row in soup.find_all('tr'):
+        tds = row.find_all('td')
+        if len(tds) >= 4:
+            text = row.get_text()
+            # Nur relevante Jahre ab 2023 scannen
+            if any(y in text for y in ['2023', '2024', '2025', '2026', '2027']):
+                match_link = tds[3].find('a')
+                if match_link:
+                    m_name = match_link.text.strip()
+                    href = match_link.get('href', '')
+                    m_id = None
+                    
+                    if "match=" in href:
+                        qs = urllib.parse.parse_qs(urllib.parse.urlparse(href).query)
+                        if 'match' in qs: m_id = qs['match'][0]
+                    elif "/matches/" in href:
+                        m_id = href.split("/matches/")[-1].split("/")[0].split("?")[0]
                         
-                        if "match=" in href:
-                            qs = urllib.parse.parse_qs(urllib.parse.urlparse(href).query)
-                            if 'match' in qs: m_id = qs['match'][0]
-                        elif "/matches/" in href:
-                            m_id = href.split("/matches/")[-1].split("/")[0].split("?")[0]
-                            
-                        if m_id and m_id not in matches_found:
-                            # Krallt sich alle Links "hinten" in der Spalte
-                            result_links = []
-                            for a in row.find_all('a', href=True):
-                                l_href = a['href'].lower()
-                                if "/matches/" in l_href and "match=" not in l_href:
-                                    result_links.append(urllib.parse.urljoin(BASE_URL, a['href']))
-                            
-                            matches_found[m_id] = {"name": m_name, "links": result_links}
+                    if m_id and m_id not in matches_found:
+                        result_links = []
+                        # Sammelt alle Links, die ganz hinten in der Spalte für Ergebnisse stehen
+                        for a in row.find_all('a', href=True):
+                            l_href = a['href'].lower()
+                            if "/matches/" in l_href and "match=" not in l_href:
+                                result_links.append(urllib.parse.urljoin(BASE_URL, a['href']))
+                        
+                        matches_found[m_id] = {"name": m_name, "links": result_links}
 
-    print(f"📋 {len(matches_found)} Turniere gefunden. Analysiere Ergebnis-Links...")
+    print(f"📋 {len(matches_found)} Turniere seit 2023 gefunden. Analysiere Ergebnis-Links...")
 
     for m_id, data in matches_found.items():
         m_name = data["name"]
         row_links = data["links"]
         
+        # Falls die Seite keine Links in der Spalte hat, probieren wir unsere Standard-Pfade
         links_to_check = row_links if row_links else [
             f"https://www.ipscmatch.de/matches/{m_id}/verify.html",
             f"https://www.ipscmatch.de/matches/{m_id}/overall.html"
