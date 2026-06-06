@@ -94,14 +94,6 @@
                 <h2 style="font-size: 22px; font-weight: 800; margin: 0;">🏆 Analytics Pro</h2>
                 <button class="btn-small" style="font-size: 12px; padding: 6px 12px; background: rgba(59, 130, 246, 0.1); color: var(--info-color); border-color: var(--info-color);">👥 Buddy Radar</button>
             </div>
-
-            <!-- NEUE INFO-BOX WIE IM BILD -->
-            <div style="background: var(--bg-color); border-left: 4px solid var(--accent-color); border-radius: 4px 8px 8px 4px; padding: 15px; margin-bottom: 20px; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
-                <h4 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 800; color: var(--text-color);">📧 A, C, D automatisch eintragen</h4>
-                <p style="margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-                    Ergebnisse und Hitfaktor werden automatisch geladen. Wer auch <strong>A, C, D und Misses</strong> automatisch drin haben will, leitet seine PractiScore-Mails nach dem Match einfach an <strong style="color: var(--text-color);">info@ipscboerse.com</strong> weiter!
-                </p>
-            </div>
             
             <p id="analytics-loader" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Lade Profi-Datenbank...</p>
 
@@ -113,6 +105,14 @@
 
             <div id="analytics-dashboard-content" style="display: none;">
                 
+                <!-- Info-Box direkt im Dashboard verankert -->
+                <div style="background: var(--bg-color); border-left: 4px solid var(--accent-color); border-radius: 4px 8px 8px 4px; padding: 15px; margin-bottom: 20px; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                    <h4 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 800; color: var(--text-color);">📧 A, C, D automatisch eintragen</h4>
+                    <p style="margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+                        Ergebnisse und Hitfaktor werden automatisch geladen. Wer auch <strong>A, C, D und Misses</strong> automatisch drin haben will, leitet seine PractiScore-Mails nach dem Match einfach an <strong style="color: var(--text-color);">info@ipscboerse.com</strong> weiter!
+                    </p>
+                </div>
+
                 <div class="select-wrapper">
                     <select id="match-selector" onchange="renderSelectedMatch()"></select>
                 </div>
@@ -159,7 +159,7 @@
         </div>
     </div>
 
-    <!-- Das neue Hit-Editor Modal mit Smart Paste -->
+    <!-- Das Hit-Editor Modal mit Smart Paste -->
     <div id="hit-editor-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-top: 0; margin-bottom: 5px; color: var(--text-color);">✏️ Treffer eintragen</h3>
@@ -217,8 +217,10 @@
 
     <script>
     let allUserStages = [];
+    let allSquadStages = []; 
     let uniqueMatches = [];
     let currentEditStage = null;
+    let selectedBuddyId = null; 
 
     (function() {
         function startAnalyticsPipeline() {
@@ -282,8 +284,17 @@
                     selector.appendChild(opt);
                 });
 
+                const { data: profiles } = await supabase.from('profiles').select('id, real_name');
+                window.buddyProfiles = profiles || [];
+
                 document.getElementById("analytics-loader").style.display = "none";
                 document.getElementById("analytics-dashboard-content").style.display = "block";
+                
+                const buddyBtn = document.querySelector(".btn-small");
+                if (buddyBtn) {
+                    buddyBtn.setAttribute("onclick", "toggleBuddyRadar()");
+                }
+
                 renderSelectedMatch();
             } catch (err) {
                 console.error(err);
@@ -291,6 +302,65 @@
             }
         }
     })();
+
+    window.toggleBuddyRadar = async function() {
+        let buddyRow = document.getElementById("buddy-selector-row");
+        if (buddyRow) {
+            buddyRow.remove();
+            selectedBuddyId = null;
+            allSquadStages = [];
+            renderSelectedMatch();
+            return;
+        }
+
+        const matchId = document.getElementById("match-selector").value;
+        const client = window.supabaseClient || window.supabase;
+        
+        const { data: matchGroup } = await client
+            .from('user_match_analytics')
+            .select('user_id')
+            .eq('match_id', matchId);
+
+        if (!matchGroup) return;
+
+        const currentUserId = (await client.auth.getSession()).data.session?.user.id;
+        const uniqueUserIds = [...new Set(matchGroup.map(g => g.user_id))].filter(id => id !== currentUserId);
+
+        let selectHtml = `<div id="buddy-selector-row" class="select-wrapper" style="margin-top: -10px; margin-bottom: 20px;">
+            <select id="buddy-selector" onchange="selectBuddy(this.value)">
+                <option value="">-- Wähle einen Buddy zum Vergleich --</option>`;
+        
+        uniqueUserIds.forEach(id => {
+            const profile = (window.buddyProfiles || []).find(p => p.id === id);
+            const name = profile ? profile.real_name : "Anonymer Schütze";
+            selectHtml += `<option value="${id}">${name}</option>`;
+        });
+        selectHtml += `</select></div>`;
+
+        document.getElementById("match-selector").parentElement.insertAdjacentHTML('afterend', selectHtml);
+    };
+
+    window.selectBuddy = async function(buddyId) {
+        if (!buddyId) {
+            selectedBuddyId = null;
+            allSquadStages = [];
+            renderSelectedMatch();
+            return;
+        }
+
+        selectedBuddyId = buddyId;
+        const matchId = document.getElementById("match-selector").value;
+        const client = window.supabaseClient || window.supabase;
+
+        const { data: buddyStages } = await client
+            .from('user_match_analytics')
+            .select('*')
+            .eq('match_id', matchId)
+            .eq('user_id', buddyId);
+
+        allSquadStages = buddyStages || [];
+        renderSelectedMatch();
+    };
 
     window.renderSelectedMatch = function() {
         const matchId = document.getElementById("match-selector").value;
@@ -321,11 +391,16 @@
             tD += stage.deltas || 0;
             tM += stage.misses || 0;
 
-            let maxHf = Math.max(hf, winHf);
+            const buddyStage = allSquadStages.find(bs => bs.stage_name === stage.stage_name);
+            const buddyHf = buddyStage ? parseFloat(buddyStage.hit_factor) : 0;
+
+            let maxHf = Math.max(hf, winHf, buddyHf);
             if(maxHf === 0) maxHf = 1; 
             
             let winPerc = (winHf / maxHf) * 100;
             let myPerc = (hf / maxHf) * 100;
+            let buddyPerc = (buddyHf / maxHf) * 100;
+
             if (!isOverall) stagePercents.push(myPerc);
             
             let myColorClass = "bar-me";
@@ -351,6 +426,17 @@
                 }
             }
 
+            let buddyBarHtml = "";
+            if (selectedBuddyId && buddyStage) {
+                buddyBarHtml = `
+                    <div class="bar-container" style="margin-top: 4px;">
+                        <div class="bar-label"><span>Mein Buddy</span> <span>${buddyHf.toFixed(4)} HF</span></div>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="width: ${buddyPerc}%; background: var(--info-color);">${buddyPerc > 10 ? buddyPerc.toFixed(1) + '%' : ''}</div>
+                        </div>
+                    </div>`;
+            }
+
             return `
                 <div class="stage-card">
                     <div class="stage-header">
@@ -372,6 +458,7 @@
                         </div>
                     </div>
                     
+                    ${buddyBarHtml}
                     ${insightHtml}
 
                     <div style="display: flex; gap: 15px; margin-top: 15px; font-size: 11px; color: var(--text-muted); flex-wrap: wrap; align-items: center;">
@@ -443,7 +530,6 @@
         currentEditStage = null;
     }
 
-    // Smart Paste Parser
     document.getElementById('smart-paste-area').addEventListener('input', function(e) {
         let text = e.target.value;
         if (!text || text.trim() === '') return;
@@ -451,7 +537,6 @@
         let cleanText = text.replace(/[\r\n\t]+/g, ' ');
         let a = 0, c = 0, d = 0, m = 0, success = false;
 
-        // Suche nach "A C D" und schnappe die 3 Zahlen danach
         let idxACD = cleanText.search(/A\s+C\s+D/i);
         if (idxACD !== -1) {
             let nums = cleanText.substring(idxACD + 5).match(/\b\d+\b/g);
@@ -461,7 +546,6 @@
             }
         }
 
-        // Suche nach "Miss" und schnappe die 1 Zahl danach
         let idxMiss = cleanText.search(/Miss/i);
         if (idxMiss !== -1) {
             let nums = cleanText.substring(idxMiss + 4).match(/\b\d+\b/g);
@@ -508,7 +592,7 @@
             currentEditStage.misses = m;
             
             closeHitEditor();
-            renderSelectedMatch(); // Frontend lädt die Präzisionsbalken direkt neu!
+            renderSelectedMatch(); 
         } catch (err) {
             console.error(err);
             alert("Fehler beim Speichern in der Datenbank!");
