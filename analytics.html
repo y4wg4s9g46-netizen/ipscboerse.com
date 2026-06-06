@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistiken | IPSC Startplatz-Börse</title>
     
-    <!-- AUTOMATISCHER FEHLERSUCHER: Zeigt Abstürze direkt auf dem Display an -->
+    <!-- AUTOMATISCHER FEHLERSUCHER -->
     <script>
         window.onerror = function(msg, url, line) {
             alert("⚠️ JavaScript-Fehler gefunden:\n\nFehler: " + msg + "\nZeile: " + line + "\nDatei: " + url);
@@ -67,16 +67,14 @@
         .modal-content input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); }
         .modal-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px; }
         .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
-        .modal-divider:not(:empty)::before { margin-right: .75em; }
-        .modal-divider:not(:empty)::after { margin-left: .75em; }
         
-        /* Deine originalen Button-Klassen aus dem Backup */
         .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; }
         .btn-primary-auth:hover { opacity: 0.9; }
         .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
         .btn-secondary-auth:hover { background-color: var(--border-color); }
-        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 30px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 10px; box-shadow: var(--shadow-sm); width: 100%; }
-        .btn-submit:hover { opacity: 0.9; }
+        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 30px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 10px; box-shadow: var(--shadow-sm); }
+        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
+        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
 
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
@@ -157,7 +155,7 @@
         </div>
     </div>
 
-    <!-- GLOBALER AUTH-MODAL CONTAINER -->
+    <!-- MODAL BEREICH (100% EXAKT GESPIEGELT VON INDEX.HTML) -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -220,33 +218,78 @@
                 </form>
             </div>
 
-            <!-- KONTO EINSTELLUNGEN (Sicher korrigiert für dein Skript) -->
+            <div id="modal-reset-view" style="display: none;">
+                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
+                <form id="reset-password-form">
+                    <div class="form-group">
+                        <label data-txt="lbl-new-password">Neues Passwort *</label>
+                        <input type="password" id="reset-password-input" required minlength="6" placeholder="Mindestens 6 Zeichen">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Speichern</button>
+                </form>
+            </div>
+
+            <!-- EINSTELLUNGS-MODAL (KOMPLETT GESPIEGELT AUS INDEX.HTML) -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
+                
+                <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <label style="color: var(--success-color); font-weight: 700;" data-txt="modal-settings-deals">📈 Erfolgreiche Vermittlungen</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted); HTML" data-txt="modal-settings-seller">Als Verkäufer</p>
+                        </div>
+                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
+                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-buyer">Als Käufer</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
+                        <div><span data-txt="modal-settings-comm">💬 Kommunikation:</span> <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
+                        <div><span data-txt="modal-settings-pay">💳 Bezahlung:</span> <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
+                    <label style="color: #3498db;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</label>
+                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
+                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
+                </div>
+
                 <form id="settings-form">
                     <div class="form-group">
                         <label data-txt="lbl-username">Schützenname / Anzeigename</label>
-                        <input type="text" id="settings-username" data-txt-ph="ph-username" placeholder="z.B. Fabi">
+                        <input type="text" id="settings-username" data-txt-ph="ph-username" placeholder="z.B. IPSCShooter99">
                     </div>
-                    <div class="form-group">
-                        <label data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
-                        <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234">
+                    
+                    <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 4px; border-left: 3px solid var(--success-color); margin-bottom: 20px;">
+                        <label style="color: var(--success-color); margin-bottom: 2px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
+                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-ipsc-alias-desc">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
+                        <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
+                    </div>
+
+                    <!-- Eingabefeld für den echten Klarnamen -->
+                    <div class="form-group" style="background-color: rgba(59, 130, 246, 0.04); padding: 12px; border-radius: 4px; border-left: 3px solid var(--info-color); margin-bottom: 20px;">
+                        <label style="color: var(--info-color); margin-bottom: 2px;" data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
+                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-real-name-desc">Trage hier deinen Klarnamen ein. Dieser Name wird niemals öffentlich auf der Seite gezeigt.</p>
+                        <input type="text" id="settings-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann">
                     </div>
 
                     <div class="form-group">
-                        <label data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
-                        <input type="text" id="settings-real-name" data-txt-ph="ph-real-name" placeholder="Vorname Nachname (z.B. Fabian Schöps)">
+                        <label data-txt="lbl-profile-pic">Profilbild (Optional)</label>
+                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
+                        <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
                     </div>
-
-                    <!-- Das vom Skript gesuchte Passwort-Feld, um den "null"-Absturz zu verhindern -->
                     <div class="form-group">
-                        <label>Neues Passwort (optional)</label>
-                        <input type="password" id="settings-password" placeholder="••••••••">
+                        <label data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
+                        <input type="password" id="settings-password" minlength="6" data-txt-ph="ph-password" placeholder="Mindestens 6 Zeichen">
                     </div>
-
-                    <!-- Button angepasst auf dein originales Klassendesign -->
-                    <button type="submit" class="btn-submit" data-txt="btn-save">Speichern</button>
+                    <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
                 </form>
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
+                <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
             </div>
         </div>
     </div>
