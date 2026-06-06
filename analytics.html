@@ -24,6 +24,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
+        /* Modernes Variablen-System für Hell- und Dunkelmodus */
         :root, html[data-theme="light"] {
             --bg-color: #f8f9fa;
             --card-bg: #ffffff;
@@ -31,7 +32,7 @@
             --text-muted: #64748b;
             --border-color: #e2e8f0;
             --input-bg: #ffffff;
-            --accent-color: #ff9f43;
+            --accent-color: #ff9f43; /* IPSC Orange */
             --danger-color: #ef4444;
             --success-color: #10b981;
             --info-color: #3b82f6;
@@ -55,6 +56,31 @@
         header { background-color: var(--card-bg); padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
         .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
         
+        /* --- Modals CSS (Wichtig für Pop-ups) --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease-out; padding: 20px; box-sizing: border-box; }
+        .modal-content { background-color: var(--card-bg); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative; margin: auto; }
+        .modal-content h3 { color: var(--text-color); margin-top: 0; margin-bottom: 24px; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; padding-right: 30px; }
+        .modal-close-container { position: absolute; top: 20px; right: 20px; z-index: 1010; }
+        .modal-close-trigger { background: transparent; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; padding: 4px; line-height: 1; transition: color 0.15s; }
+        .modal-close-trigger:hover { color: var(--text-color); }
+        .modal-content .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
+        .modal-content label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .modal-content input { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px 14px; border-radius: var(--radius); font-size: 14px; transition: all 0.15s ease; box-shadow: var(--shadow-sm); }
+        .modal-content input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); }
+        .modal-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
+        .modal-divider:not(:empty)::before { margin-right: .75em; }
+        .modal-divider:not(:empty)::after { margin-left: .75em; }
+        .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; }
+        .btn-primary-auth:hover { opacity: 0.9; }
+        .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
+        .btn-secondary-auth:hover { background-color: var(--border-color); }
+        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 30px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 10px; box-shadow: var(--shadow-sm); }
+        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
+        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
         @media (max-width: 768px) {
             .container { padding: 0 10px !important; margin-top: 15px !important; }
         }
@@ -75,7 +101,7 @@
                 Prüfe Verbindung zur Datenbank...
             </p>
 
-            <!-- ERKLÄRENDER LEERZUSTAND (Ohne das Wort Scraper) -->
+            <!-- ERKLÄRENDER LEERZUSTAND -->
             <div id="analytics-empty-state" style="display: none; background: rgba(255,159,67,0.05); border: 1px dashed var(--accent-color); padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
                 <span style="font-size: 24px;">ℹ️</span>
                 <h4 style="margin: 10px 0 8px 0; font-weight: 700;">Noch keine Match-Daten zugeordnet</h4>
@@ -98,7 +124,7 @@
                     </div>
                     <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; text-align: center;">
                         <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;" data-txt="analytics-kpi-avg-hf">Ø Hit Factor</div>
-                        <div id="kpi-avg-hf" style="font-size: 26px; font-weight: 900; color: var(--info-color); margin-top: 4px;">0.00</div>
+                        <div id="kpi-avg-hf" style="font-size: 26px; font-weight: 900; color: #3182ce; margin-top: 4px;">0.00</div>
                     </div>
                 </div>
 
@@ -132,6 +158,94 @@
         </div>
     </div>
 
+    <!-- GLOBALER AUTH-MODAL CONTAINER (DAS FEHLENDE GLIED) -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <div class="modal-close-container">
+                <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
+            </div>
+            
+            <div id="modal-login-view">
+                <h3 data-txt="modal-login-title">Anmelden</h3>
+                <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
+                    <span>📱</span> Login mit FaceID / Fingerabdruck
+                </button>
+                <div class="modal-divider">oder klassisch mit E-Mail</div>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label data-txt="lbl-email">E-Mail *</label>
+                        <input type="email" id="login-email" required placeholder="name@beispiel.de">
+                    </div>
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="margin-bottom: 0;">Passwort *</label>
+                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
+                        </div>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
+                </form>
+                <div class="modal-footer">
+                    <span data-txt="modal-no-acc">Noch kein Konto?</span>
+                    <a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a>
+                </div>
+            </div>
+
+            <div id="modal-register-view" style="display: none;">
+                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label data-txt="lbl-email">E-Mail *</label>
+                        <input type="email" id="register-email" required placeholder="name@beispiel.de">
+                    </div>
+                    <div class="form-group">
+                        <label>Passwort *</label>
+                        <input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-reg">Konto erstellen</button>
+                </form>
+                <div class="modal-footer">
+                    <span data-txt="modal-has-acc">Bereits registriert?</span>
+                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a>
+                </div>
+            </div>
+
+            <div id="modal-forgot-view" style="display: none;">
+                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
+                <form id="forgot-form">
+                    <div class="form-group">
+                        <label data-txt="lbl-email">Deine E-Mail-Adresse *</label>
+                        <input type="email" id="forgot-email" required placeholder="name@beispiel.de">
+                    </div>
+                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
+                </form>
+            </div>
+
+            <div id="modal-settings-view" style="display: none;">
+                <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
+                        <input type="text" id="settings-username" data-txt-ph="ph-username" placeholder="z.B. IPSCShooter99">
+                    </div>
+                    <div class="form-group">
+                        <label data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
+                        <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234">
+                    </div>
+
+                    <!-- DSGVO-sicheres Eingabefeld für den echten Klarnamen -->
+                    <div class="form-group" style="background-color: rgba(59, 130, 246, 0.04); padding: 12px; border-radius: 4px; border-left: 3px solid var(--info-color); margin-bottom: 20px;">
+                        <label style="color: var(--info-color); margin-bottom: 2px;" data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
+                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-real-name-desc">Trage hier deinen Klarnamen ein. Dieser Name wird niemals öffentlich auf der Seite gezeigt.</p>
+                        <input type="text" id="settings-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann">
+                    </div>
+
+                    <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center; padding: 20px 0;">
             <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Hinweise</a>
@@ -139,7 +253,7 @@
         </div>
     </footer>
 
-    <!-- Globale Skripte laden -->
+    <!-- Globale Skripte laden[span_3](start_span)[span_3](end_span) -->
     <script src="auth.js"></script>
     <script src="lang.js"></script>
     <script src="app.js"></script>
