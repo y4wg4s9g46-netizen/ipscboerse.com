@@ -242,15 +242,24 @@
             const hf = stage.hit_factor ? parseFloat(stage.hit_factor) : 0;
             const winHf = stage.winner_hit_factor ? parseFloat(stage.winner_hit_factor) : 0;
             const rank = stage.stage_rank ? stage.stage_rank : "-";
+            const time = stage.stage_time ? parseFloat(stage.stage_time) : 0;
+            
+            // 🎯 NEU: Nimm die echten PTS aus der Datenbank! Fallback: HF * Time
+            const stagePoints = stage.pts ? parseFloat(stage.pts).toFixed(4) : (hf * time).toFixed(4);
+
             if(stage.division && stage.division !== "Unknown") division = stage.division;
 
-            sumHf += hf;
+            // Verhindere, dass Overall % den Durchschnitts-HF kaputt macht
+            if (!stage.stage_name.includes("Overall Match Results")) {
+                sumHf += hf;
+            }
+
             tA += stage.alphas || 0;
             tC += stage.charlies || 0;
             tD += stage.deltas || 0;
             tM += stage.misses || 0;
 
-            // Berechne Balken-Prozente (Sieger ist immer 100%, außer My HF ist höher durch Bug/Bonus)
+            // Berechne Balken-Prozente
             let maxHf = Math.max(hf, winHf);
             if(maxHf === 0) maxHf = 1; // Division by Zero abfangen
             
@@ -281,8 +290,9 @@
                         </div>
                     </div>
                     
-                    <div style="display: flex; gap: 15px; margin-top: 12px; font-size: 11px; color: var(--text-muted);">
-                        <span>⏱️ ${stage.stage_time ? parseFloat(stage.stage_time).toFixed(2) + 's' : '-'}</span>
+                    <div style="display: flex; gap: 15px; margin-top: 12px; font-size: 11px; color: var(--text-muted); flex-wrap: wrap;">
+                        <span>⏱️ ${time > 0 ? time.toFixed(2) + 's' : '-'}</span>
+                        <span style="font-weight: 600; color: var(--text-color);">💯 ${stagePoints} PTS</span>
                         <span>🎯 A:${stage.alphas||0} C:${stage.charlies||0} D:${stage.deltas||0} M:${stage.misses||0}</span>
                     </div>
                 </div>
@@ -291,8 +301,9 @@
 
         document.getElementById("stages-container").innerHTML = stagesHtml;
 
-        // KPI Update
-        const avgHf = matchStages.length > 0 ? (sumHf / matchStages.length).toFixed(2) : "0.00";
+        // KPI Update - Filtere die Overall-Prozente aus dem Durchschnitts-HF raus!
+        const realStages = matchStages.filter(s => !s.stage_name.includes("Overall Match Results"));
+        const avgHf = realStages.length > 0 ? (sumHf / realStages.length).toFixed(2) : "0.00";
         document.getElementById("kpi-avg-hf").innerText = avgHf;
         document.getElementById("kpi-division").innerText = division;
 
