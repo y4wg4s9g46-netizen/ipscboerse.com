@@ -11,7 +11,7 @@
     {
         "name": "Summer Cup Guyane 2026",
         "datum": "14.06.2026",
-        "auslastung": "37%",
+        "auslastung": "42%",
         "region": "FRA",
         "level": "2",
         "disziplin": "HG",
@@ -56,7 +56,7 @@
     {
         "name": "Siegerland Challenge part I",
         "datum": "26.07.2026",
-        "auslastung": "98%",
+        "auslastung": "86%",
         "region": "GER",
         "level": "2",
         "disziplin": "HG",
@@ -110,7 +110,7 @@
     {
         "name": "Level II Series - PCC Beginners II 2026",
         "datum": "12.09.2026",
-        "auslastung": "95%",
+        "auslastung": "97%",
         "region": "GER",
         "level": "2",
         "disziplin": "PCC",
@@ -137,7 +137,7 @@
     {
         "name": "Adeje Shooters Cup",
         "datum": "03.10.2026",
-        "auslastung": "6%",
+        "auslastung": "8%",
         "region": "ESP",
         "level": "2",
         "disziplin": "HG, PCC, MR",
@@ -155,7 +155,7 @@
     {
         "name": "360° PCC powered by 3G",
         "datum": "18.10.2026",
-        "auslastung": "90%",
+        "auslastung": "91%",
         "region": "POL",
         "level": "3",
         "disziplin": "PCC",
