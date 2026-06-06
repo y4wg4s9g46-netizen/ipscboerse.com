@@ -10,21 +10,21 @@
         const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
 
         const links = [
-            { href: "index.html", text: "Startseite" },
-            { href: "marktplatz.html", text: "Marktplatz" },
-            { href: "freie-matches.html", text: "Freie Match-Plätze" },
-            { href: "mein-planer.html", text: "Mein Planer" },
-            { href: "community.html", text: "Community" },
-            { href: "ipsc-hub.html", text: "IPSC Hub" },
-            { href: "tools.html", text: "Tools & Training" },
-            { href: "wiederladen.html", text: "Wiederladen" }
+            { href: "index.html", text: "Startseite", key: "nav-startseite" },
+            { href: "marktplatz.html", text: "Marktplatz", key: "card-title-market" },
+            { href: "freie-matches.html", text: "Freie Match-Plätze", key: "card-title-free" },
+            { href: "mein-planer.html", text: "Mein Planer", key: "card-title-planer" },
+            { href: "community.html", text: "Community", key: "card-title-comm" },
+            { href: "ipsc-hub.html", text: "IPSC Hub", key: "card-title-hub" },
+            { href: "tools.html", text: "Tools & Training", key: "card-title-tools" },
+            { href: "wiederladen.html", text: "Wiederladen", key: "nav-wiederladen" }
         ];
 
         let navHtml = "";
         links.forEach(link => {
             const isActive = (page === link.href);
             const className = isActive ? "active" : "inactive";
-            navHtml += `<a href="${link.href}" class="${className}">${link.text}</a>`;
+            navHtml += `<a href="${link.href}" class="${className}" data-txt="${link.key}">${link.text}</a>`;
         });
 
         // Hier wurde der <a> Tag um h1 und p hinzugefügt
