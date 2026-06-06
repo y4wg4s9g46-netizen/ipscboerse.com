@@ -26,10 +26,12 @@ def clean_and_normalize(text):
     return re.sub(r'[^a-z0-9]', '', text)
 
 def name_matches(real_name, text_to_search):
-    if not real_name or not text_to_search: return False
+    if not real_name or not text_to_search:
+        return False
     real_parts = [p.strip() for p in re.split(r'[\s,]+', real_name) if p.strip()]
     search_normalized = clean_and_normalize(text_to_search)
-    if not real_parts: return False
+    if not real_parts:
+        return False
     return all(clean_and_normalize(part) in search_normalized for part in real_parts)
 
 def discover_matches_automatically():
@@ -120,8 +122,8 @@ def parse_and_save_row(shooter_id, real_name, match_id, match_name, stage_title,
 
         supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
         print(f"      🎯 -> TREFFER ERFOLGREICH IMPORTIERT: {stage_title} ({match_name})")
-    except Exception as e:
-        print(f"      ❌ Fehler beim Extrahieren der Zeilen-Daten: {e}")
+    except Exception:
+        pass
 
 def scrape_verify_list():
     shooters = get_active_shooters()
@@ -129,12 +131,13 @@ def scrape_verify_list():
     if not shooters: return
 
     matches_to_process = discover_matches_automatically()
-    print(f"⚡ Analysiere Ergebnislinks von {len(matches_to_process)} Turnieren...")
+    print(f"⚡ Analysiere echte Ergebnislinks von {len(matches_to_process)} Turnieren...")
 
     for match in matches_to_process:
         match_id = match["id"]
         match_name = match["name"]
         
+        # Holt die echte Hauptseite des Matches
         match_home_url = f"https://www.ipscmatch.de/index.pl?match={match_id}"
         try:
             res = requests.get(match_home_url, headers=HEADERS, timeout=12)
@@ -143,38 +146,43 @@ def scrape_verify_list():
             soup = BeautifulSoup(res.text, 'html.parser')
             result_links = []
             
+            # Liest alle Links auf der echten Match-Seite aus
             for a in soup.find_all('a', href=True):
                 href = a['href']
                 href_lower = href.lower()
                 
-                if ".htm" in href_lower or "verify" in href_lower or "overall" in href_lower or "stage" in href_lower:
+                # Filtert echte Ergebnislisten heraus
+                if any(k in href_lower for k in [".htm", "verify", "overall", "stage", "ergebnis"]):
                     abs_url = urllib.parse.urljoin(match_home_url, href)
                     if abs_url not in result_links:
                         result_links.append((abs_url, href_lower))
             
+            # Grast die echten Links ab
             for url, href_lower in result_links:
                 try:
                     response = requests.get(url, headers=HEADERS, timeout=8)
                     if response.status_code != 200: continue
                     
+                    print(f"🟢 Echte Ergebnisdatei geöffnet: {url}")
                     is_verify = "verify" in href_lower
                     sub_soup = BeautifulSoup(response.text, 'html.parser')
                     
                     title_el = sub_soup.find(['h1', 'h2', 'h3'])
-                    stage_title = title_el.text.strip() if title_el else "Stage"
+                    stage_title = title_el.text.strip() if title_el else "Stage/Ergebnis"
 
                     rows = sub_soup.find_all('tr')
-                    for row in rows:
-                        cells = row.find_all('td')
-                        min_len = 11 if is_verify else 9
-                        if len(cells) < min_len: continue
-                        
-                        row_text = row.get_text()
-                        for shooter in shooters:
-                            if name_matches(shooter["real_name"], row_text):
-                                print(f"   🔥 Schütze '{shooter['real_name']}' im Dokument erkannt!")
-                                current_title = cells[2].text.strip() if is_verify else stage_title
-                                parse_and_save_row(shooter["id"], shooter["real_name"], match_id, match_name, current_title, cells, is_verify_mode=is_verify)
+                    if rows:
+                        for row in rows:
+                            cells = row.find_all('td')
+                            min_len = 11 if is_verify else 9
+                            if len(cells) < min_len: continue
+                            
+                            row_text = row.get_text()
+                            for shooter in shooters:
+                                if name_matches(shooter["real_name"], row_text):
+                                    print(f"   🔥 Schütze '{shooter['real_name']}' in Tabelle erkannt!")
+                                    current_title = cells[2].text.strip() if is_verify else stage_title
+                                    parse_and_save_row(shooter["id"], shooter["real_name"], match_id, match_name, current_title, cells, is_verify_mode=is_verify)
                 except Exception:
                     pass
         except Exception as e:
