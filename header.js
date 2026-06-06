@@ -16,7 +16,8 @@
             { href: "mein-planer.html", text: "Mein Planer" },
             { href: "community.html", text: "Community" },
             { href: "ipsc-hub.html", text: "IPSC Hub" },
-            { href: "tools.html", text: "Tools & Training" }
+            { href: "tools.html", text: "Tools & Training" },
+            { href: "wiederladen.html", text: "Wiederladen" }
         ];
 
         let navHtml = "";
