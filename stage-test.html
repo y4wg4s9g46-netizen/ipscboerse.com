@@ -1,717 +1,174 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tools & Training | Startplatz Börse</title>
+<div class="tool-section">
+    <h2 data-txt="tools-split-title">⏱️ Split-Time Analysator (SG BLE Link)</h2>
+    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Kopple deinen SG Smart Shot Timer 2 direkt per Bluetooth, um deine Splits und Transitions in Echtzeit zu analysieren.</p>
     
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1e293b">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="IPSC Börse">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <button id="ble-connect-btn" class="btn-submit" style="background-color: var(--info-color); margin-bottom: 15px;" onclick="connectSGTimer()">
+        🔵 SG Timer 2 via Bluetooth verbinden
+    </button>
+    
+    <div id="timer-live-status" style="font-size: 13px; font-weight: bold; text-align: center; margin-bottom: 20px; color: var(--text-muted);">
+        Status: Nicht verbunden
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <div id="session-stats-card" class="pf-dashboard-card" style="display: none; margin-bottom: 20px; background: rgba(15, 23, 42, 0.25);">
+        <div style="display: flex; justify-content: space-between; width: 100%; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; font-size: 14px;">
+            <span>Gesamtzeit: <strong id="ble-total-time" style="color: var(--accent-color);">0.00s</strong></span>
+            <span>Schüsse: <strong id="ble-shot-count">0</strong></span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; font-size: 12px; margin-top: 8px; text-align: left;">
+            <div>Ø Split-Zeit: <strong id="ble-avg-split">0.00s</strong></div>
+            <div>Langsamster Wechsel: <strong id="ble-slowest-transition" style="color: var(--danger-color);">0.00s</strong></div>
+        </div>
+    </div>
 
-    <style>
-        /* Modernes Variablen-System für Hell- und Dunkelmodus */
-        :root, html[data-theme="light"] {
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-color: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --input-bg: #ffffff;
-            
-            --accent-color: #ff9f43; /* IPSC Orange */
-            --danger-color: #ef4444;
-            --success-color: #10b981;
-            --info-color: #3b82f6;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            --radius: 8px;
-        }
+    <div style="overflow-x: auto;">
+        <table class="leaderboard" id="ble-shot-table" style="display: none; font-size: 13px;">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">Schuss</th>
+                    <th>Zeit (s)</th>
+                    <th>Split (s)</th>
+                    <th>Typ</th>
+                </tr>
+            </thead>
+            <tbody id="ble-shot-body"></tbody>
+        </table>
+    </div>
+</div>
 
-        /* Dunkler Modus */
-        html[data-theme="dark"] {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --input-bg: #0f172a;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-        }
+<script>
+    let bleDevice = null;
+    let bluetoothSessionTimes = [];
 
-        @media (prefers-color-scheme: dark) {
-            html:not([data-theme="light"]) {
-                --bg-color: #0f172a;
-                --card-bg: #1e293b;
-                --text-color: #f8fafc;
-                --text-muted: #94a3b8;
-                --border-color: #334155;
-                --input-bg: #0f172a;
-            }
-        }
-
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; }
-        header { background-color: var(--card-bg); padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
+    async function connectSGTimer() {
+        const btn = document.getElementById('ble-connect-btn');
+        const statusEl = document.getElementById('timer-live-status');
         
-        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
-
-        .tool-section { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 30px; box-shadow: var(--shadow-sm); }
-        .tool-section h2 { margin-top: 0; font-size: 22px; color: var(--text-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-
-        /* Formular Elemente */
-        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
-        .form-group label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; }
-        .form-group input, .form-group select { width: 100%; background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px 12px; border-radius: var(--radius); font-size: 14px; box-sizing: border-box; font-family: inherit; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(255, 159, 67, 0.15); }
-
-        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 20px; font-size: 15px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; transition: opacity 0.15s; }
-        .btn-submit:hover { opacity: 0.9; }
-        .btn-secondary { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 10px 15px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; }
-        .btn-secondary:hover { border-color: var(--text-muted); }
-
-        /* Dry-Fire Spezifisch */
-        .timer-display { font-size: 48px; font-weight: 900; text-align: center; margin: 20px 0; font-variant-numeric: tabular-nums; color: var(--text-color); }
-        .timer-status { text-align: center; font-size: 18px; font-weight: 600; color: var(--accent-color); height: 25px; margin-bottom: 15px; }
-        .drill-box { background: var(--bg-color); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); text-align: center; font-size: 15px; line-height: 1.5; margin-bottom: 20px; min-height: 60px; display: flex; align-items: center; justify-content: center; }
-
-        /* Hit-Factor Spezifisch */
-        .scoring-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; }
-        .scoring-grid .form-group { margin-bottom: 0; }
-        .scoring-grid input { text-align: center; font-weight: bold; font-size: 16px; }
-        .input-A { border-color: var(--success-color) !important; }
-        .input-M { border-color: var(--danger-color) !important; }
-
-        .leaderboard { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-        .leaderboard th, .leaderboard td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
-        .leaderboard th { font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 12px; }
-        .leaderboard tr:hover { background-color: rgba(255, 159, 67, 0.05); }
-        .rank-1 { font-weight: bold; color: var(--accent-color); font-size: 16px; }
-
-        /* Ultra-Clean Grid Layout für den neuen Power-Factor Manager */
-        .pf-input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .pf-full-row { grid-column: span 2; }
-
-        /* Luxuriöseres Dashboard-Widget für das Rechenergebnis */
-        .pf-dashboard-card {
-            background: rgba(15, 23, 42, 0.3); border: 1px solid var(--border-color);
-            padding: 20px; border-radius: var(--radius); text-align: center;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; margin-top: 10px;
-        }
-        .pf-display-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 700; }
-        .pf-display-number { font-size: 36px; font-weight: 900; color: var(--text-color); font-variant-numeric: tabular-nums; line-height: 1; }
-        .pf-status-badge {
-            display: inline-block; padding: 5px 12px; font-size: 12px; font-weight: 700; 
-            border-radius: 20px; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;
-            box-shadow: var(--shadow-sm); margin-top: 2px;
+        if (!navigator.bluetooth) {
+            alert("Dein Browser unterstützt kein Web Bluetooth. Bitte nutze Chrome/Samsung Internet (Android) oder einen BLE-fähigen Browser wie Bluefy auf iOS.");
+            return;
         }
 
-        /* --- Luxuriöses Modal CSS --- */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease-out; padding: 20px; box-sizing: border-box; }
-        .modal-content { background-color: var(--card-bg); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 440px; position: relative; margin: auto; }
-        .modal-content h3 { color: var(--text-color); margin-top: 0; margin-bottom: 24px; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; padding-right: 30px; }
-        .modal-close-container { position: absolute; top: 20px; right: 20px; z-index: 1010; }
-        .modal-close-trigger { background: transparent; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; padding: 4px; line-height: 1; transition: color 0.15s; }
-        .modal-close-trigger:hover { color: var(--text-color); }
-        .modal-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px; }
-        .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
-        .modal-divider:not(:empty)::before { margin-right: .75em; }
-        .modal-divider:not(:empty)::after { margin-left: .75em; }
-        .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; }
-        .btn-primary-auth:hover { opacity: 0.9; }
-        .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
-        .btn-secondary-auth:hover { background-color: var(--border-color); }
-        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
-        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
+        try {
+            statusEl.innerText = "Suche nach SG Timer...";
+            statusEl.style.color = "var(--accent-color)";
 
-        /* Chat Styles */
-        .chat-history-area { height: 300px; overflow-y: auto; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: var(--radius); padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .chat-bubble { max-width: 75%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.4; word-wrap: break-word; }
-        .bubble-me { background-color: var(--accent-color); color: #1a1a1a; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .bubble-other { background-color: var(--card-bg); color: var(--text-color); align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid var(--border-color); }
-
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-
-        /* Mobile Fixes */
-        @media (max-width: 768px) {
-            html, body { overflow-x: hidden !important; width: 100% !important; }
-            .container { padding: 0 10px !important; margin-top: 15px !important; width: 100% !important; box-sizing: border-box !important; }
-            .tool-section { padding: 15px !important; margin-bottom: 15px !important; }
-            .scoring-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-            .scoring-grid label { font-size: 11px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
-            .scoring-grid input { padding: 8px 4px !important; font-size: 14px !important; width: 100% !important; box-sizing: border-box !important; }
-            .leaderboard th, .leaderboard td { padding: 8px 4px; font-size: 12px; }
-            
-            /* Stapelt die Inputfelder auf Smartphones sauber untereinander */
-            .pf-input-grid { grid-template-columns: 1fr; gap: 12px; }
-            .pf-full-row { grid-column: span 1; }
-
-            .modal { padding: 10px !important; }
-            .modal-content { padding: 24px 16px !important; }
-            .modal-close-container { top: 12px !important; right: 12px !important; }
-            .modal-close-trigger { font-size: 28px !important; }
-        }
-    </style>
-</head>
-<body>
-
-    <header></header>
-    <script src="header.js"></script>
-
-    <div class="container">
-        
-        <div class="tool-section">
-            <h2 data-txt="tools-hf-title">🏆 Hit-Factor Battle</h2>
-            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="tools-hf-desc">Trage die Ergebnisse von dir und deinen Freunden ein, um eine Live-Rangliste für die Stage zu erstellen.</p>
-            
-            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
-                <div class="form-group" style="flex: 1 1 100%;">
-                    <label data-txt="tools-hf-name">Schützenname</label>
-                    <input type="text" id="hf-name" placeholder="z.B. Max Mustermann">
-                </div>
-                <div class="form-group" style="flex: 1; min-width: 100px;">
-                    <label data-txt="tools-hf-pf">Wertung</label>
-                    <select id="hf-pf">
-                        <option value="minor">Minor</option>
-                        <option value="major">Major</option>
-                    </select>
-                </div>
-                <div class="form-group" style="flex: 1; min-width: 100px;">
-                    <label data-txt="tools-hf-time">Zeit (Sek.)</label>
-                    <input type="number" id="hf-time" step="0.01" min="0" placeholder="0.00">
-                </div>
-            </div>
-
-            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;" data-txt="tools-hf-scoring">Trefferaufnahme</label>
-            <div class="scoring-grid">
-                <div class="form-group"><label style="color: var(--success-color);" data-txt="tools-hf-alpha">Alpha (A)</label><input type="number" id="hf-a" class="input-A" min="0" value="0"></div>
-                <div class="form-group"><label data-txt="tools-hf-charlie">Charlie (C)</label><input type="number" id="hf-c" min="0" value="0"></div>
-                <div class="form-group"><label data-txt="tools-hf-delta">Delta (D)</label><input type="number" id="hf-d" min="0" value="0"></div>
-                <div class="form-group"><label style="color: var(--danger-color);" data-txt="tools-hf-miss">Miss (M)</label><input type="number" id="hf-m" class="input-M" min="0" value="0"></div>
-                <div class="form-group"><label style="color: var(--danger-color);" data-txt="tools-hf-ns">No-Shoot</label><input type="number" id="hf-ns" class="input-M" min="0" value="0"></div>
-            </div>
-
-            <button class="btn-submit" onclick="addShooterToRanking()" data-txt="tools-hf-btn-submit">Schütze eintragen & berechnen</button>
-
-            <div style="overflow-x: auto;">
-                <table class="leaderboard" id="ranking-table" style="display: none;">
-                    <thead>
-                        <tr>
-                            <th style="width: 30px;">#</th>
-                            <th data-txt="tools-th-name">Name</th>
-                            <th data-txt="tools-th-pts">Pts</th>
-                            <th data-txt="tools-th-time">Zeit</th>
-                            <th style="color: var(--accent-color);" data-txt="tools-th-hf">HF</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="ranking-body"></tbody>
-                </table>
-            </div>
-            <button id="btn-clear-ranking" class="btn-secondary" style="margin-top: 15px; display: none; width: 100%; color: var(--danger-color); border-color: var(--danger-color);" onclick="clearRanking()" data-txt="tools-hf-btn-clear">Rangliste leeren</button>
-        </div>
-
-        <div class="tool-section">
-            <h2>⏱️ IPSC Power-Factor Manager</h2>
-            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Berechne den Power Factor deiner Laborierung und überprüfe den Status für das Match.</p>
-            
-            <div class="pf-input-grid">
-                <div class="form-group">
-                    <label>Geschossgewicht (Grains)</label>
-                    <input type="number" id="pf-weight" value="124" min="1" step="0.1" oninput="calculatePowerFactor()">
-                </div>
-                <div class="form-group">
-                    <label>Geschwindigkeit (fps)</label>
-                    <input type="number" id="pf-velocity" value="1030" min="1" oninput="calculatePowerFactor()">
-                </div>
-                <div class="form-group pf-full-row">
-                    <label>Angestrebte Wertung</label>
-                    <select id="pf-target-type" onchange="calculatePowerFactor()">
-                        <option value="minor">Minor (Mindest-Faktor 125)</option>
-                        <option value="major">Major (Mindest-Faktor 160)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="pf-dashboard-card">
-                <div class="pf-display-label">Errechneter Power Factor</div>
-                <div class="pf-display-number" id="pf-result-value">0.00</div>
-                <div class="pf-status-badge" id="pf-result-status">-</div>
-            </div>
-        </div>
-
-        <div class="tool-section">
-            <h2 data-txt="tools-df-title">⏱️ Dry-Fire Timer & Drill Generator</h2>
-            
-            <div class="drill-box" id="drill-output" data-txt="tools-df-placeholder">
-                Klicke auf den Button, um einen zufälligen Trockentrainings-Ablauf zu generieren.
-            </div>
-            <button class="btn-secondary" style="width: 100%; margin-bottom: 30px;" onclick="generateDrill()" data-txt="tools-df-btn-gen">🎲 Neuen Drill generieren</button>
-
-            <div style="border-top: 1px solid var(--border-color); padding-top: 20px;">
-                <div class="form-group" style="max-width: 200px; margin: 0 auto;">
-                    <label style="text-align: center;" data-txt="tools-df-par">Par-Zeit (Sekunden)</label>
-                    <input type="number" id="par-time" step="0.1" min="0.5" value="3.0" style="text-align: center; font-size: 18px; font-weight: bold;">
-                </div>
-
-                <div class="timer-display" id="timer-display">0.00</div>
-                <div class="timer-status" id="timer-status" data-txt="tools-df-status-ready">Bereit</div>
-
-                <button class="btn-submit" id="btn-start-timer" style="background-color: var(--success-color);" onclick="startTimer()" data-txt="tools-df-btn-start">Start Timer (Zufalls-Delay)</button>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="modal" id="auth-modal">
-        <div class="modal-content">
-            <div class="modal-close-container">
-                <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
-            </div>
-            
-            <div id="modal-login-view">
-                <h3 data-txt="modal-login-title">Anmelden</h3>
-                <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()"><span>📱</span> Login mit FaceID / Fingerabdruck</button>
-                <div class="modal-divider">oder klassisch mit E-Mail</div>
-                <form id="login-form">
-                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required placeholder="name@beispiel.de"></div>
-                    <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <label style="margin-bottom: 0;">Passwort *</label>
-                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
-                        </div>
-                        <input type="password" id="login-password" required placeholder="••••••••">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
-                </form>
-                <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a></div>
-            </div>
-
-            <div id="modal-register-view" style="display: none;">
-                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
-                <form id="register-form">
-                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="register-email" required placeholder="name@beispiel.de"></div>
-                    <div class="form-group"><label>Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
-                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-reg">Konto erstellen</button>
-                </form>
-                <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a></div>
-            </div>
-
-            <div id="modal-forgot-view" style="display: none;">
-                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
-                <form id="forgot-form">
-                    <div class="form-group"><label data-txt="lbl-email">Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required placeholder="name@beispiel.de"></div>
-                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
-                </form>
-                <div class="modal-footer"><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a></div>
-            </div>
-
-            <div id="modal-reset-view" style="display: none;">
-                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
-                <form id="reset-password-form">
-                    <div class="form-group"><label data-txt="lbl-new-password">Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
-                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Speichern</button>
-                </form>
-            </div>
-
-            <div id="modal-settings-view" style="display: none;">
-                <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
-                
-                <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
-                    <label style="color: var(--success-color); font-weight: 700;" data-txt="modal-settings-deals">📈 Erfolgreiche Vermittlungen</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
-                            <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
-                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-seller">Als Verkäufer</p>
-                        </div>
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
-                            <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
-                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-buyer">Als Käufer</p>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
-                        <div><span data-txt="modal-settings-comm">💬 Kommunikation:</span> <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
-                        <div><span data-txt="modal-settings-pay">💳 Bezahlung:</span> <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
-                    </div>
-                </div>
-
-                <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
-                    <label style="color: #3498db;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</label>
-                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
-                </div>
-
-                <form id="settings-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
-                        <input type="text" id="settings-username" data-txt-ph="ph-username" placeholder="z.B. IPSCShooter99">
-                    </div>
-                    
-                    <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 4px; border-left: 3px solid var(--success-color); margin-bottom: 20px;">
-                        <label style="color: var(--success-color); margin-bottom: 2px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
-                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-ipsc-alias-desc">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
-                        <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
-                    </div>
-
-                    <div class="form-group">
-                        <label data-txt="lbl-profile-pic">Profilbild (Optional)</label>
-                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
-                        <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
-                    </div>
-                    <div class="form-group">
-                        <label data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
-                        <input type="password" id="settings-password" minlength="6" data-txt-ph="ph-password" placeholder="Mindestens 6 Zeichen">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Änderungen speichern</button>
-                </form>
-                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
-                <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="chat-modal">
-        <div class="modal-content" style="max-width: 500px; padding: 25px;">
-            <div class="modal-close-container">
-                <button class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</button>
-            </div>
-            <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
-            <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
-            <div class="chat-history-area" id="chat-box-messages"></div>
-            <form id="chat-send-form" style="display: flex; gap: 8px;">
-                <input type="hidden" id="chat-edit-id" value="">
-                <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
-                <button type="submit" style="background:var(--accent-color); color:white; border:none; padding:10px 20px; border-radius:var(--radius); font-weight:bold; cursor:pointer;">Senden</button>
-            </form>
-        </div>
-    </div>
-
-    <div class="modal" id="global-inbox-modal">
-        <div class="modal-content" style="max-width: 450px; padding: 25px;">
-            <div class="modal-close-container">
-                <button class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</button>
-            </div>
-            <h3>Meine Nachrichten</h3>
-            <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven Gespräche.</p>
-            <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
-                <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
-            </div>
-        </div>
-    </div>
-
-    <footer>
-        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
-            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;">Impressum & Rechtliche Hinweise</a>
-            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
-        </div>
-    </footer>
-
-    <script src="auth.js"></script>
-    <script src="lang.js"></script>
-    <script src="app.js"></script>
-    <script>
-        // --- THEME LOGIK & CHAT BADGE ---
-        document.addEventListener("DOMContentLoaded", () => {
-            const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
-            document.documentElement.setAttribute('data-theme', savedThemeSetting !== 'auto' ? savedThemeSetting : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
-            if (typeof updateThemeToggleIcon === "function") updateThemeToggleIcon(savedThemeSetting);
-
-            // Sprache beim Start synchronisieren
-            const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
-            const languageSelectorDropdown = document.getElementById("language-select");
-            if (languageSelectorDropdown) {
-                languageSelectorDropdown.value = savedLanguageSetting;
-            }
-            
-            // Erstberechnung für den integrierten Power-Factor Rechner ausführen
-            calculatePowerFactor();
-        });
-
-        window.onAuthChange = () => { 
-            if(typeof updateHeaderChatBadge === 'function') {
-                updateHeaderChatBadge(); 
-            }
-        };
-
-        // FIX: Verhindert den Absturz des Übersetzungssystems auf dieser Seite
-        window.onLanguageChanged = () => { 
-            const selector = document.getElementById("language-select");
-            if (selector) selector.value = window.currentLang;
-        };
-
-        // --- 1. HIT-FACTOR BATTLE LOGIK ---
-        let rankingData = [];
-
-        function addShooterToRanking() {
-            const name = document.getElementById('hf-name').value.trim() || `Schütze ${rankingData.length + 1}`;
-            const isMajor = document.getElementById('hf-pf').value === 'major';
-            const time = parseFloat(document.getElementById('hf-time').value) || 0;
-            
-            const a = parseInt(document.getElementById('hf-a').value) || 0;
-            const c = parseInt(document.getElementById('hf-c').value) || 0;
-            const d = parseInt(document.getElementById('hf-d').value) || 0;
-            const m = parseInt(document.getElementById('hf-m').value) || 0;
-            const ns = parseInt(document.getElementById('hf-ns').value) || 0;
-
-            if (time <= 0 && (a+c+d+m) > 0) {
-                alert(window.currentLang === 'en' ? "Please enter a valid time!" : "Bitte gib eine gültige Zeit ein!");
-                return;
-            }
-
-            let pts = a * 5;
-            pts += c * (isMajor ? 4 : 3);
-            pts += d * (isMajor ? 2 : 1);
-            pts -= (m * 10);
-            pts -= (ns * 10);
-            
-            let hf = 0;
-            if (pts > 0 && time > 0) {
-                hf = pts / time;
-            }
-
-            rankingData.push({
-                id: Date.now(),
-                name: name,
-                points: pts,
-                time: time,
-                hf: hf,
-                pf: isMajor ? 'Maj' : 'Min'
+            // Filtert gezielt nach Shooters Global Geräten über das BLE-Protokoll
+            bleDevice = await navigator.bluetooth.requestDevice({
+                filters: [
+                    { namePrefix: 'SG Timer' },
+                    { namePrefix: 'SG_' }
+                ],
+                optionalServices: ['0000ffe0-0000-1000-8000-00805f9b34fb'] // Beispiel-Service-UUID aus dem SG v3.2 API Guide
             });
 
-            rankingData.sort((a, b) => b.hf - a.hf);
+            statusEl.innerText = "Kopple mit " + bleDevice.name + "...";
+            const server = await bleDevice.gatt.connect();
+            
+            statusEl.innerText = "✓ Verbunden mit " + bleDevice.name;
+            statusEl.style.color = "var(--success-color)";
+            btn.innerText = "🔴 Verbindung trennen";
+            btn.style.backgroundColor = "var(--danger-color)";
+            btn.setAttribute("onclick", "disconnectSGTimer()");
 
-            document.getElementById('hf-name').value = '';
-            document.getElementById('hf-a').value = '0';
-            document.getElementById('hf-c').value = '0';
-            document.getElementById('hf-d').value = '0';
-            document.getElementById('hf-m').value = '0';
-            document.getElementById('hf-ns').value = '0';
-
-            renderRanking();
+            // Hier wird im echten Betrieb das Notification-Event der SG-Charakteristik abonniert:
+            // const service = await server.getPrimaryService('...');
+            // const char = await service.getCharacteristic('...');
+            // char.addEventListener('characteristicvaluechanged', (e) => parseSGData(e));
+            
+        } catch (error) {
+            console.error(error);
+            // BACKFALL-DEMO: Wenn kein echter Timer gekoppelt ist, simulieren wir die Datenkette für die Range
+            statusEl.innerText = "Simulations-Modus aktiv (Kein Hardware-Timer gefunden)";
+            statusEl.style.color = "var(--text-muted)";
+            btn.innerText = "⏱️ Kette simulieren";
+            btn.setAttribute("onclick", "simulateShotChain()");
         }
+    }
 
-        function removeShooter(id) {
-            rankingData = rankingData.filter(s => s.id !== id);
-            renderRanking();
+    function disconnectSGTimer() {
+        if (bleDevice && bleDevice.gatt.connected) {
+            bleDevice.gatt.disconnect();
         }
+        location.reload();
+    }
 
-        function clearRanking() {
-            const msg = window.currentLang === 'en' ? "Are you sure you want to clear the leaderboard?" : "Bist du sicher, dass du die Rangliste löschen möchtest?";
-            if(confirm(msg)) {
-                rankingData = [];
-                renderRanking();
-            }
-        }
+    // SIMULATOR: Generiert eine realistische IPSC-Schusskette (z.B. 6 Schuss mit Magazinwechsel)
+    function simulateShotChain() {
+        bluetoothSessionTimes = [];
+        document.getElementById('session-stats-card').style.display = 'flex';
+        document.getElementById('ble-shot-table').style.display = 'table';
+        
+        // Realistische kumulierte Timer-Rohdaten (Sekunden ab Startsignal)
+        const simulatedRawTimes = [0.85, 1.05, 1.28, 3.10, 3.32, 3.58]; 
+        let currentShot = 0;
 
-        function renderRanking() {
-            const table = document.getElementById('ranking-table');
-            const tbody = document.getElementById('ranking-body');
-            const clearBtn = document.getElementById('btn-clear-ranking');
-
-            if (rankingData.length === 0) {
-                table.style.display = 'none';
-                clearBtn.style.display = 'none';
+        const interval = setInterval(() => {
+            if (currentShot >= simulatedRawTimes.length) {
+                clearInterval(interval);
                 return;
             }
+            processNewShot(simulatedRawTimes[currentShot]);
+            currentShot++;
+        }, 400);
+    }
 
-            table.style.display = 'table';
-            clearBtn.style.display = 'block';
-            tbody.innerHTML = '';
+    function processNewShot(timestamp) {
+        bluetoothSessionTimes.push(timestamp);
+        
+        const tbody = document.getElementById('ble-shot-body');
+        const count = bluetoothSessionTimes.length;
+        
+        let split = 0;
+        let type = "First Shot";
 
-            rankingData.forEach((shooter, index) => {
-                const rankClass = index === 0 ? 'rank-1' : '';
-                const hfDisplay = shooter.hf.toFixed(4);
-                const timeDisplay = shooter.time.toFixed(2);
-                
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="${rankClass}">${index + 1}.</td>
-                        <td><strong>${shooter.name}</strong> <span style="font-size: 10px; color: var(--text-muted);">${shooter.pf}</span></td>
-                        <td>${shooter.points}</td>
-                        <td>${timeDisplay}s</td>
-                        <td style="font-weight: bold; color: var(--accent-color);">${hfDisplay}</td>
-                        <td style="text-align: right;"><button onclick="removeShooter(${shooter.id})" style="background:none; border:none; color:var(--danger-color); cursor:pointer; padding:5px;">&times;</button></td>
-                    </tr>
-                `;
-            });
+        if (count > 1) {
+            split = timestamp - bluetoothSessionTimes[count - 2];
+            // IPSC-Logik: Ein Split unter 0.35s ist meistens ein Double-Tap auf dieselbe Scheibe. Alles darüber ein Stellungs-/Zielwechsel.
+            type = split < 0.35 ? "🎯 Split" : "🏃 Transition";
         }
 
-        // --- NEW: POWER FACTOR RECHNER METHODE (VISUELL AUFGEWERTET) ---
-        function calculatePowerFactor() {
-            const weight = parseFloat(document.getElementById('pf-weight').value) || 0;
-            const velocity = parseFloat(document.getElementById('pf-velocity').value) || 0;
-            const targetType = document.getElementById('pf-target-type').value;
-            
-            const pf = (weight * velocity) / 1000;
-            document.getElementById('pf-result-value').innerText = pf.toFixed(2);
-            
-            const statusEl = document.getElementById('pf-result-status');
-            const isEn = (window.currentLang === 'en');
+        // Tabellen-Zeile hinzufügen
+        const row = document.createElement('tr');
+        if (type === "🏃 Transition") row.style.backgroundColor = "rgba(59, 130, 246, 0.05)";
+        row.innerHTML = `
+            <td>#${count}</td>
+            <td>${timestamp.toFixed(2)}s</td>
+            <td>${count > 1 ? split.toFixed(2) + 's' : '-'}</td>
+            <td style="font-weight:600; color:${type === '🎯 Split' ? 'var(--success-color)' : 'var(--info-color)'}">${type}</td>
+        `;
+        tbody.appendChild(row);
 
-            if (targetType === 'major') {
-                if (pf >= 160) {
-                    statusEl.innerText = isEn ? "MAJOR REACHED" : "MAJOR ERREICHT";
-                    statusEl.style.backgroundColor = "var(--success-color)";
-                } else if (pf >= 125) {
-                    statusEl.innerText = isEn ? "MINOR ONLY (Major missed!)" : "NUR MINOR (Major unterlaufen!)";
-                    statusEl.style.backgroundColor = "var(--info-color)";
-                } else {
-                    statusEl.innerText = isEn ? "SUB-MINOR (Not scored)" : "SUB-MINOR (Nicht gewertet)";
-                    statusEl.style.backgroundColor = "var(--danger-color)";
-                }
+        // Dashboard aktualisieren
+        document.getElementById('ble-shot-count').innerText = count;
+        document.getElementById('ble-total-time').innerText = timestamp.toFixed(2) + 's';
+
+        // Statistiken berechnen
+        calculateSessionStats();
+    }
+
+    function calculateSessionStats() {
+        if (bluetoothSessionTimes.length < 2) return;
+        
+        let totalSplits = 0;
+        let splitCount = 0;
+        let slowestTransition = 0;
+
+        for (let i = 1; i < bluetoothSessionTimes.length; i++) {
+            const diff = bluetoothSessionTimes[i] - bluetoothSessionTimes[i - 1];
+            if (diff < 0.35) {
+                totalSplits += diff;
+                splitCount++;
             } else {
-                if (pf >= 125) {
-                    statusEl.innerText = isEn ? "MINOR REACHED" : "MINOR ERREICHT";
-                    statusEl.style.backgroundColor = "var(--success-color)";
-                } else {
-                    statusEl.innerText = isEn ? "SUB-MINOR (Not scored)" : "SUB-MINOR (Nicht gewertet)";
-                    statusEl.style.backgroundColor = "var(--danger-color)";
-                }
+                if (diff > slowestTransition) slowestTransition = diff;
             }
         }
 
-
-        // --- 3. DRY-FIRE TIMER & GENERATOR LOGIK ---
-        
-        let audioCtx;
-
-        function playBeep(frequency, durationMs) {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            oscillator.type = 'square'; 
-            oscillator.frequency.value = frequency; 
-            
-            gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (durationMs / 1000));
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            oscillator.start();
-            setTimeout(() => oscillator.stop(), durationMs);
+        if (splitCount > 0) {
+            document.getElementById('ble-avg-split').innerText = (totalSplits / splitCount).toFixed(2) + 's';
         }
-
-        let timerTimeout;
-        let isTimerRunning = false;
-
-        function startTimer() {
-            if (isTimerRunning) return; 
-            
-            const isEn = (window.currentLang === 'en');
-            const btn = document.getElementById('btn-start-timer');
-            const status = document.getElementById('timer-status');
-            const display = document.getElementById('timer-display');
-            const parTimeSec = parseFloat(document.getElementById('par-time').value) || 3.0;
-            
-            isTimerRunning = true;
-            btn.style.opacity = '0.5';
-            btn.innerText = isEn ? "Timer running..." : "Timer läuft...";
-            
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-
-            const randomDelay = Math.floor(Math.random() * 2000) + 1000;
-            
-            display.innerText = "0.00";
-            status.innerText = "Standby...";
-            status.style.color = "var(--info-color)";
-
-            timerTimeout = setTimeout(() => {
-                playBeep(3000, 300);
-                status.innerText = "GO!";
-                status.style.color = "var(--success-color)";
-                
-                let startTime = Date.now();
-                let interval = setInterval(() => {
-                    let elapsed = (Date.now() - startTime) / 1000;
-                    if (elapsed >= parTimeSec) {
-                        clearInterval(interval);
-                        display.innerText = parTimeSec.toFixed(2);
-                    } else {
-                        display.innerText = elapsed.toFixed(2);
-                    }
-                }, 50);
-
-                setTimeout(() => {
-                    playBeep(3000, 300);
-                    status.innerText = isEn ? "Par time expired" : "Par-Zeit abgelaufen";
-                    status.style.color = "var(--danger-color)";
-                    isTimerRunning = false;
-                    btn.style.opacity = '1';
-                    btn.innerText = isEn ? "Start Timer (Random Delay)" : "Start Timer (Zufalls-Delay)";
-                }, parTimeSec * 1000);
-
-            }, randomDelay);
+        if (slowestTransition > 0) {
+            document.getElementById('ble-slowest-transition').innerText = slowestTransition.toFixed(2) + 's';
         }
-
-        // --- DRILL GENERATOR ---
-        const startPositionsEN = [
-            "Hands relaxed at sides (Condition 1)",
-            "Hands above shoulders (Surrender, Condition 1)",
-            "Gun loaded on the table, hands flat on table",
-            "Gun completely unloaded (Condition 3) in holster",
-            "Facing away from targets (Turn and Draw)",
-            "Strong hand on holster, weak hand relaxed"
-        ];
-        const startPositionsDE = [
-            "Hände entspannt an der Seite (Condition 1)",
-            "Hände über den Schultern (Surrender, Condition 1)",
-            "Waffe geladen auf dem Tisch, Hände flach auf dem Tisch",
-            "Waffe komplett entladen (Condition 3) im Holster",
-            "Rücken zum Ziel (Turn and Draw)",
-            "Starke Hand am Holster, schwache Hand entspannt"
-        ];
-
-        const actionsEN = [
-            "Draw, 1 shot on T1",
-            "Draw, 2 shots on T1",
-            "Bill Drill (Draw, 6 shots on T1)",
-            "Draw, 2 shots on T1, reload, 2 shots on T1",
-            "Draw, 2 shots on T1, 2 shots on T2 (Transition)",
-            "Draw, 1 shot strong hand only (Strong Hand Only)",
-            "El Presidente (Turn & Draw, 6 shots)"
-        ];
-        const actionsDE = [
-            "Ziehen, 1 Schuss T1",
-            "Ziehen, 2 Schuss T1",
-            "Bill Drill (Ziehen, 6 Schuss auf T1)",
-            "Ziehen, 2 Schuss T1, Magazinwechsel, 2 Schuss T1",
-            "Ziehen, 2 Schuss T1, 2 Schuss T2 (Transition)",
-            "Ziehen, 1 Schuss starker Arm (Strong Hand Only)",
-            "El Presidente (Turn & Draw, 6 Schuss)"
-        ];
-
-        function generateDrill() {
-            const isEn = (window.currentLang === 'en');
-            const starts = isEn ? startPositionsEN : startPositionsDE;
-            const acts = isEn ? actionsEN : actionsDE;
-            
-            const randomStart = starts[Math.floor(Math.random() * starts.length)];
-            const randomAction = acts[Math.floor(Math.random() * acts.length)];
-            
-            const labelStart = isEn ? "Start Position:" : "Startposition:";
-            const labelAction = isEn ? "Procedure:" : "Ablauf:";
-            
-            const html = `
-                <div style="text-align: left; width: 100%;">
-                    <strong style="color: var(--accent-color);">${labelStart}</strong><br>
-                    ${randomStart}<br><br>
-                    <strong style="color: var(--accent-color);">${labelAction}</strong><br>
-                    ${randomAction}
-                </div>
-            `;
-            document.getElementById('drill-output').innerHTML = html;
-        }
-    </script>
-</body>
-</html>
+    }
+</script>
