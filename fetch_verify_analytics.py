@@ -49,10 +49,9 @@ def name_matches(real_name, text_to_search):
 def get_active_shooters():
     try:
         response = supabase.table("profiles").select("id, real_name").not_.is_("real_name", "null").execute()
-        # Filtern, damit keine leeren Einträge mitrutschen
         shooters = [s for s in response.data if s.get("real_name") and str(s["real_name"]).strip() != ""]
         
-        # NEU: Gibt aus, nach wem überhaupt gesucht wird!
+        # Gibt aus, nach wem überhaupt gesucht wird
         print(f"👥 INFO: Geladene Schützen aus Supabase: {[s['real_name'] for s in shooters]}")
         return shooters
     except Exception as e:
@@ -91,8 +90,8 @@ def parse_and_save_html_row(shooter_id, match_id, match_name, stage_title, cells
 
         supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
         print(f"      🎯 HTML-TREFFER GESPEICHERT: {stage_title} ({match_name})")
-    except:
-        pass
+    except Exception as e:
+        print(f"      ❌ Datenbank-Fehler (HTML): {e}")
 
 def parse_and_save_pdf_row(shooter_id, match_id, match_name, line_text):
     try:
@@ -116,7 +115,7 @@ def parse_and_save_pdf_row(shooter_id, match_id, match_name, line_text):
         supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
         print(f"      🎯 PDF-TREFFER GESPEICHERT: {match_name} ({percentage}%)")
     except Exception as e:
-        print(f"      ⚠️ Fehler beim Speichern des PDF-Treffers: {e}")
+        print(f"      ❌ Datenbank-Fehler (PDF): {e}")
 
 def load_master_page():
     print("🔍 Lade die magische Gesamtliste (long=1)...")
@@ -164,6 +163,7 @@ def scrape_verify_list():
                             l_text = a.text.lower()
                             
                             if "match=" not in l_href:
+                                # Blacklist für irrelevanten Ballast
                                 if any(bad in l_text for bad in ['urkunden', 'team', 'category', 'region']):
                                     continue
                                 if any(bad in l_href for bad in ['urkunden', 'team', 'category', 'region']):
@@ -192,7 +192,7 @@ def scrape_verify_list():
         links_to_check = list(set(links_to_check))
         
         for url in links_to_check:
-            # NEU: .split('?')[0] entfernt störende Parameter wie overall.pdf?v=1
+            # Entfernt störende URL-Parameter am Ende von PDFs
             if url.lower().split('?')[0].endswith('.pdf'):
                 try:
                     res_pdf = session.get(url, headers=HEADERS, timeout=15)
