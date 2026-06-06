@@ -104,7 +104,8 @@ def scrape_verify_list():
         tds = row.find_all('td')
         if len(tds) >= 4:
             text = row.get_text()
-            if '2026' in text or '2027' in text:
+            # 🚀 HIER DAS UPDATE: Scanne Jahre 2023 bis 2027
+            if any(year in text for year in ['2023', '2024', '2025', '2026', '2027']):
                 match_link = tds[3].find('a')
                 if match_link:
                     m_name = match_link.text.strip()
@@ -169,44 +170,40 @@ def scrape_verify_list():
                         for line in page_text.split('\n'):
                             line = line.strip()
                             
-                            # Division erkennen
                             for div in KNOWN_DIVISIONS:
                                 if f"{div.upper()} --" in line.upper() or line.upper().startswith(div.upper()):
                                     current_div_pdf = div
                                     break
                             
-                            # Stage erkennen - ABER WICHTIG: Nur zurücksetzen, wenn es eine WIRKLICH neue Stage ist!
                             stage_match = re.search(r'(Stage\s+\d+\s+--\s+.*)', line, re.IGNORECASE)
                             if stage_match:
                                 extracted_stage = stage_match.group(1).split('--')[0].strip()
                                 if extracted_stage != current_stage_pdf:
                                     current_stage_pdf = extracted_stage
-                                    current_winner_hf_pdf = 0.0 # Nur resetten, wenn Seite 1 einer NEUEN Stage beginnt!
+                                    current_winner_hf_pdf = 0.0
                                 
                             if "Overall Match Results" in line:
                                 if current_stage_pdf != "Overall Match Results (PDF)":
                                     current_stage_pdf = "Overall Match Results (PDF)"
-                                    current_winner_hf_pdf = 100.0 # Default für Overall
+                                    current_winner_hf_pdf = 100.0
 
-                            # Spalten intelligent von links nach rechts lesen
                             tokens = line.split()
                             numeric_vals = []
                             for t in tokens:
                                 if re.match(r'^-?\d+([.,]\d+)?$', t):
                                     numeric_vals.append(float(t.replace(',', '.')))
                                 else:
-                                    break # Text fängt an (Name)
+                                    break
                                     
-                            # Stage Winner HF merken
                             if len(numeric_vals) >= 6:
                                 if int(numeric_vals[0]) == 1 or int(numeric_vals[0]) == 100:
                                     if numeric_vals[3] > 0: current_winner_hf_pdf = numeric_vals[3]
 
-                            # Schütze gefunden?
                             for shooter in shooters:
                                 if name_matches(shooter["real_name"], line):
-                                    if len(numeric_vals) >= 6: # Das ist ein Stage-Ergebnis!
+                                    if len(numeric_vals) >= 6: # Stage-Ergebnis
                                         rank_val = int(numeric_vals[0])
+                                        pts_val = numeric_vals[1] # 🎯 NEU: Die exakten PTS
                                         time_val = numeric_vals[2]
                                         hf_val = numeric_vals[3]
                                         
@@ -214,28 +211,31 @@ def scrape_verify_list():
                                             "user_id": shooter["id"], "match_id": str(m_id), "match_name": m_name,
                                             "stage_name": current_stage_pdf, "scoring_type": "Comstock",
                                             "hit_factor": hf_val, "stage_time": time_val,
+                                            "pts": pts_val, # 🎯 Ab in die DB damit
                                             "division": current_div_pdf,
                                             "stage_rank": rank_val,
                                             "winner_hit_factor": current_winner_hf_pdf
                                         }
                                         supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
-                                        print(f"   🔥 {shooter['real_name']} in PDF (Stage) gespeichert! ({current_div_pdf} | {current_stage_pdf} | HF: {hf_val})")
+                                        print(f"   🔥 {shooter['real_name']} in PDF (Stage) gespeichert! ({current_div_pdf} | {current_stage_pdf} | PTS: {pts_val} | HF: {hf_val})")
                                         
                                     elif len(numeric_vals) >= 3 and current_stage_pdf == "Overall Match Results (PDF)": # Match-Ergebnis
                                         rank_val = int(numeric_vals[0])
                                         percentage = numeric_vals[1] 
+                                        pts_val = numeric_vals[2] # 🎯 NEU: Beim Overall stehen die PTS an dritter Stelle!
                                         
                                         payload = {
                                             "user_id": shooter["id"], "match_id": str(m_id), "match_name": m_name,
                                             "stage_name": current_stage_pdf, "scoring_type": "Comstock",
                                             "stage_time": 0.0, 
-                                            "hit_factor": percentage, 
+                                            "hit_factor": percentage,
+                                            "pts": pts_val, # 🎯 Ab in die DB damit
                                             "division": current_div_pdf,
                                             "stage_rank": rank_val,
                                             "winner_hit_factor": 100.0
                                         }
                                         supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
-                                        print(f"   🔥 {shooter['real_name']} in PDF (Overall) gespeichert! ({current_div_pdf} - {percentage}%)")
+                                        print(f"   🔥 {shooter['real_name']} in PDF (Overall) gespeichert! ({current_div_pdf} - {percentage}% - {pts_val} PTS)")
 
                 # --- HTML SMART PARSER ---
                 elif 'text/html' in content_type:
@@ -266,7 +266,7 @@ def scrape_verify_list():
                             if "stage" in text.lower():
                                 if current_stage_title != text:
                                     current_stage_title = text
-                                    current_winner_hf = 0.0 # Nur bei neuer Stage resetten
+                                    current_winner_hf = 0.0
                             continue
                             
                         if el.name == 'tr':
