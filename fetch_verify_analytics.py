@@ -36,14 +36,16 @@ HEADERS = {
 }
 TIMEOUT_SECONDS = 10
 
+# Bekannte IPSC Divisionen für die automatische Erkennung
+KNOWN_DIVISIONS = ["Production Optics", "Optics", "Production", "Standard", "Open", "Classic", "Revolver", "PCC", "Modified"]
+
 def clean_variants(name_part):
-    """Erzeugt verschiedene Varianten für einen Namen, um PDF-Codierungsfehler (kaputte Umlaute) abzufangen."""
     part = name_part.lower().strip()
     variants = [
-        re.sub(r'[^a-z0-9]', '', part), # Normal (fabian)
-        re.sub(r'[^a-z0-9]', '', part.replace('ö','oe').replace('ä','ae').replace('ü','ue').replace('ß','ss')), # schoeps
-        re.sub(r'[^a-z0-9]', '', part.replace('ö','o').replace('ä','a').replace('ü','u').replace('ß','s')), # schops
-        re.sub(r'[^a-z0-9]', '', part.replace('ö','').replace('ä','').replace('ü','')) # schps (PDF-Bug)
+        re.sub(r'[^a-z0-9]', '', part),
+        re.sub(r'[^a-z0-9]', '', part.replace('ö','oe').replace('ä','ae').replace('ü','ue').replace('ß','ss')),
+        re.sub(r'[^a-z0-9]', '', part.replace('ö','o').replace('ä','a').replace('ü','u').replace('ß','s')),
+        re.sub(r'[^a-z0-9]', '', part.replace('ö','').replace('ä','').replace('ü',''))
     ]
     return [v for v in variants if v]
 
@@ -51,8 +53,6 @@ def name_matches(real_name, text_to_search):
     if not real_name or not text_to_search: return False
     text_clean = re.sub(r'[^a-z0-9]', '', text_to_search.lower())
     real_parts = [p.strip() for p in re.split(r'[\s,.-]+', real_name) if p.strip()]
-    
-    # Prüfe, ob von JEDEM Namensteil (Vor- und Nachname) eine der Schreibweisen im Text vorkommt
     for part in real_parts:
         part_variants = clean_variants(part)
         if not any(variant in text_clean for variant in part_variants):
@@ -69,59 +69,11 @@ def get_active_shooters():
         print(f"❌ Fehler beim Laden der Profile: {e}")
         return []
 
-def parse_and_save_html_row(shooter_id, match_id, match_name, stage_title, cells, is_verify_mode):
+def extract_float(text):
     try:
-        if is_verify_mode and len(cells) >= 11:
-            scoring_type = cells[3].text.strip()
-            alphas = int(cells[4].text.strip())
-            charlies = int(cells[5].text.strip())
-            deltas = int(cells[6].text.strip())
-            misses = int(cells[7].text.strip())
-            no_shoots = int(cells[8].text.strip())
-            stage_time = float(cells[9].text.strip().replace(',', '.'))
-            hit_factor = float(cells[10].text.strip().replace(',', '.'))
-        elif len(cells) >= 8:
-            scoring_type = "Comstock"
-            alphas, charlies, deltas, misses, no_shoots = 0, 0, 0, 0, 0
-            try:
-                stage_time = float(cells[6].text.strip().replace(',', '.'))
-                hit_factor = float(cells[8].text.strip().replace(',', '.'))
-            except:
-                stage_time = float(cells[5].text.strip().replace(',', '.'))
-                hit_factor = float(cells[7].text.strip().replace(',', '.'))
-        else:
-            return
-
-        payload = {
-            "user_id": shooter_id, "match_id": str(match_id), "match_name": match_name,
-            "stage_name": stage_title, "scoring_type": scoring_type,
-            "alphas": alphas, "charlies": charlies, "deltas": deltas,
-            "misses": misses, "no_shoots": no_shoots, "stage_time": stage_time, "hit_factor": hit_factor
-        }
-        supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
-    except Exception:
-        pass
-
-def parse_and_save_pdf_row(shooter_id, match_id, match_name, line_text):
-    try:
-        numbers = re.findall(r'\d+[.,]\d+', line_text)
-        percentage, points = 0.0, 0.0
-        
-        if len(numbers) >= 2:
-            percentage = float(numbers[0].replace(',', '.'))
-            points = float(numbers[1].replace(',', '.'))
-            
-        payload = {
-            "user_id": shooter_id, "match_id": str(match_id), "match_name": match_name,
-            "stage_name": "Overall Match Results (PDF)", "scoring_type": "Comstock",
-            "alphas": 0, "charlies": 0, "deltas": 0,
-            "misses": 0, "no_shoots": 0, 
-            "stage_time": percentage, 
-            "hit_factor": points      
-        }
-        supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
-    except Exception:
-        pass
+        return float(re.sub(r'[^0-9,.]', '', text).replace(',', '.'))
+    except:
+        return 0.0
 
 def load_master_page():
     print("🔍 Lade Gesamtliste...")
@@ -167,13 +119,14 @@ def scrape_verify_list():
                         if any(bad in l_text for bad in ['urkunden', 'team', 'category', 'region']): continue
                         if any(bad in l_href for bad in ['urkunden', 'team', 'category', 'region']): continue
                         
-                        if any(good in l_href or good in l_text for good in ["results", "verify", ".pdf", "ergebnis", "overall"]):
+                        # Wir suchen jetzt auch explizit nach "stage" Ergebnissen!
+                        if any(good in l_href or good in l_text for good in ["results", "verify", ".pdf", "ergebnis", "overall", "stage"]):
                             result_links.append(urllib.parse.urljoin(BASE_URL, a['href']))
                     
                     if result_links:
                         matches_found.append({"id": m_id, "name": m_name, "links": result_links})
 
-    print(f"📋 {len(matches_found)} Turniere gefunden. Starte Analyse...")
+    print(f"📋 {len(matches_found)} Turniere gefunden. Starte smarte Analyse...")
 
     for data in matches_found:
         m_id = data["id"]
@@ -196,24 +149,41 @@ def scrape_verify_list():
                 
                 content_type = res.headers.get('Content-Type', '').lower()
                 
-                # Wenn es ECHTE PDF-Daten sind, egal wie der Link heißt!
                 if 'application/pdf' in content_type:
                     pdf_file = io.BytesIO(res.content)
                     reader = PdfReader(pdf_file)
+                    current_div_pdf = "Unknown"
                     for page in reader.pages:
                         page_text = page.extract_text()
                         if not page_text: continue
                         for line in page_text.split('\n'):
+                            # Versuche Division aus PDF-Header zu lesen
+                            for div in KNOWN_DIVISIONS:
+                                if div.upper() in line.upper():
+                                    current_div_pdf = div
+                                    break
+                                    
                             for shooter in shooters:
                                 if name_matches(shooter["real_name"], line):
-                                    print(f"   🔥 {shooter['real_name']} in PDF gefunden! ({m_name})")
-                                    parse_and_save_pdf_row(shooter["id"], m_id, m_name, line)
+                                    numbers = re.findall(r'\d+[.,]\d+', line)
+                                    percentage, points = 0.0, 0.0
+                                    if len(numbers) >= 2:
+                                        percentage = float(numbers[0].replace(',', '.'))
+                                        points = float(numbers[1].replace(',', '.'))
+                                        
+                                    payload = {
+                                        "user_id": shooter["id"], "match_id": str(m_id), "match_name": m_name,
+                                        "stage_name": "Overall Match Results (PDF)", "scoring_type": "Comstock",
+                                        "stage_time": percentage, "hit_factor": points,
+                                        "division": current_div_pdf
+                                    }
+                                    supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
+                                    print(f"   🔥 {shooter['real_name']} in PDF gefunden! ({current_div_pdf} - {percentage}%)")
                 
-                # Wenn es eine HTML-Seite ist, suchen wir Tabellen UND weitere Links (wie "Overall")
                 elif 'text/html' in content_type:
                     sub_soup = BeautifulSoup(res.text, 'html.parser')
                     
-                    # 1. Neue Links finden
+                    # Links sammeln
                     for a in sub_soup.find_all('a', href=True):
                         h_low = a['href'].lower()
                         t_low = a.text.lower()
@@ -223,26 +193,88 @@ def scrape_verify_list():
                             if new_url not in visited_urls and new_url not in links_queue:
                                 links_queue.append(new_url)
                                 
-                    # 2. HTML Tabellen lesen
-                    sub_rows = sub_soup.find_all('tr')
-                    if len(sub_rows) >= 3:
-                        is_verify = "verify" in url.lower()
-                        title_el = sub_soup.find(['h1', 'h2', 'h3'])
-                        stage_title = title_el.text.strip() if title_el else "Stage"
+                    # --- SMART HTML PARSER ---
+                    current_division = "Unknown"
+                    current_stage_title = "Stage"
+                    current_winner_hf = 0.0
+                    is_verify = "verify" in url.lower()
+
+                    for el in sub_soup.find_all(['h1', 'h2', 'h3', 'h4', 'tr']):
+                        text = el.get_text().strip()
                         
-                        for sub_row in sub_rows:
-                            cells = sub_row.find_all('td')
+                        # 1. Überschriften scannen (Division & Stage erkennen)
+                        if el.name in ['h1', 'h2', 'h3', 'h4']:
+                            for div in KNOWN_DIVISIONS:
+                                if div.lower() in text.lower():
+                                    current_division = div
+                                    break
+                            if "stage" in text.lower():
+                                current_stage_title = text
+                                current_winner_hf = 0.0 # Reset für neue Stage
+                            continue
+                            
+                        # 2. Tabellen-Zeilen (tr) scannen
+                        if el.name == 'tr':
+                            cells = el.find_all(['td', 'th'])
+                            if not cells: continue
+                            
+                            # Manchmal steht die Division in einer breiten Tabellenzeile
+                            if len(cells) == 1:
+                                for div in KNOWN_DIVISIONS:
+                                    if div.lower() in cells[0].get_text().lower():
+                                        current_division = div
+                                        current_winner_hf = 0.0
+                                        break
+                                continue
+                                
                             if len(cells) < 7: continue
-                            row_text = sub_row.get_text()
+                            
+                            # Werte auslesen
+                            row_text = el.get_text()
+                            rank_str = cells[0].get_text().strip().replace('.', '')
+                            
+                            # HFs finden (unterschiedliche Spalten je nach HTML)
+                            hf = 0.0
+                            if len(cells) >= 11: hf = extract_float(cells[10].text)
+                            elif len(cells) >= 8: hf = extract_float(cells[8].text) if cells[8].text else extract_float(cells[7].text)
+
+                            # Wenn es Platz 1 ist, merke dir den Sieger-Hit-Factor!
+                            if rank_str == '1' or rank_str == '100,00':
+                                if hf > 0: current_winner_hf = hf
+
+                            # Wenn wir den Schützen finden -> Speichern!
                             for shooter in shooters:
                                 if name_matches(shooter["real_name"], row_text):
-                                    print(f"   🔥 {shooter['real_name']} in HTML gefunden! ({m_name})")
-                                    current_title = cells[2].text.strip() if is_verify else stage_title
-                                    parse_and_save_html_row(shooter["id"], m_id, m_name, current_title, cells, is_verify_mode=is_verify)
-            except Exception:
+                                    stage_name_to_save = cells[2].text.strip() if is_verify else current_stage_title
+                                    
+                                    # Fallback für Rank, wenn leer
+                                    rank_val = int(rank_str) if rank_str.isdigit() else 0
+                                    
+                                    payload = {
+                                        "user_id": shooter["id"], "match_id": str(m_id), "match_name": m_name,
+                                        "stage_name": stage_name_to_save, "scoring_type": "Comstock",
+                                        "hit_factor": hf,
+                                        "division": current_division,
+                                        "stage_rank": rank_val,
+                                        "winner_hit_factor": current_winner_hf
+                                    }
+                                    
+                                    # Optionale Details speichern
+                                    try:
+                                        if len(cells) >= 11:
+                                            payload["alphas"] = int(cells[4].text.strip())
+                                            payload["charlies"] = int(cells[5].text.strip())
+                                            payload["deltas"] = int(cells[6].text.strip())
+                                            payload["misses"] = int(cells[7].text.strip())
+                                            payload["stage_time"] = extract_float(cells[9].text)
+                                    except: pass
+
+                                    supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
+                                    print(f"   🎯 {shooter['real_name']} gespeichert! (Stage: {stage_name_to_save} | Div: {current_division} | Rank: {rank_val} | HF: {hf} | Winner-HF: {current_winner_hf})")
+            except Exception as e:
                 pass
                 
-    print("🏁 Analyse erfolgreich beendet!")
+    print("🏁 Smart-Analyse erfolgreich beendet!")
 
 if __name__ == "__main__":
     scrape_verify_list()
