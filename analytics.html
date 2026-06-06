@@ -13,7 +13,7 @@
         };
     </script>
 
-    <link rel="manifest" href="manifest.json">
+    <link class="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e293b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -24,7 +24,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* Modernes Variablen-System für Hell- und Dunkelmodus */
         :root, html[data-theme="light"] {
             --bg-color: #f8f9fa;
             --card-bg: #ffffff;
@@ -32,7 +31,7 @@
             --text-muted: #64748b;
             --border-color: #e2e8f0;
             --input-bg: #ffffff;
-            --accent-color: #ff9f43; /* IPSC Orange */
+            --accent-color: #ff9f43;
             --danger-color: #ef4444;
             --success-color: #10b981;
             --info-color: #3b82f6;
@@ -56,7 +55,6 @@
         header { background-color: var(--card-bg); padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
         .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
         
-        /* --- Modals CSS (Wichtig für Pop-ups) --- */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease-out; padding: 20px; box-sizing: border-box; }
         .modal-content { background-color: var(--card-bg); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative; margin: auto; }
         .modal-content h3 { color: var(--text-color); margin-top: 0; margin-bottom: 24px; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; padding-right: 30px; }
@@ -71,13 +69,14 @@
         .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
         .modal-divider:not(:empty)::before { margin-right: .75em; }
         .modal-divider:not(:empty)::after { margin-left: .75em; }
+        
+        /* Deine originalen Button-Klassen aus dem Backup */
         .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; }
         .btn-primary-auth:hover { opacity: 0.9; }
         .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
         .btn-secondary-auth:hover { background-color: var(--border-color); }
-        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 30px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 10px; box-shadow: var(--shadow-sm); }
-        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
-        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
+        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 30px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 10px; box-shadow: var(--shadow-sm); width: 100%; }
+        .btn-submit:hover { opacity: 0.9; }
 
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
@@ -158,7 +157,7 @@
         </div>
     </div>
 
-    <!-- GLOBALER AUTH-MODAL CONTAINER (DAS FEHLENDE GLIED) -->
+    <!-- GLOBALER AUTH-MODAL CONTAINER -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -221,26 +220,32 @@
                 </form>
             </div>
 
+            <!-- KONTO EINSTELLUNGEN (Sicher korrigiert für dein Skript) -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 <form id="settings-form">
                     <div class="form-group">
                         <label data-txt="lbl-username">Schützenname / Anzeigename</label>
-                        <input type="text" id="settings-username" data-txt-ph="ph-username" placeholder="z.B. IPSCShooter99">
+                        <input type="text" id="settings-username" data-txt-ph="ph-username" placeholder="z.B. Fabi">
                     </div>
                     <div class="form-group">
                         <label data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
                         <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234">
                     </div>
 
-                    <!-- DSGVO-sicheres Eingabefeld für den echten Klarnamen -->
-                    <div class="form-group" style="background-color: rgba(59, 130, 246, 0.04); padding: 12px; border-radius: 4px; border-left: 3px solid var(--info-color); margin-bottom: 20px;">
-                        <label style="color: var(--info-color); margin-bottom: 2px;" data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
-                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-real-name-desc">Trage hier deinen Klarnamen ein. Dieser Name wird niemals öffentlich auf der Seite gezeigt.</p>
-                        <input type="text" id="settings-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann">
+                    <div class="form-group">
+                        <label data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
+                        <input type="text" id="settings-real-name" data-txt-ph="ph-real-name" placeholder="Vorname Nachname (z.B. Fabian Schöps)">
                     </div>
 
-                    <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
+                    <!-- Das vom Skript gesuchte Passwort-Feld, um den "null"-Absturz zu verhindern -->
+                    <div class="form-group">
+                        <label>Neues Passwort (optional)</label>
+                        <input type="password" id="settings-password" placeholder="••••••••">
+                    </div>
+
+                    <!-- Button angepasst auf dein originales Klassendesign -->
+                    <button type="submit" class="btn-submit" data-txt="btn-save">Speichern</button>
                 </form>
             </div>
         </div>
@@ -253,7 +258,7 @@
         </div>
     </footer>
 
-    <!-- Globale Skripte laden[span_3](start_span)[span_3](end_span) -->
+    <!-- Globale Skripte laden -->
     <script src="auth.js"></script>
     <script src="lang.js"></script>
     <script src="app.js"></script>
