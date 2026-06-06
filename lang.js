@@ -13,6 +13,7 @@ window.portalTranslations = {
         // --- NAVIGATION KEYS ---
         "nav-startseite": "Startseite",
         "nav-wiederladen": "Wiederladen",
+        "nav-analytics": "Statistiken",
 
         // --- STARTSEITE (index.html) ---
         "hero-title": "DVC – Willkommen auf deiner IPSC-Plattform",
@@ -26,7 +27,7 @@ window.portalTranslations = {
         "news-body-2": "Ab sofort stehen dir mächtige Trainingshelfer zur Verfügung. Berechne präzise deinen Hit-Factor direkt auf der Range oder nutze unseren reaktionsschnellen Dry-Fire-Timer für dein Trockentraining zu Hause.",
         "news-date-3": "April 2026",
         "news-heading-3": "🛡️ 'Trusted Shooter' Reputationssystem",
-        "news-body-3": "Um die Sicherheit auf dem Marktplatz zu maximieren, wurde ein Reputationssystem eingeführt. Durch Hinterlegen deines IPSC-Alias erhältst du ein verifiziertes Abzeichen, zudem können erfolgreiche Vermittlungen gegenseitig bewertet werden.",
+        "news-body-3": "Um die Sicherheit auf dem Marktplatz zu maximieren, wurde ein Reputationssystem eingeführt. Durch Hinterlegen du deines IPSC-Alias erhältst du ein verifiziertes Abzeichen, zudem können erfolgreiche Vermittlungen gegenseitig bewertet werden.",
         "card-title-market": "Marktplatz",
         "card-desc-market": "Suche nach verfügbaren Startplätzen für ausgebuchte Matches oder biete dein eigenes Ticket zum Tausch an.",
         "card-action-market": "Zum Marktplatz &rarr;",
@@ -107,7 +108,7 @@ window.portalTranslations = {
         "btn-export": "Export (.ics)",
         "report-btn": "Melden",
         "form-title-edit": "Eintrag bearbeiten ✏️",
-        "btn-save-edit": "Änderungen保存",
+        "btn-save-edit": "Änderungen speichern",
         "login-required": "Nur eingeloggte Nutzer können Schützen kontaktieren.",
         "tag-offer": "BIETE",
         "tag-want": "SUCHE",
@@ -134,7 +135,7 @@ window.portalTranslations = {
         "planner-lbl-match-name": "Match-Name",
         "planner-lbl-match-date": "Datum",
         "planner-lbl-match-location": "Ort / Land",
-        "planner-btn-save": "Match in Cloud speichern",
+        "planner-btn-save": "Match in Cloud保存",
         "planner-subtitle-planned": "Geplante Matches",
         "planner-loading": "Lade Daten aus Supabase...",
         "planner-btn-export": "📅 In Kalender exportieren (.ics)",
@@ -237,7 +238,15 @@ window.portalTranslations = {
         "hub-desc-bds": "Der Bund Deutscher Sportschützen. Offizielle Anlaufstelle für Sportordnung, Befürwortungen und Termine.",
         "hub-btn-bds": "Zum BDS",
         "hub-desc-rules": "Die aktuellen internationalen Regelwerke (Handgun, Rifle, PCC, Shotgun) direkt als PDF zum Download.",
-        "hub-btn-rules": "Zu den Rulebooks"
+        "hub-btn-rules": "Zu den Rulebooks",
+
+        // --- PERFORMANCE ANALYTICS ---
+        "analytics-title": "🏆 IPSC Performance Analytics",
+        "analytics-desc": "Überwache deine sportliche Entwicklung, deine Treffer-Präzision und deine Hit-Factor-Trends der letzten Matches.",
+        "analytics-kpi-matches": "Matches Gesamt",
+        "analytics-kpi-avg-hf": "Ø Hit Factor",
+        "analytics-chart-title": "📈 Hit-Factor Trend (Letzte 5 Stages)",
+        "analytics-acc-title": "🎯 Treffer-Verteilung (Präzision)"
     },
     en: {
         // --- COMMON ELEMENTS & HEADER/FOOTER ---
@@ -252,6 +261,7 @@ window.portalTranslations = {
         // --- NAVIGATION KEYS ---
         "nav-startseite": "Home",
         "nav-wiederladen": "Reloading",
+        "nav-analytics": "Analytics",
 
         // --- HOME PAGE (index.html) ---
         "hero-title": "DVC – Welcome to your IPSC Platform",
@@ -476,7 +486,15 @@ window.portalTranslations = {
         "hub-desc-bds": "The Federation of German Sport Shooters. Official contact point for sports regulations, endorsements, and dates.",
         "hub-btn-bds": "Go to BDS",
         "hub-desc-rules": "The current international rulebooks (Handgun, Rifle, PCC, Shotgun) directly as PDF for download.",
-        "hub-btn-rules": "Go to Rulebooks"
+        "hub-btn-rules": "Go to Rulebooks",
+
+        // --- PERFORMANCE ANALYTICS ---
+        "analytics-title": "🏆 IPSC Performance Analytics",
+        "analytics-desc": "Track your athletic progress, shooting precision, and hit factor trends across your matches.",
+        "analytics-kpi-matches": "Total Matches",
+        "analytics-kpi-avg-hf": "Avg Hit Factor",
+        "analytics-chart-title": "📈 Hit Factor Trend (Last 5 Stages)",
+        "analytics-acc-title": "🎯 Hit Distribution (Accuracy)"
     }
 };
 
