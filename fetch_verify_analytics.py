@@ -2,7 +2,6 @@ import os
 import requests
 import re
 import urllib.parse
-from datetime import datetime
 from bs4 import BeautifulSoup
 from supabase import create_client, Client
 
@@ -15,7 +14,6 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Wir übernehmen die exakten Verbindungseinstellungen deines funktionierenden Scrapers!
 BASE_URL = "https://www.ipscmatch.de/"
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
@@ -27,73 +25,53 @@ def clean_and_normalize(text):
     text = text.replace("ö", "oe").replace("ä", "ae").replace("ü", "ue").replace("ß", "ss")
     return re.sub(r'[^a-z0-9]', '', text)
 
-def name_matches(real_name, web_name):
-    """Prüft flexibel, ob alle Namensteile im Web-Eintrag existieren (Reihenfolge-egal)"""
-    if not real_name or not web_name:
+def name_matches(real_name, text_to_search):
+    """Prüft, ob alle Namensbestandteile irgendwo im Text der Zeile existieren"""
+    if not real_name or not text_to_search:
         return False
     real_parts = [p.strip() for p in re.split(r'[\s,]+', real_name) if p.strip()]
-    web_normalized = clean_and_normalize(web_name)
+    search_normalized = clean_and_normalize(text_to_search)
     if not real_parts:
         return False
-    for part in real_parts:
-        if clean_and_normalize(part) not in web_normalized:
-            return False
-    return True
+    return all(clean_and_normalize(part) in search_normalized for part in real_parts)
 
 def discover_matches_automatically():
-    """Nutzt die exakte Tabellen-Logik deines funktionierenden Scrapers für das Archiv"""
     print("🔍 Starte Match-Discovery auf ipscmatch.de ab 2023...")
-    
     urls_to_scan = [
         "https://www.ipscmatch.de/",
         "https://www.ipscmatch.de/index.pl?archiv=1",
         "https://www.ipscmatch.de/index.pl?action=archiv"
     ]
-    
     matches_to_scrape = []
     seen_ids = set()
     
     for url in urls_to_scan:
-        print(f"📡 Scanne Übersicht: {url}")
         try:
             response = requests.get(url, headers=HEADERS, timeout=25)
-            if response.status_code != 200:
-                continue
-                
+            if response.status_code != 200: continue
             soup = BeautifulSoup(response.text, 'html.parser')
             for row in soup.find_all('tr'):
                 tds = row.find_all('td')
                 if len(tds) >= 6:
-                    
-                    # Datums-Check: Jahr aus Spalte 5 ziehen und ab 2023 filtern
                     datum_raw = tds[5].text.strip()
                     year_match = re.search(r'\b(202[3-7])\b', datum_raw)
-                    if not year_match:
-                        continue
-                    if int(year_match.group(1)) < 2023:
-                        continue
+                    if not year_match or int(year_match.group(1)) < 2023: continue
                         
                     match_link = tds[3].find('a')
-                    if not match_link:
-                        continue
+                    if not match_link: continue
                         
                     href = match_link.get('href', '')
                     match_id = None
-                    
-                    # BROWSER-KONFORMER URL PARSER (Erfasst Text-IDs wie 2026_IPSC_BSV_HG-3 fehlerfrei)
                     if "match=" in href:
                         parsed_url = urllib.parse.urlparse(href)
                         query_params = urllib.parse.parse_qs(parsed_url.query)
-                        if 'match' in query_params:
-                            match_id = query_params['match'][0]
+                        if 'match' in query_params: match_id = query_params['match'][0]
                     elif "/matches/" in href:
                         match_id = href.split("/matches/")[-1].split("/")[0].split("?")[0]
 
                     if match_id and match_id not in seen_ids:
                         seen_ids.add(match_id)
-                        best_name = match_link.text.strip()
-                        matches_to_scrape.append({"id": str(match_id), "name": f"{best_name} ({datum_raw})"})
-                        
+                        matches_to_scrape.append({"id": str(match_id), "name": f"{match_link.text.strip()} ({datum_raw})" marketing}"})
         except Exception as e:
             print(f"   ⚠️ Fehler beim Scannen von {url}: {e}")
             
@@ -142,52 +120,51 @@ def parse_and_save_row(shooter_id, real_name, match_id, match_name, stage_title,
         }
 
         supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
-        print(f"      🎯 Treffer importiert: {real_name} -> {stage_title} ({match_name})")
-    except Exception:
-        pass
+        print(f"      🎯 -> TREFFER ERFOLGREICH IMPORTIERT: {stage_title}")
+    except Exception as e:
+        print(f"      ❌ Fehler beim Extrahieren der Zeilen-Daten: {e}")
 
 def scrape_verify_list():
     shooters = get_active_shooters()
     print(f"👤 Geladene Profile aus Supabase: {shooters}")
-    if not shooters:
-        print("ℹ️ Keine Schützen mit hinterlegtem Klarnamen gefunden.")
-        return
+    if not shooters: return
 
     matches_to_process = discover_matches_automatically()
-    print(f"⚡ Analysiere Ergebnislisten von {len(matches_to_process)} Turnieren...")
 
     for match in matches_to_process:
         match_id = match["id"]
         match_name = match["name"]
         
-        # Verschiedene Ergebnis-Pfade abprüfen, da ipscmatch.de Pfade variiert
-        urls_to_check = [
-            f"https://www.ipscmatch.de/matches/{match_id}/verify.html",
-            f"https://www.ipscmatch.de/matches/{match_id}/stage.html"
-        ]
+        # PRÜFT JETZT ALLE MÖGLICHEN ERGEBNIS-DATEIEN LIVE
+        filenames_to_try = ["verify.html", "overall.html", "stage.html"]
         
-        for url in urls_to_check:
+        for filename in filenames_to_try:
+            url = f"https://www.ipscmatch.de/matches/{match_id}/{filename}"
             try:
-                response = requests.get(url, headers=HEADERS, timeout=10)
+                response = requests.get(url, headers=HEADERS, timeout=8)
                 if response.status_code == 200:
-                    is_verify = "verify.html" in url
+                    print(f"🟢 Datei gefunden für {match_id}: {filename}")
+                    is_verify = (filename == "verify.html")
                     soup = BeautifulSoup(response.text, 'html.parser')
                     
                     title_el = soup.find(['h1', 'h2', 'h3'])
                     stage_title = title_el.text.strip() if title_el else "Stage"
 
-                    for row in soup.find_all('tr'):
+                    rows = soup.find_all('tr')
+                    for row in rows:
                         cells = row.find_all('td')
                         min_len = 11 if is_verify else 9
                         if len(cells) < min_len: continue
                         
-                        web_name = cells[1].text.strip()
+                        # SPALTEN-UNABHÄNGIG: Durchsucht die gesamte Text-Zeile nach deinem Namen!
+                        row_text = row.get_text()
                         for shooter in shooters:
-                            if name_matches(shooter["real_name"], web_name):
+                            if name_matches(shooter["real_name"], row_text):
+                                print(f"   🔥 Schütze '{shooter['real_name']}' in Zeile erkannt!")
                                 current_title = cells[2].text.strip() if is_verify else stage_title
                                 parse_and_save_row(shooter["id"], shooter["real_name"], match_id, match_name, current_title, cells, is_verify_mode=is_verify)
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"   🔴 Fehler beim Abruf von {match_id} ({filename}): {e}")
 
 if __name__ == "__main__":
     scrape_verify_list()
