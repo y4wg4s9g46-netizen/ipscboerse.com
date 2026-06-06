@@ -17,6 +17,7 @@
             { href: "community.html", text: "Community", key: "card-title-comm" },
             { href: "ipsc-hub.html", text: "IPSC Hub", key: "card-title-hub" },
             { href: "tools.html", text: "Tools & Training", key: "card-title-tools" },
+            { href: "analytics.html", text: "Statistiken", key: "nav-analytics" },
             { href: "wiederladen.html", text: "Wiederladen", key: "nav-wiederladen" }
         ];
 
@@ -27,7 +28,6 @@
             navHtml += `<a href="${link.href}" class="${className}" data-txt="${link.key}">${link.text}</a>`;
         });
 
-        // Hier wurde der <a> Tag um h1 und p hinzugefügt
         header.innerHTML = `
             <a href="index.html" style="text-decoration: none; color: inherit; display: inline-block; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Zur Startseite">
                 <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
@@ -60,9 +60,6 @@
         style.innerHTML = `
             header { position: relative; }
             
-            /* ========================================================
-               ULTRA-STYLING FÜR DIE OBERE KONTROLL-LEISTE (KONTROLL-BUTTONS)
-               ======================================================== */
             header .header-controls {
                 position: absolute !important;
                 top: 50% !important;
@@ -74,7 +71,6 @@
                 flex-direction: row !important;
             }
 
-            /* Einheitliche Buttons für Theme und Chat */
             header .theme-toggle-btn { 
                 width: 38px !important; 
                 height: 38px !important; 
@@ -96,7 +92,6 @@
                 background-color: var(--bg-color) !important;
             }
 
-            /* Einheitliches Dropdown-Menü */
             header .lang-select { 
                 width: auto !important; 
                 height: 38px !important;
@@ -113,7 +108,6 @@
                 cursor: pointer !important;
             }
 
-            /* Authentifizierungs-Container */
             header #auth-status-container { 
                 width: auto !important; 
                 display: flex !important; 
@@ -121,7 +115,6 @@
                 gap: 8px !important;
             }
 
-            /* Anmelde- und Abmeldebuttons */
             header .btn-auth { 
                 width: auto !important; 
                 height: 38px !important;
@@ -145,7 +138,6 @@
                 border-color: var(--text-muted) !important; 
             }
 
-            /* Spezifisches, sauberes Design für den Logout-Button */
             header #btn-logout {
                 border: 1px solid var(--danger-color) !important;
                 color: var(--danger-color) !important;
@@ -156,7 +148,6 @@
                 color: #ffffff !important;
             }
 
-            /* Perfekte Skalierung für das runde Avatarbild */
             header #btn-open-settings img {
                 width: 38px !important;
                 height: 38px !important;
@@ -167,9 +158,6 @@
                 display: block !important;
             }
 
-            /* ========================================================
-               HAUPTNAVIGATION (PILLS IM RECHTECKIGEN STARTSEITEN-LOOK)
-               ======================================================== */
             header .main-nav { 
                 margin-top: 20px !important; 
                 display: flex !important; 
@@ -221,7 +209,6 @@
                 -webkit-overflow-scrolling: touch !important;
             }
 
-            /* Responsive Smartphone-Optimierung */
             @media (max-width: 768px) {
                 header { padding: 16px 12px 8px 12px !important; }
                 header h1 { font-size: 20px !important; margin-bottom: 4px !important; }
