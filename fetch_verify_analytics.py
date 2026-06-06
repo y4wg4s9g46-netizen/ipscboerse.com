@@ -1,80 +1,122 @@
 import os
 import requests
+import re
 from bs4 import BeautifulSoup
 from supabase import create_client, Client
 
-# 1. Verbindung zu deiner Supabase herstellen (Nutzt Umgebungsvariablen)
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") # Erlaubt das Lesen des gesicherten real_name Felds
+SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
 
 if not SUPABASE_URL or not SUPABASE_KEY:
-    print("❌ Fehler: SUPABASE_URL oder SUPABASE_SERVICE_ROLE_KEY nicht gesetzt!")
+    print("❌ Fehler: Umgebungsvariablen nicht gesetzt!")
     exit(1)
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-def get_active_reloaders():
-    """Holt die IDs und echten Namen aller registrierten Schützen"""
+def discover_matches_automatically():
+    """Scant die Startseite von ipscmatch.de und findet alle Match-IDs"""
+    print("🔍 Suche auf ipscmatch.de nach aktuellen Matches...")
+    base_url = "https://ipscmatch.de/"
+    
+    try:
+        response = requests.get(base_url, timeout=15)
+        if response.status_code != 200:
+            print("❌ Startseite von ipscmatch.de konnte nicht geladen werden.")
+            return
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        discovered = []
+
+        # Wir suchen nach allen Links, die eine Match-ID enthalten
+        # Typisch ist z.B. index.pl?match=73 oder Ordnerstrukturen /matches/73/
+        for link in soup.find_all('a', href=True):
+            href = link['href']
+            match_id = None
+            
+            # Regulärer Ausdruck, um die ID herauszufiltern
+            if "match=" in href:
+                match_id_search = re.search(r'match=(\d+)', href)
+                if match_id_search:
+                    match_id = match_id_search.group(1)
+            elif "/matches/" in href:
+                match_id_search = re.search(r'/matches/(\d+)', href)
+                if match_id_search:
+                    match_id = match_id_search.group(1)
+
+            if match_id and match_id not in [m['id'] for m in discovered]:
+                match_name = link.text.strip() or f"Match #{match_id}"
+                discovered.append({"id": str(match_id), "name": match_name})
+
+        print(f"🔗 {len(discovered)} Matches auf der Startseite entdeckt.")
+
+        # Neue Matches in die Supabase-Tabelle 'matches' pushen
+        for match in discovered:
+            supabase.table("matches").upsert(
+                {"id": match["id"], "name": match["name"]},
+                on_conflict="id"
+            ).execute()
+            
+        print("✅ Match-Liste in Supabase erfolgreich aktualisiert.")
+
+    except Exception as e:
+        print(f"❌ Fehler bei der Match-Entdeckung: {e}")
+
+def get_active_shooters():
     try:
         response = supabase.table("profiles").select("id, real_name").not_.is_("real_name", "null").execute()
         return response.data
     except Exception as e:
-        print(f"Fehler beim Laden der Schützenprofile: {e}")
+        print(f"Fehler beim Laden der Profile: {e}")
         return []
 
-def get_tracked_matches():
-    """Holt die aktuellen Matches aus deiner bestehenden Match-Liste, um sie zu scannen"""
-    try:
-        # Hier wird angenommen, dass du eine Tabelle 'matches' hast, in der du die IDs von ipscmatch.de speicherst
-        response = supabase.table("matches").select("id, name").execute()
-        return response.data
-    except Exception as e:
-        # Fallback, falls du noch keine Match-Tabelle hast (zum Testen von Handgun Matches 2026)
-        print("Hinweis: Keine 'matches'-Tabelle gefunden, nutze Test-Match ID.")
-        return [{"id": "12345", "name": "Deutsche Meisterschaft Handgun 2026"}]
-
 def scrape_verify_list():
-    shooters = get_active_reloaders()
-    matches = get_tracked_matches()
+    # 1. Erst automatisch nach neuen Matches suchen
+    discover_matches_automatically()
 
+    shooters = get_active_shooters()
     if not shooters:
-        print("ℹ️ Keine Schützen mit hinterlegtem Klarnamen in der Datenbank.")
+        print("ℹ️ Keine Schützen mit hinterlegtem Klarnamen gefunden.")
         return
 
+    # 2. Alle Matches aus der Datenbank laden, die wir scannen müssen
+    try:
+        # Hier holen wir uns die Matches (z.B. die neuesten 10, um den Server zu schonen)
+        match_response = supabase.table("matches").select("id, name").order("created_at", {"ascending": False}).limit(15).execute()
+        matches = match_response.data
+    except Exception as e:
+        print(f"Fehler beim Laden der Match-Tabelle: {e}")
+        return
+
+    # 3. Schleife durch die Matches und Verify-Listen parsen
     for match in matches:
         match_id = match["id"]
         match_name = match["name"]
-        
-        # Die offizielle WinMSS/PractiScore Verify-URL-Struktur auf ipscmatch.de
         url = f"https://ipscmatch.de/matches/{match_id}/verify.html"
-        print(f"Scanne Match: {match_name} ({url})...")
 
         try:
             response = requests.get(url, timeout=15)
             if response.status_code != 200:
-                print(f"-> Keine Verify-Liste für Match {match_id} online (Status {response.status_code}).")
-                continue
+                # Falls WinMSS-Struktur anders ist, hier alternativer Pfad-Versuch
+                url = f"https://ipscmatch.de/index.pl?match={match_id}&action=verify"
+                response = requests.get(url, timeout=15)
+                if response.status_code != 200:
+                    continue
 
             soup = BeautifulSoup(response.text, 'html.parser')
-            
-            # Wir durchsuchen alle Tabellenzeilen des offiziellen HTML-Exports
             for row in soup.find_all('tr'):
                 cells = row.find_all('td')
                 if len(cells) < 11:
-                    continue # Keine gültige Wertungszeile einer Stage
+                    continue
                 
-                # In der zweiten Spalte [1] steht auf ipscmatch.de üblicherweise der Name des Teilnehmers
                 web_name = cells[1].text.strip().lower()
 
                 for shooter in shooters:
                     real_name = shooter["real_name"].lower()
 
-                    # Flexibler Abgleich (erkennt "Mustermann, Max" genauso wie "Max Mustermann")
                     if real_name in web_name or web_name in real_name:
                         try:
-                            # Werte aus den Standard-WinMSS-Spalten extrahieren
                             payload = {
-                                "user_id": shooter["id"], # Absolute Anonymität im Frontend!
+                                "user_id": shooter["id"], 
                                 "match_id": str(match_id),
                                 "match_name": match_name,
                                 "stage_name": cells[2].text.strip(),
@@ -88,19 +130,12 @@ def scrape_verify_list():
                                 "hit_factor": float(cells[10].text.strip().replace(',', '.'))
                             }
 
-                            # Sicherer Cloud-Upload (Aktualisiert bestehende Werte, falls sich etwas ändert)
-                            supabase.table("user_match_analytics").upsert(
-                                payload, 
-                                on_conflict="user_id,match_id,stage_name"
-                            ).execute()
-                            
-                            print(f"   ⚡ Treffer geladen für Schützen-ID {shooter['id']} auf {payload['stage_name']}")
-                        
+                            supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
+                            print(f"   ⚡ Daten geladen für {shooter['real_name']} auf Stage {payload['stage_name']}")
                         except Exception as parse_error:
-                            print(f"❌ Fehler beim Parsen der Stage-Zeile: {parse_error}")
-
+                            pass
         except Exception as conn_error:
-            print(f"❌ Verbindung zu ipscmatch.de fehlgeschlagen: {conn_error}")
+            print(f"❌ Verbindung fehlgeschlagen für Match {match_id}: {conn_error}")
 
 if __name__ == "__main__":
     scrape_verify_list()
