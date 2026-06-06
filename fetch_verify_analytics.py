@@ -160,7 +160,7 @@ def scrape_verify_list():
                     reader = PdfReader(pdf_file)
                     
                     current_div_pdf = "Unknown"
-                    current_stage_pdf = "Overall Match Results"
+                    current_stage_pdf = "Unknown Stage"
                     current_winner_hf_pdf = 0.0
                     
                     for page in reader.pages:
@@ -175,14 +175,18 @@ def scrape_verify_list():
                                     current_div_pdf = div
                                     break
                             
-                            # Stage erkennen (z.B. "Stage 1 -- Stage 1 - R1")
+                            # Stage erkennen - ABER WICHTIG: Nur zurücksetzen, wenn es eine WIRKLICH neue Stage ist!
                             stage_match = re.search(r'(Stage\s+\d+\s+--\s+.*)', line, re.IGNORECASE)
                             if stage_match:
-                                current_stage_pdf = stage_match.group(1).split('--')[0].strip()
-                                current_winner_hf_pdf = 0.0 # Neuer Stage-Sieger
+                                extracted_stage = stage_match.group(1).split('--')[0].strip()
+                                if extracted_stage != current_stage_pdf:
+                                    current_stage_pdf = extracted_stage
+                                    current_winner_hf_pdf = 0.0 # Nur resetten, wenn Seite 1 einer NEUEN Stage beginnt!
                                 
                             if "Overall Match Results" in line:
-                                current_stage_pdf = "Overall Match Results"
+                                if current_stage_pdf != "Overall Match Results (PDF)":
+                                    current_stage_pdf = "Overall Match Results (PDF)"
+                                    current_winner_hf_pdf = 100.0 # Default für Overall
 
                             # Spalten intelligent von links nach rechts lesen
                             tokens = line.split()
@@ -217,15 +221,15 @@ def scrape_verify_list():
                                         supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
                                         print(f"   🔥 {shooter['real_name']} in PDF (Stage) gespeichert! ({current_div_pdf} | {current_stage_pdf} | HF: {hf_val})")
                                         
-                                    elif len(numeric_vals) >= 3 and current_stage_pdf == "Overall Match Results": # Das ist das Match-Ergebnis
+                                    elif len(numeric_vals) >= 3 and current_stage_pdf == "Overall Match Results (PDF)": # Match-Ergebnis
                                         rank_val = int(numeric_vals[0])
-                                        percentage = numeric_vals[1]
-                                        points = numeric_vals[2]
+                                        percentage = numeric_vals[1] 
                                         
                                         payload = {
                                             "user_id": shooter["id"], "match_id": str(m_id), "match_name": m_name,
-                                            "stage_name": "Overall Match Results (PDF)", "scoring_type": "Comstock",
-                                            "stage_time": percentage, "hit_factor": points,
+                                            "stage_name": current_stage_pdf, "scoring_type": "Comstock",
+                                            "stage_time": 0.0, 
+                                            "hit_factor": percentage, 
                                             "division": current_div_pdf,
                                             "stage_rank": rank_val,
                                             "winner_hit_factor": 100.0
@@ -233,7 +237,7 @@ def scrape_verify_list():
                                         supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
                                         print(f"   🔥 {shooter['real_name']} in PDF (Overall) gespeichert! ({current_div_pdf} - {percentage}%)")
 
-                # --- HTML SMART PARSER (Bleibt unverändert stark) ---
+                # --- HTML SMART PARSER ---
                 elif 'text/html' in content_type:
                     sub_soup = BeautifulSoup(res.text, 'html.parser')
                     
@@ -247,7 +251,7 @@ def scrape_verify_list():
                                 links_queue.append(new_url)
                                 
                     current_division = "Unknown"
-                    current_stage_title = "Stage"
+                    current_stage_title = "Unknown Stage"
                     current_winner_hf = 0.0
                     is_verify = "verify" in url.lower()
 
@@ -260,8 +264,9 @@ def scrape_verify_list():
                                     current_division = div
                                     break
                             if "stage" in text.lower():
-                                current_stage_title = text
-                                current_winner_hf = 0.0
+                                if current_stage_title != text:
+                                    current_stage_title = text
+                                    current_winner_hf = 0.0 # Nur bei neuer Stage resetten
                             continue
                             
                         if el.name == 'tr':
