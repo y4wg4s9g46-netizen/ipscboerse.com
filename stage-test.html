@@ -1,174 +1,74 @@
+<!-- TOOL: IPSC PERFORMANCE ANALYTICS PROTOTYP -->
 <div class="tool-section">
-    <h2 data-txt="tools-split-title">⏱️ Split-Time Analysator (SG BLE Link)</h2>
-    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Kopple deinen SG Smart Shot Timer 2 direkt per Bluetooth, um deine Splits und Transitions in Echtzeit zu analysieren.</p>
-    
-    <button id="ble-connect-btn" class="btn-submit" style="background-color: var(--info-color); margin-bottom: 15px;" onclick="connectSGTimer()">
-        🔵 SG Timer 2 via Bluetooth verbinden
-    </button>
-    
-    <div id="timer-live-status" style="font-size: 13px; font-weight: bold; text-align: center; margin-bottom: 20px; color: var(--text-muted);">
-        Status: Nicht verbunden
-    </div>
+    <h2 data-txt="analytics-title">🏆 IPSC Performance Analytics</h2>
+    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="analytics-desc">Überwache deine sportliche Entwicklung, deine Treffer-Präzision und deine Hit-Factor-Trends der letzten Matches.</p>
 
-    <div id="session-stats-card" class="pf-dashboard-card" style="display: none; margin-bottom: 20px; background: rgba(15, 23, 42, 0.25);">
-        <div style="display: flex; justify-content: space-between; width: 100%; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; font-size: 14px;">
-            <span>Gesamtzeit: <strong id="ble-total-time" style="color: var(--accent-color);">0.00s</strong></span>
-            <span>Schüsse: <strong id="ble-shot-count">0</strong></span>
+    <!-- KPI Dashboard Grid (Responsiv gesteuert) -->
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px;">
+        <div style="background: rgba(15, 23, 42, 0.25); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); text-align: center;">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;" data-txt="analytics-kpi-matches">Matches Gesamt</div>
+            <div style="font-size: 24px; font-weight: 900; color: var(--text-color); margin-top: 4px;">14</div>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; font-size: 12px; margin-top: 8px; text-align: left;">
-            <div>Ø Split-Zeit: <strong id="ble-avg-split">0.00s</strong></div>
-            <div>Langsamster Wechsel: <strong id="ble-slowest-transition" style="color: var(--danger-color);">0.00s</strong></div>
+        <div style="background: rgba(15, 23, 42, 0.25); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); text-align: center;">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;" data-txt="analytics-kpi-avg-hf">Ø Hit Factor</div>
+            <div style="font-size: 24px; font-weight: 900; color: var(--accent-color); margin-top: 4px;">5.42</div>
         </div>
     </div>
 
-    <div style="overflow-x: auto;">
-        <table class="leaderboard" id="ble-shot-table" style="display: none; font-size: 13px;">
-            <thead>
-                <tr>
-                    <th style="width: 50px;">Schuss</th>
-                    <th>Zeit (s)</th>
-                    <th>Split (s)</th>
-                    <th>Typ</th>
-                </tr>
-            </thead>
-            <tbody id="ble-shot-body"></tbody>
-        </table>
+    <!-- Reines CSS/HTML Balkendiagramm für mobile Performance -->
+    <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 15px;" data-txt="analytics-chart-title">📈 Hit-Factor Trend (Letzte 5 Stages)</h3>
+    <div style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); padding: 20px 15px; border-radius: var(--radius); margin-bottom: 25px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; height: 120px; padding-bottom: 5px; gap: 8px;">
+            <!-- Balken 1 -->
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                <span style="font-size: 11px; font-weight: 700; color: var(--text-color);">3.12</span>
+                <div style="width: 100%; height: 45%; background: var(--border-color); border-radius: 4px 4px 0 0; transition: height 0.3s;"></div>
+                <span style="font-size: 10px; color: var(--text-muted);">Stg 1</span>
+            </div>
+            <!-- Balken 2 -->
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                <span style="font-size: 11px; font-weight: 700; color: var(--text-color);">4.85</span>
+                <div style="width: 100%; height: 68%; background: var(--info-color); border-radius: 4px 4px 0 0;"></div>
+                <span style="font-size: 10px; color: var(--text-muted);">Stg 2</span>
+            </div>
+            <!-- Balken 3 -->
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                <span style="font-size: 11px; font-weight: 700; color: var(--text-color);">6.20</span>
+                <div style="width: 100%; height: 88%; background: var(--accent-color); border-radius: 4px 4px 0 0;"></div>
+                <span style="font-size: 10px; color: var(--text-muted);">Stg 3</span>
+            </div>
+            <!-- Balken 4 -->
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                <span style="font-size: 11px; font-weight: 700; color: var(--danger-color);">2.10</span>
+                <div style="width: 100%; height: 30%; background: var(--danger-color); border-radius: 4px 4px 0 0;"></div>
+                <span style="font-size: 10px; color: var(--text-muted);">Stg 4</span>
+            </div>
+            <!-- Balken 5 -->
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                <span style="font-size: 11px; font-weight: 700; color: var(--success-color);">7.14</span>
+                <div style="width: 100%; height: 100%; background: var(--success-color); border-radius: 4px 4px 0 0;"></div>
+                <span style="font-size: 10px; color: var(--text-muted);">Stg 5</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Treffertyp-Verteilung (Visualisierungs-Balken) -->
+    <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 10px;" data-txt="analytics-acc-title">🎯 Treffer-Verteilung (Präzision)</h3>
+    <div style="margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;">
+            <span>Alpha (A) / Charlie (C) / Delta (D)</span>
+            <strong>84% Alphas</strong>
+        </div>
+        <!-- Segmentierter Fortschrittsbalken -->
+        <div style="width: 100%; height: 12px; background: var(--border-color); border-radius: 6px; overflow: hidden; display: flex;">
+            <div style="width: 84%; background: var(--success-color);" title="Alpha"></div>
+            <div style="width: 12%; background: var(--accent-color);" title="Charlie"></div>
+            <div style="width: 4%; background: var(--danger-color);" title="Delta"></div>
+        </div>
+        <div style="display: flex; gap: 15px; margin-top: 8px; font-size: 11px; color: var(--text-muted);">
+            <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 8px; height: 8px; background: var(--success-color); border-radius: 50%;"></div> Alpha (142)</div>
+            <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 8px; height: 8px; background: var(--accent-color); border-radius: 50%;"></div> Charlie (21)</div>
+            <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 8px; height: 8px; background: var(--danger-color); border-radius: 50%;"></div> Delta (7)</div>
+        </div>
     </div>
 </div>
-
-<script>
-    let bleDevice = null;
-    let bluetoothSessionTimes = [];
-
-    async function connectSGTimer() {
-        const btn = document.getElementById('ble-connect-btn');
-        const statusEl = document.getElementById('timer-live-status');
-        
-        if (!navigator.bluetooth) {
-            alert("Dein Browser unterstützt kein Web Bluetooth. Bitte nutze Chrome/Samsung Internet (Android) oder einen BLE-fähigen Browser wie Bluefy auf iOS.");
-            return;
-        }
-
-        try {
-            statusEl.innerText = "Suche nach SG Timer...";
-            statusEl.style.color = "var(--accent-color)";
-
-            // Filtert gezielt nach Shooters Global Geräten über das BLE-Protokoll
-            bleDevice = await navigator.bluetooth.requestDevice({
-                filters: [
-                    { namePrefix: 'SG Timer' },
-                    { namePrefix: 'SG_' }
-                ],
-                optionalServices: ['0000ffe0-0000-1000-8000-00805f9b34fb'] // Beispiel-Service-UUID aus dem SG v3.2 API Guide
-            });
-
-            statusEl.innerText = "Kopple mit " + bleDevice.name + "...";
-            const server = await bleDevice.gatt.connect();
-            
-            statusEl.innerText = "✓ Verbunden mit " + bleDevice.name;
-            statusEl.style.color = "var(--success-color)";
-            btn.innerText = "🔴 Verbindung trennen";
-            btn.style.backgroundColor = "var(--danger-color)";
-            btn.setAttribute("onclick", "disconnectSGTimer()");
-
-            // Hier wird im echten Betrieb das Notification-Event der SG-Charakteristik abonniert:
-            // const service = await server.getPrimaryService('...');
-            // const char = await service.getCharacteristic('...');
-            // char.addEventListener('characteristicvaluechanged', (e) => parseSGData(e));
-            
-        } catch (error) {
-            console.error(error);
-            // BACKFALL-DEMO: Wenn kein echter Timer gekoppelt ist, simulieren wir die Datenkette für die Range
-            statusEl.innerText = "Simulations-Modus aktiv (Kein Hardware-Timer gefunden)";
-            statusEl.style.color = "var(--text-muted)";
-            btn.innerText = "⏱️ Kette simulieren";
-            btn.setAttribute("onclick", "simulateShotChain()");
-        }
-    }
-
-    function disconnectSGTimer() {
-        if (bleDevice && bleDevice.gatt.connected) {
-            bleDevice.gatt.disconnect();
-        }
-        location.reload();
-    }
-
-    // SIMULATOR: Generiert eine realistische IPSC-Schusskette (z.B. 6 Schuss mit Magazinwechsel)
-    function simulateShotChain() {
-        bluetoothSessionTimes = [];
-        document.getElementById('session-stats-card').style.display = 'flex';
-        document.getElementById('ble-shot-table').style.display = 'table';
-        
-        // Realistische kumulierte Timer-Rohdaten (Sekunden ab Startsignal)
-        const simulatedRawTimes = [0.85, 1.05, 1.28, 3.10, 3.32, 3.58]; 
-        let currentShot = 0;
-
-        const interval = setInterval(() => {
-            if (currentShot >= simulatedRawTimes.length) {
-                clearInterval(interval);
-                return;
-            }
-            processNewShot(simulatedRawTimes[currentShot]);
-            currentShot++;
-        }, 400);
-    }
-
-    function processNewShot(timestamp) {
-        bluetoothSessionTimes.push(timestamp);
-        
-        const tbody = document.getElementById('ble-shot-body');
-        const count = bluetoothSessionTimes.length;
-        
-        let split = 0;
-        let type = "First Shot";
-
-        if (count > 1) {
-            split = timestamp - bluetoothSessionTimes[count - 2];
-            // IPSC-Logik: Ein Split unter 0.35s ist meistens ein Double-Tap auf dieselbe Scheibe. Alles darüber ein Stellungs-/Zielwechsel.
-            type = split < 0.35 ? "🎯 Split" : "🏃 Transition";
-        }
-
-        // Tabellen-Zeile hinzufügen
-        const row = document.createElement('tr');
-        if (type === "🏃 Transition") row.style.backgroundColor = "rgba(59, 130, 246, 0.05)";
-        row.innerHTML = `
-            <td>#${count}</td>
-            <td>${timestamp.toFixed(2)}s</td>
-            <td>${count > 1 ? split.toFixed(2) + 's' : '-'}</td>
-            <td style="font-weight:600; color:${type === '🎯 Split' ? 'var(--success-color)' : 'var(--info-color)'}">${type}</td>
-        `;
-        tbody.appendChild(row);
-
-        // Dashboard aktualisieren
-        document.getElementById('ble-shot-count').innerText = count;
-        document.getElementById('ble-total-time').innerText = timestamp.toFixed(2) + 's';
-
-        // Statistiken berechnen
-        calculateSessionStats();
-    }
-
-    function calculateSessionStats() {
-        if (bluetoothSessionTimes.length < 2) return;
-        
-        let totalSplits = 0;
-        let splitCount = 0;
-        let slowestTransition = 0;
-
-        for (let i = 1; i < bluetoothSessionTimes.length; i++) {
-            const diff = bluetoothSessionTimes[i] - bluetoothSessionTimes[i - 1];
-            if (diff < 0.35) {
-                totalSplits += diff;
-                splitCount++;
-            } else {
-                if (diff > slowestTransition) slowestTransition = diff;
-            }
-        }
-
-        if (splitCount > 0) {
-            document.getElementById('ble-avg-split').innerText = (totalSplits / splitCount).toFixed(2) + 's';
-        }
-        if (slowestTransition > 0) {
-            document.getElementById('ble-slowest-transition').innerText = slowestTransition.toFixed(2) + 's';
-        }
-    }
-</script>
