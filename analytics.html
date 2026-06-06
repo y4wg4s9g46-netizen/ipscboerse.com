@@ -1,0 +1,198 @@
+<!-- KONTROLLER: IPSC PERFORMANCE DASHBOARD -->
+<div class="tool-section" style="max-width: 600px; margin: 0 auto; padding: 15px;">
+    
+    <!-- Titel & Beschreibung -->
+    <h2 data-txt="analytics-title" style="font-size: 22px; font-weight: 800; margin-bottom: 5px;">🏆 IPSC Performance Analytics</h2>
+    <p id="analytics-loader" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="analytics-desc">
+        Lade deine sportlichen Daten aus der Datenbank...
+    </p>
+
+    <!-- LEERZUSTAND / PLACEHOLDER (Wird ausgeblendet, sobald Daten da sind) -->
+    <div id="analytics-empty-state" style="display: none; background: rgba(255,193,7,0.1); border: 1px dashed var(--warning-color, #ffc107); padding: 20px; border-radius: var(--radius); text-align: center; margin-bottom: 20px;">
+        <span style="font-size: 24px;">ℹ️</span>
+        <h4 style="margin: 10px 0 5px 0; color: var(--text-color);">Noch keine Daten verfügbar</h4>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Sobald der automatische Nacht-Scraper dein erstes Match auf <strong>ipscmatch.de</strong> findet, tauchen deine Statistiken hier auf. Stelle sicher, dass dein Klarname im Profil hinterlegt ist!</p>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT (Wird erst angezeigt, wenn Daten geladen sind) -->
+    <div id="analytics-dashboard-content" style="display: none;">
+        
+        <!-- KPI Dashboard Grid -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px;">
+            <div style="background: rgba(15, 23, 42, 0.25); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); text-align: center;">
+                <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;" data-txt="analytics-kpi-matches">Matches Gesamt</div>
+                <div id="kpi-total-matches" style="font-size: 26px; font-weight: 900; color: var(--text-color); margin-top: 4px;">0</div>
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.25); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); text-align: center;">
+                <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;" data-txt="analytics-kpi-avg-hf">Ø Hit Factor</div>
+                <div id="kpi-avg-hf" style="font-size: 26px; font-weight: 900; color: var(--accent-color); margin-top: 4px;">0.00</div>
+            </div>
+        </div>
+
+        <!-- Hit-Factor Trend (Reines CSS-Balkendiagramm) -->
+        <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px;" data-txt="analytics-chart-title">📈 Hit-Factor Trend (Letzte 5 Stages)</h3>
+        <div style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); padding: 25px 15px 15px 15px; border-radius: var(--radius); margin-bottom: 25px;">
+            <div id="analytics-chart-container" style="display: flex; justify-content: space-between; align-items: flex-end; height: 130px; padding-bottom: 5px; gap: 10px;">
+                <!-- Wird dynamisch per JS befüllt -->
+            </div>
+        </div>
+
+        <!-- Treffertyp-Verteilung (Visualisierungs-Balken) -->
+        <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 10px;" data-txt="analytics-acc-title">🎯 Treffer-Verteilung (Präzision)</h3>
+        <div style="background: rgba(15, 23, 42, 0.15); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+                <span style="color: var(--text-muted);">Treffer-Verhältnis</span>
+                <strong id="analytics-alpha-badge" style="color: var(--success-color);">0% Alphas</strong>
+            </div>
+            
+            <!-- Segmentierter Fortschrittsbalken -->
+            <div style="width: 100%; height: 14px; background: rgba(255,255,255,0.05); border-radius: 7px; overflow: hidden; display: flex;">
+                <div id="bar-alphas" style="width: 0%; background: var(--success-color); transition: width 0.6s ease;" title="Alpha"></div>
+                <div id="bar-charlies" style="width: 0%; background: var(--accent-color); transition: width 0.6s ease;" title="Charlie"></div>
+                <div id="bar-deltas" style="width: 0%; background: var(--danger-color); transition: width 0.6s ease;" title="Delta"></div>
+            </div>
+            
+            <!-- Legende mit absoluten Zahlen -->
+            <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 11px; color: var(--text-muted); flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--success-color); border-radius: 50%;"></div> A: <span id="count-alphas" style="color: var(--text-color); font-weight: 600;">0</span></div>
+                <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--accent-color); border-radius: 50%;"></div> C: <span id="count-charlies" style="color: var(--text-color); font-weight: 600;">0</span></div>
+                <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--danger-color); border-radius: 50%;"></div> D: <span id="count-deltas" style="color: var(--text-color); font-weight: 600;">0</span></div>
+                <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: #718096; border-radius: 50%;"></div> Misses: <span id="count-misses" style="color: var(--text-color); font-weight: 600;">0</span></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- LOGIK-STEUERUNG FÜR SUPABASE -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    // Falls deine Plattform eine globale Initialisierung abwartet, hier einbinden.
+    // Wir triggern die Abfrage, sobald Supabase bereit ist.
+    if (window.supabaseClient) {
+        initAnalytics(window.supabaseClient);
+    } else {
+        // Fallback-Intervall, falls Supabase asynchron lädt
+        const checkCtx = setInterval(() => {
+            if (window.supabaseClient) {
+                clearInterval(checkCtx);
+                initAnalytics(window.supabaseClient);
+            }
+        }, 200);
+    }
+});
+
+async function initAnalytics(supabase) {
+    try {
+        // 1. Aktuell eingeloggten User ermitteln (Nutzt die offizielle Supabase v2 Struktur)
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError || !user) {
+            document.getElementById("analytics-loader").innerText = "❌ Bitte logge dich ein, um deine Statistiken zu sehen.";
+            return;
+        }
+
+        // 2. Daten aus der Scraper-Tabelle abfragen
+        const { data: stages, error: dbError } = await supabase
+            .from('user_match_analytics')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: true }); // Chronologisch sortieren
+
+        if (dbError) throw dbError;
+
+        // Sicherheits-Check: Hat der User überhaupt schon gescrapte Stages?
+        if (!stages || stages.length === 0) {
+            document.getElementById("analytics-loader").style.display = "none";
+            document.getElementById("analytics-empty-state").style.display = "block";
+            return;
+        }
+
+        // 3. Berechnungen starten
+        const totalStages = stages.length;
+        const uniqueMatches = [...new Set(stages.map(s => s.match_id))].length;
+        
+        let sumHitFactor = 0;
+        let totalAlphas = 0;
+        let totalCharlies = 0;
+        let totalDeltas = 0;
+        let totalMisses = 0;
+
+        stages.forEach(stage => {
+            sumHitFactor += parseFloat(stage.hit_factor || 0);
+            totalAlphas += intVal(stage.alphas);
+            totalCharlies += intVal(stage.charlies);
+            totalDeltas += intVal(stage.deltas);
+            totalMisses += intVal(stage.misses);
+        });
+
+        const avgHitFactor = (sumHitFactor / totalStages).toFixed(2);
+        const totalScoredHits = totalAlphas + totalCharlies + totalDeltas;
+
+        // Prozentuale Verteilungen für den Fortschrittsbalken ermitteln
+        const alphaPercent = totalScoredHits > 0 ? Math.round((totalAlphas / totalScoredHits) * 100) : 0;
+        const charliePercent = totalScoredHits > 0 ? Math.round((totalCharlies / totalScoredHits) * 100) : 0;
+        const deltaPercent = totalScoredHits > 0 ? Math.round((totalDeltas / totalScoredHits) * 100) : 0;
+
+        // 4. UI-Elemente mit echten Werten füttern
+        document.getElementById("kpi-total-matches").innerText = uniqueMatches;
+        document.getElementById("kpi-avg-hf").innerText = avgHitFactor;
+
+        // Absolute Zahlen in die Legende schreiben
+        document.getElementById("count-alphas").innerText = totalAlphas;
+        document.getElementById("count-charlies").innerText = totalCharlies;
+        document.getElementById("count-deltas").innerText = totalDeltas;
+        document.getElementById("count-misses").innerText = totalMisses;
+
+        // Treffer-Balken weich animieren/breiter machen
+        document.getElementById("analytics-alpha-badge").innerText = `${alphaPercent}% Alphas`;
+        document.getElementById("bar-alphas").style.width = `${alphaPercent}%`;
+        document.getElementById("bar-charlies").style.width = `${charliePercent}%`;
+        document.getElementById("bar-deltas").style.width = `${deltaPercent}%`;
+
+        // 5. Das CSS-Trend-Diagramm für die letzten 5 Stages aufbauen
+        const chartContainer = document.getElementById("analytics-chart-container");
+        chartContainer.innerHTML = ''; // Platzhalter leeren
+        
+        const lastFiveStages = stages.slice(-5);
+        const maxHFInSelection = Math.max(...lastFiveStages.map(s => floatVal(s.hit_factor)), 1);
+
+        lastFiveStages.forEach((stage, i) => {
+            const currentHF = floatVal(stage.hit_factor);
+            const calculatedHeight = (currentHF / maxHFInSelection) * 100;
+            
+            // Intelligente Farb-Zuweisung je nach sportlicher Leistung
+            let barColor = 'var(--info-color, #2196f3)'; // Standard-Blau
+            if (intVal(stage.misses) > 0 || intVal(stage.no_shoots) > 0) {
+                barColor = 'var(--danger-color, #ef4444)'; // Rot bei Fehlern
+            } else if (calculatedHeight > 80) {
+                barColor = 'var(--success-color, #10b981)'; // Grün bei Spitzen-Hit-Factor
+            }
+
+            // Sicheres Kürzen extrem langer Stage-Namen für Mobilgeräte
+            const shortStageName = stage.stage_name.length > 7 ? stage.stage_name.substring(0, 6) + '..' : stage.stage_name;
+
+            const barTemplate = `
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                    <span style="font-size: 11px; font-weight: 700; color: var(--text-color);">${currentHF.toFixed(2)}</span>
+                    <div style="width: 100%; height: ${calculatedHeight}%; background: ${barColor}; border-radius: 4px 4px 0 0; min-height: 4px;" title="${stage.stage_name} (HF: ${currentHF})"></div>
+                    <span style="font-size: 10px; color: var(--text-muted); white-space: nowrap;" title="${stage.stage_name}">${shortStageName}</span>
+                </div>
+            `;
+            chartContainer.insertAdjacentHTML('beforeend', barTemplate);
+        });
+
+        // Lade-Hinweis entfernen und Dashboard anzeigen
+        document.getElementById("analytics-loader").style.display = "none";
+        document.getElementById("analytics-dashboard-content").style.display = "block";
+
+    } catch (err) {
+        console.error("Fehler beim Laden des Dashboards:", err);
+        document.getElementById("analytics-loader").innerText = "❌ Fehler beim Laden der Analysen. Bitte lade die Seite neu.";
+    }
+}
+
+// Hilfsfunktionen für fehlerfreies Parsen leerer Datenbankfelder
+function intVal(val) { return val ? parseInt(val) : 0; }
+function floatVal(val) { return val ? parseFloat(val) : 0.0; }
+</script>
