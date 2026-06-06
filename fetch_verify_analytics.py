@@ -5,6 +5,7 @@ from urllib3.util.retry import Retry
 import re
 import urllib.parse
 import io
+import time
 from bs4 import BeautifulSoup
 from supabase import create_client, Client
 
@@ -24,15 +25,17 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 session = requests.Session()
-retry = Retry(total=5, backoff_factor=1, status_forcelist=[ 500, 502, 503, 504 ])
+# Smarteres Retry-System mit Backoff
+retry = Retry(total=3, backoff_factor=2, status_forcelist=[500, 502, 503, 504])
 adapter = HTTPAdapter(max_retries=retry)
 session.mount('http://', adapter)
 session.mount('https://', adapter)
 
 BASE_URL = "https://www.ipscmatch.de/"
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
+TIMEOUT_SECONDS = 10  # Harte Notbremse nach 10 Sekunden!
 
 def clean_and_normalize(text):
     if not text: return ""
@@ -50,9 +53,7 @@ def get_active_shooters():
     try:
         response = supabase.table("profiles").select("id, real_name").not_.is_("real_name", "null").execute()
         shooters = [s for s in response.data if s.get("real_name") and str(s["real_name"]).strip() != ""]
-        
-        # Gibt aus, nach wem überhaupt gesucht wird
-        print(f"👥 INFO: Geladene Schützen aus Supabase: {[s['real_name'] for s in shooters]}")
+        print(f"👥 INFO: Suche aktiv nach Schützen: {[s['real_name'] for s in shooters]}")
         return shooters
     except Exception as e:
         print(f"❌ Fehler beim Laden der Profile: {e}")
@@ -118,24 +119,30 @@ def parse_and_save_pdf_row(shooter_id, match_id, match_name, line_text):
         print(f"      ❌ Datenbank-Fehler (PDF): {e}")
 
 def load_master_page():
-    print("🔍 Lade die magische Gesamtliste (long=1)...")
+    print("🔍 Verbinde mit IPSC-Server und lade Gesamtliste (long=1)...")
     url = "https://www.ipscmatch.de/index.pl?long=1"
     try:
-        res = session.get(url, headers=HEADERS, timeout=20)
+        res = session.get(url, headers=HEADERS, timeout=TIMEOUT_SECONDS)
         if res.status_code == 200:
+            print("✅ Gesamtliste erfolgreich geladen!")
             return BeautifulSoup(res.text, 'html.parser')
+        print(f"❌ Server antwortete mit Statuscode: {res.status_code}")
+    except requests.exceptions.Timeout:
+        print("❌ Hänger vermieden: Server-Timeout beim Laden der Hauptseite!")
     except Exception as e:
-        pass
+        print(f"❌ Netzwerkfehler: {e}")
     return None
 
 def scrape_verify_list():
     shooters = get_active_shooters()
     if not shooters:
-        print("⚠️ Keine Schützen mit 'real_name' gefunden. Beende Durchlauf.")
+        print("⚠️ Keine aktiven Schützen mit real_name in Profiles gefunden.")
         return
 
     soup = load_master_page()
-    if not soup: return
+    if not soup: 
+        print("⚠️ Hauptseite konnte nicht geladen werden. Breche ab.")
+        return
 
     matches_found = []
 
@@ -143,7 +150,8 @@ def scrape_verify_list():
         tds = row.find_all('td')
         if len(tds) >= 4:
             text = row.get_text()
-            if any(y in text for y in ['2023', '2024', '2025', '2026', '2027']):
+            # 🚀 NUR 2026/2027 SCANNER
+            if '2026' in text or '2027' in text:
                 match_link = tds[3].find('a')
                 if match_link:
                     m_name = match_link.text.strip()
@@ -163,62 +171,51 @@ def scrape_verify_list():
                             l_text = a.text.lower()
                             
                             if "match=" not in l_href:
-                                # Blacklist für irrelevanten Ballast
-                                if any(bad in l_text for bad in ['urkunden', 'team', 'category', 'region']):
-                                    continue
-                                if any(bad in l_href for bad in ['urkunden', 'team', 'category', 'region']):
-                                    continue
-                                    
+                                if any(bad in l_text for bad in ['urkunden', 'team', 'category', 'region']): continue
+                                if any(bad in l_href for bad in ['urkunden', 'team', 'category', 'region']): continue
                                 result_links.append(urllib.parse.urljoin(BASE_URL, a['href']))
                         
                         matches_found.append({"id": m_id, "name": m_name, "links": result_links})
 
-    print(f"📋 {len(matches_found)} Turniere gefunden. Starte gefilterte Analyse...")
+    print(f"📋 {len(matches_found)} Turniere für 2026/2027 gefunden. Starte Blitz-Analyse...")
 
     for index, data in enumerate(matches_found, 1):
         m_id = data["id"]
         m_name = data["name"]
         row_links = data["links"]
         
-        if index % 50 == 0:
-            print(f"🔄 Verarbeite Turnier {index} von {len(matches_found)}...")
-        
         links_to_check = row_links if row_links else [
             f"https://www.ipscmatch.de/matches/{m_id}/overall.pdf",
             f"https://www.ipscmatch.de/matches/{m_id}/verify.html",
             f"https://www.ipscmatch.de/matches/{m_id}/overall.html"
         ]
-        
         links_to_check = list(set(links_to_check))
         
         for url in links_to_check:
-            # Entfernt störende URL-Parameter am Ende von PDFs
+            time.sleep(0.2) # Kleine Pause, um den Server nicht zu stressen
             if url.lower().split('?')[0].endswith('.pdf'):
                 try:
-                    res_pdf = session.get(url, headers=HEADERS, timeout=15)
+                    res_pdf = session.get(url, headers=HEADERS, timeout=TIMEOUT_SECONDS)
                     if res_pdf.status_code == 200:
                         pdf_file = io.BytesIO(res_pdf.content)
                         reader = PdfReader(pdf_file)
-                        
                         for page in reader.pages:
                             page_text = page.extract_text()
                             if not page_text: continue
-                            
                             for line in page_text.split('\n'):
                                 for shooter in shooters:
                                     if name_matches(shooter["real_name"], line):
-                                        print(f"   🔥 Schütze {shooter['real_name']} im PDF gefunden!")
+                                        print(f"   🔥 {shooter['real_name']} in PDF gefunden!")
                                         parse_and_save_pdf_row(shooter["id"], m_id, m_name, line)
                 except Exception:
                     pass
                 continue
 
             try:
-                res_sub = session.get(url, headers=HEADERS, timeout=10)
+                res_sub = session.get(url, headers=HEADERS, timeout=TIMEOUT_SECONDS)
                 if res_sub.status_code == 200 and len(res_sub.text) > 1000:
                     sub_soup = BeautifulSoup(res_sub.text, 'html.parser')
                     sub_rows = sub_soup.find_all('tr')
-                    
                     if len(sub_rows) >= 3:
                         is_verify = "verify" in url.lower()
                         title_el = sub_soup.find(['h1', 'h2', 'h3'])
@@ -227,15 +224,15 @@ def scrape_verify_list():
                         for sub_row in sub_rows:
                             cells = sub_row.find_all('td')
                             if len(cells) < 7: continue
-                            
                             row_text = sub_row.get_text()
                             for shooter in shooters:
                                 if name_matches(shooter["real_name"], row_text):
-                                    print(f"   🔥 Schütze {shooter['real_name']} in HTML gefunden!")
+                                    print(f"   🔥 {shooter['real_name']} in HTML gefunden!")
                                     current_title = cells[2].text.strip() if is_verify else stage_title
                                     parse_and_save_html_row(shooter["id"], m_id, m_name, current_title, cells, is_verify_mode=is_verify)
             except Exception:
                 pass
+    print("🏁 Express-Lauf erfolgreich beendet!")
 
 if __name__ == "__main__":
     scrape_verify_list()
