@@ -88,12 +88,6 @@
         .modal-close-container { position: absolute; top: 20px; right: 20px; z-index: 1010; }
         .modal-close-trigger { background: transparent; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; padding: 4px; line-height: 1; transition: color 0.15s; }
         .modal-close-trigger:hover { color: var(--text-color); }
-        .modal-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
-        .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; font-weight: 600; }
-        .modal-footer a:hover { text-decoration: underline; }
-        
-        /* Chat History Styles */
-        .chat-history-area { height: 300px; overflow-y: auto; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: var(--radius); padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
 
         @media (max-width: 768px) {
             html, body { overflow-x: hidden !important; width: 100% !important; }
@@ -101,10 +95,6 @@
             .tool-section { padding: 15px !important; margin-bottom: 15px !important; }
             .pf-input-grid { grid-template-columns: 1fr; gap: 12px; }
             .pf-full-row { grid-column: span 1; }
-            .modal { padding: 10px !important; }
-            .modal-content { padding: 24px 16px !important; }
-            .modal-close-container { top: 12px !important; right: 12px !important; }
-            .modal-close-trigger { font-size: 28px !important; }
         }
     </style>
 </head>
@@ -115,7 +105,6 @@
 
     <div class="container">
         
-        <!-- BALISTIK RECHNER BEREICH -->
         <div class="tool-section">
             <h2 data-txt="tools-pf-title">⏱️ IPSC Power-Factor Manager</h2>
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="tools-pf-desc">Berechne den Power Factor deiner Laborierung und überprüfe den Status für das Match.</p>
@@ -145,17 +134,14 @@
             </div>
         </div>
 
-        <!-- REZEPT DATENBANK BEREICH -->
         <div class="tool-section">
             <h2 data-txt="tools-db-title">📦 Meine Wiederlade-Rezepte</h2>
             
-            <!-- Logged out View -->
             <div id="reloading-logged-out" style="text-align: center; padding: 25px 10px;">
                 <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="tools-db-logged-out">Logge dich ein, um deine persönliche Wiederlade-Datenbank zu nutzen und Rezepte in der Cloud zu speichern.</p>
                 <button type="button" class="btn-submit" style="width: auto; padding: 12px 30px;" onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" data-txt="planner-logged-out-btn">Jetzt einloggen</button>
             </div>
 
-            <!-- Logged in Content View -->
             <div id="reloading-content" style="display: none;">
                 <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="tools-db-desc">Speichere deine bewährten Laborierungen dauerhaft in deiner Cloud ab.</p>
                 
@@ -187,7 +173,7 @@
                         <input type="number" id="db-load-velocity" value="1030" min="1">
                     </div>
                     <div class="form-group">
-                        <label data-txt="tools-db-oal">OAL (mm)</label>
+                        <label>OAL (mm)</label>
                         <input type="text" id="db-load-oal" data-txt-ph="tools-db-oal-ph" placeholder="z.B. 29.00">
                     </div>
                     <div class="form-group pf-full-row">
@@ -205,13 +191,11 @@
 
     </div>
 
-    <!-- GLOBALES VOLLES MODAL SYSTEM (REPARIERT FÜR SETTINGS & AUTH) -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
                 <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
             </div>
-            
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
                 <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()"><span>📱</span> Login mit FaceID / Fingerabdruck</button>
@@ -227,130 +211,17 @@
                     </div>
                     <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
                 </form>
-                <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a></div>
-            </div>
-
-            <div id="modal-register-view" style="display: none;">
-                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
-                <form id="register-form">
-                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="register-email" required placeholder="name@beispiel.de"></div>
-                    <div class="form-group"><label>Passwort *</label><input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen"></div>
-                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-reg">Konto erstellen</button>
-                </form>
-                <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a></div>
-            </div>
-
-            <div id="modal-forgot-view" style="display: none;">
-                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
-                <form id="forgot-form">
-                    <div class="form-group"><label data-txt="lbl-email">Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required placeholder="name@beispiel.de"></div>
-                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
-                </form>
-                <div class="modal-footer"><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a></div>
-            </div>
-
-            <div id="modal-reset-view" style="display: none;">
-                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
-                <form id="reset-password-form">
-                    <div class="form-group"><label data-txt="lbl-new-password">Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6" placeholder="Mindestens 6 Zeichen"></div>
-                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Speichern</button>
-                </form>
-            </div>
-
-            <!-- ENTHÄLT DIE KONTO-EINSTELLUNGEN-ANSICHT -->
-            <div id="modal-settings-view" style="display: none;">
-                <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
-                
-                <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
-                    <label style="color: var(--success-color); font-weight: 700;" data-txt="modal-settings-deals">📈 Erfolgreiche Vermittlungen</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
-                            <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
-                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-seller">Als Verkäufer</p>
-                        </div>
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
-                            <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
-                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-buyer">Als Käufer</p>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
-                        <div><span data-txt="modal-settings-comm">💬 Kommunikation:</span> <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
-                        <div><span data-txt="modal-settings-pay">💳 Bezahlung:</span> <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
-                    </div>
-                </div>
-
-                <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
-                    <label style="color: #3498db;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</label>
-                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
-                </div>
-
-                <form id="settings-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
-                        <input type="text" id="settings-username" data-txt-ph="ph-username" placeholder="z.B. IPSCShooter99">
-                    </div>
-                    
-                    <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 4px; border-left: 3px solid var(--success-color); margin-bottom: 20px;">
-                        <label style="color: var(--success-color); margin-bottom: 2px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
-                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-ipsc-alias-desc">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
-                        <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
-                    </div>
-
-                    <div class="form-group">
-                        <label data-txt="lbl-profile-pic">Profilbild (Optional)</label>
-                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
-                        <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
-                    </div>
-                    <div class="form-group">
-                        <label data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
-                        <input type="password" id="settings-password" minlength="6" data-txt-ph="ph-password" placeholder="Mindestens 6 Zeichen">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Änderungen speichern</button>
-                </form>
-                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
-                <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
             </div>
         </div>
     </div>
 
-    <!-- GLOBALES INBOX & CHAT MODAL SYSTEM -->
-    <div class="modal" id="chat-modal">
-        <div class="modal-content" style="max-width: 500px; padding: 25px;">
-            <div class="modal-close-container">
-                <button class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</button>
-            </div>
-            <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
-            <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
-            <div class="chat-history-area" id="chat-box-messages"></div>
-            <form id="chat-send-form" style="display: flex; gap: 8px;">
-                <input type="hidden" id="chat-edit-id" value="">
-                <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
-                <button type="submit" style="background:var(--accent-color); color:white; border:none; padding:10px 20px; border-radius:var(--radius); font-weight:bold; cursor:pointer;">Senden</button>
-            </form>
-        </div>
-    </div>
-
-    <div class="modal" id="global-inbox-modal">
-        <div class="modal-content" style="max-width: 450px; padding: 25px;">
-            <div class="modal-close-container">
-                <button class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</button>
-            </div>
-            <h3>Meine Nachrichten</h3>
-            <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven Gespräche.</p>
-            <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
-                <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
-            </div>
-        </div>
-    </div>
-
-    <footer>
+        <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
-            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;">Impressum & Rechtliche Hinweise</a>
-            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
+
 
     <script src="auth.js"></script>
     <script src="lang.js"></script>
