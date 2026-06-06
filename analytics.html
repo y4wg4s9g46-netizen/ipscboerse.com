@@ -1,197 +1,274 @@
-<!-- KONTROLLER: IPSC PERFORMANCE DASHBOARD -->
-<div class="tool-section" style="max-width: 600px; margin: 0 auto; padding: 15px;">
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistiken | IPSC Startplatz-Börse</title>
     
-    <!-- Titel & Beschreibung -->
-    <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 5px;">🏆 IPSC Performance Analytics</h2>
-    <p id="analytics-loader" style="color: #718096; font-size: 14px; margin-bottom: 20px;">
-        Prüfe Verbindung zur Datenbank...
-    </p>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="IPSC Börse">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- LEERZUSTAND / PLACEHOLDER -->
-    <div id="analytics-empty-state" style="display: none; background: rgba(255,193,7,0.1); border: 1px dashed #ff9f43; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
-        <span style="font-size: 24px;">ℹ️</span>
-        <h4 style="margin: 10px 0 5px 0;">Noch keine Daten für 2026 geladen</h4>
-        <p style="font-size: 13px; color: #718096; margin: 0;">Sobald der Scraper deine Matches zugeordnet hat, erscheinen sie hier. Stelle sicher, dass dein 'real_name' im Profil exakt mit der Ergebnisliste übereinstimmt!</p>
-    </div>
-
-    <!-- MAIN DASHBOARD CONTENT -->
-    <div id="analytics-dashboard-content" style="display: none;">
-        
-        <!-- KPI Dashboard Grid -->
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px;">
-            <div style="background: rgba(15, 23, 42, 0.05); border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 11px; text-transform: uppercase; color: #718096; font-weight: 700;">Matches Gesamt</div>
-                <div id="kpi-total-matches" style="font-size: 26px; font-weight: 900; margin-top: 4px;">0</div>
-            </div>
-            <div style="background: rgba(15, 23, 42, 0.05); border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 11px; text-transform: uppercase; color: #718096; font-weight: 700;">Ø Hit Factor</div>
-                <div id="kpi-avg-hf" style="font-size: 26px; font-weight: 900; color: #3182ce; margin-top: 4px;">0.00</div>
-            </div>
-        </div>
-
-        <!-- Hit-Factor Trend (Balkendiagramm) -->
-        <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px;">📈 Hit-Factor Trend (Letzte 5 Stages)</h3>
-        <div style="background: rgba(0,0,0,0.03); border: 1px solid #e2e8f0; padding: 25px 15px 15px 15px; border-radius: 8px; margin-bottom: 25px;">
-            <div id="analytics-chart-container" style="display: flex; justify-content: space-between; align-items: flex-end; height: 130px; padding-bottom: 5px; gap: 10px;">
-                <!-- Wird dynamisch befüllt -->
-            </div>
-        </div>
-
-        <!-- Treffertyp-Verteilung -->
-        <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 10px;">🎯 Treffer-Verteilung (Präzision)</h3>
-        <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
-                <span style="color: #718096;">Treffer-Verhältnis</span>
-                <strong id="analytics-alpha-badge" style="color: #38a169;">0% Alphas</strong>
-            </div>
-            
-            <div style="width: 100%; height: 14px; background: #edf2f7; border-radius: 7px; overflow: hidden; display: flex;">
-                <div id="bar-alphas" style="width: 0%; background: #38a169; transition: width 0.6s ease;"></div>
-                <div id="bar-charlies" style="width: 0%; background: #dd6b20; transition: width 0.6s ease;"></div>
-                <div id="bar-deltas" style="width: 0%; background: #e53e3e; transition: width 0.6s ease;"></div>
-            </div>
-            
-            <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 11px; color: #718096;">
-                <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: #38a169; border-radius: 50%;"></div> A: <span id="count-alphas" style="font-weight: 600; color: #2d3748;">0</span></div>
-                <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: #dd6b20; border-radius: 50%;"></div> C: <span id="count-charlies" style="font-weight: 600; color: #2d3748;">0</span></div>
-                <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: #e53e3e; border-radius: 50%;"></div> D: <span id="count-deltas" style="font-weight: 600; color: #2d3748;">0</span></div>
-                <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: #718096; border-radius: 50%;"></div> M: <span id="count-misses" style="font-weight: 600; color: #2d3748;">0</span></div>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<script>
-// Isolierte Kapselung zum Schutz vor globalen Namenskonflikten
-(function() {
-    function startAnalyticsPipeline() {
-        const client = window.supabaseClient || window.supabase;
-        
-        if (client) {
-            initAnalytics(client);
-        } else {
-            let versucht = 0;
-            const checkCtx = setInterval(() => {
-                versucht++;
-                const retryClient = window.supabaseClient || window.supabase;
-                if (retryClient) {
-                    clearInterval(checkCtx);
-                    initAnalytics(retryClient);
-                } else if (versucht > 15) {
-                    clearInterval(checkCtx);
-                    const loader = document.getElementById("analytics-loader");
-                    if (loader) loader.innerText = "❌ Supabase-Verbindung fehlgeschlagen. Variable prüfen!";
-                }
-            }, 200);
+    <style>
+        /* Übernahme deines originalen Variablen- und Design-Systems */
+        :root, html[data-theme="light"] {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --input-bg: #ffffff;
+            --accent-color: #ff9f43;
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --info-color: #3b82f6;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --radius: 8px;
         }
-    }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener("DOMContentLoaded", startAnalyticsPipeline);
-    } else {
-        startAnalyticsPipeline();
-    }
+        html[data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --input-bg: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
 
-    async function initAnalytics(supabase) {
-        try {
-            // 1. Session prüfen
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                const loader = document.getElementById("analytics-loader");
-                if (loader) loader.innerText = "❌ Bitte logge dich ein, um deine Daten zu sehen.";
-                return;
+        @media (prefers-color-scheme: dark) {
+            html:not([data-theme="light"]) {
+                --bg-color: #0f172a;
+                --card-bg: #1e293b;
+                --text-color: #f8fafc;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+                --input-bg: #0f172a;
             }
+        }
 
-            // 2. Daten laden
-            const { data: stages, error } = await supabase
-                .from('user_match_analytics')
-                .select('*')
-                .eq('user_id', session.user.id);
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        header { background-color: var(--card-bg); padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
+        
+        @media (max-width: 768px) {
+            .container { padding: 0 10px !important; margin-top: 15px !important; }
+        }
+    </style>
+</head>
+<body>
 
-            if (error) throw error;
+    <header></header>
+    <script src="header.js"></script>
 
-            if (!stages || stages.length === 0) {
-                const loader = document.getElementById("analytics-loader");
-                const emptyState = document.getElementById("analytics-empty-state");
-                if (loader) loader.style.display = "none";
-                if (emptyState) emptyState.style.display = "block";
-                return;
-            }
-
-            // 3. Berechnungen
-            const totalStages = stages.length;
-            const uniqueMatches = [...new Set(stages.map(s => s.match_id))].length;
+    <div class="container">
+        <div class="tool-section" style="max-width: 600px; margin: 0 auto; padding: 15px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: var(--shadow-sm);">
             
-            let sumHitFactor = 0, totalA = 0, totalC = 0, totalD = 0, totalM = 0;
+            <h2 data-txt="analytics-title" style="font-size: 22px; font-weight: 800; margin-bottom: 5px;">🏆 IPSC Performance Analytics</h2>
+            <p id="analytics-loader" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="analytics-desc">
+                Prüfe Verbindung zur Datenbank...
+            </p>
 
-            stages.forEach(stage => {
-                sumHitFactor += parseFloat(stage.hit_factor || 0);
-                totalA += parseInt(stage.alphas || 0);
-                totalC += parseInt(stage.charlies || 0);
-                totalD += parseInt(stage.deltas || 0);
-                totalM += parseInt(stage.misses || 0);
-            });
+            <div id="analytics-empty-state" style="display: none; background: rgba(255,193,7,0.05); border: 1px dashed var(--accent-color); padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+                <span style="font-size: 24px;">ℹ️</span>
+                <h4 style="margin: 10px 0 5px 0;">Noch keine Daten für 2026 geladen</h4>
+                <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Sobald der Scraper deine Matches zugeordnet hat, erscheinen sie hier. Stelle sicher, dass dein 'real_name' im Profil exakt mit der Ergebnisliste übereinstimmt!</p>
+            </div>
 
-            const avgHitFactor = (sumHitFactor / totalStages).toFixed(2);
-            const totalHits = totalA + totalC + totalD;
+            <div id="analytics-dashboard-content" style="display: none;">
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px;">
+                    <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;" data-txt="analytics-kpi-matches">Matches Gesamt</div>
+                        <div id="kpi-total-matches" style="font-size: 26px; font-weight: 900; margin-top: 4px;">0</div>
+                    </div>
+                    <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;" data-txt="analytics-kpi-avg-hf">Ø Hit Factor</div>
+                        <div id="kpi-avg-hf" style="font-size: 26px; font-weight: 900; color: var(--info-color); margin-top: 4px;">0.00</div>
+                    </div>
+                </div>
 
-            const aPerc = totalHits > 0 ? Math.round((totalA / totalHits) * 100) : 0;
-            const cPerc = totalHits > 0 ? Math.round((totalC / totalHits) * 100) : 0;
-            const dPerc = totalHits > 0 ? Math.round((totalD / totalHits) * 100) : 0;
-
-            // 4. UI füllen
-            const kpiMatches = document.getElementById("kpi-total-matches");
-            const kpiHf = document.getElementById("kpi-avg-hf");
-            if (kpiMatches) kpiMatches.innerText = uniqueMatches;
-            if (kpiHf) kpiHf.innerText = avgHitFactor;
-            
-            if (document.getElementById("count-alphas")) document.getElementById("count-alphas").innerText = totalA;
-            if (document.getElementById("count-charlies")) document.getElementById("count-charlies").innerText = totalC;
-            if (document.getElementById("count-deltas")) document.getElementById("count-deltas").innerText = totalD;
-            if (document.getElementById("count-misses")) document.getElementById("count-misses").innerText = totalM;
-
-            if (document.getElementById("analytics-alpha-badge")) document.getElementById("analytics-alpha-badge").innerText = `${aPerc}% Alphas`;
-            if (document.getElementById("bar-alphas")) document.getElementById("bar-alphas").style.width = `${aPerc}%`;
-            if (document.getElementById("bar-charlies")) document.getElementById("bar-charlies").style.width = `${cPerc}%`;
-            if (document.getElementById("bar-deltas")) document.getElementById("bar-deltas").style.width = `${dPerc}%`;
-
-            // 5. Chart bauen
-            const chartContainer = document.getElementById("analytics-chart-container");
-            if (chartContainer) {
-                chartContainer.innerHTML = '';
-                const lastFive = stages.slice(-5);
-                const maxHF = Math.max(...lastFive.map(s => s.hit_factor ? parseFloat(s.hit_factor) : 0.0), 1);
-
-                lastFive.forEach((stage, i) => {
-                    const hf = stage.hit_factor ? parseFloat(stage.hit_factor) : 0.0;
-                    const hPerc = (hf / maxHF) * 100;
-                    
-                    let bColor = '#3182ce'; // Blau
-                    if (parseInt(stage.misses || 0) > 0) bColor = '#e53e3e'; // Rot bei Miss
-                    else if (hPerc > 80) bColor = '#38a169'; // Grün bei Topleistung
-
-                    const sName = stage.stage_name || 'Stage';
-                    const shortName = sName.length > 7 ? sName.substring(0, 6) + '..' : sName;
-
-                    chartContainer.insertAdjacentHTML('beforeend', `
-                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
-                            <span style="font-size: 11px; font-weight: 700; color: #2d3748;">${hf.toFixed(2)}</span>
-                            <div style="width: 100%; height: ${hPerc}%; background: ${bColor}; border-radius: 4px 4px 0 0; min-height: 4px;"></div>
-                            <span style="font-size: 10px; color: #718096;">${shortName}</span>
+                <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px;" data-txt="analytics-chart-title">📈 Hit-Factor Trend (Letzte 5 Stages)</h3>
+                <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); padding: 25px 15px 15px 15px; border-radius: 8px; margin-bottom: 25px;">
+                    <div id="analytics-chart-container" style="display: flex; justify-content: space-between; align-items: flex-end; height: 130px; padding-bottom: 5px; gap: 10px;">
                         </div>
-                    `);
-                });
+                </div>
+
+                <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 10px;" data-txt="analytics-acc-title">🎯 Treffer-Verteilung (Präzision)</h3>
+                <div style="background: rgba(15, 23, 42, 0.01); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+                        <span style="color: var(--text-muted);">Treffer-Verhältnis</span>
+                        <strong id="analytics-alpha-badge" style="color: var(--success-color);">0% Alphas</strong>
+                    </div>
+                    
+                    <div style="width: 100%; height: 14px; background: var(--bg-color); border-radius: 7px; overflow: hidden; display: flex;">
+                        <div id="bar-alphas" style="width: 0%; background: var(--success-color); transition: width 0.6s ease;"></div>
+                        <div id="bar-charlies" style="width: 0%; background: var(--accent-color); transition: width 0.6s ease;"></div>
+                        <div id="bar-deltas" style="width: 0%; background: var(--danger-color); transition: width 0.6s ease;"></div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 11px; color: var(--text-muted);">
+                        <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--success-color); border-radius: 50%;"></div> A: <span id="count-alphas" style="font-weight: 600; color: var(--text-color);">0</span></div>
+                        <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--accent-color); border-radius: 50%;"></div> C: <span id="count-charlies" style="font-weight: 600; color: var(--text-color);">0</span></div>
+                        <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--danger-color); border-radius: 50%;"></div> D: <span id="count-deltas" style="font-weight: 600; color: var(--text-color);">0</span></div>
+                        <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--text-muted); border-radius: 50%;"></div> M: <span id="count-misses" style="font-weight: 600; color: var(--text-color);">0</span></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center; padding: 20px 0;">
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+        </div>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="lang.js"></script>
+    <script src="app.js"></script>
+
+    <script>
+    (function() {
+        function startAnalyticsPipeline() {
+            // Greift auf die von app.js/auth.js initialisierte Variable zu
+            const client = window.supabaseClient || window.supabase;
+            
+            if (client) {
+                initAnalytics(client);
+            } else {
+                let versucht = 0;
+                const checkCtx = setInterval(() => {
+                    versucht++;
+                    const retryClient = window.supabaseClient || window.supabase;
+                    if (retryClient) {
+                        clearInterval(checkCtx);
+                        initAnalytics(retryClient);
+                    } else if (versucht > 15) {
+                        clearInterval(checkCtx);
+                        const loader = document.getElementById("analytics-loader");
+                        if (loader) loader.innerText = "❌ Supabase-Verbindung fehlgeschlagen. Variable prüfen!";
+                    }
+                }, 200);
             }
-
-            if (document.getElementById("analytics-loader")) document.getElementById("analytics-loader").style.display = "none";
-            if (document.getElementById("analytics-dashboard-content")) document.getElementById("analytics-dashboard-content").style.display = "block";
-
-        } catch (err) {
-            console.error("Dashboard Rendering Fehler: ", err);
-            const loader = document.getElementById("analytics-loader");
-            if (loader) loader.innerText = "❌ Fehler beim Laden der echten Daten.";
         }
-    }
-})();
-</script>
+
+        if (document.readyState === 'loading') {
+            document.addEventListener("DOMContentLoaded", startAnalyticsPipeline);
+        } else {
+            startAnalyticsPipeline();
+        }
+
+        async function initAnalytics(supabase) {
+            try {
+                // 1. Session prüfen
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) {
+                    const loader = document.getElementById("analytics-loader");
+                    if (loader) loader.innerText = "❌ Bitte logge dich ein, um deine Daten zu sehen.";
+                    return;
+                }
+
+                // 2. Daten laden
+                const { data: stages, error } = await supabase
+                    .from('user_match_analytics')
+                    .select('*')
+                    .eq('user_id', session.user.id);
+
+                if (error) throw error;
+
+                if (!stages || stages.length === 0) {
+                    const loader = document.getElementById("analytics-loader");
+                    const emptyState = document.getElementById("analytics-empty-state");
+                    if (loader) loader.style.display = "none";
+                    if (emptyState) emptyState.style.display = "block";
+                    return;
+                }
+
+                // 3. Berechnungen
+                const totalStages = stages.length;
+                const uniqueMatches = [...new Set(stages.map(s => s.match_id))].length;
+                
+                let sumHitFactor = 0, totalA = 0, totalC = 0, totalD = 0, totalM = 0;
+
+                stages.forEach(stage => {
+                    sumHitFactor += parseFloat(stage.hit_factor || 0);
+                    totalA += parseInt(stage.alphas || 0);
+                    totalC += parseInt(stage.charlies || 0);
+                    totalD += parseInt(stage.deltas || 0);
+                    totalM += parseInt(stage.misses || 0);
+                });
+
+                const avgHitFactor = (sumHitFactor / totalStages).toFixed(2);
+                const totalHits = totalA + totalC + totalD;
+
+                const aPerc = totalHits > 0 ? Math.round((totalA / totalHits) * 100) : 0;
+                const cPerc = totalHits > 0 ? Math.round((totalC / totalHits) * 100) : 0;
+                const dPerc = totalHits > 0 ? Math.round((totalD / totalHits) * 100) : 0;
+
+                // 4. UI befüllen
+                const kpiMatches = document.getElementById("kpi-total-matches");
+                const kpiHf = document.getElementById("kpi-avg-hf");
+                if (kpiMatches) kpiMatches.innerText = uniqueMatches;
+                if (kpiHf) kpiHf.innerText = avgHitFactor;
+                
+                if (document.getElementById("count-alphas")) document.getElementById("count-alphas").innerText = totalA;
+                if (document.getElementById("count-charlies")) document.getElementById("count-charlies").innerText = totalC;
+                if (document.getElementById("count-deltas")) document.getElementById("count-deltas").innerText = totalD;
+                if (document.getElementById("count-misses")) document.getElementById("count-misses").innerText = totalM;
+
+                if (document.getElementById("analytics-alpha-badge")) document.getElementById("analytics-alpha-badge").innerText = `${aPerc}% Alphas`;
+                if (document.getElementById("bar-alphas")) document.getElementById("bar-alphas").style.width = `${aPerc}%`;
+                if (document.getElementById("bar-charlies")) document.getElementById("bar-charlies").style.width = `${cPerc}%`;
+                if (document.getElementById("bar-deltas")) document.getElementById("bar-deltas").style.width = `${dPerc}%`;
+
+                // 5. Diagramm generieren
+                const chartContainer = document.getElementById("analytics-chart-container");
+                if (chartContainer) {
+                    chartContainer.innerHTML = '';
+                    const lastFive = stages.slice(-5);
+                    const maxHF = Math.max(...lastFive.map(s => s.hit_factor ? parseFloat(s.hit_factor) : 0.0), 1);
+
+                    lastFive.forEach((stage, i) => {
+                        const hf = stage.hit_factor ? parseFloat(stage.hit_factor) : 0.0;
+                        const hPerc = (hf / maxHF) * 100;
+                        
+                        let bColor = 'var(--info-color)'; 
+                        if (parseInt(stage.misses || 0) > 0) bColor = 'var(--danger-color)'; 
+                        else if (hPerc > 80) bColor = 'var(--success-color)'; 
+
+                        const sName = stage.stage_name || 'Stage';
+                        const shortName = sName.length > 7 ? sName.substring(0, 6) + '..' : sName;
+
+                        chartContainer.insertAdjacentHTML('beforeend', `
+                            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                                <span style="font-size: 11px; font-weight: 700; color: var(--text-color);">${hf.toFixed(2)}</span>
+                                <div style="width: 100%; height: ${hPerc}%; background: ${bColor}; border-radius: 4px 4px 0 0; min-height: 4px;"></div>
+                                <span style="font-size: 10px; color: var(--text-muted);">${shortName}</span>
+                            </div>
+                        `);
+                    });
+                }
+
+                if (document.getElementById("analytics-loader")) document.getElementById("analytics-loader").style.display = "none";
+                if (document.getElementById("analytics-dashboard-content")) document.getElementById("analytics-dashboard-content").style.display = "block";
+
+            } catch (err) {
+                console.error("Dashboard Rendering Fehler: ", err);
+                const loader = document.getElementById("analytics-loader");
+                if (loader) loader.innerText = "❌ Fehler beim Laden der echten Daten.";
+            }
+        }
+    })();
+    </script>
+</body>
+</html>
