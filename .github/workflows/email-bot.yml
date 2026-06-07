@@ -1,0 +1,21 @@
+name: run-email-bot
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Beispiel: Läuft alle 30 Minuten
+  workflow_dispatch:
+
+jobs:
+  email-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code auschecken
+        uses: actions/checkout@v4
+
+      - name: Python installieren
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: E-Mail Bot ausführen (PractiScore)
+        run: python read_practiscore_mails.py
