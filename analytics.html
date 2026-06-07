@@ -105,7 +105,6 @@
 
             <div id="analytics-dashboard-content" style="display: none;">
                 
-                <!-- Info-Box direkt im Dashboard verankert -->
                 <div style="background: var(--bg-color); border-left: 4px solid var(--accent-color); border-radius: 4px 8px 8px 4px; padding: 15px; margin-bottom: 20px; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
                     <h4 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 800; color: var(--text-color);">📧 A, C, D automatisch eintragen</h4>
                     <p style="margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
@@ -132,7 +131,6 @@
                     </div>
                 </div>
 
-                <!-- TREFFER-PRÄZISION -->
                 <div style="background: rgba(15, 23, 42, 0.01); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 25px;">
                     <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
                         <span style="font-weight: 700; color: var(--text-color);">🎯 Erfasste Match-Präzision</span>
@@ -159,13 +157,11 @@
         </div>
     </div>
 
-    <!-- Das Hit-Editor Modal mit Smart Paste -->
     <div id="hit-editor-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-top: 0; margin-bottom: 5px; color: var(--text-color);">✏️ Treffer eintragen</h3>
             <p id="hit-editor-stage-name" style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px; margin-top: 0;"></p>
             
-            <!-- SMART PASTE FELD -->
             <div style="margin-bottom: 20px; text-align: center;">
                 <textarea id="smart-paste-area" placeholder="📋 Email-Text hier einfügen (Smart Paste)" rows="2" style="width: 100%; border-radius: 8px; border: 1px dashed var(--accent-color); padding: 10px; background: rgba(255,159,67,0.05); color: var(--text-color); font-size: 12px; resize: none; font-weight: bold; font-family: monospace; box-sizing: border-box;"></textarea>
                 <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Fügt A, C, D und M automatisch aus dem Email-Text ein.</div>
@@ -177,7 +173,6 @@
                 <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
             </div>
             
-            <!-- MANUELLE FELDER -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
                 <div class="hit-input-group">
                     <label style="color: var(--success-color);">Alphas (A)</label>
@@ -257,7 +252,6 @@
                     .from('user_match_analytics')
                     .select('*')
                     .eq('user_id', session.user.id);
-
                 if (error) throw error;
 
                 if (!stages || stages.length === 0) {
@@ -273,7 +267,6 @@
                         matchMap.set(s.match_id, s.match_name);
                     }
                 });
-                
                 uniqueMatches = Array.from(matchMap, ([id, name]) => ({ id, name }));
                 const selector = document.getElementById("match-selector");
                 selector.innerHTML = "";
@@ -286,7 +279,6 @@
 
                 const { data: profiles } = await supabase.from('profiles').select('id, real_name');
                 window.buddyProfiles = profiles || [];
-
                 document.getElementById("analytics-loader").style.display = "none";
                 document.getElementById("analytics-dashboard-content").style.display = "block";
                 
@@ -320,16 +312,13 @@
             .from('user_match_analytics')
             .select('user_id')
             .eq('match_id', matchId);
-
         if (!matchGroup) return;
 
         const currentUserId = (await client.auth.getSession()).data.session?.user.id;
         const uniqueUserIds = [...new Set(matchGroup.map(g => g.user_id))].filter(id => id !== currentUserId);
-
         let selectHtml = `<div id="buddy-selector-row" class="select-wrapper" style="margin-top: -10px; margin-bottom: 20px;">
             <select id="buddy-selector" onchange="selectBuddy(this.value)">
                 <option value="">-- Wähle einen Buddy zum Vergleich --</option>`;
-        
         uniqueUserIds.forEach(id => {
             const profile = (window.buddyProfiles || []).find(p => p.id === id);
             const name = profile ? profile.real_name : "Anonymer Schütze";
@@ -357,7 +346,6 @@
             .select('*')
             .eq('match_id', matchId)
             .eq('user_id', buddyId);
-
         allSquadStages = buddyStages || [];
         renderSelectedMatch();
     };
@@ -371,7 +359,7 @@
         let stagePercents = [];
 
         matchStages.sort((a,b) => a.stage_name.localeCompare(b.stage_name, undefined, {numeric: true, sensitivity: 'base'}));
-
+        
         const stagesHtml = matchStages.map(stage => {
             const hf = stage.hit_factor ? parseFloat(stage.hit_factor) : 0;
             const winHf = stage.winner_hit_factor ? parseFloat(stage.winner_hit_factor) : 0;
@@ -384,27 +372,39 @@
 
             if (!isOverall) {
                 sumHf += hf;
+                // Verhindert das Zählen von Dummy-Treffern in der Overall-Wertung
+                tA += stage.alphas || 0;
+                tC += stage.charlies || 0;
+                tD += stage.deltas || 0;
+                tM += stage.misses || 0;
             }
-
-            tA += stage.alphas || 0;
-            tC += stage.charlies || 0;
-            tD += stage.deltas || 0;
-            tM += stage.misses || 0;
 
             const buddyStage = allSquadStages.find(bs => bs.stage_name === stage.stage_name);
             const buddyHf = buddyStage ? parseFloat(buddyStage.hit_factor) : 0;
 
             let maxHf = Math.max(hf, winHf, buddyHf);
-            if(maxHf === 0) maxHf = 1; 
-            
+            if(maxHf === 0) maxHf = 1;
             let winPerc = (winHf / maxHf) * 100;
             let myPerc = (hf / maxHf) * 100;
             let buddyPerc = (buddyHf / maxHf) * 100;
 
             if (!isOverall) stagePercents.push(myPerc);
-            
+
+            // --- NEUE OVERALL-WEICHE (Layout & Daten-Tausch) ---
+            let labelWin = isOverall ? "Match Sieger" : "Stage Sieger";
+            let textWin = isOverall ? "100%" : `${winHf.toFixed(4)} HF`;
+            let widthWin = isOverall ? 100 : winPerc;
+
+            let labelMe = isOverall ? "Overall Wertung" : "Mein Hit Factor";
+            let myOverallPerc = stage.pts ? parseFloat(stage.pts) : 0; 
+            let textMe = isOverall ? `${myOverallPerc.toFixed(1)}%` : `${hf.toFixed(4)} HF`;
+            let widthMe = isOverall ? myOverallPerc : myPerc;
+
+            let bottomPtsText = isOverall ? `${hf.toFixed(2)} PTS` : `${stagePoints} PTS`;
+            let displayTimeAndHits = isOverall ? "display: none !important;" : "";
+
             let myColorClass = "bar-me";
-            if(myPerc >= 85) myColorClass += " high"; 
+            if(widthMe >= 85) myColorClass += " high"; 
 
             let courseTag = "";
             if (!isOverall) {
@@ -445,16 +445,16 @@
                     </div>
                     
                     <div class="bar-container">
-                        <div class="bar-label"><span>Stage Sieger</span> <span>${winHf.toFixed(4)} HF</span></div>
+                        <div class="bar-label"><span>${labelWin}</span> <span>${textWin}</span></div>
                         <div class="bar-track">
-                            <div class="bar-fill bar-winner" style="width: ${winPerc}%;">${winPerc > 10 ? '100%' : ''}</div>
+                            <div class="bar-fill bar-winner" style="width: ${widthWin}%;">${isOverall ? '100%' : (winPerc > 10 ? '100%' : '')}</div>
                         </div>
                     </div>
 
                     <div class="bar-container">
-                        <div class="bar-label"><span style="color: var(--text-color);">Mein Hit Factor</span> <span>${hf.toFixed(4)} HF</span></div>
+                        <div class="bar-label"><span style="color: var(--text-color);">${labelMe}</span> <span>${textMe}</span></div>
                         <div class="bar-track">
-                            <div class="bar-fill ${myColorClass}" style="width: ${myPerc}%;">${myPerc > 10 ? myPerc.toFixed(1) + '%' : ''}</div>
+                            <div class="bar-fill ${myColorClass}" style="width: ${widthMe}%;">${widthMe > 10 ? widthMe.toFixed(1) + '%' : ''}</div>
                         </div>
                     </div>
                     
@@ -462,9 +462,9 @@
                     ${insightHtml}
 
                     <div style="display: flex; gap: 15px; margin-top: 15px; font-size: 11px; color: var(--text-muted); flex-wrap: wrap; align-items: center;">
-                        <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color);">⏱️ ${time > 0 ? time.toFixed(2) + 's' : '-'}</span>
-                        <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color); font-weight: 700; color: var(--text-color);">💯 ${stagePoints} PTS</span>
-                        <span style="flex-grow: 1; text-align: right;">
+                        <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color); ${displayTimeAndHits}">⏱️ ${time > 0 ? time.toFixed(2) + 's' : '-'}</span>
+                        <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color); font-weight: 700; color: var(--text-color);">💯 ${bottomPtsText}</span>
+                        <span style="flex-grow: 1; text-align: right; ${displayTimeAndHits}">
                             🎯 A:${stage.alphas||0} C:${stage.charlies||0} D:${stage.deltas||0} 
                             <button class="btn-small" style="margin-left: 5px;" onclick="openHitEditor('${stage.stage_name.replace(/'/g, "\\'")}')">✏️</button>
                         </span>
@@ -477,15 +477,17 @@
 
         const realStages = matchStages.filter(s => !s.stage_name.includes("Overall Match Results"));
         const avgHf = realStages.length > 0 ? (sumHf / realStages.length).toFixed(2) : "0.00";
+        
         document.getElementById("kpi-avg-hf").innerText = avgHf;
         document.getElementById("kpi-division").innerText = division;
-
+        
         if (stagePercents.length > 1) {
             const maxP = Math.max(...stagePercents);
             const minP = Math.min(...stagePercents);
             const variance = (maxP - minP).toFixed(0);
             const varEl = document.getElementById("kpi-variance");
             varEl.innerText = `± ${variance}%`;
+            
             if (variance <= 15) varEl.style.color = "var(--success-color)";
             else if (variance >= 35) varEl.style.color = "var(--danger-color)";
         } else {
@@ -573,7 +575,6 @@
         const c = parseInt(document.getElementById('edit-c').value) || 0;
         const d = parseInt(document.getElementById('edit-d').value) || 0;
         const m = parseInt(document.getElementById('edit-m').value) || 0;
-        
         const btn = document.getElementById('btn-save-hits');
         btn.innerText = "Speichere...";
         
@@ -583,7 +584,6 @@
                 .from('user_match_analytics')
                 .update({ alphas: a, charlies: c, deltas: d, misses: m })
                 .eq('id', currentEditStage.id);
-                
             if (error) throw error;
             
             currentEditStage.alphas = a;
@@ -592,7 +592,7 @@
             currentEditStage.misses = m;
             
             closeHitEditor();
-            renderSelectedMatch(); 
+            renderSelectedMatch();
         } catch (err) {
             console.error(err);
             alert("Fehler beim Speichern in der Datenbank!");
