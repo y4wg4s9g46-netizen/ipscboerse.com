@@ -25,53 +25,50 @@ def get_users_from_db(supabase):
 
 def extrahiere_treffer_flexibel(block):
     """
-    Kugelsicherer Parser: Trennt die Metadaten ab und liest die nackten Zahlen.
+    Kugelsicherer Parser: Schneidet den E-Mail-Kopf und das Datum rigoros weg 
+    und liest nur den echten Tabellen-Inhalt.
     """
     hits = {"a": 0, "c": 0, "d": 0, "m": 0}
     
-    # Geheimwaffe: Wir nehmen nur den Text NACH der ZWEITEN Tabelle im Block.
-    # Dadurch ignorieren wir Squad-Nummern (wie 47) oder Stage-Zahlen komplett!
-    parts = block.split("The following table:")
-    hit_table = parts[-1] if len(parts) > 1 else block
+    # 1. Den echten Ergebnis-Bereich isolieren! 
+    # Wir suchen gezielt nur den Text ZWISCHEN "Time" oder "Factor" und "Score confirmed".
+    # Das ignoriert den kompletten Müll am Anfang der Mail (Datum, Level-4, Squad-Nummer etc.)
+    match = re.search(r'(?:Time|Factor)["\s,]*\n([\s\S]+?)(?:Warnings|Score confirmed)', block, re.IGNORECASE)
     
-    # Alle Quotes, Kommas und Pipes durch Leerzeichen ersetzen
+    if match:
+        hit_table = match.group(1)
+    else:
+        # Fallback, falls die Regex nicht greift: Splitten und das Ende absichern
+        parts = re.split(r'The following table:', block, flags=re.IGNORECASE)
+        hit_table = parts[-1] if len(parts) > 1 else block[-200:]
+        
+    # 2. Ganz wichtig: Das Bestätigungs-Datum (z.B. 03/05/2026) am Ende wegschneiden!
+    hit_table = re.split(r'Score confirmed', hit_table, flags=re.IGNORECASE)[0]
+
+    # 3. Bereinigen: Kommas, Quotes, Pipes etc. weg
     clean_table = re.sub(r'["|,]', ' ', hit_table)
     
-    # Fall 1: Stark verrutschte Tabellen, wo Buchstaben direkt an den Zahlen kleben (z.B. Stage 19: "8A", "2D")
-    if re.search(r'\b\d+A\b', clean_table, re.IGNORECASE):
-        for hit_type in ['a', 'c', 'd', 'm']:
-            m = re.search(fr'\b(\d+){hit_type.upper()}\b', clean_table, re.IGNORECASE)
-            if m: hits[hit_type] = int(m.group(1))
-        
-        # Falls Miss separat steht
-        if hits["m"] == 0:
-            m_miss = re.search(r'\bMiss\s*(\d+)', clean_table, re.IGNORECASE)
-            if m_miss: hits["m"] = int(m_miss.group(1))
-        return hits
-
-    # Fall 2: Der Standard-PractiScore-Export
-    # Wir entfernen zuerst alle Kommazahlen (Hit Factor und Time), da diese sonst als Hits gezählt würden
+    # 4. Entferne alle Kommazahlen (Hit Factor und Zeit, z.B. 4.7712 oder 20.54)
     table_no_floats = re.sub(r'\b\d+\.\d+\b', '', clean_table)
     
-    # Extrahieren aller verbleibenden reinen Ganzzahlen in der Reihenfolge ihres Auftretens
+    # 5. Hole alle restlichen Ganzzahlen in der exakten Reihenfolge ihres Auftretens
     zahlen = [int(x) for x in re.findall(r'\b\d+\b', table_no_floats)]
     
     if not zahlen:
         return hits
 
-    # Standardmäßige Zuweisung nach IPSC-Regeln (A, C, D sind immer die ersten 3 Werte)
+    # 6. Spezial-Korrektur für völlig verrutschte Tabellen (wie Stage 14: "23, 0, 0, 8, 1")
+    # Wenn sich Nullen (z.B. für N/S) vordrängeln, werfen wir sie ans Ende, 
+    # damit A, C und D auf den vorderen Plätzen bleiben.
+    if len(zahlen) >= 5 and zahlen[1] == 0 and zahlen[2] == 0 and zahlen[3] > 0:
+         echte_treffer = [z for z in zahlen if z != 0]
+         zahlen = echte_treffer + [0, 0, 0, 0] # Mit Nullen auffüllen für den Rest
+         
+    # Standard-Zuweisung nach IPSC (A, C, D, Miss)
     if len(zahlen) >= 1: hits["a"] = zahlen[0]
     if len(zahlen) >= 2: hits["c"] = zahlen[1]
     if len(zahlen) >= 3: hits["d"] = zahlen[2]
-    
-    # Misses sind standardmäßig die 4. Zahl in der Reihe
-    if len(zahlen) >= 4: 
-        hits["m"] = zahlen[3]
-        
-    # Spezifische Korrektur: Wenn die Tabelle "N/S Miss" als Kopf hat, 
-    # rutscht der Miss-Wert in der reinen Zahlenreihe meist eine Position nach hinten.
-    if re.search(r'\bN/S\s*Miss\b', hit_table, re.IGNORECASE) and len(zahlen) >= 5:
-        hits["m"] = zahlen[4]
+    if len(zahlen) >= 4: hits["m"] = zahlen[3]
     
     return hits
 
