@@ -25,50 +25,55 @@ def get_users_from_db(supabase):
 
 def extrahiere_treffer_flexibel(block):
     """
-    Kugelsicherer Parser: Schneidet den E-Mail-Kopf und das Datum rigoros weg 
-    und liest nur den echten Tabellen-Inhalt.
+    Maximal robuster Parser: Ignoriert alles bis zum Range Officer
+    und greift sich exakt die Tabelle darunter.
     """
     hits = {"a": 0, "c": 0, "d": 0, "m": 0}
     
-    # 1. Den echten Ergebnis-Bereich isolieren! 
-    # Wir suchen gezielt nur den Text ZWISCHEN "Time" oder "Factor" und "Score confirmed".
-    # Das ignoriert den kompletten Müll am Anfang der Mail (Datum, Level-4, Squad-Nummer etc.)
-    match = re.search(r'(?:Time|Factor)["\s,]*\n([\s\S]+?)(?:Warnings|Score confirmed)', block, re.IGNORECASE)
+    # 1. Wir schneiden den ganzen Kopfbereich ab. 
+    # "Range Officer" ist der perfekte Anker, da er immer direkt über der Tabelle steht.
+    parts = re.split(r'(?i)Range Officer[^\n]*', block)
+    # Wenn wir den RO nicht finden, nehmen wir zur Sicherheit die letzten 200 Zeichen
+    hit_table = parts[-1] if len(parts) > 1 else block[-200:]
     
-    if match:
-        hit_table = match.group(1)
-    else:
-        # Fallback, falls die Regex nicht greift: Splitten und das Ende absichern
-        parts = re.split(r'The following table:', block, flags=re.IGNORECASE)
-        hit_table = parts[-1] if len(parts) > 1 else block[-200:]
-        
-    # 2. Ganz wichtig: Das Bestätigungs-Datum (z.B. 03/05/2026) am Ende wegschneiden!
-    hit_table = re.split(r'Score confirmed', hit_table, flags=re.IGNORECASE)[0]
-
-    # 3. Bereinigen: Kommas, Quotes, Pipes etc. weg
+    # 2. Bereinigen: Kommas, Quotes, Pipes durch Leerzeichen ersetzen
     clean_table = re.sub(r'["|,]', ' ', hit_table)
     
-    # 4. Entferne alle Kommazahlen (Hit Factor und Zeit, z.B. 4.7712 oder 20.54)
+    # 3. Entferne alle Kommazahlen (wie den Hit Factor 6.0377 oder die Zeit 20.54)
     table_no_floats = re.sub(r'\b\d+\.\d+\b', '', clean_table)
     
-    # 5. Hole alle restlichen Ganzzahlen in der exakten Reihenfolge ihres Auftretens
+    # 4. Fall 1: A, C, D kleben als Buchstaben direkt an den Zahlen (z.B. "8A", "2D" in Stage 19)
+    if re.search(r'\b\d+A\b', table_no_floats, re.IGNORECASE):
+        for hit_type in ['a', 'c', 'd', 'm']:
+            m = re.search(fr'\b(\d+){hit_type.upper()}\b', table_no_floats, re.IGNORECASE)
+            if m: hits[hit_type] = int(m.group(1))
+        
+        # Falls Miss als einzelnes Wort in dieser verrutschten Tabelle steht
+        if hits["m"] == 0:
+            m_miss = re.search(r'\bMiss\s*(\d+)', table_no_floats, re.IGNORECASE)
+            if m_miss: hits["m"] = int(m_miss.group(1))
+        return hits
+
+    # 5. Fall 2: Normale Tabellen. Wir sammeln einfach alle verbleibenden ganzen Zahlen.
     zahlen = [int(x) for x in re.findall(r'\b\d+\b', table_no_floats)]
     
     if not zahlen:
         return hits
 
-    # 6. Spezial-Korrektur für völlig verrutschte Tabellen (wie Stage 14: "23, 0, 0, 8, 1")
-    # Wenn sich Nullen (z.B. für N/S) vordrängeln, werfen wir sie ans Ende, 
-    # damit A, C und D auf den vorderen Plätzen bleiben.
-    if len(zahlen) >= 5 and zahlen[1] == 0 and zahlen[2] == 0 and zahlen[3] > 0:
+    # 6. Spezial-Korrektur für PDF/Mail-Salat, wenn sich plötzlich Nullen vordrängeln (wie Stage 14)
+    if len(zahlen) >= 5 and zahlen[1] == 0 and sum(zahlen[2:]) > 0 and sum(zahlen[:1]) > 0:
          echte_treffer = [z for z in zahlen if z != 0]
-         zahlen = echte_treffer + [0, 0, 0, 0] # Mit Nullen auffüllen für den Rest
+         zahlen = echte_treffer + [0, 0, 0, 0] # Mit Nullen auffüllen
          
-    # Standard-Zuweisung nach IPSC (A, C, D, Miss)
+    # 7. Standardmäßige IPSC-Zuweisung
     if len(zahlen) >= 1: hits["a"] = zahlen[0]
     if len(zahlen) >= 2: hits["c"] = zahlen[1]
     if len(zahlen) >= 3: hits["d"] = zahlen[2]
     if len(zahlen) >= 4: hits["m"] = zahlen[3]
+    
+    # Korrektur, falls N/S vor Miss stand in der Kopfzeile
+    if len(zahlen) >= 5 and re.search(r'\bN/S\s*Miss\b', hit_table, re.IGNORECASE):
+        hits["m"] = zahlen[4]
     
     return hits
 
@@ -122,20 +127,25 @@ def main():
                 else:
                     body = msg.get_payload(decode=True).decode('utf-8', errors='ignore')
 
-                if not ("Stage" in body or "Verify" in subject):
+                # Abfrage in lower() für Sicherheit bei allen E-Mail-Clients
+                if not ("stage" in body.lower() or "verify" in subject.lower()):
                     print("   -> Keine IPSC-Ergebnismail. Wird ignoriert.")
                     continue
 
-                # --- KUGELSICHERER PARSER-SPLIT ---
-                raw_blocks = body.split("Anfang der weitergeleiteten Nachricht:")
+                # --- DER ULTIMATIVE PARSER-SPLIT ---
+                # Wir zerschneiden die Mail exakt an der PractiScore-Bestätigung!
+                # Dadurch enthält jeder Block garantiert genau EINE Stage, völlig unbeeindruckt von Mail-Headern.
+                raw_blocks = re.split(r'(?i)Score confirmed at[^\n]*|Secured and verified[^\n]*', body)
                 
                 verarbeitete_stages_ids = set()
                 is_any_block_processed = False
 
                 for block in raw_blocks:
+                    # Müll-Blöcke (z.B. Euromaster) sofort skippen
                     if "Euromaster" in block or "Dienstleistung" in block:
                         continue
 
+                    # Stage-Nummer suchen
                     stage_match = re.search(r'Stage:\s*(?:Stage\s+)?(\d+)|Stage\s+(\d+)\s*-', block, re.IGNORECASE)
                     if not stage_match:
                         continue
@@ -144,9 +154,11 @@ def main():
                     stage_nummer = int(stage_num_str)
                     stage_name_extracted = f"Stage {stage_nummer}"
 
+                    # Doppelte Verarbeitungen blockieren
                     if stage_nummer in verarbeitete_stages_ids:
                         continue
 
+                    # Schütze / Name suchen (z.B. 443 Schöps, Fabian)
                     name_match = re.search(r'\b\d+\s+([^,\n]+),\s*([^\n\r]+)', block)
                     if not name_match:
                         continue
@@ -155,6 +167,7 @@ def main():
                     first_name = name_match.group(2).strip()
                     full_name_extracted = f"{first_name} {last_name}"
 
+                    # User matchen
                     matched_user_id = None
                     for u in users:
                         db_name_clean = clean_string(u['real_name'])
@@ -166,12 +179,13 @@ def main():
                     if not matched_user_id:
                         continue
 
-                    # Treffer extrahieren über die neue, clevere Funktion
+                    # Treffer extrahieren
                     hits = extrahiere_treffer_flexibel(block)
 
                     if sum(hits.values()) == 0:
                         continue
 
+                    # Supabase Update
                     try:
                         all_match_stages = supabase.table("user_match_analytics").select("id, stage_name").eq("user_id", matched_user_id).execute()
                         
