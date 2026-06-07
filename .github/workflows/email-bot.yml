@@ -30,4 +30,4 @@ jobs:
         IMAP_SERVER: ${{ secrets.IMAP_SERVER }}
         EMAIL_USER: ${{ secrets.EMAIL_USER }}
         EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-      run: python ../read_practiscore_mails.py
+      run: python $GITHUB_WORKSPACE/read_practiscore_mails.py
