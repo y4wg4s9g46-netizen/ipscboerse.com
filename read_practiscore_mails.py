@@ -108,8 +108,7 @@ def main():
 
                 print(f"   -> IPSC-Mail erkannt! Starte Analyse...")
 
-                # --- VERBESSERTER NAMENS-PARSER (Fwd-Tolerant) ---
-                # Findet die Nummer und den Namen ("443 Schöps, Fabian"), egal was davor steht
+                # Fwd-Tolerant Namens-Parser
                 name_match = re.search(r'\b\d+\s+([^,\n]+),\s*([^\n\r]+)', body)
                 if not name_match:
                     print("   ⚠️ Kein gültiger Schützen-Name im Text gefunden. Mail wird gelöscht.")
@@ -120,7 +119,7 @@ def main():
                 first_name = name_match.group(2).strip()
                 full_name_extracted = f"{first_name} {last_name}"
                 
-                # Stage-Nummer ermitteln
+                # Stage-Text aus E-Mail ermitteln
                 stage_match = re.search(r'(Stage\s+\d+)', subject + " " + body, re.IGNORECASE)
                 stage_name_extracted = stage_match.group(1).strip() if stage_match else "Unknown Stage"
 
@@ -145,12 +144,33 @@ def main():
                     mail.store(mail_id, '+FLAGS', '\\Deleted')
                     continue
 
-                # In Supabase updaten
+                # --- NEUER, KUGELSICHERER ZAHLEN-MATCHER ---
                 try:
-                    stage_query = supabase.table("user_match_analytics").select("id").eq("user_id", matched_user_id).ilike("stage_name", f"%{stage_name_extracted}%").execute()
+                    # Hole alle registrierten Tabellenzeilen für diesen Schützen aus der Datenbank
+                    all_match_stages = supabase.table("user_match_analytics").select("id, stage_name").eq("user_id", matched_user_id).execute()
+
+                    # Filter die nackte Ziffer aus der E-Mail (z.B. "3" aus "Stage 3 - Range 1")
+                    mail_stage_num = re.search(r'Stage\s+(\d+)', stage_name_extracted, re.IGNORECASE)
                     
-                    if stage_query.data and len(stage_query.data) > 0:
-                        entry_id = stage_query.data[0]['id']
+                    entry_id = None
+                    if mail_stage_num:
+                        target_num = mail_stage_num.group(1)
+                        
+                        # Abgleich gegen die Nummern in der Datenbank
+                        for db_stage in all_match_stages.data:
+                            # Isoliere die Nummer aus dem DB-Eintrag (z.B. "3" aus "Stage 3")
+                            db_stage_num = re.search(r'Stage\s+(\d+)\b', db_stage['stage_name'], re.IGNORECASE)
+                            if not db_stage_num and re.search(r'\b\d+\b', db_stage['stage_name']):
+                                db_stage_num = re.search(r'\b(\d+)\b', db_stage['stage_name'])
+                                
+                            # Vergleiche nackte Zahlen (verhindert, dass "3" fälschlich in "13" eingetragen wird)
+                            if db_stage_num and db_stage_num.group(1) == target_num:
+                                if "overall" not in db_stage['stage_name'].lower():
+                                    entry_id = db_stage['id']
+                                    stage_name_extracted = db_stage['stage_name'] # Log-Name angleichen
+                                    break
+
+                    if entry_id:
                         supabase.table("user_match_analytics").update({
                             "alphas": hits["a"],
                             "charlies": hits["c"],
@@ -158,17 +178,17 @@ def main():
                             "misses": hits["m"]
                         }).eq("id", entry_id).execute()
                         
-                        print(f"   ✅ Treffer gespeichert für {full_name_extracted} ({stage_name_extracted}): A:{hits['a']} C:{hits['c']} D:{hits['d']} M:{hits['m']}")
+                        print(f"   ✅ Treffer exakt gespeichert für {full_name_extracted} ({stage_name_extracted}): A:{hits['a']} C:{hits['c']} D:{hits['d']} M:{hits['m']}")
                     else:
-                        print(f"   ⚠️ Stage '{stage_name_extracted}' für {full_name_extracted} noch nicht in DB (Warte auf Web-Scraper PDF-Lauf).")
+                        print(f"   ⚠️ Stage-Nummer '{stage_name_extracted}' konnte in der DB keinem Eintrag eindeutig zugeordnet werden.")
                 except Exception as e:
                     print(f"   ❌ DB Update Fehler: {e}")
 
-                # Mail zum Löschen markieren
+                # Mail nach Verarbeitung zum Löschen markieren
                 mail.store(mail_id, '+FLAGS', '\\Deleted')
                 print("   🗑️ E-Mail wurde erfolgreich gelöscht.")
 
-    # Alle gelöschten Mails endgültig entfernen
+    # Alle gelöschten Mails endgültig aus dem Postfach entfernen
     mail.expunge()
     mail.logout()
     print("Bot erfolgreich beendet.")
