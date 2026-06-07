@@ -2,21 +2,33 @@ name: run-email-bot
 
 on:
   schedule:
-    - cron: '0 4 * * *'
-  workflow_dispatch:
+    - cron: '0 4 * * *' # Läuft jeden Tag um 04:00 UTC (kannst du anpassen)
+  workflow_dispatch: # Erlaubt manuelles Starten auf dem Handy
 
 jobs:
   email-job:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Code auschecken
-        uses: actions/checkout@v4
+    - name: Code auschecken
+      uses: actions/checkout@v4
 
-      - name: Python installieren
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
+    - name: Python installieren
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
 
-      - name: E-Mail Bot ausführen (PractiScore)
-        working-directory: ${{ github.workspace }}
-        run: python read_practiscore_mails.py
+    - name: Bibliotheken installieren
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests beautifulsoup4 supabase PyPDF2
+
+    - name: E-Mail Bot ausführen (PractiScore)
+      env:
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        IMAP_SERVER: ${{ secrets.IMAP_SERVER }}
+        EMAIL_USER: ${{ secrets.EMAIL_USER }}
+        EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+      working-directory: ${{ github.workspace }}
+      run: python read_practiscore_mails.py
