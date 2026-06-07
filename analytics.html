@@ -69,8 +69,8 @@
         .btn-small { background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); font-size: 10px; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
         .btn-small:hover { background: var(--border-color); }
         
-        /* Modals System CSS */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; padding: 20px; box-sizing: border-box; }
+        /* Modal Overlay CSS - Fest verankert! */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
         .modal-content { background-color: var(--card-bg); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; box-shadow: var(--shadow-md); position: relative; margin: auto; }
         .modal-content h3 { color: var(--text-color); margin-top: 0; margin-bottom: 24px; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
         .modal-close-container { position: absolute; top: 20px; right: 20px; z-index: 1010; }
@@ -82,8 +82,6 @@
         .hit-input-group input:focus, .form-group input:focus { outline: none; border-color: var(--accent-color); }
         .modal-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px; }
         .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
-        .modal-divider:not(:empty)::before { margin-right: .75em; }
-        .modal-divider:not(:empty)::after { margin-left: .75em; }
         .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); }
         .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); }
         .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 30px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 10px; box-shadow: var(--shadow-sm); }
@@ -111,7 +109,6 @@
             
             <p id="analytics-loader" data-txt="loading" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Lade aktuelle Startplätze...</p>
 
-            <!-- AUSGELOGGT EMPTY STATE (Wird per JS gesteuert) -->
             <div id="analytics-logged-out-state" style="display: none; background: rgba(239,68,68,0.03); border: 1px dashed var(--danger-color); padding: 30px 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
                 <span style="font-size: 32px;">🔒</span>
                 <h4 style="margin: 12px 0 6px 0; font-weight: 800; font-size: 16px; color: var(--text-color);" data-txt="planner-logged-out-title">Nicht angemeldet</h4>
@@ -121,7 +118,6 @@
                 <button class="btn-submit" id="btn-trigger-login-view" style="margin-top: 5px;">Jetzt einloggen</button>
             </div>
 
-            <!-- EINCHELOGGT EMPTY STATE -->
             <div id="analytics-empty-state" style="display: none; background: rgba(255,159,67,0.03); border: 1px dashed var(--accent-color); padding: 25px 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
                 <span style="font-size: 28px;">📊</span>
                 <h4 id="empty-state-title" data-txt="analytics-empty-title" style="margin: 12px 0 6px 0; font-weight: 800; font-size: 16px; color: var(--text-color);">Noch keine Match-Daten gefunden</h4>
@@ -195,8 +191,7 @@
         </div>
     </div>
 
-    <!-- Das Hit-Editor Modal -->
-    <div id="hit-editor-modal" class="modal-overlay">
+    <div id="hit-editor-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <h3 style="margin-top: 0; margin-bottom: 5px; color: var(--text-color);">✏️ Treffer eintragen</h3>
             <p id="hit-editor-stage-name" style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px; margin-top: 0;"></p>
@@ -238,8 +233,7 @@
         </div>
     </div>
 
-    <!-- AUTOMATISCHES NAMENS-SETUP MODAL -->
-    <div id="name-setup-modal" class="modal-overlay">
+    <div id="name-setup-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="max-width: 380px;">
             <h3 style="margin-top: 0; margin-bottom: 8px; color: var(--text-color); display: flex; align-items: center; gap: 8px;">🚀 Letzter Schritt: Name einrichten</h3>
             <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4;">
@@ -261,8 +255,7 @@
         </div>
     </div>
 
-    <!-- MAIN SYSTEM AUTH & SETTINGS MODAL (100% IDENTISCH ZUR INDEX.HTML) -->
-    <div class="modal" id="auth-modal">
+    <div id="auth-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-close-container">
                 <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
@@ -288,9 +281,9 @@
                     </div>
                     <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
                 </form>
-                <div class="modal-footer">
-                    <span data-txt="modal-no-acc">Noch kein Konto?</span>
-                    <a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a>
+                <div class="modal-footer" style="text-align: center; margin-top: 15px;">
+                    <span data-txt="modal-no-acc" style="font-size: 12px;">Noch kein Konto?</span>
+                    <a onclick="toggleAuthView('register')" data-txt="modal-link-reg" style="color: var(--info-color); cursor: pointer; font-size: 12px; font-weight: bold;">Registrieren</a>
                 </div>
             </div>
 
@@ -315,9 +308,9 @@
 
                     <button type="submit" class="btn-primary-auth" data-txt="modal-btn-reg">Konto erstellen</button>
                 </form>
-                <div class="modal-footer">
-                    <span data-txt="modal-has-acc">Bereits registriert?</span>
-                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a>
+                <div class="modal-footer" style="text-align: center; margin-top: 15px;">
+                    <span data-txt="modal-has-acc" style="font-size: 12px;">Bereits registriert?</span>
+                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login" style="color: var(--info-color); cursor: pointer; font-size: 12px; font-weight: bold;">Zum Login</a>
                 </div>
             </div>
 
@@ -330,8 +323,8 @@
                     </div>
                     <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
                 </form>
-                <div class="modal-footer">
-                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a>
+                <div class="modal-footer" style="text-align: center; margin-top: 15px;">
+                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login" style="color: var(--info-color); cursor: pointer; font-size: 12px; font-weight: bold;">Zurück zum Login</a>
                 </div>
             </div>
 
@@ -346,7 +339,6 @@
                 </form>
             </div>
 
-            <!-- KONTO EINSTELLUNGEN (Voll funktionsfähig synchronisiert mit auth.js) -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
@@ -410,8 +402,7 @@
         </div>
     </div>
 
-    <!-- GLOBAL CHAT LIVE INBOX MODAL -->
-    <div class="modal" id="global-inbox-modal">
+    <div id="global-inbox-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="max-width: 450px; padding: 25px;">
             <div class="modal-close-container">
                 <button class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</button>
@@ -422,9 +413,8 @@
             </div>
         </div>
     </div>
-
-    <!-- INLINE CHAT RAUM WINDOW MODAL -->
-    <div class="modal" id="chat-modal">
+    
+    <div id="chat-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="max-width: 500px; padding: 25px;">
             <div class="modal-close-container">
                 <button class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</button>
@@ -458,7 +448,11 @@
     let currentEditStage = null;
     let selectedBuddyId = null; 
 
-    // --- TRANSLATION TRANSLATE STRINGS MANUELL ERWEITERN ---
+    window.closeSettingsModal = function() {
+        const modal = document.getElementById('auth-modal');
+        if(modal) modal.style.display = 'none';
+    }
+
     if (window.translations) {
         window.translations.de["analytics-empty-title"] = "Noch keine Match-Daten gefunden";
         window.translations.de["analytics-empty-desc"] = "Der Bot sucht aktuell nach deinen Stage-Ergebnissen! Das Analyse-System prüft im Hintergrund die offiziellen IPSC-Ergebnisse.";
@@ -498,14 +492,13 @@
             try {
                 const { data: { session } } = await supabase.auth.getSession();
                 
-                // --- SPERRE & EMPTY STATE FÜR AUSGELOGGTE NUTZER ---
+                // --- SPERRE FÜR AUSGELOGGTE NUTZER ---
                 if (!session) {
                     document.getElementById("analytics-loader").style.display = "none";
                     document.getElementById("analytics-dashboard-content").style.display = "none";
                     document.getElementById("analytics-empty-state").style.display = "none";
                     document.getElementById("analytics-logged-out-state").style.display = "block";
                     
-                    // Button Trigger zum Öffnen des Standard-Login Modals
                     document.getElementById("btn-trigger-login-view").addEventListener("click", () => {
                         const modal = document.getElementById("auth-modal");
                         if (modal) {
@@ -516,12 +509,13 @@
                     return;
                 }
 
-                // --- AUTOMATISCHE NAMENSPRÜFUNG BEIM LADEN ---
+                // --- AUTOMATISCHE NAMENSPRÜFUNG: NUR BEI REGISTRIERTEM & AKTIVEM USER ---
                 const { data: currentProfile, error: profileErr } = await supabase
                     .from('profiles')
                     .select('real_name')
                     .eq('id', session.user.id)
                     .single();
+                
                 if (!profileErr && currentProfile && (!currentProfile.real_name || currentProfile.real_name.trim() === "")) {
                     setTimeout(() => {
                         document.getElementById('name-setup-modal').style.display = 'flex';
@@ -792,6 +786,47 @@
         document.getElementById("bar-alphas").style.width = `${aPerc}%`;
         document.getElementById("bar-charlies").style.width = `${cPerc}%`;
         document.getElementById("bar-deltas").style.width = `${dPerc}%`;
+    }
+
+    window.closeNameSetupModal = function() {
+        document.getElementById('name-setup-modal').style.display = 'none';
+    }
+
+    window.saveProfileName = async function() {
+        const inputName = document.getElementById('setup-real-name').value.trim();
+        const isEn = localStorage.getItem("selectedLanguage") === "en";
+        
+        if (!inputName) {
+            alert(isEn ? "Please enter a valid name." : "Bitte gib einen gültigen Namen ein.");
+            return;
+        }
+
+        const btn = document.getElementById('btn-save-profile-name');
+        btn.innerText = isEn ? "Saving..." : "Speichere...";
+        btn.disabled = true;
+
+        try {
+            const client = window.supabaseClient || window.supabase;
+            const { data: { session } } = await client.auth.getSession();
+            if (!session) return;
+            const { error = null } = await client
+                .from('profiles')
+                .update({ real_name: inputName })
+                .eq('id', session.user.id);
+            if (error) throw error;
+
+            alert(isEn 
+                ? "✅ Name saved successfully! The email bot is now ready for you." 
+                : "✅ Name erfolgreich gespeichert! Der E-Mail-Bot ist jetzt für dich einsatzbereit.");
+            closeNameSetupModal();
+            window.location.reload();
+        } catch (err) {
+            console.error(err);
+            alert(isEn ? "Error saving the name." : "Fehler beim Speichern des Namens.");
+        } finally {
+            btn.innerText = isEn ? "Save" : "Speichern";
+            btn.disabled = false;
+        }
     }
 
     window.openHitEditor = function(stageName) {
