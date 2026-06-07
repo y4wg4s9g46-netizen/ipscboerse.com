@@ -29,12 +29,10 @@ def extract_match_name(block, main_subject):
     Liest den Namen des Matches aus der E-Mail aus 
     (z.B. "Trigger Titans 2026 by STP Sport Target Pistol").
     """
-    # 1. Versuche es aus dem Text-Block (z.B. "Betreff: Match Name - Stage X")
     m = re.search(r'(?:Betreff|Subject):\s*(?:(?:Fwd|Wtr|WG|FW|AW|Re):\s*)*(.*?)\s*-\s*Stage', block, re.IGNORECASE)
     if m:
         return m.group(1).strip()
         
-    # 2. Fallback auf den Haupt-Betreff der E-Mail
     m_subj = re.search(r'(?:(?:Fwd|Wtr|WG|FW|AW|Re):\s*)*(.*?)\s*-\s*Stage', main_subject, re.IGNORECASE)
     if m_subj:
         return m_subj.group(1).strip()
@@ -43,11 +41,12 @@ def extract_match_name(block, main_subject):
 
 def extrahiere_treffer_flexibel(block):
     """
-    Maximal robuster Parser: Schneidet den Müll davor flexibel ab 
-    und extrahiert nur die reinen Trefferzahlen.
+    Cleaner, strikter Parser: Verlässt sich auf die saubere Reihenfolge (A, C, D, Miss)
+    der bereinigten HTML-Daten.
     """
     hits = {"a": 0, "c": 0, "d": 0, "m": 0}
     
+    # 1. Kopfbereich sauber abschneiden
     if re.search(r'(?i)Range Officer', block):
         hit_table = re.split(r'(?i)Range Officer[^\n]*', block)[-1]
     elif re.search(r'(?i)Time["\s]*\n', block):
@@ -55,9 +54,11 @@ def extrahiere_treffer_flexibel(block):
     else:
         hit_table = block
     
+    # 2. Zeichen bereinigen und Kommazahlen (Hit Factor) entfernen
     clean_table = re.sub(r'["|,]', ' ', hit_table)
     table_no_floats = re.sub(r'\b\d+\.\d+\b', '', clean_table)
     
+    # 3. Verrutschte Tabellen abfangen (z.B. "8A", "2D")
     if re.search(r'\b\d+A\b', table_no_floats, re.IGNORECASE):
         for hit_type in ['a', 'c', 'd', 'm']:
             m = re.search(fr'\b(\d+){hit_type.upper()}\b', table_no_floats, re.IGNORECASE)
@@ -67,22 +68,17 @@ def extrahiere_treffer_flexibel(block):
             if m_miss: hits["m"] = int(m_miss.group(1))
         return hits
 
+    # 4. Reine Zahlen einsammeln
     zahlen = [int(x) for x in re.findall(r'\b\d+\b', table_no_floats)]
     
     if not zahlen:
         return hits
 
-    if len(zahlen) >= 5 and zahlen[1] == 0 and sum(zahlen[2:]) > 0 and sum(zahlen[:1]) > 0:
-         echte_treffer = [z for z in zahlen if z != 0]
-         zahlen = echte_treffer + [0, 0, 0, 0] 
-         
+    # 5. Strikte und direkte Zuweisung (A, C, D, Miss) – OHNE verrückte Verschiebungs-Hacks!
     if len(zahlen) >= 1: hits["a"] = zahlen[0]
     if len(zahlen) >= 2: hits["c"] = zahlen[1]
     if len(zahlen) >= 3: hits["d"] = zahlen[2]
     if len(zahlen) >= 4: hits["m"] = zahlen[3]
-    
-    if len(zahlen) >= 5 and re.search(r'\bN/S\s*Miss\b', hit_table, re.IGNORECASE):
-        hits["m"] = zahlen[4]
     
     return hits
 
@@ -128,6 +124,7 @@ def main():
                 
                 print(f"\n--- Lese E-Mail: {subject} ---")
 
+                # HTML extrahieren und platt machen
                 body = ""
                 if msg.is_multipart():
                     for part in msg.walk():
@@ -172,7 +169,6 @@ def main():
                     stage_nummer = int(stage_num_str)
                     stage_name_extracted = f"Stage {stage_nummer}"
                     
-                    # --- NEU: Match Namen auslesen ---
                     extracted_match_name = extract_match_name(block, subject)
                     print(f"      -> Erkannt: {stage_name_extracted} | Match: '{extracted_match_name}'")
 
@@ -208,7 +204,6 @@ def main():
                         continue
 
                     try:
-                        # WICHTIG: Wir laden jetzt auch match_name aus der Datenbank mit herunter!
                         all_match_stages = supabase.table("user_match_analytics").select("id, stage_name, match_name").eq("user_id", matched_user_id).execute()
                         
                         entry_id = None
@@ -222,26 +217,22 @@ def main():
                             if db_stage_num and db_stage_num.group(1) == target_num:
                                 if "overall" not in db_stage['stage_name'].lower():
                                     
-                                    # --- NEU: Match-Check ---
                                     db_m_name = db_stage.get('match_name', '')
                                     is_match_correct = False
                                     
                                     if extracted_match_name and db_m_name:
-                                        # Wir entfernen Leerzeichen, um Tippfehler zu umgehen
                                         clean_ext = clean_string(extracted_match_name)
                                         clean_db = clean_string(db_m_name)
                                         
-                                        # Gilt als Treffer, wenn der Name ineinander enthalten ist
                                         if clean_ext in clean_db or clean_db in clean_ext:
                                             is_match_correct = True
                                     else:
-                                        # Fallback, falls mal gar kein Match-Name extrahiert werden konnte
                                         is_match_correct = True
                                         
                                     if is_match_correct:
                                         entry_id = db_stage['id']
                                         stage_name_extracted = db_stage['stage_name']
-                                        break # Richtige Stage + Richtiges Match gefunden!
+                                        break
 
                         if entry_id:
                             supabase.table("user_match_analytics").update({
