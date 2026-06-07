@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statistiken | IPSC Startplatz-Börse</title>
+    <title data-txt="nav-analytics">Statistiken | IPSC Startplatz-Börse</title>
 
     <link class="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e293b">
@@ -95,7 +95,7 @@
                 <button class="btn-small" style="font-size: 12px; padding: 6px 12px; background: rgba(59, 130, 246, 0.1); color: var(--info-color); border-color: var(--info-color);">👥 Buddy Radar</button>
             </div>
             
-            <p id="analytics-loader" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Lade Profi-Datenbank...</p>
+            <p id="analytics-loader" data-txt="loading" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Lade aktuelle Startplätze...</p>
 
             <div id="analytics-empty-state" style="display: none; background: rgba(255,159,67,0.05); border: 1px dashed var(--accent-color); padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
                 <span style="font-size: 24px;">ℹ️</span>
@@ -122,7 +122,7 @@
                         <div id="kpi-division" style="font-size: 18px; font-weight: 900; margin-top: 4px; color: var(--info-color);">Optics</div>
                     </div>
                     <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); padding: 12px 5px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Ø Hit Factor</div>
+                        <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;" data-txt="analytics-kpi-avg-hf">Ø Hit Factor</div>
                         <div id="kpi-avg-hf" style="font-size: 18px; font-weight: 900; color: var(--text-color); margin-top: 4px;">0.00</div>
                     </div>
                     <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); padding: 12px 5px; border-radius: 8px; text-align: center;">
@@ -133,7 +133,7 @@
 
                 <div style="background: rgba(15, 23, 42, 0.01); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 25px;">
                     <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
-                        <span style="font-weight: 700; color: var(--text-color);">🎯 Erfasste Match-Präzision</span>
+                        <span style="font-weight: 700; color: var(--text-color);" data-txt="analytics-acc-title">🎯 Treffer-Verteilung (Präzision)</span>
                         <strong id="analytics-alpha-badge" style="color: var(--success-color);">0% Alphas</strong>
                     </div>
                     <div style="width: 100%; height: 14px; background: var(--bg-color); border-radius: 7px; overflow: hidden; display: flex;">
@@ -149,7 +149,7 @@
                     </div>
                 </div>
 
-                <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 15px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">📊 Stage Benchmark Vergleich</h3>
+                <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 15px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px;" data-txt="analytics-chart-title">📊 Stage Benchmark Vergleich</h3>
                 
                 <div id="stages-container"></div>
 
@@ -193,15 +193,35 @@
             </div>
             
             <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                <button onclick="closeHitEditor()" style="padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); cursor: pointer; font-weight: bold;">Abbrechen</button>
-                <button id="btn-save-hits" onclick="saveHits()" style="padding: 10px 15px; border-radius: 6px; border: none; background: var(--accent-color); color: #fff; font-weight: bold; cursor: pointer;">Speichern</button>
+                <button onclick="closeHitEditor()" style="padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); cursor: pointer; font-weight: bold;" data-txt="btn-cancel">Abbrechen</button>
+                <button id="btn-save-hits" onclick="saveHits()" style="padding: 10px 15px; border-radius: 6px; border: none; background: var(--accent-color); color: #fff; font-weight: bold; cursor: pointer;" data-txt="btn-save">Speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEUES AUTOMATISCHES NAMENS-SETUP MODAL -->
+    <div id="name-setup-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 380px;">
+            <h3 style="margin-top: 0; margin-bottom: 8px; color: var(--text-color); display: flex; align-items: center; gap: 8px;">🚀 Letzter Schritt: Name einrichten</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px; line-height: 1.4;">
+                Damit unser E-Mail-Bot deine PractiScore-Mails fehlerfrei verarbeiten kann, muss dein <strong>vollständiger Name</strong> exakt so hinterlegt sein, wie er in den Match-Ergebnissen steht.
+            </p>
+            
+            <div class="hit-input-group" style="margin-bottom: 20px;">
+                <label style="color: var(--accent-color); font-weight: 700; margin-bottom: 6px;" data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
+                <input type="text" id="setup-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann" style="text-align: left; padding: 12px; font-size: 15px;">
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button onclick="closeNameSetupModal()" style="padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); cursor: pointer; font-weight: bold; font-size: 13px;" data-txt="btn-cancel">Abbrechen</button>
+                <button id="btn-save-profile-name" onclick="saveProfileName()" style="padding: 10px 15px; border-radius: 6px; border: none; background: var(--success-color); color: #fff; font-weight: bold; cursor: pointer; font-size: 13px;" data-txt="btn-save">Speichern</button>
             </div>
         </div>
     </div>
 
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center; padding: 20px 0;">
-            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;">Impressum & Hinweise</a>
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Hinweise</a>
             <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
@@ -244,8 +264,22 @@
             try {
                 const { data: { session } } = await supabase.auth.getSession();
                 if (!session) {
-                    document.getElementById("analytics-loader").innerText = "❌ Bitte logge dich ein.";
+                    const isEn = localStorage.getItem("selectedLanguage") === "en";
+                    document.getElementById("analytics-loader").innerText = isEn ? "❌ Please log in." : "❌ Bitte logge dich ein.";
                     return;
+                }
+
+                // --- HIER IST DIE NEUE AUTOMATISCHE NAMENSPRÜFUNG ---
+                const { data: currentProfile, error: profileErr } = await supabase
+                    .from('profiles')
+                    .select('real_name')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (!profileErr && currentProfile && (!currentProfile.real_name || currentProfile.real_name.trim() === "")) {
+                    setTimeout(() => {
+                        document.getElementById('name-setup-modal').style.display = 'flex';
+                    }, 800);
                 }
 
                 const { data: stages, error } = await supabase
@@ -288,9 +322,15 @@
                 }
 
                 renderSelectedMatch();
+                
+                // Übersetzungen triggern
+                if (typeof window.translatePortalPage === "function") {
+                    window.translatePortalPage();
+                }
             } catch (err) {
                 console.error(err);
-                document.getElementById("analytics-loader").innerText = "❌ Fehler beim Laden.";
+                const isEn = localStorage.getItem("selectedLanguage") === "en";
+                document.getElementById("analytics-loader").innerText = isEn ? "❌ Error loading database." : "❌ Fehler beim Laden.";
             }
         }
     })();
@@ -316,12 +356,16 @@
 
         const currentUserId = (await client.auth.getSession()).data.session?.user.id;
         const uniqueUserIds = [...new Set(matchGroup.map(g => g.user_id))].filter(id => id !== currentUserId);
+        
+        const isEn = localStorage.getItem("selectedLanguage") === "en";
+        const placeholderText = isEn ? "-- Choose a buddy to compare --" : "-- Wähle einen Buddy zum Vergleich --";
+
         let selectHtml = `<div id="buddy-selector-row" class="select-wrapper" style="margin-top: -10px; margin-bottom: 20px;">
             <select id="buddy-selector" onchange="selectBuddy(this.value)">
-                <option value="">-- Wähle einen Buddy zum Vergleich --</option>`;
+                <option value="">${placeholderText}</option>`;
         uniqueUserIds.forEach(id => {
             const profile = (window.buddyProfiles || []).find(p => p.id === id);
-            const name = profile ? profile.real_name : "Anonymer Schütze";
+            const name = profile ? profile.real_name : (isEn ? "Anonymous Shooter" : "Anonymer Schütze");
             selectHtml += `<option value="${id}">${name}</option>`;
         });
         selectHtml += `</select></div>`;
@@ -353,9 +397,10 @@
     window.renderSelectedMatch = function() {
         const matchId = document.getElementById("match-selector").value;
         const matchStages = allUserStages.filter(s => s.match_id === matchId);
+        const isEn = localStorage.getItem("selectedLanguage") === "en";
         
         let sumHf = 0, tA = 0, tC = 0, tD = 0, tM = 0;
-        let division = "Unbekannt";
+        let division = isEn ? "Unknown" : "Unbekannt";
         let stagePercents = [];
 
         matchStages.sort((a,b) => a.stage_name.localeCompare(b.stage_name, undefined, {numeric: true, sensitivity: 'base'}));
@@ -372,7 +417,6 @@
 
             if (!isOverall) {
                 sumHf += hf;
-                // Verhindert das Zählen von Dummy-Treffern in der Overall-Wertung
                 tA += stage.alphas || 0;
                 tC += stage.charlies || 0;
                 tD += stage.deltas || 0;
@@ -390,12 +434,12 @@
 
             if (!isOverall) stagePercents.push(myPerc);
 
-            // --- NEUE OVERALL-WEICHE (Layout & Daten-Tausch) ---
-            let labelWin = isOverall ? "Match Sieger" : "Stage Sieger";
+            // --- DE / EN ÜBERSETZUNG FÜR DIE OVERALL KARTE ---
+            let labelWin = isOverall ? (isEn ? "Match Winner" : "Match Sieger") : (isEn ? "Stage Winner" : "Stage Sieger");
             let textWin = isOverall ? "100%" : `${winHf.toFixed(4)} HF`;
             let widthWin = isOverall ? 100 : winPerc;
 
-            let labelMe = isOverall ? "Overall Wertung" : "Mein Hit Factor";
+            let labelMe = isOverall ? (isEn ? "Overall Result" : "Overall Wertung") : (isEn ? "My Hit Factor" : "Mein Hit Factor");
             let myOverallPerc = stage.pts ? parseFloat(stage.pts) : 0; 
             let textMe = isOverall ? `${myOverallPerc.toFixed(1)}%` : `${hf.toFixed(4)} HF`;
             let widthMe = isOverall ? myOverallPerc : myPerc;
@@ -412,7 +456,7 @@
                 else if (stagePoints <= 120) courseTag = '<span class="course-badge">Medium</span>';
                 else courseTag = '<span class="course-badge">Long</span>';
             } else {
-                courseTag = '<span class="course-badge" style="background:var(--accent-color); color:#fff;">Match Result</span>';
+                courseTag = `<span class="course-badge" style="background:var(--accent-color); color:#fff;">${isEn ? "Match Result" : "Match Ergebnis"}</span>`;
             }
 
             let insightHtml = "";
@@ -420,9 +464,13 @@
                 const targetTime = (stagePoints / winHf).toFixed(2);
                 const timeDiff = (time - targetTime).toFixed(2);
                 if (timeDiff > 0.1) {
-                    insightHtml = `<div class="insight-box">⏱️ Für Platz 1 hättest du deine Punkte in <b>${targetTime}s</b> schießen müssen (Du warst ${timeDiff}s zu langsam).</div>`;
+                    insightHtml = isEn 
+                        ? `<div class="insight-box">⏱️ For 1st place you should have shot your points in <b>${targetTime}s</b> (You were ${timeDiff}s too slow).</div>`
+                        : `<div class="insight-box">⏱️ Für Platz 1 hättest du deine Punkte in <b>${targetTime}s</b> schießen müssen (Du warst ${timeDiff}s zu langsam).</div>`;
                 } else if (timeDiff < -0.1 && myPerc >= 95) {
-                    insightHtml = `<div class="insight-box" style="border-color: var(--success-color);">🚀 Wahnsinn! Du warst schneller als die Target-Time des Siegers!</div>`;
+                    insightHtml = isEn
+                        ? `<div class="insight-box" style="border-color: var(--success-color);">🚀 Amazing! You were faster than the winner's target time!</div>`
+                        : `<div class="insight-box" style="border-color: var(--success-color);">🚀 Wahnsinn! Du warst schneller als die Target-Time des Siegers!</div>`;
                 }
             }
 
@@ -430,7 +478,7 @@
             if (selectedBuddyId && buddyStage) {
                 buddyBarHtml = `
                     <div class="bar-container" style="margin-top: 4px;">
-                        <div class="bar-label"><span>Mein Buddy</span> <span>${buddyHf.toFixed(4)} HF</span></div>
+                        <div class="bar-label"><span>${isEn ? "My Buddy" : "Mein Buddy"}</span> <span>${buddyHf.toFixed(4)} HF</span></div>
                         <div class="bar-track">
                             <div class="bar-fill" style="width: ${buddyPerc}%; background: var(--info-color);">${buddyPerc > 10 ? buddyPerc.toFixed(1) + '%' : ''}</div>
                         </div>
@@ -441,7 +489,7 @@
                 <div class="stage-card">
                     <div class="stage-header">
                         <span class="stage-title">${stage.stage_name} ${courseTag}</span>
-                        <span class="stage-rank">Platz ${rank}</span>
+                        <span class="stage-rank">${isEn ? "Rank" : "Platz"} ${rank}</span>
                     </div>
                     
                     <div class="bar-container">
@@ -510,6 +558,49 @@
         document.getElementById("bar-deltas").style.width = `${dPerc}%`;
     }
 
+    // --- AUTOMATISCHE NAMEN-SPEICHERUNG FÜR SUPABASE ---
+    window.closeNameSetupModal = function() {
+        document.getElementById('name-setup-modal').style.display = 'none';
+    }
+
+    window.saveProfileName = async function() {
+        const inputName = document.getElementById('setup-real-name').value.trim();
+        const isEn = localStorage.getItem("selectedLanguage") === "en";
+        
+        if (!inputName) {
+            alert(isEn ? "Please enter a valid name." : "Bitte gib einen gültigen Namen ein.");
+            return;
+        }
+
+        const btn = document.getElementById('btn-save-profile-name');
+        btn.innerText = isEn ? "Saving..." : "Speichere...";
+        btn.disabled = true;
+
+        try {
+            const client = window.supabaseClient || window.supabase;
+            const { data: { session } } = await client.auth.getSession();
+            if (!session) return;
+
+            const { error } = await client
+                .from('profiles')
+                .update({ real_name: inputName })
+                .eq('id', session.user.id);
+            if (error) throw error;
+
+            alert(isEn 
+                ? "✅ Name saved successfully! The email bot is now ready for you." 
+                : "✅ Name erfolgreich gespeichert! Der E-Mail-Bot ist jetzt für dich einsatzbereit.");
+            closeNameSetupModal();
+            window.location.reload();
+        } catch (err) {
+            console.error(err);
+            alert(isEn ? "Error saving the name." : "Fehler beim Speichern des Namens.");
+        } finally {
+            btn.innerText = isEn ? "Save" : "Speichern";
+            btn.disabled = false;
+        }
+    }
+
     // --- HIT EDITOR & SMART PASTE LOGIK ---
     window.openHitEditor = function(stageName) {
         const matchId = document.getElementById("match-selector").value;
@@ -562,8 +653,9 @@
             document.getElementById('edit-d').value = d;
             document.getElementById('edit-m').value = m;
             
+            const isEn = localStorage.getItem("selectedLanguage") === "en";
             e.target.value = '';
-            e.target.placeholder = '✅ Treffer erfolgreich erkannt!';
+            e.target.placeholder = isEn ? '✅ Hits successfully detected!' : '✅ Treffer erfolgreich erkannt!';
             setTimeout(() => e.target.placeholder = '📋 Email-Text hier einfügen (Smart Paste)', 3000);
         }
     });
@@ -576,7 +668,9 @@
         const d = parseInt(document.getElementById('edit-d').value) || 0;
         const m = parseInt(document.getElementById('edit-m').value) || 0;
         const btn = document.getElementById('btn-save-hits');
-        btn.innerText = "Speichere...";
+        
+        const isEn = localStorage.getItem("selectedLanguage") === "en";
+        btn.innerText = isEn ? "Saving..." : "Speichere...";
         
         try {
             const client = window.supabaseClient || window.supabase;
@@ -595,9 +689,9 @@
             renderSelectedMatch();
         } catch (err) {
             console.error(err);
-            alert("Fehler beim Speichern in der Datenbank!");
+            alert(isEn ? "Error saving to the database!" : "Fehler beim Speichern in der Datenbank!");
         } finally {
-            btn.innerText = "Speichern";
+            btn.innerText = isEn ? "Save" : "Speichern";
         }
     }
     </script>
