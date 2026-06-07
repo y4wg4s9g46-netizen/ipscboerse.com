@@ -2,7 +2,6 @@ import os
 import imaplib
 import email
 from email.policy import default
-from email.header import decode_header
 import re
 from supabase import create_client, Client
 
@@ -26,52 +25,55 @@ def get_users_from_db(supabase):
 
 def extrahiere_treffer_flexibel(block):
     """
-    Sucht extrem flexibel nach den Trefferzahlen (A, C, D, Miss), 
-    da die Plain-Text-Tabellen je nach Mail-Client stark variieren.
+    Kugelsicherer Parser: Trennt die Metadaten ab und liest die nackten Zahlen.
     """
     hits = {"a": 0, "c": 0, "d": 0, "m": 0}
     
-    # Sucht nach Zahlenblöcken unterhalb/nahe der Tabellenüberschriften
-    # Findet Formate wie: "14","9 1","0" oder "25 0 7"
-    # Wir bereinigen den Block von störenden Anführungszeichen und Kommas für den Regex
-    clean_block = block.replace('"', '').replace(',', ' ')
+    # Geheimwaffe: Wir nehmen nur den Text NACH der ZWEITEN Tabelle im Block.
+    # Dadurch ignorieren wir Squad-Nummern (wie 47) oder Stage-Zahlen komplett!
+    parts = block.split("The following table:")
+    hit_table = parts[-1] if len(parts) > 1 else block
     
-    # 1. Alphas, Charlies, Deltas extrahieren
-    # Wir suchen nach der Zeile, die A, C, D (in beliebiger Reihenfolge/Trennart) definiert
-    if re.search(r'\bA\b[\s\S]*?\bC\b[\s\S]*?\bD\b', clean_block, re.IGNORECASE) or "A C D" in clean_block:
-        # Matcht typische Zahlenreihen für IPSC Treffer (3 bis 4 Zahlenfolgen untereinander/nebeneinander)
-        zahlen_matches = re.findall(r'\b(\d+)\b', clean_block)
-        # Wir suchen die Zahlen, die nach den Buchstaben auftauchen und logisch zu Treffern passen
-        # Sicherer Ansatz: Wir nutzen spezifische Zeilen-Parser
-        lines = clean_block.splitlines()
-        for i, line in enumerate(lines):
-            # Wenn eine Zeile reine Trefferzahlen enthält (z.B. 14  9 1  0 oder 25 0 7)
-            if re.match(r'^\s*\d+(\s+\d+){2,4}\s*$', line):
-                parts = line.split()
-                if len(parts) >= 3:
-                    hits["a"] = int(parts[0])
-                    hits["c"] = int(parts[1])
-                    hits["d"] = int(parts[2])
-                    break
+    # Alle Quotes, Kommas und Pipes durch Leerzeichen ersetzen
+    clean_table = re.sub(r'["|,]', ' ', hit_table)
+    
+    # Fall 1: Stark verrutschte Tabellen, wo Buchstaben direkt an den Zahlen kleben (z.B. Stage 19: "8A", "2D")
+    if re.search(r'\b\d+A\b', clean_table, re.IGNORECASE):
+        for hit_type in ['a', 'c', 'd', 'm']:
+            m = re.search(fr'\b(\d+){hit_type.upper()}\b', clean_table, re.IGNORECASE)
+            if m: hits[hit_type] = int(m.group(1))
+        
+        # Falls Miss separat steht
+        if hits["m"] == 0:
+            m_miss = re.search(r'\bMiss\s*(\d+)', clean_table, re.IGNORECASE)
+            if m_miss: hits["m"] = int(m_miss.group(1))
+        return hits
 
-    # 2. Misses extrahieren
-    # Sucht nach "Miss" oder "Misses" und greift sich die darauffolgende Zahl ab
-    # Berücksichtigt, dass manchmal "N/S" oder "Proc" dazwischen steht
-    miss_match = re.search(r'\bMiss\b[\s\S]*?(\d+)', clean_block, re.IGNORECASE)
-    if miss_match:
-        hits["m"] = int(miss_match.group(1))
-    else:
-        # Alternativ-Suche, falls Miss in der Tabellenzeile stand (z.B. "14 9 1 0 0 0")
-        lines = clean_block.splitlines()
-        for line in lines:
-            if re.match(r'^\s*\d+(\s+\d+){4,}\s*$', line):
-                parts = line.split()
-                # Oft ist Index 3 oder 4 der Miss-Wert bei langen Zeilen
-                if len(parts) >= 4:
-                    hits["m"] = int(parts[3])
+    # Fall 2: Der Standard-PractiScore-Export
+    # Wir entfernen zuerst alle Kommazahlen (Hit Factor und Time), da diese sonst als Hits gezählt würden
+    table_no_floats = re.sub(r'\b\d+\.\d+\b', '', clean_table)
+    
+    # Extrahieren aller verbleibenden reinen Ganzzahlen in der Reihenfolge ihres Auftretens
+    zahlen = [int(x) for x in re.findall(r'\b\d+\b', table_no_floats)]
+    
+    if not zahlen:
+        return hits
 
+    # Standardmäßige Zuweisung nach IPSC-Regeln (A, C, D sind immer die ersten 3 Werte)
+    if len(zahlen) >= 1: hits["a"] = zahlen[0]
+    if len(zahlen) >= 2: hits["c"] = zahlen[1]
+    if len(zahlen) >= 3: hits["d"] = zahlen[2]
+    
+    # Misses sind standardmäßig die 4. Zahl in der Reihe
+    if len(zahlen) >= 4: 
+        hits["m"] = zahlen[3]
+        
+    # Spezifische Korrektur: Wenn die Tabelle "N/S Miss" als Kopf hat, 
+    # rutscht der Miss-Wert in der reinen Zahlenreihe meist eine Position nach hinten.
+    if re.search(r'\bN/S\s*Miss\b', hit_table, re.IGNORECASE) and len(zahlen) >= 5:
+        hits["m"] = zahlen[4]
+    
     return hits
-
 
 def main():
     print("Starte E-Mail Bot...")
@@ -128,33 +130,26 @@ def main():
                     continue
 
                 # --- KUGELSICHERER PARSER-SPLIT ---
-                # Wir splitten strikt an den Weiterleitungs-Schnittstellen
                 raw_blocks = body.split("Anfang der weitergeleiteten Nachricht:")
                 
-                # Verwende ein Set, um verarbeitete Stage-Nummern pro E-Mail zu tracken (Verhindert Double-Parsing)
                 verarbeitete_stages_ids = set()
                 is_any_block_processed = False
 
                 for block in raw_blocks:
-                    # Spam / Werkstatt-Mails sofort blockieren
                     if "Euromaster" in block or "Dienstleistung" in block:
                         continue
 
-                    # Prüfen, ob eine echte Stage-Tabelle deklariert wird (z.B. "Stage: Stage 19" oder "Stage 19 - R11")
                     stage_match = re.search(r'Stage:\s*(?:Stage\s+)?(\d+)|Stage\s+(\d+)\s*-', block, re.IGNORECASE)
                     if not stage_match:
                         continue
                     
-                    # Die korrekte ID aus der passenden Match-Gruppe holen
                     stage_num_str = stage_match.group(1) or stage_match.group(2)
                     stage_nummer = int(stage_num_str)
                     stage_name_extracted = f"Stage {stage_nummer}"
 
-                    # Wenn wir diese Stage aus dieser Mail schon hatten -> Überspringen!
                     if stage_nummer in verarbeitete_stages_ids:
                         continue
 
-                    # Namens-Parser für diesen spezifischen Block
                     name_match = re.search(r'\b\d+\s+([^,\n]+),\s*([^\n\r]+)', block)
                     if not name_match:
                         continue
@@ -163,7 +158,6 @@ def main():
                     first_name = name_match.group(2).strip()
                     full_name_extracted = f"{first_name} {last_name}"
 
-                    # User zuordnen
                     matched_user_id = None
                     for u in users:
                         db_name_clean = clean_string(u['real_name'])
@@ -175,14 +169,12 @@ def main():
                     if not matched_user_id:
                         continue
 
-                    # Treffer extrahieren über die neue, flexible Funktion
+                    # Treffer extrahieren über die neue, clevere Funktion
                     hits = extrahiere_treffer_flexibel(block)
 
-                    # Wenn absolut gar keine Treffer gefunden wurden, ist es nur ein Info-Block ohne Tabelle
                     if sum(hits.values()) == 0:
                         continue
 
-                    # In Supabase speichern
                     try:
                         all_match_stages = supabase.table("user_match_analytics").select("id, stage_name").eq("user_id", matched_user_id).execute()
                         
@@ -215,9 +207,9 @@ def main():
                     except Exception as e:
                         print(f"   ❌ DB Update Fehler in Block: {e}")
 
-                print(f"   -> {len(verarbeitete_stages_ids)} echte Stages in dieser E-Mail erfolgreich verarbeitet!")
+                if len(verarbeitete_stages_ids) > 0:
+                    print(f"   -> {len(verarbeitete_stages_ids)} echte Stages in dieser E-Mail erfolgreich verarbeitet!")
 
-                # Wenn mindestens ein Block erfolgreich gespeichert wurde, löschen wir die Mail
                 if is_any_block_processed:
                     mail.store(mail_id, '+FLAGS', '\\Deleted')
                     print("   🗑️ Sammel-E-Mail wurde erfolgreich verarbeitet und gelöscht.")
