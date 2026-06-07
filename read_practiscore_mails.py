@@ -13,6 +13,7 @@ EMAIL_USER = os.environ.get("EMAIL_USER")
 EMAIL_PASS = os.environ.get("EMAIL_PASS")
 
 def clean_string(s):
+    """Entfernt alle Sonderzeichen und Leerzeichen für kugelsichere Vergleiche."""
     return re.sub(r'[^a-zA-Z0-9]', '', s.lower())
 
 def get_users_from_db(supabase):
@@ -23,55 +24,63 @@ def get_users_from_db(supabase):
         print(f"❌ Fehler beim Laden der Profile aus Supabase: {e}")
         return []
 
+def extract_match_name(block, main_subject):
+    """
+    Liest den Namen des Matches aus der E-Mail aus 
+    (z.B. "Trigger Titans 2026 by STP Sport Target Pistol").
+    """
+    # 1. Versuche es aus dem Text-Block (z.B. "Betreff: Match Name - Stage X")
+    m = re.search(r'(?:Betreff|Subject):\s*(?:(?:Fwd|Wtr|WG|FW|AW|Re):\s*)*(.*?)\s*-\s*Stage', block, re.IGNORECASE)
+    if m:
+        return m.group(1).strip()
+        
+    # 2. Fallback auf den Haupt-Betreff der E-Mail
+    m_subj = re.search(r'(?:(?:Fwd|Wtr|WG|FW|AW|Re):\s*)*(.*?)\s*-\s*Stage', main_subject, re.IGNORECASE)
+    if m_subj:
+        return m_subj.group(1).strip()
+        
+    return ""
+
 def extrahiere_treffer_flexibel(block):
     """
-    Maximal robuster Parser: Ignoriert alles bis zum Range Officer
-    und greift sich exakt die Tabelle darunter.
+    Maximal robuster Parser: Schneidet den Müll davor flexibel ab 
+    und extrahiert nur die reinen Trefferzahlen.
     """
     hits = {"a": 0, "c": 0, "d": 0, "m": 0}
     
-    # 1. Wir schneiden den ganzen Kopfbereich ab. 
-    # "Range Officer" ist der perfekte Anker, da er immer direkt über der Tabelle steht.
-    parts = re.split(r'(?i)Range Officer[^\n]*', block)
-    # Wenn wir den RO nicht finden, nehmen wir zur Sicherheit die letzten 200 Zeichen
-    hit_table = parts[-1] if len(parts) > 1 else block[-200:]
+    if re.search(r'(?i)Range Officer', block):
+        hit_table = re.split(r'(?i)Range Officer[^\n]*', block)[-1]
+    elif re.search(r'(?i)Time["\s]*\n', block):
+        hit_table = re.split(r'(?i)Time["\s]*\n', block)[-1]
+    else:
+        hit_table = block
     
-    # 2. Bereinigen: Kommas, Quotes, Pipes durch Leerzeichen ersetzen
     clean_table = re.sub(r'["|,]', ' ', hit_table)
-    
-    # 3. Entferne alle Kommazahlen (wie den Hit Factor 6.0377 oder die Zeit 20.54)
     table_no_floats = re.sub(r'\b\d+\.\d+\b', '', clean_table)
     
-    # 4. Fall 1: A, C, D kleben als Buchstaben direkt an den Zahlen (z.B. "8A", "2D" in Stage 19)
     if re.search(r'\b\d+A\b', table_no_floats, re.IGNORECASE):
         for hit_type in ['a', 'c', 'd', 'm']:
             m = re.search(fr'\b(\d+){hit_type.upper()}\b', table_no_floats, re.IGNORECASE)
             if m: hits[hit_type] = int(m.group(1))
-        
-        # Falls Miss als einzelnes Wort in dieser verrutschten Tabelle steht
         if hits["m"] == 0:
             m_miss = re.search(r'\bMiss\s*(\d+)', table_no_floats, re.IGNORECASE)
             if m_miss: hits["m"] = int(m_miss.group(1))
         return hits
 
-    # 5. Fall 2: Normale Tabellen. Wir sammeln einfach alle verbleibenden ganzen Zahlen.
     zahlen = [int(x) for x in re.findall(r'\b\d+\b', table_no_floats)]
     
     if not zahlen:
         return hits
 
-    # 6. Spezial-Korrektur für PDF/Mail-Salat, wenn sich plötzlich Nullen vordrängeln (wie Stage 14)
     if len(zahlen) >= 5 and zahlen[1] == 0 and sum(zahlen[2:]) > 0 and sum(zahlen[:1]) > 0:
          echte_treffer = [z for z in zahlen if z != 0]
-         zahlen = echte_treffer + [0, 0, 0, 0] # Mit Nullen auffüllen
+         zahlen = echte_treffer + [0, 0, 0, 0] 
          
-    # 7. Standardmäßige IPSC-Zuweisung
     if len(zahlen) >= 1: hits["a"] = zahlen[0]
     if len(zahlen) >= 2: hits["c"] = zahlen[1]
     if len(zahlen) >= 3: hits["d"] = zahlen[2]
     if len(zahlen) >= 4: hits["m"] = zahlen[3]
     
-    # Korrektur, falls N/S vor Miss stand in der Kopfzeile
     if len(zahlen) >= 5 and re.search(r'\bN/S\s*Miss\b', hit_table, re.IGNORECASE):
         hits["m"] = zahlen[4]
     
@@ -117,57 +126,69 @@ def main():
                 if isinstance(subject, bytes):
                     subject = subject.decode('utf-8', errors='ignore')
                 
-                print(f"\nLese E-Mail: {subject}")
+                print(f"\n--- Lese E-Mail: {subject} ---")
 
                 body = ""
                 if msg.is_multipart():
                     for part in msg.walk():
                         if part.get_content_type() == 'text/plain':
                             body += part.get_payload(decode=True).decode('utf-8', errors='ignore') + "\n"
+                    if not body.strip():
+                        for part in msg.walk():
+                            if part.get_content_type() == 'text/html':
+                                html_content = part.get_payload(decode=True).decode('utf-8', errors='ignore')
+                                body += re.sub(r'<[^>]+>', ' ', html_content) + "\n"
                 else:
-                    body = msg.get_payload(decode=True).decode('utf-8', errors='ignore')
+                    if msg.get_content_type() == 'text/html':
+                        html_content = msg.get_payload(decode=True).decode('utf-8', errors='ignore')
+                        body = re.sub(r'<[^>]+>', ' ', html_content)
+                    else:
+                        body = msg.get_payload(decode=True).decode('utf-8', errors='ignore')
 
-                # Abfrage in lower() für Sicherheit bei allen E-Mail-Clients
                 if not ("stage" in body.lower() or "verify" in subject.lower()):
                     print("   -> Keine IPSC-Ergebnismail. Wird ignoriert.")
                     continue
 
-                # --- DER ULTIMATIVE PARSER-SPLIT ---
-                # Wir zerschneiden die Mail exakt an der PractiScore-Bestätigung!
-                # Dadurch enthält jeder Block garantiert genau EINE Stage, völlig unbeeindruckt von Mail-Headern.
                 raw_blocks = re.split(r'(?i)Score confirmed at[^\n]*|Secured and verified[^\n]*', body)
                 
                 verarbeitete_stages_ids = set()
                 is_any_block_processed = False
 
-                for block in raw_blocks:
-                    # Müll-Blöcke (z.B. Euromaster) sofort skippen
+                for i, block in enumerate(raw_blocks):
                     if "Euromaster" in block or "Dienstleistung" in block:
                         continue
+                        
+                    if len(block.strip()) < 20:
+                        continue
 
-                    # Stage-Nummer suchen
+                    print(f"\n   [Block {i+1}] Analysiere Abschnitt...")
+
                     stage_match = re.search(r'Stage:\s*(?:Stage\s+)?(\d+)|Stage\s+(\d+)\s*-', block, re.IGNORECASE)
                     if not stage_match:
+                        print("      -> Übersprungen: Keine Stage-Nummer gefunden.")
                         continue
                     
                     stage_num_str = stage_match.group(1) or stage_match.group(2)
                     stage_nummer = int(stage_num_str)
                     stage_name_extracted = f"Stage {stage_nummer}"
+                    
+                    # --- NEU: Match Namen auslesen ---
+                    extracted_match_name = extract_match_name(block, subject)
+                    print(f"      -> Erkannt: {stage_name_extracted} | Match: '{extracted_match_name}'")
 
-                    # Doppelte Verarbeitungen blockieren
                     if stage_nummer in verarbeitete_stages_ids:
+                        print("      -> Übersprungen: Stage wurde aus dieser Mail bereits verarbeitet.")
                         continue
 
-                    # Schütze / Name suchen (z.B. 443 Schöps, Fabian)
                     name_match = re.search(r'\b\d+\s+([^,\n]+),\s*([^\n\r]+)', block)
                     if not name_match:
+                        print("      -> Übersprungen: Kein Schützenname gefunden.")
                         continue
                         
                     last_name = name_match.group(1).strip()
                     first_name = name_match.group(2).strip()
                     full_name_extracted = f"{first_name} {last_name}"
 
-                    # User matchen
                     matched_user_id = None
                     for u in users:
                         db_name_clean = clean_string(u['real_name'])
@@ -177,17 +198,18 @@ def main():
                             break
                             
                     if not matched_user_id:
+                        print(f"      -> Übersprungen: Schütze '{full_name_extracted}' nicht in Supabase gefunden.")
                         continue
 
-                    # Treffer extrahieren
                     hits = extrahiere_treffer_flexibel(block)
 
                     if sum(hits.values()) == 0:
+                        print("      -> Übersprungen: 0 Treffer gefunden.")
                         continue
 
-                    # Supabase Update
                     try:
-                        all_match_stages = supabase.table("user_match_analytics").select("id, stage_name").eq("user_id", matched_user_id).execute()
+                        # WICHTIG: Wir laden jetzt auch match_name aus der Datenbank mit herunter!
+                        all_match_stages = supabase.table("user_match_analytics").select("id, stage_name, match_name").eq("user_id", matched_user_id).execute()
                         
                         entry_id = None
                         target_num = str(stage_nummer)
@@ -199,9 +221,27 @@ def main():
                                 
                             if db_stage_num and db_stage_num.group(1) == target_num:
                                 if "overall" not in db_stage['stage_name'].lower():
-                                    entry_id = db_stage['id']
-                                    stage_name_extracted = db_stage['stage_name']
-                                    break
+                                    
+                                    # --- NEU: Match-Check ---
+                                    db_m_name = db_stage.get('match_name', '')
+                                    is_match_correct = False
+                                    
+                                    if extracted_match_name and db_m_name:
+                                        # Wir entfernen Leerzeichen, um Tippfehler zu umgehen
+                                        clean_ext = clean_string(extracted_match_name)
+                                        clean_db = clean_string(db_m_name)
+                                        
+                                        # Gilt als Treffer, wenn der Name ineinander enthalten ist
+                                        if clean_ext in clean_db or clean_db in clean_ext:
+                                            is_match_correct = True
+                                    else:
+                                        # Fallback, falls mal gar kein Match-Name extrahiert werden konnte
+                                        is_match_correct = True
+                                        
+                                    if is_match_correct:
+                                        entry_id = db_stage['id']
+                                        stage_name_extracted = db_stage['stage_name']
+                                        break # Richtige Stage + Richtiges Match gefunden!
 
                         if entry_id:
                             supabase.table("user_match_analytics").update({
@@ -211,19 +251,21 @@ def main():
                                 "misses": hits["m"]
                             }).eq("id", entry_id).execute()
                             
-                            print(f"   ✅ Block verarbeitet für {full_name_extracted} ({stage_name_extracted}): A:{hits['a']} C:{hits['c']} D:{hits['d']} M:{hits['m']}")
+                            print(f"      ✅ ERFOLG für {full_name_extracted} ({stage_name_extracted}): A:{hits['a']} C:{hits['c']} D:{hits['d']} M:{hits['m']}")
                             verarbeitete_stages_ids.add(stage_nummer)
                             is_any_block_processed = True
+                        else:
+                            print(f"      -> Übersprungen: Konnte {stage_name_extracted} für das Match '{extracted_match_name}' nicht in Supabase finden.")
                             
                     except Exception as e:
-                        print(f"   ❌ DB Update Fehler in Block: {e}")
+                        print(f"      ❌ DB Update Fehler in Block: {e}")
 
                 if len(verarbeitete_stages_ids) > 0:
                     print(f"   -> {len(verarbeitete_stages_ids)} echte Stages in dieser E-Mail erfolgreich verarbeitet!")
 
                 if is_any_block_processed:
                     mail.store(mail_id, '+FLAGS', '\\Deleted')
-                    print("   🗑️ Sammel-E-Mail wurde erfolgreich verarbeitet und gelöscht.")
+                    print("   🗑️ E-Mail wurde erfolgreich verarbeitet und gelöscht.")
 
     mail.expunge()
     mail.logout()
