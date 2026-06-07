@@ -97,10 +97,24 @@
             
             <p id="analytics-loader" data-txt="loading" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Lade aktuelle Startplätze...</p>
 
-            <div id="analytics-empty-state" style="display: none; background: rgba(255,159,67,0.05); border: 1px dashed var(--accent-color); padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
-                <span style="font-size: 24px;">ℹ️</span>
-                <h4 style="margin: 10px 0 8px 0; font-weight: 700;">Noch keine Match-Daten gefunden</h4>
-                <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Der Bot sucht aktuell nach deinen Stage-Ergebnissen!</p>
+            <!-- Aktualisierter professioneller Empty State mit präzisen System-Hinweisen -->
+            <div id="analytics-empty-state" style="display: none; background: rgba(255,159,67,0.03); border: 1px dashed var(--accent-color); padding: 25px 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
+                <span style="font-size: 28px;">📊</span>
+                <h4 style="margin: 12px 0 6px 0; font-weight: 800; font-size: 16px; color: var(--text-color);">Noch keine Match-Daten gefunden</h4>
+                <p style="font-size: 13px; color: var(--text-muted); margin: 0 0 15px 0; line-height: 1.4;">
+                    Das Analyse-System prüft im Hintergrund die offiziellen IPSC-Ergebnisse.
+                </p>
+                
+                <div style="display: flex; flex-direction: column; gap: 8px; max-width: 340px; margin: 0 auto; text-align: left; background: var(--bg-color); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 12px; line-height: 1.4; color: var(--text-muted);">
+                    <div style="display: flex; gap: 8px; align-items: flex-start;">
+                        <span>🌙</span>
+                        <span><strong>Match-Import:</strong> Gesamte Match-Ergebnisse werden jede Nacht vollautomatisch im System aktualisiert.</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: flex-start; border-top: 1px solid var(--border-color); padding-top: 8px; margin-top: 2px;">
+                        <span>📧</span>
+                        <span><strong>Treffer-Analyse:</strong> Per E-Mail weitergeleitete PractiScore-Daten werden alle 3 Stunden verarbeitet.</span>
+                    </div>
+                </div>
             </div>
 
             <div id="analytics-dashboard-content" style="display: none;">
@@ -224,7 +238,7 @@
         </div>
     </div>
 
-    <!-- KONTO-EINSTELLUNGEN MODAL (Neu hinzugefügt für den Einstellungs-Knopf) -->
+    <!-- KONTO-EINSTELLUNGEN MODAL -->
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-content" style="max-width: 440px;">
             <h3 data-txt="modal-settings-title" style="margin-top:0; margin-bottom:20px; font-size:20px; font-weight:800; color:var(--text-color);">Konto-Einstellungen</h3>
@@ -316,7 +330,6 @@
     let currentEditStage = null;
     let selectedBuddyId = null; 
 
-    // Hilfsfunktionen für das Einstellungsmodal (damit der Header es schließen kann)
     window.closeSettingsModal = function() {
         const modal = document.getElementById('settings-modal');
         if(modal) modal.style.display = 'none';
@@ -408,7 +421,6 @@
 
                 renderSelectedMatch();
                 
-                // Übersetzungen antriggern
                 if (typeof window.translatePortalPage === "function") {
                     window.translatePortalPage();
                 }
@@ -519,7 +531,7 @@
 
             if (!isOverall) stagePercents.push(myPerc);
 
-            // --- DE / EN OVERALL WERTUNGS LOGIK ---
+            // --- DE / EN OVERALL LANDING WEICHE ---
             let labelWin = isOverall ? (isEn ? "Match Winner" : "Match Sieger") : (isEn ? "Stage Winner" : "Stage Sieger");
             let textWin = isOverall ? "100%" : `${winHf.toFixed(4)} HF`;
             let widthWin = isOverall ? 100 : winPerc;
