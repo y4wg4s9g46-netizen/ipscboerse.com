@@ -46,7 +46,6 @@ def extrahiere_treffer_flexibel(block):
     """
     hits = {"a": 0, "c": 0, "d": 0, "m": 0}
     
-    # 1. Kopfbereich sauber abschneiden
     if re.search(r'(?i)Range Officer', block):
         hit_table = re.split(r'(?i)Range Officer[^\n]*', block)[-1]
     elif re.search(r'(?i)Time["\s]*\n', block):
@@ -54,11 +53,9 @@ def extrahiere_treffer_flexibel(block):
     else:
         hit_table = block
     
-    # 2. Zeichen bereinigen und Kommazahlen (Hit Factor) entfernen
     clean_table = re.sub(r'["|,]', ' ', hit_table)
     table_no_floats = re.sub(r'\b\d+\.\d+\b', '', clean_table)
     
-    # 3. Verrutschte Tabellen abfangen (z.B. "8A", "2D")
     if re.search(r'\b\d+A\b', table_no_floats, re.IGNORECASE):
         for hit_type in ['a', 'c', 'd', 'm']:
             m = re.search(fr'\b(\d+){hit_type.upper()}\b', table_no_floats, re.IGNORECASE)
@@ -68,13 +65,11 @@ def extrahiere_treffer_flexibel(block):
             if m_miss: hits["m"] = int(m_miss.group(1))
         return hits
 
-    # 4. Reine Zahlen einsammeln
     zahlen = [int(x) for x in re.findall(r'\b\d+\b', table_no_floats)]
     
     if not zahlen:
         return hits
 
-    # 5. Strikte und direkte Zuweisung (A, C, D, Miss) – OHNE verrückte Verschiebungs-Hacks!
     if len(zahlen) >= 1: hits["a"] = zahlen[0]
     if len(zahlen) >= 2: hits["c"] = zahlen[1]
     if len(zahlen) >= 3: hits["d"] = zahlen[2]
@@ -124,7 +119,6 @@ def main():
                 
                 print(f"\n--- Lese E-Mail: {subject} ---")
 
-                # HTML extrahieren und platt machen
                 body = ""
                 if msg.is_multipart():
                     for part in msg.walk():
@@ -204,7 +198,8 @@ def main():
                         continue
 
                     try:
-                        all_match_stages = supabase.table("user_match_analytics").select("id, stage_name, match_name").eq("user_id", matched_user_id).execute()
+                        # HIER IST DIE MAGIE: order("created_at", desc=True) ist zurück!
+                        all_match_stages = supabase.table("user_match_analytics").select("id, stage_name, match_name").eq("user_id", matched_user_id).order("created_at", desc=True).execute()
                         
                         entry_id = None
                         target_num = str(stage_nummer)
