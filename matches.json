@@ -2,7 +2,7 @@
     {
         "name": "Offene IPSC-LM Niedersachsen und Bremen 2026 Part ...",
         "datum": "14.06.2026",
-        "auslastung": "88%",
+        "auslastung": "86%",
         "region": "GER",
         "level": "2",
         "disziplin": "HG",
@@ -20,16 +20,25 @@
     {
         "name": "TSV Régional Martinique 2026",
         "datum": "20.06.2026",
-        "auslastung": "47%",
+        "auslastung": "53%",
         "region": "FRA",
         "level": "2",
         "disziplin": "HG",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_TSV-REGIONAL-MARTINIQUE"
     },
     {
+        "name": "Allauch Crow Cup 2026",
+        "datum": "05.07.2026",
+        "auslastung": "82%",
+        "region": "FRA",
+        "level": "2",
+        "disziplin": "HG",
+        "url": "https://www.ipscmatch.de/index.pl?match=2026_Allauch_Crow_Cup"
+    },
+    {
         "name": "Bracara Augusta Match 2026",
         "datum": "11.07.2026",
-        "auslastung": "79%",
+        "auslastung": "80%",
         "region": "POR",
         "level": "3",
         "disziplin": "HG",
@@ -56,7 +65,7 @@
     {
         "name": "Siegerland Challenge part I",
         "datum": "26.07.2026",
-        "auslastung": "86%",
+        "auslastung": "88%",
         "region": "GER",
         "level": "2",
         "disziplin": "HG",
