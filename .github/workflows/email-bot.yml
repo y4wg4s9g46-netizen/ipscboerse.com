@@ -2,8 +2,8 @@ name: run-email-bot
 
 on:
   schedule:
-    - cron: '0 4 * * *' # Läuft automatisch jeden Tag (Beispiel)
-  workflow_dispatch: # Erlaubt den grauen "Run workflow" Button auf dem Handy
+    - cron: '0 4 * * *'
+  workflow_dispatch:
 
 jobs:
   email-job:
@@ -18,4 +18,5 @@ jobs:
           python-version: '3.x'
 
       - name: E-Mail Bot ausführen (PractiScore)
-        run: python ipscboerse.com/read_practiscore_mails.py
+        working-directory: ${{ github.workspace }}
+        run: python read_practiscore_mails.py
