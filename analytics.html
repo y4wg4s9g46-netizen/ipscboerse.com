@@ -97,28 +97,15 @@
             
             <p id="analytics-loader" data-txt="loading" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Lade aktuelle Startplätze...</p>
 
-            <!-- Empty State -->
-            <div id="analytics-empty-state" style="display: none; background: rgba(255,159,67,0.03); border: 1px dashed var(--accent-color); padding: 25px 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
-                <span style="font-size: 28px;">📊</span>
-                <h4 style="margin: 12px 0 6px 0; font-weight: 800; font-size: 16px; color: var(--text-color);">Noch keine Match-Daten gefunden</h4>
-                <p style="font-size: 13px; color: var(--text-muted); margin: 0 0 15px 0; line-height: 1.4;">
-                    Das Analyse-System prüft im Hintergrund die offiziellen IPSC-Ergebnisse.
-                </p>
-                
-                <div style="display: flex; flex-direction: column; gap: 8px; max-width: 340px; margin: 0 auto; text-align: left; background: var(--bg-color); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 12px; line-height: 1.4; color: var(--text-muted);">
-                    <div style="display: flex; gap: 8px; align-items: flex-start;">
-                        <span>🌙</span>
-                        <span><strong>Match-Import:</strong> Gesamte Match-Ergebnisse werden jede Nacht vollautomatisch im System aktualisiert.</span>
-                    </div>
-                    <div style="display: flex; gap: 8px; align-items: flex-start; border-top: 1px solid var(--border-color); padding-top: 8px; margin-top: 2px;">
-                        <span>📧</span>
-                        <span><strong>Treffer-Analyse:</strong> Per E-Mail weitergeleitete PractiScore-Daten werden alle 3 Stunden verarbeitet.</span>
-                    </div>
-                </div>
+            <div id="analytics-empty-state" style="display: none; background: rgba(255,159,67,0.05); border: 1px dashed var(--accent-color); padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+                <span style="font-size: 24px;">ℹ️</span>
+                <h4 style="margin: 10px 0 8px 0; font-weight: 700;">Noch keine Match-Daten gefunden</h4>
+                <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Der Bot sucht aktuell nach deinen Stage-Ergebnissen!</p>
             </div>
 
             <div id="analytics-dashboard-content" style="display: none;">
                 
+                <!-- Info-Box mit funktionierender Live-Übersetzung -->
                 <div style="background: var(--bg-color); border-left: 4px solid var(--accent-color); border-radius: 4px 8px 8px 4px; padding: 15px; margin-bottom: 20px; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
                     <h4 data-txt="analytics-box-title" style="margin: 0 0 8px 0; font-size: 14px; font-weight: 800; color: var(--text-color);">📧 A, C, D automatisch eintragen</h4>
                     <p data-txt="analytics-box-desc" style="margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
@@ -214,7 +201,7 @@
         </div>
     </div>
 
-    <!-- AUTOMATISCHES NAMENS-SETUP MODAL -->
+    <!-- NEUES AUTOMATISCHES NAMENS-SETUP MODAL -->
     <div id="name-setup-modal" class="modal-overlay">
         <div class="modal-content" style="max-width: 380px;">
             <h3 style="margin-top: 0; margin-bottom: 8px; color: var(--text-color); display: flex; align-items: center; gap: 8px;">🚀 Letzter Schritt: Name einrichten</h3>
@@ -237,54 +224,7 @@
         </div>
     </div>
 
-    <!-- KONTO-EINSTELLUNGEN MODAL -->
-    <div id="settings-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 440px;">
-            <h3 data-txt="modal-settings-title" style="margin-top:0; margin-bottom:20px; font-size:20px; font-weight:800; color:var(--text-color);">Konto-Einstellungen</h3>
-            
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; background:var(--bg-color); padding:10px; border-radius:8px; border:1px solid var(--border-color);">
-                <div style="text-align:center;">
-                    <div style="font-size:10px; font-weight:700; color:var(--text-muted);" data-txt="modal-settings-seller">Als Verkäufer</div>
-                    <div id="stats-deals-seller" style="font-size:18px; font-weight:900; margin-top:4px; color:var(--text-color);">0</div>
-                </div>
-                <div style="text-align:center;">
-                    <div style="font-size:10px; font-weight:700; color:var(--text-muted);" data-txt="modal-settings-buyer">Als Käufer</div>
-                    <div id="stats-deals-buyer" style="font-size:18px; font-weight:900; margin-top:4px; color:var(--text-color);">0</div>
-                </div>
-            </div>
-
-            <form id="settings-form" style="display:flex; flex-direction:column; gap:15px;">
-                <div class="hit-input-group">
-                    <label data-txt="lbl-username">Schützenname / Anzeigename</label>
-                    <input type="text" id="settings-username" data-txt-ph="ph-username" required style="text-align:left; padding:10px; font-size:14px;">
-                </div>
-
-                <div class="hit-input-group">
-                    <label data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
-                    <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" style="text-align:left; padding:10px; font-size:14px;">
-                    <div style="font-size:10px; color:var(--text-muted); margin-top:3px;" data-txt="lbl-ipsc-alias-desc">Füllst du dieses Feld aus, erhältst du das 'Trusted Shooter' Badge!</div>
-                </div>
-
-                <div class="hit-input-group">
-                    <label data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
-                    <input type="text" id="settings-real-name" data-txt-ph="ph-real-name" style="text-align:left; padding:10px; font-size:14px;">
-                    <div style="font-size:10px; color:var(--text-muted); margin-top:3px;" data-txt="lbl-real-name-desc">Trage hier deinen Klarnamen ein (z. B. Max Mustermann).</div>
-                </div>
-
-                <div class="hit-input-group">
-                    <label data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
-                    <input type="password" id="settings-password" data-txt-ph="ph-password" style="text-align:left; padding:10px; font-size:14px;">
-                </div>
-
-                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px; border-top:1px solid var(--border-color); padding-top:15px;">
-                    <button type="button" onclick="closeSettingsModal()" style="padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-color); cursor:pointer; font-weight:bold; font-size:13px;" data-txt="btn-cancel">Abbrechen</button>
-                    <button type="submit" style="padding:10px 15px; border-radius:6px; border:none; background:var(--accent-color); color:#fff; font-weight:bold; cursor:pointer; font-size:13px;" data-txt="btn-save">Speichern</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- STANDARD-LOGIN MODAL -->
+    <!-- STANDARD-LOGIN MODAL (Hinzugefügt für die header.js Kompatibilität) -->
     <div id="login-modal" class="modal-overlay">
         <div class="modal-content" style="max-width: 400px; text-align: center;">
             <h3 id="auth-modal-title" data-txt="modal-login-title" style="margin-top: 0; margin-bottom: 20px; color: var(--text-color); font-size: 20px; font-weight: 800;">Anmelden</h3>
@@ -328,11 +268,6 @@
     let uniqueMatches = [];
     let currentEditStage = null;
     let selectedBuddyId = null; 
-
-    window.closeSettingsModal = function() {
-        const modal = document.getElementById('settings-modal');
-        if(modal) modal.style.display = 'none';
-    }
 
     (function() {
         function startAnalyticsPipeline() {
@@ -419,7 +354,8 @@
                 }
 
                 renderSelectedMatch();
-
+                
+                // Übersetzungen antriggern
                 if (typeof window.translatePortalPage === "function") {
                     window.translatePortalPage();
                 }
@@ -530,6 +466,7 @@
 
             if (!isOverall) stagePercents.push(myPerc);
 
+            // --- DE / EN OVERALL WERTUNGS LOGIK ---
             let labelWin = isOverall ? (isEn ? "Match Winner" : "Match Sieger") : (isEn ? "Stage Winner" : "Stage Sieger");
             let textWin = isOverall ? "100%" : `${winHf.toFixed(4)} HF`;
             let widthWin = isOverall ? 100 : winPerc;
@@ -653,6 +590,7 @@
         document.getElementById("bar-deltas").style.width = `${dPerc}%`;
     }
 
+    // --- AUTOMATISCHES PROFILE CONFIG MODAL ---
     window.closeNameSetupModal = function() {
         document.getElementById('name-setup-modal').style.display = 'none';
     }
@@ -695,6 +633,7 @@
         }
     }
 
+    // --- HIT EDITOR & SMART PASTE LOGIK ---
     window.openHitEditor = function(stageName) {
         const matchId = document.getElementById("match-selector").value;
         const stage = allUserStages.find(s => s.match_id === matchId && s.stage_name === stageName);
