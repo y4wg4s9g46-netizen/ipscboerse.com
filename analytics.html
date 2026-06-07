@@ -97,7 +97,7 @@
             
             <p id="analytics-loader" data-txt="loading" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Lade aktuelle Startplätze...</p>
 
-            <!-- Empty State (Wird dynamisch übersetzt) -->
+            <!-- Empty State -->
             <div id="analytics-empty-state" style="display: none; background: rgba(255,159,67,0.03); border: 1px dashed var(--accent-color); padding: 25px 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
                 <span style="font-size: 28px;">📊</span>
                 <h4 id="empty-state-title" data-txt="analytics-empty-title" style="margin: 12px 0 6px 0; font-weight: 800; font-size: 16px; color: var(--text-color);">Noch keine Match-Daten gefunden</h4>
@@ -171,7 +171,7 @@
         </div>
     </div>
 
-    <!-- Das Hit-Editor Modal mit Smart Paste -->
+    <!-- Das Hit-Editor Modal -->
     <div id="hit-editor-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-top: 0; margin-bottom: 5px; color: var(--text-color);">✏️ Treffer eintragen</h3>
@@ -285,7 +285,7 @@
     </div>
 
     <!-- STANDARD-LOGIN MODAL -->
-    <div id="login-modal" class="modal-overlay">
+    <div id="auth-modal" class="modal-overlay">
         <div class="modal-content" style="max-width: 400px; text-align: center;">
             <h3 id="auth-modal-title" data-txt="modal-login-title" style="margin-top: 0; margin-bottom: 20px; color: var(--text-color); font-size: 20px; font-weight: 800;">Anmelden</h3>
             
@@ -307,6 +307,19 @@
             <div style="margin-top: 20px; font-size: 13px; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 15px;">
                 <span id="auth-switch-text" data-txt="modal-no-acc">Noch kein Konto?</span> 
                 <a href="#" onclick="switchAuthMode('register')" id="auth-switch-link" data-txt="modal-link-reg" style="color: var(--info-color); text-decoration: none; font-weight: 700; margin-left: 5px;">Registrieren</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- GLOBALES INBOX SYSTEM MODAL -->
+    <div id="global-inbox-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 440px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: var(--text-color);">📥 Live-Chat Inbox</h3>
+                <button onclick="document.getElementById('global-inbox-modal').style.display='none'" class="btn-small">✕</button>
+            </div>
+            <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 50vh; overflow-y: auto; padding-right: 4px;">
+                <!-- Chats werden dynamisch injiziert -->
             </div>
         </div>
     </div>
@@ -385,7 +398,6 @@
                     .select('real_name')
                     .eq('id', session.user.id)
                     .single();
-
                 if (!profileErr && currentProfile && (!currentProfile.real_name || currentProfile.real_name.trim() === "")) {
                     setTimeout(() => {
                         document.getElementById('name-setup-modal').style.display = 'flex';
@@ -432,7 +444,6 @@
                 }
 
                 renderSelectedMatch();
-
                 if (typeof window.translatePortalPage === "function") {
                     window.translatePortalPage();
                 }
@@ -465,10 +476,8 @@
 
         const currentUserId = (await client.auth.getSession()).data.session?.user.id;
         const uniqueUserIds = [...new Set(matchGroup.map(g => g.user_id))].filter(id => id !== currentUserId);
-        
         const isEn = localStorage.getItem("selectedLanguage") === "en";
         const placeholderText = isEn ? "-- Choose a buddy to compare --" : "-- Wähle einen Buddy zum Vergleich --";
-
         let selectHtml = `<div id="buddy-selector-row" class="select-wrapper" style="margin-top: -10px; margin-bottom: 20px;">
             <select id="buddy-selector" onchange="selectBuddy(this.value)">
                 <option value="">${placeholderText}</option>`;
@@ -507,13 +516,11 @@
         const matchId = document.getElementById("match-selector").value;
         const matchStages = allUserStages.filter(s => s.match_id === matchId);
         const isEn = localStorage.getItem("selectedLanguage") === "en";
-        
         let sumHf = 0, tA = 0, tC = 0, tD = 0, tM = 0;
         let division = isEn ? "Unknown" : "Unbekannt";
         let stagePercents = [];
 
         matchStages.sort((a,b) => a.stage_name.localeCompare(b.stage_name, undefined, {numeric: true, sensitivity: 'base'}));
-        
         const stagesHtml = matchStages.map(stage => {
             const hf = stage.hit_factor ? parseFloat(stage.hit_factor) : 0;
             const winHf = stage.winner_hit_factor ? parseFloat(stage.winner_hit_factor) : 0;
@@ -542,7 +549,6 @@
             let buddyPerc = (buddyHf / maxHf) * 100;
 
             if (!isOverall) stagePercents.push(myPerc);
-
             let labelWin = isOverall ? (isEn ? "Match Winner" : "Match Sieger") : (isEn ? "Stage Winner" : "Stage Sieger");
             let textWin = isOverall ? "100%" : `${winHf.toFixed(4)} HF`;
             let widthWin = isOverall ? 100 : winPerc;
@@ -636,14 +642,12 @@
         
         document.getElementById("kpi-avg-hf").innerText = avgHf;
         document.getElementById("kpi-division").innerText = division;
-        
         if (stagePercents.length > 1) {
             const maxP = Math.max(...stagePercents);
             const minP = Math.min(...stagePercents);
             const variance = (maxP - minP).toFixed(0);
             const varEl = document.getElementById("kpi-variance");
             varEl.innerText = `± ${variance}%`;
-            
             if (variance <= 15) varEl.style.color = "var(--success-color)";
             else if (variance >= 35) varEl.style.color = "var(--danger-color)";
         } else {
@@ -666,7 +670,6 @@
         document.getElementById("bar-deltas").style.width = `${dPerc}%`;
     }
 
-    // --- AUTOMATISCHES PROFILE CONFIG MODAL ---
     window.closeNameSetupModal = function() {
         document.getElementById('name-setup-modal').style.display = 'none';
     }
@@ -688,7 +691,6 @@
             const client = window.supabaseClient || window.supabase;
             const { data: { session } } = await client.auth.getSession();
             if (!session) return;
-
             const { error = null } = await client
                 .from('profiles')
                 .update({ real_name: inputName })
@@ -709,7 +711,6 @@
         }
     }
 
-    // --- HIT EDITOR & SMART PASTE LOGIK ---
     window.openHitEditor = function(stageName) {
         const matchId = document.getElementById("match-selector").value;
         const stage = allUserStages.find(s => s.match_id === matchId && s.stage_name === stageName);
@@ -770,7 +771,6 @@
 
     window.saveHits = async function() {
         if(!currentEditStage) return;
-        
         const a = parseInt(document.getElementById('edit-a').value) || 0;
         const c = parseInt(document.getElementById('edit-c').value) || 0;
         const d = parseInt(document.getElementById('edit-d').value) || 0;
