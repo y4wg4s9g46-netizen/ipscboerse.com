@@ -243,13 +243,15 @@ window.portalTranslations = {
         "hub-desc-rules": "Die aktuellen internationalen Regelwerke (Handgun, Rifle, PCC, Shotgun) direkt als PDF zum Download.",
         "hub-btn-rules": "Zu den Rulebooks",
 
-        // --- PERFORMANCE ANALYTICS ---
+        // --- PERFORMANCE ANALYTICS & DASHBOARD ---
         "analytics-title": "🏆 IPSC Performance Analytics",
         "analytics-desc": "Überwache deine sportliche Entwicklung, deine Treffer-Präzision und deine Hit-Factor-Trends der letzten Matches.",
         "analytics-kpi-matches": "Matches Gesamt",
         "analytics-kpi-avg-hf": "Ø Hit Factor",
         "analytics-chart-title": "📈 Hit-Factor Trend (Letzte 5 Stages)",
         "analytics-acc-title": "🎯 Treffer-Verteilung (Präzision)",
+        "analytics-box-title": "📧 A, C, D automatisch eintragen",
+        "analytics-box-desc": "Ergebnisse und Hitfaktor werden automatisch geladen. Wer auch <strong>A, C, D und Misses</strong> automatisch drin haben will, leitet seine PractiScore-Mails nach dem Match einfach an <strong style='color: var(--text-color);'>info@ipscboerse.com</strong> weiter!",
 
         // --- IMPRESSUM & RECHTLICHES (DE) ---
         "imp-back": "← Zurück zur Startseite",
@@ -268,9 +270,9 @@ window.portalTranslations = {
         "imp-li-5": "Dem gewerblichen oder gewinnorientierten Ticket-Weiterverkauf (Reselling/Scalping) dienen. Startplätze dürfen maximal zum offiziellen Originalpreis des Veranstalters angeboten werden.",
         "imp-h3-3": "§ 3 Automatisierte Moderation & Hausrecht",
         "imp-p-4": "Um die Sicherheit, Jugendfreiheit und Qualität des Marktplatzes zu gewährleisten, setzt der Betreiber automatisierte Filter- und KI-Systeme zur Echtzeit-Moderation ein:",
-        "imp-li-6": "<strong>Text-Filter:</strong> Alle eingestellten Beiträge und Kommentare werden vollautomatisch auf eine integrierte Liste unzulässiger Begriffe und Schimpwörter geprüft.",
-        "imp-li-7": "<strong>Bild-KI:</strong> Hochgeladene Bilddateien werden softwareseitig mittels künstlicher Intelligenz auf visuelle Richtlinienverstöße (wie z.B. Nacktheit oder Teilnacktheit) gescannt.",
-        "imp-p-5": "Verstößt ein Beitrag oder Kommentar gegen diese Richtlinien, wird der Eintrag durch das System <span class='highlight'>sofort, vollautomatisch und ohne Vorwarnung unwiderruflich gelöscht</span>. Der Betreiber behält sich im Rahmen seines Hausrechts das Recht vor, Nutzerkonten bei Verstößen temporär oder dauerhaft zu sperren.",
+        "imp-li-6": "<strong>Text Filter:</strong> Alle eingestellten Beiträge und Kommentare werden vollautomatisch auf eine integrierte Liste unzulässiger Begriffe und Schimpwörter geprüft.",
+        "imp-li-7": "<strong>Bild KI:</strong> Hochgeladene Bilddateien werden softwareseitig mittels künstlicher Intelligenz auf visuelle Richtlinienverstöße (wie z.B. Nacktheit oder Teilnacktheit) gescannt.",
+        "imp-p-5": "Verstört ein Beitrag oder Kommentar gegen diese Richtlinien, wird der Eintrag durch das System <span class='highlight'>sofort, vollautomatisch und ohne Vorwarnung unwiderruflich gelöscht</span>. Der Betreiber behält sich im Rahmen seines Hausrechts das Recht vor, Nutzerkonten bei Verstößen temporär oder dauerhaft zu sperren.",
         "imp-h3-4": "§ 4 Haftungsausschluss (Disclaimer)",
         "imp-p-6": "Wir übernehmen ausdrücklich keine Haftung für:",
         "imp-li-8": "Das tatsächliche Zustandekommen von Startplatz-Übertragungen.",
@@ -550,13 +552,15 @@ window.portalTranslations = {
         "hub-desc-rules": "The current international rulebooks (Handgun, Rifle, PCC, Shotgun) directly as PDF for download.",
         "hub-btn-rules": "Go to Rulebooks",
 
-        // --- PERFORMANCE ANALYTICS ---
+        // --- PERFORMANCE ANALYTICS & DASHBOARD ---
         "analytics-title": "🏆 IPSC Performance Analytics",
         "analytics-desc": "Track your athletic progress, shooting precision, and hit factor trends across your matches.",
         "analytics-kpi-matches": "Total Matches",
         "analytics-kpi-avg-hf": "Avg Hit Factor",
         "analytics-chart-title": "📈 Hit Factor Trend (Last 5 Stages)",
         "analytics-acc-title": "🎯 Hit Distribution (Accuracy)",
+        "analytics-box-title": "📧 Enter A, C, D automatically",
+        "analytics-box-desc": "Results and hit factor are loaded automatically. If you also want <strong>A, C, D and Misses</strong> entered automatically, simply forward your PractiScore emails to <strong style='color: var(--text-color);'>info@ipscboerse.com</strong> after the match!",
 
         // --- IMPRESSUM & RECHTLICHES (EN) ---
         "imp-back": "← Back to home",
@@ -598,7 +602,7 @@ window.portalTranslations = {
         "imp-li-15": "<strong>Chat Messages:</strong> Message histories exchanged within the integrated live chat are stored in the database to provide the chat function.",
         "imp-li-16": "<strong>User-generated Content:</strong> Posted match data, descriptions, prices, comments, and uploaded images.",
         "imp-h3-7": "3. Visibility of Your Data & Live Chat Functionality",
-        "imp-p-10": "The core principle of this exchange is the transfer of starting slots. <strong>When you create a listing or use the live chat, the relevant data is visible to the respective chat partners.</strong> Within marketplace listings, your email address is accessible to other logged-in users to enable contact (Art. 6 (1) lit. a and lit. b GDPR).",
+        "imp-p-10": "The core principle of this exchange is the transfer of starting slots. <strong>When you create a listing or use the live chat, the relevant data is visible to the respective chat partners.</strong> Within marketplace listings, your email address is accessible to other logged-in users to enable contact (Art. 6 (1) :lit. a and lit. b GDPR).",
         "imp-p-11": "Additionally, a manual function is available in the live chat allowing users to 'nudge' their chat partner via email. This opens the user's local email program via a mailto-link independently; no automated data forwarding to third-party providers takes place in the background via this interface.",
         "imp-h3-8": "4. Automated Content Verification & Data Transmission",
         "imp-p-12": "To protect our legitimate interest in a secure, legally compliant, and disruption-free platform (Art. 6 (1) lit. f GDPR), content is processed as follows:",
