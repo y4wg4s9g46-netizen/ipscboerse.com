@@ -18,4 +18,4 @@ jobs:
           python-version: '3.x'
 
       - name: E-Mail Bot ausführen (PractiScore)
-        run: python read_practiscore_mails.py
+       run: python ipscboerse.com/read_practiscore_mails.py
