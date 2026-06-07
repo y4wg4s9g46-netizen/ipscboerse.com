@@ -9,7 +9,7 @@ from supabase import create_client, Client
 # --- 1. SETUP & UMGEBUNGSVARIABLEN ---
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
-IMAP_SERVER = os.environ.get("IMAP_SERVER", "imap.ionos.de") # Standardmäßig IONOS
+IMAP_SERVER = os.environ.get("IMAP_SERVER", "imap.ionos.de")
 EMAIL_USER = os.environ.get("EMAIL_USER")
 EMAIL_PASS = os.environ.get("EMAIL_PASS")
 
@@ -24,10 +24,58 @@ def get_users_from_db(supabase):
         print(f"❌ Fehler beim Laden der Profile aus Supabase: {e}")
         return []
 
+def extrahiere_treffer_flexibel(block):
+    """
+    Sucht extrem flexibel nach den Trefferzahlen (A, C, D, Miss), 
+    da die Plain-Text-Tabellen je nach Mail-Client stark variieren.
+    """
+    hits = {"a": 0, "c": 0, "d": 0, "m": 0}
+    
+    # Sucht nach Zahlenblöcken unterhalb/nahe der Tabellenüberschriften
+    # Findet Formate wie: "14","9 1","0" oder "25 0 7"
+    # Wir bereinigen den Block von störenden Anführungszeichen und Kommas für den Regex
+    clean_block = block.replace('"', '').replace(',', ' ')
+    
+    # 1. Alphas, Charlies, Deltas extrahieren
+    # Wir suchen nach der Zeile, die A, C, D (in beliebiger Reihenfolge/Trennart) definiert
+    if re.search(r'\bA\b[\s\S]*?\bC\b[\s\S]*?\bD\b', clean_block, re.IGNORECASE) or "A C D" in clean_block:
+        # Matcht typische Zahlenreihen für IPSC Treffer (3 bis 4 Zahlenfolgen untereinander/nebeneinander)
+        zahlen_matches = re.findall(r'\b(\d+)\b', clean_block)
+        # Wir suchen die Zahlen, die nach den Buchstaben auftauchen und logisch zu Treffern passen
+        # Sicherer Ansatz: Wir nutzen spezifische Zeilen-Parser
+        lines = clean_block.splitlines()
+        for i, line in enumerate(lines):
+            # Wenn eine Zeile reine Trefferzahlen enthält (z.B. 14  9 1  0 oder 25 0 7)
+            if re.match(r'^\s*\d+(\s+\d+){2,4}\s*$', line):
+                parts = line.split()
+                if len(parts) >= 3:
+                    hits["a"] = int(parts[0])
+                    hits["c"] = int(parts[1])
+                    hits["d"] = int(parts[2])
+                    break
+
+    # 2. Misses extrahieren
+    # Sucht nach "Miss" oder "Misses" und greift sich die darauffolgende Zahl ab
+    # Berücksichtigt, dass manchmal "N/S" oder "Proc" dazwischen steht
+    miss_match = re.search(r'\bMiss\b[\s\S]*?(\d+)', clean_block, re.IGNORECASE)
+    if miss_match:
+        hits["m"] = int(miss_match.group(1))
+    else:
+        # Alternativ-Suche, falls Miss in der Tabellenzeile stand (z.B. "14 9 1 0 0 0")
+        lines = clean_block.splitlines()
+        for line in lines:
+            if re.match(r'^\s*\d+(\s+\d+){4,}\s*$', line):
+                parts = line.split()
+                # Oft ist Index 3 oder 4 der Miss-Wert bei langen Zeilen
+                if len(parts) >= 4:
+                    hits["m"] = int(parts[3])
+
+    return hits
+
+
 def main():
     print("Starte E-Mail Bot...")
 
-    # 2. Verbindung zu Supabase herstellen
     if not SUPABASE_URL or not SUPABASE_KEY:
         print("❌ Fehler: Supabase Credentials fehlen!")
         return
@@ -35,7 +83,6 @@ def main():
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
     print("Erfolgreich mit Supabase verbunden.")
 
-    # 3. Verbindung zum E-Mail-Postfach herstellen
     try:
         mail = imaplib.IMAP4_SSL(IMAP_SERVER)
         mail.login(EMAIL_USER, EMAIL_PASS)
@@ -45,7 +92,6 @@ def main():
         print(f"❌ Fehler beim IMAP-Login: {e}")
         return
 
-    # 4. Nach ungelesenen E-Mails suchen
     status, messages = mail.search(None, 'UNSEEN')
     mail_ids = messages[0].split()
     print(f"{len(mail_ids)} ungelesene E-Mails im Postfach gefunden.")
@@ -69,7 +115,6 @@ def main():
                 
                 print(f"\nLese E-Mail: {subject}")
 
-                # Mail-Text (Body) extrahieren
                 body = ""
                 if msg.is_multipart():
                     for part in msg.walk():
@@ -78,29 +123,38 @@ def main():
                 else:
                     body = msg.get_payload(decode=True).decode('utf-8', errors='ignore')
 
-                # Prüfen, ob überhaupt IPSC-Inhalte drin sind
-                if not ("A C D" in body or "Stage" in body or "Verify" in subject):
+                if not ("Stage" in body or "Verify" in subject):
                     print("   -> Keine IPSC-Ergebnismail. Wird ignoriert.")
                     continue
 
-                # --- NEUER SAMMEL-MAIL-PARSER (Schleife durch den gesamten Text) ---
-                # Wir splitten den Text überall dort, wo eine neue Stage-Meldung anfängt
-                stage_blocks = re.split(r'(?=Stage\s+\d+)', body, flags=re.IGNORECASE)
+                # --- KUGELSICHERER PARSER-SPLIT ---
+                # Wir splitten strikt an den Weiterleitungs-Schnittstellen
+                raw_blocks = body.split("Anfang der weitergeleiteten Nachricht:")
                 
-                print(f"   -> {len(stage_blocks) - 1} potenzielle Stage-Blöcke in dieser E-Mail gefunden!")
+                # Verwende ein Set, um verarbeitete Stage-Nummern pro E-Mail zu tracken (Verhindert Double-Parsing)
+                verarbeitete_stages_ids = set()
                 is_any_block_processed = False
 
-                for block in stage_blocks:
-                    if "A C D" not in block:
-                        continue # Überspringe Blöcke ohne Trefferdaten
+                for block in raw_blocks:
+                    # Spam / Werkstatt-Mails sofort blockieren
+                    if "Euromaster" in block or "Dienstleistung" in block:
+                        continue
 
-                    # 1. Stage-Nummer ermitteln
-                    stage_match = re.search(r'(Stage\s+\d+)', block, re.IGNORECASE)
+                    # Prüfen, ob eine echte Stage-Tabelle deklariert wird (z.B. "Stage: Stage 19" oder "Stage 19 - R11")
+                    stage_match = re.search(r'Stage:\s*(?:Stage\s+)?(\d+)|Stage\s+(\d+)\s*-', block, re.IGNORECASE)
                     if not stage_match:
                         continue
-                    stage_name_extracted = stage_match.group(1).strip()
+                    
+                    # Die korrekte ID aus der passenden Match-Gruppe holen
+                    stage_num_str = stage_match.group(1) or stage_match.group(2)
+                    stage_nummer = int(stage_num_str)
+                    stage_name_extracted = f"Stage {stage_nummer}"
 
-                    # 2. Namens-Parser für diesen spezifischen Block
+                    # Wenn wir diese Stage aus dieser Mail schon hatten -> Überspringen!
+                    if stage_nummer in verarbeitete_stages_ids:
+                        continue
+
+                    # Namens-Parser für diesen spezifischen Block
                     name_match = re.search(r'\b\d+\s+([^,\n]+),\s*([^\n\r]+)', block)
                     if not name_match:
                         continue
@@ -109,7 +163,7 @@ def main():
                     first_name = name_match.group(2).strip()
                     full_name_extracted = f"{first_name} {last_name}"
 
-                    # 3. User zuordnen
+                    # User zuordnen
                     matched_user_id = None
                     for u in users:
                         db_name_clean = clean_string(u['real_name'])
@@ -121,39 +175,30 @@ def main():
                     if not matched_user_id:
                         continue
 
-                    # 4. Treffer extrahieren
-                    hits = {"a": 0, "c": 0, "d": 0, "m": 0}
-                    acd_match = re.search(r'A\s+C\s+D[\s\S]*?(\d+)\s+(\d+)\s+(\d+)', block)
-                    if acd_match:
-                        hits["a"] = int(acd_match.group(1))
-                        hits["c"] = int(acd_match.group(2))
-                        hits["d"] = int(acd_match.group(3))
-                        
-                    miss_match = re.search(r'Miss\s+N/S\s+Proc[\s\S]*?(\d+)\s+(\d+)\s+(\d+)', block)
-                    if miss_match:
-                        hits["m"] = int(miss_match.group(1))
+                    # Treffer extrahieren über die neue, flexible Funktion
+                    hits = extrahiere_treffer_flexibel(block)
 
+                    # Wenn absolut gar keine Treffer gefunden wurden, ist es nur ein Info-Block ohne Tabelle
                     if sum(hits.values()) == 0:
                         continue
 
-                    # 5. In Supabase speichern (Kugelsicherer Zahlen-Matcher)
+                    # In Supabase speichern
                     try:
                         all_match_stages = supabase.table("user_match_analytics").select("id, stage_name").eq("user_id", matched_user_id).execute()
-                        mail_stage_num = re.search(r'Stage\s+(\d+)', stage_name_extracted, re.IGNORECASE)
                         
                         entry_id = None
-                        if mail_stage_num:
-                            target_num = mail_stage_num.group(1)
-                            for db_stage in all_match_stages.data:
-                                db_stage_num = re.search(r'Stage\s+(\d+)\b', db_stage['stage_name'], re.IGNORECASE)
-                                if not db_stage_num and re.search(r'\b\d+\b', db_stage['stage_name']):
-                                    db_stage_num = re.search(r'\b(\d+)\b', db_stage['stage_name'])
-                                    
-                                if db_stage_num and db_stage_num.group(1) == target_num:
-                                    if "overall" not in db_stage['stage_name'].lower():
-                                        entry_id = db_stage['id']
-                                        stage_name_extracted = db_stage['stage_name']
-                                        break
+                        target_num = str(stage_nummer)
+                        
+                        for db_stage in all_match_stages.data:
+                            db_stage_num = re.search(r'Stage\s+(\d+)\b', db_stage['stage_name'], re.IGNORECASE)
+                            if not db_stage_num and re.search(r'\b\d+\b', db_stage['stage_name']):
+                                db_stage_num = re.search(r'\b(\d+)\b', db_stage['stage_name'])
+                                
+                            if db_stage_num and db_stage_num.group(1) == target_num:
+                                if "overall" not in db_stage['stage_name'].lower():
+                                    entry_id = db_stage['id']
+                                    stage_name_extracted = db_stage['stage_name']
+                                    break
 
                         if entry_id:
                             supabase.table("user_match_analytics").update({
@@ -162,12 +207,17 @@ def main():
                                 "deltas": hits["d"],
                                 "misses": hits["m"]
                             }).eq("id", entry_id).execute()
-                            print(f"   ✅ Block verarbeitet für {full_name_extracted} ({stage_name_extracted}): A:{hits['a']} C:{hits['c']} D:{hits['d']}")
+                            
+                            print(f"   ✅ Block verarbeitet für {full_name_extracted} ({stage_name_extracted}): A:{hits['a']} C:{hits['c']} D:{hits['d']} M:{hits['m']}")
+                            verarbeitete_stages_ids.add(stage_nummer)
                             is_any_block_processed = True
+                            
                     except Exception as e:
                         print(f"   ❌ DB Update Fehler in Block: {e}")
 
-                # Wenn in dieser Sammel-Mail mindestens ein Block erfolgreich gespeichert wurde, löschen wir sie!
+                print(f"   -> {len(verarbeitete_stages_ids)} echte Stages in dieser E-Mail erfolgreich verarbeitet!")
+
+                # Wenn mindestens ein Block erfolgreich gespeichert wurde, löschen wir die Mail
                 if is_any_block_processed:
                     mail.store(mail_id, '+FLAGS', '\\Deleted')
                     print("   🗑️ Sammel-E-Mail wurde erfolgreich verarbeitet und gelöscht.")
