@@ -31,8 +31,8 @@ headers = {
 # 🔄 Automatisches System für Verbindungs-Wiederholungen (Retries) einrichten
 session = requests.Session()
 retries = Retry(
-    total=5,                  # Versuche es bis zu 5-mal
-    backoff_factor=2,         # Warte zwischen den Versuchen (2s, 4s, 8s...)
+    total=5,
+    backoff_factor=2,
     status_forcelist=[403, 429, 500, 502, 503, 504],
     raise_on_status=False
 )
@@ -41,7 +41,6 @@ session.mount('https://', HTTPAdapter(max_retries=retries))
 
 try:
     print("Lade Daten von ipscmatch.de...")
-    # Wir nutzen jetzt die abgesicherte Session statt requests.get()
     response = session.get(base_url, headers=headers, timeout=15)
     
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -92,8 +91,9 @@ try:
                 datum_match = re.search(r'\d{2}\.\d{2}\.(?:\s*-\s*\d{2}\.\d{2}\.)?\s*\d{2,4}', datum_raw)
                 datum = datum_match.group(0).strip() if datum_match else (datum_raw if datum_raw else "N/A")
 
+                # 🎯 HIER ANGEPASST: Wir nutzen jetzt 'match_name' statt 'name'
                 matches_to_insert.append({
-                    "name": best_name,
+                    "match_name": best_name,
                     "datum": datum,
                     "auslastung": "Ankündigung",
                     "anmeldung_oeffnet": oeffnungs_datum,
@@ -105,7 +105,8 @@ try:
 
     if matches_to_insert:
         print("Lösche alte Einträge aus 'upcoming_matches'...")
-        supabase.from_("upcoming_matches").delete().neq("name", "---").execute()
+        # 🎯 HIER ANGEPASST: Lösch-Befehl nutzt jetzt ebenfalls 'match_name'
+        supabase.from_("upcoming_matches").delete().neq("match_name", "---").execute()
         
         print(f"Schreibe {len(matches_to_insert)} neue Einträge in Supabase...")
         supabase.from_("upcoming_matches").insert(matches_to_insert).execute()
