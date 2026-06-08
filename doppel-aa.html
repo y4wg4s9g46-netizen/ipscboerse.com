@@ -297,10 +297,11 @@
         async function loadUpcomingMatches() {
             const container = document.getElementById("js-match-container");
             
+            // Spaltenname beim Sortieren auf 'anmeldung_oeffnet' angepasst
             const { data, error } = await window.supabaseClient
                 .from("upcoming_matches")
                 .select("*")
-                .order("opening_time", { ascending: true });
+                .order("anmeldung_oeffnet", { ascending: true });
 
             if (error || !data || data.length === 0) {
                 container.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Aktuell stehen keine neuen Matches zur Überwachung an.</p>';
@@ -308,17 +309,17 @@
             }
 
             container.innerHTML = data.map(match => {
-                const dateObj = new Date(match.opening_time);
-                const formattedDate = dateObj.toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' });
+                // Nutzt jetzt direkt den Text aus 'anmeldung_oeffnet'
+                const formattedDate = window.escapeHtml(match.anmeldung_oeffnet || "Unbekannt");
 
                 return `
                     <div class="match-card">
                         <div class="match-details">
-                            <h3>${window.escapeHtml(match.match_name)}</h3>
-                            <span class="badge">⏳ Öffnet: ${formattedDate} Uhr</span>
+                            <h3>${window.escapeHtml(match.name)}</h3>
+                            <span class="badge">⏳ Öffnet: ${formattedDate}</span>
                         </div>
                         <div>
-                            <button class="btn-contact" onclick="openBotModal(${match.id}, '${window.escapeHtml(match.match_name)}', '${formattedDate}')">Bot scharfschalten</button>
+                            <button class="btn-contact" onclick="openBotModal(${match.id}, '${window.escapeHtml(match.name)}', '${formattedDate}')">Bot scharfschalten</button>
                         </div>
                     </div>
                 `;
