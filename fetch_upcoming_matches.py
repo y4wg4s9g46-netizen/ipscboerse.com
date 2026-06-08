@@ -128,7 +128,8 @@ try:
                         "url": detail_url
                     })
 
-    with open('matches.json', 'w', encoding='utf-8') as f:
+    # 🎯 HIER WURDE ES KORRIGIERT: Der Dateiname lautet nun physisch 'upcoming_matches.json'
+    with open('upcoming_matches.json', 'w', encoding='utf-8') as f:
         json.dump(matches, f, ensure_ascii=False, indent=4)
     print(f"Erfolgreich {len(matches)} offene/bald öffnende Matches gefunden und in upcoming_matches.json gespeichert.")
 
