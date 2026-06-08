@@ -130,7 +130,7 @@ try:
 
     with open('matches.json', 'w', encoding='utf-8') as f:
         json.dump(matches, f, ensure_ascii=False, indent=4)
-    print(f"Erfolgreich {len(matches)} offene/bald öffnende Matches gefunden und in matches.json gespeichert.")
+    print(f"Erfolgreich {len(matches)} offene/bald öffnende Matches gefunden und in upcoming_matches.json gespeichert.")
 
 except Exception as e:
     print(f"Fehler: {e}")
