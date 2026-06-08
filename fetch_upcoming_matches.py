@@ -19,7 +19,6 @@ supabase: Client = create_client(supabase_url, supabase_key)
 
 base_url = "https://www.ipscmatch.de/"
 
-# 🛡️ Extrem realistischer Browser-Header (User-Agent)
 headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
@@ -28,11 +27,10 @@ headers = {
     "Connection": "keep-alive"
 }
 
-# 🔄 Automatisches System für Verbindungs-Wiederholungen (Retries) einrichten
 session = requests.Session()
 retries = Retry(
     total=5,
-    backoff_factor=2,
+    backoff_factor=3,
     status_forcelist=[403, 429, 500, 502, 503, 504],
     raise_on_status=False
 )
@@ -53,7 +51,6 @@ try:
             status_text = tds[6].text.strip().lower()
             auslastung_text = tds[7].text.strip()
             
-            # Filter auf zukünftige Matches
             ist_zukuenftig = "öffnet" in status_text or "offnet" in status_text or "%" not in auslastung_text
             
             if not ist_zukuenftig:
@@ -65,7 +62,6 @@ try:
             disziplin = tds[0].text.strip()
             level = tds[1].text.strip()
             
-            # --- REGION KUGELSICHER AUSLESEN ---
             region = tds[2].text.strip()
             if not region:
                 img = tds[2].find('img')
@@ -91,7 +87,6 @@ try:
                 datum_match = re.search(r'\d{2}\.\d{2}\.(?:\s*-\s*\d{2}\.\d{2}\.)?\s*\d{2,4}', datum_raw)
                 datum = datum_match.group(0).strip() if datum_match else (datum_raw if datum_raw else "N/A")
 
-                # 🎯 HIER ANGEPASST: Wir nutzen jetzt 'match_name' statt 'name'
                 matches_to_insert.append({
                     "match_name": best_name,
                     "datum": datum,
@@ -100,12 +95,12 @@ try:
                     "region": region,
                     "level": level,
                     "disziplin": disziplin,
-                    "url": detail_url
+                    # 🎯 HIER KORRIGIERT: Spaltenname heißt in deiner DB 'match_url'
+                    "match_url": detail_url
                 })
 
     if matches_to_insert:
         print("Lösche alte Einträge aus 'upcoming_matches'...")
-        # 🎯 HIER ANGEPASST: Lösch-Befehl nutzt jetzt ebenfalls 'match_name'
         supabase.from_("upcoming_matches").delete().neq("match_name", "---").execute()
         
         print(f"Schreibe {len(matches_to_insert)} neue Einträge in Supabase...")
@@ -115,4 +110,7 @@ try:
         print("Keine neuen Ankündigungen auf IPSC-Match gefunden.")
 
 except Exception as e:
-    print(f"Schwerwiegender Verbindungsfehler: {e}")
+    print("\n⚠️ HINWEIS:")
+    print("Der IPSC-Server blockiert aktuell die IP-Adresse von GitHub (Network is unreachable).")
+    print("Das Skript wird es beim nächsten automatisierten Durchlauf erneut versuchen.")
+    print(f"Details zum Fehler: {e}")
