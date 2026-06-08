@@ -31,7 +31,11 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add upcoming_matches.json
-        # Das '|| echo' verhindert den Absturz (rotes X), falls die Datei identisch geblieben ist
-        git commit -m "Update upcoming_matches.json" || echo "Keine Änderungen zum Committen"
-        git push origin main || git push origin master
+        # 🛡️ Nur versuchen hinzuzufügen, wenn die Datei wirklich existiert!
+        if [ -f upcoming_matches.json ]; then
+          git add upcoming_matches.json
+          git commit -m "Update upcoming_matches.json" || echo "Keine Änderungen zum Committen"
+          git push origin main || git push origin master
+        else
+          echo "Warnung: upcoming_matches.json wurde wegen eines Server-Fehlers nicht erstellt."
+        fi
