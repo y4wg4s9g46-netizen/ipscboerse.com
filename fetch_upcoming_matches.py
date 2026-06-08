@@ -1,85 +1,120 @@
-import os
 import requests
-import re
-from datetime import datetime
-import pytz
-import urllib.parse
+import json
 from bs4 import BeautifulSoup
-from supabase import create_client, Client
-
-# === KONFIGURATION ===
-# Diese Variablen müssen in den GitHub Repository Secrets hinterlegt sein!
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
-
-if not SUPABASE_URL or not SUPABASE_KEY:
-    print("❌ Fehler: Supabase Umgebungsvariablen fehlen!")
-    exit(1)
-
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+import re
+import urllib.parse
+import time
+from urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
 
 base_url = "https://www.ipscmatch.de/"
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 }
 
-# Deutsche Zeitzone (wichtig für Sommer-/Winterzeit)
-local_tz = pytz.timezone('Europe/Berlin')
+# 🛡️ Sichere Session aufbauen (wie im ersten Skript)
+session = requests.Session()
+retry = Retry(total=5, backoff_factor=3, status_forcelist=[403, 429, 500, 502, 503, 504])
+adapter = HTTPAdapter(max_retries=retry)
+session.mount('http://', adapter)
+session.mount('https://', adapter)
 
 try:
-    print("🔍 Lade Daten von ipscmatch.de und suche nach bald öffnenden Matches...")
-    response = requests.get(base_url, headers=headers, timeout=30)
+    print("Lade Daten von ipscmatch.de...")
+    response = session.get(base_url, headers=headers, timeout=30)
     soup = BeautifulSoup(response.text, 'html.parser')
-    
-    matches_found = 0
+    matches = []
 
     for row in soup.find_all('tr'):
         tds = row.find_all('td')
         
-        # Die Tabelle auf der Website hat mindestens 8 Spalten
         if len(tds) >= 8:
             status_text = tds[6].text.strip().lower()
+            auslastung_text = tds[7].text.strip()
             
-            # Prüfen, ob das Match demnächst öffnet
-            if "öffnet am" in status_text or "opens on" in status_text or "opens at" in status_text:
-                
-                # Regex extrahiert das Format: DD.MM.YYYY und HH:MM
-                # Deckt auch Varianten ab wie "öffnet am 15.08.2026 um 20:00"
-                time_match = re.search(r'(\d{2})\.(\d{2})\.(\d{4})\s*(?:um|at)?\s*(\d{2}):(\d{2})', status_text)
-                
-                if time_match:
-                    day, month, year, hour, minute = map(int, time_match.groups())
-                    
-                    # Zeitzonen-korrektes Datum-Objekt erstellen
-                    dt_obj = local_tz.localize(datetime(year, month, day, hour, minute))
-                    
-                    # In weltweites ISO-Format umwandeln (für die Datenbank)
-                    iso_time = dt_obj.isoformat()
-                    
-                    match_link = tds[3].find('a')
-                    if match_link:
-                        match_name = match_link.text.strip()
-                        match_url = urllib.parse.urljoin(base_url, match_link.get('href', ''))
-                        
-                        # Datenpaket für Supabase
-                        match_data = {
-                            "match_name": match_name,
-                            "url": match_url,
-                            "opening_time": iso_time
-                        }
-                        
-                        # In Datenbank schreiben (Upsert verhindert Duplikate, benötigt 'match_name' als Unique/Primary Key)
-                        try:
-                            supabase.table("upcoming_matches").upsert(match_data, on_conflict="match_name").execute()
-                            print(f"✅ GESPEICHERT: '{match_name}' öffnet am {day:02d}.{month:02d}.{year} um {hour:02d}:{minute:02d} Uhr")
-                            matches_found += 1
-                        except Exception as db_err:
-                            print(f"❌ DB-Fehler bei '{match_name}': {db_err}")
+            # 🔍 PRÜFUNG: Ist es ENTWEDER ein offenes Match (< 100%) ODER eine reine Ankündigung?
+            ist_ankuedigung = "ankündigung" in status_text or "ankundigung" in status_text
+            hat_prozent = '%' in auslastung_text
+            
+            auslastung_int = 0
+            if hat_prozent:
+                prozent_match = re.search(r'(\d{1,3})', auslastung_text)
+                if prozent_match:
+                    auslastung_int = int(prozent_match.group(1))
 
-    if matches_found == 0:
-        print("📭 Aktuell gibt es keine neuen Matches mit dem Status 'Anmeldung öffnet'.")
-    else:
-        print(f"🎉 Erfolgreich {matches_found} künftige Matches in die Datenbank geladen!")
+            # Filter: Nur verarbeiten, wenn offen (<100%) ODER wenn es eine bald öffnende Ankündigung ist
+            if (hat_prozent and auslastung_int < 100) or ist_ankuedigung:
+                
+                # Wenn storniert oder geschlossen -> überspringen
+                if "cancelled" in status_text or "geschlossen" in status_text or "closed" in status_text:
+                    continue
+                    
+                disziplin = tds[0].text.strip()
+                level = tds[1].text.strip()
+                
+                # --- Region auslesen ---
+                region = tds[2].text.strip()
+                if not region:
+                    img = tds[2].find('img')
+                    if img:
+                        region = img.get('title', img.get('alt', '')).strip().upper()
+                        if not region and img.get('src'):
+                            src_match = re.search(r'([a-zA-Z]{3})\.(?:png|jpg|gif)', img.get('src'))
+                            if src_match:
+                                region = src_match.group(1).upper()
+                if not region:
+                    region = "N/A"
+                
+                match_link = tds[3].find('a')
+                if match_link:
+                    best_name = match_link.text.strip()
+                    detail_url = urllib.parse.urljoin(base_url, match_link.get('href', ''))
+                    
+                    is_closed = False
+                    oeffnungs_datum = "Unbekannt"
+                    
+                    # ⏳ Kurze Pause vor dem Laden der Detailseite (Server schonen!)
+                    time.sleep(0.5)
+                    
+                    try:
+                        d_resp = session.get(detail_url, headers=headers, timeout=10)
+                        d_soup = BeautifulSoup(d_resp.text, 'html.parser')
+                        d_clean_text = re.sub(r'\s+', ' ', d_soup.get_text(" ", strip=True).lower())
+                        
+                        if "anmeldung geschlossen" in d_clean_text or "closed" in d_clean_text:
+                            is_closed = True
+                        
+                        # 🎯 HIER FINDEN WIR DAS ORANGE DATUM AUS DEINEM SCREENSHOT
+                        # Sucht nach Mustern wie "anmeldung öffnet sa 13 jun 2026"
+                        oeffnet_match = re.search(r'anmeldung öffnet\s+([a-zA-Z0-9.\s:]+)', d_clean_text)
+                        if oeffnet_match:
+                            oeffnungs_datum = oeffnet_match.group(1).strip().upper()
+                            
+                    except Exception as e:
+                        print(f"Warnung: Konnte Detailseite für {best_name} nicht prüfen ({e})")
+                    
+                    if is_closed:
+                        continue
+                    
+                    # Match-Datum aus der Spalte auslesen
+                    datum_raw = tds[5].text.strip()
+                    datum_match = re.search(r'\d{2}\.\d{2}\.(?:\s*-\s*\d{2}\.\d.2\.)?\s*\d{2,4}', datum_raw)
+                    datum = datum_match.group(0).strip() if datum_match else (datum_raw if datum_raw else "N/A")
+
+                    matches.append({
+                        "name": best_name,
+                        "datum": datum,
+                        "auslastung": f"{auslastung_int}%" if hat_prozent else "Ankündung",
+                        "anmeldung_oeffnet": oeffnungs_datum, # 🎯 Neu im JSON exportiert!
+                        "region": region,
+                        "level": level,
+                        "disziplin": disziplin,
+                        "url": detail_url
+                    })
+
+    with open('matches.json', 'w', encoding='utf-8') as f:
+        json.dump(matches, f, ensure_ascii=False, indent=4)
+    print(f"Erfolgreich {len(matches)} offene/bald öffnende Matches gefunden und in matches.json gespeichert.")
 
 except Exception as e:
-    print(f"❌ Schwerwiegender Fehler beim Scrapen: {e}")
+    print(f"Fehler: {e}")
