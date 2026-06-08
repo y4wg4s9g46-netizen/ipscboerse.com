@@ -2,8 +2,7 @@ name: IPSC Verify Analytics Updater
 
 on:
   schedule:
-    # Läuft vollautomatisch jede Nacht um 02:00 Uhr UTC
-    - cron: '0 2 * * *'
+    - cron: '30 0 * * *'
   workflow_dispatch: # Erlaubt es dir, das Skript jederzeit manuell in GitHub zu starten
 
 jobs:
