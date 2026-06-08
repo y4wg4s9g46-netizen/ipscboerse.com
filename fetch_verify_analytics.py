@@ -38,6 +38,7 @@ HEADERS = {
     "Connection": "keep-alive"
 }
 TIMEOUT_SECONDS = 30
+PAUSE_SECONDS = 30  # ⏳ Dauer der Pause nach 20 PDFs in Sekunden
 
 KNOWN_DIVISIONS = ["Production Optics", "Optics", "Production", "Standard", "Open", "Classic", "Revolver", "PCC", "Modified"]
 
@@ -104,7 +105,6 @@ def scrape_verify_list():
         tds = row.find_all('td')
         if len(tds) >= 4:
             text = row.get_text()
-            # 🚀 HIER DAS UPDATE: Scanne Jahre 2023 bis 2027
             if any(year in text for year in ['2023', '2024', '2025', '2026', '2027']):
                 match_link = tds[3].find('a')
                 if match_link:
@@ -134,6 +134,8 @@ def scrape_verify_list():
 
     print(f"📋 {len(matches_found)} Turniere gefunden. Starte smarte Analyse...")
 
+    pdf_count = 0  # 🎯 HIER WIRD DER ZÄHLER INITIALISIERT
+
     for data in matches_found:
         m_id = data["id"]
         m_name = data["name"]
@@ -157,6 +159,8 @@ def scrape_verify_list():
                 
                 # --- PDF SMART PARSER ---
                 if 'application/pdf' in content_type:
+                    pdf_count += 1  # 🎯 ZÄHLER ERHÖHEN
+                    
                     pdf_file = io.BytesIO(res.content)
                     reader = PdfReader(pdf_file)
                     
@@ -203,7 +207,7 @@ def scrape_verify_list():
                                 if name_matches(shooter["real_name"], line):
                                     if len(numeric_vals) >= 6: # Stage-Ergebnis
                                         rank_val = int(numeric_vals[0])
-                                        pts_val = numeric_vals[1] # 🎯 NEU: Die exakten PTS
+                                        pts_val = numeric_vals[1]
                                         time_val = numeric_vals[2]
                                         hf_val = numeric_vals[3]
                                         
@@ -211,7 +215,7 @@ def scrape_verify_list():
                                             "user_id": shooter["id"], "match_id": str(m_id), "match_name": m_name,
                                             "stage_name": current_stage_pdf, "scoring_type": "Comstock",
                                             "hit_factor": hf_val, "stage_time": time_val,
-                                            "pts": pts_val, # 🎯 Ab in die DB damit
+                                            "pts": pts_val,
                                             "division": current_div_pdf,
                                             "stage_rank": rank_val,
                                             "winner_hit_factor": current_winner_hf_pdf
@@ -222,20 +226,25 @@ def scrape_verify_list():
                                     elif len(numeric_vals) >= 3 and current_stage_pdf == "Overall Match Results (PDF)": # Match-Ergebnis
                                         rank_val = int(numeric_vals[0])
                                         percentage = numeric_vals[1] 
-                                        pts_val = numeric_vals[2] # 🎯 NEU: Beim Overall stehen die PTS an dritter Stelle!
+                                        pts_val = numeric_vals[2]
                                         
                                         payload = {
                                             "user_id": shooter["id"], "match_id": str(m_id), "match_name": m_name,
                                             "stage_name": current_stage_pdf, "scoring_type": "Comstock",
                                             "stage_time": 0.0, 
                                             "hit_factor": percentage,
-                                            "pts": pts_val, # 🎯 Ab in die DB damit
+                                            "pts": pts_val,
                                             "division": current_div_pdf,
                                             "stage_rank": rank_val,
                                             "winner_hit_factor": 100.0
                                         }
                                         supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
                                         print(f"   🔥 {shooter['real_name']} in PDF (Overall) gespeichert! ({current_div_pdf} - {percentage}% - {pts_val} PTS)")
+
+                    # 🎯 HIER WIRD DIE PAUSE EINGELEGT
+                    if pdf_count % 20 == 0:
+                        print(f"⏳ {pdf_count} PDFs verarbeitet. Lege {PAUSE_SECONDS} Sekunden Pause ein, um den Server zu schonen...")
+                        time.sleep(PAUSE_SECONDS)
 
                 # --- HTML SMART PARSER ---
                 elif 'text/html' in content_type:
