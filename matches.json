@@ -1,14 +1,5 @@
 [
     {
-        "name": "Offene IPSC-LM Niedersachsen und Bremen 2026 Part ...",
-        "datum": "14.06.2026",
-        "auslastung": "88%",
-        "region": "GER",
-        "level": "2",
-        "disziplin": "HG",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_IPSC_BSV_HG-3"
-    },
-    {
         "name": "Summer Cup Guyane 2026",
         "datum": "14.06.2026",
         "auslastung": "42%",
@@ -65,7 +56,7 @@
     {
         "name": "Siegerland Challenge part I",
         "datum": "26.07.2026",
-        "auslastung": "89%",
+        "auslastung": "90%",
         "region": "GER",
         "level": "2",
         "disziplin": "HG",
