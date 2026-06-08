@@ -87,6 +87,7 @@ try:
                 datum_match = re.search(r'\d{2}\.\d{2}\.(?:\s*-\s*\d{2}\.\d{2}\.)?\s*\d{2,4}', datum_raw)
                 datum = datum_match.group(0).strip() if datum_match else (datum_raw if datum_raw else "N/A")
 
+                # 🎯 JETZT PERFEKT EINHEITLICH DEUTSCH:
                 matches_to_insert.append({
                     "match_name": best_name,
                     "datum": datum,
@@ -95,8 +96,7 @@ try:
                     "region": region,
                     "level": level,
                     "disziplin": disziplin,
-                    # 🎯 HIER KORRIGIERT: Spaltenname heißt in deiner DB 'match_url'
-                    "match_url": detail_url
+                    "url": detail_url
                 })
 
     if matches_to_insert:
@@ -105,12 +105,16 @@ try:
         
         print(f"Schreibe {len(matches_to_insert)} neue Einträge in Supabase...")
         supabase.from_("upcoming_matches").insert(matches_to_insert).execute()
-        print("Erfolgreich mit Supabase synchronisiert!")
+        print("🎉 Erfolgreich mit Supabase synchronisiert!")
     else:
         print("Keine neuen Ankündigungen auf IPSC-Match gefunden.")
 
 except Exception as e:
-    print("\n⚠️ HINWEIS:")
-    print("Der IPSC-Server blockiert aktuell die IP-Adresse von GitHub (Network is unreachable).")
-    print("Das Skript wird es beim nächsten automatisierten Durchlauf erneut versuchen.")
-    print(f"Details zum Fehler: {e}")
+    error_str = str(e)
+    if "Max retries exceeded" in error_str or "unreachable" in error_str:
+        print("\n⚠️ NETZWERK-HINWEIS:")
+        print("Der IPSC-Server blockiert aktuell die IP-Adresse von GitHub (Network is unreachable).")
+    else:
+        print("\n❌ DATENBANK-FEHLER:")
+        print("Die Verbindung zur Webseite stand, aber beim Schreiben in Supabase gab es ein Problem.")
+        print(f"Details zum Fehler: {e}")
