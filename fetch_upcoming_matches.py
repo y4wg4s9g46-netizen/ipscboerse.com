@@ -34,20 +34,21 @@ try:
             status_text = tds[6].text.strip().lower()
             auslastung_text = tds[7].text.strip()
             
-            # 🎯 1. FILTER: Wir filtern STRENG nur auf Ankündigungen
-            ist_ankuedigung = "ankündigung" in status_text or "ankundigung" in status_text
+            # 🎯 KORRIGIERTER FILTER: Ein zukünftiges Match erkennt man daran, 
+            # dass im Status "öffnet" steht ODER dass kein "%" in der Auslastung steht
+            ist_zukuenftig = "öffnet" in status_text or "offnet" in status_text or "%" not in auslastung_text
             
-            if not ist_ankuedigung:
+            if not ist_zukuenftig:
                 continue
                 
-            # 2. FILTER: Wenn storniert oder geschlossen -> überspringen
+            # Wenn storniert oder geschlossen -> überspringen
             if "cancelled" in status_text or "geschlossen" in status_text or "closed" in status_text:
                 continue
                 
             disziplin = tds[0].text.strip()
             level = tds[1].text.strip()
             
-            # --- REGION KUGELSICHER AUSLESEN (Aus deiner Vorlage) ---
+            # --- REGION KUGELSICHER AUSLESEN ---
             region = tds[2].text.strip()
             if not region:
                 img = tds[2].find('img')
@@ -65,13 +66,12 @@ try:
                 best_name = match_link.text.strip()
                 detail_url = urllib.parse.urljoin(base_url, match_link.get('href', ''))
                 
-                # 🎯 GENIALER TRICK: Das Eröffnungsdatum steht bei Ankündigungen 
-                # direkt in der Spalte "Auslastung" der Haupttabelle!
+                # Das Eröffnungsdatum steht bei ungeöffneten Matches direkt in der Spalte "Auslastung"
                 oeffnungs_datum = auslastung_text.strip()
-                if not oeffnungs_datum or oeffnungs_datum.lower() == "ankündigung":
+                if not oeffnungs_datum:
                     oeffnungs_datum = "Siehe Detailseite"
                 
-                # Datum aus der Spalte auslesen und bereinigen (Aus deiner Vorlage)
+                # Datum aus der Spalte auslesen und bereinigen
                 datum_raw = tds[5].text.strip()
                 datum_match = re.search(r'\d{2}\.\d{2}\.(?:\s*-\s*\d{2}\.\d{2}\.)?\s*\d{2,4}', datum_raw)
                 datum = datum_match.group(0).strip() if datum_match else (datum_raw if datum_raw else "N/A")
@@ -91,11 +91,9 @@ try:
     # Wenn wir Matches gefunden haben, synchronisieren wir sie mit Supabase
     if matches_to_insert:
         print("Lösche alte Einträge aus 'upcoming_matches'...")
-        # Löscht die alten Einträge, damit die Tabelle tagesaktuell bleibt
         supabase.from_("upcoming_matches").delete().neq("name", "---").execute()
         
         print(f"Schreibe {len(matches_to_insert)} neue Einträge in Supabase...")
-        # Schießt alle neuen Matches per Bulk-Insert in die DB
         supabase.from_("upcoming_matches").insert(matches_to_insert).execute()
         print("Erfolgreich mit Supabase synchronisiert!")
     else:
