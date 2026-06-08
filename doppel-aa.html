@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doppel AA Sniper | IPSC Börse</title>
+    
+    <style>
+        :root, html[data-theme="light"] {
+            --bg-color: #f8f9fa; --card-bg: #ffffff; --text-color: #1e293b; --text-muted: #64748b;
+            --border-color: #e2e8f0; --input-bg: #ffffff; --accent-color: #ff9f43; --danger-color: #ef4444;
+            --success-color: #10b981; --info-color: #3b82f6; --radius: 8px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        html[data-theme="dark"] {
+            --bg-color: #0f172a; --card-bg: #1e293b; --text-color: #f8fafc; --text-muted: #94a3b8;
+            --border-color: #334155; --input-bg: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; min-height: 100vh; }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+        
+        .info-box { background-color: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--info-color); color: var(--text-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+        .danger-box { background-color: rgba(239, 68, 68, 0.08); border-left: 4px solid var(--danger-color); color: var(--danger-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; font-weight: bold; text-align: center; }
+        
+        .match-list { display: flex; flex-direction: column; gap: 15px; }
+        .match-card { background-color: var(--card-bg); border-radius: var(--radius); padding: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); position: relative; }
+        .match-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px; background-color: var(--accent-color); }
+        .match-details h3 { margin: 0 0 8px 0; color: var(--text-color); font-size: 18px; font-weight: 600; }
+        .badge { background-color: rgba(255, 159, 67, 0.1); color: var(--accent-color); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; margin-top: 5px; }
+        
+        .btn-contact { background-color: var(--accent-color); color: #ffffff; border: none; padding: 10px 20px; font-weight: 600; border-radius: var(--radius); cursor: pointer; font-size: 14px; transition: opacity 0.15s; }
+        .btn-contact:hover { opacity: 0.9; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; padding: 20px; box-sizing: border-box; }
+        .modal-content { background-color: var(--card-bg); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 440px; position: relative; }
+        .modal-close-trigger { background: transparent; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; position: absolute; top: 15px; right: 20px; }
+        
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        .form-group label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; }
+        .form-group input, .form-group select { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px; border-radius: var(--radius); font-size: 14px; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent-color); }
+        .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <header></header>
+    <script src="header.js"></script>
+
+    <div class="container">
+        
+        <div id="access-denied" class="danger-box">
+            Prüfe Berechtigungen... (Bitte einloggen)
+        </div>
+
+        <div id="dashboard-content" style="display: none;">
+            <div class="info-box">
+                <strong>Bereich "Doppel AA":</strong> Hier siehst du Turniere, die noch auf Status "Anmeldung öffnet..." stehen. Wähle ein Match aus, und unser Server-Bot wird in Millisekunden nach Öffnung das Formular für dich absenden.
+            </div>
+
+            <h2 style="margin-bottom: 20px;">Geplante Bot-Aktivierungen</h2>
+            
+            <div class="match-list" id="js-match-container">
+                <p style="color: var(--text-muted); font-style: italic;">Lade kommende Matches aus der Datenbank...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="bot-config-modal">
+        <div class="modal-content">
+            <button class="modal-close-trigger" onclick="closeBotModal()">&times;</button>
+            <h3 style="margin-top: 0; margin-bottom: 5px;" id="modal-match-name">Match Name</h3>
+            <p style="color: var(--text-muted); font-size: 12px; margin-top: 0; margin-bottom: 20px;" id="modal-match-time">Öffnet: -</p>
+            
+            <form id="bot-submit-form">
+                <input type="hidden" id="modal-match-id">
+                
+                <div class="form-group">
+                    <label>IPSC Lizenznummer / Alias</label>
+                    <input type="text" id="bot-lizenz" required>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Division</label>
+                        <select id="bot-division" required>
+                            <option value="Open">Open</option>
+                            <option value="Standard">Standard</option>
+                            <option value="Production">Production</option>
+                            <option value="Production Optics">Production Optics</option>
+                            <option value="Classic">Classic</option>
+                            <option value="Revolver">Revolver</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Power Factor</label>
+                        <select id="bot-factor" required>
+                            <option value="Minor">Minor</option>
+                            <option value="Major">Major</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary-auth">Bot jetzt programmieren</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
+    
+    <script>
+        // Fängt das Auth-Event deiner auth.js ab, um die Doppel-AA-Prüfung durchzuführen
+        const originalAuthChange = window.onAuthChange;
+        
+        window.onAuthChange = async (user) => {
+            // Alte Logik weiterlaufen lassen
+            if (typeof originalAuthChange === "function") originalAuthChange(user);
+
+            const deniedBox = document.getElementById("access-denied");
+            const dashboard = document.getElementById("dashboard-content");
+
+            if (!user) {
+                deniedBox.innerText = "Zugriff verweigert. Bitte melde dich an.";
+                deniedBox.style.display = "block";
+                dashboard.style.display = "none";
+                return;
+            }
+
+            // Prüfe das Doppel-AA Flag im Profil
+            const { data: profile, error } = await window.supabaseClient
+                .from("profiles")
+                .select("is_doppel_aa, ipsc_alias, username, real_name")
+                .eq("id", user.id)
+                .single();
+
+            if (error || !profile || profile.is_doppel_aa !== true) {
+                deniedBox.innerText = "Zugriff verweigert. Dein Account verfügt nicht über die 'Doppel AA' Berechtigung.";
+                deniedBox.style.display = "block";
+                dashboard.style.display = "none";
+                return;
+            }
+
+            // User ist berechtigt!
+            window.userProfileData = profile; 
+            deniedBox.style.display = "none";
+            dashboard.style.display = "block";
+            
+            // Vorbelegen des Modals, falls Alias schon im Profil steht
+            if (profile.ipsc_alias) {
+                document.getElementById("bot-lizenz").value = profile.ipsc_alias;
+            }
+
+            loadUpcomingMatches();
+        };
+
+        // Lädt die ungeöffneten Matches aus der neuen DB-Tabelle
+        async function loadUpcomingMatches() {
+            const container = document.getElementById("js-match-container");
+            
+            const { data, error } = await window.supabaseClient
+                .from("upcoming_matches")
+                .select("*")
+                .order("opening_time", { ascending: true });
+
+            if (error || !data || data.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Aktuell stehen keine neuen Matches zur Überwachung an.</p>';
+                return;
+            }
+
+            container.innerHTML = data.map(match => {
+                const dateObj = new Date(match.opening_time);
+                const formattedDate = dateObj.toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' });
+
+                return `
+                    <div class="match-card">
+                        <div class="match-details">
+                            <h3>${window.escapeHtml(match.match_name)}</h3>
+                            <span class="badge">⏳ Öffnet: ${formattedDate} Uhr</span>
+                        </div>
+                        <div>
+                            <button class="btn-contact" onclick="openBotModal(${match.id}, '${window.escapeHtml(match.match_name)}', '${formattedDate}')">Bot scharfschalten</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Modal Steuerung
+        window.openBotModal = function(id, name, time) {
+            document.getElementById("modal-match-id").value = id;
+            document.getElementById("modal-match-name").innerText = name;
+            document.getElementById("modal-match-time").innerText = "Geplante Öffnung: " + time + " Uhr";
+            document.getElementById("bot-config-modal").style.display = "flex";
+        }
+
+        window.closeBotModal = function() {
+            document.getElementById("bot-config-modal").style.display = "none";
+        }
+
+        // Absenden des Bot-Auftrags
+        document.getElementById("bot-submit-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            
+            if (!window.currentUser || !window.userProfileData) return;
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.innerText = "Programmiere Bot...";
+            
+            // Sammle die Daten für die ipscmatch.de Maske
+            const formData = {
+                vorname: window.userProfileData.real_name || window.userProfileData.username,
+                email: window.currentUser.email,
+                lizenz: document.getElementById("bot-lizenz").value,
+                division: document.getElementById("bot-division").value,
+                power_factor: document.getElementById("bot-factor").value
+            };
+
+            const { error } = await window.supabaseClient
+                .from("bot_queue")
+                .insert([{
+                    user_id: window.currentUser.id,
+                    match_id: document.getElementById("modal-match-id").value,
+                    form_data: formData,
+                    status: 'waiting'
+                }]);
+
+            if (error) {
+                alert("Fehler bei der Programmierung: " + error.message);
+                submitBtn.innerText = "Bot jetzt programmieren";
+            } else {
+                alert("Erfolgreich! Der Bot wurde in die Server-Warteschlange eingereiht.");
+                closeBotModal();
+                submitBtn.innerText = "Bot jetzt programmieren";
+            }
+        });
+    </script>
+</body>
+</html>
