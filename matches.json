@@ -2,7 +2,7 @@
     {
         "name": "Offene IPSC-LM Niedersachsen und Bremen 2026 Part ...",
         "datum": "14.06.2026",
-        "auslastung": "86%",
+        "auslastung": "88%",
         "region": "GER",
         "level": "2",
         "disziplin": "HG",
@@ -20,7 +20,7 @@
     {
         "name": "TSV Régional Martinique 2026",
         "datum": "20.06.2026",
-        "auslastung": "53%",
+        "auslastung": "57%",
         "region": "FRA",
         "level": "2",
         "disziplin": "HG",
@@ -29,7 +29,7 @@
     {
         "name": "Allauch Crow Cup 2026",
         "datum": "05.07.2026",
-        "auslastung": "82%",
+        "auslastung": "81%",
         "region": "FRA",
         "level": "2",
         "disziplin": "HG",
@@ -65,7 +65,7 @@
     {
         "name": "Siegerland Challenge part I",
         "datum": "26.07.2026",
-        "auslastung": "88%",
+        "auslastung": "89%",
         "region": "GER",
         "level": "2",
         "disziplin": "HG",
@@ -83,7 +83,7 @@
     {
         "name": "Thuringian Open - offene LM Handgun LV 13 2026",
         "datum": "09.08.2026",
-        "auslastung": "97%",
+        "auslastung": "98%",
         "region": "GER",
         "level": "3",
         "disziplin": "HG",
@@ -92,7 +92,7 @@
     {
         "name": "Shotgun Cup 2026",
         "datum": "23.08.2026",
-        "auslastung": "92%",
+        "auslastung": "90%",
         "region": "GER",
         "level": "3",
         "disziplin": "SG",
@@ -115,15 +115,6 @@
         "level": "3",
         "disziplin": "SG",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_Racan_Shotgun_Trophy_2026"
-    },
-    {
-        "name": "Level II Series - PCC Beginners II 2026",
-        "datum": "12.09.2026",
-        "auslastung": "97%",
-        "region": "GER",
-        "level": "2",
-        "disziplin": "PCC",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_Level_II_Series_PCC_Beginners_II"
     },
     {
         "name": "11. Heidberg-Cup",
