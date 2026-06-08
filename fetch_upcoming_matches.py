@@ -79,33 +79,49 @@ try:
                     try:
                         d_resp = session.get(detail_url, headers=headers, timeout=10)
                         d_soup = BeautifulSoup(d_resp.text, 'html.parser')
-                        d_clean_text = re.sub(r'\s+', ' ', d_soup.get_text(" ", strip=True).lower())
                         
-                        if "anmeldung geschlossen" in d_clean_text or "closed" in d_clean_text:
+                        # Wir holen den reinen Text ohne HTML-Tags
+                        d_clean_text = d_soup.get_text(" ", strip=True)
+                        
+                        # Prüfen, ob die Anmeldung hart geschlossen ist
+                        if "anmeldung geschlossen" in d_clean_text.lower() or "closed" in d_clean_text.lower():
                             is_closed = True
                         
-                        # 🎯 HIER FINDEN WIR DAS ORANGE DATUM AUS DEINEM SCREENSHOT
-                        # Sucht nach Mustern wie "anmeldung öffnet sa 13 jun 2026"
-                        oeffnet_match = re.search(r'anmeldung öffnet\s+([a-zA-Z0-9.\s:]+)', d_clean_text)
+                        # 🎯 KUGELSICHERER REGEX OHNE UMLAUTE:
+                        # Wir suchen nach "anmeldung" (Groß/Klein egal) und überspringen 
+                        # jegliche Sonderzeichen/Wörter bis zum Wochentag oder Datum
+                        oeffnet_match = re.search(r'anmeldung\s+[^0-9a-zA-Z]*(?:öffnet|offnet)?\s*([a-zA-Z0-9.\s:-]+)', d_clean_text, re.IGNORECASE)
+                        
                         if oeffnet_match:
-                            oeffnungs_datum = oeffnet_match.group(1).strip().upper()
-                            
+                            raw_date = oeffnet_match.group(1).strip()
+                            # Wir schneiden den Text sauber ab, falls zu viel Text mitgerissen wurde (max. 5 Wörter für das Datum)
+                            oeffnungs_datum = " ".join(raw_date.split()[:5]).upper()
+                        else:
+                            # Fallback 2: Suche nach dem Wort "öffnet um" oder "offnet um"
+                            zeit_match = re.search(r'(?:öffnet|offnet)\s+([a-zA-Z0-9.\s:-]+)', d_clean_text, re.IGNORECASE)
+                            if zeit_match:
+                                oeffnungs_datum = " ".join(zeit_match.group(1).strip().split()[:5]).upper()
+                            else:
+                                oeffnungs_datum = "DATUM NICHT GEFUNDEN"
+                                
                     except Exception as e:
                         print(f"Warnung: Konnte Detailseite für {best_name} nicht prüfen ({e})")
+                        oeffnungs_datum = "FEHLER BEIM LADEN"
                     
                     if is_closed:
                         continue
                     
-                    # Match-Datum aus der Spalte auslesen
+                    # Datum aus der Haupttabelle auslesen
                     datum_raw = tds[5].text.strip()
-                    datum_match = re.search(r'\d{2}\.\d{2}\.(?:\s*-\s*\d{2}\.\d.2\.)?\s*\d{2,4}', datum_raw)
+                    datum_match = re.search(r'\d{2}\.\d{2}\.(?:\s*-\s*\d{2}\.\d{2}\.)?\s*\d{2,4}', datum_raw)
                     datum = datum_match.group(0).strip() if datum_match else (datum_raw if datum_raw else "N/A")
 
+                    # Das Match wird JETZT GARANTIERT hinzugefügt, egal ob mit oder ohne Öffen-Datum!
                     matches.append({
                         "name": best_name,
                         "datum": datum,
-                        "auslastung": f"{auslastung_int}%" if hat_prozent else "Ankündung",
-                        "anmeldung_oeffnet": oeffnungs_datum, # 🎯 Neu im JSON exportiert!
+                        "auslastung": f"{auslastung_int}%" if hat_prozent else "Ankündigung",
+                        "anmeldung_oeffnet": oeffnungs_datum,
                         "region": region,
                         "level": level,
                         "disziplin": disziplin,
