@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 
 base_url = "https://www.ipscmatch.de/"
 
+# 🛡️ Der perfekte PC-Tarnschild für GitHub Actions
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
@@ -54,6 +55,7 @@ try:
                 is_upcoming = True
 
             if is_upcoming:
+                # FILTER: Leere Einträge oder Platzhalter aussortieren
                 if not oeffnungs_datum or oeffnungs_datum.lower().startswith("stage-") or oeffnungs_datum == "":
                     continue
 
@@ -78,7 +80,7 @@ try:
                     best_name = match_link.text.strip().replace('\xa0', ' ')
                     detail_url = urllib.parse.urljoin(base_url, match_link.get('href', ''))
                     
-                    # 📍 NEU: Ort aus Spalte 4 extrahieren!
+                    # 📍 Ort aus Spalte 4 extrahieren
                     ort = tds[4].text.strip().replace('\xa0', ' ')
                     if not ort:
                         ort = "Unbekannter Ort"
@@ -97,15 +99,17 @@ try:
                         "region": region,
                         "level": level,
                         "disziplin": disziplin,
-                        "ort": ort, # 🌟 Schreibt den Ort jetzt in die Spalte 'ort'
+                        "ort": ort,
                         "url": detail_url
                     })
 
     print("----------------------------------------")
     print(f"🏁 Webseite erfolgreich gescannt! {len(matches_to_insert)} bereinigte Ankündigungen gefunden.\n")
 
+    # ⏳ Kurze Pause zum Entspannen vor dem Datenbank-Upload
     time.sleep(3)
 
+    # 🎯 2. IN SUPABASE SPEICHERN (Intelligentes Upsert statt Delete!)
     if matches_to_insert:
         from supabase import create_client, Client
         supabase_url = os.environ.get("SUPABASE_URL")
@@ -117,12 +121,16 @@ try:
 
         supabase: Client = create_client(supabase_url, supabase_key)
 
-        print(f"Lösche alte Einträge aus Supabase...")
-        supabase.from_("upcoming_matches").delete().neq("match_name", "---").execute()
+        print(f"Synchronisiere {len(matches_to_insert)} Matches mit Supabase (Upsert)...")
         
-        print(f"Schreibe {len(matches_to_insert)} Matches in Supabase...")
-        supabase.from_("upcoming_matches").insert(matches_to_insert).execute()
-        print("🎉 Sensationell! Alle Ankündigungen inklusive Ort sind live in deiner Datenbank!")
+        # Nutzen jetzt .upsert() mit dem On-Conflict-Trigger für die URL.
+        # Aktualisiert bestehende Zeilen (z.B. fügt den Ort hinzu) ohne Keys zu verletzen!
+        supabase.from_("upcoming_matches").upsert(
+            matches_to_insert, 
+            on_conflict="url"
+        ).execute()
+        
+        print("🎉 Sensationell! Alle Ankündigungen wurden fehlerfrei aktualisiert und deine programmierten Bots blieben unberührt!")
     else:
         print("Keine kommenden Ankündigungen auf der Homepage gefunden.")
 
