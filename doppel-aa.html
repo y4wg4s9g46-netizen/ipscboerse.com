@@ -24,9 +24,6 @@
         .info-box { background-color: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--info-color); color: var(--text-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
         .danger-box { background-color: rgba(239, 68, 68, 0.08); border-left: 4px solid var(--danger-color); color: var(--danger-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; font-weight: bold; text-align: center; }
         
-        .btn-test-environment { background-color: var(--info-color); color: white; border: none; padding: 12px 20px; font-weight: 700; border-radius: var(--radius); cursor: pointer; margin-bottom: 25px; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; text-transform: uppercase; letter-spacing: 0.5px; }
-        .btn-test-environment:hover { opacity: 0.9; }
-
         .filter-bar { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 15px; margin-bottom: 25px; box-shadow: var(--shadow-sm); display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
         .filter-group { display: flex; flex-direction: column; flex: 1; min-width: 150px; }
         .filter-group label { font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; color: var(--text-muted); letter-spacing: 0.5px; }
@@ -48,7 +45,7 @@
         
         .form-group { margin-bottom: 14px; display: flex; flex-direction: column; }
         .form-group label { font-size: 12px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; }
-        .form-group input, .form-group select { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px; border-radius: var(--radius); font-size: 14px; }
+        .form-group input, .form-group select { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px; border-radius: var(--radius); font-size: 14px; box-sizing: border-box; }
         .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent-color); }
         
         .form-row { display: flex; gap: 12px; margin-bottom: 0; }
@@ -64,6 +61,16 @@
 
         .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; margin-top: 10px; }
         .btn-primary-auth:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* 📱 MOBILE OPTIMIERUNG */
+        @media (max-width: 650px) {
+            .form-row { flex-direction: column; gap: 0; }
+            .form-row .form-group { width: 100%; }
+            .checkbox-grid { grid-template-columns: 1fr; }
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .modal-content { padding: 15px; margin-top: 20px; }
+            .radio-container { flex-direction: column; gap: 10px; }
+        }
     </style>
 </head>
 <body>
@@ -78,10 +85,6 @@
             <div class="info-box">
                 <strong>Bereich "Doppel AA":</strong> Hier siehst du Turniere, die noch auf Status "Anmeldung öffnet..." stehen. Wähle ein Match aus, und unser Server-Bot wird in Millisekunden nach Öffnung das Formular für dich absenden.
             </div>
-
-            <button class="btn-test-environment" onclick="openBotModal('test-uuid-12345', '⚠️ Sniper Testturnier (Handgun)', '09 Jun 2026 10:00', 'HG')">
-                🤖 System-Test: Sniper-Popup manuell öffnen
-            </button>
 
             <div class="filter-bar">
                 <div class="filter-group"><label for="filter-level">Level</label><select id="filter-level" onchange="applyFilters()"><option value="all">Alle Levels</option></select></div>
@@ -162,7 +165,6 @@
                     </div>
                 </div>
 
-                <!-- 🎯 ANGEPASSTER BEREICH FÜR DIE SQUAD-ANALYSE -->
                 <div style="background: rgba(59, 130, 246, 0.05); padding: 12px; border-radius: 6px; border: 1px dashed var(--info-color); margin-bottom: 14px;">
                     <p style="margin: 0 0 10px 0; font-size: 12px; color: var(--text-muted);"><strong>Squad-Analyse:</strong> Der Bot lädt das Formular in Millisekunden und sucht nach einer Squad an deinem Wunsch-Tag. Findet er nichts, nimmt er die erstbeste freie Squad, um deinen Startplatz zu sichern!</p>
                     <div class="form-row">
@@ -338,7 +340,7 @@
                 division: document.getElementById("bot-division").value,
                 category: document.getElementById("bot-category").value,
                 power_factor: selectedFactor,
-                wunschtag: document.getElementById("bot-wunschtag").value, // 🎯 NEU EINGELESEN
+                wunschtag: document.getElementById("bot-wunschtag").value, 
                 squad: document.getElementById("bot-squad").value,
                 bemerkung: document.getElementById("bot-bemerkung").value,
                 is_ro: document.getElementById("bot-ro").checked ? "1" : "0",
@@ -347,10 +349,7 @@
                 accept_terms: document.getElementById("bot-agb").checked ? "1" : "0"
             };
 
-            let targetMatchId = document.getElementById("modal-match-id").value;
-            if(targetMatchId === "test-uuid-12345" && window.loadedMatchesCache.length > 0) {
-                targetMatchId = window.loadedMatchesCache[0].id;
-            }
+            const targetMatchId = document.getElementById("modal-match-id").value;
 
             const { error } = await window.supabaseClient
                 .from("bot_queue")
