@@ -24,7 +24,6 @@
         .info-box { background-color: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--info-color); color: var(--text-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
         .danger-box { background-color: rgba(239, 68, 68, 0.08); border-left: 4px solid var(--danger-color); color: var(--danger-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; font-weight: bold; text-align: center; }
         
-        /* 🛠️ FILTER BAR STYLING */
         .filter-bar { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 15px; margin-bottom: 25px; box-shadow: var(--shadow-sm); display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
         .filter-group { display: flex; flex-direction: column; flex: 1; min-width: 150px; }
         .filter-group label { font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; color: var(--text-muted); letter-spacing: 0.5px; }
@@ -41,22 +40,29 @@
         .btn-contact:hover { opacity: 0.9; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; padding: 20px; box-sizing: border-box; }
-        .modal-content { background-color: var(--card-bg); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 440px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background-color: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 520px; position: relative; max-height: 95vh; overflow-y: auto; }
         .modal-close-trigger { background: transparent; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; position: absolute; top: 15px; right: 20px; z-index: 1010; }
-        .modal-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px; }
-        .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
         
-        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
-        .form-group label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; }
+        .form-group { margin-bottom: 14px; display: flex; flex-direction: column; }
+        .form-group label { font-size: 12px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; }
         .form-group input, .form-group select { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px; border-radius: var(--radius); font-size: 14px; }
         .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent-color); }
+        
+        .form-row { display: flex; gap: 12px; margin-bottom: 0; }
+        .form-row .form-group { flex: 1; }
+
+        /* Radio-Button Zeile für Power Factor (Bild 2) */
+        .radio-container { display: flex; gap: 20px; padding: 10px 0; font-size: 14px; }
+        .radio-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 500 !important; text-transform: none !important; }
+        .radio-label input { cursor: pointer; margin: 0; }
+
+        /* Checkbox-Grid für RO, Sponsor, AGB */
+        .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; background: rgba(0,0,0,0.02); padding: 10px; border-radius: 6px; border: 1px dashed var(--border-color); }
+        .checkbox-group { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--text-color); }
+        .checkbox-group input { margin-top: 3px; cursor: pointer; }
+
         .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; margin-top: 10px; }
-        .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
-        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 30px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 10px; box-shadow: var(--shadow-sm); }
-        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
-        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
-        .modal-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
-        .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; font-weight: 600; }
+        .btn-primary-auth:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -65,10 +71,7 @@
     <script src="header.js"></script>
 
     <div class="container">
-        
-        <div id="access-denied" class="danger-box">
-            Prüfe Berechtigungen... (Bitte einloggen)
-        </div>
+        <div id="access-denied" class="danger-box">Prüfe Berechtigungen... (Bitte einloggen)</div>
 
         <div id="dashboard-content" style="display: none;">
             <div class="info-box">
@@ -76,28 +79,12 @@
             </div>
 
             <div class="filter-bar">
-                <div class="filter-group">
-                    <label for="filter-level">Level</label>
-                    <select id="filter-level" onchange="applyFilters()">
-                        <option value="all">Alle Levels</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="filter-land">Land</label>
-                    <select id="filter-land" onchange="applyFilters()">
-                        <option value="all">Alle Länder</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="filter-disziplin">Disziplin</label>
-                    <select id="filter-disziplin" onchange="applyFilters()">
-                        <option value="all">Alle Disziplinen</option>
-                    </select>
-                </div>
+                <div class="filter-group"><label for="filter-level">Level</label><select id="filter-level" onchange="applyFilters()"><option value="all">Alle Levels</option></select></div>
+                <div class="filter-group"><label for="filter-land">Land</label><select id="filter-land" onchange="applyFilters()"><option value="all">Alle Länder</option></select></div>
+                <div class="filter-group"><label for="filter-disziplin">Disziplin</label><select id="filter-disziplin" onchange="applyFilters()"><option value="all">Alle Disziplinen</option></select></div>
             </div>
 
             <h2 style="margin-bottom: 20px;">Geplante Bot-Aktivierungen</h2>
-            
             <div class="match-list" id="js-match-container">
                 <p style="color: var(--text-muted); font-style: italic;">Lade kommende Matches aus der Datenbank...</p>
             </div>
@@ -113,163 +100,96 @@
             <form id="bot-submit-form">
                 <input type="hidden" id="modal-match-id">
                 
-                <div class="form-group">
-                    <label>IPSC Lizenznummer / Alias</label>
-                    <input type="text" id="bot-lizenz" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Vorname</label>
+                        <input type="text" id="bot-vorname" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nachname</label>
+                        <input type="text" id="bot-nachname" required placeholder="Scharfschütze">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>IPSC Lizenznummer / Alias</label>
+                        <input type="text" id="bot-lizenz" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Region / Verband</label>
+                        <select id="bot-region" required>
+                            <option value="">-- Bitte wählen --</option>
+                            <option value="GER">GER (BDS Bundesverband)</option>
+                            <option value="LV1">LV 1 (Berlin/Brandenburg)</option>
+                            <option value="LV2">LV 2 (Mecklenburg-Vorpommern)</option>
+                            <option value="LV3">LV 3 (Niedersachsen/Bremen)</option>
+                            <option value="LV4">LV 4 (Nordrhein-Westfalen)</option>
+                            <option value="LV5">LV 5 (Rheinland-Pfalz)</option>
+                            <option value="LV6">LV 6 (Hessen)</option>
+                            <option value="LV7">LV 7 (Saarland)</option>
+                            <option value="LV8">LV 8 (Baden-Württemberg)</option>
+                            <option value="LV9">LV 9 (Bayern)</option>
+                            <option value="LV10">LV 10 (Hamburg)</option>
+                            <option value="LV11">LV 11 (Schleswig-Holstein)</option>
+                            <option value="LV12">LV 12 (Sachsen)</option>
+                            <option value="LV13">LV 13 (Thüringen)</option>
+                            <option value="LV14">LV 14 (Sachsen-Anhalt)</option>
+                            <option value="AUT">AUT (Österreich)</option>
+                            <option value="SUI">SUI (Schweiz)</option>
+                            <option value="FRA">FRA (Frankreich)</option>
+                            <option value="OTHER">Ausland / Sonstige</option>
+                        </select>
+                    </div>
                 </div>
                 
-                <div style="display: flex; gap: 10px;">
-                    <div class="form-group" style="flex: 1;">
+                <div class="form-row">
+                    <div class="form-group">
                         <label>Division</label>
                         <select id="bot-division" required>
-                            <option value="Open">Open</option>
-                            <option value="Standard">Standard</option>
-                            <option value="Production">Production</option>
-                            <option value="Production Optics">Production Optics</option>
-                            <option value="Classic">Classic</option>
-                            <option value="Revolver">Revolver</option>
-                        </select>
+                            </select>
                     </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label>Power Factor</label>
-                        <select id="bot-factor" required>
-                            <option value="Minor">Minor</option>
-                            <option value="Major">Major</option>
-                        </select>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="bot-category" required>
+                            </select>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-primary-auth">Bot jetzt programmieren</button>
+                <div class="form-group">
+                    <label>Power Factor</label>
+                    <div class="radio-container">
+                        <label class="radio-label"><input type="radio" name="power_factor" value="Minor" checked> Minor</label>
+                        <label class="radio-label"><input type="radio" name="power_factor" value="Major"> Major</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Darstellung in Teilnehmerliste</label>
+                    <select id="bot-public" required>
+                        <option value="1">Öffentlich (Name & Division sichtbar)</option>
+                        <option value="0">Nicht öffentlich (Anonymisierte Registernummer)</option>
+                    </select>
+                </div>
+
+                <div class="checkbox-grid">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="bot-ro">
+                        <label for="bot-ro">Ich bin RO (Helfer)</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="bot-sponsor">
+                        <label for="bot-sponsor">Sponsor-Platz</label>
+                    </div>
+                </div>
+
+                <div class="checkbox-group" style="margin-top: 10px;">
+                    <input type="checkbox" id="bot-agb" required>
+                    <label for="bot-agb"><strong>Ich bin damit einverstanden</strong>, dass meine Daten zum Zweck der Veranstaltung gespeichert und verarbeitet werden (Pflichtfeld).</label>
+                </div>
+
+                <button type="submit" class="btn-primary-auth" id="bot-submit-btn">Bot jetzt programmieren</button>
             </form>
-        </div>
-    </div>
-
-    <div class="modal" id="auth-modal">
-        <div class="modal-content">
-            <div class="modal-close-container">
-                <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
-            </div>
-            
-            <div id="modal-login-view">
-                <h3 data-txt="modal-login-title">Anmelden</h3>
-                <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
-                    <span>📱</span> Login mit FaceID / Fingerabdruck
-                </button>
-                <div class="modal-divider">oder klassisch mit E-Mail</div>
-                <form id="login-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-email">E-Mail *</label>
-                        <input type="email" id="login-email" required placeholder="name@beispiel.de">
-                    </div>
-                    <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <label style="margin-bottom: 0;">Passwort *</label>
-                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
-                        </div>
-                        <input type="password" id="login-password" required placeholder="••••••••">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
-                </form>
-                <div class="modal-footer">
-                    <span data-txt="modal-no-acc">Noch kein Konto?</span>
-                    <a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a>
-                </div>
-            </div>
-
-            <div id="modal-register-view" style="display: none;">
-                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
-                <form id="register-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-email">E-Mail *</label>
-                        <input type="email" id="register-email" required placeholder="name@beispiel.de">
-                    </div>
-                    <div class="form-group">
-                        <label>Passwort *</label>
-                        <input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-reg">Konto erstellen</button>
-                </form>
-                <div class="modal-footer">
-                    <span data-txt="modal-has-acc">Bereits registriert?</span>
-                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a>
-                </div>
-            </div>
-
-            <div id="modal-forgot-view" style="display: none;">
-                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
-                <form id="forgot-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-email">Deine E-Mail-Adresse *</label>
-                        <input type="email" id="forgot-email" required placeholder="name@beispiel.de">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
-                </form>
-                <div class="modal-footer">
-                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a>
-                </div>
-            </div>
-
-            <div id="modal-reset-view" style="display: none;">
-                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
-                <form id="reset-password-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-new-password">Neues Passwort *</label>
-                        <input type="password" id="reset-password-input" required minlength="6" placeholder="Mindestens 6 Zeichen">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Speichern</button>
-                </form>
-            </div>
-
-            <div id="modal-settings-view" style="display: none;">
-                <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
-                <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
-                    <label style="color: var(--success-color); font-weight: 700;" data-txt="modal-settings-deals">📈 Erfolgreiche Vermittlungen</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
-                            <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
-                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-seller">Als Verkäufer</p>
-                        </div>
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
-                            <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
-                            <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-buyer">Als Käufer</p>
-                        </div>
-                    </div>
-                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
-                        <div><span data-txt="modal-settings-comm">💬 Kommunikation:</span> <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
-                        <div><span data-txt="modal-settings-pay">💳 Bezahlung:</span> <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
-                    </div>
-                </div>
-
-                <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
-                    <label style="color: #3498db;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</label>
-                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
-                </div>
-
-                <form id="settings-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
-                        <input type="text" id="settings-username" data-txt-ph="ph-username" placeholder="z.B. IPSCShooter99">
-                    </div>
-                    <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 4px; border-left: 3px solid var(--success-color); margin-bottom: 20px;">
-                        <label style="color: var(--success-color); margin-bottom: 2px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
-                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-ipsc-alias-desc">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
-                        <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
-                    </div>
-                    <div class="form-group">
-                        <label data-txt="lbl-profile-pic">Profilbild (Optional)</label>
-                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
-                        <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
-                    </div>
-                    <div class="form-group">
-                        <label data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
-                        <input type="password" id="settings-password" minlength="6" data-txt-ph="ph-password" placeholder="Mindestens 6 Zeichen">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
-                </form>
-                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
-                <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
-            </div>
         </div>
     </div>
 
@@ -277,10 +197,7 @@
     <script src="auth.js"></script>
     
     <script>
-        // Globaler Cache für geladene Matches aus der DB, damit clientseitig gefiltert werden kann
         window.loadedMatchesCache = [];
-
-        // Fängt das Auth-Event deiner auth.js ab, um die Doppel-AA-Prüfung durchzuführen
         const originalAuthChange = window.onAuthChange;
         
         window.onAuthChange = async (user) => {
@@ -296,7 +213,6 @@
                 return;
             }
 
-            // Prüfe das Doppel-AA Flag im Profil
             const { data: profile, error } = await window.supabaseClient
                 .from("profiles")
                 .select("is_doppel_aa, ipsc_alias, username, real_name")
@@ -310,11 +226,18 @@
                 return;
             }
 
-            // User ist berechtigt!
             window.userProfileData = profile; 
             deniedBox.style.display = "none";
             dashboard.style.display = "block";
             
+            if (profile.real_name) {
+                const names = profile.real_name.split(" ");
+                document.getElementById("bot-vorname").value = names[0] || "";
+                if (names.length > 1) document.getElementById("bot-nachname").value = names.slice(1).join(" ");
+            } else if (profile.username) {
+                document.getElementById("bot-vorname").value = profile.username;
+            }
+
             if (profile.ipsc_alias) {
                 document.getElementById("bot-lizenz").value = profile.ipsc_alias;
             }
@@ -322,10 +245,8 @@
             loadUpcomingMatches();
         };
 
-        // Lädt die ungeöffneten Matches aus der DB-Tabelle
         async function loadUpcomingMatches() {
             const container = document.getElementById("js-match-container");
-            
             const { data, error } = await window.supabaseClient
                 .from("upcoming_matches")
                 .select("*")
@@ -342,51 +263,32 @@
                 return;
             }
 
-            // Daten im globalen Cache sichern
             window.loadedMatchesCache = data;
-
-            // Filter-Dropdowns dynamisch mit den existierenden Werten befüllen
             buildFilterDropdowns(data);
-
-            // Initiale Anzeige rendern
             renderMatches(data);
         }
 
-        // 🛠️ FUNKTION: Generiert die Filteroptionen dynamisch aus den Echtdaten
         function buildFilterDropdowns(matches) {
-            const levels = new Set();
-            const laender = new Set();
-            const disziplinen = new Set();
-
+            const levels = new Set(); const laender = new Set(); const disziplinen = new Set();
             matches.forEach(m => {
                 if (m.level) levels.add(m.level.trim());
                 if (m.region) laender.add(m.region.trim().toUpperCase());
                 if (m.disziplin) disziplinen.add(m.disziplin.trim());
             });
 
-            // Level Dropdown füllen
             const selectLevel = document.getElementById("filter-level");
             selectLevel.innerHTML = '<option value="all">Alle Levels</option>';
-            Array.from(levels).sort().forEach(lvl => {
-                selectLevel.innerHTML += `<option value="${lvl}">${lvl}</option>`;
-            });
+            Array.from(levels).sort().forEach(lvl => selectLevel.innerHTML += `<option value="${lvl}">${lvl}</option>`);
 
-            // Land Dropdown füllen
             const selectLand = document.getElementById("filter-land");
             selectLand.innerHTML = '<option value="all">Alle Länder</option>';
-            Array.from(laender).sort().forEach(land => {
-                selectLand.innerHTML += `<option value="${land}">${land}</option>`;
-            });
+            Array.from(laender).sort().forEach(land => selectLand.innerHTML += `<option value="${land}">${land}</option>`);
 
-            // Disziplin Dropdown füllen
             const selectDisziplin = document.getElementById("filter-disziplin");
             selectDisziplin.innerHTML = '<option value="all">Alle Disziplinen</option>';
-            Array.from(disziplinen).sort().forEach(disz => {
-                selectDisziplin.innerHTML += `<option value="${disz}">${disz}</option>`;
-            });
+            Array.from(disziplinen).sort().forEach(disz => selectDisziplin.innerHTML += `<option value="${disz}">${disz}</option>`);
         }
 
-        // 🛠️ FUNKTION: Filtert die gecachten Matches und triggert das Rendern
         window.applyFilters = function() {
             const filterLevel = document.getElementById("filter-level").value;
             const filterLand = document.getElementById("filter-land").value;
@@ -397,51 +299,85 @@
                 const matchLand = match.region ? match.region.trim().toUpperCase() : "";
                 const matchDisz = match.disziplin ? match.disziplin.trim() : "";
 
-                const levelPass = (filterLevel === "all" || matchLevel === filterLevel);
-                const landPass = (filterLand === "all" || matchLand === filterLand);
-                const diszPass = (filterDisziplin === "all" || matchDisz === filterDisziplin);
-
-                return levelPass && landPass && diszPass;
+                return (filterLevel === "all" || matchLevel === filterLevel) &&
+                       (filterLand === "all" || matchLand === filterLand) &&
+                       (filterDisziplin === "all" || matchDisz === filterDisziplin);
             });
-
             renderMatches(filtered);
         }
 
-        // FUNKTION: Rendert das Array an Matches im HTML-Container
         function renderMatches(matchesList) {
             const container = document.getElementById("js-match-container");
-
             if (matchesList.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted); font-style: italic; padding: 10px;">Keine Matches gefunden, die den Filtereinstellungen entsprechen.</p>';
+                container.innerHTML = '<p style="color: var(--text-muted); font-style: italic; padding: 10px;">Keine Matches gefunden.</p>';
                 return;
             }
 
             container.innerHTML = matchesList.map(match => {
                 const matchName = window.escapeHtml(match.match_name || match.name || "Unbekanntes Turnier");
                 const formattedDate = window.escapeHtml(match.anmeldung_oeffnet || "Unbekannt");
-                const levelInfo = window.escapeHtml(match.level || "N/A");
-                const regionInfo = window.escapeHtml(match.region || "N/A");
-                const disziplinInfo = window.escapeHtml(match.disziplin || "HG");
-
+                const disz = window.escapeHtml(match.disziplin || "HG");
                 return `
                     <div class="match-card">
                         <div class="match-details">
-                            <h3>${matchName} <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">(${levelInfo} | ${regionInfo} | ${disziplinInfo})</span></h3>
+                            <h3>${matchName} <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">(${window.escapeHtml(match.level || "N/A")} | ${window.escapeHtml(match.region || "N/A")} | ${disz})</span></h3>
                             <span class="badge">⏳ Öffnet: ${formattedDate}</span>
                         </div>
-                        <div>
-                            <button class="btn-contact" onclick="openBotModal('${match.id}', '${matchName.replace(/'/g, "\\'")}', '${formattedDate}')">Bot scharfschalten</button>
-                        </div>
+                        <div><button class="btn-contact" onclick="openBotModal('${match.id}', '${matchName.replace(/'/g, "\\'")}', '${formattedDate}', '${disz}')">Bot scharfschalten</button></div>
                     </div>
                 `;
             }).join('');
         }
 
-        // Modal Steuerung
-        window.openBotModal = function(id, name, time) {
+        // 🛠️ COOLE DYNAMIK: Blendet je nach Match-Disziplin die passenden Felder ein!
+        window.openBotModal = function(id, name, time, disziplin) {
             document.getElementById("modal-match-id").value = id;
             document.getElementById("modal-match-name").innerText = name;
             document.getElementById("modal-match-time").innerText = "Geplante Öffnung: " + time;
+            
+            const divSelect = document.getElementById("bot-division");
+            const catSelect = document.getElementById("bot-category");
+            
+            // Wenn es PCC oder Rifle (RF) oder Mini Rifle (MR) ist:
+            if (disziplin.toUpperCase().includes("PCC") || disziplin.toUpperCase().includes("RF") || disziplin.toUpperCase().includes("MR") || disziplin.toUpperCase().includes("RIFLE")) {
+                divSelect.innerHTML = `
+                    <option value="Open">Open</option>
+                    <option value="Standard">Standard</option>
+                    <option value="Standard-Manual">Standard-Manual</option>
+                    <option value="Modified">Modified</option>
+                `;
+                catSelect.innerHTML = `
+                    <option value="Overall">Overall</option>
+                    <option value="Lady">Lady</option>
+                    <option value="Senior Lady">Senior Lady</option>
+                    <option value="Senior">Senior</option>
+                    <option value="Super Senior">Super Senior</option>
+                    <option value="Grand Senior">Grand Senior</option>
+                `;
+            } else { 
+                // Klassische Handgun (HG) Befüllung (Bild 2!)
+                divSelect.innerHTML = `
+                    <option value="Standard">Standard</option>
+                    <option value="Optics">Optics</option>
+                    <option value="Production Optics">Production Optics</option>
+                    <option value="Production">Production</option>
+                    <option value="Open">Open</option>
+                    <option value="Classic">Classic</option>
+                    <option value="Revolver">Revolver</option>
+                    <option value="KK">KK</option>
+                `;
+                catSelect.innerHTML = `
+                    <option value="Overall">Overall</option>
+                    <option value="Lady">Lady</option>
+                    <option value="Senior Lady">Senior Lady</option>
+                    <option value="Senior">Senior</option>
+                    <option value="Super Senior">Super Senior</option>
+                    <option value="Grand Senior">Grand Senior</option>
+                    <option value="Junior">Junior</option>
+                    <option value="Super Junior">Super Junior</option>
+                `;
+            }
+
             document.getElementById("bot-config-modal").style.display = "flex";
         }
 
@@ -449,20 +385,30 @@
             document.getElementById("bot-config-modal").style.display = "none";
         }
 
-        // Absenden des Bot-Auftrags
         document.getElementById("bot-submit-form").addEventListener("submit", async (e) => {
             e.preventDefault();
             if (!window.currentUser || !window.userProfileData) return;
 
-            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const submitBtn = document.getElementById("bot-submit-btn");
             submitBtn.innerText = "Programmiere Bot...";
+            submitBtn.disabled = true;
             
+            // Liest den ausgewählten Power Factor Radio Button aus
+            const selectedFactor = document.querySelector('input[name="power_factor"]:checked').value;
+
             const formData = {
-                vorname: window.userProfileData.real_name || window.userProfileData.username,
+                vorname: document.getElementById("bot-vorname").value,
+                nachname: document.getElementById("bot-nachname").value,
                 email: window.currentUser.email,
                 lizenz: document.getElementById("bot-lizenz").value,
+                region: document.getElementById("bot-region").value,
                 division: document.getElementById("bot-division").value,
-                power_factor: document.getElementById("bot-factor").value
+                category: document.getElementById("bot-category").value,
+                power_factor: selectedFactor,
+                is_ro: document.getElementById("bot-ro").checked ? "1" : "0",
+                is_sponsor: document.getElementById("bot-sponsor").checked ? "1" : "0",
+                public_visible: document.getElementById("bot-public").value,
+                accept_terms: document.getElementById("bot-agb").checked ? "1" : "0"
             };
 
             const { error } = await window.supabaseClient
@@ -476,12 +422,12 @@
 
             if (error) {
                 alert("Fehler bei der Programmierung: " + error.message);
-                submitBtn.innerText = "Bot jetzt programmieren";
             } else {
-                alert("Erfolgreich! Der Bot wurde in die Server-Warteschlange eingereiht.");
+                alert("Erfolgreich! Der Bot wurde mit allen HG/PCC Parametern geladen und steht feuerbereit in der Warteschlange.");
                 closeBotModal();
-                submitBtn.innerText = "Bot jetzt programmieren";
             }
+            submitBtn.innerText = "Bot jetzt programmieren";
+            submitBtn.disabled = false;
         });
         
         function escapeHtml(text) {
