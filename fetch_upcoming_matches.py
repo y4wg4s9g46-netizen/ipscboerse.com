@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup
 
 base_url = "https://www.ipscmatch.de/"
 
-# 🛡️ Der perfekte PC-Tarnschild für GitHub Actions
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
@@ -55,7 +54,6 @@ try:
                 is_upcoming = True
 
             if is_upcoming:
-                # FILTER: Leere Einträge oder Platzhalter aussortieren
                 if not oeffnungs_datum or oeffnungs_datum.lower().startswith("stage-") or oeffnungs_datum == "":
                     continue
 
@@ -80,11 +78,16 @@ try:
                     best_name = match_link.text.strip().replace('\xa0', ' ')
                     detail_url = urllib.parse.urljoin(base_url, match_link.get('href', ''))
                     
+                    # 📍 NEU: Ort aus Spalte 4 extrahieren!
+                    ort = tds[4].text.strip().replace('\xa0', ' ')
+                    if not ort:
+                        ort = "Unbekannter Ort"
+                    
                     datum_raw = tds[5].text.strip()
                     datum_match = re.search(r'\d{2}\.\d{2}\.(?:\s*-\s*\d{2}\.\d{2}\.)?\s*\d{2,4}', datum_raw)
                     datum = datum_match.group(0).strip() if datum_match else (datum_raw if datum_raw else "N/A")
 
-                    print(f"📌 ANKÜNDIGUNG: {best_name[:40]:<40} | 📅 Öffnet: {oeffnungs_datum:<20} | 🏆 {level:<5} | 🗺️ {region:<5} | 🎯 {disziplin}")
+                    print(f"📌 ANKÜNDIGUNG: {best_name[:30]:<30} | 📍 Ort: {ort[:15]:<15} | 📅 Öffnet: {oeffnungs_datum:<20} | 🏆 {level:<5}")
 
                     matches_to_insert.append({
                         "match_name": best_name,
@@ -94,16 +97,15 @@ try:
                         "region": region,
                         "level": level,
                         "disziplin": disziplin,
+                        "ort": ort, # 🌟 Schreibt den Ort jetzt in die Spalte 'ort'
                         "url": detail_url
                     })
 
     print("----------------------------------------")
     print(f"🏁 Webseite erfolgreich gescannt! {len(matches_to_insert)} bereinigte Ankündigungen gefunden.\n")
 
-    # ⏳ Kurze Pause zum Entspannen vor dem Datenbank-Upload
     time.sleep(3)
 
-    # 🎯 2. IN SUPABASE SPEICHERN (Vollautomatisch über GitHub Secrets)
     if matches_to_insert:
         from supabase import create_client, Client
         supabase_url = os.environ.get("SUPABASE_URL")
@@ -120,7 +122,7 @@ try:
         
         print(f"Schreibe {len(matches_to_insert)} Matches in Supabase...")
         supabase.from_("upcoming_matches").insert(matches_to_insert).execute()
-        print("🎉 Sensationell! Alle 25 Ankündigungen sind live in deiner Datenbank!")
+        print("🎉 Sensationell! Alle Ankündigungen inklusive Ort sind live in deiner Datenbank!")
     else:
         print("Keine kommenden Ankündigungen auf der Homepage gefunden.")
 
