@@ -34,6 +34,8 @@
         .match-card { background-color: var(--card-bg); border-radius: var(--radius); padding: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); position: relative; }
         .match-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px; background-color: var(--accent-color); }
         .match-details h3 { margin: 0 0 8px 0; color: var(--text-color); font-size: 18px; font-weight: 600; }
+        .match-details h3 a { color: inherit; text-decoration: none; transition: color 0.2s; }
+        .match-details h3 a:hover { color: var(--accent-color); text-decoration: underline; }
         
         /* Stylings für die verschiedenen Badges */
         .badge-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
@@ -93,7 +95,7 @@
 
         <div id="dashboard-content" style="display: none;">
             <div class="info-box">
-                <strong>Bereich "Double Alpha":</strong> Hier siehst du Turniere, die noch auf Status "Anmeldung öffnet..." stehen. Wähle ein Match aus, um deinen Bot zu programmieren oder bestehende Einträge anzupassen/zurückzunehmen.
+                <strong>Bereich "Double Alpha":</strong> Hier siehst du Turniere, die noch auf Status "Anmeldung öffnet..." stehen. Wähle ein Match aus, um deinen Bot zu programmieren oder bestehende Einträge anzupassen/zurückzunehmen. Klicke auf den Turniernamen, um das Match direkt auf ipscmatch.de zu öffnen.
             </div>
 
             <div class="filter-bar">
@@ -297,9 +299,19 @@
                 if (m.region) laender.add(m.region.trim().toUpperCase());
                 if (m.disziplin) disziplinen.add(m.disziplin.trim());
             });
+            
             const selectLevel = document.getElementById("filter-level");
             selectLevel.innerHTML = '<option value="all">Alle Levels</option>';
             Array.from(levels).sort().forEach(lvl => selectLevel.innerHTML += `<option value="${lvl}">${lvl}</option>`);
+
+            const selectLand = document.getElementById("filter-land");
+            selectLand.innerHTML = '<option value="all">Alle Länder</option>';
+            Array.from(laender).sort().forEach(lnd => selectLand.innerHTML += `<option value="${lnd}">${lnd}</option>`);
+
+            // Dynamischer Disziplinen-Filter Aufbau (Fix!)
+            const selectDisz = document.getElementById("filter-disziplin");
+            selectDisz.innerHTML = '<option value="all">Alle Disziplinen</option>';
+            Array.from(disziplinen).sort().forEach(dsz => selectDisz.innerHTML += `<option value="${dsz}">${dsz}</option>`);
         }
 
         window.applyFilters = function() { renderMatches(window.loadedMatchesCache); }
@@ -321,6 +333,7 @@
                 const matchName = window.escapeHtml(match.match_name || match.name || "Unbekanntes Turnier");
                 const formattedOpenDate = window.escapeHtml(match.anmeldung_oeffnet || "Unbekannt");
                 const disz = window.escapeHtml(match.disziplin || "HG");
+                const targetUrl = match.url ? window.escapeHtml(match.url) : "https://www.ipscmatch.de/";
                 
                 // Neue Metadaten auslesen
                 const level = window.escapeHtml(match.level || "N/A");
@@ -344,14 +357,16 @@
                     `;
                 }
 
+                // Matchname wurde zu einem Link umgewandelt
                 return `
                     <div class="match-card">
                         <div class="match-details">
-                            <h3>${matchName} ${existingJob ? '<span style="color: var(--success-color); font-size: 14px; font-weight: bold;">(Scharfgeschaltet 🎯)</span>' : ''}</h3>
+                            <h3><a href="${targetUrl}" target="_blank" title="Auf ipscmatch.de öffnen">${matchName}</a> ${existingJob ? '<span style="color: var(--success-color); font-size: 14px; font-weight: bold;">(Scharfgeschaltet 🎯)</span>' : ''}</h3>
                             
                             <div class="badge-container">
                                 <span class="badge">⏳ Öffnet: ${formattedOpenDate}</span>
-                                <span class="badge badge-meta">🏆 ${level}</span>
+                                <span class="badge badge-meta">🔫 ${disz}</span>
+                                <span class="badge badge-meta">🏆 Level ${level}</span>
                                 <span class="badge badge-meta">📍 ${locationString}</span>
                                 <span class="badge badge-date">📅 Match-Tag(e): ${matchDatum}</span>
                             </div>
@@ -385,13 +400,18 @@
             if (existingJob && existingJob.form_data) {
                 const fd = existingJob.form_data;
                 document.getElementById("modal-existing-job-id").value = existingJob.id;
-                if(fd.vorname) document.getElementById("bot-vorname").value = fd.vorname;
-                if(fd.nachname) document.getElementById("bot-nachname").value = fd.nachname;
-                if(fd.email) document.getElementById("bot-email").value = fd.email;
-                if(fd.lizenz) document.getElementById("bot-lizenz").value = fd.lizenz;
-                if(fd.region) document.getElementById("bot-region").value = fd.region;
-                if(fd.division) document.getElementById("bot-division").value = fd.division;
-                if(fd.category) document.getElementById("bot-category").value = fd.category;
+                
+                document.getElementById("bot-vorname").value = fd.vorname || "";
+                document.getElementById("bot-nachname").value = fd.nachname || "";
+                document.getElementById("bot-email").value = fd.email || "";
+                document.getElementById("bot-lizenz").value = fd.lizenz || "";
+                document.getElementById("bot-region").value = fd.region || "GER";
+                document.getElementById("bot-bemerkung").value = fd.bemerkung || "";
+                document.getElementById("bot-squad").value = fd.squad || "";
+                
+                // Dropdowns sauber nach dem HTML-Aufbau befüllen
+                if(fd.division) divSelect.value = fd.division;
+                if(fd.category) catSelect.value = fd.category;
                 
                 if (fd.power_factor === "Major") {
                     document.getElementById("power-major").checked = true;
@@ -400,16 +420,32 @@
                 }
                 
                 if(fd.wunschtag) document.getElementById("bot-wunschtag").value = fd.wunschtag;
-                if(fd.squad) document.getElementById("bot-squad").value = fd.squad;
-                if(fd.bemerkung) document.getElementById("bot-bemerkung").value = fd.bemerkung;
+                if(fd.public_visible) document.getElementById("bot-public").value = fd.public_visible;
+                
                 document.getElementById("bot-ro").checked = (fd.is_ro === "1");
                 document.getElementById("bot-sponsor").checked = (fd.is_sponsor === "1");
-                if(fd.public_visible) document.getElementById("bot-public").value = fd.public_visible;
+                document.getElementById("bot-agb").checked = false; // Zur Sicherheit neu anhaken lassen
+                
                 document.getElementById("bot-submit-btn").innerText = "Änderungen speichern";
             } else {
                 document.getElementById("modal-existing-job-id").value = "";
+                document.getElementById("bot-squad").value = "";
+                document.getElementById("bot-bemerkung").value = "";
+                document.getElementById("bot-wunschtag").value = "egal";
+                document.getElementById("bot-public").value = "1";
+                document.getElementById("bot-ro").checked = false;
+                document.getElementById("bot-sponsor").checked = false;
+                document.getElementById("bot-agb").checked = false;
+                document.getElementById("power-minor").checked = true;
+
                 if (window.userProfileData) {
                     if (window.userProfileData.ipsc_alias) document.getElementById("bot-lizenz").value = window.userProfileData.ipsc_alias;
+                    document.getElementById("bot-email").value = window.currentUser ? window.currentUser.email : "";
+                    if (window.userProfileData.real_name) {
+                        const names = window.userProfileData.real_name.split(" ");
+                        document.getElementById("bot-vorname").value = names[0] || "";
+                        if (names.length > 1) document.getElementById("bot-nachname").value = names.slice(1).join(" ");
+                    }
                 }
                 document.getElementById("bot-submit-btn").innerText = "Bot jetzt programmieren";
             }
