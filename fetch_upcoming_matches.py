@@ -1,11 +1,7 @@
 import os
 import requests
-from bs4 import BeautifulSoup
-import re
-import urllib.parse
-from urllib3.util.retry import Retry
-from requests.adapters import HTTPAdapter
 from supabase import create_client, Client
+from datetime import datetime
 
 # 🔐 Supabase-Verbindung aus den GitHub-Secrets auslesen
 supabase_url = os.environ.get("SUPABASE_URL")
@@ -17,104 +13,67 @@ if not supabase_url or not supabase_key:
 
 supabase: Client = create_client(supabase_url, supabase_key)
 
-base_url = "https://www.ipscmatch.de/"
-
+# 🎯 Der neue, unzerstörbare API-Link!
+api_url = "https://ipscmatch.de/?matchapi"
 headers = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-    "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
-    "Cache-Control": "max-age=0",
-    "Connection": "keep-alive"
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
 }
 
-session = requests.Session()
-retries = Retry(
-    total=5,
-    backoff_factor=3,
-    status_forcelist=[403, 429, 500, 502, 503, 504],
-    raise_on_status=False
-)
-session.mount('http://', HTTPAdapter(max_retries=retries))
-session.mount('https://', HTTPAdapter(max_retries=retries))
-
 try:
-    print("Lade Daten von ipscmatch.de...")
-    response = session.get(base_url, headers=headers, timeout=15)
+    print("Lade saubere JSON-Daten über die IPSC-API...")
+    response = requests.get(api_url, headers=headers, timeout=15)
     
-    soup = BeautifulSoup(response.text, 'html.parser')
+    # Die API liefert direkt ein Python-Dictionary
+    match_data = response.json()
     matches_to_insert = []
 
-    for row in soup.find_all('tr'):
-        tds = row.find_all('td')
+    # Wir loopen durch alle Matches in der API
+    for match_id, info in match_data.items():
+        status = info.get("Status", "").lower()
+        auslastung = info.get("Utilisation", "")
         
-        if len(tds) >= 8:
-            status_text = tds[6].text.strip().lower()
-            auslastung_text = tds[7].text.strip()
+        # 🎯 FILTER: Wir holen uns nur echte Ankündigungen!
+        # Ein Match ist eine Ankündigung, wenn kein '%' in der Auslastung steht
+        if "%" not in auslastung:
             
-            ist_zukuenftig = "öffnet" in status_text or "offnet" in status_text or "%" not in auslastung_text
-            
-            if not ist_zukuenftig:
+            # Falls storniert oder geschlossen -> überspringen
+            if "cancelled" in status or "geschlossen" in status or "closed" in status:
                 continue
                 
-            if "cancelled" in status_text or "geschlossen" in status_text or "closed" in status_text:
-                continue
-                
-            disziplin = tds[0].text.strip()
-            level = tds[1].text.strip()
+            match_name = info.get("Name", "Unbekanntes Match")
+            datum = info.get("Date", "N/A")
+            oeffnungs_datum = info.get("Startreg", "Siehe Detailseite")
+            region = info.get("Region", "N/A").upper()
+            level = info.get("Level", "N/A")
             
-            region = tds[2].text.strip()
-            if not region:
-                img = tds[2].find('img')
-                if img:
-                    region = img.get('title', img.get('alt', '')).strip().upper()
-                    if not region and img.get('src'):
-                        src_match = re.search(r'([a-zA-Z]{3})\.(?:png|jpg|gif)', img.get('src'))
-                        if src_match:
-                            region = src_match.group(1).upper()
-            if not region:
-                region = "N/A"
-            
-            match_link = tds[3].find('a')
-            if match_link:
-                best_name = match_link.text.strip()
-                detail_url = urllib.parse.urljoin(base_url, match_link.get('href', ''))
-                
-                oeffnungs_datum = auslastung_text.strip()
-                if not oeffnungs_datum:
-                    oeffnungs_datum = "Siehe Detailseite"
-                
-                datum_raw = tds[5].text.strip()
-                datum_match = re.search(r'\d{2}\.\d{2}\.(?:\s*-\s*\d{2}\.\d{2}\.)?\s*\d{2,4}', datum_raw)
-                datum = datum_match.group(0).strip() if datum_match else (datum_raw if datum_raw else "N/A")
+            # Disziplin ermitteln (Manche Einträge nutzen 'Guntype', manche 'Gun')
+            disziplin = info.get("Guntype", info.get("Gun", "HG"))
+            if not disziplin:
+                disziplin = "HG"
 
-                # 🎯 JETZT PERFEKT EINHEITLICH DEUTSCH:
-                matches_to_insert.append({
-                    "match_name": best_name,
-                    "datum": datum,
-                    "auslastung": "Ankündigung",
-                    "anmeldung_oeffnet": oeffnungs_datum,
-                    "region": region,
-                    "level": level,
-                    "disziplin": disziplin,
-                    "url": detail_url
-                })
+            match_url = info.get("url", f"https://ipscmatch.de/index.pl?match={match_id}")
+
+            # Datenstruktur exakt passend für deine saubere Supabase-Tabelle
+            matches_to_insert.append({
+                "match_name": match_name,
+                "datum": datum,
+                "auslastung": "Ankündigung",
+                "anmeldung_oeffnet": oeffnungs_datum,
+                "region": region,
+                "level": level,
+                "disziplin": disziplin,
+                "url": match_url
+            })
 
     if matches_to_insert:
-        print("Lösche alte Einträge aus 'upcoming_matches'...")
+        print(f"Lösche alte Einträge aus 'upcoming_matches'...")
         supabase.from_("upcoming_matches").delete().neq("match_name", "---").execute()
         
-        print(f"Schreibe {len(matches_to_insert)} neue Einträge in Supabase...")
+        print(f"Schreibe {len(matches_to_insert)} neue Ankündigungen über die API in Supabase...")
         supabase.from_("upcoming_matches").insert(matches_to_insert).execute()
-        print("🎉 Erfolgreich mit Supabase synchronisiert!")
+        print("🎉 Gigantischer Erfolg! API-Daten erfolgreich mit Supabase synchronisiert!")
     else:
-        print("Keine neuen Ankündigungen auf IPSC-Match gefunden.")
+        print("Aktuell keine ungeöffneten Ankündigungen in der API gefunden.")
 
 except Exception as e:
-    error_str = str(e)
-    if "Max retries exceeded" in error_str or "unreachable" in error_str:
-        print("\n⚠️ NETZWERK-HINWEIS:")
-        print("Der IPSC-Server blockiert aktuell die IP-Adresse von GitHub (Network is unreachable).")
-    else:
-        print("\n❌ DATENBANK-FEHLER:")
-        print("Die Verbindung zur Webseite stand, aber beim Schreiben in Supabase gab es ein Problem.")
-        print(f"Details zum Fehler: {e}")
+    print(f"❌ Fehler bei der API-Verarbeitung: {e}")
