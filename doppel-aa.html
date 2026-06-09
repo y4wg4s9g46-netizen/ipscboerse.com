@@ -254,7 +254,6 @@
             }
             if (profile.ipsc_alias) document.getElementById("bot-lizenz").value = profile.ipsc_alias;
 
-            // 🌟 FIX: Übergib die User-ID direkt an die Ladefunktion, um Race-Conditions mit auth.js zu verhindern!
             loadUpcomingMatches(user.id);
         };
 
@@ -273,7 +272,6 @@
         }
 
         async function loadUpcomingMatches(userId) {
-            // 🌟 FIX: Keine Abhängigkeit mehr von window.currentUser beim Laden
             if (userId) {
                 const { data: userJobs } = await window.supabaseClient
                     .from("bot_queue")
@@ -393,6 +391,7 @@
             }
 
             const existingJob = window.userActiveJobsCache.find(j => j.match_id === id);
+            
             if (existingJob && existingJob.form_data) {
                 const fd = existingJob.form_data;
                 document.getElementById("modal-existing-job-id").value = existingJob.id;
@@ -405,17 +404,19 @@
                 document.getElementById("bot-bemerkung").value = fd.bemerkung || "";
                 document.getElementById("bot-squad").value = fd.squad || "";
                 
-                if(fd.division) divSelect.value = fd.division;
-                if(fd.category) catSelect.value = fd.category;
+                // 🌟 FIX: Dem Browser 50ms Zeit geben, die dynamischen Dropdowns im DOM anzulegen!
+                setTimeout(() => {
+                    if(fd.division) divSelect.value = fd.division;
+                    if(fd.category) catSelect.value = fd.category;
+                    if(fd.wunschtag) document.getElementById("bot-wunschtag").value = fd.wunschtag;
+                    if(fd.public_visible) document.getElementById("bot-public").value = fd.public_visible;
+                }, 50);
                 
                 if (fd.power_factor === "Major") {
                     document.getElementById("power-major").checked = true;
                 } else {
                     document.getElementById("power-minor").checked = true;
                 }
-                
-                if(fd.wunschtag) document.getElementById("bot-wunschtag").value = fd.wunschtag;
-                if(fd.public_visible) document.getElementById("bot-public").value = fd.public_visible;
                 
                 document.getElementById("bot-ro").checked = (fd.is_ro === "1");
                 document.getElementById("bot-sponsor").checked = (fd.is_sponsor === "1");
@@ -435,7 +436,6 @@
 
                 if (window.userProfileData) {
                     if (window.userProfileData.ipsc_alias) document.getElementById("bot-lizenz").value = window.userProfileData.ipsc_alias;
-                    // Fallback E-Mail sicher zuweisen
                     document.getElementById("bot-email").value = window.userProfileData.username || "";
                     if (window.userProfileData.real_name) {
                         const names = window.userProfileData.real_name.split(" ");
@@ -463,7 +463,6 @@
                 alert("Fehler beim Löschen: " + error.message);
             } else {
                 alert("Erfolgreich gelöscht! Der Sniper wurde für dieses Match deaktiviert.");
-                // Hol die User-ID für den Reload aus dem Profil-Cache
                 const { data: { session } } = await window.supabaseClient.auth.getSession();
                 loadUpcomingMatches(session ? session.user.id : null);
             }
