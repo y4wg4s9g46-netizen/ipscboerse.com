@@ -21,6 +21,8 @@
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; min-height: 100vh; }
         .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
         
+        header { text-align: center; padding: 15px 0; }
+        
         .info-box { background-color: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--info-color); color: var(--text-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
         .danger-box { background-color: rgba(239, 68, 68, 0.08); border-left: 4px solid var(--danger-color); color: var(--danger-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; font-weight: bold; text-align: center; }
         
@@ -37,15 +39,16 @@
         .match-details h3 a { color: inherit; text-decoration: none; transition: color 0.2s; }
         .match-details h3 a:hover { color: var(--accent-color); text-decoration: underline; }
         
-        /* Stylings für die verschiedenen Badges */
+        .match-actions { display: flex; flex-direction: column; gap: 8px; min-width: 160px; }
+        
         .badge-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
         .badge { background-color: rgba(255, 159, 67, 0.1); color: var(--accent-color); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; }
         .badge-meta { background-color: rgba(100, 116, 139, 0.08); color: var(--text-muted); border: 1px solid var(--border-color); }
         .badge-date { background-color: rgba(59, 130, 246, 0.08); color: var(--info-color); border: 1px solid rgba(59, 130, 246, 0.15); }
         
-        .btn-contact { background-color: var(--accent-color); color: #ffffff; border: none; padding: 10px 20px; font-weight: 600; border-radius: var(--radius); cursor: pointer; font-size: 14px; transition: opacity 0.15s; }
+        .btn-contact { background-color: var(--accent-color); color: #ffffff; border: none; padding: 10px 20px; font-weight: 600; border-radius: var(--radius); cursor: pointer; font-size: 14px; transition: opacity 0.15s; text-align: center; }
         .btn-contact:hover { opacity: 0.9; }
-        .btn-delete { background-color: var(--danger-color); color: #ffffff; border: none; padding: 10px 15px; font-weight: 600; border-radius: var(--radius); cursor: pointer; font-size: 14px; transition: opacity 0.15s; margin-left: 8px; }
+        .btn-delete { background-color: var(--danger-color); color: #ffffff; border: none; padding: 10px 15px; font-weight: 600; border-radius: var(--radius); cursor: pointer; font-size: 14px; transition: opacity 0.15s; text-align: center; }
         .btn-delete:hover { opacity: 0.9; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; padding: 20px; box-sizing: border-box; }
@@ -80,8 +83,7 @@
             .modal-content { padding: 15px; margin-top: 20px; }
             .radio-container { flex-direction: column; gap: 10px; }
             .match-card { flex-direction: column; align-items: flex-start; gap: 15px; }
-            .match-card div:last-child { width: 100%; display: flex; gap: 8px; }
-            .btn-contact, .btn-delete { flex: 1; text-align: center; margin-left: 0; }
+            .match-actions { width: 100%; }
         }
     </style>
 </head>
@@ -244,15 +246,6 @@
             window.userProfileData = profile; 
             deniedBox.style.display = "none";
             dashboard.style.display = "block";
-            
-            document.getElementById("bot-email").value = user.email || "";
-
-            if (profile.real_name) {
-                const names = profile.real_name.split(" ");
-                document.getElementById("bot-vorname").value = names[0] || "";
-                if (names.length > 1) document.getElementById("bot-nachname").value = names.slice(1).join(" ");
-            }
-            if (profile.ipsc_alias) document.getElementById("bot-lizenz").value = profile.ipsc_alias;
 
             loadUpcomingMatches(user.id);
         };
@@ -338,7 +331,8 @@
                 
                 const locationString = land ? `${ort} (${land.toUpperCase()})` : ort;
 
-                const existingJob = window.userActiveJobsCache.find(j => j.match_id === match.id);
+                // 🌟 MATCH-ID ABGLEICH FIX: Erstelle einen sicheren String-Vergleich für die IDs
+                const existingJob = window.userActiveJobsCache.find(j => String(j.match_id) === String(match.id));
                 
                 let buttonHtml = '';
                 if (existingJob) {
@@ -365,7 +359,7 @@
                                 <span class="badge badge-date">📅 Match-Tag(e): ${matchDatum}</span>
                             </div>
                         </div>
-                        <div>${buttonHtml}</div>
+                        <div class="match-actions">${buttonHtml}</div>
                     </div>
                 `;
             }).join('');
@@ -390,9 +384,9 @@
                 catSelect.innerHTML = `<option value="Overall">Overall</option><option value="Lady">Lady</option><option value="Senior">Senior</option>`;
             }
 
-            const existingJob = window.userActiveJobsCache.find(j => j.match_id === id);
+            // 🌟 MATCH-ID ABGLEICH FIX FÜR DAS POPUP
+            const existingJob = window.userActiveJobsCache.find(j => String(j.match_id) === String(id));
             
-            // 🌟 SICHERHEITS-SCHRANKE: Text-JSON bei Bedarf in echtes JavaScript-Objekt umwandeln
             if (existingJob && existingJob.form_data && typeof existingJob.form_data === "string") {
                 try {
                     existingJob.form_data = JSON.parse(existingJob.form_data);
@@ -402,6 +396,7 @@
             }
 
             if (existingJob && existingJob.form_data) {
+                // ✅ REALER EDITIER-MODUS: Zieht die echten, gespeicherten Daten aus Supabase!
                 const fd = existingJob.form_data;
                 document.getElementById("modal-existing-job-id").value = existingJob.id;
                 
@@ -413,7 +408,6 @@
                 document.getElementById("bot-bemerkung").value = fd.bemerkung || "";
                 document.getElementById("bot-squad").value = fd.squad || "";
                 
-                // Befüllt alle dynamischen Options-Felder sicher nach einem kurzen 50ms Delay
                 setTimeout(() => {
                     if(fd.division) divSelect.value = fd.division;
                     if(fd.category) catSelect.value = fd.category;
@@ -427,12 +421,13 @@
                     document.getElementById("power-minor").checked = true;
                 }
                 
-                document.getElementById("bot-ro").checked = (fd.is_ro === "1");
-                document.getElementById("bot-sponsor").checked = (fd.is_sponsor === "1");
+                document.getElementById("bot-ro").checked = (fd.is_ro === "1" || fd.is_ro === true);
+                document.getElementById("bot-sponsor").checked = (fd.is_sponsor === "1" || fd.is_sponsor === true);
                 document.getElementById("bot-agb").checked = false;
                 
                 document.getElementById("bot-submit-btn").innerText = "Änderungen speichern";
             } else {
+                // 🆕 NEUANLAGE-MODUS: Zieht die korrekten Standardwerte aus der Session und dem Profil
                 document.getElementById("modal-existing-job-id").value = "";
                 document.getElementById("bot-squad").value = "";
                 document.getElementById("bot-bemerkung").value = "";
@@ -443,9 +438,17 @@
                 document.getElementById("bot-agb").checked = false;
                 document.getElementById("power-minor").checked = true;
 
+                // Sicheres Laden der korrekten Profil-Standardwerte
+                const currentAuthUser = window.supabaseClient.auth.user ? window.supabaseClient.auth.user() : null;
+                document.getElementById("bot-email").value = window.currentUser?.email || (currentAuthUser ? currentAuthUser.email : "");
+                
                 if (window.userProfileData) {
-                    if (window.userProfileData.ipsc_alias) document.getElementById("bot-lizenz").value = window.userProfileData.ipsc_alias;
-                    document.getElementById("bot-email").value = window.userProfileData.username || "";
+                    if (window.userProfileData.ipsc_alias) {
+                        document.getElementById("bot-lizenz").value = window.userProfileData.ipsc_alias;
+                    } else {
+                        document.getElementById("bot-lizenz").value = "";
+                    }
+                    
                     if (window.userProfileData.real_name) {
                         const names = window.userProfileData.real_name.split(" ");
                         document.getElementById("bot-vorname").value = names[0] || "";
