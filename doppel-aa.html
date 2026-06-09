@@ -309,17 +309,21 @@
             }
 
             container.innerHTML = data.map(match => {
-                // Nutzt jetzt direkt den Text aus 'anmeldung_oeffnet'
+                // 🛠️ HIER KORRIGIERT: match_name statt name & Zusatzinfos für die Anzeige
+                const matchName = window.escapeHtml(match.match_name || "Unbekanntes Turnier");
                 const formattedDate = window.escapeHtml(match.anmeldung_oeffnet || "Unbekannt");
+                const levelInfo = window.escapeHtml(match.level || "N/A");
+                const regionInfo = window.escapeHtml(match.region || "N/A");
+                const disziplinInfo = window.escapeHtml(match.disziplin || "HG");
 
                 return `
                     <div class="match-card">
                         <div class="match-details">
-                            <h3>${window.escapeHtml(match.name)}</h3>
+                            <h3>${matchName} <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">(${levelInfo} | ${regionInfo} | ${disziplinInfo})</span></h3>
                             <span class="badge">⏳ Öffnet: ${formattedDate}</span>
                         </div>
                         <div>
-                            <button class="btn-contact" onclick="openBotModal(${match.id}, '${window.escapeHtml(match.name)}', '${formattedDate}')">Bot scharfschalten</button>
+                            <button class="btn-contact" onclick="openBotModal('${match.id}', '${matchName.replace(/'/g, "\\'")}', '${formattedDate}')">Bot scharfschalten</button>
                         </div>
                     </div>
                 `;
@@ -330,7 +334,7 @@
         window.openBotModal = function(id, name, time) {
             document.getElementById("modal-match-id").value = id;
             document.getElementById("modal-match-name").innerText = name;
-            document.getElementById("modal-match-time").innerText = "Geplante Öffnung: " + time + " Uhr";
+            document.getElementById("modal-match-time").innerText = "Geplante Öffnung: " + time;
             document.getElementById("bot-config-modal").style.display = "flex";
         }
 
@@ -376,6 +380,7 @@
         });
         
         function escapeHtml(text) {
+            if (!text) return "";
             const div = document.createElement("div");
             div.textContent = text;
             return div.innerHTML;
