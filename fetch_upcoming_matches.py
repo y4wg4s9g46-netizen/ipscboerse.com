@@ -7,11 +7,10 @@ from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-# 🎯 1. HOMEPAGE AUSLESEN (Der sichere Weg über die normale Webseite)
+# 🎯 1. HOMEPAGE AUSLESEN (Sicherer Weg über die normale Webseite)
 base_url = "https://www.ipscmatch.de/"
 url = "https://www.ipscmatch.de/index.pl?long=1"
 
-# Wir nutzen exakt die funktionierenden PC-Header aus deinem Analytics-Bot
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
@@ -36,60 +35,57 @@ try:
     matches_to_insert = []
     heute = datetime.now()
 
-    # Wir gehen Zeile für Zeile durch die Tabelle der Webseite
+    # Wir scannen alle Tabellenzeilen
     for row in soup.find_all('tr'):
         tds = row.find_all('td')
-        # Eine gültige Zeile hat mindestens 5 Spalten (Name, Level, Region, Ort, Auslastung/Meldestart)
-        if len(tds) >= 5:
-            # Spalte 5 (Index 4) enthält entweder die Prozentzahl ODER den Meldestart/Status
-            status_text = tds[4].get_text().strip()
+        if len(tds) >= 3:
+            row_text = row.get_text().strip()
+            row_low = row_text.lower()
             
-            # Wenn ein Prozentzeichen drin ist, ist die Anmeldung schon offen -> Ignorieren!
-            if "%" in status_text:
+            # 1. Wenn ein Prozentzeichen in der Zeile ist, ist die Anmeldung offen -> Weg damit!
+            if "%" in row_text:
+                continue
+                
+            # 2. Stornierte oder geschlossene Matches aussortieren
+            if any(x in row_low for x in ["cancelled", "abgesagt", "geschlossen", "closed"]):
                 continue
 
-            match_link = tds[0].find('a') # In der ersten Spalte ist der Link zum Match
+            match_link = tds[0].find('a')
             if match_link:
                 match_name = match_link.text.strip()
                 href = match_link.get('href', '')
                 
-                # Match-ID aus dem Link extrahieren
-                match_id = str(abs(hash(match_name)))
-                if "match=" in href:
-                    qs = urllib.parse.parse_qs(urllib.parse.urlparse(href).query)
-                    if 'match' in qs: 
-                        match_id = qs['match'][0]
-
-                # Stornierte oder geschlossene Matches aussortieren
-                status_low = status_text.lower()
-                if any(x in status_low for x in ["cancelled", "abgesagt", "geschlossen", "closed"]):
-                    continue
-
-                # Kalender-Prüfung: Liegt das Datum in der Zukunft?
+                # Wir suchen im gesamten Text der Zeile nach einem Datum (z.B. 15.06.2026)
                 is_upcoming = False
-                oeffnungs_datum = status_text
-
-                # Wir versuchen, ein Datum aus den ersten 10 Zeichen zu lesen (z.B. "15.06.2026")
-                if len(status_text) >= 10:
-                    try:
-                        date_part = status_text[:10]
-                        start_date = datetime.strptime(date_part, "%d.%m.%Y")
-                        if start_date > heute:
-                            is_upcoming = True
-                    except ValueError:
-                        # Kein reines Datum? Dann prüfen wir auf Text-Ankündigungen
-                        if any(x in status_low for x in ["ang", "usek", "in a", "unbekannt", "meldestart"]):
-                            is_upcoming = True
-                else:
-                    if any(x in status_low for x in ["ang", "usek", "in a", "unbekannt", "meldestart"]):
+                oeffnungs_datum = "Ankündigung"
+                
+                # Wir extrahieren alle Datums-ähnlichen Fragmente per Regex (DD.MM.YYYY)
+                import re
+                found_dates = re.findall(r'\b\d{2}\.\d{2}\.\d{4}\b', row_text)
+                
+                if found_dates:
+                    for d_str in found_dates:
+                        try:
+                            start_date = datetime.strptime(d_str, "%d.%m.%Y")
+                            # Wenn EIN gefundenes Datum in der Zukunft liegt, ist es unser Match!
+                            if start_date > heute:
+                                is_upcoming = True
+                                oeffnungs_datum = d_str
+                                break
+                        except ValueError:
+                            continue
+                
+                # Falls kein hartes Datum gefunden wurde, aber Text-Hinweise auf eine Ankündigung vorliegen
+                if not is_upcoming:
+                    if any(x in row_low for x in ["ang", "usek", "in a", "unbekannt", "meldestart"]):
                         is_upcoming = True
+                        oeffnungs_datum = "Ankündigung (Text-Status)"
 
                 if is_upcoming:
-                    # Region und Level auslesen
-                    level = tds[1].get_text().strip()
-                    region = tds[2].get_text().strip().upper()
+                    # Dynamische Spaltenzuweisung, da Ankündigungen weniger Spalten haben
+                    level = tds[1].get_text().strip() if len(tds) > 1 else "N/A"
+                    region = tds[2].get_text().strip().upper() if len(tds) > 2 else "N/A"
                     
-                    # Disziplin ermitteln (Standardmäßig HG, es sei denn PCC steht im Namen)
                     disziplin = "HG"
                     if "PCC" in match_name.upper():
                         disziplin = "PCC"
@@ -100,7 +96,7 @@ try:
 
                     matches_to_insert.append({
                         "match_name": match_name,
-                        "datum": "Siehe Detailseite", # Das genaue Match-Datum steht in einer anderen Spalte, "Ankündigung" reicht für die Übersicht
+                        "datum": "Siehe Detailseite",
                         "auslastung": "Ankündigung",
                         "anmeldung_oeffnet": oeffnungs_datum,
                         "region": region,
@@ -131,7 +127,7 @@ try:
         
         print(f"Schreibe {len(matches_to_insert)} Matches in Supabase...")
         supabase.from_("upcoming_matches").insert(matches_to_insert).execute()
-        print("🎉 Auslesen der Homepage war erfolgreich! Daten sind in Supabase.")
+        print("🎉 Auslesen der Homepage war erfolgreich! Daten sind sauber in Supabase.")
     else:
         print("Keine kommenden Ankündigungen auf der Homepage gefunden.")
 
