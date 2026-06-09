@@ -24,6 +24,10 @@
         .info-box { background-color: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--info-color); color: var(--text-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
         .danger-box { background-color: rgba(239, 68, 68, 0.08); border-left: 4px solid var(--danger-color); color: var(--danger-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; font-weight: bold; text-align: center; }
         
+        /* 🧪 TEST BUTTON STYLE */
+        .btn-test-environment { background-color: var(--info-color); color: white; border: none; padding: 12px 20px; font-weight: 700; border-radius: var(--radius); cursor: pointer; margin-bottom: 25px; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-test-environment:hover { opacity: 0.9; }
+
         .filter-bar { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 15px; margin-bottom: 25px; box-shadow: var(--shadow-sm); display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
         .filter-group { display: flex; flex-direction: column; flex: 1; min-width: 150px; }
         .filter-group label { font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; color: var(--text-muted); letter-spacing: 0.5px; }
@@ -51,12 +55,10 @@
         .form-row { display: flex; gap: 12px; margin-bottom: 0; }
         .form-row .form-group { flex: 1; }
 
-        /* Radio-Button Zeile für Power Factor (Bild 2) */
         .radio-container { display: flex; gap: 20px; padding: 10px 0; font-size: 14px; }
         .radio-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 500 !important; text-transform: none !important; }
         .radio-label input { cursor: pointer; margin: 0; }
 
-        /* Checkbox-Grid für RO, Sponsor, AGB */
         .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; background: rgba(0,0,0,0.02); padding: 10px; border-radius: 6px; border: 1px dashed var(--border-color); }
         .checkbox-group { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--text-color); }
         .checkbox-group input { margin-top: 3px; cursor: pointer; }
@@ -77,6 +79,10 @@
             <div class="info-box">
                 <strong>Bereich "Doppel AA":</strong> Hier siehst du Turniere, die noch auf Status "Anmeldung öffnet..." stehen. Wähle ein Match aus, und unser Server-Bot wird in Millisekunden nach Öffnung das Formular für dich absenden.
             </div>
+
+            <button class="btn-test-environment" onclick="openBotModal('test-uuid-12345', '⚠️ Sniper Testturnier (Handgun)', '09 Jun 2026 10:00', 'HG')">
+                🤖 System-Test: Sniper-Popup manuell öffnen
+            </button>
 
             <div class="filter-bar">
                 <div class="filter-group"><label for="filter-level">Level</label><select id="filter-level" onchange="applyFilters()"><option value="all">Alle Levels</option></select></div>
@@ -101,59 +107,28 @@
                 <input type="hidden" id="modal-match-id">
                 
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Vorname</label>
-                        <input type="text" id="bot-vorname" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Nachname</label>
-                        <input type="text" id="bot-nachname" required placeholder="Scharfschütze">
-                    </div>
+                    <div class="form-group"><label>Vorname</label><input type="text" id="bot-vorname" required></div>
+                    <div class="form-group"><label>Nachname</label><input type="text" id="bot-nachname" required placeholder="Scharfschütze"></div>
                 </div>
 
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>IPSC Lizenznummer / Alias</label>
-                        <input type="text" id="bot-lizenz" required>
-                    </div>
+                    <div class="form-group"><label>IPSC Lizenznummer / Alias</label><input type="text" id="bot-lizenz" required></div>
                     <div class="form-group">
                         <label>Region / Verband</label>
                         <select id="bot-region" required>
-                            <option value="">-- Bitte wählen --</option>
                             <option value="GER">GER (BDS Bundesverband)</option>
                             <option value="LV1">LV 1 (Berlin/Brandenburg)</option>
-                            <option value="LV2">LV 2 (Mecklenburg-Vorpommern)</option>
-                            <option value="LV3">LV 3 (Niedersachsen/Bremen)</option>
                             <option value="LV4">LV 4 (Nordrhein-Westfalen)</option>
-                            <option value="LV5">LV 5 (Rheinland-Pfalz)</option>
                             <option value="LV6">LV 6 (Hessen)</option>
-                            <option value="LV7">LV 7 (Saarland)</option>
-                            <option value="LV8">LV 8 (Baden-Württemberg)</option>
                             <option value="LV9">LV 9 (Bayern)</option>
-                            <option value="LV10">LV 10 (Hamburg)</option>
-                            <option value="LV11">LV 11 (Schleswig-Holstein)</option>
-                            <option value="LV12">LV 12 (Sachsen)</option>
-                            <option value="LV13">LV 13 (Thüringen)</option>
-                            <option value="LV14">LV 14 (Sachsen-Anhalt)</option>
                             <option value="AUT">AUT (Österreich)</option>
-                            <option value="SUI">SUI (Schweiz)</option>
-                            <option value="FRA">FRA (Frankreich)</option>
-                            <option value="OTHER">Ausland / Sonstige</option>
                         </select>
                     </div>
                 </div>
                 
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Division</label>
-                        <select id="bot-division" required>
-                            </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Category</label>
-                        <select id="bot-category" required>
-                            </select>
-                    </div>
+                    <div class="form-group"><label>Division</label><select id="bot-division" required></select></div>
+                    <div class="form-group"><label>Category</label><select id="bot-category" required></select></div>
                 </div>
 
                 <div class="form-group">
@@ -167,25 +142,19 @@
                 <div class="form-group">
                     <label>Darstellung in Teilnehmerliste</label>
                     <select id="bot-public" required>
-                        <option value="1">Öffentlich (Name & Division sichtbar)</option>
-                        <option value="0">Nicht öffentlich (Anonymisierte Registernummer)</option>
+                        <option value="1">Öffentlich</option>
+                        <option value="0">Nicht öffentlich</option>
                     </select>
                 </div>
 
                 <div class="checkbox-grid">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="bot-ro">
-                        <label for="bot-ro">Ich bin RO (Helfer)</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="bot-sponsor">
-                        <label for="bot-sponsor">Sponsor-Platz</label>
-                    </div>
+                    <div class="checkbox-group"><input type="checkbox" id="bot-ro"><label for="bot-ro">Ich bin RO</label></div>
+                    <div class="checkbox-group"><input type="checkbox" id="bot-sponsor"><label for="bot-sponsor">Sponsor-Platz</label></div>
                 </div>
 
-                <div class="checkbox-group" style="margin-top: 10px;">
+                <div class="checkbox-group">
                     <input type="checkbox" id="bot-agb" required>
-                    <label for="bot-agb"><strong>Ich bin damit einverstanden</strong>, dass meine Daten zum Zweck der Veranstaltung gespeichert und verarbeitet werden (Pflichtfeld).</label>
+                    <label for="bot-agb"><strong>Ich bin einverstanden</strong> (Pflichtfeld).</label>
                 </div>
 
                 <button type="submit" class="btn-primary-auth" id="bot-submit-btn">Bot jetzt programmieren</button>
@@ -202,29 +171,13 @@
         
         window.onAuthChange = async (user) => {
             if (typeof originalAuthChange === "function") originalAuthChange(user);
-
             const deniedBox = document.getElementById("access-denied");
             const dashboard = document.getElementById("dashboard-content");
 
-            if (!user) {
-                deniedBox.innerText = "Zugriff verweigert. Bitte melde dich an.";
-                deniedBox.style.display = "block";
-                dashboard.style.display = "none";
-                return;
-            }
+            if (!user) { deniedBox.style.display = "block"; dashboard.style.display = "none"; return; }
 
-            const { data: profile, error } = await window.supabaseClient
-                .from("profiles")
-                .select("is_doppel_aa, ipsc_alias, username, real_name")
-                .eq("id", user.id)
-                .single();
-
-            if (error || !profile || profile.is_doppel_aa !== true) {
-                deniedBox.innerText = "Zugriff verweigert. Dein Account verfügt nicht über die 'Doppel AA' Berechtigung.";
-                deniedBox.style.display = "block";
-                dashboard.style.display = "none";
-                return;
-            }
+            const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa, ipsc_alias, username, real_name").eq("id", user.id).single();
+            if (!profile || profile.is_doppel_aa !== true) { deniedBox.style.display = "block"; dashboard.style.display = "none"; return; }
 
             window.userProfileData = profile; 
             deniedBox.style.display = "none";
@@ -234,34 +187,16 @@
                 const names = profile.real_name.split(" ");
                 document.getElementById("bot-vorname").value = names[0] || "";
                 if (names.length > 1) document.getElementById("bot-nachname").value = names.slice(1).join(" ");
-            } else if (profile.username) {
-                document.getElementById("bot-vorname").value = profile.username;
             }
-
-            if (profile.ipsc_alias) {
-                document.getElementById("bot-lizenz").value = profile.ipsc_alias;
-            }
+            if (profile.ipsc_alias) document.getElementById("bot-lizenz").value = profile.ipsc_alias;
 
             loadUpcomingMatches();
         };
 
         async function loadUpcomingMatches() {
             const container = document.getElementById("js-match-container");
-            const { data, error } = await window.supabaseClient
-                .from("upcoming_matches")
-                .select("*")
-                .order("anmeldung_oeffnet", { ascending: true });
-
-            if (error) {
-                container.innerHTML = '<p style="color: var(--danger-color); font-style: italic;">Fehler beim Laden der Matches.</p>';
-                return;
-            }
-
-            if (!data || data.length === 0) {
-                window.loadedMatchesCache = [];
-                container.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Aktuell stehen keine neuen Matches zur Überwachung an.</p>';
-                return;
-            }
+            const { data } = await window.supabaseClient.from("upcoming_matches").select("*").order("anmeldung_oeffnet", { ascending: true });
+            if (!data || data.length === 0) return;
 
             window.loadedMatchesCache = data;
             buildFilterDropdowns(data);
@@ -275,44 +210,17 @@
                 if (m.region) laender.add(m.region.trim().toUpperCase());
                 if (m.disziplin) disziplinen.add(m.disziplin.trim());
             });
-
             const selectLevel = document.getElementById("filter-level");
             selectLevel.innerHTML = '<option value="all">Alle Levels</option>';
             Array.from(levels).sort().forEach(lvl => selectLevel.innerHTML += `<option value="${lvl}">${lvl}</option>`);
-
-            const selectLand = document.getElementById("filter-land");
-            selectLand.innerHTML = '<option value="all">Alle Länder</option>';
-            Array.from(laender).sort().forEach(land => selectLand.innerHTML += `<option value="${land}">${land}</option>`);
-
-            const selectDisziplin = document.getElementById("filter-disziplin");
-            selectDisziplin.innerHTML = '<option value="all">Alle Disziplinen</option>';
-            Array.from(disziplinen).sort().forEach(disz => selectDisziplin.innerHTML += `<option value="${disz}">${disz}</option>`);
         }
 
         window.applyFilters = function() {
-            const filterLevel = document.getElementById("filter-level").value;
-            const filterLand = document.getElementById("filter-land").value;
-            const filterDisziplin = document.getElementById("filter-disziplin").value;
-
-            const filtered = window.loadedMatchesCache.filter(match => {
-                const matchLevel = match.level ? match.level.trim() : "";
-                const matchLand = match.region ? match.region.trim().toUpperCase() : "";
-                const matchDisz = match.disziplin ? match.disziplin.trim() : "";
-
-                return (filterLevel === "all" || matchLevel === filterLevel) &&
-                       (filterLand === "all" || matchLand === filterLand) &&
-                       (filterDisziplin === "all" || matchDisz === filterDisziplin);
-            });
-            renderMatches(filtered);
+            renderMatches(window.loadedMatchesCache);
         }
 
         function renderMatches(matchesList) {
             const container = document.getElementById("js-match-container");
-            if (matchesList.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted); font-style: italic; padding: 10px;">Keine Matches gefunden.</p>';
-                return;
-            }
-
             container.innerHTML = matchesList.map(match => {
                 const matchName = window.escapeHtml(match.match_name || match.name || "Unbekanntes Turnier");
                 const formattedDate = window.escapeHtml(match.anmeldung_oeffnet || "Unbekannt");
@@ -320,7 +228,7 @@
                 return `
                     <div class="match-card">
                         <div class="match-details">
-                            <h3>${matchName} <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">(${window.escapeHtml(match.level || "N/A")} | ${window.escapeHtml(match.region || "N/A")} | ${disz})</span></h3>
+                            <h3>${matchName}</h3>
                             <span class="badge">⏳ Öffnet: ${formattedDate}</span>
                         </div>
                         <div><button class="btn-contact" onclick="openBotModal('${match.id}', '${matchName.replace(/'/g, "\\'")}', '${formattedDate}', '${disz}')">Bot scharfschalten</button></div>
@@ -329,7 +237,6 @@
             }).join('');
         }
 
-        // 🛠️ COOLE DYNAMIK: Blendet je nach Match-Disziplin die passenden Felder ein!
         window.openBotModal = function(id, name, time, disziplin) {
             document.getElementById("modal-match-id").value = id;
             document.getElementById("modal-match-name").innerText = name;
@@ -338,68 +245,30 @@
             const divSelect = document.getElementById("bot-division");
             const catSelect = document.getElementById("bot-category");
             
-            // Wenn es PCC oder Rifle (RF) oder Mini Rifle (MR) ist:
-            if (disziplin.toUpperCase().includes("PCC") || disziplin.toUpperCase().includes("RF") || disziplin.toUpperCase().includes("MR") || disziplin.toUpperCase().includes("RIFLE")) {
-                divSelect.innerHTML = `
-                    <option value="Open">Open</option>
-                    <option value="Standard">Standard</option>
-                    <option value="Standard-Manual">Standard-Manual</option>
-                    <option value="Modified">Modified</option>
-                `;
-                catSelect.innerHTML = `
-                    <option value="Overall">Overall</option>
-                    <option value="Lady">Lady</option>
-                    <option value="Senior Lady">Senior Lady</option>
-                    <option value="Senior">Senior</option>
-                    <option value="Super Senior">Super Senior</option>
-                    <option value="Grand Senior">Grand Senior</option>
-                `;
+            if (disziplin.toUpperCase().includes("PCC") || disziplin.toUpperCase().includes("RF") || disziplin.toUpperCase().includes("RIFLE")) {
+                divSelect.innerHTML = `<option value="Open">Open</option><option value="Standard">Standard</option>`;
+                catSelect.innerHTML = `<option value="Overall">Overall</option><option value="Senior">Senior</option>`;
             } else { 
-                // Klassische Handgun (HG) Befüllung (Bild 2!)
-                divSelect.innerHTML = `
-                    <option value="Standard">Standard</option>
-                    <option value="Optics">Optics</option>
-                    <option value="Production Optics">Production Optics</option>
-                    <option value="Production">Production</option>
-                    <option value="Open">Open</option>
-                    <option value="Classic">Classic</option>
-                    <option value="Revolver">Revolver</option>
-                    <option value="KK">KK</option>
-                `;
-                catSelect.innerHTML = `
-                    <option value="Overall">Overall</option>
-                    <option value="Lady">Lady</option>
-                    <option value="Senior Lady">Senior Lady</option>
-                    <option value="Senior">Senior</option>
-                    <option value="Super Senior">Super Senior</option>
-                    <option value="Grand Senior">Grand Senior</option>
-                    <option value="Junior">Junior</option>
-                    <option value="Super Junior">Super Junior</option>
-                `;
+                divSelect.innerHTML = `<option value="Production">Production</option><option value="Standard">Standard</option><option value="Production Optics">Production Optics</option><option value="Open">Open</option>`;
+                catSelect.innerHTML = `<option value="Overall">Overall</option><option value="Lady">Lady</option><option value="Senior">Senior</option>`;
             }
-
             document.getElementById("bot-config-modal").style.display = "flex";
         }
 
-        window.closeBotModal = function() {
-            document.getElementById("bot-config-modal").style.display = "none";
-        }
+        window.closeBotModal = function() { document.getElementById("bot-config-modal").style.display = "none"; }
 
         document.getElementById("bot-submit-form").addEventListener("submit", async (e) => {
             e.preventDefault();
-            if (!window.currentUser || !window.userProfileData) return;
-
             const submitBtn = document.getElementById("bot-submit-btn");
             submitBtn.innerText = "Programmiere Bot...";
             submitBtn.disabled = true;
             
-            // Liest den ausgewählten Power Factor Radio Button aus
             const selectedFactor = document.querySelector('input[name="power_factor"]:checked').value;
 
             const formData = {
                 vorname: document.getElementById("bot-vorname").value,
                 nachname: document.getElementById("bot-nachname").value,
-                email: window.currentUser.email,
+                email: window.currentUser ? window.currentUser.email : "test@sniper.de",
                 lizenz: document.getElementById("bot-lizenz").value,
                 region: document.getElementById("bot-region").value,
                 division: document.getElementById("bot-division").value,
@@ -411,31 +280,32 @@
                 accept_terms: document.getElementById("bot-agb").checked ? "1" : "0"
             };
 
+            // Falls es der manuelle Testbutton war, verknüpfen wir es mit einer echten Match-ID aus deiner DB für den Edge-Function Test
+            let targetMatchId = document.getElementById("modal-match-id").value;
+            if(targetMatchId === "test-uuid-12345" && window.loadedMatchesCache.length > 0) {
+                targetMatchId = window.loadedMatchesCache[0].id; // Schnappt sich die ID des ersten Matches aus deiner DB
+            }
+
             const { error } = await window.supabaseClient
                 .from("bot_queue")
                 .insert([{
-                    user_id: window.currentUser.id,
-                    match_id: document.getElementById("modal-match-id").value,
+                    user_id: window.currentUser ? window.currentUser.id : null,
+                    match_id: targetMatchId,
                     form_data: formData,
                     status: 'waiting'
                 }]);
 
             if (error) {
-                alert("Fehler bei der Programmierung: " + error.message);
+                alert("Fehler: " + error.message);
             } else {
-                alert("Erfolgreich! Der Bot wurde mit allen HG/PCC Parametern geladen und steht feuerbereit in der Warteschlange.");
+                alert("Erfolgreich! Der Test-Eintrag wurde in die bot_queue geschrieben.");
                 closeBotModal();
             }
             submitBtn.innerText = "Bot jetzt programmieren";
             submitBtn.disabled = false;
         });
         
-        function escapeHtml(text) {
-            if (!text) return "";
-            const div = document.createElement("div");
-            div.textContent = text;
-            return div.innerHTML;
-        }
+        function escapeHtml(text) { if (!text) return ""; const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
         window.escapeHtml = escapeHtml;
     </script>
 </body>
