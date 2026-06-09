@@ -254,7 +254,8 @@
             }
             if (profile.ipsc_alias) document.getElementById("bot-lizenz").value = profile.ipsc_alias;
 
-            loadUpcomingMatches();
+            // 🌟 FIX: Übergib die User-ID direkt an die Ladefunktion, um Race-Conditions mit auth.js zu verhindern!
+            loadUpcomingMatches(user.id);
         };
 
         function parseIpscDateFrontend(str) {
@@ -271,14 +272,13 @@
             } catch { return Infinity; }
         }
 
-        async function loadUpcomingMatches() {
-            const currentUserId = window.currentUser ? window.currentUser.id : null;
-            
-            if (currentUserId) {
+        async function loadUpcomingMatches(userId) {
+            // 🌟 FIX: Keine Abhängigkeit mehr von window.currentUser beim Laden
+            if (userId) {
                 const { data: userJobs } = await window.supabaseClient
                     .from("bot_queue")
                     .select("*")
-                    .eq("user_id", currentUserId)
+                    .eq("user_id", userId)
                     .eq("status", "waiting");
                 window.userActiveJobsCache = userJobs || [];
             }
@@ -308,7 +308,6 @@
             selectLand.innerHTML = '<option value="all">Alle Länder</option>';
             Array.from(laender).sort().forEach(lnd => selectLand.innerHTML += `<option value="${lnd}">${lnd}</option>`);
 
-            // Dynamischer Disziplinen-Filter Aufbau (Fix!)
             const selectDisz = document.getElementById("filter-disziplin");
             selectDisz.innerHTML = '<option value="all">Alle Disziplinen</option>';
             Array.from(disziplinen).sort().forEach(dsz => selectDisz.innerHTML += `<option value="${dsz}">${dsz}</option>`);
@@ -319,7 +318,6 @@
         function renderMatches(matchesList) {
             const container = document.getElementById("js-match-container");
             
-            // Filterwerte auslesen
             const selectedLevel = document.getElementById("filter-level").value;
             const selectedLand = document.getElementById("filter-land").value;
             const selectedDisz = document.getElementById("filter-disziplin").value;
@@ -335,7 +333,6 @@
                 const disz = window.escapeHtml(match.disziplin || "HG");
                 const targetUrl = match.url ? window.escapeHtml(match.url) : "https://www.ipscmatch.de/";
                 
-                // Neue Metadaten auslesen
                 const level = window.escapeHtml(match.level || "N/A");
                 const ort = window.escapeHtml(match.ort || match.location || "Unbekannter Ort");
                 const land = window.escapeHtml(match.region || match.land || "");
@@ -357,7 +354,6 @@
                     `;
                 }
 
-                // Matchname wurde zu einem Link umgewandelt
                 return `
                     <div class="match-card">
                         <div class="match-details">
@@ -409,7 +405,6 @@
                 document.getElementById("bot-bemerkung").value = fd.bemerkung || "";
                 document.getElementById("bot-squad").value = fd.squad || "";
                 
-                // Dropdowns sauber nach dem HTML-Aufbau befüllen
                 if(fd.division) divSelect.value = fd.division;
                 if(fd.category) catSelect.value = fd.category;
                 
@@ -424,7 +419,7 @@
                 
                 document.getElementById("bot-ro").checked = (fd.is_ro === "1");
                 document.getElementById("bot-sponsor").checked = (fd.is_sponsor === "1");
-                document.getElementById("bot-agb").checked = false; // Zur Sicherheit neu anhaken lassen
+                document.getElementById("bot-agb").checked = false;
                 
                 document.getElementById("bot-submit-btn").innerText = "Änderungen speichern";
             } else {
@@ -440,7 +435,8 @@
 
                 if (window.userProfileData) {
                     if (window.userProfileData.ipsc_alias) document.getElementById("bot-lizenz").value = window.userProfileData.ipsc_alias;
-                    document.getElementById("bot-email").value = window.currentUser ? window.currentUser.email : "";
+                    // Fallback E-Mail sicher zuweisen
+                    document.getElementById("bot-email").value = window.userProfileData.username || "";
                     if (window.userProfileData.real_name) {
                         const names = window.userProfileData.real_name.split(" ");
                         document.getElementById("bot-vorname").value = names[0] || "";
@@ -467,7 +463,9 @@
                 alert("Fehler beim Löschen: " + error.message);
             } else {
                 alert("Erfolgreich gelöscht! Der Sniper wurde für dieses Match deaktiviert.");
-                loadUpcomingMatches();
+                // Hol die User-ID für den Reload aus dem Profil-Cache
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                loadUpcomingMatches(session ? session.user.id : null);
             }
         };
 
@@ -479,14 +477,15 @@
             
             const targetMatchId = document.getElementById("modal-match-id").value;
             const existingJobId = document.getElementById("modal-existing-job-id").value;
-            const currentUserId = window.currentUser ? window.currentUser.id : null;
 
-            if (!currentUserId) {
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (!session) {
                 alert("Fehler: Du bist nicht eingeloggt!");
                 submitBtn.innerText = "Bot jetzt programmieren";
                 submitBtn.disabled = false;
                 return;
             }
+            const currentUserId = session.user.id;
 
             const selectedFactor = document.querySelector('input[name="power_factor"]:checked').value;
 
@@ -547,7 +546,7 @@
             } else {
                 alert("Erfolgreich gespeichert! Der Sniper-Bot ist auf dem aktuellsten Stand.");
                 closeBotModal();
-                loadUpcomingMatches();
+                loadUpcomingMatches(currentUserId);
             }
             
             submitBtn.disabled = false;
