@@ -38,6 +38,8 @@
         
         .btn-contact { background-color: var(--accent-color); color: #ffffff; border: none; padding: 10px 20px; font-weight: 600; border-radius: var(--radius); cursor: pointer; font-size: 14px; transition: opacity 0.15s; }
         .btn-contact:hover { opacity: 0.9; }
+        .btn-delete { background-color: var(--danger-color); color: #ffffff; border: none; padding: 10px 15px; font-weight: 600; border-radius: var(--radius); cursor: pointer; font-size: 14px; transition: opacity 0.15s; margin-left: 8px; }
+        .btn-delete:hover { opacity: 0.9; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; padding: 20px; box-sizing: border-box; }
         .modal-content { background-color: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 600px; position: relative; max-height: 95vh; overflow-y: auto; }
@@ -70,6 +72,9 @@
             .filter-bar { flex-direction: column; align-items: stretch; }
             .modal-content { padding: 15px; margin-top: 20px; }
             .radio-container { flex-direction: column; gap: 10px; }
+            .match-card { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .match-card div:last-child { width: 100%; display: flex; gap: 8px; }
+            .btn-contact, .btn-delete { flex: 1; text-align: center; margin-left: 0; }
         }
     </style>
 </head>
@@ -83,7 +88,7 @@
 
         <div id="dashboard-content" style="display: none;">
             <div class="info-box">
-                <strong>Bereich "Doppel AA":</strong> Hier siehst du Turniere, die noch auf Status "Anmeldung öffnet..." stehen. Wähle ein Match aus, und unser Server-Bot wird in Millisekunden nach Öffnung das Formular für dich absenden.
+                <strong>Bereich "Double Alpha":</strong> Hier siehst du Turniere, die noch auf Status "Anmeldung öffnet..." stehen. Wähle ein Match aus, um deinen Bot zu programmieren oder bestehende Einträge anzupassen/zurückzunehmen.
             </div>
 
             <div class="filter-bar">
@@ -107,6 +112,7 @@
             
             <form id="bot-submit-form">
                 <input type="hidden" id="modal-match-id">
+                <input type="hidden" id="modal-existing-job-id">
                 
                 <div class="form-row">
                     <div class="form-group"><label>Vorname</label><input type="text" id="bot-vorname" required></div>
@@ -159,8 +165,8 @@
                     <div class="form-group">
                         <label>Power Factor</label>
                         <div class="radio-container" style="padding-top: 8px;">
-                            <label class="radio-label"><input type="radio" name="power_factor" value="Minor" checked> Minor</label>
-                            <label class="radio-label"><input type="radio" name="power_factor" value="Major"> Major</label>
+                            <label class="radio-label"><input type="radio" name="power_factor" value="Minor" id="power-minor" checked> Minor</label>
+                            <label class="radio-label"><input type="radio" name="power_factor" value="Major" id="power-major"> Major</label>
                         </div>
                     </div>
                 </div>
@@ -215,6 +221,7 @@
     
     <script>
         window.loadedMatchesCache = [];
+        window.userActiveJobsCache = []; // Speichert die aktiven Sniper-Jobs des Nutzers
         const originalAuthChange = window.onAuthChange;
         
         window.onAuthChange = async (user) => {
@@ -258,7 +265,19 @@
         }
 
         async function loadUpcomingMatches() {
-            const container = document.getElementById("js-match-container");
+            const currentUserId = window.currentUser ? window.currentUser.id : null;
+            
+            // 1. Hole alle ausstehenden Warteschlangen-Aufträge des Users
+            if (currentUserId) {
+                const { data: userJobs } = await window.supabaseClient
+                    .from("bot_queue")
+                    .select("*")
+                    .eq("user_id", currentUserId)
+                    .eq("status", "waiting");
+                window.userActiveJobsCache = userJobs || [];
+            }
+
+            // 2. Hole die Matches
             const { data } = await window.supabaseClient.from("upcoming_matches").select("*");
             if (!data || data.length === 0) return;
 
@@ -288,13 +307,29 @@
                 const matchName = window.escapeHtml(match.match_name || match.name || "Unbekanntes Turnier");
                 const formattedDate = window.escapeHtml(match.anmeldung_oeffnet || "Unbekannt");
                 const disz = window.escapeHtml(match.disziplin || "HG");
+                
+                // Prüfen, ob für dieses Match bereits ein Job existiert
+                const existingJob = window.userActiveJobsCache.find(j => j.match_id === match.id);
+                
+                let buttonHtml = '';
+                if (existingJob) {
+                    buttonHtml = `
+                        <button class="btn-contact" style="background-color: var(--success-color);" onclick="openBotModal('${match.id}', '${matchName.replace(/'/g, "\\'")}', '${formattedDate}', '${disz}')">⚙️ Ändern / Editieren</button>
+                        <button class="btn-delete" onclick="deleteBotJob('${existingJob.id}', '${matchName.replace(/'/g, "\\'")}')">❌ Zurücknehmen</button>
+                    `;
+                } else {
+                    buttonHtml = `
+                        <button class="btn-contact" onclick="openBotModal('${match.id}', '${matchName.replace(/'/g, "\\'")}', '${formattedDate}', '${disz}')">Bot scharfschalten</button>
+                    `;
+                }
+
                 return `
                     <div class="match-card">
                         <div class="match-details">
-                            <h3>${matchName}</h3>
+                            <h3>${matchName} ${existingJob ? '<span style="color: var(--success-color); font-size: 14px; font-weight: bold;">(Scharfgeschaltet 🎯)</span>' : ''}</h3>
                             <span class="badge">⏳ Öffnet: ${formattedDate}</span>
                         </div>
-                        <div><button class="btn-contact" onclick="openBotModal('${match.id}', '${matchName.replace(/'/g, "\\'")}', '${formattedDate}', '${disz}')">Bot scharfschalten</button></div>
+                        <div>${buttonHtml}</div>
                     </div>
                 `;
             }).join('');
@@ -318,18 +353,72 @@
                 `;
                 catSelect.innerHTML = `<option value="Overall">Overall</option><option value="Lady">Lady</option><option value="Senior">Senior</option>`;
             }
+
+            // Prüfen, ob bereits Daten eingetragen sind, und das Formular vorausfüllen
+            const existingJob = window.userActiveJobsCache.find(j => j.match_id === id);
+            if (existingJob && existingJob.form_data) {
+                const fd = existingJob.form_data;
+                document.getElementById("modal-existing-job-id").value = existingJob.id;
+                if(fd.vorname) document.getElementById("bot-vorname").value = fd.vorname;
+                if(fd.nachname) document.getElementById("bot-nachname").value = fd.nachname;
+                if(fd.email) document.getElementById("bot-email").value = fd.email;
+                if(fd.lizenz) document.getElementById("bot-lizenz").value = fd.lizenz;
+                if(fd.region) document.getElementById("bot-region").value = fd.region;
+                if(fd.division) document.getElementById("bot-division").value = fd.division;
+                if(fd.category) document.getElementById("bot-category").value = fd.category;
+                
+                if (fd.power_factor === "Major") {
+                    document.getElementById("power-major").checked = true;
+                } else {
+                    document.getElementById("power-minor").checked = true;
+                }
+                
+                if(fd.wunschtag) document.getElementById("bot-wunschtag").value = fd.wunschtag;
+                if(fd.squad) document.getElementById("bot-squad").value = fd.squad;
+                if(fd.bemerkung) document.getElementById("bot-bemerkung").value = fd.bemerkung;
+                document.getElementById("bot-ro").checked = (fd.is_ro === "1");
+                document.getElementById("bot-sponsor").checked = (fd.is_sponsor === "1");
+                if(fd.public_visible) document.getElementById("bot-public").value = fd.public_visible;
+                document.getElementById("bot-submit-btn").innerText = "Änderungen speichern";
+            } else {
+                document.getElementById("modal-existing-job-id").value = "";
+                // Fallback Profile-Daten laden
+                if (window.userProfileData) {
+                    if (window.userProfileData.ipsc_alias) document.getElementById("bot-lizenz").value = window.userProfileData.ipsc_alias;
+                }
+                document.getElementById("bot-submit-btn").innerText = "Bot jetzt programmieren";
+            }
+
             document.getElementById("bot-config-modal").style.display = "flex";
         }
 
         window.closeBotModal = function() { document.getElementById("bot-config-modal").style.display = "none"; }
 
+        // Funktion zum Löschen / Zurücknehmen eines Auftrags
+        window.deleteBotJob = async function(jobId, matchName) {
+            if (!confirm(`Möchtest du die Bot-Aktivierung für "${matchName}" wirklich komplett zurücknehmen und löschen?`)) return;
+
+            const { error } = await window.supabaseClient
+                .from("bot_queue")
+                .delete()
+                .eq("id", jobId);
+
+            if (error) {
+                alert("Fehler beim Löschen: " + error.message);
+            } else {
+                alert("Erfolgreich gelöscht! Der Sniper wurde für dieses Match deaktiviert.");
+                loadUpcomingMatches(); // Benutzeroberfläche neu laden
+            }
+        };
+
         document.getElementById("bot-submit-form").addEventListener("submit", async (e) => {
             e.preventDefault();
             const submitBtn = document.getElementById("bot-submit-btn");
-            submitBtn.innerText = "Prüfe & Programmiere...";
+            submitBtn.innerText = "Speichere Daten...";
             submitBtn.disabled = true;
             
             const targetMatchId = document.getElementById("modal-match-id").value;
+            const existingJobId = document.getElementById("modal-existing-job-id").value;
             const currentUserId = window.currentUser ? window.currentUser.id : null;
 
             if (!currentUserId) {
@@ -339,29 +428,6 @@
                 return;
             }
 
-            // 🛑 1. CHECK: HAT DIESER USER DEN AUFTRAG SCHON?
-            const { data: existingJobs, error: checkError } = await window.supabaseClient
-                .from("bot_queue")
-                .select("id")
-                .eq("user_id", currentUserId)
-                .eq("match_id", targetMatchId)
-                .eq("status", "waiting");
-
-            if (checkError) {
-                alert("Fehler bei der Überprüfung: " + checkError.message);
-                submitBtn.innerText = "Bot jetzt programmieren";
-                submitBtn.disabled = false;
-                return;
-            }
-
-            if (existingJobs && existingJobs.length > 0) {
-                alert("⚠️ Du hast dieses Match bereits programmiert! Dein Sniper liegt für dieses Turnier bereits auf der Lauer.");
-                submitBtn.innerText = "Bot jetzt programmieren";
-                submitBtn.disabled = false;
-                return;
-            }
-
-            // ✅ 2. WENN ALLES SAUBER IST -> NEUEN JOB ANLEGEN
             const selectedFactor = document.querySelector('input[name="power_factor"]:checked').value;
 
             const formData = {
@@ -382,23 +448,51 @@
                 accept_terms: document.getElementById("bot-agb").checked ? "1" : "0"
             };
 
-            const { error } = await window.supabaseClient
-                .from("bot_queue")
-                .insert([{
-                    user_id: currentUserId,
-                    match_id: targetMatchId,
-                    form_data: formData,
-                    status: 'waiting'
-                }]);
+            let resultError = null;
 
-            if (error) {
-                alert("Fehler: " + error.message);
+            if (existingJobId) {
+                // 🔄 FALL 1: UPDATE (Es gibt bereits einen Eintrag für das Match -> Überschreiben)
+                const { error } = await window.supabaseClient
+                    .from("bot_queue")
+                    .update({ form_data: formData })
+                    .eq("id", existingJobId);
+                resultError = error;
             } else {
-                alert("Erfolgreich! Der Bot ist programmiert und liegt auf der Lauer.");
+                // 🛑 DOPPEL-CHECK BEVOR EIN NEUER GEBAUT WIRD
+                const { data: checkJobs } = await window.supabaseClient
+                    .from("bot_queue")
+                    .select("id")
+                    .eq("user_id", currentUserId)
+                    .eq("match_id", targetMatchId)
+                    .eq("status", "waiting");
+
+                if (checkJobs && checkJobs.length > 0) {
+                    alert("⚠️ Halt! Du hast für dieses Match im Hintergrund bereits einen aktiven Bot. Bitte lade die Seite neu, um ihn zu editieren.");
+                    submitBtn.innerText = "Bot jetzt programmieren";
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                // 🆕 FALL 2: NEUANLAGE
+                const { error } = await window.supabaseClient
+                    .from("bot_queue")
+                    .insert([{
+                        user_id: currentUserId,
+                        match_id: targetMatchId,
+                        form_data: formData,
+                        status: 'waiting'
+                    }]);
+                resultError = error;
+            }
+
+            if (resultError) {
+                alert("Fehler: " + resultError.message);
+            } else {
+                alert("Erfolgreich gespeichert! Der Sniper-Bot ist auf dem aktuellsten Stand.");
                 closeBotModal();
+                loadUpcomingMatches(); // UI updaten
             }
             
-            submitBtn.innerText = "Bot jetzt programmieren";
             submitBtn.disabled = false;
         });
         
