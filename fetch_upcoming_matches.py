@@ -9,7 +9,7 @@ supabase_url = os.environ.get("SUPABASE_URL")
 supabase_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
 
 if not supabase_url or not supabase_key:
-    print("Fehler: Supabase Credentials fehlen in den Umgebungsvariablen!")
+    print("❌ Fehler: Supabase Credentials fehlen in den Umgebungsvariablen!")
     exit(1)
 
 supabase: Client = create_client(supabase_url, supabase_key)
@@ -25,23 +25,24 @@ retries = Retry(
 session.mount('http://', HTTPAdapter(max_retries=retries))
 session.mount('https://', HTTPAdapter(max_retries=retries))
 
-# 🎯 HIER IST DER MAGISCHE TRICK: Wir nutzen exakt die www-Domain wie dein anderer Bot!
-api_url = "https://www.ipscmatch.de/?matchapi"
+# 🎯 Der offizielle Link genau wie in der Mail vom Admin
+api_url = "https://ipscmatch.de/?matchapi"
 
+# 🎯 Der "ehrliche" Ausweis mit deiner E-Mail-Adresse
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Accept": "application/json, text/javascript, */*; q=0.01",
+    "User-Agent": "Doppel-AA-IPSC-Bot / info@ipscboerse.com",
+    "Accept": "application/json",
     "Connection": "keep-alive"
 }
 
 try:
-    print("Lade saubere JSON-Daten über die IPSC-API (mit www-Tarnkappe)...")
+    print("Lade saubere JSON-Daten über die offizielle IPSC-API...")
     
     response = session.get(api_url, headers=headers, timeout=15)
     
     if response.status_code != 200:
         print(f"⚠️ Warnung: Server antwortet mit Status-Code {response.status_code}.")
-        print("Die API-Tür ist für GitHub aktuell leider verschlossen.")
+        print("Verbindung zur API fehlgeschlagen.")
         exit(0)
         
     match_data = response.json()
@@ -51,6 +52,7 @@ try:
         status = info.get("Status", "").lower()
         auslastung = info.get("Utilisation", "")
         
+        # Wir suchen nur echte Ankündigungen (noch keine Prozentzahl in der Auslastung)
         if "%" not in auslastung:
             if "cancelled" in status or "geschlossen" in status or "closed" in status:
                 continue
@@ -65,7 +67,7 @@ try:
             if not disziplin:
                 disziplin = "HG"
 
-            match_url = info.get("url", f"https://www.ipscmatch.de/index.pl?match={match_id}")
+            match_url = info.get("url", f"https://ipscmatch.de/index.pl?match={match_id}")
 
             matches_to_insert.append({
                 "match_name": match_name,
@@ -84,12 +86,12 @@ try:
         
         print(f"Schreibe {len(matches_to_insert)} neue Ankündigungen in Supabase...")
         supabase.from_("upcoming_matches").insert(matches_to_insert).execute()
-        print("🎉 Jackpot! API-Daten erfolgreich mit Supabase synchronisiert!")
+        print("🎉 Mega! Offizielle API-Daten erfolgreich mit Supabase synchronisiert!")
     else:
         print("Aktuell keine ungeöffneten Ankündigungen in der API gefunden.")
 
 except requests.exceptions.RetryError as e:
     print("\n⚠️ NETZWERK-FEHLER:")
-    print("Der Türsteher hat den Braten gerochen. Wir müssen auf den Raspberry Pi umziehen!")
+    print("Verbindung abgelehnt. Möglicherweise blockiert die Firewall diese IP gerade noch.")
 except Exception as e:
     print(f"❌ Unerwarteter Fehler: {e}")
