@@ -326,9 +326,42 @@
         document.getElementById("bot-submit-form").addEventListener("submit", async (e) => {
             e.preventDefault();
             const submitBtn = document.getElementById("bot-submit-btn");
-            submitBtn.innerText = "Programmiere Bot...";
+            submitBtn.innerText = "Prüfe & Programmiere...";
             submitBtn.disabled = true;
             
+            const targetMatchId = document.getElementById("modal-match-id").value;
+            const currentUserId = window.currentUser ? window.currentUser.id : null;
+
+            if (!currentUserId) {
+                alert("Fehler: Du bist nicht eingeloggt!");
+                submitBtn.innerText = "Bot jetzt programmieren";
+                submitBtn.disabled = false;
+                return;
+            }
+
+            // 🛑 1. CHECK: HAT DIESER USER DEN AUFTRAG SCHON?
+            const { data: existingJobs, error: checkError } = await window.supabaseClient
+                .from("bot_queue")
+                .select("id")
+                .eq("user_id", currentUserId)
+                .eq("match_id", targetMatchId)
+                .eq("status", "waiting");
+
+            if (checkError) {
+                alert("Fehler bei der Überprüfung: " + checkError.message);
+                submitBtn.innerText = "Bot jetzt programmieren";
+                submitBtn.disabled = false;
+                return;
+            }
+
+            if (existingJobs && existingJobs.length > 0) {
+                alert("⚠️ Du hast dieses Match bereits programmiert! Dein Sniper liegt für dieses Turnier bereits auf der Lauer.");
+                submitBtn.innerText = "Bot jetzt programmieren";
+                submitBtn.disabled = false;
+                return;
+            }
+
+            // ✅ 2. WENN ALLES SAUBER IST -> NEUEN JOB ANLEGEN
             const selectedFactor = document.querySelector('input[name="power_factor"]:checked').value;
 
             const formData = {
@@ -349,12 +382,10 @@
                 accept_terms: document.getElementById("bot-agb").checked ? "1" : "0"
             };
 
-            const targetMatchId = document.getElementById("modal-match-id").value;
-
             const { error } = await window.supabaseClient
                 .from("bot_queue")
                 .insert([{
-                    user_id: window.currentUser ? window.currentUser.id : null,
+                    user_id: currentUserId,
                     match_id: targetMatchId,
                     form_data: formData,
                     status: 'waiting'
@@ -363,9 +394,10 @@
             if (error) {
                 alert("Fehler: " + error.message);
             } else {
-                alert("Erfolgreich! Der Bot ist programmiert.");
+                alert("Erfolgreich! Der Bot ist programmiert und liegt auf der Lauer.");
                 closeBotModal();
             }
+            
             submitBtn.innerText = "Bot jetzt programmieren";
             submitBtn.disabled = false;
         });
