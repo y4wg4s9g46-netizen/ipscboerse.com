@@ -259,4 +259,52 @@
     if (!injectHeader()) {
         document.addEventListener('DOMContentLoaded', injectHeader);
     }
+
+    // ==========================================
+    // 🎯 VIP-ZUGANG: DOPPEL AA SNIPER LINK
+    // ==========================================
+    document.addEventListener("DOMContentLoaded", () => {
+        setTimeout(async () => {
+            // Check, ob Supabase da ist
+            if (!window.supabaseClient) return;
+
+            // Session holen
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (!session) return;
+
+            // VIP-Status abfragen
+            const { data: profile } = await window.supabaseClient
+                .from("profiles")
+                .select("is_doppel_aa")
+                .eq("id", session.user.id)
+                .single();
+
+            // Link einbauen, wenn Berechtigung da ist
+            if (profile && profile.is_doppel_aa === true) {
+                const navContainer = document.querySelector('header .main-nav'); 
+                
+                if (navContainer) {
+                    const path = window.location.pathname;
+                    const page = path.split("/").pop() || "index.html";
+                    const isActive = (page === "doppel-aa.html");
+                    
+                    const sniperLink = document.createElement('a');
+                    sniperLink.href = 'doppel-aa.html'; 
+                    sniperLink.innerText = '🎯 Doppel AA';
+                    
+                    // Übernimmt exakt deine aktiven/inaktiven Klassen
+                    sniperLink.className = isActive ? "active" : "inactive";
+                    
+                    // Leichtes VIP Styling für die Sichtbarkeit, wenn inaktiv
+                    if (!isActive) {
+                        sniperLink.style.color = '#ff9f43'; 
+                        sniperLink.style.border = '1px solid rgba(255, 159, 67, 0.3)';
+                    }
+                    
+                    navContainer.appendChild(sniperLink);
+                }
+            }
+        }, 600); // 600ms Delay stellt sicher, dass der Header und Supabase geladen sind
+    });
+
 })();
