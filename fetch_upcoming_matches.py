@@ -3,6 +3,7 @@ import requests
 import time
 import urllib.parse
 import re
+from datetime import datetime, timezone
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
@@ -29,11 +30,29 @@ try:
     if response.status_code != 200:
         print(f"❌ Server-Fehler beim Laden der Homepage: {response.status_code}")
         exit(0)
+
+    # ⏰ 1. ZEITABGLEICH DIREKT AUS DEM RESPONS-HEADER EXTRAHIEREN
+    server_date_str = response.headers.get('Date')  # z.B. "Tue, 09 Jun 2026 14:45:00 GMT"
+    time_offset = 0.0
+    
+    if server_date_str:
+        try:
+            # IPSC-Serverzeit (immer in GMT/UTC) in ein datetime-Objekt umwandeln
+            server_time = datetime.strptime(server_date_str, '%a, %d %b %Y %H:%M:%S %Z').replace(tzinfo=timezone.utc)
+            local_time = datetime.now(timezone.utc)
+            
+            # Differenz in Sekunden berechnen (Positiv = IPSC geht vor | Negativ = IPSC geht nach)
+            time_offset = (server_time - local_time).total_seconds()
+            print("\n========================================================")
+            print(f"⏰ ZEIT-ANALYSE: ipscmatch.de weicht um {time_offset:+,.3f} Sek. vom Bot-Server ab.")
+            print("========================================================\n")
+        except Exception as te:
+            print(f"⚠️ Fehler beim Berechnen der Serverzeit-Differenz: {te}")
         
     soup = BeautifulSoup(response.text, 'html.parser')
     matches_to_insert = []
 
-    print("\n--- 🛰️ STARTE LIVE-ANALYSE NACH ANKÜNDIGUNGEN ---")
+    print("--- 🛰️ STARTE LIVE-ANALYSE NACH ANKÜNDIGUNGEN ---")
 
     for row in soup.find_all('tr'):
         tds = row.find_all('td')
@@ -100,7 +119,8 @@ try:
                         "level": level,
                         "disziplin": disziplin,
                         "ort": ort,
-                        "url": detail_url
+                        "url": detail_url,
+                        "server_time_offset": time_offset  # 🌟 Fügt die gemessene Abweichung dem Match-Datensatz hinzu
                     })
 
     print("----------------------------------------")
@@ -124,13 +144,13 @@ try:
         print(f"Synchronisiere {len(matches_to_insert)} Matches mit Supabase (Upsert)...")
         
         # Nutzen jetzt .upsert() mit dem On-Conflict-Trigger für die URL.
-        # Aktualisiert bestehende Zeilen (z.B. fügt den Ort hinzu) ohne Keys zu verletzen!
+        # Aktualisiert bestehende Zeilen (z.B. fügt den Ort und die Zeit-Abweichung hinzu) ohne Keys zu verletzen!
         supabase.from_("upcoming_matches").upsert(
             matches_to_insert, 
             on_conflict="url"
         ).execute()
         
-        print("🎉 Sensationell! Alle Ankündigungen wurden fehlerfrei aktualisiert und deine programmierten Bots blieben unberührt!")
+        print("🎉 Sensationell! Alle Ankündigungen wurden fehlerfrei samt Server-Offset aktualisiert!")
     else:
         print("Keine kommenden Ankündigungen auf der Homepage gefunden.")
 
