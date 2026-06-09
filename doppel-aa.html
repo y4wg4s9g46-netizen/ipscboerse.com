@@ -24,6 +24,13 @@
         .info-box { background-color: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--info-color); color: var(--text-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
         .danger-box { background-color: rgba(239, 68, 68, 0.08); border-left: 4px solid var(--danger-color); color: var(--danger-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; font-weight: bold; text-align: center; }
         
+        /* 🛠️ FILTER BAR STYLING */
+        .filter-bar { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 15px; margin-bottom: 25px; box-shadow: var(--shadow-sm); display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
+        .filter-group { display: flex; flex-direction: column; flex: 1; min-width: 150px; }
+        .filter-group label { font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; color: var(--text-muted); letter-spacing: 0.5px; }
+        .filter-group select { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; outline: none; }
+        .filter-group select:focus { border-color: var(--accent-color); }
+
         .match-list { display: flex; flex-direction: column; gap: 15px; }
         .match-card { background-color: var(--card-bg); border-radius: var(--radius); padding: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); position: relative; }
         .match-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px; background-color: var(--accent-color); }
@@ -66,6 +73,27 @@
         <div id="dashboard-content" style="display: none;">
             <div class="info-box">
                 <strong>Bereich "Doppel AA":</strong> Hier siehst du Turniere, die noch auf Status "Anmeldung öffnet..." stehen. Wähle ein Match aus, und unser Server-Bot wird in Millisekunden nach Öffnung das Formular für dich absenden.
+            </div>
+
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label for="filter-level">Level</label>
+                    <select id="filter-level" onchange="applyFilters()">
+                        <option value="all">Alle Levels</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filter-land">Land</label>
+                    <select id="filter-land" onchange="applyFilters()">
+                        <option value="all">Alle Länder</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filter-disziplin">Disziplin</label>
+                    <select id="filter-disziplin" onchange="applyFilters()">
+                        <option value="all">Alle Disziplinen</option>
+                    </select>
+                </div>
             </div>
 
             <h2 style="margin-bottom: 20px;">Geplante Bot-Aktivierungen</h2>
@@ -249,11 +277,13 @@
     <script src="auth.js"></script>
     
     <script>
+        // Globaler Cache für geladene Matches aus der DB, damit clientseitig gefiltert werden kann
+        window.loadedMatchesCache = [];
+
         // Fängt das Auth-Event deiner auth.js ab, um die Doppel-AA-Prüfung durchzuführen
         const originalAuthChange = window.onAuthChange;
         
         window.onAuthChange = async (user) => {
-            // Alte Logik weiterlaufen lassen
             if (typeof originalAuthChange === "function") originalAuthChange(user);
 
             const deniedBox = document.getElementById("access-denied");
@@ -285,7 +315,6 @@
             deniedBox.style.display = "none";
             dashboard.style.display = "block";
             
-            // Vorbelegen des Modals, falls Alias schon im Profil steht
             if (profile.ipsc_alias) {
                 document.getElementById("bot-lizenz").value = profile.ipsc_alias;
             }
@@ -293,24 +322,102 @@
             loadUpcomingMatches();
         };
 
-        // Lädt die ungeöffneten Matches aus der neuen DB-Tabelle
+        // Lädt die ungeöffneten Matches aus der DB-Tabelle
         async function loadUpcomingMatches() {
             const container = document.getElementById("js-match-container");
             
-            // Spaltenname beim Sortieren auf 'anmeldung_oeffnet' angepasst
             const { data, error } = await window.supabaseClient
                 .from("upcoming_matches")
                 .select("*")
                 .order("anmeldung_oeffnet", { ascending: true });
 
-            if (error || !data || data.length === 0) {
+            if (error) {
+                container.innerHTML = '<p style="color: var(--danger-color); font-style: italic;">Fehler beim Laden der Matches.</p>';
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                window.loadedMatchesCache = [];
                 container.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Aktuell stehen keine neuen Matches zur Überwachung an.</p>';
                 return;
             }
 
-            container.innerHTML = data.map(match => {
-                // 🛠️ HIER KORRIGIERT: match_name statt name & Zusatzinfos für die Anzeige
-                const matchName = window.escapeHtml(match.match_name || "Unbekanntes Turnier");
+            // Daten im globalen Cache sichern
+            window.loadedMatchesCache = data;
+
+            // Filter-Dropdowns dynamisch mit den existierenden Werten befüllen
+            buildFilterDropdowns(data);
+
+            // Initiale Anzeige rendern
+            renderMatches(data);
+        }
+
+        // 🛠️ FUNKTION: Generiert die Filteroptionen dynamisch aus den Echtdaten
+        function buildFilterDropdowns(matches) {
+            const levels = new Set();
+            const laender = new Set();
+            const disziplinen = new Set();
+
+            matches.forEach(m => {
+                if (m.level) levels.add(m.level.trim());
+                if (m.region) laender.add(m.region.trim().toUpperCase());
+                if (m.disziplin) disziplinen.add(m.disziplin.trim());
+            });
+
+            // Level Dropdown füllen
+            const selectLevel = document.getElementById("filter-level");
+            selectLevel.innerHTML = '<option value="all">Alle Levels</option>';
+            Array.from(levels).sort().forEach(lvl => {
+                selectLevel.innerHTML += `<option value="${lvl}">${lvl}</option>`;
+            });
+
+            // Land Dropdown füllen
+            const selectLand = document.getElementById("filter-land");
+            selectLand.innerHTML = '<option value="all">Alle Länder</option>';
+            Array.from(laender).sort().forEach(land => {
+                selectLand.innerHTML += `<option value="${land}">${land}</option>`;
+            });
+
+            // Disziplin Dropdown füllen
+            const selectDisziplin = document.getElementById("filter-disziplin");
+            selectDisziplin.innerHTML = '<option value="all">Alle Disziplinen</option>';
+            Array.from(disziplinen).sort().forEach(disz => {
+                selectDisziplin.innerHTML += `<option value="${disz}">${disz}</option>`;
+            });
+        }
+
+        // 🛠️ FUNKTION: Filtert die gecachten Matches und triggert das Rendern
+        window.applyFilters = function() {
+            const filterLevel = document.getElementById("filter-level").value;
+            const filterLand = document.getElementById("filter-land").value;
+            const filterDisziplin = document.getElementById("filter-disziplin").value;
+
+            const filtered = window.loadedMatchesCache.filter(match => {
+                const matchLevel = match.level ? match.level.trim() : "";
+                const matchLand = match.region ? match.region.trim().toUpperCase() : "";
+                const matchDisz = match.disziplin ? match.disziplin.trim() : "";
+
+                const levelPass = (filterLevel === "all" || matchLevel === filterLevel);
+                const landPass = (filterLand === "all" || matchLand === filterLand);
+                const diszPass = (filterDisziplin === "all" || matchDisz === filterDisziplin);
+
+                return levelPass && landPass && diszPass;
+            });
+
+            renderMatches(filtered);
+        }
+
+        // FUNKTION: Rendert das Array an Matches im HTML-Container
+        function renderMatches(matchesList) {
+            const container = document.getElementById("js-match-container");
+
+            if (matchesList.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); font-style: italic; padding: 10px;">Keine Matches gefunden, die den Filtereinstellungen entsprechen.</p>';
+                return;
+            }
+
+            container.innerHTML = matchesList.map(match => {
+                const matchName = window.escapeHtml(match.match_name || match.name || "Unbekanntes Turnier");
                 const formattedDate = window.escapeHtml(match.anmeldung_oeffnet || "Unbekannt");
                 const levelInfo = window.escapeHtml(match.level || "N/A");
                 const regionInfo = window.escapeHtml(match.region || "N/A");
@@ -345,13 +452,11 @@
         // Absenden des Bot-Auftrags
         document.getElementById("bot-submit-form").addEventListener("submit", async (e) => {
             e.preventDefault();
-            
             if (!window.currentUser || !window.userProfileData) return;
 
             const submitBtn = e.target.querySelector('button[type="submit"]');
             submitBtn.innerText = "Programmiere Bot...";
             
-            // Sammle die Daten für die ipscmatch.de Maske
             const formData = {
                 vorname: window.userProfileData.real_name || window.userProfileData.username,
                 email: window.currentUser.email,
