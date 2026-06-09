@@ -392,6 +392,15 @@
 
             const existingJob = window.userActiveJobsCache.find(j => j.match_id === id);
             
+            // 🌟 SICHERHEITS-SCHRANKE: Text-JSON bei Bedarf in echtes JavaScript-Objekt umwandeln
+            if (existingJob && existingJob.form_data && typeof existingJob.form_data === "string") {
+                try {
+                    existingJob.form_data = JSON.parse(existingJob.form_data);
+                } catch (e) {
+                    console.error("Fehler beim JSON-Parsing:", e);
+                }
+            }
+
             if (existingJob && existingJob.form_data) {
                 const fd = existingJob.form_data;
                 document.getElementById("modal-existing-job-id").value = existingJob.id;
@@ -404,7 +413,7 @@
                 document.getElementById("bot-bemerkung").value = fd.bemerkung || "";
                 document.getElementById("bot-squad").value = fd.squad || "";
                 
-                // 🌟 FIX: Dem Browser 50ms Zeit geben, die dynamischen Dropdowns im DOM anzulegen!
+                // Befüllt alle dynamischen Options-Felder sicher nach einem kurzen 50ms Delay
                 setTimeout(() => {
                     if(fd.division) divSelect.value = fd.division;
                     if(fd.category) catSelect.value = fd.category;
