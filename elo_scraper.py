@@ -385,7 +385,7 @@ def click_table_pagination(driver, target_page, total_rows):
       const title = (el.getAttribute('title') || '').toLowerCase();
       const r = el.getBoundingClientRect();
       const disabled = el.disabled || el.classList.contains('disabled') || el.getAttribute('aria-disabled') === 'true';
-      const isNext = txt === 'Ã¢ÂÂº' || txt === '>' || txt === 'Next' || aria.includes('next') || title.includes('next');
+      const isNext = txt === 'ÃÂ¢ÃÂÃÂº' || txt === '>' || txt === 'Next' || aria.includes('next') || title.includes('next');
       if (!disabled && isVisible(el) && isNext && r.top >= tableBottom - 60 && r.top < tableBottom + 260) {
         nextCandidates.push({el, left: r.left});
       }
@@ -532,7 +532,6 @@ def scrape_division(driver, division):
     log(f"{division}: erwartete Seiten: {expected_pages} (Total rows: {total_rows or 'unbekannt'})")
 
     all_entries = []
-    seen_rows = set()
 
     for page_no in range(1, expected_pages + 1):
         start, end, current_total = get_showing_info(driver)
@@ -559,15 +558,14 @@ def scrape_division(driver, division):
             expected_end=expected_end if total_rows else 0,
         )
 
-        new_count = 0
-        for entry in page_entries:
-            key = (entry.get("division"), entry.get("rank"), entry.get("lastname"))
-            if key not in seen_rows:
-                seen_rows.add(key)
-                all_entries.append(entry)
-                new_count += 1
+        # Kein Duplikatfilter pro Division:
+        # Die Webseite wird pro Lauf komplett neu eingelesen und die Division danach
+        # in Supabase vollstaendig ersetzt. So gehen Restseiten wie 1001-1217,
+        # 2001-2023 oder Revolver 1-271 nicht verloren.
+        all_entries.extend(page_entries)
+        new_count = len(page_entries)
 
-        log(f"{division}: {new_count} neue Eintraege von Seite {page_no} uebernommen.")
+        log(f"{division}: {new_count} Eintraege von Seite {page_no} uebernommen.")
 
         # Nicht wegen 0 neuen Eintraegen abbrechen: bei langsamem Nachladen kann sonst
         # eine Division zu frueh enden. Gegen Endlosschleifen schuetzt der exakte
