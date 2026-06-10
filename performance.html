@@ -25,7 +25,6 @@
         .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
         
         header { text-align: center; padding: 15px 0; }
-        header h1 { margin: 0; color: var(--text-color); font-size: 24px; }
         
         .info-box { background-color: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--info-color); color: var(--text-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; border: 1px solid var(--border-color); }
         .danger-box { background-color: rgba(239, 68, 68, 0.08); border-left: 4px solid var(--danger-color); color: var(--danger-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; font-weight: bold; text-align: center; }
@@ -45,7 +44,7 @@
         .elo-stat-val { font-size: 24px; font-weight: 700; color: var(--accent-color); margin-bottom: 5px; }
         .elo-stat-lbl { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
 
-        /* ℹ️ LEGENDE / REGELWERK BOX */
+        /* ℹ️ AUSKLAPPBARE INFO BOX */
         .legend-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 12px 15px; margin-bottom: 25px; box-shadow: var(--shadow-sm); font-size: 13px; }
         .legend-title { font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); }
         .legend-content { display: none; margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 10px; }
@@ -92,9 +91,9 @@
 </head>
 <body>
 
-    <header>
-        <h1>Performance-Check | IPSC ELO Analyse</h1>
-    </header>
+    <!-- Dynamischer Header wie in doppel-aa.html -->
+    <header></header>
+    <script src="header.js"></script>
 
     <div class="container">
         <!-- SPERRBILDSCHIRM BEI FEHLENDER LIZENZ -->
@@ -125,7 +124,6 @@
             <div id="analysis-results">
                 <h2 style="margin-bottom: 20px;">Auswertung: <span style="color: var(--accent-color);">Optics Overall</span></h2>
                 
-                <!-- Statistiken -->
                 <div class="elo-stats-grid">
                     <div class="elo-stat-card">
                         <div class="elo-stat-val" id="stat-user-elo">-</div>
@@ -141,7 +139,7 @@
                     </div>
                 </div>
 
-                <!-- ℹ️ AUSKLAPPBARE LEGENDE (Neu eingebaut) -->
+                <!-- ℹ️ AUSKLAPPBARE LEGENDE -->
                 <div class="legend-box">
                     <div class="legend-title" onclick="toggleLegend()">
                         <span>ℹ️ Wie berechnet sich das Wettkampf-Niveau?</span>
@@ -229,7 +227,6 @@
             "GER": "Germany", "FRA": "France", "SUI": "Switzerland", "POL": "Poland", "PHI": "Philippines"
         };
 
-        // 🌟 Ein- und Ausklappen der Legende
         function toggleLegend() {
             const content = document.getElementById('legend-content');
             const arrow = document.getElementById('legend-arrow');
@@ -242,35 +239,34 @@
             }
         }
 
-        // 1. AUTHENTIFIZIERUNG & LIZENZ-CHECK (Eins-zu-Eins Kopie aus doppel-aa.html!)[span_1](start_span)[span_1](end_span)
-        const originalAuthChange = window.onAuthChange;
-        window.onAuthChange = async (user) => {
-            if (typeof originalAuthChange === "function") originalAuthChange(user);
-            const deniedBox = document.getElementById("access-denied");
-            const dashboard = document.getElementById("dashboard-content");
+        // 1. AUTHENTIFIZIERUNG & LIZENZ-CHECK (Exakte Kopie aus doppel-aa.html)[span_3](start_span)[span_3](end_span)
+        const originalAuthChange = window.onAuthChange;[span_4](start_span)[span_4](end_span)
+        window.onAuthChange = async (user) => {[span_5](start_span)[span_5](end_span)
+            if (typeof originalAuthChange === "function") originalAuthChange(user);[span_6](start_span)[span_6](end_span)
+            const deniedBox = document.getElementById("access-denied");[span_7](start_span)[span_7](end_span)
+            const dashboard = document.getElementById("dashboard-content");[span_8](start_span)[span_8](end_span)
 
-            if (!user) { 
-                deniedBox.style.display = "block"; 
-                dashboard.style.display = "none"; 
-                return;
+            if (!user) {[span_9](start_span)[span_9](end_span)
+                deniedBox.style.display = "block";[span_10](start_span)[span_10](end_span)
+                dashboard.style.display = "none";[span_11](start_span)[span_11](end_span)
+                return;[span_12](start_span)[span_12](end_span)
             }
 
-            const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa, ipsc_alias, username, real_name").eq("id", user.id).single();[span_2](start_span)[span_2](end_span)
-            if (!profile || profile.is_doppel_aa !== true) {[span_3](start_span)[span_3](end_span)
-                deniedBox.style.display = "block"; 
-                dashboard.style.display = "none"; 
-                return;
+            const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa, ipsc_alias, username, real_name").eq("id", user.id).single();[span_13](start_span)[span_13](end_span)
+            if (!profile || profile.is_doppel_aa !== true) {[span_14](start_span)[span_14](end_span)
+                deniedBox.style.display = "block";[span_15](start_span)[span_15](end_span)
+                dashboard.style.display = "none";[span_16](start_span)[span_16](end_span)
+                return;[span_17](start_span)[span_17](end_span)
             }
 
-            window.userProfileData = profile;[span_4](start_span)[span_4](end_span)
-            deniedBox.style.display = "none";
-            dashboard.style.display = "block";
+            window.userProfileData = profile;[span_18](start_span)[span_18](end_span)
+            deniedBox.style.display = "none";[span_19](start_span)[span_19](end_span)
+            dashboard.style.display = "block";[span_20](start_span)[span_20](end_span)
 
-            // Profilnamen auswerten und persönliches ELO laden
-            if (profile.real_name) {[span_5](start_span)[span_5](end_span)
+            if (profile.real_name) {[span_21](start_span)[span_21](end_span)
                 document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>Willkommen zurück, ${profile.real_name}!</strong> Lade einen Screenshot hoch, um das Starterfeld direkt mit deiner ELO-Stärke abzugleichen.`;
                 
-                const nameParts = profile.real_name.split(" ");[span_6](start_span)[span_6](end_span)
+                const nameParts = profile.real_name.split(" ");[span_22](start_span)[span_22](end_span)
                 if (nameParts.length >= 2) {
                     const dbSearchName = `${nameParts[1]}, ${nameParts[0]}`;
                     const { data: userEloData } = await window.supabaseClient
@@ -296,7 +292,7 @@
             if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);
         });
 
-        // 3. SCREENSHOT-VERARBEITUNG & SUPABASE-LOOKUP
+        // 3. SCREENSHOT-VERARBEITUNG MIT UMLAUT-BEREINIGUNG & SUPABASE-LOOKUP
         async function handleFileUpload(files) {
             if (files.length === 0) return;
             
@@ -376,7 +372,6 @@
             }
         }
 
-        // 4. FILTER-DROPDOWNS DYNAMISCH BEFÜLLEN
         function buildFilterDropdowns(shooters) {
             const regionSelect = document.getElementById('filter-region');
             const regions = [...new Set(shooters.map(s => s.region).filter(r => r && r !== 'Unknown'))].sort();
@@ -390,7 +385,6 @@
             });
         }
 
-        // 5. FILTER-LOGIK ANWENDEN
         function applyFilters() {
             const searchVal = document.getElementById('search-name').value.toLowerCase();
             const regionVal = document.getElementById('filter-region').value;
@@ -407,7 +401,6 @@
             renderList(filtered);
         }
 
-        // 6. STATISTIKEN BERECHNEN (Personalisiert nach deinem Profil-ELO)
         function calculateStats(shooters) {
             document.getElementById('stat-user-elo').textContent = userPersonalElo;
             
@@ -443,7 +436,6 @@
             levelStat.style.color = totalRanked > 0 ? color : "var(--text-color)";
         }
 
-        // 7. LISTE RENDERN
         function renderList(shooters) {
             const listContainer = document.getElementById('competitor-list');
             if (shooters.length === 0) {
