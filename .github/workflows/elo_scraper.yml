@@ -2,9 +2,8 @@ name: Weekly IPSC ELO Scraper
 
 on:
   schedule:
-    # Läuft jeden Montag um 03:15 Uhr UTC (Nachts, wenn auf Servern wenig los ist)
     - cron: '15 3 * * 1'
-  workflow_dispatch: # Erlaubt dir, das Skript bei Github auch manuell per Knopfdruck zu testen
+  workflow_dispatch: 
 
 jobs:
   scrape_and_upload:
@@ -20,12 +19,12 @@ jobs:
           python-version: '3.10'
 
       - name: 📦 Pakete installieren
+        # NEU: selenium und webdriver-manager hinzugefügt
         run: |
           python -m pip install --upgrade pip
-          pip install requests pandas beautifulsoup4 supabase lxml html5lib
+          pip install pandas beautifulsoup4 supabase lxml html5lib selenium webdriver-manager
 
       - name: 🚀 Scraper ausführen
         env:
-          # Greift auf den versteckten Key in deinen GitHub-Repository-Secrets zu
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python elo_scraper.py
