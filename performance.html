@@ -44,7 +44,7 @@
         .elo-stat-val { font-size: 24px; font-weight: 700; color: var(--accent-color); margin-bottom: 5px; }
         .elo-stat-lbl { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
 
-        /* ℹ️ AUSKLAPPBARE INFO BOX */
+        /* ℹ️ AUSKLAPPBARE LEGENDE */
         .legend-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 12px 15px; margin-bottom: 25px; box-shadow: var(--shadow-sm); font-size: 13px; }
         .legend-title { font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); }
         .legend-content { display: none; margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 10px; }
@@ -68,7 +68,7 @@
         
         .fi { border-radius: 3px; box-shadow: 0 0 1px rgba(0,0,0,0.2); }
         
-        .competitor-elo { display: flex; align-items: center; gap: 10px; }
+        .competitor-row .competitor-elo { display: flex; align-items: center; gap: 10px; }
         .elo-score { font-size: 18px; font-weight: 700; color: var(--text-color); }
         .elo-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; width: 45px; text-align: center; }
         .badge-gm { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); }
@@ -91,7 +91,7 @@
 </head>
 <body>
 
-    <!-- Dynamischer Header wie in doppel-aa.html -->
+    <!-- Dynamischer Header -->
     <header></header>
     <script src="header.js"></script>
 
@@ -191,7 +191,7 @@
                         <option value="">Alle Länder</option>
                     </select>
                     
-                    <select id="filter-class" class="filter-select" onchange="applyFilters()">
+                    <select id="filter-class" class="filter-select" onchange="onFilterClassChange()">
                         <option value="">Alle Klassen</option>
                         <option value="GM">Grand Master (GM)</option>
                         <option value="M">Master (M)</option>
@@ -239,48 +239,71 @@
             }
         }
 
-        // 1. AUTHENTIFIZIERUNG & LIZENZ-CHECK (Exakte Kopie aus doppel-aa.html)[span_3](start_span)[span_3](end_span)
-        const originalAuthChange = window.onAuthChange;[span_4](start_span)[span_4](end_span)
-        window.onAuthChange = async (user) => {[span_5](start_span)[span_5](end_span)
-            if (typeof originalAuthChange === "function") originalAuthChange(user);[span_6](start_span)[span_6](end_span)
-            const deniedBox = document.getElementById("access-denied");[span_7](start_span)[span_7](end_span)
-            const dashboard = document.getElementById("dashboard-content");[span_8](start_span)[span_8](end_span)
+        // 🛡️ ZENTRALE VERIFIZIERUNGS-LOGIK (Verarbeitet das geladene Profil)
+        async function processUserProfile(user) {
+            const deniedBox = document.getElementById("access-denied");
+            const dashboard = document.getElementById("dashboard-content");
 
-            if (!user) {[span_9](start_span)[span_9](end_span)
-                deniedBox.style.display = "block";[span_10](start_span)[span_10](end_span)
-                dashboard.style.display = "none";[span_11](start_span)[span_11](end_span)
-                return;[span_12](start_span)[span_12](end_span)
+            if (!user) { 
+                deniedBox.style.display = "block"; 
+                dashboard.style.display = "none"; 
+                return;
             }
 
-            const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa, ipsc_alias, username, real_name").eq("id", user.id).single();[span_13](start_span)[span_13](end_span)
-            if (!profile || profile.is_doppel_aa !== true) {[span_14](start_span)[span_14](end_span)
-                deniedBox.style.display = "block";[span_15](start_span)[span_15](end_span)
-                dashboard.style.display = "none";[span_16](start_span)[span_16](end_span)
-                return;[span_17](start_span)[span_17](end_span)
-            }
-
-            window.userProfileData = profile;[span_18](start_span)[span_18](end_span)
-            deniedBox.style.display = "none";[span_19](start_span)[span_19](end_span)
-            dashboard.style.display = "block";[span_20](start_span)[span_20](end_span)
-
-            if (profile.real_name) {[span_21](start_span)[span_21](end_span)
-                document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>Willkommen zurück, ${profile.real_name}!</strong> Lade einen Screenshot hoch, um das Starterfeld direkt mit deiner ELO-Stärke abzugleichen.`;
+            try {
+                // Holt das Profil exakt wie doppel-aa.html
+                const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa, ipsc_alias, username, real_name").eq("id", user.id).single();
                 
-                const nameParts = profile.real_name.split(" ");[span_22](start_span)[span_22](end_span)
-                if (nameParts.length >= 2) {
-                    const dbSearchName = `${nameParts[1]}, ${nameParts[0]}`;
-                    const { data: userEloData } = await window.supabaseClient
-                        .from("elo_rankings")
-                        .select("elo_rating")
-                        .eq("lastname", dbSearchName)
-                        .maybeSingle();
-                        
-                    if (userEloData && userEloData.elo_rating) {
-                        userPersonalElo = parseFloat(userEloData.elo_rating);
+                if (!profile || profile.is_doppel_aa !== true) { 
+                    deniedBox.style.display = "block"; 
+                    dashboard.style.display = "none"; 
+                    return;
+                }
+
+                window.userProfileData = profile; 
+                deniedBox.style.display = "none";
+                dashboard.style.display = "block";
+
+                if (profile.real_name) {
+                    document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>Willkommen zurück, ${profile.real_name}!</strong> Lade einen Screenshot hoch, um das Starterfeld direkt mit deiner ELO-Stärke abzugleichen.`;
+                    
+                    const nameParts = profile.real_name.split(" ");
+                    if (nameParts.length >= 2) {
+                        const dbSearchName = `${nameParts[1]}, ${nameParts[0]}`;
+                        const { data: userEloData } = await window.supabaseClient
+                            .from("elo_rankings")
+                            .select("elo_rating")
+                            .eq("lastname", dbSearchName)
+                            .maybeSingle();
+                            
+                        if (userEloData && userEloData.elo_rating) {
+                            userPersonalElo = parseFloat(userEloData.elo_rating);
+                        }
                     }
                 }
+            } catch (err) {
+                console.error("Fehler bei Profilvalidierung:", err);
             }
+        }
+
+        // 1. DOCKING AN DIE AUTH.JS EVENT-SCHLEIFE
+        const originalAuthChange = window.onAuthChange;
+        window.onAuthChange = async (user) => {
+            if (typeof originalAuthChange === "function") originalAuthChange(user);
+            await processUserProfile(user);
         };
+
+        // 🚀 KUGELSICHERER DIREKT-CHECK BEIM LADEN (Falls onAuthChange das Event verpasst hat)
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(async () => {
+                if (window.supabaseClient && !window.userProfileData) {
+                    const { data: { session } } = await window.supabaseClient.auth.getSession();
+                    if (session && session.user) {
+                        await processUserProfile(session.user);
+                    }
+                }
+            }, 300);
+        });
 
         // 2. DRAG & DROP EVENTS
         const dropZone = document.getElementById('drop-zone');
