@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Performance-Check | IPSC ELO Analyse</title>
     
-    <!-- 🌍 Offizielle Flaggen-Icons (CSS-Bibliothek) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
 
     <style>
@@ -88,23 +87,13 @@
     </header>
 
     <div class="container">
-        <!-- SPERRBILDSCHIRM BEI FEHLENDER LIZENZ -->
-        <div id="access-denied" class="danger-box" style="padding: 40px 20px; border-radius: var(--radius); text-align: center; background-color: rgba(239, 68, 68, 0.04); border: 1px solid var(--border-color); border-left: 4px solid var(--danger-color); box-shadow: var(--shadow-sm);">
-            <div style="font-size: 48px; margin-bottom: 15px;">🔒</div>
-            <h2 style="margin: 0 0 10px 0; font-size: 20px; color: var(--text-color);">Zugriff verweigert</h2>
-            <p style="margin: 0; color: var(--text-muted); font-size: 14px; line-height: 1.5;">
-                Dieses Feature steht exklusiv Konten mit der aktiven Erweiterung <strong>Doppel AA</strong> zur Verfügung.<br>
-                Bitte kontaktiere den Support oder stelle sicher, dass du eingeloggt bist.
-            </p>
-        </div>
+        <div id="access-denied" class="danger-box">Prüfe Berechtigungen... (Bitte einloggen)</div>
 
-        <!-- HAUPT-DASHBOARD -->
         <div id="dashboard-content" style="display: none;">
             <div class="info-box">
                 <strong>📸 Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste hoch. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
             </div>
 
-            <!-- UPLOAD BEREICH -->
             <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click();">
                 <div class="upload-icon">📄</div>
                 <h3 class="upload-title">Screenshot hier hochladen</h3>
@@ -112,14 +101,12 @@
                 <input type="file" id="file-input" accept="image/*" onchange="handleFileUpload(this.files)">
             </div>
 
-            <!-- LADEANIMATION -->
             <div class="loader-container" id="loader">
                 <div class="spinner"></div>
                 <h3 style="margin: 0; color: var(--text-color);">Analysiere Starterfeld...</h3>
                 <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 14px;">Texterkennung läuft und ELO-Datenbank wird abgefragt.</p>
             </div>
 
-            <!-- ERGEBNIS BEREICH -->
             <div id="analysis-results">
                 <h2 style="margin-bottom: 20px;">Auswertung: <span style="color: var(--accent-color);">Optics Overall</span></h2>
                 
@@ -140,7 +127,6 @@
 
                 <h3 style="margin: 30px 0 15px 0; font-size: 18px;">Gefundene Konkurrenten</h3>
                 
-                <!-- 🔍 FILTER-BAR -->
                 <div class="filter-bar">
                     <input type="text" id="search-name" class="filter-input" placeholder="Nach Name suchen..." oninput="applyFilters()">
                     
@@ -158,8 +144,7 @@
                 </div>
 
                 <div class="competitor-list" id="competitor-list">
-                    <!-- Wird dynamisch durch JavaScript befüllt -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
@@ -184,59 +169,47 @@
             "GER": "Germany", "FRA": "France", "SUI": "Switzerland", "POL": "Poland", "PHI": "Philippines"
         };
 
-        // 1. AUTHENTIFIZIERUNG & ZUGRIFFSKONTROLLE (Sicherer Verzögerungs-Check)[span_5](start_span)[span_5](end_span)
-        const originalAuthChange = window.onAuthChange;[span_6](start_span)[span_6](end_span)
-        
-        window.onAuthChange = async (user) => {[span_7](start_span)[span_7](end_span)
-            if (typeof originalAuthChange === "function") originalAuthChange(user);[span_8](start_span)[span_8](end_span)
-            
-            setTimeout(async () => {
-                const deniedBox = document.getElementById("access-denied");[span_9](start_span)[span_9](end_span)
-                const dashboard = document.getElementById("dashboard-content");[span_10](start_span)[span_10](end_span)
+        // 1. AUTHENTIFIZIERUNG & ZUGRIFFSKONTROLLE (Eins-zu-Eins Kopie aus doppel-aa.html!)
+        const originalAuthChange = window.onAuthChange;
+        window.onAuthChange = async (user) => {
+            if (typeof originalAuthChange === "function") originalAuthChange(user);
+            const deniedBox = document.getElementById("access-denied");
+            const dashboard = document.getElementById("dashboard-content");
 
-                if (!user) {[span_11](start_span)[span_11](end_span)
-                    deniedBox.style.display = "block";[span_12](start_span)[span_12](end_span)
-                    dashboard.style.display = "none";[span_13](start_span)[span_13](end_span)
-                    return;[span_14](start_span)[span_14](end_span)
-                }
+            if (!user) { 
+                deniedBox.style.display = "block"; 
+                dashboard.style.display = "none"; 
+                return;
+            }
 
-                try {
-                    const { data: profile, error } = await window.supabaseClient
-                        .from("profiles")
-                        .select("is_doppel_aa")
-                        .eq("id", user.id)
-                        .single();
+            const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa, ipsc_alias, username, real_name").eq("id", user.id).single();
+            if (!profile || profile.is_doppel_aa !== true) { 
+                deniedBox.style.display = "block"; 
+                dashboard.style.display = "none"; 
+                return;
+            }
 
-                    if (!profile || error || profile.is_doppel_aa !== true) {[span_15](start_span)[span_15](end_span)
-                        deniedBox.style.display = "block";[span_16](start_span)[span_16](end_span)
-                        dashboard.style.display = "none";[span_17](start_span)[span_17](end_span)
-                        return;[span_18](start_span)[span_18](end_span)
-                    }
-
-                    deniedBox.style.display = "none";[span_19](start_span)[span_19](end_span)
-                    dashboard.style.display = "block";[span_20](start_span)[span_20](end_span)
-                } catch (e) {
-                    console.error("Fehler bei Lizenzprüfung:", e);
-                }
-            }, 250);
+            window.userProfileData = profile; 
+            deniedBox.style.display = "none";
+            dashboard.style.display = "block";
         };
 
-        // 2. DRAG & DROP EVENTS[span_21](start_span)[span_21](end_span)
-        const dropZone = document.getElementById('drop-zone');[span_22](start_span)[span_22](end_span)
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--info-color)"; });[span_23](start_span)[span_23](end_span)
-        dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--accent-color)"; });[span_24](start_span)[span_24](end_span)
-        dropZone.addEventListener('drop', (e) => {[span_25](start_span)[span_25](end_span)
-            e.preventDefault();[span_26](start_span)[span_26](end_span)
-            dropZone.style.borderColor = "var(--accent-color)";[span_27](start_span)[span_27](end_span)
-            if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);[span_28](start_span)[span_28](end_span)
-        });[span_29](start_span)[span_29](end_span)
+        // 2. DRAG & DROP EVENTS
+        const dropZone = document.getElementById('drop-zone');
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--info-color)"; });
+        dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--accent-color)"; });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = "var(--accent-color)";
+            if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);
+        });
 
-        // 3. SCREENSHOT-VERARBEITUNG MIT UMLAUT-BEREINIGUNG & SUPABASE-LOOKUP[span_30](start_span)[span_30](end_span)
+        // 3. SCREENSHOT-VERARBEITUNG MIT UMLAUT-BEREINIGUNG & SUPABASE-LOOKUP
         async function handleFileUpload(files) {
-            if (files.length === 0) return;[span_31](start_span)[span_31](end_span)
+            if (files.length === 0) return;
             
-            document.getElementById('analysis-results').style.display = 'none';[span_32](start_span)[span_32](end_span)
-            document.getElementById('loader').style.display = 'block';[span_33](start_span)[span_33](end_span)
+            document.getElementById('analysis-results').style.display = 'none';
+            document.getElementById('loader').style.display = 'block';
             
             try {
                 let ocrRecognizedNames = []; 
@@ -262,122 +235,122 @@
                 currentShooters = [];
 
                 for (const shooter of ocrRecognizedNames) {
-                    // 🔄 AUTOMATISCHE UMLAUT-KORREKTUR (Behebt "Schoeps" -> "Schöps")[span_34](start_span)[span_34](end_span)
+                    // 🔄 AUTOMATISCHE UMLAUT-KORREKTUR (Behebt "Schoeps" -> "Schöps")
                     let saubererNachname = shooter.nachname
                         .replace(/ae/g, "ä").replace(/oe/g, "ö").replace(/ue/g, "ü")
-                        .replace(/Ae/g, "Ä").replace(/Oe/g, "Ö").replace(/Ue/g, "Ü");[span_35](start_span)[span_35](end_span)
+                        .replace(/Ae/g, "Ä").replace(/Oe/g, "Ö").replace(/Ue/g, "Ü");
 
-                    const searchName = `${saubererNachname}, ${shooter.vorname}`;[span_36](start_span)[span_36](end_span)
-                    const fullCountryName = countryNameFormat[shooter.regionRaw] || shooter.regionRaw;[span_37](start_span)[span_37](end_span)
+                    const searchName = `${saubererNachname}, ${shooter.vorname}`;
+                    const fullCountryName = countryNameFormat[shooter.regionRaw] || shooter.regionRaw;
 
                     const { data: dbEntry, error } = await window.supabaseClient
                         .from("elo_rankings")
                         .select("elo_rating, class_style")
                         .eq("lastname", searchName)
-                        .maybeSingle();[span_38](start_span)[span_38](end_span)
+                        .maybeSingle();
 
-                    let eloValue = "-";[span_39](start_span)[span_39](end_span)
-                    let rankClass = "Unranked";[span_40](start_span)[span_40](end_span)
-                    let classStyle = "badge-u";[span_41](start_span)[span_41](end_span)
+                    let eloValue = "-";
+                    let rankClass = "Unranked";
+                    let classStyle = "badge-u";
 
-                    if (dbEntry && !error) {[span_42](start_span)[span_42](end_span)
-                        eloValue = dbEntry.elo_rating;[span_43](start_span)[span_43](end_span)
-                        rankClass = dbEntry.class_style || "A";[span_44](start_span)[span_44](end_span)
+                    if (dbEntry && !error) {
+                        eloValue = dbEntry.elo_rating;
+                        rankClass = dbEntry.class_style || "A";
                         
-                        if (eloValue >= 2300) classStyle = "badge-gm";[span_45](start_span)[span_45](end_span)
-                        else if (eloValue >= 2100) classStyle = "badge-m";[span_46](start_span)[span_46](end_span)
-                        else if (eloValue >= 1800) classStyle = "badge-a";[span_47](start_span)[span_47](end_span)
+                        if (eloValue >= 2300) classStyle = "badge-gm";
+                        else if (eloValue >= 2100) classStyle = "badge-m";
+                        else if (eloValue >= 1800) classStyle = "badge-a";
                     }
 
-                    currentShooters.push({[span_48](start_span)[span_48](end_span)
-                        name: searchName,[span_49](start_span)[span_49](end_span)
-                        division: shooter.division + " Overall",[span_50](start_span)[span_50](end_span)
-                        region: fullCountryName,[span_51](start_span)[span_51](end_span)
-                        elo: eloValue,[span_52](start_span)[span_52](end_span)
-                        rankClass: eloValue !== "-" ? rankClass : "Unranked",[span_53](start_span)[span_53](end_span)
-                        classStyle: classStyle[span_54](start_span)[span_54](end_span)
-                    });[span_55](start_span)[span_55](end_span)
+                    currentShooters.push({
+                        name: searchName,
+                        division: shooter.division + " Overall",
+                        region: fullCountryName,
+                        elo: eloValue,
+                        rankClass: eloValue !== "-" ? rankClass : "Unranked",
+                        classStyle: classStyle
+                    });
                 }
 
-                buildFilterDropdowns(currentShooters);[span_56](start_span)[span_56](end_span)
-                calculateStats(currentShooters);[span_57](start_span)[span_57](end_span)
-                renderList(currentShooters);[span_58](start_span)[span_58](end_span)
+                buildFilterDropdowns(currentShooters);
+                calculateStats(currentShooters);
+                renderList(currentShooters);
                 
-                document.getElementById('loader').style.display = 'none';[span_59](start_span)[span_59](end_span)
-                document.getElementById('analysis-results').style.display = 'block';[span_60](start_span)[span_60](end_span)
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('analysis-results').style.display = 'block';
 
             } catch (err) {
                 console.error("Fehler bei der Datenbankanalyse:", err);
-                document.getElementById('loader').style.display = 'none';[span_61](start_span)[span_61](end_span)
+                document.getElementById('loader').style.display = 'none';
             }
         }
 
-        // 4. FILTER-DROPDOWNS DYNAMISCH BEFÜLLEN[span_62](start_span)[span_62](end_span)
-        function buildFilterDropdowns(shooters) {[span_63](start_span)[span_63](end_span)
-            const regionSelect = document.getElementById('filter-region');[span_64](start_span)[span_64](end_span)
-            const regions = [...new Set(shooters.map(s => s.region).filter(r => r && r !== 'Unknown'))].sort();[span_65](start_span)[span_65](end_span)
+        // 4. FILTER-DROPDOWNS DYNAMISCH BEFÜLLEN
+        function buildFilterDropdowns(shooters) {
+            const regionSelect = document.getElementById('filter-region');
+            const regions = [...new Set(shooters.map(s => s.region).filter(r => r && r !== 'Unknown'))].sort();
             
-            regionSelect.innerHTML = '<option value="">Alle Länder</option>';[span_66](start_span)[span_66](end_span)
-            regions.forEach(r => {[span_67](start_span)[span_67](end_span)
-                const opt = document.createElement('option');[span_68](start_span)[span_68](end_span)
-                opt.value = r;[span_69](start_span)[span_69](end_span)
-                opt.textContent = r;[span_70](start_span)[span_70](end_span)
-                regionSelect.appendChild(opt);[span_71](start_span)[span_71](end_span)
-            });[span_72](start_span)[span_72](end_span)
-        }[span_73](start_span)[span_73](end_span)
+            regionSelect.innerHTML = '<option value="">Alle Länder</option>';
+            regions.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r;
+                opt.textContent = r;
+                regionSelect.appendChild(opt);
+            });
+        }
 
-        // 5. FILTER-LOGIK ANWENDEN[span_74](start_span)[span_74](end_span)
-        function applyFilters() {[span_75](start_span)[span_75](end_span)
-            const searchVal = document.getElementById('search-name').value.toLowerCase();[span_76](start_span)[span_76](end_span)
-            const regionVal = document.getElementById('filter-region').value;[span_77](start_span)[span_77](end_span)
-            const classVal = document.getElementById('filter-class').value;[span_78](start_span)[span_78](end_span)
+        // 5. FILTER-LOGIK ANWENDEN
+        function applyFilters() {
+            const searchVal = document.getElementById('search-name').value.toLowerCase();
+            const regionVal = document.getElementById('filter-region').value;
+            const classVal = document.getElementById('filter-class').value;
 
-            const filtered = currentShooters.filter(s => {[span_79](start_span)[span_79](end_span)
-                const matchesName = s.name.toLowerCase().includes(searchVal);[span_80](start_span)[span_80](end_span)
-                const matchesRegion = regionVal === "" || s.region === regionVal;[span_81](start_span)[span_81](end_span)
-                const matchesClass = classVal === "" || s.rankClass === classVal;[span_82](start_span)[span_82](end_span)
-                return matchesName && matchesRegion && matchesClass;[span_83](start_span)[span_83](end_span)
-            });[span_84](start_span)[span_84](end_span)
+            const filtered = currentShooters.filter(s => {
+                const matchesName = s.name.toLowerCase().includes(searchVal);
+                const matchesRegion = regionVal === "" || s.region === regionVal;
+                const matchesClass = classVal === "" || s.rankClass === classVal;
+                return matchesName && matchesRegion && matchesClass;
+            });
 
-            calculateStats(filtered);[span_85](start_span)[span_85](end_span)
-            renderList(filtered);[span_86](start_span)[span_86](end_span)
-        }[span_87](start_span)[span_87](end_span)
+            calculateStats(filtered);
+            renderList(filtered);
+        }
 
-        // 6. STATISTIKEN BERECHNEN[span_88](start_span)[span_88](end_span)
-        function calculateStats(shooters) {[span_89](start_span)[span_89](end_span)
-            const eloValues = shooters.map(s => s.elo).filter(e => typeof e === 'number' && !isNaN(e));[span_90](start_span)[span_90](end_span)
-            const count = eloValues.length;[span_91](start_span)[span_91](end_span)
-            const avg = count > 0 ? Math.round(eloValues.reduce((a, b) => a + b, 0) / count) : 0;[span_92](start_span)[span_92](end_span)
+        // 6. STATISTIKEN BERECHNEN
+        function calculateStats(shooters) {
+            const eloValues = shooters.map(s => s.elo).filter(e => typeof e === 'number' && !isNaN(e));
+            const count = eloValues.length;
+            const avg = count > 0 ? Math.round(eloValues.reduce((a, b) => a + b, 0) / count) : 0;
             
-            document.getElementById('stat-avg-elo').textContent = avg > 0 ? avg : "-";[span_93](start_span)[span_93](end_span)
-            document.getElementById('stat-count').textContent = count;[span_94](start_span)[span_94](end_span)
+            document.getElementById('stat-avg-elo').textContent = avg > 0 ? avg : "-";
+            document.getElementById('stat-count').textContent = count;
 
-            let level = "Gering";[span_95](start_span)[span_95](end_span)
-            let color = "var(--success-color)";[span_96](start_span)[span_96](end_span)
-            if (avg > 2200) { level = "Sehr Hoch"; color = "var(--danger-color)"; }[span_97](start_span)[span_97](end_span)
-            else if (avg > 1950) { level = "Hoch"; color = "var(--accent-color)"; }[span_98](start_span)[span_98](end_span)
-            else if (avg > 1750) { level = "Mittel"; color = "var(--info-color)"; }[span_99](start_span)[span_99](end_span)
+            let level = "Gering";
+            let color = "var(--success-color)";
+            if (avg > 2200) { level = "Sehr Hoch"; color = "var(--danger-color)"; }
+            else if (avg > 1950) { level = "Hoch"; color = "var(--accent-color)"; }
+            else if (avg > 1750) { level = "Mittel"; color = "var(--info-color)"; }
             
-            const levelStat = document.getElementById('stat-level');[span_100](start_span)[span_100](end_span)
-            levelStat.textContent = count > 0 ? level : "-";[span_101](start_span)[span_101](end_span)
-            levelStat.style.color = count > 0 ? color : "var(--text-color)";[span_102](start_span)[span_102](end_span)
-        }[span_103](start_span)[span_103](end_span)
+            const levelStat = document.getElementById('stat-level');
+            levelStat.textContent = count > 0 ? level : "-";
+            levelStat.style.color = count > 0 ? color : "var(--text-color)";
+        }
 
-        // 7. LISTE RENDERN[span_104](start_span)[span_104](end_span)
-        function renderList(shooters) {[span_105](start_span)[span_105](end_span)
-            const listContainer = document.getElementById('competitor-list');[span_106](start_span)[span_106](end_span)
-            if (shooters.length === 0) {[span_107](start_span)[span_107](end_span)
-                listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Keine Schützen gefunden.</div>';[span_108](start_span)[span_108](end_span)
-                return;[span_109](start_span)[span_109](end_span)
+        // 7. LISTE RENDERN
+        function renderList(shooters) {
+            const listContainer = document.getElementById('competitor-list');
+            if (shooters.length === 0) {
+                listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Keine Schützen gefunden.</div>';
+                return;
             }
 
-            let html = "";[span_110](start_span)[span_110](end_span)
-            shooters.forEach(s => {[span_111](start_span)[span_111](end_span)
-                let eloDisplay = s.elo !== "-" ? s.elo : "Kein Eintrag";[span_112](start_span)[span_112](end_span)
+            let html = "";
+            shooters.forEach(s => {
+                let eloDisplay = s.elo !== "-" ? s.elo : "Kein Eintrag";
                 
-                const normalizedRegion = s.region.toLowerCase().trim();[span_113](start_span)[span_113](end_span)
-                const code = countryCodes[normalizedRegion] || "";[span_114](start_span)[span_114](end_span)
-                const flagHtml = code ? `<span class="fi fi-${code}"></span>` : `🌍`;[span_115](start_span)[span_115](end_span)
+                const normalizedRegion = s.region.toLowerCase().trim();
+                const code = countryCodes[normalizedRegion] || "";
+                const flagHtml = code ? `<span class="fi fi-${code}"></span>` : `🌍`;
 
                 html += `
                     <div class="competitor-row">
@@ -390,11 +363,11 @@
                             <span class="elo-badge ${s.classStyle}">${s.rankClass}</span>
                         </div>
                     </div>
-                `;[span_116](start_span)[span_116](end_span)
-            });[span_117](start_span)[span_117](end_span)
+                `;
+            });
 
-            listContainer.innerHTML = html;[span_118](start_span)[span_118](end_span)
-        }[span_119](start_span)[span_119](end_span)
+            listContainer.innerHTML = html;
+        }
     </script>
 </body>
 </html>
