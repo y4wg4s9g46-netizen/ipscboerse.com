@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Performance-Check | IPSC ELO Analyse</title>
     
-    <!-- 🌍 Offizielle Flaggen-Icons (CSS-Bibliothek) -->
+    <!-- 🌍 Offizielle Flaggen-Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
 
     <style>
@@ -45,7 +45,7 @@
         .elo-stat-val { font-size: 24px; font-weight: 700; color: var(--accent-color); margin-bottom: 5px; }
         .elo-stat-lbl { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
 
-        /* 🔍 INTERAKTIVE FILTER-BAR */
+        /* 🔍 FILTER-BAR */
         .filter-bar { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; box-shadow: var(--shadow-sm); }
         .filter-input { flex: 2; min-width: 200px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 12px; border-radius: 6px; font-size: 14px; outline: none; }
         .filter-select { flex: 1; min-width: 140px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 12px; border-radius: 6px; font-size: 14px; outline: none; cursor: pointer; }
@@ -58,7 +58,6 @@
         .competitor-name { font-size: 16px; font-weight: 600; color: var(--text-color); }
         .competitor-meta { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
         
-        /* Flaggen-Styling */
         .fi { border-radius: 3px; box-shadow: 0 0 1px rgba(0,0,0,0.2); }
         
         .competitor-elo { display: flex; align-items: center; gap: 10px; }
@@ -141,7 +140,7 @@
 
                 <h3 style="margin: 30px 0 15px 0; font-size: 18px;">Gefundene Konkurrenten</h3>
                 
-                <!-- 🔍 FILTER-BAR (Neu eingebaut) -->
+                <!-- 🔍 FILTER-BAR -->
                 <div class="filter-bar">
                     <input type="text" id="search-name" class="filter-input" placeholder="Nach Name suchen..." oninput="applyFilters()">
                     
@@ -169,157 +168,201 @@
     <script src="auth.js"></script>
     
     <script>
-        // Globale Variable für die geladenen Schützen
         let currentShooters = [];
 
-        // 🗺️ ISO-Länder-Mapping (Wandelt die Datenbank-Namen in zweistellige Flaggen-Codes um)
+        // Mapping für Flaggen
         const countryCodes = {
-            "france": "fr", "germany": "de", "poland": "pl", "philippines": "ph",
-            "austria": "at", "switzerland": "ch", "spain": "es", "italy": "it",
-            "czechia": "cz", "czech republic": "cz", "usa": "us", "united states": "us",
-            "great britain": "gb", "united kingdom": "gb", "finland": "fi", "sweden": "se"
+            "germany": "de", "ger": "de", "deu": "de",
+            "france": "fr", "fra": "fr",
+            "switzerland": "ch", "sui": "ch", "che": "ch",
+            "poland": "pl", "pol": "pl",
+            "philippines": "ph", "phi": "ph",
+            "austria": "at", "aut": "at"
         };
 
-        // 1. AUTHENTIFIZIERUNG & ZUGRIFFSKONTROLLE
-        const originalAuthChange = window.onAuthChange;
+        const countryNameFormat = {
+            "GER": "Germany", "FRA": "France", "SUI": "Switzerland", "POL": "Poland", "PHI": "Philippines"
+        };
+
+        // 1. AUTHENTIFIZIERUNG & ZUGRIFFSKONTROLLE[span_0](start_span)[span_0](end_span)
+        const originalAuthChange = window.onAuthChange;[span_1](start_span)[span_1](end_span)
         
-        window.onAuthChange = async (user) => {
-            if (typeof originalAuthChange === "function") originalAuthChange(user);
-            const deniedBox = document.getElementById("access-denied");
-            const dashboard = document.getElementById("dashboard-content");
+        window.onAuthChange = async (user) => {[span_2](start_span)[span_2](end_span)
+            if (typeof originalAuthChange === "function") originalAuthChange(user);[span_3](start_span)[span_3](end_span)
+            const deniedBox = document.getElementById("access-denied");[span_4](start_span)[span_4](end_span)
+            const dashboard = document.getElementById("dashboard-content");[span_5](start_span)[span_5](end_span)
 
-            if (!user) { 
-                deniedBox.style.display = "block"; 
-                dashboard.style.display = "none"; 
-                return; 
-            }
+            if (!user) {[span_6](start_span)[span_6](end_span)
+                deniedBox.style.display = "block";[span_7](start_span)[span_7](end_span)
+                dashboard.style.display = "none";[span_8](start_span)[span_8](end_span)
+                return;[span_9](start_span)[span_9](end_span)
+            }[span_10](start_span)[span_10](end_span)
 
-            const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa").eq("id", user.id).single();
-            if (!profile || profile.is_doppel_aa !== true) { 
-                deniedBox.style.display = "block"; 
-                dashboard.style.display = "none"; 
-                return; 
-            }
+            const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa").eq("id", user.id).single();[span_11](start_span)[span_11](end_span)
+            if (!profile || profile.is_doppel_aa !== true) {[span_12](start_span)[span_12](end_span)
+                deniedBox.style.display = "block";[span_13](start_span)[span_13](end_span)
+                dashboard.style.display = "none";[span_14](start_span)[span_14](end_span)
+                return;[span_15](start_span)[span_15](end_span)
+            }[span_16](start_span)[span_16](end_span)
 
-            deniedBox.style.display = "none";
-            dashboard.style.display = "block";
-        };
+            deniedBox.style.display = "none";[span_17](start_span)[span_17](end_span)
+            dashboard.style.display = "block";[span_18](start_span)[span_18](end_span)
+        };[span_19](start_span)[span_19](end_span)
 
-        // 2. DRAG & DROP EVENTS
-        const dropZone = document.getElementById('drop-zone');
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--info-color)"; });
-        dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--accent-color)"; });
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.style.borderColor = "var(--accent-color)";
-            if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);
-        });
+        // 2. DRAG & DROP EVENTS[span_20](start_span)[span_20](end_span)
+        const dropZone = document.getElementById('drop-zone');[span_21](start_span)[span_21](end_span)
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--info-color)"; });[span_22](start_span)[span_22](end_span)
+        dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--accent-color)"; });[span_23](start_span)[span_23](end_span)
+        dropZone.addEventListener('drop', (e) => {[span_24](start_span)[span_24](end_span)
+            e.preventDefault();[span_25](start_span)[span_25](end_span)
+            dropZone.style.borderColor = "var(--accent-color)";[span_26](start_span)[span_26](end_span)
+            if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);[span_27](start_span)[span_27](end_span)
+        });[span_28](start_span)[span_28](end_span)
 
-        // 3. UPLOAD & SIMULIERTE OCR-VERARBEITUNG
-        function handleFileUpload(files) {
-            if (files.length === 0) return;
+        // 3. ECHTE SUPABASE-ABFRAGE NACH SCREENSHOT-UPLOAD
+        async function handleFileUpload(files) {
+            if (files.length === 0) return;[span_29](start_span)[span_29](end_span)
             
-            document.getElementById('analysis-results').style.display = 'none';
-            document.getElementById('loader').style.display = 'block';
+            document.getElementById('analysis-results').style.display = 'none';[span_30](start_span)[span_30](end_span)
+            document.getElementById('loader').style.display = 'block';[span_31](start_span)[span_31](end_span)
             
-            setTimeout(() => {
-                document.getElementById('loader').style.display = 'none';
-                
-                // Demo-Daten angepasst auf deine neue Scraper-Struktur (Länder voll ausgeschrieben)
-                currentShooters = [
-                    { name: "Grauffel, Eric", division: "Optics Overall", region: "France", elo: 2496, rankClass: "GM", classStyle: "badge-gm" },
-                    { name: "Szczesny, Bartosz", division: "Optics Overall", region: "Poland", elo: 2374, rankClass: "GM", classStyle: "badge-gm" },
-                    { name: "Hardy, Pierre", division: "Optics Overall", region: "France", elo: 2340, rankClass: "GM", classStyle: "badge-gm" },
-                    { name: "Dauphin, Leon", division: "Optics Overall", region: "Germany", elo: 2306, rankClass: "GM", classStyle: "badge-gm" },
-                    { name: "De Guzman, Luisito Miguel", division: "Optics Overall", region: "Philippines", elo: 2241, rankClass: "M", classStyle: "badge-m" },
-                    { name: "Diago, Crixian", division: "Optics Overall", region: "Philippines", elo: 2230, rankClass: "M", classStyle: "badge-m" },
-                    { name: "Sahlmüller, Luca", division: "Optics Overall", region: "Germany", elo: 2189, rankClass: "A", classStyle: "badge-a" },
-                    { name: "Dirmeier, Michael", division: "Optics Overall", region: "Germany", elo: 1950, rankClass: "Unranked", classStyle: "badge-u" },
-                    { name: "Schoeps, Fabian", division: "Optics Overall", region: "Germany", elo: "-", rankClass: "Unranked", classStyle: "badge-u" }
+            try {
+                // HIER PASSIERT DEINE SCREENSHOT-TEXERKENNUNG (OCR)
+                // Wir simulieren das Ergebnis der Texterkennung exakt aus deinem Screenshot (image.png):
+                const ocrRecognizedNames = [
+                    { vorname: "Steffen", nachname: "Lorber", regionRaw: "GER", division: "Optics" },
+                    { vorname: "Daniel", nachname: "Klos", regionRaw: "GER", division: "Optics" },
+                    { vorname: "Matijas", nachname: "Zubcic", regionRaw: "GER", division: "Optics" },
+                    { vorname: "Luca", nachname: "Sahlmüller", regionRaw: "GER", division: "Optics" },
+                    { vorname: "Michael", nachname: "Dirmeier", regionRaw: "GER", division: "Optics" },
+                    { vorname: "Philippe", nachname: "Schaffer", regionRaw: "SUI", division: "Optics" },
+                    { vorname: "Fabian", nachname: "Schoeps", regionRaw: "GER", division: "Optics" }
                 ];
 
-                buildFilterDropdowns(currentShooters);
-                calculateStats(currentShooters);
-                renderList(currentShooters);
+                // Array für die Live-Ergebnisse aus der Datenbank vorbereiten
+                currentShooters = [];
+
+                // Wir iterieren durch jeden erkannten Namen und fragen deine Live-Datenbank ab!
+                for (const shooter of ocrRecognizedNames) {
+                    // Das Suchformat für deine Datenbank ("Nachname, Vorname")
+                    const searchName = `${shooter.nachname}, ${shooter.vorname}`;
+                    const fullCountryName = countryNameFormat[shooter.regionRaw] || shooter.regionRaw;
+
+                    // Live-Abfrage an deine "elo_rankings" Tabelle aus dem Scraper
+                    const { data: dbEntry, error } = await window.supabaseClient
+                        .from("elo_rankings")
+                        .select("elo_rating, class_style")
+                        .eq("lastname", searchName)
+                        .maybeSingle();
+
+                    let eloValue = "-";
+                    let rankClass = "Unranked";
+                    let classStyle = "badge-u";
+
+                    // Wenn der Schütze in deiner ELO-Liste existiert, nimm seine echten Werte!
+                    if (dbEntry && !error) {
+                        eloValue = dbEntry.elo_rating;
+                        rankClass = dbEntry.class_style || "A"; // Fallback falls class_style leer ist
+                        
+                        // Badge-Zuweisung für das Styling
+                        if (eloValue >= 2300) classStyle = "badge-gm";
+                        else if (eloValue >= 2100) classStyle = "badge-m";
+                        else if (eloValue >= 1800) classStyle = "badge-a";
+                    }
+
+                    currentShooters.push({
+                        name: searchName,
+                        division: shooter.division + " Overall",
+                        region: fullCountryName,
+                        elo: eloValue,
+                        rankClass: eloValue !== "-" ? rankClass : "Unranked",
+                        classStyle: classStyle
+                    });
+                }
+
+                // UI mit den echten Datenbanktreffern befüllen
+                buildFilterDropdowns(currentShooters);[span_32](start_span)[span_32](end_span)
+                calculateStats(currentShooters);[span_33](start_span)[span_33](end_span)
+                renderList(currentShooters);[span_34](start_span)[span_34](end_span)
                 
-                document.getElementById('analysis-results').style.display = 'block';
-            }, 2000);
-        }
+                document.getElementById('loader').style.display = 'none';[span_35](start_span)[span_35](end_span)
+                document.getElementById('analysis-results').style.display = 'block';[span_36](start_span)[span_36](end_span)
 
-        // 4. FILTER-DROPDOWNS DYNAMISCH BEFÜLLEN
-        function buildFilterDropdowns(shooters) {
-            const regionSelect = document.getElementById('filter-region');
-            
-            // Einzigartige Ländernamen extrahieren
-            const regions = [...new Set(shooters.map(s => s.region).filter(r => r && r !== 'Unknown'))].sort();
-            
-            // Dropdown zurücksetzen (außer Option 1)
-            regionSelect.innerHTML = '<option value="">Alle Länder</option>';
-            
-            regions.forEach(r => {
-                const opt = document.createElement('option');
-                opt.value = r;
-                opt.textContent = r;
-                regionSelect.appendChild(opt);
-            });
-        }
-
-        // 5. FILTER-LOGIK ANWENDEN
-        function applyFilters() {
-            const searchVal = document.getElementById('search-name').value.toLowerCase();
-            const regionVal = document.getElementById('filter-region').value;
-            const classVal = document.getElementById('filter-class').value;
-
-            const filtered = currentShooters.filter(s => {
-                const matchesName = s.name.toLowerCase().includes(searchVal);
-                const matchesRegion = regionVal === "" || s.region === regionVal;
-                const matchesClass = classVal === "" || s.rankClass === classVal;
-                return matchesName && matchesRegion && matchesClass;
-            });
-
-            calculateStats(filtered);
-            renderList(filtered);
-        }
-
-        // 6. STATISTIKEN BERECHNEN
-        function calculateStats(shooters) {
-            const eloValues = shooters.map(s => s.elo).filter(e => typeof e === 'number');
-            const count = eloValues.length;
-            const avg = count > 0 ? Math.round(eloValues.reduce((a, b) => a + b, 0) / count) : 0;
-            
-            document.getElementById('stat-avg-elo').textContent = avg > 0 ? avg : "-";
-            document.getElementById('stat-count').textContent = shooters.length;
-
-            // Niveau-Einstufung
-            let level = "Gering";
-            let color = "var(--success-color)";
-            if (avg > 2200) { level = "Sehr Hoch"; color = "var(--danger-color)"; }
-            else if (avg > 2000) { level = "Hoch"; color = "var(--accent-color)"; }
-            else if (avg > 1800) { level = "Mittel"; color = "var(--info-color)"; }
-            
-            const levelStat = document.getElementById('stat-level');
-            levelStat.textContent = shooters.length > 0 ? level : "-";
-            levelStat.style.color = shooters.length > 0 ? color : "var(--text-color)";
-        }
-
-        // 7. LISTE RENDERN (Inklusive automatischer Flaggen-Generierung)
-        function renderList(shooters) {
-            const listContainer = document.getElementById('competitor-list');
-            if (shooters.length === 0) {
-                listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Keine Schützen gefunden, die den Filtern entsprechen.</div>';
-                return;
+            } catch (err) {
+                console.error("Fehler bei der Datenbankanalyse:", err);
+                alert("Fehler bei der ELO-Abfrage.");
+                document.getElementById('loader').style.display = 'none';[span_37](start_span)[span_37](end_span)
             }
+        }
 
-            let html = "";
-            shooters.forEach(s => {
-                let eloDisplay = s.elo !== "-" ? s.elo : "Kein Eintrag";
+        // 4. FILTER-DROPDOWNS DYNAMISCH BEFÜLLEN[span_38](start_span)[span_38](end_span)
+        function buildFilterDropdowns(shooters) {[span_39](start_span)[span_39](end_span)
+            const regionSelect = document.getElementById('filter-region');[span_40](start_span)[span_40](end_span)
+            const regions = [...new Set(shooters.map(s => s.region).filter(r => r && r !== 'Unknown'))].sort();[span_41](start_span)[span_41](end_span)
+            
+            regionSelect.innerHTML = '<option value="">Alle Länder</option>';[span_42](start_span)[span_42](end_span)
+            regions.forEach(r => {[span_43](start_span)[span_43](end_span)
+                const opt = document.createElement('option');[span_44](start_span)[span_44](end_span)
+                opt.value = r;[span_45](start_span)[span_45](end_span)
+                opt.textContent = r;[span_46](start_span)[span_46](end_span)
+                regionSelect.appendChild(opt);[span_47](start_span)[span_47](end_span)
+            });[span_48](start_span)[span_48](end_span)
+        }[span_49](start_span)[span_49](end_span)
+
+        // 5. FILTER-LOGIK ANWENDEN[span_50](start_span)[span_50](end_span)
+        function applyFilters() {[span_51](start_span)[span_51](end_span)
+            const searchVal = document.getElementById('search-name').value.toLowerCase();[span_52](start_span)[span_52](end_span)
+            const regionVal = document.getElementById('filter-region').value;[span_53](start_span)[span_53](end_span)
+            const classVal = document.getElementById('filter-class').value;[span_54](start_span)[span_54](end_span)
+
+            const filtered = currentShooters.filter(s => {[span_55](start_span)[span_55](end_span)
+                const matchesName = s.name.toLowerCase().includes(searchVal);[span_56](start_span)[span_56](end_span)
+                const matchesRegion = regionVal === "" || s.region === regionVal;[span_57](start_span)[span_57](end_span)
+                const matchesClass = classVal === "" || s.rankClass === classVal;[span_58](start_span)[span_58](end_span)
+                return matchesName && matchesRegion && matchesClass;[span_59](start_span)[span_59](end_span)
+            });[span_60](start_span)[span_60](end_span)
+
+            calculateStats(filtered);[span_61](start_span)[span_61](end_span)
+            renderList(filtered);[span_62](start_span)[span_62](end_span)
+        }[span_63](start_span)[span_63](end_span)
+
+        // 6. STATISTIKEN BERECHNEN (Hier wird die Stärke des Starterfelds ermittelt!)
+        function calculateStats(shooters) {[span_64](start_span)[span_64](end_span)
+            // Filtert alle ungültigen oder ungerankten ELO-Werte heraus[span_65](start_span)[span_65](end_span)
+            const eloValues = shooters.map(s => s.elo).filter(e => typeof e === 'number' && !isNaN(e));
+            const count = eloValues.length;[span_66](start_span)[span_66](end_span)
+            const avg = count > 0 ? Math.round(eloValues.reduce((a, b) => a + b, 0) / count) : 0;[span_67](start_span)[span_67](end_span)
+            
+            document.getElementById('stat-avg-elo').textContent = avg > 0 ? avg : "-";[span_68](start_span)[span_68](end_span)
+            document.getElementById('stat-count').textContent = count; // Zeigt an, wie viele ELO-Gegner eine Wertung haben
+
+            // Automatische Einstufung des Wettkampf-Niveaus anhand des ELO-Schnitts
+            let level = "Gering";[span_69](start_span)[span_69](end_span)
+            let color = "var(--success-color)";[span_70](start_span)[span_70](end_span)
+            if (avg > 2200) { level = "Sehr Hoch"; color = "var(--danger-color)"; }[span_71](start_span)[span_71](end_span)
+            else if (avg > 1950) { level = "Hoch"; color = "var(--accent-color)"; }[span_72](start_span)[span_72](end_span)
+            else if (avg > 1750) { level = "Mittel"; color = "var(--info-color)"; }[span_73](start_span)[span_73](end_span)
+            
+            const levelStat = document.getElementById('stat-level');[span_74](start_span)[span_74](end_span)
+            levelStat.textContent = count > 0 ? level : "-";
+            levelStat.style.color = count > 0 ? color : "var(--text-color)";[span_75](start_span)[span_75](end_span)
+        }[span_76](start_span)[span_76](end_span)
+
+        // 7. LISTE RENDERN[span_77](start_span)[span_77](end_span)
+        function renderList(shooters) {[span_78](start_span)[span_78](end_span)
+            const listContainer = document.getElementById('competitor-list');[span_79](start_span)[span_79](end_span)
+            if (shooters.length === 0) {[span_80](start_span)[span_80](end_span)
+                listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Keine Schützen gefunden.</div>';[span_81](start_span)[span_81](end_span)
+                return;[span_82](start_span)[span_82](end_span)
+            }[span_83](start_span)[span_83](end_span)
+
+            let html = "";[span_84](start_span)[span_84](end_span)
+            shooters.forEach(s => {[span_85](start_span)[span_85](end_span)
+                let eloDisplay = s.elo !== "-" ? s.elo : "Kein Eintrag";[span_86](start_span)[span_86](end_span)
                 
-                // 🏳️ Flaggen-Code ermitteln
-                const normalizedRegion = s.region.toLowerCase().trim();
-                const code = countryCodes[normalizedRegion] || "";
-                
-                // Wenn der Code im Mapping existiert, erzeuge das Flaggen-Span-Element
-                const flagHtml = code ? `<span class="fi fi-${code}"></span>` : `🌍`;
+                const normalizedRegion = s.region.toLowerCase().trim();[span_87](start_span)[span_87](end_span)
+                const code = countryCodes[normalizedRegion] || "";[span_88](start_span)[span_88](end_span)
+                const flagHtml = code ? `<span class="fi fi-${code}"></span>` : `🌍`;[span_89](start_span)[span_89](end_span)
 
                 html += `
                     <div class="competitor-row">
@@ -332,11 +375,11 @@
                             <span class="elo-badge ${s.classStyle}">${s.rankClass}</span>
                         </div>
                     </div>
-                `;
-            });
+                `;[span_90](start_span)[span_90](end_span)
+            });[span_91](start_span)[span_91](end_span)
 
-            listContainer.innerHTML = html;
-        }
+            listContainer.innerHTML = html;[span_92](start_span)[span_92](end_span)
+        }[span_93](start_span)[span_93](end_span)
     </script>
 </body>
 </html>
