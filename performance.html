@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Performance-Check | IPSC ELO Analyse</title>
     
+    <!-- 🌍 Offizielle Flaggen-Icons (CSS-Bibliothek) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
 
     <style>
@@ -39,10 +40,19 @@
 
         /* 📊 ANALYSIS RESULTS */
         #analysis-results { display: none; }
-        .elo-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+        .elo-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; }
         .elo-stat-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm); }
         .elo-stat-val { font-size: 24px; font-weight: 700; color: var(--accent-color); margin-bottom: 5px; }
         .elo-stat-lbl { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+
+        /* ℹ️ LEGENDE / REGELWERK BOX */
+        .legend-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 12px 15px; margin-bottom: 25px; box-shadow: var(--shadow-sm); font-size: 13px; }
+        .legend-title { font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); }
+        .legend-content { display: none; margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 10px; }
+        .legend-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        .legend-table th, .legend-table td { text-align: left; padding: 6px 8px; font-size: 12px; }
+        .legend-table th { color: var(--text-muted); text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
+        .legend-table tr:not(:last-child) { border-bottom: 1px solid var(--border-color); }
 
         /* 🔍 INTERAKTIVE FILTER-BAR */
         .filter-bar { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; box-shadow: var(--shadow-sm); }
@@ -87,13 +97,16 @@
     </header>
 
     <div class="container">
+        <!-- SPERRBILDSCHIRM BEI FEHLENDER LIZENZ -->
         <div id="access-denied" class="danger-box">Prüfe Berechtigungen... (Bitte einloggen)</div>
 
+        <!-- HAUPT-DASHBOARD -->
         <div id="dashboard-content" style="display: none;">
-            <div class="info-box">
+            <div class="info-box" id="js-personal-welcome">
                 <strong>📸 Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste hoch. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
             </div>
 
+            <!-- UPLOAD BEREICH -->
             <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click();">
                 <div class="upload-icon">📄</div>
                 <h3 class="upload-title">Screenshot hier hochladen</h3>
@@ -101,32 +114,78 @@
                 <input type="file" id="file-input" accept="image/*" onchange="handleFileUpload(this.files)">
             </div>
 
+            <!-- LADEANIMATION -->
             <div class="loader-container" id="loader">
                 <div class="spinner"></div>
                 <h3 style="margin: 0; color: var(--text-color);">Analysiere Starterfeld...</h3>
                 <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 14px;">Texterkennung läuft und ELO-Datenbank wird abgefragt.</p>
             </div>
 
+            <!-- ERGEBNIS BEREICH -->
             <div id="analysis-results">
                 <h2 style="margin-bottom: 20px;">Auswertung: <span style="color: var(--accent-color);">Optics Overall</span></h2>
                 
+                <!-- Statistiken -->
                 <div class="elo-stats-grid">
                     <div class="elo-stat-card">
-                        <div class="elo-stat-val" id="stat-avg-elo">0</div>
-                        <div class="elo-stat-lbl">Ø ELO der Konkurrenz</div>
+                        <div class="elo-stat-val" id="stat-user-elo">-</div>
+                        <div class="elo-stat-lbl" id="stat-user-label">Dein ELO-Rating</div>
                     </div>
                     <div class="elo-stat-card">
-                        <div class="elo-stat-val" id="stat-count">0</div>
-                        <div class="elo-stat-lbl">Erkannte ELO-Gegner</div>
+                        <div class="elo-stat-val" id="stat-stronger-count">0</div>
+                        <div class="elo-stat-lbl">Gegner über deinem ELO</div>
                     </div>
                     <div class="elo-stat-card">
                         <div class="elo-stat-val" id="stat-level">-</div>
-                        <div class="elo-stat-lbl">Wettkampf-Niveau</div>
+                        <div class="elo-stat-lbl">Herausforderung für dich</div>
+                    </div>
+                </div>
+
+                <!-- ℹ️ AUSKLAPPBARE LEGENDE (Neu eingebaut) -->
+                <div class="legend-box">
+                    <div class="legend-title" onclick="toggleLegend()">
+                        <span>ℹ️ Wie berechnet sich das Wettkampf-Niveau?</span>
+                        <span id="legend-arrow">▼</span>
+                    </div>
+                    <div class="legend-content" id="legend-content">
+                        <p style="margin: 0 0 10px 0; line-height: 1.4; color: var(--text-muted);"> Das Niveau misst sich nicht an starren Weltklasse-Werten, sondern **ganz persönlich an deiner eigenen Stärke**. Es berechnet den prozentualen Anteil der Schützen im Feld, die ein höheres ELO besitzen als du selbst:</p>
+                        <table class="legend-table">
+                            <thead>
+                                <tr>
+                                    <th>Anteil stärkerer Gegner</th>
+                                    <th>Niveau-Einstufung</th>
+                                    <th>Bedeutung für dich</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="font-weight: 600; color: var(--danger-color);">Über 50 %</td>
+                                    <td style="font-weight: bold; color: var(--danger-color);">Sehr Hoch</td>
+                                    <td>Du bist der Underdog. Mehr als die Hälfte des Feldes ist stärker eingestuft.</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 600; color: var(--accent-color);">21 % bis 50 %</td>
+                                    <td style="font-weight: bold; color: var(--accent-color);">Hoch</td>
+                                    <td>Sehr anspruchsvolles Starterfeld. Ein gutes Viertel steht vor dir.</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 600; color: var(--info-color);">6 % bis 20 %</td>
+                                    <td style="font-weight: bold; color: var(--info-color);">Mittel</td>
+                                    <td>Solides Mittelfeld-Turnier. Du bist vorne gut mit dabei.</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 600; color: var(--success-color);">Bis zu 5 %</td>
+                                    <td style="font-weight: bold; color: var(--success-color);">Gering</td>
+                                    <td>Du gehst als einer der absoluten Top-Favoriten ins Rennen!</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
                 <h3 style="margin: 30px 0 15px 0; font-size: 18px;">Gefundene Konkurrenten</h3>
                 
+                <!-- 🔍 FILTER-BAR -->
                 <div class="filter-bar">
                     <input type="text" id="search-name" class="filter-input" placeholder="Nach Name suchen..." oninput="applyFilters()">
                     
@@ -144,7 +203,8 @@
                 </div>
 
                 <div class="competitor-list" id="competitor-list">
-                    </div>
+                    <!-- Wird dynamisch durch JavaScript befüllt -->
+                </div>
             </div>
         </div>
     </div>
@@ -154,8 +214,8 @@
     
     <script>
         let currentShooters = [];
+        let userPersonalElo = 1700; 
 
-        // Mapping für Flaggen
         const countryCodes = {
             "germany": "de", "ger": "de", "deu": "de",
             "france": "fr", "fra": "fr",
@@ -169,7 +229,20 @@
             "GER": "Germany", "FRA": "France", "SUI": "Switzerland", "POL": "Poland", "PHI": "Philippines"
         };
 
-        // 1. AUTHENTIFIZIERUNG & ZUGRIFFSKONTROLLE (Eins-zu-Eins Kopie aus doppel-aa.html!)
+        // 🌟 Ein- und Ausklappen der Legende
+        function toggleLegend() {
+            const content = document.getElementById('legend-content');
+            const arrow = document.getElementById('legend-arrow');
+            if (content.style.display === 'block') {
+                content.style.display = 'none';
+                arrow.textContent = '▼';
+            } else {
+                content.style.display = 'block';
+                arrow.textContent = '▲';
+            }
+        }
+
+        // 1. AUTHENTIFIZIERUNG & LIZENZ-CHECK (Eins-zu-Eins Kopie aus doppel-aa.html!)[span_1](start_span)[span_1](end_span)
         const originalAuthChange = window.onAuthChange;
         window.onAuthChange = async (user) => {
             if (typeof originalAuthChange === "function") originalAuthChange(user);
@@ -182,16 +255,35 @@
                 return;
             }
 
-            const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa, ipsc_alias, username, real_name").eq("id", user.id).single();
-            if (!profile || profile.is_doppel_aa !== true) { 
+            const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa, ipsc_alias, username, real_name").eq("id", user.id).single();[span_2](start_span)[span_2](end_span)
+            if (!profile || profile.is_doppel_aa !== true) {[span_3](start_span)[span_3](end_span)
                 deniedBox.style.display = "block"; 
                 dashboard.style.display = "none"; 
                 return;
             }
 
-            window.userProfileData = profile; 
+            window.userProfileData = profile;[span_4](start_span)[span_4](end_span)
             deniedBox.style.display = "none";
             dashboard.style.display = "block";
+
+            // Profilnamen auswerten und persönliches ELO laden
+            if (profile.real_name) {[span_5](start_span)[span_5](end_span)
+                document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>Willkommen zurück, ${profile.real_name}!</strong> Lade einen Screenshot hoch, um das Starterfeld direkt mit deiner ELO-Stärke abzugleichen.`;
+                
+                const nameParts = profile.real_name.split(" ");[span_6](start_span)[span_6](end_span)
+                if (nameParts.length >= 2) {
+                    const dbSearchName = `${nameParts[1]}, ${nameParts[0]}`;
+                    const { data: userEloData } = await window.supabaseClient
+                        .from("elo_rankings")
+                        .select("elo_rating")
+                        .eq("lastname", dbSearchName)
+                        .maybeSingle();
+                        
+                    if (userEloData && userEloData.elo_rating) {
+                        userPersonalElo = parseFloat(userEloData.elo_rating);
+                    }
+                }
+            }
         };
 
         // 2. DRAG & DROP EVENTS
@@ -204,7 +296,7 @@
             if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);
         });
 
-        // 3. SCREENSHOT-VERARBEITUNG MIT UMLAUT-BEREINIGUNG & SUPABASE-LOOKUP
+        // 3. SCREENSHOT-VERARBEITUNG & SUPABASE-LOOKUP
         async function handleFileUpload(files) {
             if (files.length === 0) return;
             
@@ -235,7 +327,6 @@
                 currentShooters = [];
 
                 for (const shooter of ocrRecognizedNames) {
-                    // 🔄 AUTOMATISCHE UMLAUT-KORREKTUR (Behebt "Schoeps" -> "Schöps")
                     let saubererNachname = shooter.nachname
                         .replace(/ae/g, "ä").replace(/oe/g, "ö").replace(/ue/g, "ü")
                         .replace(/Ae/g, "Ä").replace(/Oe/g, "Ö").replace(/Ue/g, "Ü");
@@ -316,24 +407,40 @@
             renderList(filtered);
         }
 
-        // 6. STATISTIKEN BERECHNEN
+        // 6. STATISTIKEN BERECHNEN (Personalisiert nach deinem Profil-ELO)
         function calculateStats(shooters) {
-            const eloValues = shooters.map(s => s.elo).filter(e => typeof e === 'number' && !isNaN(e));
-            const count = eloValues.length;
-            const avg = count > 0 ? Math.round(eloValues.reduce((a, b) => a + b, 0) / count) : 0;
+            document.getElementById('stat-user-elo').textContent = userPersonalElo;
             
-            document.getElementById('stat-avg-elo').textContent = avg > 0 ? avg : "-";
-            document.getElementById('stat-count').textContent = count;
+            const rankedCompetitors = shooters.filter(s => typeof s.elo === 'number' && !isNaN(s.elo));
+            const totalRanked = rankedCompetitors.length;
+            
+            const strongerCompetitors = rankedCompetitors.filter(s => s.elo > userPersonalElo);
+            const strongerCount = strongerCompetitors.length;
+            
+            document.getElementById('stat-stronger-count').textContent = strongerCount;
+
+            const percentageStronger = totalRanked > 0 ? (strongerCount / totalRanked) * 100 : 0;
 
             let level = "Gering";
             let color = "var(--success-color)";
-            if (avg > 2200) { level = "Sehr Hoch"; color = "var(--danger-color)"; }
-            else if (avg > 1950) { level = "Hoch"; color = "var(--accent-color)"; }
-            else if (avg > 1750) { level = "Mittel"; color = "var(--info-color)"; }
+            
+            if (percentageStronger > 50) { 
+                level = "Sehr Hoch"; 
+                color = "var(--danger-color)";
+            } else if (percentageStronger > 20) { 
+                level = "Hoch"; 
+                color = "var(--accent-color)";
+            } else if (percentageStronger > 5) { 
+                level = "Mittel"; 
+                color = "var(--info-color)";
+            } else {
+                level = "Gering";
+                color = "var(--success-color)";
+            }
             
             const levelStat = document.getElementById('stat-level');
-            levelStat.textContent = count > 0 ? level : "-";
-            levelStat.style.color = count > 0 ? color : "var(--text-color)";
+            levelStat.textContent = totalRanked > 0 ? level : "-";
+            levelStat.style.color = totalRanked > 0 ? color : "var(--text-color)";
         }
 
         // 7. LISTE RENDERN
@@ -348,6 +455,11 @@
             shooters.forEach(s => {
                 let eloDisplay = s.elo !== "-" ? s.elo : "Kein Eintrag";
                 
+                let nameStyle = "";
+                if (typeof s.elo === 'number' && s.elo > userPersonalElo) {
+                    nameStyle = 'style="color: var(--danger-color);" title="Dieser Schütze hat ein höheres ELO als du!"';
+                }
+
                 const normalizedRegion = s.region.toLowerCase().trim();
                 const code = countryCodes[normalizedRegion] || "";
                 const flagHtml = code ? `<span class="fi fi-${code}"></span>` : `🌍`;
@@ -355,7 +467,7 @@
                 html += `
                     <div class="competitor-row">
                         <div class="competitor-info">
-                            <span class="competitor-name">${s.name}</span>
+                            <span class="competitor-name" ${nameStyle}>${s.name} ${typeof s.elo === 'number' && s.elo > userPersonalElo ? '🔥' : ''}</span>
                             <span class="competitor-meta">${flagHtml} ${s.region} | ${s.division}</span>
                         </div>
                         <div class="competitor-elo">
