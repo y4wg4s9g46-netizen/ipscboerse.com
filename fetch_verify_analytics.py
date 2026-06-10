@@ -62,15 +62,31 @@ def name_matches(real_name, text_to_search):
             return False
     return True
 
+# --- NEU: Erweiterte Funktion für Schützen & Cache laden ---
 def get_active_shooters():
     try:
-        response = supabase.table("profiles").select("id, real_name").not_.is_("real_name", "null").execute()
+        # Lade 'history_scanned' mit, um neue User zu erkennen
+        response = supabase.table("profiles").select("id, real_name, history_scanned").not_.is_("real_name", "null").execute()
         shooters = [s for s in response.data if s.get("real_name") and str(s["real_name"]).strip() != ""]
-        print(f"👥 INFO: Suche aktiv nach Schützen: {[s['real_name'] for s in shooters]}")
-        return shooters
+        
+        # Filtern: Wer ist komplett neu?
+        new_shooters = [s for s in shooters if s.get("history_scanned") is False]
+        
+        print(f"👥 INFO: {len(shooters)} aktive Schützen gesamt. Davon {len(new_shooters)} NEUE Schützen.")
+        return shooters, new_shooters
     except Exception as e:
         print(f"❌ Fehler beim Laden der Profile: {e}")
-        return []
+        return [], []
+
+def load_url_cache():
+    print("🔍 Lade Cache aus Supabase...")
+    try:
+        response = supabase.table("scrape_cache").select("url, last_modified").execute()
+        return {row["url"]: row["last_modified"] for row in response.data}
+    except Exception as e:
+        print(f"⚠️ Konnte Cache nicht laden (Existiert die Tabelle 'scrape_cache'?): {e}")
+        return {}
+# -----------------------------------------------------------
 
 def extract_float(text):
     try:
@@ -93,8 +109,10 @@ def load_master_page():
     return None
 
 def scrape_verify_list():
-    shooters = get_active_shooters()
+    shooters, new_shooters = get_active_shooters()
     if not shooters: return
+    
+    url_cache = load_url_cache()
 
     soup = load_master_page()
     if not soup: return
@@ -134,7 +152,7 @@ def scrape_verify_list():
 
     print(f"📋 {len(matches_found)} Turniere gefunden. Starte smarte Analyse...")
 
-    pdf_count = 0  # 🎯 HIER WIRD DER ZÄHLER INITIALISIERT
+    pdf_count = 0  
 
     for data in matches_found:
         m_id = data["id"]
@@ -148,10 +166,30 @@ def scrape_verify_list():
             if url in visited_urls: continue
             visited_urls.add(url)
             
-            print(f"   🔗 Scanne: {url}")
-            time.sleep(0.5)
-            
             try:
+                # --- NEU: INTELLIGENTER CACHE CHECK ---
+                head_res = session.head(url, headers=HEADERS, timeout=TIMEOUT_SECONDS, allow_redirects=True)
+                server_last_modified = head_res.headers.get('Last-Modified', '') if head_res.status_code == 200 else ''
+                
+                is_modified = True
+                if head_res.status_code == 200 and url in url_cache and url_cache[url] == server_last_modified and server_last_modified != '':
+                    is_modified = False
+                
+                has_new_users = len(new_shooters) > 0
+                
+                if not is_modified and not has_new_users:
+                    print(f"   ⏩ Überspringe (bereits aktuell & keine neuen User): {url}")
+                    continue
+                
+                if not is_modified and has_new_users:
+                    current_search_shooters = new_shooters
+                    print(f"   🕵️‍♂️ {url} -> Datei ist alt, durchsuche NUR nach {len(new_shooters)} neuen Usern.")
+                else:
+                    current_search_shooters = shooters
+                    print(f"   ⬇️ {url} -> Lade Datei neu (Geändert oder noch nicht im Cache).")
+                    time.sleep(0.5)
+
+                # --- START DOWNLOAD ---
                 res = session.get(url, headers=HEADERS, timeout=TIMEOUT_SECONDS)
                 if res.status_code != 200: continue
                 
@@ -159,7 +197,7 @@ def scrape_verify_list():
                 
                 # --- PDF SMART PARSER ---
                 if 'application/pdf' in content_type:
-                    pdf_count += 1  # 🎯 ZÄHLER ERHÖHEN
+                    pdf_count += 1  
                     
                     pdf_file = io.BytesIO(res.content)
                     reader = PdfReader(pdf_file)
@@ -203,7 +241,8 @@ def scrape_verify_list():
                                 if int(numeric_vals[0]) == 1 or int(numeric_vals[0]) == 100:
                                     if numeric_vals[3] > 0: current_winner_hf_pdf = numeric_vals[3]
 
-                            for shooter in shooters:
+                            # 🔥 HIER: Die dynamische Suchliste verwenden!
+                            for shooter in current_search_shooters:
                                 if name_matches(shooter["real_name"], line):
                                     if len(numeric_vals) >= 6: # Stage-Ergebnis
                                         rank_val = int(numeric_vals[0])
@@ -241,7 +280,6 @@ def scrape_verify_list():
                                         supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
                                         print(f"   🔥 {shooter['real_name']} in PDF (Overall) gespeichert! ({current_div_pdf} - {percentage}% - {pts_val} PTS)")
 
-                    # 🎯 HIER WIRD DIE PAUSE EINGELEGT
                     if pdf_count % 20 == 0:
                         print(f"⏳ {pdf_count} PDFs verarbeitet. Lege {PAUSE_SECONDS} Sekunden Pause ein, um den Server zu schonen...")
                         time.sleep(PAUSE_SECONDS)
@@ -302,7 +340,8 @@ def scrape_verify_list():
                             if rank_str == '1' or rank_str == '100,00':
                                 if hf > 0: current_winner_hf = hf
 
-                            for shooter in shooters:
+                            # 🔥 HIER: Die dynamische Suchliste verwenden!
+                            for shooter in current_search_shooters:
                                 if name_matches(shooter["real_name"], row_text):
                                     stage_name_to_save = cells[2].text.strip() if is_verify else current_stage_title
                                     rank_val = int(rank_str) if rank_str.isdigit() else 0
@@ -326,9 +365,27 @@ def scrape_verify_list():
                                     except: pass
 
                                     supabase.table("user_match_analytics").upsert(payload, on_conflict="user_id,match_id,stage_name").execute()
+                
+                # --- NEU: CACHE AKTUALISIEREN ---
+                if server_last_modified:
+                    supabase.table("scrape_cache").upsert({
+                        "url": url, 
+                        "last_modified": server_last_modified
+                    }).execute()
+
             except Exception as e:
+                print(f"❌ Fehler beim Verarbeiten von {url}: {e}")
                 pass
                 
+    # --- NEU: NEUE USER ALS GESCANNT MARKIEREN ---
+    if new_shooters:
+        print("🧹 Markiere neue User als vollständig gescannt...")
+        for user in new_shooters:
+            try:
+                supabase.table("profiles").update({"history_scanned": True}).eq("id", user["id"]).execute()
+            except Exception as e:
+                print(f"⚠️ Konnte history_scanned für {user['real_name']} nicht updaten: {e}")
+
     print("🏁 Smart-Analyse erfolgreich beendet!")
 
 if __name__ == "__main__":
