@@ -45,7 +45,7 @@ DIVISION_URL_IDS = {
 }
 
 ROWS_PER_PAGE_TARGET = 1000
-MAX_PAGES_PER_DIVISION = 10
+MAX_PAGES_PER_DIVISION = 20
 PAGE_LOAD_WAIT_SECONDS = 10
 
 
@@ -87,13 +87,99 @@ def wait_for_table(driver, timeout=25):
 
 
 def get_showing_info(driver):
-    """Liest z.B. 'Showing 5001 to 5649 of 5649 rows' aus."""
-    text = driver.find_element(By.TAG_NAME, "body").text
-    m = re.search(r"Showing\s+(\d+)\s+to\s+(\d+)\s+of\s+(\d+)\s+rows", text, re.I)
-    if not m:
-        return (0, 0, 0)
-    return (safe_int(m.group(1)), safe_int(m.group(2)), safe_int(m.group(3)))
+    """Liest die sichtbare Tabellenanzeige nahe der grossen Tabelle.
 
+    Wichtig: Auf ipscelo.com koennen mehrere "Showing ..." Texte im DOM liegen.
+    Deshalb nehmen wir nicht einfach den ersten Treffer im body, sondern den Text
+    direkt unter der groessten sichtbaren Tabelle.
+    """
+    try:
+        script = """
+        function isVisible(el) {
+          const r = el.getBoundingClientRect();
+          const style = window.getComputedStyle(el);
+          return style.display !== 'none' &&
+                 style.visibility !== 'hidden' &&
+                 r.width > 0 &&
+                 r.height > 0 &&
+                 r.bottom > 0 &&
+                 r.top < window.innerHeight;
+        }
+
+        const tables = Array.from(document.querySelectorAll('table'))
+          .filter(isVisible)
+          .map(t => ({el: t, rect: t.getBoundingClientRect(), rows: t.querySelectorAll('tr').length}))
+          .sort((a, b) => b.rows - a.rows);
+
+        if (!tables.length) return '';
+
+        const table = tables[0];
+        const bottom = table.rect.bottom;
+        const left = table.rect.left - 80;
+        const right = table.rect.right + 80;
+
+        const pieces = [];
+        for (const el of Array.from(document.querySelectorAll('body *'))) {
+          if (!isVisible(el)) continue;
+          const r = el.getBoundingClientRect();
+          if (r.top >= bottom - 20 && r.top <= bottom + 260 && r.right >= left && r.left <= right) {
+            const txt = (el.innerText || el.textContent || '').trim().replace(/\s+/g, ' ');
+            if (txt && txt.includes('Showing')) pieces.push(txt);
+          }
+        }
+        return pieces.join(' | ');
+        """
+        near_table_text = driver.execute_script(script) or ""
+        m = re.search(r"Showing\s+(\d+)\s+(?:to|-)\s+(\d+)\s+of\s+(\d+)\s+rows", near_table_text, re.I)
+        if m:
+            return (safe_int(m.group(1)), safe_int(m.group(2)), safe_int(m.group(3)))
+    except Exception:
+        pass
+
+    # Fallback: alter Weg ueber body-Text.
+    try:
+        text = driver.find_element(By.TAG_NAME, "body").text
+        matches = re.findall(r"Showing\s+(\d+)\s+(?:to|-)\s+(\d+)\s+of\s+(\d+)\s+rows", text, re.I)
+        if matches:
+            # Nimm den Treffer mit dem groessten Total, damit versteckte/kleine Tabellen
+            # nicht versehentlich die Haupttabelle ueberschreiben.
+            best = max(matches, key=lambda x: safe_int(x[2]))
+            return (safe_int(best[0]), safe_int(best[1]), safe_int(best[2]))
+    except Exception:
+        pass
+
+    return (0, 0, 0)
+
+
+def get_visible_table_row_count(driver):
+    df = get_biggest_table(driver)
+    if df is None:
+        return 0
+    return len(df)
+
+
+def wait_until_showing_range(driver, expected_start, expected_end, total_rows, timeout=45):
+    """Wartet, bis unten die erwartete Range steht und genug Tabellenzeilen geladen sind."""
+    deadline = time.time() + timeout
+    expected_count = max(1, expected_end - expected_start + 1) if expected_end and expected_start else 0
+
+    while time.time() < deadline:
+        try:
+            wait_for_table(driver, timeout=5)
+            start, end, total = get_showing_info(driver)
+            row_count = get_visible_table_row_count(driver)
+
+            total_ok = (not total_rows) or (total == total_rows) or (total >= total_rows)
+            range_ok = start == expected_start and end == expected_end
+            rows_ok = (not expected_count) or row_count >= min(expected_count, ROWS_PER_PAGE_TARGET) * 0.95
+
+            if total_ok and range_ok and rows_ok:
+                return True
+        except Exception:
+            pass
+        time.sleep(2)
+
+    return False
 
 def get_total_rows_from_page(driver):
     return get_showing_info(driver)[2]
@@ -259,10 +345,9 @@ def set_rows_per_page_1000(driver):
 
 
 def click_table_pagination(driver, target_page, total_rows):
-    """Klickt die echte Tabellen-Pagination und wartet, bis die erwartete Range sichtbar ist."""
+    """Klickt die echte Tabellen-Pagination und wartet auf die exakte Ziel-Range."""
     expected_start = ((target_page - 1) * ROWS_PER_PAGE_TARGET) + 1
     expected_end = min(target_page * ROWS_PER_PAGE_TARGET, total_rows) if total_rows else 0
-    old_sig = table_signature(driver)
 
     script = """
     const target = String(arguments[0]);
@@ -287,7 +372,7 @@ def click_table_pagination(driver, target_page, total_rows):
       const txt = (el.innerText || el.textContent || '').trim();
       const r = el.getBoundingClientRect();
       const disabled = el.disabled || el.classList.contains('disabled') || el.getAttribute('aria-disabled') === 'true';
-      if (!disabled && isVisible(el) && txt === target && r.top >= tableBottom - 40 && r.top < tableBottom + 220) {
+      if (!disabled && isVisible(el) && txt === target && r.top >= tableBottom - 60 && r.top < tableBottom + 260) {
         el.scrollIntoView({block: 'center'});
         el.click();
         return true;
@@ -295,7 +380,6 @@ def click_table_pagination(driver, target_page, total_rows):
     }
 
     // 2) Sonst den echten Tabellen-Weiter-Button rechts unter der Tabelle klicken.
-    const nextTexts = new Set(['âº', '>', 'Next', 'next']);
     const nextCandidates = [];
     for (const el of clickables) {
       const txt = (el.innerText || el.textContent || '').trim();
@@ -303,8 +387,8 @@ def click_table_pagination(driver, target_page, total_rows):
       const title = (el.getAttribute('title') || '').toLowerCase();
       const r = el.getBoundingClientRect();
       const disabled = el.disabled || el.classList.contains('disabled') || el.getAttribute('aria-disabled') === 'true';
-      const isNext = nextTexts.has(txt) || aria.includes('next') || title.includes('next');
-      if (!disabled && isVisible(el) && isNext && r.top >= tableBottom - 40 && r.top < tableBottom + 220) {
+      const isNext = txt === 'âº' || txt === '>' || txt === 'Next' || aria.includes('next') || title.includes('next');
+      if (!disabled && isVisible(el) && isNext && r.top >= tableBottom - 60 && r.top < tableBottom + 260) {
         nextCandidates.push({el, left: r.left});
       }
     }
@@ -320,29 +404,18 @@ def click_table_pagination(driver, target_page, total_rows):
     if not clicked:
         return False
 
-    # Nach Klick bewusst warten, weil ipscelo die Daten verzoegert nachlaedt.
+    # ipscelo laedt nach dem Seitenwechsel sichtbar verzoegert.
     time.sleep(PAGE_LOAD_WAIT_SECONDS)
 
-    # Danach bis zu 20 Sekunden warten, bis "Showing ..." zur Zielseite passt.
-    deadline = time.time() + 20
-    while time.time() < deadline:
-        try:
-            wait_for_table(driver, timeout=5)
-            start, end, total = get_showing_info(driver)
-            sig = table_signature(driver)
+    if total_rows and expected_end:
+        return wait_until_showing_range(driver, expected_start, expected_end, total_rows, timeout=45)
 
-            if total_rows and start == expected_start and end == expected_end:
-                return True
-
-            # Fallback: Signatur hat sich geaendert und Start ist plausibel.
-            if sig and sig != old_sig and (not total_rows or start >= expected_start):
-                return True
-
-        except Exception:
-            pass
-        time.sleep(2)
-
-    return False
+    # Fallback ohne Total: kurze Wartezeit reicht dann.
+    try:
+        wait_for_table(driver, timeout=10)
+        return True
+    except Exception:
+        return False
 
 
 def dataframe_to_entries(df, division, total_rows=0, expected_start=0, expected_end=0):
@@ -465,7 +538,9 @@ def scrape_division(driver, division):
 
     for page_no in range(1, expected_pages + 1):
         start, end, current_total = get_showing_info(driver)
-        if current_total:
+        # Total rows darf waehrend einer Division nicht kleiner werden.
+        # Sonst koennen falsche/alte "Showing"-Texte die Pagination zu frueh stoppen.
+        if current_total and current_total > total_rows:
             total_rows = current_total
 
         expected_start = ((page_no - 1) * ROWS_PER_PAGE_TARGET) + 1
@@ -496,10 +571,9 @@ def scrape_division(driver, division):
 
         log(f"{division}: {new_count} neue Eintraege von Seite {page_no} uebernommen.")
 
-        if page_no > 1 and new_count == 0:
-            log(f"STOP: {division}: Seite {page_no} brachte 0 neue Eintraege. Stoppe Division gegen Endlosschleife.")
-            break
-
+        # Nicht wegen 0 neuen Eintraegen abbrechen: bei langsamem Nachladen kann sonst
+        # eine Division zu frueh enden. Gegen Endlosschleifen schuetzt der exakte
+        # "Showing X to Y of Z"-Check in click_table_pagination.
         if page_no >= expected_pages:
             break
 
