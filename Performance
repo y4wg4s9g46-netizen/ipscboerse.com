@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance-Check | IPSC ELO Analyse</title>
+    
+    <style>
+        :root, html[data-theme="light"] {
+            --bg-color: #f8f9fa; --card-bg: #ffffff; --text-color: #1e293b; --text-muted: #64748b;
+            --border-color: #e2e8f0; --input-bg: #ffffff; --accent-color: #ff9f43; --danger-color: #ef4444;
+            --success-color: #10b981; --info-color: #3b82f6; --radius: 8px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        html[data-theme="dark"] {
+            --bg-color: #0f172a; --card-bg: #1e293b; --text-color: #f8fafc; --text-muted: #94a3b8;
+            --border-color: #334155; --input-bg: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; min-height: 100vh; }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+        
+        header { text-align: center; padding: 15px 0; }
+        header h1 { margin: 0; color: var(--text-color); font-size: 24px; }
+        
+        .info-box { background-color: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--info-color); color: var(--text-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; border: 1px solid var(--border-color); border-left: 4px solid var(--info-color); }
+        .danger-box { background-color: rgba(239, 68, 68, 0.08); border-left: 4px solid var(--danger-color); color: var(--danger-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; font-weight: bold; text-align: center; }
+        
+        /* 📤 UPLOAD ZONE */
+        .upload-zone { border: 2px dashed var(--accent-color); background-color: rgba(255, 159, 67, 0.03); padding: 50px 20px; text-align: center; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; margin-bottom: 30px; }
+        .upload-zone:hover { background-color: rgba(255, 159, 67, 0.08); }
+        .upload-icon { font-size: 48px; margin-bottom: 15px; }
+        .upload-title { font-size: 18px; font-weight: 600; color: var(--text-color); margin: 0 0 10px 0; }
+        .upload-desc { font-size: 14px; color: var(--text-muted); margin: 0; }
+        #file-input { display: none; }
+
+        /* 📊 ANALYSIS RESULTS */
+        #analysis-results { display: none; }
+        .elo-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+        .elo-stat-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm); }
+        .elo-stat-val { font-size: 24px; font-weight: 700; color: var(--accent-color); margin-bottom: 5px; }
+        .elo-stat-lbl { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+
+        .competitor-list { display: flex; flex-direction: column; gap: 10px; }
+        .competitor-row { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px 20px; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); }
+        .competitor-info { display: flex; flex-direction: column; gap: 4px; }
+        .competitor-name { font-size: 16px; font-weight: 600; color: var(--text-color); }
+        .competitor-meta { font-size: 12px; color: var(--text-muted); }
+        .competitor-elo { display: flex; align-items: center; gap: 10px; }
+        .elo-score { font-size: 18px; font-weight: 700; color: var(--text-color); }
+        .elo-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .badge-gm { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); } /* Grand Master */
+        .badge-m { background: rgba(255, 159, 67, 0.1); color: var(--accent-color); } /* Master */
+        .badge-a { background: rgba(16, 185, 129, 0.1); color: var(--success-color); } /* A Class */
+        .badge-u { background: rgba(100, 116, 139, 0.1); color: var(--text-muted); } /* Unclassified */
+
+        /* LOADING SPINNER */
+        .loader-container { display: none; text-align: center; padding: 40px; }
+        .spinner { border: 4px solid rgba(0,0,0,0.1); border-left-color: var(--accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @media (max-width: 650px) {
+            .elo-stats-grid { grid-template-columns: 1fr; }
+            .competitor-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .competitor-elo { width: 100%; justify-content: space-between; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Performance-Check | IPSC ELO Analyse</h1>
+    </header>
+
+    <div class="container">
+        <!-- SPERRBILDSCHIRM BEI FEHLENDER LIZENZ -->
+        <div id="access-denied" class="danger-box" style="padding: 40px 20px; border-radius: var(--radius); text-align: center; background-color: rgba(239, 68, 68, 0.04); border: 1px solid var(--border-color); border-left: 4px solid var(--danger-color); box-shadow: var(--shadow-sm);">
+            <div style="font-size: 48px; margin-bottom: 15px;">🔒</div>
+            <h2 style="margin: 0 0 10px 0; font-size: 20px; color: var(--text-color);">Zugriff verweigert</h2>
+            <p style="margin: 0; color: var(--text-muted); font-size: 14px; line-height: 1.5;">
+                Dieses Feature steht exklusiv Konten mit der aktiven Erweiterung <strong>Doppel AA</strong> zur Verfügung.<br>
+                Bitte kontaktiere den Support oder stelle sicher, dass du eingeloggt bist.
+            </p>
+        </div>
+
+        <!-- HAUPT-DASHBOARD -->
+        <div id="dashboard-content" style="display: none;">
+            <div class="info-box">
+                <strong>📸 Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste (z.B. aus ipscmatch.de) hoch. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
+            </div>
+
+            <!-- UPLOAD BEREICH -->
+            <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click();">
+                <div class="upload-icon">📄</div>
+                <h3 class="upload-title">Screenshot hier hochladen</h3>
+                <p class="upload-desc">Klicke hier oder ziehe ein Bild hinein (JPG, PNG).</p>
+                <input type="file" id="file-input" accept="image/*" onchange="handleFileUpload(this.files)">
+            </div>
+
+            <!-- LADEANIMATION -->
+            <div class="loader-container" id="loader">
+                <div class="spinner"></div>
+                <h3 style="margin: 0; color: var(--text-color);">Analysiere Starterfeld...</h3>
+                <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 14px;">Texterkennung läuft und ELO-Datenbank wird abgefragt.</p>
+            </div>
+
+            <!-- ERGEBNIS BEREICH -->
+            <div id="analysis-results">
+                <h2 style="margin-bottom: 20px;">Auswertung: <span style="color: var(--accent-color);">Optics Overall</span></h2>
+                
+                <div class="elo-stats-grid">
+                    <div class="elo-stat-card">
+                        <div class="elo-stat-val" id="stat-avg-elo">2245</div>
+                        <div class="elo-stat-lbl">Ø ELO der Konkurrenz</div>
+                    </div>
+                    <div class="elo-stat-card">
+                        <div class="elo-stat-val" id="stat-count">8</div>
+                        <div class="elo-stat-lbl">Erkannte ELO-Gegner</div>
+                    </div>
+                    <div class="elo-stat-card">
+                        <div class="elo-stat-val" style="color: var(--danger-color);" id="stat-level">Sehr Hoch</div>
+                        <div class="elo-stat-lbl">Wettkampf-Niveau</div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 15px 0; font-size: 18px;">Gefundene Konkurrenten (Ranking)</h3>
+                <div class="competitor-list" id="competitor-list">
+                    <!-- Wird durch JavaScript befüllt -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script> <!-- Dein bestehendes Auth-Skript -->
+    
+    <script>
+        // 1. AUTHENTIFIZIERUNG & ZUGRIFFSKONTROLLE
+        const originalAuthChange = window.onAuthChange;
+        
+        window.onAuthChange = async (user) => {
+            if (typeof originalAuthChange === "function") originalAuthChange(user);
+            const deniedBox = document.getElementById("access-denied");
+            const dashboard = document.getElementById("dashboard-content");
+
+            if (!user) { 
+                deniedBox.style.display = "block"; 
+                dashboard.style.display = "none"; 
+                deniedBox.innerHTML = '<div style="font-size: 48px; margin-bottom: 15px;">👤</div><h2 style="margin: 0 0 10px 0; font-size: 20px; color: var(--text-color);">Bitte einloggen</h2><p style="margin: 0; color: var(--text-muted); font-size: 14px;">Melde dich an, um deinen Lizenzstatus zu prüfen.</p>';
+                return; 
+            }
+
+            // Prüft, ob Doppel AA im Benutzerprofil aktiv ist
+            const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa").eq("id", user.id).single();
+            if (!profile || profile.is_doppel_aa !== true) { 
+                deniedBox.style.display = "block"; 
+                dashboard.style.display = "none"; 
+                deniedBox.innerHTML = '<div style="font-size: 48px; margin-bottom: 15px;">🔒</div><h2 style="margin: 0 0 10px 0; font-size: 20px; color: var(--text-color);">Zugriff verweigert</h2><p style="margin: 0; color: var(--text-muted); font-size: 14px;">Dieses Premium-Feature steht exklusiv Konten mit aktiver <strong>Doppel AA</strong> Erweiterung zur Verfügung.</p>';
+                return; 
+            }
+
+            // Zugriff gewährt
+            deniedBox.style.display = "none";
+            dashboard.style.display = "block";
+        };
+
+        // 2. DRAG & DROP EVENT LISTENERS
+        const dropZone = document.getElementById('drop-zone');
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = "var(--info-color)";
+            dropZone.style.backgroundColor = "rgba(59, 130, 246, 0.08)";
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = "var(--accent-color)";
+            dropZone.style.backgroundColor = "rgba(255, 159, 67, 0.03)";
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = "var(--accent-color)";
+            dropZone.style.backgroundColor = "rgba(255, 159, 67, 0.03)";
+            if (e.dataTransfer.files.length > 0) {
+                handleFileUpload(e.dataTransfer.files);
+            }
+        });
+
+        // 3. UPLOAD & ANALYSE LOGIK
+        function handleFileUpload(files) {
+            if (files.length === 0) return;
+            const file = files[0];
+            
+            // UI anpassen
+            document.getElementById('analysis-results').style.display = 'none';
+            document.getElementById('loader').style.display = 'block';
+            
+            // HIER WÜRDE DEINE BACKEND-API (OCR + Supabase-Abgleich) AUFGERUFEN WERDEN.
+            // Für die Frontend-Demonstration simulieren wir die OCR und Datenbankabfrage:
+            
+            setTimeout(() => {
+                document.getElementById('loader').style.display = 'none';
+                renderMockResults();
+            }, 2500); // Simuliert 2.5 Sekunden Ladezeit
+        }
+
+        // 4. ERGEBNISSE ANZEIGEN (Demonstrations-Daten)
+        function renderMockResults() {
+            const resultsContainer = document.getElementById('analysis-results');
+            const listContainer = document.getElementById('competitor-list');
+            
+            // Beispiel-Daten passend zum Screenshot
+            const detectedShooters = [
+                { name: "Steffen Lorber", division: "Optics Overall", region: "GER", elo: 2496, rankClass: "GM", classStyle: "badge-gm" },
+                { name: "Daniel Klos", division: "Optics Overall", region: "GER", elo: 2374, rankClass: "GM", classStyle: "badge-gm" },
+                { name: "Matijas Zubcic", division: "Optics Overall", region: "GER", elo: 2202, rankClass: "M", classStyle: "badge-m" },
+                { name: "Luca Sahlmüller", division: "Optics Overall", region: "GER", elo: 2189, rankClass: "A", classStyle: "badge-a" },
+                { name: "Michael Dirmeier", division: "Optics Overall", region: "GER", elo: 1950, rankClass: "B", classStyle: "badge-u" },
+                { name: "Fabian Schoeps", division: "Optics Overall", region: "GER", elo: "-", rankClass: "Unranked", classStyle: "badge-u" }
+            ];
+
+            let html = "";
+            detectedShooters.forEach(s => {
+                let eloDisplay = s.elo !== "-" ? s.elo : "Kein Eintrag";
+                html += `
+                    <div class="competitor-row">
+                        <div class="competitor-info">
+                            <span class="competitor-name">${s.name}</span>
+                            <span class="competitor-meta">${s.region} | ${s.division}</span>
+                        </div>
+                        <div class="competitor-elo">
+                            <span class="elo-score">${eloDisplay}</span>
+                            <span class="elo-badge ${s.classStyle}">${s.rankClass}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            listContainer.innerHTML = html;
+            resultsContainer.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
