@@ -20,7 +20,7 @@
     {
         "name": "Allauch Crow Cup 2026",
         "datum": "05.07.2026",
-        "auslastung": "81%",
+        "auslastung": "80%",
         "region": "FRA",
         "level": "2",
         "disziplin": "HG",
@@ -81,15 +81,6 @@
         "url": "https://www.ipscmatch.de/index.pl?match=2026_VM_Thueringen"
     },
     {
-        "name": "Shotgun Cup 2026",
-        "datum": "23.08.2026",
-        "auslastung": "90%",
-        "region": "GER",
-        "level": "3",
-        "disziplin": "SG",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_Shotgun_Cup"
-    },
-    {
         "name": "Hubertus Summercup 2026 PCC",
         "datum": "31.08.2026",
         "auslastung": "85%",
@@ -146,7 +137,7 @@
     {
         "name": "360° PCC powered by 3G",
         "datum": "18.10.2026",
-        "auslastung": "91%",
+        "auslastung": "92%",
         "region": "POL",
         "level": "3",
         "disziplin": "PCC",
@@ -164,7 +155,7 @@
     {
         "name": "LM LV4 2027 Prd, PdO",
         "datum": "10.01.2027",
-        "auslastung": "87%",
+        "auslastung": "88%",
         "region": "GER",
         "level": "3",
         "disziplin": "HG",
