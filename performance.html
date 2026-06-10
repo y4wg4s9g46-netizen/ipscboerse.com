@@ -239,6 +239,74 @@
             }
         }
 
+
+        // 🔎 Robuster ELO-Lookup: Name + Division, mit Umlaut-/Schreibvarianten
+        function uniqueArray(values) {
+            return [...new Set(values.filter(Boolean))];
+        }
+
+        function nameVariants(value) {
+            if (!value) return [];
+            const variants = [value.trim()];
+            const replacements = [
+                [/ä/g, "ae"], [/ö/g, "oe"], [/ü/g, "ue"], [/Ä/g, "Ae"], [/Ö/g, "Oe"], [/Ü/g, "Ue"], [/ß/g, "ss"],
+                [/ae/g, "ä"], [/oe/g, "ö"], [/ue/g, "ü"], [/Ae/g, "Ä"], [/Oe/g, "Ö"], [/Ue/g, "Ü"]
+            ];
+            for (const [from, to] of replacements) {
+                variants.push(value.replace(from, to).trim());
+            }
+            return uniqueArray(variants);
+        }
+
+        function buildSearchNameCandidates(vorname, nachname) {
+            const firstVariants = nameVariants(vorname);
+            const lastVariants = nameVariants(nachname);
+            const candidates = [];
+
+            for (const last of lastVariants) {
+                for (const first of firstVariants) {
+                    candidates.push(`${last}, ${first}`);
+                }
+            }
+            return uniqueArray(candidates);
+        }
+
+        async function findEloEntry(shooter) {
+            const division = shooter.division;
+            const candidates = buildSearchNameCandidates(shooter.vorname, shooter.nachname);
+
+            // 1) Exakter Treffer: lastname + division
+            for (const candidate of candidates) {
+                const { data, error } = await window.supabaseClient
+                    .from("elo_rankings")
+                    .select("elo_rating, class_style, division, lastname, rank")
+                    .eq("lastname", candidate)
+                    .eq("division", division)
+                    .limit(1);
+
+                if (!error && data && data.length > 0) return data[0];
+            }
+
+            // 2) Fallback: Nachname/Vorname als Teiltreffer, aber weiterhin innerhalb der Division
+            const lastCandidates = nameVariants(shooter.nachname);
+            const firstCandidates = nameVariants(shooter.vorname);
+
+            for (const last of lastCandidates) {
+                for (const first of firstCandidates) {
+                    const { data, error } = await window.supabaseClient
+                        .from("elo_rankings")
+                        .select("elo_rating, class_style, division, lastname, rank")
+                        .eq("division", division)
+                        .ilike("lastname", `%${last}%${first}%`)
+                        .limit(1);
+
+                    if (!error && data && data.length > 0) return data[0];
+                }
+            }
+
+            return null;
+        }
+
         // 🛡️ ZENTRALE VERIFIZIERUNGS-LOGIK (Verarbeitet das geladene Profil)
         async function processUserProfile(user) {
             const deniedBox = document.getElementById("access-denied");
@@ -346,25 +414,16 @@
                 currentShooters = [];
 
                 for (const shooter of ocrRecognizedNames) {
-                    let saubererNachname = shooter.nachname
-                        .replace(/ae/g, "ä").replace(/oe/g, "ö").replace(/ue/g, "ü")
-                        .replace(/Ae/g, "Ä").replace(/Oe/g, "Ö").replace(/Ue/g, "Ü");
-
-                    const searchName = `${saubererNachname}, ${shooter.vorname}`;
+                    const displayName = `${shooter.nachname}, ${shooter.vorname}`;
                     const fullCountryName = countryNameFormat[shooter.regionRaw] || shooter.regionRaw;
-
-                    const { data: dbEntry, error } = await window.supabaseClient
-                        .from("elo_rankings")
-                        .select("elo_rating, class_style")
-                        .eq("lastname", searchName)
-                        .maybeSingle();
+                    const dbEntry = await findEloEntry(shooter);
 
                     let eloValue = "-";
                     let rankClass = "Unranked";
                     let classStyle = "badge-u";
 
-                    if (dbEntry && !error) {
-                        eloValue = dbEntry.elo_rating;
+                    if (dbEntry && dbEntry.elo_rating !== null && dbEntry.elo_rating !== undefined) {
+                        eloValue = Number(dbEntry.elo_rating);
                         rankClass = dbEntry.class_style || "A";
                         
                         if (eloValue >= 2300) classStyle = "badge-gm";
@@ -373,7 +432,7 @@
                     }
 
                     currentShooters.push({
-                        name: searchName,
+                        name: displayName,
                         division: shooter.division + " Overall",
                         region: fullCountryName,
                         elo: eloValue,
