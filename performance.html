@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Performance-Check | IPSC ELO Analyse</title>
     
+    <!-- 🌍 Offizielle Flaggen-Icons (CSS-Bibliothek) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+
     <style>
         :root, html[data-theme="light"] {
             --bg-color: #f8f9fa; --card-bg: #ffffff; --text-color: #1e293b; --text-muted: #64748b;
@@ -24,7 +27,7 @@
         header { text-align: center; padding: 15px 0; }
         header h1 { margin: 0; color: var(--text-color); font-size: 24px; }
         
-        .info-box { background-color: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--info-color); color: var(--text-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; border: 1px solid var(--border-color); border-left: 4px solid var(--info-color); }
+        .info-box { background-color: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--info-color); color: var(--text-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; border: 1px solid var(--border-color); }
         .danger-box { background-color: rgba(239, 68, 68, 0.08); border-left: 4px solid var(--danger-color); color: var(--danger-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; font-weight: bold; text-align: center; }
         
         /* 📤 UPLOAD ZONE */
@@ -42,18 +45,29 @@
         .elo-stat-val { font-size: 24px; font-weight: 700; color: var(--accent-color); margin-bottom: 5px; }
         .elo-stat-lbl { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
 
+        /* 🔍 INTERAKTIVE FILTER-BAR */
+        .filter-bar { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; box-shadow: var(--shadow-sm); }
+        .filter-input { flex: 2; min-width: 200px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 12px; border-radius: 6px; font-size: 14px; outline: none; }
+        .filter-select { flex: 1; min-width: 140px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 12px; border-radius: 6px; font-size: 14px; outline: none; cursor: pointer; }
+
+        /* 👤 REIHEN-LAYOUT MIT FLAGGEN */
         .competitor-list { display: flex; flex-direction: column; gap: 10px; }
-        .competitor-row { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px 20px; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); }
+        .competitor-row { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px 20px; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); transition: transform 0.1s; }
+        .competitor-row:hover { transform: translateX(2px); }
         .competitor-info { display: flex; flex-direction: column; gap: 4px; }
         .competitor-name { font-size: 16px; font-weight: 600; color: var(--text-color); }
-        .competitor-meta { font-size: 12px; color: var(--text-muted); }
+        .competitor-meta { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+        
+        /* Flaggen-Styling */
+        .fi { border-radius: 3px; box-shadow: 0 0 1px rgba(0,0,0,0.2); }
+        
         .competitor-elo { display: flex; align-items: center; gap: 10px; }
         .elo-score { font-size: 18px; font-weight: 700; color: var(--text-color); }
-        .elo-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .badge-gm { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); } /* Grand Master */
-        .badge-m { background: rgba(255, 159, 67, 0.1); color: var(--accent-color); } /* Master */
-        .badge-a { background: rgba(16, 185, 129, 0.1); color: var(--success-color); } /* A Class */
-        .badge-u { background: rgba(100, 116, 139, 0.1); color: var(--text-muted); } /* Unclassified */
+        .elo-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; width: 45px; text-align: center; }
+        .badge-gm { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); }
+        .badge-m { background: rgba(255, 159, 67, 0.1); color: var(--accent-color); }
+        .badge-a { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
+        .badge-u { background: rgba(100, 116, 139, 0.1); color: var(--text-muted); }
 
         /* LOADING SPINNER */
         .loader-container { display: none; text-align: center; padding: 40px; }
@@ -62,6 +76,7 @@
 
         @media (max-width: 650px) {
             .elo-stats-grid { grid-template-columns: 1fr; }
+            .filter-bar { flex-direction: column; }
             .competitor-row { flex-direction: column; align-items: flex-start; gap: 10px; }
             .competitor-elo { width: 100%; justify-content: space-between; }
         }
@@ -87,7 +102,7 @@
         <!-- HAUPT-DASHBOARD -->
         <div id="dashboard-content" style="display: none;">
             <div class="info-box">
-                <strong>📸 Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste (z.B. aus ipscmatch.de) hoch. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
+                <strong>📸 Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste hoch. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
             </div>
 
             <!-- UPLOAD BEREICH -->
@@ -111,31 +126,60 @@
                 
                 <div class="elo-stats-grid">
                     <div class="elo-stat-card">
-                        <div class="elo-stat-val" id="stat-avg-elo">2245</div>
+                        <div class="elo-stat-val" id="stat-avg-elo">0</div>
                         <div class="elo-stat-lbl">Ø ELO der Konkurrenz</div>
                     </div>
                     <div class="elo-stat-card">
-                        <div class="elo-stat-val" id="stat-count">8</div>
+                        <div class="elo-stat-val" id="stat-count">0</div>
                         <div class="elo-stat-lbl">Erkannte ELO-Gegner</div>
                     </div>
                     <div class="elo-stat-card">
-                        <div class="elo-stat-val" style="color: var(--danger-color);" id="stat-level">Sehr Hoch</div>
+                        <div class="elo-stat-val" id="stat-level">-</div>
                         <div class="elo-stat-lbl">Wettkampf-Niveau</div>
                     </div>
                 </div>
 
-                <h3 style="margin: 30px 0 15px 0; font-size: 18px;">Gefundene Konkurrenten (Ranking)</h3>
+                <h3 style="margin: 30px 0 15px 0; font-size: 18px;">Gefundene Konkurrenten</h3>
+                
+                <!-- 🔍 FILTER-BAR (Neu eingebaut) -->
+                <div class="filter-bar">
+                    <input type="text" id="search-name" class="filter-input" placeholder="Nach Name suchen..." oninput="applyFilters()">
+                    
+                    <select id="filter-region" class="filter-select" onchange="applyFilters()">
+                        <option value="">Alle Länder</option>
+                    </select>
+                    
+                    <select id="filter-class" class="filter-select" onchange="applyFilters()">
+                        <option value="">Alle Klassen</option>
+                        <option value="GM">Grand Master (GM)</option>
+                        <option value="M">Master (M)</option>
+                        <option value="A">A-Class</option>
+                        <option value="Unranked">Unranked</option>
+                    </select>
+                </div>
+
                 <div class="competitor-list" id="competitor-list">
-                    <!-- Wird durch JavaScript befüllt -->
+                    <!-- Wird dynamisch durch JavaScript befüllt -->
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="auth.js"></script> <!-- Dein bestehendes Auth-Skript -->
+    <script src="auth.js"></script>
     
     <script>
+        // Globale Variable für die geladenen Schützen
+        let currentShooters = [];
+
+        // 🗺️ ISO-Länder-Mapping (Wandelt die Datenbank-Namen in zweistellige Flaggen-Codes um)
+        const countryCodes = {
+            "france": "fr", "germany": "de", "poland": "pl", "philippines": "ph",
+            "austria": "at", "switzerland": "ch", "spain": "es", "italy": "it",
+            "czechia": "cz", "czech republic": "cz", "usa": "us", "united states": "us",
+            "great britain": "gb", "united kingdom": "gb", "finland": "fi", "sweden": "se"
+        };
+
         // 1. AUTHENTIFIZIERUNG & ZUGRIFFSKONTROLLE
         const originalAuthChange = window.onAuthChange;
         
@@ -147,89 +191,141 @@
             if (!user) { 
                 deniedBox.style.display = "block"; 
                 dashboard.style.display = "none"; 
-                deniedBox.innerHTML = '<div style="font-size: 48px; margin-bottom: 15px;">👤</div><h2 style="margin: 0 0 10px 0; font-size: 20px; color: var(--text-color);">Bitte einloggen</h2><p style="margin: 0; color: var(--text-muted); font-size: 14px;">Melde dich an, um deinen Lizenzstatus zu prüfen.</p>';
                 return; 
             }
 
-            // Prüft, ob Doppel AA im Benutzerprofil aktiv ist
             const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa").eq("id", user.id).single();
             if (!profile || profile.is_doppel_aa !== true) { 
                 deniedBox.style.display = "block"; 
                 dashboard.style.display = "none"; 
-                deniedBox.innerHTML = '<div style="font-size: 48px; margin-bottom: 15px;">🔒</div><h2 style="margin: 0 0 10px 0; font-size: 20px; color: var(--text-color);">Zugriff verweigert</h2><p style="margin: 0; color: var(--text-muted); font-size: 14px;">Dieses Premium-Feature steht exklusiv Konten mit aktiver <strong>Doppel AA</strong> Erweiterung zur Verfügung.</p>';
                 return; 
             }
 
-            // Zugriff gewährt
             deniedBox.style.display = "none";
             dashboard.style.display = "block";
         };
 
-        // 2. DRAG & DROP EVENT LISTENERS
+        // 2. DRAG & DROP EVENTS
         const dropZone = document.getElementById('drop-zone');
-        
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.style.borderColor = "var(--info-color)";
-            dropZone.style.backgroundColor = "rgba(59, 130, 246, 0.08)";
-        });
-
-        dropZone.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            dropZone.style.borderColor = "var(--accent-color)";
-            dropZone.style.backgroundColor = "rgba(255, 159, 67, 0.03)";
-        });
-
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--info-color)"; });
+        dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--accent-color)"; });
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.style.borderColor = "var(--accent-color)";
-            dropZone.style.backgroundColor = "rgba(255, 159, 67, 0.03)";
-            if (e.dataTransfer.files.length > 0) {
-                handleFileUpload(e.dataTransfer.files);
-            }
+            if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);
         });
 
-        // 3. UPLOAD & ANALYSE LOGIK
+        // 3. UPLOAD & SIMULIERTE OCR-VERARBEITUNG
         function handleFileUpload(files) {
             if (files.length === 0) return;
-            const file = files[0];
             
-            // UI anpassen
             document.getElementById('analysis-results').style.display = 'none';
             document.getElementById('loader').style.display = 'block';
             
-            // HIER WÜRDE DEINE BACKEND-API (OCR + Supabase-Abgleich) AUFGERUFEN WERDEN.
-            // Für die Frontend-Demonstration simulieren wir die OCR und Datenbankabfrage:
-            
             setTimeout(() => {
                 document.getElementById('loader').style.display = 'none';
-                renderMockResults();
-            }, 2500); // Simuliert 2.5 Sekunden Ladezeit
+                
+                // Demo-Daten angepasst auf deine neue Scraper-Struktur (Länder voll ausgeschrieben)
+                currentShooters = [
+                    { name: "Grauffel, Eric", division: "Optics Overall", region: "France", elo: 2496, rankClass: "GM", classStyle: "badge-gm" },
+                    { name: "Szczesny, Bartosz", division: "Optics Overall", region: "Poland", elo: 2374, rankClass: "GM", classStyle: "badge-gm" },
+                    { name: "Hardy, Pierre", division: "Optics Overall", region: "France", elo: 2340, rankClass: "GM", classStyle: "badge-gm" },
+                    { name: "Dauphin, Leon", division: "Optics Overall", region: "Germany", elo: 2306, rankClass: "GM", classStyle: "badge-gm" },
+                    { name: "De Guzman, Luisito Miguel", division: "Optics Overall", region: "Philippines", elo: 2241, rankClass: "M", classStyle: "badge-m" },
+                    { name: "Diago, Crixian", division: "Optics Overall", region: "Philippines", elo: 2230, rankClass: "M", classStyle: "badge-m" },
+                    { name: "Sahlmüller, Luca", division: "Optics Overall", region: "Germany", elo: 2189, rankClass: "A", classStyle: "badge-a" },
+                    { name: "Dirmeier, Michael", division: "Optics Overall", region: "Germany", elo: 1950, rankClass: "Unranked", classStyle: "badge-u" },
+                    { name: "Schoeps, Fabian", division: "Optics Overall", region: "Germany", elo: "-", rankClass: "Unranked", classStyle: "badge-u" }
+                ];
+
+                buildFilterDropdowns(currentShooters);
+                calculateStats(currentShooters);
+                renderList(currentShooters);
+                
+                document.getElementById('analysis-results').style.display = 'block';
+            }, 2000);
         }
 
-        // 4. ERGEBNISSE ANZEIGEN (Demonstrations-Daten)
-        function renderMockResults() {
-            const resultsContainer = document.getElementById('analysis-results');
-            const listContainer = document.getElementById('competitor-list');
+        // 4. FILTER-DROPDOWNS DYNAMISCH BEFÜLLEN
+        function buildFilterDropdowns(shooters) {
+            const regionSelect = document.getElementById('filter-region');
             
-            // Beispiel-Daten passend zum Screenshot
-            const detectedShooters = [
-                { name: "Steffen Lorber", division: "Optics Overall", region: "GER", elo: 2496, rankClass: "GM", classStyle: "badge-gm" },
-                { name: "Daniel Klos", division: "Optics Overall", region: "GER", elo: 2374, rankClass: "GM", classStyle: "badge-gm" },
-                { name: "Matijas Zubcic", division: "Optics Overall", region: "GER", elo: 2202, rankClass: "M", classStyle: "badge-m" },
-                { name: "Luca Sahlmüller", division: "Optics Overall", region: "GER", elo: 2189, rankClass: "A", classStyle: "badge-a" },
-                { name: "Michael Dirmeier", division: "Optics Overall", region: "GER", elo: 1950, rankClass: "B", classStyle: "badge-u" },
-                { name: "Fabian Schoeps", division: "Optics Overall", region: "GER", elo: "-", rankClass: "Unranked", classStyle: "badge-u" }
-            ];
+            // Einzigartige Ländernamen extrahieren
+            const regions = [...new Set(shooters.map(s => s.region).filter(r => r && r !== 'Unknown'))].sort();
+            
+            // Dropdown zurücksetzen (außer Option 1)
+            regionSelect.innerHTML = '<option value="">Alle Länder</option>';
+            
+            regions.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r;
+                opt.textContent = r;
+                regionSelect.appendChild(opt);
+            });
+        }
+
+        // 5. FILTER-LOGIK ANWENDEN
+        function applyFilters() {
+            const searchVal = document.getElementById('search-name').value.toLowerCase();
+            const regionVal = document.getElementById('filter-region').value;
+            const classVal = document.getElementById('filter-class').value;
+
+            const filtered = currentShooters.filter(s => {
+                const matchesName = s.name.toLowerCase().includes(searchVal);
+                const matchesRegion = regionVal === "" || s.region === regionVal;
+                const matchesClass = classVal === "" || s.rankClass === classVal;
+                return matchesName && matchesRegion && matchesClass;
+            });
+
+            calculateStats(filtered);
+            renderList(filtered);
+        }
+
+        // 6. STATISTIKEN BERECHNEN
+        function calculateStats(shooters) {
+            const eloValues = shooters.map(s => s.elo).filter(e => typeof e === 'number');
+            const count = eloValues.length;
+            const avg = count > 0 ? Math.round(eloValues.reduce((a, b) => a + b, 0) / count) : 0;
+            
+            document.getElementById('stat-avg-elo').textContent = avg > 0 ? avg : "-";
+            document.getElementById('stat-count').textContent = shooters.length;
+
+            // Niveau-Einstufung
+            let level = "Gering";
+            let color = "var(--success-color)";
+            if (avg > 2200) { level = "Sehr Hoch"; color = "var(--danger-color)"; }
+            else if (avg > 2000) { level = "Hoch"; color = "var(--accent-color)"; }
+            else if (avg > 1800) { level = "Mittel"; color = "var(--info-color)"; }
+            
+            const levelStat = document.getElementById('stat-level');
+            levelStat.textContent = shooters.length > 0 ? level : "-";
+            levelStat.style.color = shooters.length > 0 ? color : "var(--text-color)";
+        }
+
+        // 7. LISTE RENDERN (Inklusive automatischer Flaggen-Generierung)
+        function renderList(shooters) {
+            const listContainer = document.getElementById('competitor-list');
+            if (shooters.length === 0) {
+                listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Keine Schützen gefunden, die den Filtern entsprechen.</div>';
+                return;
+            }
 
             let html = "";
-            detectedShooters.forEach(s => {
+            shooters.forEach(s => {
                 let eloDisplay = s.elo !== "-" ? s.elo : "Kein Eintrag";
+                
+                // 🏳️ Flaggen-Code ermitteln
+                const normalizedRegion = s.region.toLowerCase().trim();
+                const code = countryCodes[normalizedRegion] || "";
+                
+                // Wenn der Code im Mapping existiert, erzeuge das Flaggen-Span-Element
+                const flagHtml = code ? `<span class="fi fi-${code}"></span>` : `🌍`;
+
                 html += `
                     <div class="competitor-row">
                         <div class="competitor-info">
                             <span class="competitor-name">${s.name}</span>
-                            <span class="competitor-meta">${s.region} | ${s.division}</span>
+                            <span class="competitor-meta">${flagHtml} ${s.region} | ${s.division}</span>
                         </div>
                         <div class="competitor-elo">
                             <span class="elo-score">${eloDisplay}</span>
@@ -240,7 +336,6 @@
             });
 
             listContainer.innerHTML = html;
-            resultsContainer.style.display = 'block';
         }
     </script>
 </body>
