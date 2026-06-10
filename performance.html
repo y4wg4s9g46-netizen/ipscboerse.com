@@ -76,6 +76,27 @@
         .badge-a { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
         .badge-u { background: rgba(100, 116, 139, 0.1); color: var(--text-muted); }
 
+
+        /* 📁 MATCH-ARCHIV OHNE BILD-SPEICHER */
+        .match-archive { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); margin-bottom: 25px; box-shadow: var(--shadow-sm); overflow: hidden; }
+        .archive-header { padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: var(--text-color); border-bottom: 1px solid var(--border-color); }
+        .archive-content { display: none; padding: 12px; }
+        .archive-empty { color: var(--text-muted); font-size: 14px; padding: 8px 4px; }
+        .archive-item { border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; background: var(--input-bg); overflow: hidden; }
+        .archive-item-main { display: flex; align-items: center; gap: 12px; padding: 12px; }
+        .archive-icon { width: 42px; height: 42px; border-radius: 8px; background: rgba(255, 159, 67, 0.12); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .archive-meta { flex: 1; min-width: 0; }
+        .archive-title { font-weight: 700; font-size: 14px; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .archive-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.35; }
+        .archive-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .archive-btn { border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); border-radius: 6px; padding: 7px 9px; font-size: 12px; cursor: pointer; }
+        .archive-btn.delete { color: var(--danger-color); }
+        .archive-details { display: none; padding: 0 12px 12px 12px; border-top: 1px dashed var(--border-color); }
+        .archive-small-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+        .archive-small-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); }
+        .archive-small-row span:first-child { font-weight: 600; color: var(--text-color); }
+        .archive-small-row span:last-child { color: var(--accent-color); font-weight: 700; }
+
         /* LOADING SPINNER */
         .loader-container { display: none; text-align: center; padding: 40px; }
         .spinner { border: 4px solid rgba(0,0,0,0.1); border-left-color: var(--accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
@@ -111,6 +132,17 @@
                 <h3 class="upload-title">Screenshot hier hochladen</h3>
                 <p class="upload-desc">Klicke hier oder ziehe ein Bild hinein (JPG, PNG).</p>
                 <input type="file" id="file-input" accept="image/*" onchange="handleFileUpload(this.files)">
+            </div>
+
+            <!-- MATCH-ARCHIV OHNE BILD-SPEICHER -->
+            <div class="match-archive" id="match-archive">
+                <div class="archive-header" onclick="toggleMatchArchive()">
+                    <span>📁 Bisherige Match-Analysen</span>
+                    <span id="archive-arrow">▼</span>
+                </div>
+                <div class="archive-content" id="archive-content">
+                    <div class="archive-empty">Noch keine Match-Analysen gespeichert.</div>
+                </div>
             </div>
 
             <!-- LADEANIMATION -->
@@ -208,6 +240,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="auth.js"></script>
     
     <script>
@@ -224,7 +257,25 @@
         };
 
         const countryNameFormat = {
-            "GER": "Germany", "FRA": "France", "SUI": "Switzerland", "POL": "Poland", "PHI": "Philippines"
+            "GER": "Germany", "DEU": "Germany", "GERMANY": "Germany",
+            "FRA": "France", "FRANCE": "France",
+            "SUI": "Switzerland", "CHE": "Switzerland", "SWITZERLAND": "Switzerland",
+            "POL": "Poland", "POLAND": "Poland",
+            "PHI": "Philippines", "PHILIPPINES": "Philippines",
+            "NED": "Netherlands", "NETHERLANDS": "Netherlands",
+            "BEL": "Belgium", "BELGIUM": "Belgium",
+            "AUT": "Austria", "AUSTRIA": "Austria",
+            "ITA": "Italy", "ITALY": "Italy",
+            "ESP": "Spain", "SPAIN": "Spain",
+            "POR": "Portugal", "PORTUGAL": "Portugal",
+            "BRA": "Brazil", "BRASIL": "Brazil", "BRAZIL": "Brazil",
+            "USA": "United States", "UNITED STATES": "United States",
+            "NOR": "Norway", "NORWAY": "Norway",
+            "SWE": "Sweden", "SWEDEN": "Sweden",
+            "CZE": "Czech Republic", "CZECH": "Czech Republic",
+            "SVK": "Slovakia", "SLOVAKIA": "Slovakia",
+            "SLO": "Slovenia", "SVN": "Slovenia", "SLOVENIA": "Slovenia",
+            "SRB": "Serbia", "SERBIA": "Serbia"
         };
 
         function toggleLegend() {
@@ -383,49 +434,293 @@
             if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);
         });
 
+
+
+        const MATCH_ARCHIVE_KEY = "ipsc_performance_match_archive_v1";
+
+        function getMatchArchive() {
+            try {
+                return JSON.parse(localStorage.getItem(MATCH_ARCHIVE_KEY) || "[]");
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveMatchArchive(items) {
+            // Speichert nur Textdaten und Ergebnisliste, keine Bilder.
+            // Trotzdem begrenzen wir die Historie, damit localStorage klein bleibt.
+            localStorage.setItem(MATCH_ARCHIVE_KEY, JSON.stringify(items.slice(0, 30)));
+        }
+
+        function toggleMatchArchive() {
+            const content = document.getElementById("archive-content");
+            const arrow = document.getElementById("archive-arrow");
+            if (!content) return;
+
+            const isOpen = content.style.display === "block";
+            content.style.display = isOpen ? "none" : "block";
+            if (arrow) arrow.textContent = isOpen ? "▼" : "▲";
+        }
+
+        function extractMatchNameFromOcr(rawText) {
+            const lines = (rawText || "")
+                .split(/\r?\n/)
+                .map(line => normalizeOcrText(line))
+                .filter(Boolean);
+
+            const badPatterns = /^(nr\.?|vorname|name|region|division|category|power|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik|print|export|search|filter)/i;
+
+            for (const line of lines.slice(0, 20)) {
+                if (badPatterns.test(line)) continue;
+                if (/^\d+\s+/.test(line)) continue;
+                if (line.length < 5) continue;
+
+                // Typische Match-Titel enthalten Jahr oder Match-Begriffe.
+                if (/\b(20\d{2}|match|cup|championship|trophy|handgun|rifle|shotgun|open|classic|challenge|level|ipsc)\b/i.test(line)) {
+                    return line.slice(0, 80);
+                }
+            }
+
+            // Fallback: erste brauchbare Ueberschrift
+            for (const line of lines.slice(0, 10)) {
+                if (!badPatterns.test(line) && !/^\d+\s+/.test(line) && line.length >= 5) {
+                    return line.slice(0, 80);
+                }
+            }
+
+            return "Unbenanntes Match";
+        }
+
+        function renderMatchArchive() {
+            const content = document.getElementById("archive-content");
+            if (!content) return;
+
+            const items = getMatchArchive();
+            if (!items.length) {
+                content.innerHTML = '<div class="archive-empty">Noch keine Match-Analysen gespeichert.</div>';
+                return;
+            }
+
+            content.innerHTML = items.map(item => {
+                const divisions = item.divisions && item.divisions.length ? item.divisions.join(", ") : "Keine Division erkannt";
+                const topRows = (item.shooters || []).slice(0, 8).map(s => `
+                    <div class="archive-small-row">
+                        <span>${s.name || "-"}</span>
+                        <span>${s.elo !== "-" ? s.elo : "Kein ELO"} · #${s.overallRank || "-"}</span>
+                    </div>
+                `).join("");
+
+                return `
+                    <div class="archive-item" id="archive-item-${item.id}">
+                        <div class="archive-item-main">
+                            <div class="archive-icon">🏆</div>
+                            <div class="archive-meta">
+                                <div class="archive-title">${item.matchName || "Unbenanntes Match"}</div>
+                                <div class="archive-sub">${item.createdAt || ""} · ${item.count || 0} erkannte Schuetzen · ${divisions}</div>
+                            </div>
+                            <div class="archive-actions">
+                                <button class="archive-btn" onclick="showArchivedMatch('${item.id}')">Anzeigen</button>
+                                <button class="archive-btn" onclick="toggleMatchDetails('${item.id}')">Details</button>
+                                <button class="archive-btn delete" onclick="deleteArchivedMatch('${item.id}')">Löschen</button>
+                            </div>
+                        </div>
+                        <div class="archive-details" id="archive-details-${item.id}">
+                            <div class="archive-small-list">${topRows || '<div class="archive-empty">Keine Ergebnisliste gespeichert.</div>'}</div>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function toggleMatchDetails(id) {
+            const details = document.getElementById(`archive-details-${id}`);
+            if (!details) return;
+            details.style.display = details.style.display === "block" ? "none" : "block";
+        }
+
+        function deleteArchivedMatch(id) {
+            if (!confirm("Diese Match-Analyse wirklich loeschen?")) return;
+            saveMatchArchive(getMatchArchive().filter(item => item.id !== id));
+            renderMatchArchive();
+        }
+
+        function showArchivedMatch(id) {
+            const item = getMatchArchive().find(entry => entry.id === id);
+            if (!item) return;
+
+            currentShooters = item.shooters || [];
+            buildFilterDropdowns(currentShooters);
+            calculateStats(currentShooters);
+            renderList(currentShooters);
+
+            document.getElementById('analysis-results').style.display = 'block';
+            document.getElementById('loader').style.display = 'none';
+
+            const heading = document.querySelector('#analysis-results h2 span');
+            if (heading) heading.textContent = item.matchName || "Archiviertes Match";
+        }
+
+        function storeMatchAnalysis(matchName, rawText, shooters, renderedResults) {
+            const items = getMatchArchive();
+            const now = new Date();
+            const stamp = now.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" });
+            const divisions = [...new Set((shooters || []).map(s => s.division).filter(Boolean))].sort();
+
+            items.unshift({
+                id: String(Date.now()),
+                matchName: matchName || extractMatchNameFromOcr(rawText) || "Unbenanntes Match",
+                createdAt: stamp,
+                count: shooters ? shooters.length : 0,
+                divisions,
+                shooters: renderedResults || []
+            });
+
+            saveMatchArchive(items);
+            renderMatchArchive();
+
+            const content = document.getElementById("archive-content");
+            const arrow = document.getElementById("archive-arrow");
+            if (content) content.style.display = "block";
+            if (arrow) arrow.textContent = "▲";
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(renderMatchArchive, 100);
+        });
+
+
+        function normalizeOcrText(text) {
+            return (text || "")
+                .replace(/\u00A0/g, " ")
+                .replace(/[|]/g, " ")
+                .replace(/[✓✔]/g, " ")
+                .replace(/\s+/g, " ")
+                .trim();
+        }
+
+        function parseShootersFromOcr(rawText) {
+            const divisions = ["Production Optics", "Production", "Optics", "Open", "Standard", "Classic", "Revolver"];
+            const regionCodes = Object.keys(countryNameFormat).sort((a, b) => b.length - a.length);
+            const shooters = [];
+            const seen = new Set();
+
+            const lines = (rawText || "").split(/\r?\n/).map(normalizeOcrText).filter(Boolean);
+
+            for (const originalLine of lines) {
+                let line = originalLine;
+
+                // Ignore header/footer/navigation lines
+                if (/^(nr\.?|vorname|name|region|division|category|power|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik)/i.test(line)) {
+                    continue;
+                }
+
+                // Must start with a competitor number
+                const numberMatch = line.match(/^\D*(\d{1,5})\s+(.+)$/);
+                if (!numberMatch) continue;
+
+                let rest = numberMatch[2].trim();
+
+                // Find region token, because ipscmatch table order is:
+                // Nr Vorname Name Region Division Category ...
+                const tokens = rest.split(/\s+/);
+                let regionIndex = -1;
+                let regionRaw = "";
+
+                for (let i = 0; i < tokens.length; i++) {
+                    const token = tokens[i].replace(/[^A-Za-z]/g, "").toUpperCase();
+                    if (regionCodes.includes(token)) {
+                        regionIndex = i;
+                        regionRaw = token;
+                        break;
+                    }
+                }
+
+                if (regionIndex < 2) continue;
+
+                const nameTokens = tokens.slice(0, regionIndex);
+                const afterRegion = tokens.slice(regionIndex + 1).join(" ");
+
+                let division = divisions.find(d => new RegExp(`^${d.replace(" ", "\\s+")}\\b`, "i").test(afterRegion));
+                if (!division) {
+                    // Most screenshots here are Optics; do not guess for unknown rows.
+                    continue;
+                }
+
+                const vorname = nameTokens[0];
+                const nachname = nameTokens.slice(1).join(" ");
+
+                if (!vorname || !nachname) continue;
+
+                const key = `${vorname}|${nachname}|${regionRaw}|${division}`;
+                if (seen.has(key)) continue;
+                seen.add(key);
+
+                shooters.push({ vorname, nachname, regionRaw, division });
+            }
+
+            return shooters;
+        }
+
+        async function extractShootersFromImage(file) {
+            if (!window.Tesseract) {
+                throw new Error("OCR-Bibliothek konnte nicht geladen werden.");
+            }
+
+            const result = await Tesseract.recognize(file, "deu+eng", {
+                logger: (m) => {
+                    if (m.status === "recognizing text") {
+                        const percent = Math.round((m.progress || 0) * 100);
+                        const loaderText = document.querySelector("#loader p");
+                        if (loaderText) loaderText.textContent = `Texterkennung laeuft... ${percent}%`;
+                    }
+                }
+            });
+
+            const text = result && result.data ? result.data.text : "";
+            const shooters = parseShootersFromOcr(text);
+
+            console.log("OCR raw text:", text);
+            console.log("OCR parsed shooters:", shooters);
+
+            return { shooters, rawText: text, matchName: extractMatchNameFromOcr(text) };
+        }
+
         // 3. SCREENSHOT-VERARBEITUNG MIT UMLAUT-BEREINIGUNG & SUPABASE-LOOKUP
         async function handleFileUpload(files) {
             if (files.length === 0) return;
-            
+
             document.getElementById('analysis-results').style.display = 'none';
             document.getElementById('loader').style.display = 'block';
-            
+
             try {
-                let ocrRecognizedNames = []; 
-                
-                if (ocrRecognizedNames.length === 0) {
-                    ocrRecognizedNames = [
-                        { vorname: "Robin", nachname: "Kupec", regionRaw: "GER", division: "Optics" },
-                        { vorname: "Luca", nachname: "Kampschulte", regionRaw: "GER", division: "Optics" },
-                        { vorname: "Oliver", nachname: "Walz", regionRaw: "GER", division: "Optics" },
-                        { vorname: "Andreas", nachname: "Zoll", regionRaw: "GER", division: "Optics" },
-                        { vorname: "Markus", nachname: "Spangenberg", regionRaw: "GER", division: "Optics" },
-                        { vorname: "Shusheng", nachname: "Li", regionRaw: "GER", division: "Optics" },
-                        { vorname: "Denis", nachname: "Kaiser", regionRaw: "GER", division: "Optics" },
-                        { vorname: "Steffen", nachname: "Lorber", regionRaw: "GER", division: "Optics" },
-                        { vorname: "Matijas", nachname: "Zubcic", regionRaw: "GER", division: "Optics" },
-                        { vorname: "Fabian", nachname: "Schoeps", regionRaw: "GER", division: "Optics" },
-                        { vorname: "Luca", nachname: "Sahlmüller", regionRaw: "GER", division: "Optics" },
-                        { vorname: "Daniel", nachname: "Klos", regionRaw: "GER", division: "Optics" },
-                        { vorname: "Philippe", nachname: "Schaffer", regionRaw: "SUI", division: "Optics" }
-                    ];
+                // WICHTIG: Jetzt wird wirklich der hochgeladene Screenshot per OCR gelesen.
+                // Die alte feste Testliste wurde entfernt.
+                const ocrResult = await extractShootersFromImage(files[0]);
+                let ocrRecognizedNames = ocrResult.shooters || [];
+                const ocrRawText = ocrResult.rawText || "";
+                const detectedMatchName = ocrResult.matchName || "Unbenanntes Match";
+
+                if (!ocrRecognizedNames || ocrRecognizedNames.length === 0) {
+                    throw new Error("Keine Schuetzen im Screenshot erkannt. Bitte einen klaren Screenshot der Starterliste hochladen.");
                 }
 
                 currentShooters = [];
 
                 for (const shooter of ocrRecognizedNames) {
                     const displayName = `${shooter.nachname}, ${shooter.vorname}`;
-                    const fullCountryName = countryNameFormat[shooter.regionRaw] || shooter.regionRaw;
+                    const fullCountryName = countryNameFormat[String(shooter.regionRaw || "").toUpperCase()] || shooter.regionRaw;
                     const dbEntry = await findEloEntry(shooter);
 
                     let eloValue = "-";
+                    let overallRank = "-";
                     let rankClass = "Unranked";
                     let classStyle = "badge-u";
 
                     if (dbEntry && dbEntry.elo_rating !== null && dbEntry.elo_rating !== undefined) {
                         eloValue = Number(dbEntry.elo_rating);
+                        overallRank = dbEntry.rank || "-";
                         rankClass = dbEntry.class_style || "A";
-                        
+
                         if (eloValue >= 2300) classStyle = "badge-gm";
                         else if (eloValue >= 2100) classStyle = "badge-m";
                         else if (eloValue >= 1800) classStyle = "badge-a";
@@ -436,6 +731,7 @@
                         division: shooter.division + " Overall",
                         region: fullCountryName,
                         elo: eloValue,
+                        overallRank: overallRank,
                         rankClass: eloValue !== "-" ? rankClass : "Unranked",
                         classStyle: classStyle
                     });
@@ -444,13 +740,19 @@
                 buildFilterDropdowns(currentShooters);
                 calculateStats(currentShooters);
                 renderList(currentShooters);
-                
+
+                const heading = document.querySelector('#analysis-results h2 span');
+                if (heading) heading.textContent = detectedMatchName;
+
+                storeMatchAnalysis(detectedMatchName, ocrRawText, ocrRecognizedNames, currentShooters);
+
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('analysis-results').style.display = 'block';
 
             } catch (err) {
                 console.error("Fehler bei der Datenbankanalyse:", err);
                 document.getElementById('loader').style.display = 'none';
+                alert(err.message || "Fehler bei der Screenshot-Analyse.");
             }
         }
 
@@ -546,7 +848,7 @@
                         </div>
                         <div class="competitor-elo">
                             <span class="elo-score">${eloDisplay}</span>
-                            <span class="elo-badge ${s.classStyle}">${s.rankClass}</span>
+                            <span class="elo-badge ${s.classStyle}" title="Overall-Platz">${s.overallRank || "-"}</span>
                         </div>
                     </div>
                 `;
