@@ -261,7 +261,7 @@
     }
 
     // ==========================================
-    // 🎯 VIP-ZUGANG: DOUBLE ALPHA SNIPER LINK
+    // 🎯 VIP-ZUGANG: DOUBLE ALPHA SNIPER & PERFORMANCE CHECK LINKS
     // ==========================================
     document.addEventListener("DOMContentLoaded", () => {
         setTimeout(async () => {
@@ -282,20 +282,32 @@
                 if (navContainer) {
                     const path = window.location.pathname;
                     const page = path.split("/").pop() || "index.html";
-                    const isActive = (page === "doppel-aa.html");
                     
+                    // 1. Link für den Bot-Sniper (doppel-aa.html)
+                    const isSniperActive = (page === "doppel-aa.html");
                     const sniperLink = document.createElement('a');
                     sniperLink.href = 'doppel-aa.html'; 
-                    sniperLink.innerText = '🎯 Double Alpha'; // 🌟 HIER GEÄNDERT!
+                    sniperLink.innerText = '🎯 Double Alpha'; //[span_2](start_span)[span_2](end_span)
+                    sniperLink.className = isSniperActive ? "active" : "inactive";
                     
-                    sniperLink.className = isActive ? "active" : "inactive";
-                    
-                    if (!isActive) {
+                    if (!isSniperActive) {
                         sniperLink.style.color = '#ff9f43'; 
                         sniperLink.style.border = '1px solid rgba(255, 159, 67, 0.3)';
                     }
-                    
                     navContainer.appendChild(sniperLink);
+
+                    // 2. Link für die Starterlisten-Analyse (performance.html)
+                    const isPerformanceActive = (page === "performance.html");
+                    const performanceLink = document.createElement('a');
+                    performanceLink.href = 'performance.html'; 
+                    performanceLink.innerText = '📊 Performance-Check';
+                    performanceLink.className = isPerformanceActive ? "active" : "inactive";
+                    
+                    if (!isPerformanceActive) {
+                        performanceLink.style.color = '#ff9f43'; 
+                        performanceLink.style.border = '1px solid rgba(255, 159, 67, 0.3)';
+                    }
+                    navContainer.appendChild(performanceLink);
                 }
             }
         }, 600);
