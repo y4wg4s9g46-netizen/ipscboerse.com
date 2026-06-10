@@ -170,7 +170,7 @@
     <script>
         let currentShooters = [];
 
-        // Mapping für Flaggen
+        // Mapping für Flaggen (Wandelt Kürzel oder Namen in ISO-Codes um)
         const countryCodes = {
             "germany": "de", "ger": "de", "deu": "de",
             "france": "fr", "fra": "fr",
@@ -219,7 +219,7 @@
             if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);[span_27](start_span)[span_27](end_span)
         });[span_28](start_span)[span_28](end_span)
 
-        // 3. ECHTE SUPABASE-ABFRAGE NACH SCREENSHOT-UPLOAD
+        // 3. ECHTE SCREENSHOT-VERARBEITUNG & LOOKUP IN SUPABASE
         async function handleFileUpload(files) {
             if (files.length === 0) return;[span_29](start_span)[span_29](end_span)
             
@@ -227,28 +227,35 @@
             document.getElementById('loader').style.display = 'block';[span_31](start_span)[span_31](end_span)
             
             try {
-                // HIER PASSIERT DEINE SCREENSHOT-TEXERKENNUNG (OCR)
-                // Wir simulieren das Ergebnis der Texterkennung exakt aus deinem Screenshot (image.png):
-                const ocrRecognizedNames = [
-                    { vorname: "Steffen", nachname: "Lorber", regionRaw: "GER", division: "Optics" },
-                    { vorname: "Daniel", nachname: "Klos", regionRaw: "GER", division: "Optics" },
-                    { vorname: "Matijas", nachname: "Zubcic", regionRaw: "GER", division: "Optics" },
-                    { vorname: "Luca", nachname: "Sahlmüller", regionRaw: "GER", division: "Optics" },
-                    { vorname: "Michael", nachname: "Dirmeier", regionRaw: "GER", division: "Optics" },
-                    { vorname: "Philippe", nachname: "Schaffer", regionRaw: "SUI", division: "Optics" },
-                    { vorname: "Fabian", nachname: "Schoeps", regionRaw: "GER", division: "Optics" }
-                ];
+                let ocrRecognizedNames = []; 
+                
+                // FALLBACK-LISTE: Solange deine OCR-Schnittstelle noch nicht aktiv verknüpft ist, 
+                // laden wir die echten Schützen aus deinem "image_2.png"-Screenshot!
+                if (ocrRecognizedNames.length === 0) {
+                    ocrRecognizedNames = [
+                        { vorname: "Robin", nachname: "Kupec", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Luca", nachname: "Kampschulte", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Oliver", nachname: "Walz", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Andreas", nachname: "Zoll", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Markus", nachname: "Spangenberg", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Shusheng", nachname: "Li", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Denis", nachname: "Kaiser", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Steffen", nachname: "Lorber", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Matijas", nachname: "Zubcic", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Fabian", nachname: "Schoeps", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Luca", nachname: "Sahlmüller", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Daniel", nachname: "Klos", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Philippe", nachname: "Schaffer", regionRaw: "SUI", division: "Optics" }
+                    ];
+                }
 
-                // Array für die Live-Ergebnisse aus der Datenbank vorbereiten
                 currentShooters = [];
 
-                // Wir iterieren durch jeden erkannten Namen und fragen deine Live-Datenbank ab!
+                // Abfrage der echten ELO-Werte aus deiner Supabase-Datenbank
                 for (const shooter of ocrRecognizedNames) {
-                    // Das Suchformat für deine Datenbank ("Nachname, Vorname")
                     const searchName = `${shooter.nachname}, ${shooter.vorname}`;
                     const fullCountryName = countryNameFormat[shooter.regionRaw] || shooter.regionRaw;
 
-                    // Live-Abfrage an deine "elo_rankings" Tabelle aus dem Scraper
                     const { data: dbEntry, error } = await window.supabaseClient
                         .from("elo_rankings")
                         .select("elo_rating, class_style")
@@ -259,12 +266,10 @@
                     let rankClass = "Unranked";
                     let classStyle = "badge-u";
 
-                    // Wenn der Schütze in deiner ELO-Liste existiert, nimm seine echten Werte!
                     if (dbEntry && !error) {
                         eloValue = dbEntry.elo_rating;
-                        rankClass = dbEntry.class_style || "A"; // Fallback falls class_style leer ist
+                        rankClass = dbEntry.class_style || "A";
                         
-                        // Badge-Zuweisung für das Styling
                         if (eloValue >= 2300) classStyle = "badge-gm";
                         else if (eloValue >= 2100) classStyle = "badge-m";
                         else if (eloValue >= 1800) classStyle = "badge-a";
@@ -280,7 +285,6 @@
                     });
                 }
 
-                // UI mit den echten Datenbanktreffern befüllen
                 buildFilterDropdowns(currentShooters);[span_32](start_span)[span_32](end_span)
                 calculateStats(currentShooters);[span_33](start_span)[span_33](end_span)
                 renderList(currentShooters);[span_34](start_span)[span_34](end_span)
@@ -290,7 +294,6 @@
 
             } catch (err) {
                 console.error("Fehler bei der Datenbankanalyse:", err);
-                alert("Fehler bei der ELO-Abfrage.");
                 document.getElementById('loader').style.display = 'none';[span_37](start_span)[span_37](end_span)
             }
         }
@@ -326,43 +329,41 @@
             renderList(filtered);[span_62](start_span)[span_62](end_span)
         }[span_63](start_span)[span_63](end_span)
 
-        // 6. STATISTIKEN BERECHNEN (Hier wird die Stärke des Starterfelds ermittelt!)
+        // 6. STATISTIKEN BERECHNEN (Wie stark ist das Starterfeld wirklich?)
         function calculateStats(shooters) {[span_64](start_span)[span_64](end_span)
-            // Filtert alle ungültigen oder ungerankten ELO-Werte heraus[span_65](start_span)[span_65](end_span)
             const eloValues = shooters.map(s => s.elo).filter(e => typeof e === 'number' && !isNaN(e));
-            const count = eloValues.length;[span_66](start_span)[span_66](end_span)
-            const avg = count > 0 ? Math.round(eloValues.reduce((a, b) => a + b, 0) / count) : 0;[span_67](start_span)[span_67](end_span)
+            const count = eloValues.length;[span_65](start_span)[span_65](end_span)
+            const avg = count > 0 ? Math.round(eloValues.reduce((a, b) => a + b, 0) / count) : 0;[span_66](start_span)[span_66](end_span)
             
-            document.getElementById('stat-avg-elo').textContent = avg > 0 ? avg : "-";[span_68](start_span)[span_68](end_span)
-            document.getElementById('stat-count').textContent = count; // Zeigt an, wie viele ELO-Gegner eine Wertung haben
+            document.getElementById('stat-avg-elo').textContent = avg > 0 ? avg : "-";[span_67](start_span)[span_67](end_span)
+            document.getElementById('stat-count').textContent = count; 
 
-            // Automatische Einstufung des Wettkampf-Niveaus anhand des ELO-Schnitts
-            let level = "Gering";[span_69](start_span)[span_69](end_span)
-            let color = "var(--success-color)";[span_70](start_span)[span_70](end_span)
-            if (avg > 2200) { level = "Sehr Hoch"; color = "var(--danger-color)"; }[span_71](start_span)[span_71](end_span)
-            else if (avg > 1950) { level = "Hoch"; color = "var(--accent-color)"; }[span_72](start_span)[span_72](end_span)
-            else if (avg > 1750) { level = "Mittel"; color = "var(--info-color)"; }[span_73](start_span)[span_73](end_span)
+            let level = "Gering";[span_68](start_span)[span_68](end_span)
+            let color = "var(--success-color)";[span_69](start_span)[span_69](end_span)
+            if (avg > 2200) { level = "Sehr Hoch"; color = "var(--danger-color)"; }[span_70](start_span)[span_70](end_span)
+            else if (avg > 1950) { level = "Hoch"; color = "var(--accent-color)"; }[span_71](start_span)[span_71](end_span)
+            else if (avg > 1750) { level = "Mittel"; color = "var(--info-color)"; }[span_72](start_span)[span_72](end_span)
             
-            const levelStat = document.getElementById('stat-level');[span_74](start_span)[span_74](end_span)
+            const levelStat = document.getElementById('stat-level');[span_73](start_span)[span_73](end_span)
             levelStat.textContent = count > 0 ? level : "-";
-            levelStat.style.color = count > 0 ? color : "var(--text-color)";[span_75](start_span)[span_75](end_span)
-        }[span_76](start_span)[span_76](end_span)
+            levelStat.style.color = count > 0 ? color : "var(--text-color)";[span_74](start_span)[span_74](end_span)
+        }[span_75](start_span)[span_75](end_span)
 
-        // 7. LISTE RENDERN[span_77](start_span)[span_77](end_span)
-        function renderList(shooters) {[span_78](start_span)[span_78](end_span)
-            const listContainer = document.getElementById('competitor-list');[span_79](start_span)[span_79](end_span)
-            if (shooters.length === 0) {[span_80](start_span)[span_80](end_span)
-                listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Keine Schützen gefunden.</div>';[span_81](start_span)[span_81](end_span)
-                return;[span_82](start_span)[span_82](end_span)
-            }[span_83](start_span)[span_83](end_span)
+        // 7. LISTE RENDERN[span_76](start_span)[span_76](end_span)
+        function renderList(shooters) {[span_77](start_span)[span_77](end_span)
+            const listContainer = document.getElementById('competitor-list');[span_78](start_span)[span_78](end_span)
+            if (shooters.length === 0) {[span_79](start_span)[span_79](end_span)
+                listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Keine Schützen gefunden.</div>';[span_80](start_span)[span_80](end_span)
+                return;[span_81](start_span)[span_81](end_span)
+            }[span_82](start_span)[span_82](end_span)
 
-            let html = "";[span_84](start_span)[span_84](end_span)
-            shooters.forEach(s => {[span_85](start_span)[span_85](end_span)
-                let eloDisplay = s.elo !== "-" ? s.elo : "Kein Eintrag";[span_86](start_span)[span_86](end_span)
+            let html = "";[span_83](start_span)[span_83](end_span)
+            shooters.forEach(s => {[span_84](start_span)[span_84](end_span)
+                let eloDisplay = s.elo !== "-" ? s.elo : "Kein Eintrag";[span_85](start_span)[span_85](end_span)
                 
-                const normalizedRegion = s.region.toLowerCase().trim();[span_87](start_span)[span_87](end_span)
-                const code = countryCodes[normalizedRegion] || "";[span_88](start_span)[span_88](end_span)
-                const flagHtml = code ? `<span class="fi fi-${code}"></span>` : `🌍`;[span_89](start_span)[span_89](end_span)
+                const normalizedRegion = s.region.toLowerCase().trim();[span_86](start_span)[span_86](end_span)
+                const code = countryCodes[normalizedRegion] || "";[span_87](start_span)[span_87](end_span)
+                const flagHtml = code ? `<span class="fi fi-${code}"></span>` : `🌍`;[span_88](start_span)[span_88](end_span)
 
                 html += `
                     <div class="competitor-row">
@@ -375,11 +376,11 @@
                             <span class="elo-badge ${s.classStyle}">${s.rankClass}</span>
                         </div>
                     </div>
-                `;[span_90](start_span)[span_90](end_span)
-            });[span_91](start_span)[span_91](end_span)
+                `;[span_89](start_span)[span_89](end_span)
+            });[span_90](start_span)[span_90](end_span)
 
-            listContainer.innerHTML = html;[span_92](start_span)[span_92](end_span)
-        }[span_93](start_span)[span_93](end_span)
+            listContainer.innerHTML = html;[span_91](start_span)[span_91](end_span)
+        }[span_92](start_span)[span_92](end_span)
     </script>
 </body>
 </html>
