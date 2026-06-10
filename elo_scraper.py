@@ -200,11 +200,6 @@ def click_division_tab(driver, division):
         driver.execute_script("window.scrollTo(0, 0);")
         time.sleep(1)
 
-        # Wenn die aktuelle Division schon aktiv ist, reicht das.
-        body_text = driver.find_element(By.TAG_NAME, "body").text
-        if division == "Production" and "IPSC Handgun ratings" in body_text:
-            return True
-
         script = """
         const target = arguments[0];
 
@@ -276,7 +271,10 @@ def open_division_by_url(driver, division):
         return False
 
     try:
-        driver.get(f"https://ipscelo.com/index.html?divisionid={division_id}")
+        if division == "Production":
+            driver.get("https://ipscelo.com/")
+        else:
+            driver.get(f"https://ipscelo.com/index.html?divisionid={division_id}")
         wait_for_table(driver, timeout=25)
         time.sleep(35)
         return True
@@ -387,7 +385,7 @@ def click_table_pagination(driver, target_page, total_rows):
       const title = (el.getAttribute('title') || '').toLowerCase();
       const r = el.getBoundingClientRect();
       const disabled = el.disabled || el.classList.contains('disabled') || el.getAttribute('aria-disabled') === 'true';
-      const isNext = txt === 'âº' || txt === '>' || txt === 'Next' || aria.includes('next') || title.includes('next');
+      const isNext = txt === 'Ã¢ÂÂº' || txt === '>' || txt === 'Next' || aria.includes('next') || title.includes('next');
       if (!disabled && isVisible(el) && isNext && r.top >= tableBottom - 60 && r.top < tableBottom + 260) {
         nextCandidates.push({el, left: r.left});
       }
@@ -588,7 +586,7 @@ def scrape_division(driver, division):
 
 
 def scrape_and_upload_elo():
-    url = "https://ipscelo.com/?divisionid=39"
+    url = "https://ipscelo.com/"
     log("Starte unsichtbaren Chrome-Browser fuer GitHub Actions...")
 
     chrome_options = Options()
