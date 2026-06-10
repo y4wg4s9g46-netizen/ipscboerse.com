@@ -40,8 +40,6 @@ window.loginWithPasskey = async function() {
         alert("Passkey-Login fehlgeschlagen oder abgebrochen: " + error.message);
     } else {
         if (btn) btn.innerText = "Erfolgreich!";
-        // FIX: Lädt die Seite nach erfolgreichem Passkey-Login neu, 
-        // schließt das Modal und aktualisiert die Ansicht!
         location.reload();
     }
 };
@@ -170,7 +168,7 @@ window.translations = {
     "email-body-offer": "Hallo,\n\nich habe dein Inserat auf ipscboerse.com gesehen und interessiere mich für den von dir angebotenen Startplatz für das Match: ",
     "email-body-want": "Hallo,\n\nich habe dein Gesuch auf ipscboerse.com gesehen. Ich hätte einen Startplatz abzugeben für das Match: ",
     "email-body-footer": "\n\nIst das Inserat noch aktuell?\n\nViele Grüße",
-    "security-notice": "⚠️ WICHTIGER SICHERHEITSHINWEIS:\n\n1. Nutze für Zahlungen IMMER PayPal mit Käuferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prüfen, ob eine Umschreibung des Platzes überhaupt noch möglich ist!\n\nMöchtest du den E-Mail-Kontakt jetzt öffnen?",
+    "security-notice": "⚠️ WICHTIGER SHERHEITSHINWEIS:\n\n1. Nutze für Zahlungen IMMER PayPal mit Käuferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prüfen, ob eine Umschreibung des Platzes überhaupt noch möglich ist!\n\nMöchtest du den E-Mail-Kontakt jetzt öffnen?",
     "spam-error": "Spam-Schutz: Du hast bereits einen Eintrag für dieses Match an diesem Datum erstellt!",
     
     "nav-marketplace": "Marktplatz",
@@ -410,6 +408,11 @@ document.addEventListener("click", async (e) => {
         if (settingsIpsc && window.currentUser) {
             settingsIpsc.value = window.currentUser.user_metadata?.ipsc_alias || "";
         }
+        // 🎯 NEU: Lädt beim Öffnen der Einstellungen den echten Namen ins Feld
+        const settingsRealName = document.getElementById("settings-real-name");
+        if (settingsRealName && window.currentUser) {
+            settingsRealName.value = window.currentUser.user_metadata?.real_name || "";
+        }
         const previewImg = document.getElementById("settings-avatar-preview");
         if (previewImg && window.currentUser?.user_metadata?.avatar_url) {
             previewImg.src = window.currentUser.user_metadata.avatar_url;
@@ -490,6 +493,7 @@ document.addEventListener("submit", async (e) => {
             location.reload(); 
         }
     }
+    // 🎯 HIER WAR DER FEHLER: Erweitert um den echten Namen (real_name)
     else if (e.target.id === "settings-form") {
         e.preventDefault();
         const btn = e.target.querySelector('button[type="submit"]');
@@ -500,11 +504,13 @@ document.addEventListener("submit", async (e) => {
             const newUsername = document.getElementById("settings-username").value;
             const newPassword = document.getElementById("settings-password").value;
             const newIpscAlias = document.getElementById("settings-ipsc-alias").value; 
+            const newRealName = document.getElementById("settings-real-name").value; // 🔄 Neu ausgelesen
 
             const avatarInput = document.getElementById("settings-avatar");
             const avatarFile = avatarInput && avatarInput.files.length > 0 ? avatarInput.files[0] : null;
             
-            let updates = { data: { username: newUsername, ipsc_alias: newIpscAlias } };
+            // 🔄 Schreibt den echten Namen DSGVO-konform in die Metadaten
+            let updates = { data: { username: newUsername, ipsc_alias: newIpscAlias, real_name: newRealName } };
             if (newPassword.trim().length >= 6) { updates.password = newPassword; }
 
             if (avatarFile) {
@@ -531,14 +537,12 @@ document.addEventListener("change", (e) => {
     }
 });
 
-// Hilfsfunktion zur Formatierung des Sternen-Durchschnitts im eigenen Profil
 function formatStars(value) {
     if (!value || isNaN(value) || value === 0) return "-";
     let fullStars = Math.round(value);
     return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
 }
 
-// === ROBUSTE INITIALISIERUNGS-SCHLEIFE GEGEN RACE CONDITIONS ===
 const initAppLanguage = () => {
     initTheme();
     const savedLang = localStorage.getItem("selectedLanguage") || "de";
@@ -555,13 +559,11 @@ if (document.readyState === "loading") {
     setTimeout(initAppLanguage, 50);
 }
 
-// Supabase Statusprüfung läuft entkoppelt weiter
 setTimeout(async () => {
     const { data: { session } } = await window.supabaseClient.auth.getSession();
     window.currentUser = session?.user || null;
     await checkUserStatus();
 
-    // Lädt deine eigenen Vermittlungsstatistiken direkt beim Seitenstart für das eigene Profil
     if (window.currentUser) {
         try {
             const salesRes = await window.supabaseClient.from('mediated_deals').select('*').eq('seller_email', window.currentUser.email);
@@ -576,7 +578,6 @@ setTimeout(async () => {
             if (salesCountEl) salesCountEl.innerText = salesData.length;
             if (purchaseCountEl) purchaseCountEl.innerText = purchaseData.length;
 
-            // Sterne-Berechnung für das eigene Profil
             let totalComm = 0, totalPay = 0, countComm = 0, countPay = 0;
             
             salesData.forEach(d => {
@@ -618,7 +619,6 @@ setTimeout(async () => {
         }
     });
 
-    // --- NEU: AUTOMATISCHES NEWS-POPUP NACH INITIALISIERUNG ---
     const sessionKey = "news_popup_shown_2026";
     if (!sessionStorage.getItem(sessionKey)) {
         setTimeout(() => {
