@@ -1003,7 +1003,7 @@
             if (targetTable) {
                 const allRows = Array.from(targetTable.querySelectorAll("tr"));
                 const headerRowIndex = Math.max(0, allRows.findIndex(row => {
-                    const text = cleanText(row.textContent).toLowerCase();
+                    const text = getRowCells(row).join(" ").toLowerCase();
                     const hasName = text.includes("name") || text.includes("vorname") || text.includes("nachname");
                     const hasDiv = text.includes("division");
                     return hasName && (hasDiv || forcedDiv);
@@ -1063,26 +1063,44 @@
             return { matchTitle, shooters: parsedNames };
         }
 
-        // --- UMLAUT TOLERANTE SUCHE ---
+        // --- UMLAUT TOLERANTE SUCHE (NAME -> REGION -> DIVISION) ---
         function extractDivFromDoc(doc, myName) {
             const myNameParts = (myName || "").toLowerCase()
                 .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
                 .split(/\s+/).filter(Boolean);
 
-            const rows = Array.from(doc.querySelectorAll("tr"));
-            for (const row of rows) {
-                const rawText = cleanText(row.textContent);
-                const normText = rawText.toLowerCase()
+            const textContent = doc.body ? (doc.body.innerText || doc.body.textContent) : "";
+            const lines = textContent.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            const regionCodes = Object.keys(countryNameFormat).map(k => k.toUpperCase());
+
+            for (const line of lines) {
+                const normLine = line.toLowerCase()
                     .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss");
                 
-                // Prüfe ob Vor- und Nachname in der Tabellenzeile stehen (Umlaut-Tolerant)
-                if (myNameParts.every(p => normText.includes(p))) {
-                    const cells = Array.from(row.querySelectorAll("td, th")).map(c => cleanText(c.textContent));
-                    for (let cell of cells) {
-                        const parsedDiv = normalizeDivisionFromFreeText(cell);
+                // Prüfe ob Vor- und Nachname in der Zeile stehen (z.B. "4 Fabian Schöps GER Optics Overall")
+                if (myNameParts.every(p => normLine.includes(p))) {
+                    
+                    const tokens = line.split(/\s+/);
+                    let regionIndex = -1;
+                    
+                    // Suche nach dem Länderkürzel (z.B. GER, SUI)
+                    for (let i = 0; i < tokens.length; i++) {
+                        const tokenClean = tokens[i].replace(/[^A-Za-z]/g, "").toUpperCase();
+                        if (regionCodes.includes(tokenClean)) {
+                            regionIndex = i;
+                            break;
+                        }
+                    }
+
+                    // Wenn Land gefunden, ist der Rest rechts davon die Division
+                    if (regionIndex !== -1 && regionIndex + 1 < tokens.length) {
+                        const afterRegion = tokens.slice(regionIndex + 1).join(" ");
+                        const parsedDiv = normalizeDivisionFromFreeText(afterRegion);
                         if (parsedDiv !== "Unknown") return parsedDiv;
                     }
-                    const parsedRowDiv = normalizeDivisionFromFreeText(rawText);
+                    
+                    // Fallback: Einfach die ganze Zeile nach Divisions-Keywords scannen
+                    const parsedRowDiv = normalizeDivisionFromFreeText(line);
                     if (parsedRowDiv !== "Unknown") return parsedRowDiv;
                 }
             }
@@ -1219,6 +1237,8 @@
             dropZone.style.borderColor = "var(--accent-color)";
             if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);
         });
+
+
 
         // ==========================================
         // 🏆 SUPABASE MATCH ARCHIV LOGIK
