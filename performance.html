@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Performance-Check | IPSC ELO Analyse</title>
     
+    <!-- 🌍 Offizielle Flaggen-Icons (CSS-Bibliothek) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
 
     <style>
@@ -83,6 +84,7 @@
         .badge-a { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
         .badge-u { background: rgba(100, 116, 139, 0.1); color: var(--text-muted); }
 
+
         /* 📁 MATCH-ARCHIV OHNE BILD-SPEICHER */
         .match-archive { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); margin-bottom: 25px; box-shadow: var(--shadow-sm); overflow: hidden; }
         .archive-header { padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: var(--text-color); border-bottom: 1px solid var(--border-color); }
@@ -120,27 +122,33 @@
 </head>
 <body>
 
+    <!-- Dynamischer Header -->
     <header></header>
     <script src="header.js"></script>
 
     <div class="container">
+        <!-- SPERRBILDSCHIRM BEI FEHLENDER LIZENZ -->
         <div id="access-denied" class="danger-box">Prüfe Berechtigungen... (Bitte einloggen)</div>
 
+        <!-- HAUPT-DASHBOARD -->
         <div id="dashboard-content" style="display: none;">
             <div class="info-box" id="js-personal-welcome">
                 <strong>📸 Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste hoch oder füge einen IPSCMatch-Link ein. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
             </div>
 
+            <!-- NEU: SCHNELLSTART AUS DEM PLANER -->
             <div id="quick-analyze-section" style="display: none; background: rgba(59, 130, 246, 0.05); border: 1px solid var(--info-color); padding: 15px; border-radius: var(--radius); margin-bottom: 20px;">
                 <h4 style="margin: 0 0 10px 0; color: var(--info-color); font-size: 14px;">🎯 Deine anstehenden Matches (aus Mein Planer)</h4>
                 <div id="quick-analyze-buttons" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
             </div>
 
+            <!-- LINK IMPORT BEREICH -->
             <div class="link-import-bar" id="link-import-bar">
                 <input type="url" id="match-url" class="url-input" placeholder="https://ipscmatch.de/index.php?..." autocomplete="url" inputmode="url">
                 <button type="button" id="match-url-btn" class="primary-btn" onclick="importMatchFromUrl()">Link abrufen</button>
             </div>
 
+            <!-- UPLOAD BEREICH -->
             <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click();">
                 <div class="upload-icon">📄</div>
                 <h3 class="upload-title">Screenshot hier hochladen</h3>
@@ -148,6 +156,7 @@
                 <input type="file" id="file-input" accept="image/*" onchange="handleFileUpload(this.files)">
             </div>
 
+            <!-- MATCH-ARCHIV OHNE BILD-SPEICHER -->
             <div class="match-archive" id="match-archive">
                 <div class="archive-header" onclick="toggleMatchArchive()">
                     <span>📁 Bisherige Match-Analysen</span>
@@ -158,12 +167,14 @@
                 </div>
             </div>
 
+            <!-- LADEANIMATION -->
             <div class="loader-container" id="loader">
                 <div class="spinner"></div>
                 <h3 style="margin: 0; color: var(--text-color);">Analysiere Starterfeld...</h3>
                 <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 14px;">Texterkennung läuft und ELO-Datenbank wird abgefragt.</p>
             </div>
 
+            <!-- ERGEBNIS BEREICH -->
             <div id="analysis-results">
                 <h2 style="margin-bottom: 20px;">Auswertung: <span style="color: var(--accent-color);">Optics Overall</span></h2>
                 
@@ -186,6 +197,7 @@
                     </div>
                 </div>
 
+                <!-- ℹ️ AUSKLAPPBARE LEGENDE -->
                 <div class="legend-box">
                     <div class="legend-title" onclick="toggleLegend()">
                         <span>ℹ️ Wie berechnet sich das Wettkampf-Niveau?</span>
@@ -233,18 +245,12 @@
                                 </tr>
                             </tbody>
                         </table>
-
-                        <p style="margin-top:18px;line-height:1.5;color:var(--text-muted);">
-                            💡 <strong>Beispiel:</strong><br><br>
-                            Ein Match kann für dich persönlich eine <strong>hohe Herausforderung</strong> darstellen und gleichzeitig eine <strong>sehr hohe Feldstärke</strong> besitzen. Dadurch werden sowohl deine individuellen Chancen als auch die Qualität des gesamten Starterfeldes getrennt bewertet.
-                            <br><br>
-                            Ein Match mit vielen unbekannten oder ungerankten Teilnehmern kann deshalb für dich schwierig sein, ohne dass es automatisch ein internationales Spitzenfeld sein muss.
-                        </p>
                     </div>
                 </div>
 
                 <h3 style="margin: 30px 0 15px 0; font-size: 18px;">Gefundene Konkurrenten</h3>
                 
+                <!-- 🔍 FILTER-BAR -->
                 <div class="filter-bar">
                     <input type="text" id="search-name" class="filter-input" placeholder="Nach Name suchen..." oninput="applyFilters()">
                     
@@ -262,7 +268,8 @@
                 </div>
 
                 <div class="competitor-list" id="competitor-list">
-                    </div>
+                    <!-- Wird dynamisch durch JavaScript befüllt -->
+                </div>
             </div>
         </div>
     </div>
@@ -319,7 +326,6 @@
             "SRB": "Serbia", "SERBIA": "Serbia"
         };
 
-        // Für ältere Codepfade und Debugging verfügbar machen.
         window.countryCodes = countryCodes;
         window.countryNameFormat = countryNameFormat;
 
@@ -467,8 +473,6 @@
             }
         }
 
-
-        // 🔎 Robuster ELO-Lookup: Name + Division, mit Umlaut-/Schreibvarianten
         function uniqueArray(values) {
             return [...new Set(values.filter(Boolean))];
         }
@@ -580,7 +584,7 @@
             return session && session.user ? session.user : null;
         }
 
-        // 🛡️ ZENTRALE VERIFIZIERUNGS-LOGIK (Verarbeitet das geladene Profil)
+        // 🛡️ ZENTRALE VERIFIZIERUNGS-LOGIK
         async function processUserProfile(user) {
             const deniedBox = document.getElementById("access-denied");
             const dashboard = document.getElementById("dashboard-content");
@@ -592,7 +596,6 @@
             }
 
             try {
-                // Holt das Profil exakt wie doppel-aa.html
                 const { data: profile, error } = await window.supabaseClient
                     .from("profiles")
                     .select("is_doppel_aa, ipsc_alias, username, real_name")
@@ -615,7 +618,6 @@
                 deniedBox.style.display = "none";
                 dashboard.style.display = "block";
 
-                // Archiv erst laden, wenn User sicher validiert ist.
                 if (typeof renderMatchArchive === "function") {
                     renderMatchArchive();
                 }
@@ -671,12 +673,12 @@
                     if (hasValid) container.style.display = "block";
                 }
 
-                // --- NEU: AUTOMATISCHER START, WENN MAN VOM PLANER KOMMT ---
+                // --- NEU: AUTOMATISCHER START VOM PLANER ---
                 const urlParams = new URLSearchParams(window.location.search);
                 const autoUrl = urlParams.get('url');
                 if (autoUrl) {
                     document.getElementById('match-url').value = autoUrl;
-                    importMatchFromUrl();
+                    setTimeout(() => importMatchFromUrl(), 300);
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
 
@@ -768,23 +770,13 @@
                     options: { mode: "cors" }
                 },
                 {
-                    name: "AllOrigins Raw",
-                    url: `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-                    type: "text"
-                },
-                {
                     name: "AllOrigins JSON",
                     url: `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
                     type: "json"
                 },
                 {
-                    name: "CodeTabs Proxy",
-                    url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
-                    type: "text"
-                },
-                {
-                    name: "CorsProxy.io",
-                    url: `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+                    name: "AllOrigins Raw",
+                    url: `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
                     type: "text"
                 }
             ];
@@ -798,7 +790,6 @@
 
             const text = await response.text();
 
-            // Falls ein Proxy trotz Raw-URL JSON liefert.
             if (/^\s*\{/.test(text) && text.includes('"contents"')) {
                 try {
                     const json = JSON.parse(text);
@@ -837,7 +828,7 @@
             }
 
             const serviceWorkerHint = errors.some(entry => /FetchEvent\.respondWith|Returned response is null/i.test(entry))
-                ? "\n\nHinweis: Die Meldung 'FetchEvent.respondWith ... Returned response is null' kommt meist von einem alten oder fehlerhaften Service Worker/PWA-Cache. Website-Daten/Cache löschen oder die sw.js so ändern, dass sie bei fetch immer eine gültige Response zurückgibt."
+                ? "\n\nHinweis: Die Meldung 'FetchEvent.respondWith ... Returned response is null' kommt meist von einem alten Service Worker. Website-Daten/Cache löschen."
                 : "";
 
             throw new Error(`Der Link konnte nicht geladen werden.${serviceWorkerHint}\n\nVersuchte Wege:\n- ${errors.join("\n- ")}`);
@@ -942,7 +933,8 @@
             const parser = new DOMParser();
             let doc = parser.parseFromString(htmlContent, "text/html");
 
-            const listLink = doc.querySelector("a[href*='list=starter'], a[href*='list=main_match'], a[href*='list=overall']");
+            // Wir fangen auch Links ab, die list=squad oder list=teilnehmer heißen
+            const listLink = doc.querySelector("a[href*='list=starter'], a[href*='list=main_match'], a[href*='list=overall'], a[href*='list=squad'], a[href*='list=teilnehmer']");
             if (listLink && currentUrl) {
                 console.log("Turnier-Hauptseite erkannt. Folg dem Starterlisten-Pfad...");
                 try {
@@ -956,6 +948,13 @@
 
             let matchTitle = cleanText(doc.querySelector("h1")?.textContent) || cleanText(doc.title) || "IPSC Match";
             matchTitle = matchTitle.replace(/ipscmatch\.de/i, "").replace(/Starterliste/i, "").trim() || "Importiertes Match";
+
+            let matchDate = "2026-01-01";
+            const bodyForDate = doc.body ? doc.body.innerText : "";
+            const dateMatch = bodyForDate.match(/(\d{2})\.(\d{2})\.(\d{4})/);
+            if (dateMatch) {
+                matchDate = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
+            }
 
             let parsedNames = [];
             const targetTable = findStarterTable(doc);
@@ -995,7 +994,7 @@
                     if (seen.has(key)) continue;
                     seen.add(key);
 
-                    parsedNames.push({ vorname, nachname, regionRaw, division });
+                    parsedNames.push({ vorname, nachname, regionRaw, division, real_date: matchDate });
                 }
             }
 
@@ -1003,6 +1002,7 @@
             if (!parsedNames.length) {
                 const bodyText = doc.body ? doc.body.innerText || doc.body.textContent || "" : "";
                 parsedNames = parseShootersFromPlainText(bodyText || htmlContent);
+                parsedNames.forEach(s => s.real_date = matchDate);
             }
 
             if (!parsedNames.length) {
@@ -1047,7 +1047,7 @@
                 const heading = document.querySelector('#analysis-results h2 span');
                 if (heading) heading.textContent = matchTitle;
 
-                await storeMatchAnalysis(matchTitle, "URL_IMPORT", parsedNames, currentShooters);
+                await storeMatchAnalysis(matchTitle, htmlContent, parsedNames, currentShooters);
 
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('analysis-results').style.display = 'block';
@@ -1060,8 +1060,6 @@
             }
         }
         
-        // Ende Link Import Logik
-
         // 2. DRAG & DROP EVENTS
         const dropZone = document.getElementById('drop-zone');
         dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--info-color)"; });
@@ -1099,7 +1097,7 @@
             content.innerHTML = '<div class="archive-empty">Lade Matches aus der Datenbank...</div>';
             
             const items = await loadMatchesFromSupabase();
-            window.cachedMatches = items; // Für den schnellen Zugriff zwischenspeichern
+            window.cachedMatches = items; 
             
             if (!items.length) {
                 content.innerHTML = '<div class="archive-empty">Noch keine Match-Analysen in der Datenbank.</div>';
@@ -1171,7 +1169,7 @@
             if (error) {
                 console.error("Speichern fehlgeschlagen:", error);
             } else {
-                await renderMatchArchive(); // Liste in der UI sofort aktualisieren
+                await renderMatchArchive(); 
             }
         }
 
@@ -1190,7 +1188,6 @@
             const item = window.cachedMatches.find(entry => entry.id === id);
             if (!item) return;
 
-            // BUGFIX: Zwingender Reset aller States und Filter!
             document.getElementById('search-name').value = "";
             currentShooters = []; 
 
@@ -1230,19 +1227,15 @@
             for (const originalLine of lines) {
                 let line = originalLine;
 
-                // Ignore header/footer/navigation lines
                 if (/^(nr\.?|vorname|name|region|division|category|power|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik)/i.test(line)) {
                     continue;
                 }
 
-                // Must start with a competitor number
                 const numberMatch = line.match(/^\D*(\d{1,5})\s+(.+)$/);
                 if (!numberMatch) continue;
 
                 let rest = numberMatch[2].trim();
 
-                // Find region token, because ipscmatch table order is:
-                // Nr Vorname Name Region Division Category ...
                 const tokens = rest.split(/\s+/);
                 let regionIndex = -1;
                 let regionRaw = "";
@@ -1262,10 +1255,7 @@
                 const afterRegion = tokens.slice(regionIndex + 1).join(" ");
 
                 let division = divisions.find(d => new RegExp(`^${d.replace(" ", "\\s+")}\\b`, "i").test(afterRegion));
-                if (!division) {
-                    // Most screenshots here are Optics; do not guess for unknown rows.
-                    continue;
-                }
+                if (!division) continue;
 
                 const vorname = nameTokens[0];
                 const nachname = nameTokens.slice(1).join(" ");
@@ -1306,7 +1296,6 @@
             return { shooters, rawText: text, matchName: extractMatchNameFromOcr(text) };
         }
 
-        // 3. SCREENSHOT-VERARBEITUNG MIT UMLAUT-BEREINIGUNG & SUPABASE-LOOKUP
         async function handleFileUpload(files) {
             if (files.length === 0) return;
 
@@ -1451,7 +1440,8 @@
             }
         }
 
-        function renderList(shooters) {
+        
+function renderList(shooters) {
             const listContainer = document.getElementById('competitor-list');
             if (shooters.length === 0) {
                 listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Keine Schützen gefunden.</div>';
