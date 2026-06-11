@@ -20,7 +20,7 @@ def log(msg):
     print(msg, flush=True)
 
 def normalize_text(text):
-    """Normalisiert Umlaute und Text für einen sicheren Vergleich."""
+    """Normalisiert Umlaute und Text für einen bombensicheren Abgleich."""
     if not text:
         return ""
     text = text.lower()
@@ -29,13 +29,10 @@ def normalize_text(text):
     return text.strip()
 
 def extract_date_and_location(driver):
-    """Versucht das echte Datum und den Ort aus der Match-Seite zu fischen."""
     match_date = "2026-01-01" 
     location = "Unbekannt"
-    
     try:
         body_text = driver.find_element(By.TAG_NAME, "body").text
-        
         date_matches = re.findall(r'(\d{2}\.\d{2}\.\d{4})', body_text)
         if date_matches:
             parts = date_matches[0].split('.')
@@ -54,7 +51,6 @@ def extract_date_and_location(driver):
     return match_date, location
 
 def get_app_users():
-    """Holt alle User aus der Datenbank, die einen real_name hinterlegt haben."""
     log("Lade User aus der profiles-Tabelle...")
     try:
         response = supabase.table("profiles").select("id, real_name").execute()
@@ -88,7 +84,7 @@ def update_or_create_match(user_id, real_name, match_data):
                 "match_url": match_data['match_url']
             }).eq("id", db_match['id']).execute()
     else:
-        log(f"✨ NEU HINZUGEFÜGT: Schütze '{real_name}' wurde zum Match '{match_name}' eingetragen (Squad: {match_data['squad']} | Status: {match_data['status']}).")
+        log(f"✨ NEU HINZUGEFÜGT: '{real_name}' wurde zum Match '{match_name}' eingetragen (Squad: {match_data['squad']} | Status: {match_data['status']}).")
         supabase.table("user_matches").insert({
             "user_id": user_id,
             "match_name": match_name,
@@ -103,7 +99,7 @@ def update_or_create_match(user_id, real_name, match_data):
 def scrape_ipscmatch_and_sync():
     app_users = get_app_users()
     if not app_users:
-        log("Keine User mit real_name gefunden. Breche ab.")
+        log("Keine User gefunden. Breche ab.")
         return
 
     log("Starte Chrome-Browser...")
@@ -111,29 +107,23 @@ def scrape_ipscmatch_and_sync():
     chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1920,1080")
-    
-    # 🚀 SPEED-UP: Lade nur HTML, warte nicht auf Bilder/externe Tracker
     chrome_options.page_load_strategy = 'eager'
 
     driver = None
     try:
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=chrome_options)
-        
-        # 🚀 TIMEOUT: Gib jeder Seite maximal 25 Sekunden Zeit
         driver.set_page_load_timeout(25)
         
         base_url = "https://ipscmatch.de/"
         try:
             driver.get(base_url)
             time.sleep(2)
-        except Exception as e:
-            log(f"Timeout beim Laden der Hauptseite ignoriert. HTML sollte da sein.")
+        except Exception:
+            pass
             
-        log("Suche nach anstehenden Matches...")
-        
+        log("Suche nach Matches...")
         match_links = []
         elements = driver.find_elements(By.CSS_SELECTOR, "a[href*='match=']")
         for el in elements:
@@ -141,86 +131,76 @@ def scrape_ipscmatch_and_sync():
             name = el.text.strip()
             if url and name and url not in [m['url'] for m in match_links]:
                 match_links.append({'name': name, 'url': url})
-                
-        log(f"{len(match_links)} Matches auf der Startseite gefunden.")
 
         for match in match_links:
-            log(f"\n--- Durchsuche Match: {match['name']} ---")
-            
+            log(f"\n--- Durchsuche: {match['name']} ---")
             try:
                 driver.get(match['url'])
                 time.sleep(2) 
             except Exception:
-                log(f"WARN: Timeout beim Laden von Match {match['name']} - Versuche trotzdem zu lesen...")
+                log("Timeout bei Hauptseite, probiere weiter...")
 
             real_match_date, real_location = extract_date_and_location(driver)
             
+            # Navigiere zur echten Starterliste, falls auf Hauptseite
             try:
                 starter_link = driver.find_element(By.XPATH, "//a[contains(@href, 'list=starter') or contains(@href, 'list=main_match') or contains(@href, 'list=overall')]")
-                starter_url = starter_link.get_attribute("href")
-                log(f"Folge Link zur Starterliste...")
-                driver.get(starter_url)
+                driver.get(starter_link.get_attribute("href"))
                 time.sleep(2)
             except Exception:
-                log(f"Keine öffentliche Starterliste für dieses Match gefunden. Überspringe.")
-                continue
+                pass
             
-            rows = driver.find_elements(By.XPATH, "//tr | //p | //div")
+            page_text = driver.find_element(By.TAG_NAME, "body").text
+            lines = page_text.split('\n')
             
-            for row in rows:
-                row_text = row.text.strip()
-                if not row_text:
-                    continue
-                    
-                normalized_row = normalize_text(row_text)
+            for user in app_users:
+                real_name = user['real_name']
+                # Zerlege den Namen ("Fabian Schöps" -> ["fabian", "schoeps"])
+                search_parts = normalize_text(real_name).split()
                 
-                for user in app_users:
-                    real_name = user['real_name']
-                    normalized_name = normalize_text(real_name)
+                current_squad = "TBD"
+                status = "Approved"
+                found = False
+                
+                for line in lines:
+                    norm_line = normalize_text(line)
                     
-                    if normalized_name in normalized_row:
-                        log(f"🎯 TREFFER: '{real_name}' auf der Liste gefunden!")
-                        
-                        squad = "TBD"
-                        status = "Approved"
-                        
-                        squad_match = re.search(r'(?:squad|sq|gruppe)\s*:?\s*(\d+)', normalized_row)
-                        end_match = re.search(r'\b(\d{1,2})$', normalized_row)
-                        
-                        if squad_match:
-                            squad_num = squad_match.group(1)
-                            squad = f"Squad {squad_num}"
-                            if squad_num == "99":
-                                status = "Warteliste"
-                                squad = "SQ99"
-                        elif end_match:
-                            squad_num = end_match.group(1)
-                            squad = f"Squad {squad_num}"
-                            if squad_num == "99":
-                                status = "Warteliste"
-                                squad = "SQ99"
-                        elif "99" in row_text:
+                    # 1. SQUAD-GEDÄCHTNIS: Wenn die Zeile ein Squad-Header ist (z.B. "Sq. 12")
+                    squad_match = re.search(r'(?:squad|sq\.?|gruppe)\s*(\d+)', norm_line)
+                    if squad_match:
+                        squad_num = squad_match.group(1)
+                        if squad_num == "99":
+                            current_squad = "SQ99"
                             status = "Warteliste"
-                            squad = "SQ99"
-                        
-                        match_data = {
-                            "match_name": match['name'],
-                            "match_date": real_match_date,
-                            "location": real_location,
-                            "status": status,
-                            "squad": squad,
-                            "match_url": match['url']
-                        }
-                        
-                        update_or_create_match(user['id'], real_name, match_data)
-                        break 
+                        else:
+                            current_squad = f"Squad {squad_num}"
+                            status = "Approved"
+                    elif "warteliste" in norm_line:
+                        current_squad = "SQ99"
+                        status = "Warteliste"
+
+                    # 2. NAMENS-CHECK: Sind alle Namens-Teile in der Zeile?
+                    if all(part in norm_line for part in search_parts):
+                        log(f"🎯 TREFFER: '{real_name}' -> {current_squad} ({status})")
+                        found = True
+                        break # Wir haben ihn gefunden, können für diesen User aufhören
+                
+                if found:
+                    match_data = {
+                        "match_name": match['name'],
+                        "match_date": real_match_date,
+                        "location": real_location,
+                        "status": status,
+                        "squad": current_squad,
+                        "match_url": match['url']
+                    }
+                    update_or_create_match(user['id'], real_name, match_data)
 
     except Exception as e:
-        log(f"KRITISCHER FEHLER beim Scraping: {e}")
+        log(f"KRITISCHER FEHLER: {e}")
     finally:
         if driver:
             driver.quit()
-            log("Browser geschlossen. Synchronisation beendet.")
 
 if __name__ == "__main__":
     scrape_ipscmatch_and_sync()
