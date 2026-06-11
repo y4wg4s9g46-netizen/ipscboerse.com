@@ -36,7 +36,6 @@ def extract_date_and_location(driver):
     try:
         body_text = driver.find_element(By.TAG_NAME, "body").text
         
-        # Versuche typische Datumsformate zu finden
         date_matches = re.findall(r'(\d{2}\.\d{2}\.\d{4})', body_text)
         if date_matches:
             parts = date_matches[0].split('.')
@@ -46,7 +45,6 @@ def extract_date_and_location(driver):
             if date_matches_iso:
                 match_date = date_matches_iso[0]
 
-        # Einfache Orts-Suche nach Keywords
         loc_match = re.search(r'(?:Ort|Location|Austragungsort):\s*([^\n\r]+)', body_text, re.I)
         if loc_match:
             location = loc_match.group(1).strip()
@@ -113,17 +111,27 @@ def scrape_ipscmatch_and_sync():
     chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1920,1080")
+    
+    # 🚀 SPEED-UP: Lade nur HTML, warte nicht auf Bilder/externe Tracker
+    chrome_options.page_load_strategy = 'eager'
 
     driver = None
     try:
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=chrome_options)
         
-        base_url = "https://ipscmatch.de/"
-        driver.get(base_url)
-        time.sleep(3)
+        # 🚀 TIMEOUT: Gib jeder Seite maximal 25 Sekunden Zeit
+        driver.set_page_load_timeout(25)
         
+        base_url = "https://ipscmatch.de/"
+        try:
+            driver.get(base_url)
+            time.sleep(2)
+        except Exception as e:
+            log(f"Timeout beim Laden der Hauptseite ignoriert. HTML sollte da sein.")
+            
         log("Suche nach anstehenden Matches...")
         
         match_links = []
@@ -138,13 +146,15 @@ def scrape_ipscmatch_and_sync():
 
         for match in match_links:
             log(f"\n--- Durchsuche Match: {match['name']} ---")
-            driver.get(match['url'])
-            time.sleep(2) 
             
-            # Hole Echtzeit-Datum und Ort von der HAUPTSEITE
+            try:
+                driver.get(match['url'])
+                time.sleep(2) 
+            except Exception:
+                log(f"WARN: Timeout beim Laden von Match {match['name']} - Versuche trotzdem zu lesen...")
+
             real_match_date, real_location = extract_date_and_location(driver)
             
-            # 🚀 NEU: GEHE ZUR STARTERLISTE
             try:
                 starter_link = driver.find_element(By.XPATH, "//a[contains(@href, 'list=starter') or contains(@href, 'list=main_match') or contains(@href, 'list=overall')]")
                 starter_url = starter_link.get_attribute("href")
@@ -155,7 +165,6 @@ def scrape_ipscmatch_and_sync():
                 log(f"Keine öffentliche Starterliste für dieses Match gefunden. Überspringe.")
                 continue
             
-            # Jetzt suchen wir auf der Starterliste!
             rows = driver.find_elements(By.XPATH, "//tr | //p | //div")
             
             for row in rows:
@@ -175,10 +184,7 @@ def scrape_ipscmatch_and_sync():
                         squad = "TBD"
                         status = "Approved"
                         
-                        # 1. Methode: Steht explizit "Squad XY" in der Zeile?
                         squad_match = re.search(r'(?:squad|sq|gruppe)\s*:?\s*(\d+)', normalized_row)
-                        
-                        # 2. Methode: Steht die Squad als nackte Zahl am Zeilenende (typisch für Tabellen)?
                         end_match = re.search(r'\b(\d{1,2})$', normalized_row)
                         
                         if squad_match:
