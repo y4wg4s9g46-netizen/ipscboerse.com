@@ -1,25 +1,49 @@
 const CACHE_NAME = 'ipsc-pwa-v2';
 
-// Install-Event: Wird aufgerufen, wenn der Service Worker das erste Mal registriert wird
+// Install-Event
 self.addEventListener('install', event => {
     self.skipWaiting();
 });
 
-// Activate-Event: Räumt alte Caches auf, falls wir später die Version ändern
+// Activate-Event
 self.addEventListener('activate', event => {
     event.waitUntil(clients.claim());
 });
 
-// Fetch-Event: Leitet alle Netzwerkanfragen weiter. Falls offline, sucht er im Cache.
+// Fetch-Event
 self.addEventListener('fetch', event => {
-    // Supabase API-Calls ignorieren, die brauchen immer das Internet
+
+    // Supabase immer direkt durchlassen
     if (event.request.url.includes('supabase.co')) {
         return;
     }
 
     event.respondWith(
-        fetch(event.request).catch(() => {
-            return caches.match(event.request);
-        })
+
+        fetch(event.request)
+
+            .catch(async () => {
+
+                const cachedResponse = await caches.match(event.request);
+
+                // Falls etwas im Cache liegt → verwenden
+                if (cachedResponse) {
+                    return cachedResponse;
+                }
+
+                // Niemals null/undefined zurückgeben!
+                return new Response(
+                    'Offline oder Ressource nicht verfügbar',
+                    {
+                        status: 503,
+                        headers: {
+                            'Content-Type': 'text/plain'
+                        }
+                    }
+                );
+
+            })
+
     );
+
 });
