@@ -2,7 +2,7 @@
     {
         "name": "Summer Cup Guyane 2026",
         "datum": "14.06.2026",
-        "auslastung": "42%",
+        "auslastung": "50%",
         "region": "FRA",
         "level": "2",
         "disziplin": "HG",
@@ -29,7 +29,7 @@
     {
         "name": "Bracara Augusta Match 2026",
         "datum": "11.07.2026",
-        "auslastung": "79%",
+        "auslastung": "80%",
         "region": "POR",
         "level": "3",
         "disziplin": "HG",
@@ -56,7 +56,7 @@
     {
         "name": "Siegerland Challenge part I",
         "datum": "26.07.2026",
-        "auslastung": "90%",
+        "auslastung": "92%",
         "region": "GER",
         "level": "2",
         "disziplin": "HG",
@@ -72,15 +72,6 @@
         "url": "https://www.ipscmatch.de/index.pl?match=Bracara_Action_Air_-_2026"
     },
     {
-        "name": "Thuringian Open - offene LM Handgun LV 13 2026",
-        "datum": "09.08.2026",
-        "auslastung": "98%",
-        "region": "GER",
-        "level": "3",
-        "disziplin": "HG",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_VM_Thueringen"
-    },
-    {
         "name": "Hubertus Summercup 2026 PCC",
         "datum": "31.08.2026",
         "auslastung": "85%",
@@ -92,7 +83,7 @@
     {
         "name": "Racan Shotgun Trophy 2026",
         "datum": "05.09.2026",
-        "auslastung": "72%",
+        "auslastung": "77%",
         "region": "FRA",
         "level": "3",
         "disziplin": "SG",
@@ -146,7 +137,7 @@
     {
         "name": "Tenerife Open 2026",
         "datum": "13.12.2026",
-        "auslastung": "37%",
+        "auslastung": "38%",
         "region": "ESP",
         "level": "3",
         "disziplin": "HG, PCC, MR",
