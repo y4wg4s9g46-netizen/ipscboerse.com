@@ -47,7 +47,7 @@
 
         /* 📊 ANALYSIS RESULTS */
         #analysis-results { display: none; }
-        .elo-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; }
+        .elo-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px; }
         .elo-stat-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm); }
         .elo-stat-val { font-size: 24px; font-weight: 700; color: var(--accent-color); margin-bottom: 5px; }
         .elo-stat-lbl { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
@@ -184,6 +184,10 @@
                     <div class="elo-stat-card">
                         <div class="elo-stat-val" id="stat-level">-</div>
                         <div class="elo-stat-lbl">Herausforderung für dich</div>
+                    </div>
+                    <div class="elo-stat-card">
+                        <div class="elo-stat-val" id="stat-field-strength">-</div>
+                        <div class="elo-stat-lbl">Feldstärke</div>
                     </div>
                 </div>
 
@@ -1310,40 +1314,89 @@
 
         function calculateStats(shooters) {
             document.getElementById('stat-user-elo').textContent = userPersonalElo;
-            
+
+            const totalCompetitors = shooters.length;
             const rankedCompetitors = shooters.filter(s => typeof s.elo === 'number' && !isNaN(s.elo));
-            const totalRanked = rankedCompetitors.length;
-            
+            const rankedCount = rankedCompetitors.length;
+
             const strongerCompetitors = rankedCompetitors.filter(s => s.elo > userPersonalElo);
             const strongerCount = strongerCompetitors.length;
-            
+
             document.getElementById('stat-stronger-count').textContent = strongerCount;
 
-            const percentageStronger = totalRanked > 0 ? (strongerCount / totalRanked) * 100 : 0;
+            // Persönliche Herausforderung:
+            // fairer Vergleich über das gesamte Starterfeld.
+            // Beispiel: 22 von 57 über dir = 38,6 % = Hoch.
+            const percentageStronger = totalCompetitors > 0 ? (strongerCount / totalCompetitors) * 100 : 0;
 
             let level = "Gering";
             let color = "var(--success-color)";
-            
-            if (percentageStronger > 50) { 
-                level = "Sehr Hoch"; 
+
+            if (percentageStronger > 50) {
+                level = "Sehr Hoch";
                 color = "var(--danger-color)";
-            } else if (percentageStronger > 20) { 
-                level = "Hoch"; 
+            } else if (percentageStronger > 20) {
+                level = "Hoch";
                 color = "var(--accent-color)";
-            } else if (percentageStronger > 5) { 
-                level = "Mittel"; 
+            } else if (percentageStronger > 5) {
+                level = "Mittel";
                 color = "var(--info-color)";
-            } else {
-                level = "Gering";
-                color = "var(--success-color)";
             }
-            
+
             const levelStat = document.getElementById('stat-level');
-            levelStat.textContent = totalRanked > 0 ? level : "-";
-            levelStat.style.color = totalRanked > 0 ? color : "var(--text-color)";
+            levelStat.textContent = totalCompetitors > 0 ? level : "-";
+            levelStat.style.color = totalCompetitors > 0 ? color : "var(--text-color)";
+            levelStat.title = totalCompetitors > 0
+                ? `${strongerCount} von ${totalCompetitors} Teilnehmern sind über deinem ELO (${percentageStronger.toFixed(1)}%). ${rankedCount} Teilnehmer hatten ein bekanntes ELO.`
+                : "";
+
+            // Objektive Feldstärke:
+            // bewertet nicht dich persönlich, sondern wie stark die Spitze und der Durchschnitt des gerankten Feldes sind.
+            const sortedElos = rankedCompetitors.map(s => s.elo).sort((a, b) => b - a);
+            const avgElo = rankedCount > 0 ? sortedElos.reduce((sum, elo) => sum + elo, 0) / rankedCount : 0;
+            const topCount = Math.min(10, sortedElos.length);
+            const top10Avg = topCount > 0 ? sortedElos.slice(0, topCount).reduce((sum, elo) => sum + elo, 0) / topCount : 0;
+            const gmCount = sortedElos.filter(elo => elo >= 2300).length;
+            const masterCount = sortedElos.filter(elo => elo >= 2100).length;
+            const aClassPlusCount = sortedElos.filter(elo => elo >= 1800).length;
+            const rankedCoverage = totalCompetitors > 0 ? rankedCount / totalCompetitors : 0;
+
+            let fieldStrength = "-";
+            let fieldColor = "var(--text-color)";
+
+            if (rankedCount > 0) {
+                fieldStrength = "Gering";
+                fieldColor = "var(--success-color)";
+
+                if (top10Avg >= 2100 || avgElo >= 1850 || gmCount >= 2 || masterCount >= 5) {
+                    fieldStrength = "Sehr Hoch";
+                    fieldColor = "var(--danger-color)";
+                } else if (top10Avg >= 1900 || avgElo >= 1700 || masterCount >= 2 || aClassPlusCount >= 8) {
+                    fieldStrength = "Hoch";
+                    fieldColor = "var(--accent-color)";
+                } else if (top10Avg >= 1700 || avgElo >= 1500 || aClassPlusCount >= 3) {
+                    fieldStrength = "Mittel";
+                    fieldColor = "var(--info-color)";
+                }
+
+                // Wenige bekannte ELOs machen die Einschätzung unsicherer.
+                if (rankedCoverage < 0.25 && fieldStrength !== "Gering") {
+                    fieldStrength += "*";
+                }
+            }
+
+            const fieldStat = document.getElementById('stat-field-strength');
+            if (fieldStat) {
+                fieldStat.textContent = fieldStrength;
+                fieldStat.style.color = fieldColor;
+                fieldStat.title = rankedCount > 0
+                    ? `Feldstärke basiert auf ${rankedCount} bekannten ELOs von ${totalCompetitors} Teilnehmern. Ø ELO: ${avgElo.toFixed(0)}, Top-${topCount}-Ø: ${top10Avg.toFixed(0)}, Master+: ${masterCount}, GM: ${gmCount}.${rankedCoverage < 0.25 ? " *Wenig bekannte ELOs, Einschätzung unsicherer." : ""}`
+                    : "Keine bekannten ELOs im Feld.";
+            }
         }
 
-        function renderList(shooters) {
+        
+function renderList(shooters) {
             const listContainer = document.getElementById('competitor-list');
             if (shooters.length === 0) {
                 listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Keine Schützen gefunden.</div>';
