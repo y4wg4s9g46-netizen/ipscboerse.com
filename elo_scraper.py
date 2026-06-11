@@ -420,7 +420,7 @@ def dataframe_to_entries(df, division, seen_ranks, total_rows=0):
     for _, row in df.iterrows():
         rank = safe_int(row.get(rank_col, 0))
 
-        # NEU: Überspringt Duplikate, statt hart nach Seitenzahlen zu filtern
+        # Überspringt Duplikate
         if rank in seen_ranks or rank == 0:
             continue
             
@@ -459,7 +459,7 @@ def dataframe_to_entries(df, division, seen_ranks, total_rows=0):
         }
         
         entries.append(entry)
-        seen_ranks.add(rank) # NEU: Rank als "gesehen" markieren
+        seen_ranks.add(rank)
 
     return entries
 
@@ -500,7 +500,7 @@ def scrape_division(driver, division):
     log(f"Starte Division: {division}")
     log("==============================")
 
-    # Standard-Werte fuer die End-Tabelle, falls diese Division fehlschlaegt
+    # Standard-Werte fuer die End-Tabelle
     stats = {"division": division, "expected": 0, "imported": 0, "missing": 0, "status": "FEHLER"}
 
     clicked = click_division_tab(driver, division)
@@ -523,21 +523,38 @@ def scrape_division(driver, division):
     seen_ranks = set()
 
     for page_no in range(1, expected_pages + 1):
-        # NEU: Pause, damit JavaScript die Tabelle fertig aufbaut
+        # Basis-Pause fuer JavaScript Aufbau
         time.sleep(4) 
         
         start, end, current_total = get_showing_info(driver)
         if current_total and current_total > total_rows:
             total_rows = current_total
 
-        df = get_biggest_table(driver)
+        # ========================================================
+        # NEU: ROBUSTE PRÜFUNG AUF "LOADING..." IN DER TABELLE
+        # ========================================================
+        df = None
+        max_retries = 8
+        for attempt in range(max_retries):
+            temp_df = get_biggest_table(driver)
+            if temp_df is not None and len(temp_df) >= 10:
+                # Finde die Spalte mit den Namen
+                lastname_col = 'Lastname' if 'Lastname' in temp_df.columns else (temp_df.columns[3] if len(temp_df.columns) > 3 else '')
+                
+                # Pruefe ob noch Platzhalter drin stehen
+                if lastname_col and temp_df[lastname_col].astype(str).str.contains('loading', case=False, na=False).any():
+                    log(f"Lade-Indikator gefunden. Warte auf echte Daten... (Versuch {attempt+1}/{max_retries})")
+                    time.sleep(4)
+                else:
+                    df = temp_df
+                    break # Daten scheinen geladen zu sein
+            else:
+                log(f"Warte auf Tabelle... (Versuch {attempt+1}/{max_retries})")
+                time.sleep(4)
+
         if df is None or len(df) < 10:
-            log(f"WARN: Keine brauchbare Tabelle fuer {division} auf Seite {page_no} gefunden. Versuche es erneut...")
-            time.sleep(5) 
-            df = get_biggest_table(driver)
-            if df is None or len(df) < 10:
-                log(f"ERROR: Tabelle endgueltig nicht gefunden auf Seite {page_no}.")
-                break
+            log(f"ERROR: Tabelle endgueltig nicht gefunden auf Seite {page_no}.")
+            break
 
         log(f"{division}: Seite {page_no} mit {len(df)} Zeilen im HTML gefunden.")
 
@@ -566,7 +583,6 @@ def scrape_division(driver, division):
     if total_rows:
         stats["missing"] = total_rows - len(all_entries)
 
-    # Zusammenfassung pro Division im Log belassen
     if total_rows:
         fehlend = stats["missing"]
         log(f"\n--- ZUSAMMENFASSUNG LOKAL: {division} ---")
@@ -617,7 +633,7 @@ def scrape_and_upload_elo():
         log("\n--- STARTE DATENVERARBEITUNG UND UPLOAD FUER ALLE DIVISIONEN ---\n")
 
         success_count = 0
-        all_stats = [] # NEU: Liste speichert die Ergebnisse aller Divisionen
+        all_stats = [] 
 
         for division in DIVISIONS:
             success, stats = scrape_division(driver, division) 
@@ -625,9 +641,6 @@ def scrape_and_upload_elo():
                 success_count += 1
             all_stats.append(stats)
 
-        # =========================================================
-        # NEU: DER GROSSE ABSCHLUSS-BERICHT
-        # =========================================================
         log("\n" + "="*65)
         log("🏆 ABSCHLUSS-BERICHT: ALLE DIVISIONEN IM UEBERBLICK")
         log("="*65)
