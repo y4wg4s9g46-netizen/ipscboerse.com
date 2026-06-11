@@ -33,6 +33,7 @@ DIVISIONS = [
 ]
 
 # Fallback, falls ein Tab-Klick nicht klappt.
+# Diese IDs werden nur als Notfall-Variante genutzt.
 DIVISION_URL_IDS = {
     "Production": 4,
     "Production Optics": 5,
@@ -86,6 +87,7 @@ def wait_for_table(driver, timeout=25):
 
 
 def get_showing_info(driver):
+    """Liest die sichtbare Tabellenanzeige nahe der grossen Tabelle."""
     try:
         script = """
         function isVisible(el) {
@@ -129,6 +131,7 @@ def get_showing_info(driver):
     except Exception:
         pass
 
+    # Fallback: alter Weg ueber body-Text.
     try:
         text = driver.find_element(By.TAG_NAME, "body").text
         matches = re.findall(r"Showing\s+(\d+)\s+(?:to|-)\s+(\d+)\s+of\s+(\d+)\s+rows", text, re.I)
@@ -149,6 +152,7 @@ def get_visible_table_row_count(driver):
 
 
 def wait_until_showing_range(driver, expected_start, expected_end, total_rows, timeout=45):
+    """Wartet, bis unten die erwartete Range steht und genug Tabellenzeilen geladen sind."""
     deadline = time.time() + timeout
     expected_count = max(1, expected_end - expected_start + 1) if expected_end and expected_start else 0
 
@@ -170,7 +174,6 @@ def wait_until_showing_range(driver, expected_start, expected_end, total_rows, t
 
     return False
 
-
 def get_total_rows_from_page(driver):
     return get_showing_info(driver)[2]
 
@@ -185,6 +188,7 @@ def table_signature(driver):
 
 
 def click_division_tab(driver, division):
+    """Klickt einen sichtbaren Division-Tab. Scrollt vorher nach oben, damit Tabs sichtbar sind."""
     try:
         driver.execute_script("window.scrollTo(0, 0);")
         time.sleep(1)
@@ -214,6 +218,7 @@ def click_division_tab(driver, division):
             if (txt !== target) continue;
             if (!isVisible(el)) continue;
 
+            // Nicht in Profil-/Modal-Bereichen oder Footer greifen.
             const inModal = !!el.closest('.modal');
             if (inModal) continue;
 
@@ -223,6 +228,7 @@ def click_division_tab(driver, division):
 
         if (!candidates.length) return false;
 
+        // Der echte Tab sitzt weit oben oberhalb der Tabelle.
         candidates.sort((a, b) => a.top - b.top || a.left - b.left);
         const targetEl = candidates[0].el;
         targetEl.scrollIntoView({block: 'center'});
@@ -232,6 +238,7 @@ def click_division_tab(driver, division):
         if bool(driver.execute_script(script, division)):
             return True
 
+        # Fallback: XPath exakt nach Text
         elements = driver.find_elements(By.XPATH, f"//*[normalize-space(text())='{division}']")
         for el in elements:
             try:
@@ -249,6 +256,7 @@ def click_division_tab(driver, division):
 
 
 def open_division_by_url(driver, division):
+    """Notfall-Fallback, falls die Tabs nicht klickbar sind."""
     division_id = DIVISION_URL_IDS.get(division)
     if not division_id:
         return False
@@ -267,6 +275,7 @@ def open_division_by_url(driver, division):
 
 
 def set_rows_per_page_1000(driver):
+    """Stellt, falls moeglich, 1000 rows per page ein."""
     try:
         body_text = driver.find_element(By.TAG_NAME, "body").text
         if "1000" in body_text and "rows per page" in body_text:
@@ -325,6 +334,7 @@ def set_rows_per_page_1000(driver):
 
 
 def click_table_pagination(driver, target_page, total_rows):
+    """Klickt die echte Tabellen-Pagination und wartet auf die exakte Ziel-Range."""
     expected_start = ((target_page - 1) * ROWS_PER_PAGE_TARGET) + 1
     expected_end = min(target_page * ROWS_PER_PAGE_TARGET, total_rows) if total_rows else 0
 
@@ -410,7 +420,7 @@ def dataframe_to_entries(df, division, seen_ranks, total_rows=0):
     for _, row in df.iterrows():
         rank = safe_int(row.get(rank_col, 0))
 
-        # NEU: Ueberspringt Duplikate, statt hart nach Seitenzahlen zu filtern
+        # NEU: Überspringt Duplikate, statt hart nach Seitenzahlen zu filtern
         if rank in seen_ranks or rank == 0:
             continue
             
@@ -424,20 +434,27 @@ def dataframe_to_entries(df, division, seen_ranks, total_rows=0):
             continue
 
         full_name = f"{lastname}, {firstname}" if firstname and firstname != 'nan' else lastname
-        region_name = str(row.get(region_col, 'Unknown')).strip()
-        if region_name == 'nan': region_name = 'Unknown'
+
+        region_name = str(row.get(region_col, '')).strip()
+        if region_name == 'nan':
+            region_name = 'Unknown'
 
         cat = str(row.get(category_col, '')).strip()
+        if cat == 'nan':
+            cat = ''
+
         rc_class = str(row.get(rc_col, '')).strip()
+        if rc_class == 'nan':
+            rc_class = ''
 
         entry = {
             "rank": rank,
             "region": region_name,
             "lastname": full_name,
-            "category": cat if cat != 'nan' else '',
+            "category": cat,
             "matches": safe_int(row.get(matches_col, 0)),
             "elo_rating": safe_float(row.get(elo_col, 0)),
-            "class_style": rc_class if rc_class != 'nan' else '',
+            "class_style": rc_class,
             "division": division
         }
         
@@ -483,12 +500,15 @@ def scrape_division(driver, division):
     log(f"Starte Division: {division}")
     log("==============================")
 
+    # Standard-Werte fuer die End-Tabelle, falls diese Division fehlschlaegt
+    stats = {"division": division, "expected": 0, "imported": 0, "missing": 0, "status": "FEHLER"}
+
     clicked = click_division_tab(driver, division)
     if not clicked:
         log(f"WARN: Konnte Division-Tab nicht klicken: {division}. Versuche URL-Fallback.")
         if not open_division_by_url(driver, division):
             log(f"WARN: Ueberspringe Division: {division}.")
-            return False
+            return False, stats
 
     time.sleep(PAGE_LOAD_WAIT_SECONDS)
     wait_for_table(driver)
@@ -500,10 +520,11 @@ def scrape_division(driver, division):
     log(f"{division}: erwartete Seiten: {expected_pages} (Total rows: {total_rows or 'unbekannt'})")
 
     all_entries = []
-    seen_ranks = set() # NEU: Liste fuer alle Ranks dieser Division
+    seen_ranks = set()
 
     for page_no in range(1, expected_pages + 1):
-        time.sleep(4) # NEU: Pause, damit JavaScript die Tabelle fertig aufbaut
+        # NEU: Pause, damit JavaScript die Tabelle fertig aufbaut
+        time.sleep(4) 
         
         start, end, current_total = get_showing_info(driver)
         if current_total and current_total > total_rows:
@@ -512,7 +533,7 @@ def scrape_division(driver, division):
         df = get_biggest_table(driver)
         if df is None or len(df) < 10:
             log(f"WARN: Keine brauchbare Tabelle fuer {division} auf Seite {page_no} gefunden. Versuche es erneut...")
-            time.sleep(5) # Bei Lags nochmal kurz warten
+            time.sleep(5) 
             df = get_biggest_table(driver)
             if df is None or len(df) < 10:
                 log(f"ERROR: Tabelle endgueltig nicht gefunden auf Seite {page_no}.")
@@ -523,7 +544,7 @@ def scrape_division(driver, division):
         page_entries = dataframe_to_entries(
             df,
             division,
-            seen_ranks=seen_ranks, # NEU: Uebergeben wir an die Funktion
+            seen_ranks=seen_ranks,
             total_rows=total_rows
         )
 
@@ -539,10 +560,29 @@ def scrape_division(driver, division):
             log(f"STOP: {division}: Konnte nicht auf Seite {page_no + 1} wechseln.")
             break
 
+    # Stats aktualisieren
+    stats["expected"] = total_rows if total_rows else 0
+    stats["imported"] = len(all_entries)
     if total_rows:
-        log(f"{division}: gesammelt {len(all_entries)} von erwarteten {total_rows} Eintraegen.")
+        stats["missing"] = total_rows - len(all_entries)
 
-    return upload_entries(all_entries, division, total_rows=total_rows)
+    # Zusammenfassung pro Division im Log belassen
+    if total_rows:
+        fehlend = stats["missing"]
+        log(f"\n--- ZUSAMMENFASSUNG LOKAL: {division} ---")
+        if fehlend > 0:
+            log(f"⚠️ ACHTUNG: {fehlend} Eintraege konnten nicht importiert werden.")
+        elif fehlend < 0:
+            log(f"ℹ️ HINWEIS: {abs(fehlend)} Eintraege mehr gefunden als erwartet.")
+        else:
+            log("✅ PERFEKT: Alle erwarteten Eintraege erfolgreich ausgelesen!")
+        log("-----------------------------------\n")
+
+    success = upload_entries(all_entries, division, total_rows=total_rows)
+    if success:
+        stats["status"] = "OK"
+
+    return success, stats
 
 
 def scrape_and_upload_elo():
@@ -577,11 +617,43 @@ def scrape_and_upload_elo():
         log("\n--- STARTE DATENVERARBEITUNG UND UPLOAD FUER ALLE DIVISIONEN ---\n")
 
         success_count = 0
-        for division in DIVISIONS:
-            if scrape_division(driver, division):
-                success_count += 1
+        all_stats = [] # NEU: Liste speichert die Ergebnisse aller Divisionen
 
-        log(f"\nUpdate fertig. Erfolgreiche Divisionen: {success_count}/{len(DIVISIONS)}.")
+        for division in DIVISIONS:
+            success, stats = scrape_division(driver, division) 
+            if success:
+                success_count += 1
+            all_stats.append(stats)
+
+        # =========================================================
+        # NEU: DER GROSSE ABSCHLUSS-BERICHT
+        # =========================================================
+        log("\n" + "="*65)
+        log("🏆 ABSCHLUSS-BERICHT: ALLE DIVISIONEN IM UEBERBLICK")
+        log("="*65)
+        log(f"{'Division':<18} | {'Status':<6} | {'Erwartet':<10} | {'Importiert':<10} | {'Differenz'}")
+        log("-" * 65)
+        
+        for s in all_stats:
+            div = s['division']
+            status = s['status']
+            exp = s['expected']
+            imp = s['imported']
+            diff = s['missing']
+            
+            if status == "FEHLER":
+                diff_str = "❌ FEHLGESCHLAGEN"
+            elif diff > 0:
+                diff_str = f"⚠️ -{diff}"
+            elif diff < 0:
+                diff_str = f"ℹ️ +{abs(diff)}"
+            else:
+                diff_str = "✅ 0"
+                
+            log(f"{div:<18} | {status:<6} | {exp:<10} | {imp:<10} | {diff_str}")
+            
+        log("="*65)
+        log(f"Update abgeschlossen. Erfolgreiche Divisionen: {success_count}/{len(DIVISIONS)}.\n")
 
     except Exception as e:
         log(f"ERROR: Ein kritischer Fehler ist aufgetreten: {e}")
