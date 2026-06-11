@@ -342,7 +342,7 @@
 
         function cleanText(value) {
             return String(value ?? "")
-                .replace(/ /g, " ")
+                .replace(/ /g, " ")
                 .replace(/\s+/g, " ")
                 .trim();
         }
@@ -681,7 +681,10 @@
         
         // ==========================================
         // 🌐 LINK IMPORT LOGIK (IPSCMATCH.DE PARSER)
+        // Lädt IPSCMatch ausschließlich über die Supabase Edge Function.
         // ==========================================
+        const IPSCMATCH_PROXY_URL = "https://huprxirlthkisjngwash.supabase.co/functions/v1/ipscmatch-proxy";
+
         function normalizeMatchUrl(value) {
             let input = cleanText(value);
             if (!input) throw new Error("Bitte einen Link eingeben.");
@@ -692,116 +695,54 @@
 
             try {
                 const parsed = new URL(input);
+                const allowedHosts = new Set(["ipscmatch.de", "www.ipscmatch.de"]);
+
+                if (!allowedHosts.has(parsed.hostname)) {
+                    throw new Error("Bitte nur Links von ipscmatch.de verwenden.");
+                }
+
                 parsed.hash = "";
                 return parsed.href;
-            } catch (_) {
+            } catch (err) {
+                if (err && err.message) throw err;
                 throw new Error("Der eingegebene Link ist keine gültige URL.");
             }
         }
 
-        async function fetchWithTimeout(url, options = {}, timeoutMs = 20000) {
+        async function fetchMatchHtml(targetUrl) {
+            setLoaderMessage("Lade Match-Daten über Supabase Proxy...");
+
+            const proxyUrl = `${IPSCMATCH_PROXY_URL}?url=${encodeURIComponent(targetUrl)}`;
             const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), timeoutMs);
+            const timer = setTimeout(() => controller.abort(), 25000);
 
             try {
-                return await fetch(url, {
+                const response = await fetch(proxyUrl, {
+                    method: "GET",
                     cache: "no-store",
-                    credentials: "omit",
-                    ...options,
                     signal: controller.signal
                 });
+
+                const htmlContent = await response.text();
+
+                if (!response.ok) {
+                    throw new Error(`Supabase Proxy Fehler ${response.status}: ${htmlContent || response.statusText}`);
+                }
+
+                if (!htmlContent || cleanText(htmlContent).length < 50) {
+                    throw new Error("Supabase Proxy hat keine gültige IPSCMatch-Seite zurückgegeben.");
+                }
+
+                return htmlContent;
+            } catch (err) {
+                if (err && err.name === "AbortError") {
+                    throw new Error("Timeout beim Laden der IPSCMatch-Seite über Supabase Proxy.");
+                }
+
+                throw err;
             } finally {
                 clearTimeout(timer);
             }
-        }
-
-        function buildProxyAttempts(targetUrl) {
-            return [
-                {
-                    name: "Supabase Edge Proxy",
-                    url: `https://huprxirlthkisjngwash.supabase.co/functions/v1/ipscmatch-proxy?url=${encodeURIComponent(targetUrl)}`,
-                    type: "text"
-                },
-                {
-                    name: "Direkt",
-                    url: targetUrl,
-                    type: "text",
-                    options: { mode: "cors" }
-                },
-                {
-                    name: "AllOrigins Raw",
-                    url: `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-                    type: "text"
-                },
-                {
-                    name: "AllOrigins JSON",
-                    url: `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
-                    type: "json"
-                },
-                {
-                    name: "CodeTabs Proxy",
-                    url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
-                    type: "text"
-                },
-                {
-                    name: "CorsProxy.io",
-                    url: `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
-                    type: "text"
-                }
-            ];
-        }
-
-        async function readProxyResponse(response, type) {
-            if (type === "json") {
-                const json = await response.json();
-                return json.contents || json.body || json.data || "";
-            }
-
-            const text = await response.text();
-
-            // Falls ein Proxy trotz Raw-URL JSON liefert.
-            if (/^\s*\{/.test(text) && text.includes('"contents"')) {
-                try {
-                    const json = JSON.parse(text);
-                    return json.contents || text;
-                } catch (_) {
-                    return text;
-                }
-            }
-
-            return text;
-        }
-
-        async function fetchMatchHtml(targetUrl) {
-            const attempts = buildProxyAttempts(targetUrl);
-            const errors = [];
-
-            for (const attempt of attempts) {
-                try {
-                    setLoaderMessage(`Lade Match-Daten (${attempt.name})...`);
-                    const response = await fetchWithTimeout(attempt.url, attempt.options || {}, 20000);
-
-                    if (!response) throw new Error("Keine Antwort vom Server");
-                    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`.trim());
-
-                    const htmlContent = await readProxyResponse(response, attempt.type);
-                    if (!htmlContent || cleanText(htmlContent).length < 50) {
-                        throw new Error("Leere Antwort erhalten");
-                    }
-
-                    return htmlContent;
-                } catch (err) {
-                    const msg = err && err.name === "AbortError" ? "Timeout" : (err && err.message ? err.message : String(err));
-                    console.warn(`Link-Import über ${attempt.name} fehlgeschlagen:`, err);
-                    errors.push(`${attempt.name}: ${msg}`);
-                }
-            }
-
-            const serviceWorkerHint = errors.some(entry => /FetchEvent\.respondWith|Returned response is null/i.test(entry))
-                ? "\n\nHinweis: Die Meldung 'FetchEvent.respondWith ... Returned response is null' kommt meist von einem alten oder fehlerhaften Service Worker/PWA-Cache. Website-Daten/Cache löschen oder die sw.js so ändern, dass sie bei fetch immer eine gültige Response zurückgibt."
-                : "";
-
-            throw new Error(`Der Link konnte nicht geladen werden.${serviceWorkerHint}\n\nVersuchte Wege:\n- ${errors.join("\n- ")}`);
         }
 
         function findStarterTable(doc) {
