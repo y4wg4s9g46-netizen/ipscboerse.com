@@ -335,7 +335,7 @@
         }
 
         function normalizeDivisionName(value) {
-            const raw = cleanText(value).replace(/Overall/ig, "").trim();
+            const raw = cleanText(value).replace(/\bOverall\b/ig, "").trim();
             const lower = raw.toLowerCase();
 
             if (lower.includes("production optics")) return "Production Optics";
@@ -800,6 +800,79 @@
             return idx >= 0 ? idx : fallback;
         }
 
+        function splitTextIntoPossibleStarterRows(text) {
+            return String(text || "")
+                .replace(/\u2713/g, "\n✓ ")
+                .replace(/\s+(?=\d{1,4}\s+[A-Za-zÄÖÜäöüß])/g, "\n")
+                .split(/\r?\n/)
+                .map(cleanText)
+                .filter(Boolean);
+        }
+
+        function parseShooterFromTextLine(line) {
+            const divisions = ["Production Optics", "Carry Optics", "Optics", "Production", "Standard", "Classic", "Revolver", "Open", "PCC"];
+            const regionCodes = Object.keys(countryNameFormat).sort((a, b) => b.length - a.length);
+
+            let cleaned = cleanText(line).replace(/^✓\s*/, "");
+            if (/^(nr\.?|vorname|name|region|division|category|power|factor|ro|sponsor|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik)/i.test(cleaned)) {
+                return null;
+            }
+
+            const numberMatch = cleaned.match(/^\D*(\d{1,5})\s+(.+)$/);
+            if (!numberMatch) return null;
+
+            const tokens = numberMatch[2].split(/\s+/).filter(Boolean);
+            let regionIndex = -1;
+            let regionRaw = "";
+
+            for (let i = 0; i < tokens.length; i++) {
+                const token = tokens[i].replace(/[^A-Za-z]/g, "").toUpperCase();
+                if (regionCodes.includes(token)) {
+                    regionIndex = i;
+                    regionRaw = token;
+                    break;
+                }
+            }
+
+            if (regionIndex < 2) return null;
+
+            const nameTokens = tokens.slice(0, regionIndex);
+            const afterRegion = tokens.slice(regionIndex + 1).join(" ");
+            const division = divisions.find(d => new RegExp(`^${d.replace(/\s+/g, "\\s+")}\\b`, "i").test(afterRegion));
+
+            if (!division) return null;
+
+            const vorname = cleanPersonName(nameTokens[0]);
+            const nachname = cleanPersonName(nameTokens.slice(1).join(" "));
+
+            if (!vorname || !nachname) return null;
+
+            return {
+                vorname,
+                nachname,
+                regionRaw: normalizeRegionCode(regionRaw),
+                division: normalizeDivisionName(division)
+            };
+        }
+
+        function parseShootersFromPlainText(text) {
+            const parsedNames = [];
+            const seen = new Set();
+            const rows = splitTextIntoPossibleStarterRows(text);
+
+            for (const row of rows) {
+                const shooter = parseShooterFromTextLine(row);
+                if (!shooter) continue;
+
+                const key = `${shooter.vorname}|${shooter.nachname}|${shooter.regionRaw}|${shooter.division}`.toLowerCase();
+                if (seen.has(key)) continue;
+                seen.add(key);
+                parsedNames.push(shooter);
+            }
+
+            return parsedNames;
+        }
+
         function parseShootersFromHtml(htmlContent) {
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlContent, "text/html");
@@ -807,47 +880,58 @@
             let matchTitle = cleanText(doc.querySelector("h1")?.textContent) || cleanText(doc.title) || "IPSC Match";
             matchTitle = matchTitle.replace(/ipscmatch\.de/i, "").replace(/Starterliste/i, "").trim() || "Importiertes Match";
 
+            let parsedNames = [];
             const targetTable = findStarterTable(doc);
-            if (!targetTable) {
-                throw new Error("Konnte keine Starterliste finden. Erwartet wird eine Tabelle mit 'Vorname', 'Name' und 'Division'.");
+
+            if (targetTable) {
+                const allRows = Array.from(targetTable.querySelectorAll("tr"));
+                const headerRowIndex = Math.max(0, allRows.findIndex(row => {
+                    const text = getRowCells(row).join(" ").toLowerCase();
+                    return text.includes("vorname") && (text.includes("name") || text.includes("nachname"));
+                }));
+
+                const headers = getRowCells(allRows[headerRowIndex]).map(h => h.toLowerCase());
+
+                const idxVorname = getHeaderIndex(headers, h => h.includes("vorname"), 1);
+                let idxName = headers.findIndex(h => h === "name" || h.includes("nachname") || h.includes("familienname"));
+                if (idxName === -1) idxName = headers.findIndex((h, idx) => idx !== idxVorname && /\bname\b/.test(h));
+                if (idxName === -1) idxName = 2;
+
+                const idxRegion = getHeaderIndex(headers, h => h.includes("region") || h.includes("land") || h.includes("nation"), 3);
+                const idxDivision = getHeaderIndex(headers, h => h.includes("division") || h === "div", 4);
+
+                const seen = new Set();
+
+                for (const row of allRows.slice(headerRowIndex + 1)) {
+                    const cells = getRowCells(row);
+                    if (cells.length < 3) continue;
+
+                    const vorname = cleanPersonName(cells[idxVorname]);
+                    const nachname = cleanPersonName(cells[idxName]);
+                    const regionRaw = normalizeRegionCode(cells[idxRegion]);
+                    const division = normalizeDivisionName(cells[idxDivision]);
+
+                    if (!vorname || !nachname || /^vorname$/i.test(vorname) || /^name$/i.test(nachname)) continue;
+                    if (division === "Unknown") continue;
+
+                    const key = `${vorname}|${nachname}|${regionRaw}|${division}`.toLowerCase();
+                    if (seen.has(key)) continue;
+                    seen.add(key);
+
+                    parsedNames.push({ vorname, nachname, regionRaw, division });
+                }
             }
 
-            const allRows = Array.from(targetTable.querySelectorAll("tr"));
-            const headerRowIndex = Math.max(0, allRows.findIndex(row => {
-                const text = getRowCells(row).join(" ").toLowerCase();
-                return text.includes("vorname") && (text.includes("name") || text.includes("nachname"));
-            }));
+            // Fallback für IPSCMatch-Seiten, die vom Proxy/Safari nicht als echte <table>-Struktur ankommen.
+            // Das trifft genau Seiten wie "PSC Fastsummer 6.0": sichtbar ist eine Starterliste,
+            // aber der DOMParser findet manchmal keine nutzbare Tabelle.
+            if (!parsedNames.length) {
+                const bodyText = doc.body ? doc.body.innerText || doc.body.textContent || "" : "";
+                parsedNames = parseShootersFromPlainText(bodyText || htmlContent);
+            }
 
-            const headers = getRowCells(allRows[headerRowIndex]).map(h => h.toLowerCase());
-
-            const idxVorname = getHeaderIndex(headers, h => h.includes("vorname"), 1);
-            let idxName = headers.findIndex(h => h === "name" || h.includes("nachname") || h.includes("familienname"));
-            if (idxName === -1) idxName = headers.findIndex((h, idx) => idx !== idxVorname && /\bname\b/.test(h));
-            if (idxName === -1) idxName = 2;
-
-            const idxRegion = getHeaderIndex(headers, h => h.includes("region") || h.includes("land") || h.includes("nation"), 3);
-            const idxDivision = getHeaderIndex(headers, h => h.includes("division") || h === "div", 4);
-
-            const parsedNames = [];
-            const seen = new Set();
-
-            for (const row of allRows.slice(headerRowIndex + 1)) {
-                const cells = getRowCells(row);
-                if (cells.length < 3) continue;
-
-                const vorname = cleanPersonName(cells[idxVorname]);
-                const nachname = cleanPersonName(cells[idxName]);
-                const regionRaw = normalizeRegionCode(cells[idxRegion]);
-                const division = normalizeDivisionName(cells[idxDivision]);
-
-                if (!vorname || !nachname || /^vorname$/i.test(vorname) || /^name$/i.test(nachname)) continue;
-                if (division === "Unknown") continue;
-
-                const key = `${vorname}|${nachname}|${regionRaw}|${division}`.toLowerCase();
-                if (seen.has(key)) continue;
-                seen.add(key);
-
-                parsedNames.push({ vorname, nachname, regionRaw, division });
+            if (!parsedNames.length) {
+                throw new Error("Konnte keine Starterliste finden. Bitte pruefen, ob der Link wirklich die Starterliste mit Nr., Vorname, Name, Region und Division zeigt.");
             }
 
             return { matchTitle, shooters: parsedNames };
