@@ -426,6 +426,149 @@
             }, 300);
         });
 
+        
+        // ==========================================
+        // 🌐 LINK IMPORT LOGIK (IPSCMATCH.DE PARSER)
+        // ==========================================
+        async function importMatchFromUrl() {
+            const urlInput = document.getElementById('match-url').value.trim();
+            if (!urlInput) {
+                alert("Bitte einen Link eingeben!");
+                return;
+            }
+
+            document.getElementById('analysis-results').style.display = 'none';
+            document.getElementById('loader').style.display = 'block';
+            const loaderText = document.querySelector("#loader p");
+            loaderText.textContent = "Lade Match-Daten vom Link...";
+
+            try {
+                // CORS-Proxy umgehen, um HTML von ipscmatch.de zu laden
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(urlInput)}`;
+                const response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error("Netzwerkfehler beim Abrufen des Links");
+                
+                const data = await response.json();
+                const htmlContent = data.contents;
+
+                loaderText.textContent = "Analysiere Tabelle...";
+
+                // HTML in ein manipulierbares Dokument umwandeln
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlContent, 'text/html');
+                
+                // Matchnamen finden
+                let matchTitle = doc.querySelector('h1')?.textContent || doc.title || "IPSC Match";
+                matchTitle = matchTitle.replace(/ipscmatch\.de/i, '').replace(/Starterliste/i, '').trim() || "Importiertes Match";
+
+                // Tabellen suchen
+                const tables = doc.querySelectorAll('table');
+                let targetTable = null;
+                for (let table of tables) {
+                    const text = table.textContent.toLowerCase();
+                    if (text.includes('vorname') && text.includes('name')) {
+                        targetTable = table;
+                        break;
+                    }
+                }
+
+                if (!targetTable) {
+                    throw new Error("Konnte keine Starterliste (Tabelle mit 'Vorname' und 'Name') auf dieser Seite finden.");
+                }
+
+                // Spalten zuordnen
+                const headers = Array.from(targetTable.querySelectorAll('tr')[0].querySelectorAll('th, td')).map(th => th.textContent.trim().toLowerCase());
+                const rows = Array.from(targetTable.querySelectorAll('tr')).slice(1); 
+                
+                let idxVorname = headers.findIndex(h => h.includes('vorname'));
+                let idxName = headers.findIndex(h => h === 'name' || h.includes('nachname'));
+                let idxRegion = headers.findIndex(h => h.includes('region') || h.includes('land'));
+                let idxDivision = headers.findIndex(h => h.includes('division'));
+
+                // Fallbacks, falls Header nicht sauber sind
+                if (idxVorname === -1) idxVorname = 1; 
+                if (idxName === -1) idxName = 2;
+                if (idxRegion === -1) idxRegion = 3;
+                if (idxDivision === -1) idxDivision = 4;
+
+                const parsedNames = [];
+                for (const row of rows) {
+                    const cells = Array.from(row.querySelectorAll('td'));
+                    if (cells.length < 5) continue; 
+
+                    const vorname = cells[idxVorname]?.textContent.trim();
+                    const nachname = cells[idxName]?.textContent.trim();
+                    const regionRaw = cells[idxRegion]?.textContent.trim();
+                    const division = cells[idxDivision]?.textContent.trim();
+
+                    if (vorname && nachname) {
+                        parsedNames.push({ vorname, nachname, regionRaw, division });
+                    }
+                }
+
+                if (parsedNames.length === 0) {
+                    throw new Error("Keine Schützen in der Tabelle gefunden.");
+                }
+
+                loaderText.textContent = `Gleiche ${parsedNames.length} Schützen mit ELO-Datenbank ab...`;
+                
+                // ELO ABGLEICH
+                currentShooters = [];
+
+                for (const shooter of parsedNames) {
+                    const displayName = `${shooter.nachname}, ${shooter.vorname}`;
+                    const fullCountryName = window.countryNameFormat ? (window.countryNameFormat[String(shooter.regionRaw || "").toUpperCase()] || shooter.regionRaw || "Unknown") : (shooter.regionRaw || "Unknown");
+                    
+                    const dbEntry = await findEloEntry(shooter);
+
+                    let eloValue = "-";
+                    let overallRank = "-";
+                    let rankClass = "Unranked";
+                    let classStyle = "badge-u";
+
+                    if (dbEntry && dbEntry.elo_rating !== null && dbEntry.elo_rating !== undefined) {
+                        eloValue = Number(dbEntry.elo_rating);
+                        overallRank = dbEntry.rank || "-";
+                        rankClass = dbEntry.class_style || "A";
+
+                        if (eloValue >= 2300) classStyle = "badge-gm";
+                        else if (eloValue >= 2100) classStyle = "badge-m";
+                        else if (eloValue >= 1800) classStyle = "badge-a";
+                    }
+
+                    currentShooters.push({
+                        name: displayName,
+                        division: shooter.division ? shooter.division + " Overall" : "Unknown Overall",
+                        region: fullCountryName,
+                        elo: eloValue,
+                        overallRank: overallRank,
+                        rankClass: eloValue !== "-" ? rankClass : "Unranked",
+                        classStyle: classStyle
+                    });
+                }
+
+                buildFilterDropdowns(currentShooters);
+                calculateStats(currentShooters);
+                renderList(currentShooters);
+
+                const heading = document.querySelector('#analysis-results h2 span');
+                if (heading) heading.textContent = matchTitle;
+
+                // Ins Archiv speichern
+                storeMatchAnalysis(matchTitle, "URL_IMPORT", parsedNames, currentShooters);
+
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('analysis-results').style.display = 'block';
+
+            } catch (err) {
+                console.error("Fehler beim Link-Import:", err);
+                document.getElementById('loader').style.display = 'none';
+                alert(err.message || "Fehler beim Laden der URL.");
+            }
+        }
+        
+        // Ende Link Import Logik
+
         // 2. DRAG & DROP EVENTS
         const dropZone = document.getElementById('drop-zone');
         dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--info-color)"; });
