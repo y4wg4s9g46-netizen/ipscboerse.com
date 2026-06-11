@@ -435,35 +435,39 @@
                 const safeName = encodeURIComponent(match.match_name);
                 const safeLocation = encodeURIComponent(match.match_location || '');
                 
-                // --- NEUE LOGIK FÜR TITEL-LINK & BADGES ---
                 let matchTitleHtml = escapeHtml(match.match_name);
                 if (match.match_url) {
                     matchTitleHtml = `<a href="${escapeHtml(match.match_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(match.match_name)} 🔗</a>`;
                 }
 
-                // Badges generieren
                 let badgesHtml = '';
-                
-                // Bot / Auto-Import Kennzeichnung
                 if (match.auto_imported) {
                     badgesHtml += `<span class="badge badge-bot">🤖 Auto-Import</span>`;
                 }
 
-                // Status Badge (Farbe je nach Wert)
+                let isApproved = false;
                 if (match.status) {
                     const statusLower = match.status.toLowerCase();
                     if (statusLower.includes('approved') || statusLower.includes('bestätigt')) {
                         badgesHtml += `<span class="badge badge-approved">Approved</span>`;
+                        isApproved = true;
                     } else if (statusLower.includes('warteliste') || statusLower.includes('waiting')) {
                         badgesHtml += `<span class="badge badge-warteliste">Warteliste</span>`;
+                        // Optional: Warteliste-Matches können auch analysiert werden
+                        isApproved = true; 
                     } else {
                         badgesHtml += `<span class="badge badge-pending">${escapeHtml(match.status)}</span>`;
                     }
                 }
 
-                // Squad Badge
                 if (match.squad && match.squad !== 'TBD') {
                     badgesHtml += `<span class="badge badge-squad">${escapeHtml(match.squad)}</span>`;
+                }
+
+                // NEU: Analyse-Button für Approved/Wartelisten Matches mit URL
+                let analyseButton = '';
+                if (isApproved && match.match_url) {
+                    analyseButton = `<button onclick="window.location.href='performance.html?url=${encodeURIComponent(match.match_url)}'" style="background-color: var(--info-color); color: #fff; width: auto; padding: 6px 12px; font-size: 12px; border: none; box-shadow: none;">📊 Gegner-Analyse</button>`;
                 }
 
                 container.innerHTML += `
@@ -472,8 +476,9 @@
                             <h4>${matchTitleHtml} ${badgesHtml}</h4>
                             <p>📅 ${displayDate} | 📍 ${escapeHtml(match.match_location || '-')}</p>
                         </div>
-                        <div style="display: flex; gap: 10px; align-items: center;">
+                        <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap;">
                             <button onclick="inserierenAufMarktplatz('${safeName}', '${match.match_date}', '${safeLocation}')" style="background-color: var(--accent-color); color: #000; width: auto; padding: 6px 12px; font-size: 12px;">📢 Inserieren</button>
+                            ${analyseButton}
                             <button onclick="deleteMatch(${match.id})" class="delete-btn">Löschen</button>
                         </div>
                     </div>
