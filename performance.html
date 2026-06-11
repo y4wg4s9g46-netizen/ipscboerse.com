@@ -342,7 +342,7 @@
 
         function cleanText(value) {
             return String(value ?? "")
-                .replace(/ /g, " ")
+                .replace(/ /g, " ")
                 .replace(/\s+/g, " ")
                 .trim();
         }
@@ -357,16 +357,19 @@
         function normalizeDivisionName(value) {
             const raw = cleanText(value).replace(/\bOverall\b/ig, "").trim();
             const lower = raw.toLowerCase();
+            const compact = lower.replace(/[._-]+/g, " ").replace(/\s+/g, " ").trim();
 
-            if (lower.includes("production optics")) return "Production Optics";
-            if (lower.includes("carry optics")) return "Optics";
-            if (lower.includes("optic")) return "Optics";
-            if (lower.includes("production")) return "Production";
-            if (lower.includes("standard")) return "Standard";
-            if (lower.includes("classic")) return "Classic";
-            if (lower.includes("revolver")) return "Revolver";
-            if (lower.includes("open")) return "Open";
-            if (lower.includes("pcc")) return "PCC";
+            // IPSCMatch nutzt je nach Ansicht unterschiedliche Schreibweisen,
+            // z. B. "Production Optics" oder abgekürzt "Prod. Optics".
+            if (compact.includes("production optics") || compact.includes("prod optics")) return "Production Optics";
+            if (compact.includes("carry optics")) return "Optics";
+            if (compact.includes("optic")) return "Optics";
+            if (compact.includes("production") || compact === "prod") return "Production";
+            if (compact.includes("standard")) return "Standard";
+            if (compact.includes("classic")) return "Classic";
+            if (compact.includes("revolver")) return "Revolver";
+            if (compact.includes("open")) return "Open";
+            if (compact.includes("pcc")) return "PCC";
 
             return raw || "Unknown";
         }
@@ -681,10 +684,7 @@
         
         // ==========================================
         // 🌐 LINK IMPORT LOGIK (IPSCMATCH.DE PARSER)
-        // Lädt IPSCMatch ausschließlich über die Supabase Edge Function.
         // ==========================================
-        const IPSCMATCH_PROXY_URL = "https://huprxirlthkisjngwash.supabase.co/functions/v1/ipscmatch-proxy";
-
         function normalizeMatchUrl(value) {
             let input = cleanText(value);
             if (!input) throw new Error("Bitte einen Link eingeben.");
@@ -695,17 +695,28 @@
 
             try {
                 const parsed = new URL(input);
-                const allowedHosts = new Set(["ipscmatch.de", "www.ipscmatch.de"]);
-
-                if (!allowedHosts.has(parsed.hostname)) {
-                    throw new Error("Bitte nur Links von ipscmatch.de verwenden.");
-                }
-
                 parsed.hash = "";
                 return parsed.href;
-            } catch (err) {
-                if (err && err.message) throw err;
+            } catch (_) {
                 throw new Error("Der eingegebene Link ist keine gültige URL.");
+            }
+        }
+
+        const IPSCMATCH_PROXY_URL = "https://huprxirlthkisjngwash.supabase.co/functions/v1/ipscmatch-proxy";
+
+        async function fetchWithTimeout(url, options = {}, timeoutMs = 25000) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+            try {
+                return await fetch(url, {
+                    cache: "no-store",
+                    credentials: "omit",
+                    ...options,
+                    signal: controller.signal
+                });
+            } finally {
+                clearTimeout(timer);
             }
         }
 
@@ -713,24 +724,17 @@
             setLoaderMessage("Lade Match-Daten über Supabase Proxy...");
 
             const proxyUrl = `${IPSCMATCH_PROXY_URL}?url=${encodeURIComponent(targetUrl)}`;
-            const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), 25000);
 
             try {
-                const response = await fetch(proxyUrl, {
-                    method: "GET",
-                    cache: "no-store",
-                    signal: controller.signal
-                });
-
+                const response = await fetchWithTimeout(proxyUrl, { method: "GET" }, 25000);
                 const htmlContent = await response.text();
 
+                if (!response) throw new Error("Keine Antwort vom Supabase Proxy");
                 if (!response.ok) {
                     throw new Error(`Supabase Proxy Fehler ${response.status}: ${htmlContent || response.statusText}`);
                 }
-
                 if (!htmlContent || cleanText(htmlContent).length < 50) {
-                    throw new Error("Supabase Proxy hat keine gültige IPSCMatch-Seite zurückgegeben.");
+                    throw new Error("Supabase Proxy hat eine leere Antwort erhalten.");
                 }
 
                 return htmlContent;
@@ -738,10 +742,7 @@
                 if (err && err.name === "AbortError") {
                     throw new Error("Timeout beim Laden der IPSCMatch-Seite über Supabase Proxy.");
                 }
-
                 throw err;
-            } finally {
-                clearTimeout(timer);
             }
         }
 
@@ -768,26 +769,35 @@
 
         function splitTextIntoPossibleStarterRows(text) {
             return String(text || "")
-                .replace(/\u2713/g, "\n✓ ")
-                .replace(/\s+(?=\d{1,4}\s+[A-Za-zÄÖÜäöüß])/g, "\n")
+                .replace(/\u00A0/g, " ")
+                .replace(/[✔]/g, "✓")
+                .replace(/[✘]/g, "✗")
+                // Wichtig: Nicht vor dem Haken umbrechen. IPSCMatch liefert Zeilen wie "1✓ Markus Schorr GER Open Senior".
+                .replace(/([✓✗])\s*/g, "$1 ")
+                // Mehrere Squads stehen teilweise in einer Textzeile. Vor der nächsten Startnummer trennen.
+                .replace(/\s+(?=\d{1,4}\s*[✓✗]?\s*(?:#|[A-Za-zÄÖÜäöüß]))/g, "\n")
                 .split(/\r?\n/)
                 .map(cleanText)
                 .filter(Boolean);
         }
 
         function parseShooterFromTextLine(line) {
-            const divisions = ["Production Optics", "Carry Optics", "Optics", "Production", "Standard", "Classic", "Revolver", "Open", "PCC"];
+            const divisions = ["Production Optics", "Prod. Optics", "Prod Optics", "Carry Optics", "Optics", "Production", "Standard", "Classic", "Revolver", "Open", "PCC"];
             const regionCodes = Object.keys(countryNameFormat).sort((a, b) => b.length - a.length);
 
             let cleaned = cleanText(line).replace(/^✓\s*/, "");
-            if (/^(nr\.?|vorname|name|region|division|category|power|factor|ro|sponsor|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik)/i.test(cleaned)) {
+            if (/^(nr\.?|no\.?|vorname|name|region|division|category|power|factor|ro|sponsor|squad|slots|free|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik)/i.test(cleaned)) {
                 return null;
             }
 
-            const numberMatch = cleaned.match(/^\D*(\d{1,5})\s+(.+)$/);
+            // IPSCMatch schreibt die Nummer oft direkt mit Statuszeichen: "1✓ Name ..." oder "5✗ Name ...".
+            const numberMatch = cleaned.match(/^\s*\d{1,5}\s*[✓✗]?\s+(.+)$/);
             if (!numberMatch) return null;
 
-            const tokens = numberMatch[2].split(/\s+/).filter(Boolean);
+            const rowText = cleanText(numberMatch[1]);
+            if (/^#\d+\b/.test(rowText)) return null; // anonyme/verborgene Starter ignorieren
+
+            const tokens = rowText.split(/\s+/).filter(Boolean);
             let regionIndex = -1;
             let regionRaw = "";
 
@@ -897,7 +907,11 @@
             }
 
             if (!parsedNames.length) {
-                throw new Error("Konnte keine Starterliste finden. Bitte pruefen, ob der Link wirklich die Starterliste mit Nr., Vorname, Name, Region und Division zeigt.");
+                console.warn("IPSCMatch HTML konnte geladen werden, aber es wurden keine Starter erkannt.", {
+                    title: matchTitle,
+                    textSample: cleanText((doc.body ? doc.body.innerText || doc.body.textContent || "" : htmlContent)).slice(0, 1200)
+                });
+                throw new Error("Konnte keine Starterliste finden. Bitte pruefen, ob der Link wirklich die Starterliste mit Nr., Name, Region und Division zeigt.");
             }
 
             return { matchTitle, shooters: parsedNames };
@@ -1113,7 +1127,7 @@
         }
 
         function parseShootersFromOcr(rawText) {
-            const divisions = ["Production Optics", "Production", "Optics", "Open", "Standard", "Classic", "Revolver"];
+            const divisions = ["Production Optics", "Prod. Optics", "Prod Optics", "Production", "Optics", "Open", "Standard", "Classic", "Revolver", "PCC"];
             const regionCodes = Object.keys(countryNameFormat).sort((a, b) => b.length - a.length);
             const shooters = [];
             const seen = new Set();
@@ -1154,7 +1168,7 @@
                 const nameTokens = tokens.slice(0, regionIndex);
                 const afterRegion = tokens.slice(regionIndex + 1).join(" ");
 
-                let division = divisions.find(d => new RegExp(`^${d.replace(" ", "\\s+")}\\b`, "i").test(afterRegion));
+                let division = divisions.find(d => new RegExp(`^${d.replace(/\s+/g, "\\s+")}\\b`, "i").test(afterRegion));
                 if (!division) {
                     // Most screenshots here are Optics; do not guess for unknown rows.
                     continue;
