@@ -123,7 +123,13 @@
         <!-- HAUPT-DASHBOARD -->
         <div id="dashboard-content" style="display: none;">
             <div class="info-box" id="js-personal-welcome">
-                <strong>📸 Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste hoch. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
+                <strong>📸 Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste hoch oder füge einen Link ein. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
+            </div>
+
+            <!-- 🔗 URL IMPORT BEREICH -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="url" id="match-url" placeholder="https://ipscmatch.de/... Link hier einfügen" style="flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--input-bg); color: var(--text-color); font-size: 14px;">
+                <button onclick="importMatchFromUrl()" style="padding: 12px 24px; background: var(--info-color); color: #fff; border: none; border-radius: var(--radius); cursor: pointer; font-weight: bold; font-size: 14px; transition: opacity 0.2s;">Link abrufen</button>
             </div>
 
             <!-- UPLOAD BEREICH -->
@@ -386,7 +392,7 @@
                 dashboard.style.display = "block";
 
                 if (profile.real_name) {
-                    document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>Willkommen zurück, ${profile.real_name}!</strong> Lade einen Screenshot hoch, um das Starterfeld direkt mit deiner ELO-Stärke abzugleichen.`;
+                    document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>Willkommen zurück, ${profile.real_name}!</strong> Lade einen Screenshot hoch oder füge einen Link ein, um das Starterfeld direkt mit deiner ELO-Stärke abzugleichen.`;
                     
                     const nameParts = profile.real_name.split(" ");
                     if (nameParts.length >= 2) {
