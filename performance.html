@@ -357,19 +357,16 @@
         function normalizeDivisionName(value) {
             const raw = cleanText(value).replace(/\bOverall\b/ig, "").trim();
             const lower = raw.toLowerCase();
-            const compact = lower.replace(/[._-]+/g, " ").replace(/\s+/g, " ").trim();
 
-            // IPSCMatch nutzt je nach Ansicht unterschiedliche Schreibweisen,
-            // z. B. "Production Optics" oder abgekürzt "Prod. Optics".
-            if (compact.includes("production optics") || compact.includes("prod optics")) return "Production Optics";
-            if (compact.includes("carry optics")) return "Optics";
-            if (compact.includes("optic")) return "Optics";
-            if (compact.includes("production") || compact === "prod") return "Production";
-            if (compact.includes("standard")) return "Standard";
-            if (compact.includes("classic")) return "Classic";
-            if (compact.includes("revolver")) return "Revolver";
-            if (compact.includes("open")) return "Open";
-            if (compact.includes("pcc")) return "PCC";
+            if (lower.includes("production optics")) return "Production Optics";
+            if (lower.includes("carry optics")) return "Optics";
+            if (lower.includes("optic")) return "Optics";
+            if (lower.includes("production")) return "Production";
+            if (lower.includes("standard")) return "Standard";
+            if (lower.includes("classic")) return "Classic";
+            if (lower.includes("revolver")) return "Revolver";
+            if (lower.includes("open")) return "Open";
+            if (lower.includes("pcc")) return "PCC";
 
             return raw || "Unknown";
         }
@@ -685,6 +682,8 @@
         // ==========================================
         // 🌐 LINK IMPORT LOGIK (IPSCMATCH.DE PARSER)
         // ==========================================
+        const IPSCMATCH_PROXY_URL = "https://huprxirlthkisjngwash.supabase.co/functions/v1/ipscmatch-proxy";
+
         function normalizeMatchUrl(value) {
             let input = cleanText(value);
             if (!input) throw new Error("Bitte einen Link eingeben.");
@@ -695,16 +694,19 @@
 
             try {
                 const parsed = new URL(input);
+                const allowedHosts = new Set(["ipscmatch.de", "www.ipscmatch.de"]);
+                if (!allowedHosts.has(parsed.hostname)) {
+                    throw new Error("Bitte nur Links von ipscmatch.de verwenden.");
+                }
                 parsed.hash = "";
                 return parsed.href;
-            } catch (_) {
+            } catch (err) {
+                if (err && err.message) throw err;
                 throw new Error("Der eingegebene Link ist keine gültige URL.");
             }
         }
 
-        const IPSCMATCH_PROXY_URL = "https://huprxirlthkisjngwash.supabase.co/functions/v1/ipscmatch-proxy";
-
-        async function fetchWithTimeout(url, options = {}, timeoutMs = 25000) {
+        async function fetchWithTimeout(url, options = {}, timeoutMs = 30000) {
             const controller = new AbortController();
             const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -724,26 +726,75 @@
             setLoaderMessage("Lade Match-Daten über Supabase Proxy...");
 
             const proxyUrl = `${IPSCMATCH_PROXY_URL}?url=${encodeURIComponent(targetUrl)}`;
+            const response = await fetchWithTimeout(proxyUrl, {}, 30000);
 
-            try {
-                const response = await fetchWithTimeout(proxyUrl, { method: "GET" }, 25000);
-                const htmlContent = await response.text();
+            if (!response) throw new Error("Keine Antwort vom Supabase Proxy.");
 
-                if (!response) throw new Error("Keine Antwort vom Supabase Proxy");
-                if (!response.ok) {
-                    throw new Error(`Supabase Proxy Fehler ${response.status}: ${htmlContent || response.statusText}`);
-                }
-                if (!htmlContent || cleanText(htmlContent).length < 50) {
-                    throw new Error("Supabase Proxy hat eine leere Antwort erhalten.");
-                }
+            const htmlContent = await response.text();
 
-                return htmlContent;
-            } catch (err) {
-                if (err && err.name === "AbortError") {
-                    throw new Error("Timeout beim Laden der IPSCMatch-Seite über Supabase Proxy.");
-                }
-                throw err;
+            if (!response.ok) {
+                throw new Error(`Supabase Proxy Fehler ${response.status}: ${htmlContent || response.statusText}`);
             }
+
+            if (!htmlContent || cleanText(htmlContent).length < 50) {
+                throw new Error("Supabase Proxy hat eine leere Antwort geliefert.");
+            }
+
+            return htmlContent;
+        }
+
+        function makeAbsoluteIpscUrl(href, baseUrl) {
+            try {
+                const url = new URL(href, baseUrl);
+                const allowedHosts = new Set(["ipscmatch.de", "www.ipscmatch.de"]);
+                if (!allowedHosts.has(url.hostname)) return null;
+                url.hash = "";
+                return url.href;
+            } catch (_) {
+                return null;
+            }
+        }
+
+        function getMatchIdFromUrl(value) {
+            try {
+                return new URL(value).searchParams.get("match") || "";
+            } catch (_) {
+                return "";
+            }
+        }
+
+        function extractIpscCandidateLinks(htmlContent, baseUrl) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, "text/html");
+            const matchId = getMatchIdFromUrl(baseUrl);
+            const candidates = [];
+            const seen = new Set([baseUrl]);
+
+            const wanted = /(starter|startliste|starterliste|teilnehmer|participants?|shooters?|schützen|schuetzen|squad|squads|registration|anmeldung|liste|list|status|utilisation)/i;
+            const unwanted = /(stage|category|region|team|certificate|result|results|imprint|privacy|datenschutz|serverstatistik|login|logout|print|pdf|ics|ical)/i;
+
+            Array.from(doc.querySelectorAll("a[href]")).forEach(link => {
+                const href = link.getAttribute("href") || "";
+                const text = cleanText(link.textContent || "");
+                const combined = `${text} ${href}`;
+                const absolute = makeAbsoluteIpscUrl(href, baseUrl);
+                if (!absolute || seen.has(absolute)) return;
+
+                const urlMatchId = getMatchIdFromUrl(absolute);
+                const sameMatch = matchId && urlMatchId && urlMatchId === matchId;
+                const looksWanted = wanted.test(combined);
+                const looksUnwanted = unwanted.test(combined);
+
+                if ((sameMatch && !looksUnwanted) || looksWanted) {
+                    seen.add(absolute);
+                    candidates.push({ url: absolute, label: text || href, score: looksWanted ? 2 : 1 });
+                }
+            });
+
+            return candidates
+                .sort((a, b) => b.score - a.score)
+                .map(item => item.url)
+                .slice(0, 12);
         }
 
         function findStarterTable(doc) {
@@ -751,10 +802,13 @@
 
             return tables.find(table => {
                 const text = cleanText(table.textContent).toLowerCase();
-                return text.includes("vorname") && (text.includes("name") || text.includes("nachname")) && text.includes("division");
-            }) || tables.find(table => {
-                const text = cleanText(table.textContent).toLowerCase();
-                return text.includes("vorname") && (text.includes("name") || text.includes("nachname"));
+                return text.includes("division") && (
+                    text.includes("vorname") ||
+                    text.includes("nachname") ||
+                    text.includes("name") ||
+                    text.includes("region") ||
+                    text.includes("squad")
+                );
             }) || null;
         }
 
@@ -770,34 +824,41 @@
         function splitTextIntoPossibleStarterRows(text) {
             return String(text || "")
                 .replace(/\u00A0/g, " ")
-                .replace(/[✔]/g, "✓")
-                .replace(/[✘]/g, "✗")
-                // Wichtig: Nicht vor dem Haken umbrechen. IPSCMatch liefert Zeilen wie "1✓ Markus Schorr GER Open Senior".
-                .replace(/([✓✗])\s*/g, "$1 ")
-                // Mehrere Squads stehen teilweise in einer Textzeile. Vor der nächsten Startnummer trennen.
-                .replace(/\s+(?=\d{1,4}\s*[✓✗]?\s*(?:#|[A-Za-zÄÖÜäöüß]))/g, "\n")
+                .replace(/[✓✔]/g, " ")
+                .replace(/(\d{1,5})\s*(?=[A-Za-zÄÖÜäöüß])/g, "\n$1 ")
+                .replace(/\s+(?=\d{1,5}\s+[A-Za-zÄÖÜäöüß])/g, "\n")
                 .split(/\r?\n/)
                 .map(cleanText)
                 .filter(Boolean);
         }
 
-        function parseShooterFromTextLine(line) {
-            const divisions = ["Production Optics", "Prod. Optics", "Prod Optics", "Carry Optics", "Optics", "Production", "Standard", "Classic", "Revolver", "Open", "PCC"];
-            const regionCodes = Object.keys(countryNameFormat).sort((a, b) => b.length - a.length);
+        function normalizeDivisionFromFreeText(value) {
+            const text = cleanText(value).toLowerCase();
+            if (/prod\.?\s*opt|production\s+optics|pdo/.test(text)) return "Production Optics";
+            if (/carry\s*opt|\boptics?\b|\bopt\b/.test(text)) return "Optics";
+            if (/production|\bprd\b/.test(text)) return "Production";
+            if (/standard|\bstd\b/.test(text)) return "Standard";
+            if (/classic|\bclc\b/.test(text)) return "Classic";
+            if (/revolver|\brev\b/.test(text)) return "Revolver";
+            if (/open|\bopn\b/.test(text)) return "Open";
+            if (/\bpcc\b/.test(text)) return "PCC";
+            return "Unknown";
+        }
 
-            let cleaned = cleanText(line).replace(/^✓\s*/, "");
-            if (/^(nr\.?|no\.?|vorname|name|region|division|category|power|factor|ro|sponsor|squad|slots|free|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik)/i.test(cleaned)) {
+        function parseShooterFromTextLine(line) {
+            const regionCodes = Object.keys(countryNameFormat).sort((a, b) => b.length - a.length);
+            let cleaned = cleanText(line)
+                .replace(/^[-–—•]+\s*/, "")
+                .replace(/^(nr\.?|no\.?|#)\s*/i, "");
+
+            if (/^(vorname|name|region|division|category|power|factor|ro|sponsor|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik|results?|stage|team|certificates?)/i.test(cleaned)) {
                 return null;
             }
 
-            // IPSCMatch schreibt die Nummer oft direkt mit Statuszeichen: "1✓ Name ..." oder "5✗ Name ...".
-            const numberMatch = cleaned.match(/^\s*\d{1,5}\s*[✓✗]?\s+(.+)$/);
+            const numberMatch = cleaned.match(/^\D*(\d{1,5})[.)\-:\s]+(.+)$/);
             if (!numberMatch) return null;
 
-            const rowText = cleanText(numberMatch[1]);
-            if (/^#\d+\b/.test(rowText)) return null; // anonyme/verborgene Starter ignorieren
-
-            const tokens = rowText.split(/\s+/).filter(Boolean);
+            const tokens = numberMatch[2].split(/\s+/).filter(Boolean);
             let regionIndex = -1;
             let regionRaw = "";
 
@@ -810,16 +871,27 @@
                 }
             }
 
-            if (regionIndex < 2) return null;
+            if (regionIndex < 1) return null;
 
-            const nameTokens = tokens.slice(0, regionIndex);
+            const nameTokens = tokens.slice(0, regionIndex).map(t => cleanPersonName(t)).filter(Boolean);
             const afterRegion = tokens.slice(regionIndex + 1).join(" ");
-            const division = divisions.find(d => new RegExp(`^${d.replace(/\s+/g, "\\s+")}\\b`, "i").test(afterRegion));
+            const division = normalizeDivisionFromFreeText(afterRegion);
 
-            if (!division) return null;
+            if (division === "Unknown") return null;
+            if (nameTokens.length < 2) return null;
 
-            const vorname = cleanPersonName(nameTokens[0]);
-            const nachname = cleanPersonName(nameTokens.slice(1).join(" "));
+            let vorname = nameTokens[0];
+            let nachname = nameTokens.slice(1).join(" ");
+
+            // Falls IPSCMatch die Namen als "Nachname, Vorname" liefert.
+            const nameText = nameTokens.join(" ");
+            if (nameText.includes(",")) {
+                const parts = nameText.split(",").map(cleanPersonName).filter(Boolean);
+                if (parts.length >= 2) {
+                    nachname = parts[0];
+                    vorname = parts.slice(1).join(" ");
+                }
+            }
 
             if (!vorname || !nachname) return null;
 
@@ -849,7 +921,7 @@
             return parsedNames;
         }
 
-        function parseShootersFromHtml(htmlContent) {
+        function parseShootersFromHtml(htmlContent, options = {}) {
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlContent, "text/html");
 
@@ -863,18 +935,16 @@
                 const allRows = Array.from(targetTable.querySelectorAll("tr"));
                 const headerRowIndex = Math.max(0, allRows.findIndex(row => {
                     const text = getRowCells(row).join(" ").toLowerCase();
-                    return text.includes("vorname") && (text.includes("name") || text.includes("nachname"));
+                    return text.includes("division") && (text.includes("name") || text.includes("vorname") || text.includes("region"));
                 }));
 
                 const headers = getRowCells(allRows[headerRowIndex]).map(h => h.toLowerCase());
 
-                const idxVorname = getHeaderIndex(headers, h => h.includes("vorname"), 1);
+                const idxVorname = headers.findIndex(h => h.includes("vorname"));
                 let idxName = headers.findIndex(h => h === "name" || h.includes("nachname") || h.includes("familienname"));
-                if (idxName === -1) idxName = headers.findIndex((h, idx) => idx !== idxVorname && /\bname\b/.test(h));
-                if (idxName === -1) idxName = 2;
-
-                const idxRegion = getHeaderIndex(headers, h => h.includes("region") || h.includes("land") || h.includes("nation"), 3);
-                const idxDivision = getHeaderIndex(headers, h => h.includes("division") || h === "div", 4);
+                if (idxName === -1) idxName = headers.findIndex(h => /\bname\b/.test(h));
+                const idxRegion = getHeaderIndex(headers, h => h.includes("region") || h.includes("land") || h.includes("nation"), -1);
+                const idxDivision = getHeaderIndex(headers, h => h.includes("division") || h === "div", -1);
 
                 const seen = new Set();
 
@@ -882,10 +952,20 @@
                     const cells = getRowCells(row);
                     if (cells.length < 3) continue;
 
-                    const vorname = cleanPersonName(cells[idxVorname]);
-                    const nachname = cleanPersonName(cells[idxName]);
-                    const regionRaw = normalizeRegionCode(cells[idxRegion]);
-                    const division = normalizeDivisionName(cells[idxDivision]);
+                    let vorname = "";
+                    let nachname = "";
+
+                    if (idxVorname >= 0 && idxName >= 0) {
+                        vorname = cleanPersonName(cells[idxVorname]);
+                        nachname = cleanPersonName(cells[idxName]);
+                    } else if (idxName >= 0) {
+                        const nameParts = cleanPersonName(cells[idxName]).split(/\s+/).filter(Boolean);
+                        vorname = nameParts[0] || "";
+                        nachname = nameParts.slice(1).join(" ");
+                    }
+
+                    const regionRaw = idxRegion >= 0 ? normalizeRegionCode(cells[idxRegion]) : "UNKNOWN";
+                    const division = idxDivision >= 0 ? normalizeDivisionName(cells[idxDivision]) : normalizeDivisionFromFreeText(cells.join(" "));
 
                     if (!vorname || !nachname || /^vorname$/i.test(vorname) || /^name$/i.test(nachname)) continue;
                     if (division === "Unknown") continue;
@@ -898,19 +978,12 @@
                 }
             }
 
-            // Fallback für IPSCMatch-Seiten, die vom Proxy/Safari nicht als echte <table>-Struktur ankommen.
-            // Das trifft genau Seiten wie "PSC Fastsummer 6.0": sichtbar ist eine Starterliste,
-            // aber der DOMParser findet manchmal keine nutzbare Tabelle.
             if (!parsedNames.length) {
                 const bodyText = doc.body ? doc.body.innerText || doc.body.textContent || "" : "";
                 parsedNames = parseShootersFromPlainText(bodyText || htmlContent);
             }
 
-            if (!parsedNames.length) {
-                console.warn("IPSCMatch HTML konnte geladen werden, aber es wurden keine Starter erkannt.", {
-                    title: matchTitle,
-                    textSample: cleanText((doc.body ? doc.body.innerText || doc.body.textContent || "" : htmlContent)).slice(0, 1200)
-                });
+            if (!parsedNames.length && !options.silent) {
                 throw new Error("Konnte keine Starterliste finden. Bitte pruefen, ob der Link wirklich die Starterliste mit Nr., Name, Region und Division zeigt.");
             }
 
@@ -933,14 +1006,45 @@
 
             try {
                 const normalizedUrl = normalizeMatchUrl(rawUrl);
-                const htmlContent = await fetchMatchHtml(normalizedUrl);
+                const urlsToTry = [normalizedUrl];
+                const tried = new Set();
+                let lastHtml = "";
+                let parsed = null;
+                let lastError = "";
+
+                for (let i = 0; i < urlsToTry.length && i < 13; i++) {
+                    const urlToTry = urlsToTry[i];
+                    if (tried.has(urlToTry)) continue;
+                    tried.add(urlToTry);
+
+                    setLoaderMessage(i === 0 ? "Lade Match-Daten vom Link..." : `Suche Starterliste (${i + 1}/${urlsToTry.length})...`);
+                    lastHtml = await fetchMatchHtml(urlToTry);
+
+                    const parsedAttempt = parseShootersFromHtml(lastHtml, { silent: true });
+                    if (parsedAttempt.shooters && parsedAttempt.shooters.length) {
+                        parsed = parsedAttempt;
+                        break;
+                    }
+
+                    const extraLinks = extractIpscCandidateLinks(lastHtml, urlToTry);
+                    for (const extra of extraLinks) {
+                        if (!tried.has(extra) && !urlsToTry.includes(extra)) urlsToTry.push(extra);
+                    }
+                    lastError = `Keine Schützen auf ${urlToTry} gefunden.`;
+                }
+
+                if (!parsed || !parsed.shooters.length) {
+                    const debugSnippet = cleanText((lastHtml || "").replace(/<[^>]*>/g, " ")).slice(0, 500);
+                    console.warn("IPSCMatch Import Debug", {
+                        triedUrls: Array.from(tried),
+                        htmlLength: lastHtml ? lastHtml.length : 0,
+                        snippet: debugSnippet
+                    });
+                    throw new Error(`${lastError || "Konnte keine Starterliste finden."}\n\nDebug-Hinweis: Im Browser in der Konsole steht unter "IPSCMatch Import Debug", welche Seite IPSCMatch tatsächlich zurückgegeben hat.`);
+                }
 
                 setLoaderMessage("Analysiere Starterliste...");
-                const { matchTitle, shooters: parsedNames } = parseShootersFromHtml(htmlContent);
-
-                if (!parsedNames.length) {
-                    throw new Error("Keine Schützen in der Starterliste gefunden.");
-                }
+                const { matchTitle, shooters: parsedNames } = parsed;
 
                 resetFilterInputs();
                 currentShooters = await buildRenderedShooterResults(parsedNames);
@@ -1127,7 +1231,7 @@
         }
 
         function parseShootersFromOcr(rawText) {
-            const divisions = ["Production Optics", "Prod. Optics", "Prod Optics", "Production", "Optics", "Open", "Standard", "Classic", "Revolver", "PCC"];
+            const divisions = ["Production Optics", "Production", "Optics", "Open", "Standard", "Classic", "Revolver"];
             const regionCodes = Object.keys(countryNameFormat).sort((a, b) => b.length - a.length);
             const shooters = [];
             const seen = new Set();
@@ -1168,7 +1272,7 @@
                 const nameTokens = tokens.slice(0, regionIndex);
                 const afterRegion = tokens.slice(regionIndex + 1).join(" ");
 
-                let division = divisions.find(d => new RegExp(`^${d.replace(/\s+/g, "\\s+")}\\b`, "i").test(afterRegion));
+                let division = divisions.find(d => new RegExp(`^${d.replace(" ", "\\s+")}\\b`, "i").test(afterRegion));
                 if (!division) {
                     // Most screenshots here are Optics; do not guess for unknown rows.
                     continue;
