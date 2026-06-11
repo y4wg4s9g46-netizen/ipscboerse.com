@@ -33,7 +33,6 @@ DIVISIONS = [
 ]
 
 # Fallback, falls ein Tab-Klick nicht klappt.
-# Diese IDs werden nur als Notfall-Variante genutzt.
 DIVISION_URL_IDS = {
     "Production": 4,
     "Production Optics": 5,
@@ -87,12 +86,6 @@ def wait_for_table(driver, timeout=25):
 
 
 def get_showing_info(driver):
-    """Liest die sichtbare Tabellenanzeige nahe der grossen Tabelle.
-
-    Wichtig: Auf ipscelo.com koennen mehrere "Showing ..." Texte im DOM liegen.
-    Deshalb nehmen wir nicht einfach den ersten Treffer im body, sondern den Text
-    direkt unter der groessten sichtbaren Tabelle.
-    """
     try:
         script = """
         function isVisible(el) {
@@ -136,13 +129,10 @@ def get_showing_info(driver):
     except Exception:
         pass
 
-    # Fallback: alter Weg ueber body-Text.
     try:
         text = driver.find_element(By.TAG_NAME, "body").text
         matches = re.findall(r"Showing\s+(\d+)\s+(?:to|-)\s+(\d+)\s+of\s+(\d+)\s+rows", text, re.I)
         if matches:
-            # Nimm den Treffer mit dem groessten Total, damit versteckte/kleine Tabellen
-            # nicht versehentlich die Haupttabelle ueberschreiben.
             best = max(matches, key=lambda x: safe_int(x[2]))
             return (safe_int(best[0]), safe_int(best[1]), safe_int(best[2]))
     except Exception:
@@ -159,7 +149,6 @@ def get_visible_table_row_count(driver):
 
 
 def wait_until_showing_range(driver, expected_start, expected_end, total_rows, timeout=45):
-    """Wartet, bis unten die erwartete Range steht und genug Tabellenzeilen geladen sind."""
     deadline = time.time() + timeout
     expected_count = max(1, expected_end - expected_start + 1) if expected_end and expected_start else 0
 
@@ -181,6 +170,7 @@ def wait_until_showing_range(driver, expected_start, expected_end, total_rows, t
 
     return False
 
+
 def get_total_rows_from_page(driver):
     return get_showing_info(driver)[2]
 
@@ -195,7 +185,6 @@ def table_signature(driver):
 
 
 def click_division_tab(driver, division):
-    """Klickt einen sichtbaren Division-Tab. Scrollt vorher nach oben, damit Tabs sichtbar sind."""
     try:
         driver.execute_script("window.scrollTo(0, 0);")
         time.sleep(1)
@@ -225,19 +214,15 @@ def click_division_tab(driver, division):
             if (txt !== target) continue;
             if (!isVisible(el)) continue;
 
-            const r = el.getBoundingClientRect();
-
-            // Nicht in Profil-/Modal-Bereichen oder Footer greifen.
             const inModal = !!el.closest('.modal');
             if (inModal) continue;
 
-            candidates.push({el, top: r.top, left: r.left});
+            candidates.push({el, top: el.getBoundingClientRect().top, left: el.getBoundingClientRect().left});
           }
         }
 
         if (!candidates.length) return false;
 
-        // Der echte Tab sitzt weit oben oberhalb der Tabelle.
         candidates.sort((a, b) => a.top - b.top || a.left - b.left);
         const targetEl = candidates[0].el;
         targetEl.scrollIntoView({block: 'center'});
@@ -247,7 +232,6 @@ def click_division_tab(driver, division):
         if bool(driver.execute_script(script, division)):
             return True
 
-        # Fallback: XPath exakt nach Text
         elements = driver.find_elements(By.XPATH, f"//*[normalize-space(text())='{division}']")
         for el in elements:
             try:
@@ -265,7 +249,6 @@ def click_division_tab(driver, division):
 
 
 def open_division_by_url(driver, division):
-    """Notfall-Fallback, falls die Tabs nicht klickbar sind."""
     division_id = DIVISION_URL_IDS.get(division)
     if not division_id:
         return False
@@ -284,7 +267,6 @@ def open_division_by_url(driver, division):
 
 
 def set_rows_per_page_1000(driver):
-    """Stellt, falls moeglich, 1000 rows per page ein."""
     try:
         body_text = driver.find_element(By.TAG_NAME, "body").text
         if "1000" in body_text and "rows per page" in body_text:
@@ -343,7 +325,6 @@ def set_rows_per_page_1000(driver):
 
 
 def click_table_pagination(driver, target_page, total_rows):
-    """Klickt die echte Tabellen-Pagination und wartet auf die exakte Ziel-Range."""
     expected_start = ((target_page - 1) * ROWS_PER_PAGE_TARGET) + 1
     expected_end = min(target_page * ROWS_PER_PAGE_TARGET, total_rows) if total_rows else 0
 
@@ -365,7 +346,6 @@ def click_table_pagination(driver, target_page, total_rows):
 
     const clickables = Array.from(document.querySelectorAll('button, a'));
 
-    // 1) Wenn die Ziel-Seitennummer sichtbar ist, diese klicken.
     for (const el of clickables) {
       const txt = (el.innerText || el.textContent || '').trim();
       const r = el.getBoundingClientRect();
@@ -377,7 +357,6 @@ def click_table_pagination(driver, target_page, total_rows):
       }
     }
 
-    // 2) Sonst den echten Tabellen-Weiter-Button rechts unter der Tabelle klicken.
     const nextCandidates = [];
     for (const el of clickables) {
       const txt = (el.innerText || el.textContent || '').trim();
@@ -385,7 +364,7 @@ def click_table_pagination(driver, target_page, total_rows):
       const title = (el.getAttribute('title') || '').toLowerCase();
       const r = el.getBoundingClientRect();
       const disabled = el.disabled || el.classList.contains('disabled') || el.getAttribute('aria-disabled') === 'true';
-      const isNext = txt === 'ÃÂ¢ÃÂÃÂº' || txt === '>' || txt === 'Next' || aria.includes('next') || title.includes('next');
+      const isNext = txt === 'ÃƒÂ¢Ã‚Â€Ã‚Âº' || txt === '>' || txt === 'Next' || aria.includes('next') || title.includes('next');
       if (!disabled && isVisible(el) && isNext && r.top >= tableBottom - 60 && r.top < tableBottom + 260) {
         nextCandidates.push({el, left: r.left});
       }
@@ -402,13 +381,11 @@ def click_table_pagination(driver, target_page, total_rows):
     if not clicked:
         return False
 
-    # ipscelo laedt nach dem Seitenwechsel sichtbar verzoegert.
     time.sleep(PAGE_LOAD_WAIT_SECONDS)
 
     if total_rows and expected_end:
         return wait_until_showing_range(driver, expected_start, expected_end, total_rows, timeout=45)
 
-    # Fallback ohne Total: kurze Wartezeit reicht dann.
     try:
         wait_for_table(driver, timeout=10)
         return True
@@ -416,7 +393,7 @@ def click_table_pagination(driver, target_page, total_rows):
         return False
 
 
-def dataframe_to_entries(df, division, total_rows=0, expected_start=0, expected_end=0):
+def dataframe_to_entries(df, division, seen_ranks, total_rows=0):
     if df is None or len(df) < 10:
         return []
 
@@ -433,13 +410,11 @@ def dataframe_to_entries(df, division, total_rows=0, expected_start=0, expected_
     for _, row in df.iterrows():
         rank = safe_int(row.get(rank_col, 0))
 
-        # Wichtig: letzte Seite sauber begrenzen.
-        # Beispiel Production: total_rows=5649, Seite 6 darf nur Rank 5001-5649 enthalten.
-        if total_rows and (rank < 1 or rank > total_rows):
+        # NEU: Ueberspringt Duplikate, statt hart nach Seitenzahlen zu filtern
+        if rank in seen_ranks or rank == 0:
             continue
-        if expected_start and rank < expected_start:
-            continue
-        if expected_end and rank > expected_end:
+            
+        if total_rows and (rank > total_rows):
             continue
 
         lastname = str(row.get(lastname_col, 'Unknown')).strip()
@@ -449,30 +424,25 @@ def dataframe_to_entries(df, division, total_rows=0, expected_start=0, expected_
             continue
 
         full_name = f"{lastname}, {firstname}" if firstname and firstname != 'nan' else lastname
-
-        region_name = str(row.get(region_col, '')).strip()
-        if region_name == 'nan':
-            region_name = 'Unknown'
+        region_name = str(row.get(region_col, 'Unknown')).strip()
+        if region_name == 'nan': region_name = 'Unknown'
 
         cat = str(row.get(category_col, '')).strip()
-        if cat == 'nan':
-            cat = ''
-
         rc_class = str(row.get(rc_col, '')).strip()
-        if rc_class == 'nan':
-            rc_class = ''
 
         entry = {
             "rank": rank,
             "region": region_name,
             "lastname": full_name,
-            "category": cat,
+            "category": cat if cat != 'nan' else '',
             "matches": safe_int(row.get(matches_col, 0)),
             "elo_rating": safe_float(row.get(elo_col, 0)),
-            "class_style": rc_class,
+            "class_style": rc_class if rc_class != 'nan' else '',
             "division": division
         }
+        
         entries.append(entry)
+        seen_ranks.add(rank) # NEU: Rank als "gesehen" markieren
 
     return entries
 
@@ -482,8 +452,6 @@ def upload_entries(entries, division, total_rows=0):
         log(f"ERROR: Zu wenig Daten fuer {division}. Abbruch zum Schutz der DB.")
         return False
 
-    # Schutz: Wenn eine Division viele Rows haben sollte, aber viel zu wenig gesammelt wurde,
-    # nicht die bestehenden Daten loeschen.
     if total_rows and len(entries) < max(10, int(total_rows * 0.80)):
         log(f"ERROR: Nur {len(entries)} von erwarteten {total_rows} Daten fuer {division}. Kein Upload, damit die DB nicht kaputtgeht.")
         return False
@@ -532,49 +500,43 @@ def scrape_division(driver, division):
     log(f"{division}: erwartete Seiten: {expected_pages} (Total rows: {total_rows or 'unbekannt'})")
 
     all_entries = []
+    seen_ranks = set() # NEU: Liste fuer alle Ranks dieser Division
 
     for page_no in range(1, expected_pages + 1):
+        time.sleep(4) # NEU: Pause, damit JavaScript die Tabelle fertig aufbaut
+        
         start, end, current_total = get_showing_info(driver)
-        # Total rows darf waehrend einer Division nicht kleiner werden.
-        # Sonst koennen falsche/alte "Showing"-Texte die Pagination zu frueh stoppen.
         if current_total and current_total > total_rows:
             total_rows = current_total
 
-        expected_start = ((page_no - 1) * ROWS_PER_PAGE_TARGET) + 1
-        expected_end = min(page_no * ROWS_PER_PAGE_TARGET, total_rows) if total_rows else 0
-
         df = get_biggest_table(driver)
         if df is None or len(df) < 10:
-            log(f"ERROR: Keine brauchbare Tabelle fuer {division} auf Seite {page_no} gefunden.")
-            break
+            log(f"WARN: Keine brauchbare Tabelle fuer {division} auf Seite {page_no} gefunden. Versuche es erneut...")
+            time.sleep(5) # Bei Lags nochmal kurz warten
+            df = get_biggest_table(driver)
+            if df is None or len(df) < 10:
+                log(f"ERROR: Tabelle endgueltig nicht gefunden auf Seite {page_no}.")
+                break
 
-        log(f"{division}: Seite {page_no} mit {len(df)} Tabellenzeilen gefunden. Anzeige: {start}-{end} von {total_rows or 'unbekannt'}.")
+        log(f"{division}: Seite {page_no} mit {len(df)} Zeilen im HTML gefunden.")
 
         page_entries = dataframe_to_entries(
             df,
             division,
-            total_rows=total_rows,
-            expected_start=expected_start if total_rows else 0,
-            expected_end=expected_end if total_rows else 0,
+            seen_ranks=seen_ranks, # NEU: Uebergeben wir an die Funktion
+            total_rows=total_rows
         )
 
-        # Kein Duplikatfilter pro Division:
-        # Die Webseite wird pro Lauf komplett neu eingelesen und die Division danach
-        # in Supabase vollstaendig ersetzt. So gehen Restseiten wie 1001-1217,
-        # 2001-2023 oder Revolver 1-271 nicht verloren.
         all_entries.extend(page_entries)
         new_count = len(page_entries)
 
-        log(f"{division}: {new_count} Eintraege von Seite {page_no} uebernommen.")
+        log(f"{division}: {new_count} neue Eintraege von Seite {page_no} uebernommen. (Gesamt bisher: {len(all_entries)})")
 
-        # Nicht wegen 0 neuen Eintraegen abbrechen: bei langsamem Nachladen kann sonst
-        # eine Division zu frueh enden. Gegen Endlosschleifen schuetzt der exakte
-        # "Showing X to Y of Z"-Check in click_table_pagination.
         if page_no >= expected_pages:
             break
 
         if not click_table_pagination(driver, page_no + 1, total_rows):
-            log(f"STOP: {division}: Konnte nicht zuverlaessig auf Seite {page_no + 1} wechseln. Stoppe Division statt Endlosschleife.")
+            log(f"STOP: {division}: Konnte nicht auf Seite {page_no + 1} wechseln.")
             break
 
     if total_rows:
