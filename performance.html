@@ -94,11 +94,13 @@
         .archive-item-main { display: flex; align-items: center; gap: 12px; padding: 12px; }
         .archive-icon { width: 42px; height: 42px; border-radius: 8px; background: rgba(255, 159, 67, 0.12); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
         .archive-meta { flex: 1; min-width: 0; }
-        .archive-title { font-weight: 700; font-size: 14px; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .archive-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.35; }
+        .archive-title { font-weight: 700; font-size: 14px; color: var(--text-color); white-space: normal; word-break: break-word; line-height: 1.3; }
+        .archive-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
         .archive-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-        .archive-btn { border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); border-radius: 6px; padding: 7px 9px; font-size: 12px; cursor: pointer; }
+        .archive-btn { border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); border-radius: 6px; padding: 10px 5px; font-size: 12px; cursor: pointer; font-weight: 600; text-align: center; }
+        .archive-btn:hover { background-color: var(--border-color); }
         .archive-btn.delete { color: var(--danger-color); }
+        .archive-btn.delete:hover { background-color: rgba(239, 68, 68, 0.1); }
         .archive-details { display: none; padding: 0 12px 12px 12px; border-top: 1px dashed var(--border-color); }
         .archive-small-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
         .archive-small-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); }
@@ -136,10 +138,10 @@
                 <strong>📸 Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste hoch oder füge einen IPSCMatch-Link ein. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
             </div>
 
-            <!-- NEU: SCHNELLSTART AUS DEM PLANER -->
+            <!-- SCHNELLSTART AUS DEM PLANER -->
             <div id="quick-analyze-section" style="display: none; background: rgba(59, 130, 246, 0.05); border: 1px solid var(--info-color); padding: 15px; border-radius: var(--radius); margin-bottom: 20px;">
-                <h4 style="margin: 0 0 10px 0; color: var(--info-color); font-size: 14px;">🎯 Deine anstehenden Matches (aus Mein Planer)</h4>
-                <div id="quick-analyze-buttons" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+                <h4 style="margin: 0 0 12px 0; color: var(--info-color); font-size: 14px;">🎯 Deine anstehenden Matches (aus Mein Planer)</h4>
+                <div id="quick-analyze-buttons" style="display: flex; gap: 8px; flex-direction: column;"></div>
             </div>
 
             <!-- LINK IMPORT BEREICH -->
@@ -245,6 +247,13 @@
                                 </tr>
                             </tbody>
                         </table>
+
+                        <p style="margin-top:18px;line-height:1.5;color:var(--text-muted);">
+                            💡 <strong>Beispiel:</strong><br><br>
+                            Ein Match kann für dich persönlich eine <strong>hohe Herausforderung</strong> darstellen und gleichzeitig eine <strong>sehr hohe Feldstärke</strong> besitzen. Dadurch werden sowohl deine individuellen Chancen als auch die Qualität des gesamten Starterfeldes getrennt bewertet.
+                            <br><br>
+                            Ein Match mit vielen unbekannten oder ungerankten Teilnehmern kann deshalb für dich schwierig sein, ohne dass es automatisch ein internationales Spitzenfeld sein muss.
+                        </p>
                     </div>
                 </div>
 
@@ -521,7 +530,7 @@
                 if (!error && data && data.length > 0) return data[0];
             }
 
-            // 2) Fallback: Nachname/Vorname als Teiltreffer, aber weiterhin innerhalb der Division
+            // 2) Fallback: Nachname/Vorname als Teiltreffer
             const lastCandidates = nameVariants(shooter.nachname);
             const firstCandidates = nameVariants(shooter.vorname);
 
@@ -640,7 +649,7 @@
                     }
                 }
                 
-                // --- NEU: APPROVED MATCHES AUS DEM PLANER LADEN ---
+                // --- SCHNELLSTART AUS DEM PLANER ---
                 const { data: plannedMatches } = await window.supabaseClient
                     .from("user_matches")
                     .select("*")
@@ -662,6 +671,9 @@
                             btn.style.color = "var(--info-color)";
                             btn.style.border = "1px solid var(--info-color)";
                             btn.style.fontWeight = "600";
+                            btn.style.width = "100%";
+                            btn.style.textAlign = "left";
+                            btn.style.padding = "10px 15px";
                             btn.innerHTML = `📊 ${escapeHtml(m.match_name)}`;
                             btn.onclick = () => {
                                 document.getElementById('match-url').value = m.match_url;
@@ -673,7 +685,7 @@
                     if (hasValid) container.style.display = "block";
                 }
 
-                // --- NEU: AUTOMATISCHER START VOM PLANER ---
+                // --- AUTOMATISCHER START VOM PLANER ---
                 const urlParams = new URLSearchParams(window.location.search);
                 const autoUrl = urlParams.get('url');
                 if (autoUrl) {
@@ -687,7 +699,6 @@
             }
         }
 
-        // 1. DOCKING AN DIE AUTH.JS EVENT-SCHLEIFE
         const originalAuthChange = window.onAuthChange;
         window.onAuthChange = async (user) => {
             if (typeof originalAuthChange === "function") originalAuthChange(user);
@@ -707,7 +718,6 @@
             }
         }
 
-        // 🚀 KUGELSICHERER DIREKT-CHECK BEIM LADEN 
         document.addEventListener("DOMContentLoaded", () => {
             bindUrlEnterKey();
             setTimeout(async () => {
@@ -834,12 +844,44 @@
             throw new Error(`Der Link konnte nicht geladen werden.${serviceWorkerHint}\n\nVersuchte Wege:\n- ${errors.join("\n- ")}`);
         }
 
-        function findStarterTable(doc) {
+        function extractIpscCandidateLinks(htmlContent, baseUrl) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, "text/html");
+            const candidates = [];
+            const seen = new Set([baseUrl]);
+
+            const wanted = /(starter|startliste|starterliste|teilnehmer|participants?|shooters?|schützen|schuetzen|squad|squads|registration|anmeldung|liste|list|status|utilisation|complist)/i;
+
+            Array.from(doc.querySelectorAll("a[href]")).forEach(link => {
+                const href = link.getAttribute("href") || "";
+                const text = cleanText(link.textContent || "");
+                const combined = `${text} ${href}`;
+                
+                try {
+                    const url = new URL(href, baseUrl);
+                    url.hash = "";
+                    const absolute = url.href;
+
+                    if (!seen.has(absolute) && wanted.test(combined)) {
+                        seen.add(absolute);
+                        candidates.push(absolute);
+                    }
+                } catch(e) {}
+            });
+
+            return candidates.slice(0, 12);
+        }
+
+        // --- NEU: ERKENNUNG DER DIVISION DURCH FORCED DIV ---
+        function findStarterTable(doc, forcedDiv) {
             const tables = Array.from(doc.querySelectorAll("table"));
 
             return tables.find(table => {
                 const text = cleanText(table.textContent).toLowerCase();
-                return text.includes("vorname") && (text.includes("name") || text.includes("nachname")) && text.includes("division");
+                const hasName = text.includes("vorname") || text.includes("name") || text.includes("nachname");
+                const hasDiv = text.includes("division");
+                // Wenn wir die Division schon wissen (forcedDiv), brauchen wir die Spalte "Division" nicht zwingend im Header
+                return hasName && (hasDiv || forcedDiv);
             }) || tables.find(table => {
                 const text = cleanText(table.textContent).toLowerCase();
                 return text.includes("vorname") && (text.includes("name") || text.includes("nachname"));
@@ -857,23 +899,40 @@
 
         function splitTextIntoPossibleStarterRows(text) {
             return String(text || "")
-                .replace(/\u2713/g, "\n✓ ")
-                .replace(/\s+(?=\d{1,4}\s+[A-Za-zÄÖÜäöüß])/g, "\n")
+                .replace(/\u00A0/g, " ")
+                .replace(/[✓✔]/g, " ")
+                .replace(/(\d{1,5})\s*(?=[A-Za-zÄÖÜäöüß])/g, "\n$1 ")
+                .replace(/\s+(?=\d{1,5}\s+[A-Za-zÄÖÜäöüß])/g, "\n")
                 .split(/\r?\n/)
                 .map(cleanText)
                 .filter(Boolean);
         }
 
-        function parseShooterFromTextLine(line) {
-            const divisions = ["Production Optics", "Carry Optics", "Optics", "Production", "Standard", "Classic", "Revolver", "Open", "PCC"];
+        function normalizeDivisionFromFreeText(value) {
+            const text = cleanText(value).toLowerCase();
+            if (/prod\.?\s*opt|production\s+optics|pdo/.test(text)) return "Production Optics";
+            if (/carry\s*opt|\boptics?\b|\bopt\b/.test(text)) return "Optics";
+            if (/production|\bprd\b/.test(text)) return "Production";
+            if (/standard|\bstd\b/.test(text)) return "Standard";
+            if (/classic|\bclc\b/.test(text)) return "Classic";
+            if (/revolver|\brev\b/.test(text)) return "Revolver";
+            if (/open|\bopn\b/.test(text)) return "Open";
+            if (/\bpcc\b/.test(text)) return "PCC";
+            return "Unknown";
+        }
+
+        function parseShooterFromTextLine(line, forcedDiv) {
             const regionCodes = Object.keys(countryNameFormat).sort((a, b) => b.length - a.length);
 
-            let cleaned = cleanText(line).replace(/^✓\s*/, "");
-            if (/^(nr\.?|vorname|name|region|division|category|power|factor|ro|sponsor|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik)/i.test(cleaned)) {
+            let cleaned = cleanText(line)
+                .replace(/^[-–—•]+\s*/, "")
+                .replace(/^(nr\.?|no\.?|#)\s*/i, "");
+
+            if (/^(vorname|name|region|division|category|power|factor|ro|sponsor|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik|results?|stage|team|certificates?)/i.test(cleaned)) {
                 return null;
             }
 
-            const numberMatch = cleaned.match(/^\D*(\d{1,5})\s+(.+)$/);
+            const numberMatch = cleaned.match(/^\D*(\d{1,5})[.)\-:\s]+(.+)$/);
             if (!numberMatch) return null;
 
             const tokens = numberMatch[2].split(/\s+/).filter(Boolean);
@@ -889,16 +948,29 @@
                 }
             }
 
-            if (regionIndex < 2) return null;
+            if (regionIndex < 1) return null;
 
-            const nameTokens = tokens.slice(0, regionIndex);
+            const nameTokens = tokens.slice(0, regionIndex).map(t => cleanPersonName(t)).filter(Boolean);
             const afterRegion = tokens.slice(regionIndex + 1).join(" ");
-            const division = divisions.find(d => new RegExp(`^${d.replace(/\s+/g, "\\s+")}\\b`, "i").test(afterRegion));
+            
+            let division = normalizeDivisionFromFreeText(afterRegion);
+            // Wenn wir die Division schon wissen, setzen wir sie direkt ein
+            if (division === "Unknown" && forcedDiv) division = forcedDiv;
 
-            if (!division) return null;
+            if (division === "Unknown") return null;
+            if (nameTokens.length < 2) return null;
 
-            const vorname = cleanPersonName(nameTokens[0]);
-            const nachname = cleanPersonName(nameTokens.slice(1).join(" "));
+            let vorname = nameTokens[0];
+            let nachname = nameTokens.slice(1).join(" ");
+
+            const nameText = nameTokens.join(" ");
+            if (nameText.includes(",")) {
+                const parts = nameText.split(",").map(cleanPersonName).filter(Boolean);
+                if (parts.length >= 2) {
+                    nachname = parts[0];
+                    vorname = parts.slice(1).join(" ");
+                }
+            }
 
             if (!vorname || !nachname) return null;
 
@@ -910,13 +982,13 @@
             };
         }
 
-        function parseShootersFromPlainText(text) {
+        function parseShootersFromPlainText(text, forcedDiv) {
             const parsedNames = [];
             const seen = new Set();
             const rows = splitTextIntoPossibleStarterRows(text);
 
             for (const row of rows) {
-                const shooter = parseShooterFromTextLine(row);
+                const shooter = parseShooterFromTextLine(row, forcedDiv);
                 if (!shooter) continue;
 
                 const key = `${shooter.vorname}|${shooter.nachname}|${shooter.regionRaw}|${shooter.division}`.toLowerCase();
@@ -928,53 +1000,33 @@
             return parsedNames;
         }
 
-        // 🛠️ AUTOMATISCHE WEITERLEITUNG ZUR STARTERLISTE
-        async function parseShootersFromHtml(htmlContent, currentUrl) {
+        function parseShootersFromHtml(htmlContent, options = {}) {
             const parser = new DOMParser();
-            let doc = parser.parseFromString(htmlContent, "text/html");
-
-            // Wir fangen auch Links ab, die list=squad oder list=teilnehmer heißen
-            const listLink = doc.querySelector("a[href*='list=starter'], a[href*='list=main_match'], a[href*='list=overall'], a[href*='list=squad'], a[href*='list=teilnehmer']");
-            if (listLink && currentUrl) {
-                console.log("Turnier-Hauptseite erkannt. Folg dem Starterlisten-Pfad...");
-                try {
-                    const targetUrl = new URL(listLink.getAttribute("href"), currentUrl).href;
-                    const nestedHtml = await fetchMatchHtml(targetUrl);
-                    doc = parser.parseFromString(nestedHtml, "text/html");
-                } catch(e) {
-                    console.warn("Automatisches Nachladen fehlgeschlagen:", e);
-                }
-            }
+            const doc = parser.parseFromString(htmlContent, "text/html");
+            const forcedDiv = options.forcedDivision;
 
             let matchTitle = cleanText(doc.querySelector("h1")?.textContent) || cleanText(doc.title) || "IPSC Match";
             matchTitle = matchTitle.replace(/ipscmatch\.de/i, "").replace(/Starterliste/i, "").trim() || "Importiertes Match";
 
-            let matchDate = "2026-01-01";
-            const bodyForDate = doc.body ? doc.body.innerText : "";
-            const dateMatch = bodyForDate.match(/(\d{2})\.(\d{2})\.(\d{4})/);
-            if (dateMatch) {
-                matchDate = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
-            }
-
             let parsedNames = [];
-            const targetTable = findStarterTable(doc);
+            const targetTable = findStarterTable(doc, forcedDiv);
 
             if (targetTable) {
                 const allRows = Array.from(targetTable.querySelectorAll("tr"));
                 const headerRowIndex = Math.max(0, allRows.findIndex(row => {
                     const text = getRowCells(row).join(" ").toLowerCase();
-                    return text.includes("vorname") && (text.includes("name") || text.includes("nachname"));
+                    const hasName = text.includes("name") || text.includes("vorname") || text.includes("nachname");
+                    const hasDiv = text.includes("division");
+                    return hasName && (hasDiv || forcedDiv);
                 }));
 
                 const headers = getRowCells(allRows[headerRowIndex]).map(h => h.toLowerCase());
 
-                const idxVorname = getHeaderIndex(headers, h => h.includes("vorname"), 1);
+                const idxVorname = headers.findIndex(h => h.includes("vorname"));
                 let idxName = headers.findIndex(h => h === "name" || h.includes("nachname") || h.includes("familienname"));
-                if (idxName === -1) idxName = headers.findIndex((h, idx) => idx !== idxVorname && /\bname\b/.test(h));
-                if (idxName === -1) idxName = 2;
-
-                const idxRegion = getHeaderIndex(headers, h => h.includes("region") || h.includes("land") || h.includes("nation"), 3);
-                const idxDivision = getHeaderIndex(headers, h => h.includes("division") || h === "div", 4);
+                if (idxName === -1) idxName = headers.findIndex(h => /\bname\b/.test(h));
+                const idxRegion = getHeaderIndex(headers, h => h.includes("region") || h.includes("land") || h.includes("nation"), -1);
+                const idxDivision = getHeaderIndex(headers, h => h.includes("division") || h === "div", -1);
 
                 const seen = new Set();
 
@@ -982,10 +1034,22 @@
                     const cells = getRowCells(row);
                     if (cells.length < 3) continue;
 
-                    const vorname = cleanPersonName(cells[idxVorname]);
-                    const nachname = cleanPersonName(cells[idxName]);
-                    const regionRaw = normalizeRegionCode(cells[idxRegion]);
-                    const division = normalizeDivisionName(cells[idxDivision]);
+                    let vorname = "";
+                    let nachname = "";
+
+                    if (idxVorname >= 0 && idxName >= 0) {
+                        vorname = cleanPersonName(cells[idxVorname]);
+                        nachname = cleanPersonName(cells[idxName]);
+                    } else if (idxName >= 0) {
+                        const nameParts = cleanPersonName(cells[idxName]).split(/\s+/).filter(Boolean);
+                        vorname = nameParts[0] || "";
+                        nachname = nameParts.slice(1).join(" ");
+                    }
+
+                    const regionRaw = idxRegion >= 0 ? normalizeRegionCode(cells[idxRegion]) : "UNKNOWN";
+                    let division = idxDivision >= 0 ? normalizeDivisionName(cells[idxDivision]) : normalizeDivisionFromFreeText(cells.join(" "));
+                    
+                    if (division === "Unknown" && forcedDiv) division = forcedDiv;
 
                     if (!vorname || !nachname || /^vorname$/i.test(vorname) || /^name$/i.test(nachname)) continue;
                     if (division === "Unknown") continue;
@@ -994,19 +1058,17 @@
                     if (seen.has(key)) continue;
                     seen.add(key);
 
-                    parsedNames.push({ vorname, nachname, regionRaw, division, real_date: matchDate });
+                    parsedNames.push({ vorname, nachname, regionRaw, division });
                 }
             }
 
-            // Fallback für IPSCMatch-Seiten, die vom Proxy/Safari nicht als echte <table>-Struktur ankommen.
             if (!parsedNames.length) {
                 const bodyText = doc.body ? doc.body.innerText || doc.body.textContent || "" : "";
-                parsedNames = parseShootersFromPlainText(bodyText || htmlContent);
-                parsedNames.forEach(s => s.real_date = matchDate);
+                parsedNames = parseShootersFromPlainText(bodyText || htmlContent, forcedDiv);
             }
 
-            if (!parsedNames.length) {
-                throw new Error("Konnte keine Starterliste finden. Bitte pruefen, ob der Link wirklich die Starterliste mit Nr., Vorname, Name, Region und Division zeigt.");
+            if (!parsedNames.length && !options.silent) {
+                throw new Error("Konnte keine Starterliste finden. Bitte pruefen, ob der Link wirklich die Starterliste mit Nr., Name, Region und Division zeigt.");
             }
 
             return { matchTitle, shooters: parsedNames };
@@ -1024,18 +1086,101 @@
             document.getElementById('analysis-results').style.display = 'none';
             document.getElementById('loader').style.display = 'block';
             setImportButtonLoading(true);
-            setLoaderMessage("Lade Match-Daten vom Link...");
 
             try {
                 const normalizedUrl = normalizeMatchUrl(rawUrl);
-                const htmlContent = await fetchMatchHtml(normalizedUrl);
+                
+                // --- NEU: ERKENNE DIVISION UND HOLE DIREKT DEN PASSENDEN LINK ---
+                let targetUrl = normalizedUrl;
+                let knownDivision = null;
+                const myName = window.userProfileData ? window.userProfileData.real_name : null;
+                
+                if (myName) {
+                    setLoaderMessage("Prüfe deine Division...");
+                    try {
+                        const baseHtml = await fetchMatchHtml(normalizedUrl);
+                        const nameParts = myName.toLowerCase().split(" ");
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(baseHtml, "text/html");
+                        const bodyText = doc.body ? doc.body.innerText : "";
+                        const lines = splitTextIntoPossibleStarterRows(bodyText);
+                        
+                        for (const line of lines) {
+                            const lowerLine = line.toLowerCase();
+                            if (nameParts.every(part => lowerLine.includes(part))) {
+                                const parsedMe = parseShooterFromTextLine(line);
+                                if (parsedMe && parsedMe.division && parsedMe.division !== "Unknown") {
+                                    knownDivision = parsedMe.division;
+                                    console.log("🎯 User Division erkannt:", knownDivision);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (knownDivision) {
+                            const links = Array.from(doc.querySelectorAll("a[href*='complist']"));
+                            let divLink = links.find(a => {
+                                const href = a.href.toLowerCase();
+                                if (knownDivision === "Production Optics" || knownDivision === "Optics") {
+                                    return href.includes("optic") || href.includes("pdo");
+                                } else if (knownDivision === "Production") {
+                                    return href.includes("production") && !href.includes("optic") && !href.includes("pdo");
+                                } else {
+                                    return href.includes(knownDivision.toLowerCase());
+                                }
+                            });
+
+                            if (!divLink) {
+                                divLink = links.find(a => a.href.includes("complist"));
+                            }
+
+                            if (divLink) {
+                                targetUrl = new URL(divLink.getAttribute("href"), normalizedUrl).href;
+                                console.log("🔗 Nutze Divisions-Link:", targetUrl);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn("Fehler bei der Divisions-Prüfung:", e);
+                    }
+                }
+                // -------------------------------------------------------------
+
+                const urlsToTry = [targetUrl];
+                if (targetUrl !== normalizedUrl) urlsToTry.push(normalizedUrl);
+                
+                const tried = new Set();
+                let lastHtml = "";
+                let parsed = null;
+                let lastError = "";
+
+                for (let i = 0; i < urlsToTry.length && i < 13; i++) {
+                    const urlToTry = urlsToTry[i];
+                    if (tried.has(urlToTry)) continue;
+                    tried.add(urlToTry);
+
+                    setLoaderMessage(i === 0 ? "Lade Match-Daten vom Link..." : `Suche Starterliste (${i + 1}/${urlsToTry.length})...`);
+                    lastHtml = await fetchMatchHtml(urlToTry);
+
+                    // Wir geben knownDivision als Fallback mit, falls die Tabelle keine Divisions-Spalte hat
+                    const parsedAttempt = parseShootersFromHtml(lastHtml, { silent: true, forcedDivision: knownDivision });
+                    if (parsedAttempt.shooters && parsedAttempt.shooters.length) {
+                        parsed = parsedAttempt;
+                        break;
+                    }
+
+                    const extraLinks = extractIpscCandidateLinks(lastHtml, urlToTry);
+                    for (const extra of extraLinks) {
+                        if (!tried.has(extra) && !urlsToTry.includes(extra)) urlsToTry.push(extra);
+                    }
+                    lastError = `Keine Schützen auf ${urlToTry} gefunden.`;
+                }
+
+                if (!parsed || !parsed.shooters.length) {
+                    throw new Error(`${lastError || "Konnte keine Starterliste finden."}`);
+                }
 
                 setLoaderMessage("Analysiere Starterliste...");
-                const { matchTitle, shooters: parsedNames } = await parseShootersFromHtml(htmlContent, normalizedUrl);
-
-                if (!parsedNames.length) {
-                    throw new Error("Keine Schützen in der Starterliste gefunden.");
-                }
+                const { matchTitle, shooters: parsedNames } = parsed;
 
                 resetFilterInputs();
                 currentShooters = await buildRenderedShooterResults(parsedNames);
@@ -1047,7 +1192,7 @@
                 const heading = document.querySelector('#analysis-results h2 span');
                 if (heading) heading.textContent = matchTitle;
 
-                await storeMatchAnalysis(matchTitle, htmlContent, parsedNames, currentShooters);
+                await storeMatchAnalysis(matchTitle, "URL_IMPORT", parsedNames, currentShooters);
 
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('analysis-results').style.display = 'block';
@@ -1060,6 +1205,8 @@
             }
         }
         
+        // Ende Link Import Logik
+
         // 2. DRAG & DROP EVENTS
         const dropZone = document.getElementById('drop-zone');
         dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--info-color)"; });
@@ -1069,6 +1216,8 @@
             dropZone.style.borderColor = "var(--accent-color)";
             if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);
         });
+
+
 
         // ==========================================
         // 🏆 SUPABASE MATCH ARCHIV LOGIK
@@ -1117,16 +1266,18 @@
 
                 return `
                     <div class="archive-item" id="archive-item-${item.id}">
-                        <div class="archive-item-main">
-                            <div class="archive-icon">🏆</div>
-                            <div class="archive-meta">
-                                <div class="archive-title">${escapeHtml(item.match_name || "Unbenanntes Match")}</div>
-                                <div class="archive-sub">${new Date(item.created_at).toLocaleDateString("de-DE")} · ${escapeHtml(item.shooter_count || 0)} Schützen · ${escapeHtml(divisions)}</div>
+                        <div style="padding: 15px;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                                <div class="archive-icon">🏆</div>
+                                <div class="archive-meta" style="flex: 1; min-width: 0;">
+                                    <div class="archive-title" style="white-space: normal; word-break: break-word; line-height: 1.3;">${escapeHtml(item.match_name || "Unbenanntes Match")}</div>
+                                    <div class="archive-sub">${new Date(item.created_at).toLocaleDateString("de-DE")} · ${escapeHtml(item.shooter_count || 0)} Schützen · ${escapeHtml(divisions)}</div>
+                                </div>
                             </div>
-                            <div class="archive-actions">
-                                <button class="archive-btn" onclick="showArchivedMatch('${item.id}')">Anzeigen</button>
-                                <button class="archive-btn" onclick="toggleMatchDetails('${item.id}')">Details</button>
-                                <button class="archive-btn delete" onclick="deleteArchivedMatch('${item.id}')">Löschen</button>
+                            <div style="display: flex; gap: 8px; justify-content: space-between;">
+                                <button class="archive-btn" style="flex: 1; padding: 10px 5px;" onclick="showArchivedMatch('${item.id}')">Anzeigen</button>
+                                <button class="archive-btn" style="flex: 1; padding: 10px 5px;" onclick="toggleMatchDetails('${item.id}')">Details</button>
+                                <button class="archive-btn delete" style="flex: 1; padding: 10px 5px;" onclick="deleteArchivedMatch('${item.id}')">Löschen</button>
                             </div>
                         </div>
                         <div class="archive-details" id="archive-details-${item.id}">
@@ -1188,6 +1339,7 @@
             const item = window.cachedMatches.find(entry => entry.id === id);
             if (!item) return;
 
+            // BUGFIX: Zwingender Reset aller States und Filter!
             document.getElementById('search-name').value = "";
             currentShooters = []; 
 
@@ -1227,15 +1379,19 @@
             for (const originalLine of lines) {
                 let line = originalLine;
 
+                // Ignore header/footer/navigation lines
                 if (/^(nr\.?|vorname|name|region|division|category|power|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik)/i.test(line)) {
                     continue;
                 }
 
+                // Must start with a competitor number
                 const numberMatch = line.match(/^\D*(\d{1,5})\s+(.+)$/);
                 if (!numberMatch) continue;
 
                 let rest = numberMatch[2].trim();
 
+                // Find region token, because ipscmatch table order is:
+                // Nr Vorname Name Region Division Category ...
                 const tokens = rest.split(/\s+/);
                 let regionIndex = -1;
                 let regionRaw = "";
@@ -1255,7 +1411,10 @@
                 const afterRegion = tokens.slice(regionIndex + 1).join(" ");
 
                 let division = divisions.find(d => new RegExp(`^${d.replace(" ", "\\s+")}\\b`, "i").test(afterRegion));
-                if (!division) continue;
+                if (!division) {
+                    // Most screenshots here are Optics; do not guess for unknown rows.
+                    continue;
+                }
 
                 const vorname = nameTokens[0];
                 const nachname = nameTokens.slice(1).join(" ");
@@ -1296,6 +1455,7 @@
             return { shooters, rawText: text, matchName: extractMatchNameFromOcr(text) };
         }
 
+        // 3. SCREENSHOT-VERARBEITUNG MIT UMLAUT-BEREINIGUNG & SUPABASE-LOOKUP
         async function handleFileUpload(files) {
             if (files.length === 0) return;
 
@@ -1303,6 +1463,8 @@
             document.getElementById('loader').style.display = 'block';
 
             try {
+                // WICHTIG: Jetzt wird wirklich der hochgeladene Screenshot per OCR gelesen.
+                // Die alte feste Testliste wurde entfernt.
                 const ocrResult = await extractShootersFromImage(files[0]);
                 let ocrRecognizedNames = ocrResult.shooters || [];
                 const ocrRawText = ocrResult.rawText || "";
@@ -1375,6 +1537,9 @@
 
             document.getElementById('stat-stronger-count').textContent = strongerCount;
 
+            // Persönliche Herausforderung:
+            // fairer Vergleich über das gesamte Starterfeld.
+            // Beispiel: 22 von 57 über dir = 38,6 % = Hoch.
             const percentageStronger = totalCompetitors > 0 ? (strongerCount / totalCompetitors) * 100 : 0;
 
             let level = "Gering";
@@ -1398,6 +1563,8 @@
                 ? `${strongerCount} von ${totalCompetitors} Teilnehmern sind über deinem ELO (${percentageStronger.toFixed(1)}%). ${rankedCount} Teilnehmer hatten ein bekanntes ELO.`
                 : "";
 
+            // Objektive Feldstärke:
+            // bewertet nicht dich persönlich, sondern wie stark die Spitze und der Durchschnitt des gerankten Feldes sind.
             const sortedElos = rankedCompetitors.map(s => s.elo).sort((a, b) => b - a);
             const avgElo = rankedCount > 0 ? sortedElos.reduce((sum, elo) => sum + elo, 0) / rankedCount : 0;
             const topCount = Math.min(10, sortedElos.length);
@@ -1425,6 +1592,7 @@
                     fieldColor = "var(--info-color)";
                 }
 
+                // Wenige bekannte ELOs machen die Einschätzung unsicherer.
                 if (rankedCoverage < 0.25 && fieldStrength !== "Gering") {
                     fieldStrength += "*";
                 }
