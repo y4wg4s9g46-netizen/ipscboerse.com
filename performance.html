@@ -390,9 +390,7 @@
 
         function extractMatchNameFromOcr(rawText) {
             const lines = String(rawText || "")
-                .split(/
-?
-/)
+                .split(/\r?\n/)
                 .map(cleanText)
                 .filter(Boolean);
 
