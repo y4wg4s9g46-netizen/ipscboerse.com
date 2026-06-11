@@ -322,7 +322,7 @@
 
         function cleanText(value) {
             return String(value ?? "")
-                .replace(/ /g, " ")
+                .replace(/ /g, " ")
                 .replace(/\s+/g, " ")
                 .trim();
         }
@@ -697,6 +697,11 @@
 
         function buildProxyAttempts(targetUrl) {
             return [
+                {
+                    name: "Supabase Edge Proxy",
+                    url: `https://huprxirlthkisjngwash.supabase.co/functions/v1/ipscmatch-proxy?url=${encodeURIComponent(targetUrl)}`,
+                    type: "text"
+                },
                 {
                     name: "Direkt",
                     url: targetUrl,
