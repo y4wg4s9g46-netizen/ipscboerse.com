@@ -264,6 +264,57 @@
             } catch { return Infinity; }
         }
 
+        function isMatchExpired(match) {
+            const openTime = parseIpscDateFrontend(match?.anmeldung_oeffnet);
+            if (!Number.isFinite(openTime)) return false;
+
+            // Kleine Sicherheitsfrist, damit ein Match nicht exakt in der Öffnungsminute verschwindet.
+            const graceMs = 5 * 60 * 1000;
+            return openTime < (Date.now() - graceMs);
+        }
+
+        async function cleanupExpiredMatches(matches, userId) {
+            const expiredMatches = (matches || []).filter(isMatchExpired);
+            if (!expiredMatches.length) return;
+
+            const expiredIds = expiredMatches.map(m => m.id).filter(Boolean);
+            if (!expiredIds.length) return;
+
+            // UI funktioniert auch dann korrekt, wenn RLS das Löschen nicht erlaubt.
+            // Dann werden alte Matches nur ausgeblendet.
+            try {
+                const { error } = await window.supabaseClient
+                    .from("upcoming_matches")
+                    .delete()
+                    .in("id", expiredIds);
+
+                if (error) {
+                    console.warn("Abgelaufene Matches konnten nicht automatisch aus upcoming_matches gelöscht werden:", error);
+                }
+            } catch (err) {
+                console.warn("Cleanup upcoming_matches fehlgeschlagen:", err);
+            }
+
+            // Eigene wartende Bot-Jobs zu bereits geöffneten Matches ebenfalls entfernen.
+            // Das betrifft nur den eingeloggten Nutzer.
+            if (userId) {
+                try {
+                    const { error } = await window.supabaseClient
+                        .from("bot_queue")
+                        .delete()
+                        .eq("user_id", userId)
+                        .eq("status", "waiting")
+                        .in("match_id", expiredIds);
+
+                    if (error) {
+                        console.warn("Abgelaufene Bot-Jobs konnten nicht automatisch gelöscht werden:", error);
+                    }
+                } catch (err) {
+                    console.warn("Cleanup bot_queue fehlgeschlagen:", err);
+                }
+            }
+        }
+
         async function loadUpcomingMatches(userId) {
             if (userId) {
                 const { data: userJobs } = await window.supabaseClient
@@ -275,12 +326,22 @@
             }
 
             const { data } = await window.supabaseClient.from("upcoming_matches").select("*");
-            if (!data || data.length === 0) return;
+            if (!data || data.length === 0) {
+                window.loadedMatchesCache = [];
+                renderMatches([]);
+                return;
+            }
 
-            data.sort((a, b) => parseIpscDateFrontend(a.anmeldung_oeffnet) - parseIpscDateFrontend(b.anmeldung_oeffnet));
-            window.loadedMatchesCache = data;
-            buildFilterDropdowns(data);
-            renderMatches(data);
+            await cleanupExpiredMatches(data, userId);
+
+            const visibleMatches = data.filter(match => !isMatchExpired(match));
+            const visibleIds = new Set(visibleMatches.map(match => String(match.id)));
+            window.userActiveJobsCache = (window.userActiveJobsCache || []).filter(job => visibleIds.has(String(job.match_id)));
+
+            visibleMatches.sort((a, b) => parseIpscDateFrontend(a.anmeldung_oeffnet) - parseIpscDateFrontend(b.anmeldung_oeffnet));
+            window.loadedMatchesCache = visibleMatches;
+            buildFilterDropdowns(visibleMatches);
+            renderMatches(visibleMatches);
         }
 
         function buildFilterDropdowns(matches) {
@@ -313,12 +374,20 @@
             const selectedLand = document.getElementById("filter-land").value;
             const selectedDisz = document.getElementById("filter-disziplin").value;
 
-            container.innerHTML = matchesList.filter(match => {
+            const filteredMatches = matchesList.filter(match => {
+                if (isMatchExpired(match)) return false;
                 if (selectedLevel !== "all" && match.level !== selectedLevel) return false;
                 if (selectedLand !== "all" && match.region?.trim().toUpperCase() !== selectedLand) return false;
                 if (selectedDisz !== "all" && match.disziplin !== selectedDisz) return false;
                 return true;
-            }).map(match => {
+            });
+
+            if (!filteredMatches.length) {
+                container.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Keine geplanten Bot-Aktivierungen gefunden.</p>';
+                return;
+            }
+
+            container.innerHTML = filteredMatches.map(match => {
                 const matchName = window.escapeHtml(match.match_name || match.name || "Unbekanntes Turnier");
                 const formattedOpenDate = window.escapeHtml(match.anmeldung_oeffnet || "Unbekannt");
                 const disz = window.escapeHtml(match.disziplin || "HG");
