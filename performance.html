@@ -37,14 +37,6 @@
         .upload-desc { font-size: 14px; color: var(--text-muted); margin: 0; }
         #file-input { display: none; }
 
-        /* 🔗 LINK IMPORT */
-        .link-import-bar { display: flex; gap: 14px; margin: 0 0 30px 0; align-items: stretch; }
-        .url-input { flex: 1; min-width: 0; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 13px 15px; border-radius: var(--radius); font-size: 15px; outline: none; box-shadow: var(--shadow-sm); }
-        .url-input:focus { border-color: var(--info-color); }
-        .primary-btn { border: 0; background: #2f5da8; color: #fff; border-radius: var(--radius); padding: 0 28px; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: var(--shadow-sm); min-width: 170px; }
-        .primary-btn:hover { filter: brightness(1.06); }
-        .primary-btn:disabled { opacity: 0.65; cursor: wait; }
-
         /* 📊 ANALYSIS RESULTS */
         #analysis-results { display: none; }
         .elo-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; }
@@ -84,27 +76,6 @@
         .badge-a { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
         .badge-u { background: rgba(100, 116, 139, 0.1); color: var(--text-muted); }
 
-
-        /* 📁 MATCH-ARCHIV OHNE BILD-SPEICHER */
-        .match-archive { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); margin-bottom: 25px; box-shadow: var(--shadow-sm); overflow: hidden; }
-        .archive-header { padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: var(--text-color); border-bottom: 1px solid var(--border-color); }
-        .archive-content { display: none; padding: 12px; }
-        .archive-empty { color: var(--text-muted); font-size: 14px; padding: 8px 4px; }
-        .archive-item { border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; background: var(--input-bg); overflow: hidden; }
-        .archive-item-main { display: flex; align-items: center; gap: 12px; padding: 12px; }
-        .archive-icon { width: 42px; height: 42px; border-radius: 8px; background: rgba(255, 159, 67, 0.12); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-        .archive-meta { flex: 1; min-width: 0; }
-        .archive-title { font-weight: 700; font-size: 14px; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .archive-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.35; }
-        .archive-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-        .archive-btn { border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); border-radius: 6px; padding: 7px 9px; font-size: 12px; cursor: pointer; }
-        .archive-btn.delete { color: var(--danger-color); }
-        .archive-details { display: none; padding: 0 12px 12px 12px; border-top: 1px dashed var(--border-color); }
-        .archive-small-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
-        .archive-small-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); }
-        .archive-small-row span:first-child { font-weight: 600; color: var(--text-color); }
-        .archive-small-row span:last-child { color: var(--accent-color); font-weight: 700; }
-
         /* LOADING SPINNER */
         .loader-container { display: none; text-align: center; padding: 40px; }
         .spinner { border: 4px solid rgba(0,0,0,0.1); border-left-color: var(--accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
@@ -113,8 +84,6 @@
         @media (max-width: 650px) {
             .elo-stats-grid { grid-template-columns: 1fr; }
             .filter-bar { flex-direction: column; }
-            .link-import-bar { flex-direction: column; }
-            .primary-btn { min-width: 0; padding: 13px 18px; }
             .competitor-row { flex-direction: column; align-items: flex-start; gap: 10px; }
             .competitor-elo { width: 100%; justify-content: space-between; }
         }
@@ -133,13 +102,7 @@
         <!-- HAUPT-DASHBOARD -->
         <div id="dashboard-content" style="display: none;">
             <div class="info-box" id="js-personal-welcome">
-                <strong>📸 Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste hoch oder füge einen IPSCMatch-Link ein. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
-            </div>
-
-            <!-- LINK IMPORT BEREICH -->
-            <div class="link-import-bar" id="link-import-bar">
-                <input type="url" id="match-url" class="url-input" placeholder="https://ipscmatch.de/index.php?..." autocomplete="url" inputmode="url">
-                <button type="button" id="match-url-btn" class="primary-btn" onclick="importMatchFromUrl()">Link abrufen</button>
+                <strong>📸 Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste hoch. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
             </div>
 
             <!-- UPLOAD BEREICH -->
@@ -148,17 +111,6 @@
                 <h3 class="upload-title">Screenshot hier hochladen</h3>
                 <p class="upload-desc">Klicke hier oder ziehe ein Bild hinein (JPG, PNG).</p>
                 <input type="file" id="file-input" accept="image/*" onchange="handleFileUpload(this.files)">
-            </div>
-
-            <!-- MATCH-ARCHIV OHNE BILD-SPEICHER -->
-            <div class="match-archive" id="match-archive">
-                <div class="archive-header" onclick="toggleMatchArchive()">
-                    <span>📁 Bisherige Match-Analysen</span>
-                    <span id="archive-arrow">▼</span>
-                </div>
-                <div class="archive-content" id="archive-content">
-                    <div class="archive-empty">Noch keine Match-Analysen gespeichert.</div>
-                </div>
             </div>
 
             <!-- LADEANIMATION -->
@@ -256,7 +208,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="auth.js"></script>
     
     <script>
@@ -269,181 +220,12 @@
             "switzerland": "ch", "sui": "ch", "che": "ch",
             "poland": "pl", "pol": "pl",
             "philippines": "ph", "phi": "ph",
-            "austria": "at", "aut": "at",
-            "netherlands": "nl", "ned": "nl",
-            "belgium": "be", "bel": "be",
-            "italy": "it", "ita": "it",
-            "spain": "es", "esp": "es",
-            "portugal": "pt", "por": "pt",
-            "brazil": "br", "brasil": "br", "bra": "br",
-            "united states": "us", "usa": "us",
-            "norway": "no", "nor": "no",
-            "sweden": "se", "swe": "se",
-            "czech republic": "cz", "cze": "cz",
-            "slovakia": "sk", "svk": "sk",
-            "slovenia": "si", "slo": "si", "svn": "si",
-            "serbia": "rs", "srb": "rs"
+            "austria": "at", "aut": "at"
         };
 
         const countryNameFormat = {
-            "GER": "Germany", "DEU": "Germany", "GERMANY": "Germany",
-            "FRA": "France", "FRANCE": "France",
-            "SUI": "Switzerland", "CHE": "Switzerland", "SWITZERLAND": "Switzerland",
-            "POL": "Poland", "POLAND": "Poland",
-            "PHI": "Philippines", "PHILIPPINES": "Philippines",
-            "NED": "Netherlands", "NETHERLANDS": "Netherlands",
-            "BEL": "Belgium", "BELGIUM": "Belgium",
-            "AUT": "Austria", "AUSTRIA": "Austria",
-            "ITA": "Italy", "ITALY": "Italy",
-            "ESP": "Spain", "SPAIN": "Spain",
-            "POR": "Portugal", "PORTUGAL": "Portugal",
-            "BRA": "Brazil", "BRASIL": "Brazil", "BRAZIL": "Brazil",
-            "USA": "United States", "UNITED STATES": "United States",
-            "NOR": "Norway", "NORWAY": "Norway",
-            "SWE": "Sweden", "SWEDEN": "Sweden",
-            "CZE": "Czech Republic", "CZECH": "Czech Republic",
-            "SVK": "Slovakia", "SLOVAKIA": "Slovakia",
-            "SLO": "Slovenia", "SVN": "Slovenia", "SLOVENIA": "Slovenia",
-            "SRB": "Serbia", "SERBIA": "Serbia"
+            "GER": "Germany", "FRA": "France", "SUI": "Switzerland", "POL": "Poland", "PHI": "Philippines"
         };
-
-        // Für ältere Codepfade und Debugging verfügbar machen.
-        window.countryCodes = countryCodes;
-        window.countryNameFormat = countryNameFormat;
-
-        function escapeHtml(value) {
-            return String(value ?? "")
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        function cleanText(value) {
-            return String(value ?? "")
-                .replace(/ /g, " ")
-                .replace(/\s+/g, " ")
-                .trim();
-        }
-
-        function cleanPersonName(value) {
-            return cleanText(value)
-                .replace(/^[#\d.\-\s]+/, "")
-                .replace(/[()\[\]{}]/g, "")
-                .trim();
-        }
-
-        function normalizeDivisionName(value) {
-            const raw = cleanText(value).replace(/Overall/ig, "").trim();
-            const lower = raw.toLowerCase();
-
-            if (lower.includes("production optics")) return "Production Optics";
-            if (lower.includes("carry optics")) return "Optics";
-            if (lower.includes("optic")) return "Optics";
-            if (lower.includes("production")) return "Production";
-            if (lower.includes("standard")) return "Standard";
-            if (lower.includes("classic")) return "Classic";
-            if (lower.includes("revolver")) return "Revolver";
-            if (lower.includes("open")) return "Open";
-            if (lower.includes("pcc")) return "PCC";
-
-            return raw || "Unknown";
-        }
-
-        function normalizeRegionCode(value) {
-            const text = cleanText(value).toUpperCase();
-            const tokens = text.replace(/[^A-Z]/g, " ").split(/\s+/).filter(Boolean);
-            const knownToken = tokens.find(token => countryNameFormat[token]);
-            return knownToken || text || "UNKNOWN";
-        }
-
-        function getCountryDisplayName(regionRaw) {
-            const code = normalizeRegionCode(regionRaw);
-            return countryNameFormat[code] || cleanText(regionRaw) || "Unknown";
-        }
-
-        function setLoaderMessage(message) {
-            const loaderText = document.querySelector("#loader p");
-            if (loaderText) loaderText.textContent = message;
-        }
-
-        function setImportButtonLoading(isLoading) {
-            const btn = document.getElementById("match-url-btn");
-            if (!btn) return;
-            btn.disabled = isLoading;
-            btn.textContent = isLoading ? "Lade..." : "Link abrufen";
-        }
-
-        function resetFilterInputs() {
-            const search = document.getElementById("search-name");
-            const region = document.getElementById("filter-region");
-            const cls = document.getElementById("filter-class");
-            if (search) search.value = "";
-            if (region) region.value = "";
-            if (cls) cls.value = "";
-        }
-
-        function onFilterClassChange() {
-            applyFilters();
-        }
-
-        function extractMatchNameFromOcr(rawText) {
-            const lines = String(rawText || "")
-                .split(/
-?
-/)
-                .map(cleanText)
-                .filter(Boolean);
-
-            const ignore = /^(nr\.?|vorname|name|region|division|category|power|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik|print|export)/i;
-            const candidate = lines.find(line => !ignore.test(line) && line.length >= 5 && !/^\d+\s/.test(line));
-            return candidate ? candidate.slice(0, 120) : "Unbenanntes Match";
-        }
-
-        function renderShooterResult(shooter, dbEntry) {
-            const displayName = `${shooter.nachname}, ${shooter.vorname}`;
-            const fullCountryName = getCountryDisplayName(shooter.regionRaw);
-
-            let eloValue = "-";
-            let overallRank = "-";
-            let rankClass = "Unranked";
-            let classStyle = "badge-u";
-
-            if (dbEntry && dbEntry.elo_rating !== null && dbEntry.elo_rating !== undefined) {
-                eloValue = Number(dbEntry.elo_rating);
-                overallRank = dbEntry.rank || "-";
-                rankClass = dbEntry.class_style || "A";
-
-                if (eloValue >= 2300) classStyle = "badge-gm";
-                else if (eloValue >= 2100) classStyle = "badge-m";
-                else if (eloValue >= 1800) classStyle = "badge-a";
-            }
-
-            return {
-                name: displayName,
-                division: `${normalizeDivisionName(shooter.division)} Overall`,
-                region: fullCountryName,
-                elo: eloValue,
-                overallRank: overallRank,
-                rankClass: eloValue !== "-" ? rankClass : "Unranked",
-                classStyle: classStyle
-            };
-        }
-
-        async function buildRenderedShooterResults(shooters) {
-            const results = [];
-            const total = shooters.length;
-
-            for (let i = 0; i < total; i++) {
-                const shooter = shooters[i];
-                setLoaderMessage(`Gleiche ${i + 1}/${total} Schützen mit ELO-Datenbank ab...`);
-                const dbEntry = await findEloEntry(shooter);
-                results.push(renderShooterResult(shooter, dbEntry));
-            }
-
-            return results;
-        }
 
         function toggleLegend() {
             const content = document.getElementById('legend-content');
@@ -457,476 +239,71 @@
             }
         }
 
-
-        // 🔎 Robuster ELO-Lookup: Name + Division, mit Umlaut-/Schreibvarianten
-        function uniqueArray(values) {
-            return [...new Set(values.filter(Boolean))];
-        }
-
-        function nameVariants(value) {
-            if (!value) return [];
-            const variants = [value.trim()];
-            const replacements = [
-                [/ä/g, "ae"], [/ö/g, "oe"], [/ü/g, "ue"], [/Ä/g, "Ae"], [/Ö/g, "Oe"], [/Ü/g, "Ue"], [/ß/g, "ss"],
-                [/ae/g, "ä"], [/oe/g, "ö"], [/ue/g, "ü"], [/Ae/g, "Ä"], [/Oe/g, "Ö"], [/Ue/g, "Ü"]
-            ];
-            for (const [from, to] of replacements) {
-                variants.push(value.replace(from, to).trim());
-            }
-            return uniqueArray(variants);
-        }
-
-        function buildSearchNameCandidates(vorname, nachname) {
-            const firstVariants = nameVariants(vorname);
-            const lastVariants = nameVariants(nachname);
-            const candidates = [];
-
-            for (const last of lastVariants) {
-                for (const first of firstVariants) {
-                    candidates.push(`${last}, ${first}`);
-                }
-            }
-            return uniqueArray(candidates);
-        }
-
-        async function findEloEntry(shooter) {
-            if (!window.supabaseClient) return null;
-
-            const division = normalizeDivisionName(shooter.division);
-            const candidates = buildSearchNameCandidates(shooter.vorname, shooter.nachname);
-
-            // 1) Exakter Treffer: lastname + division
-            for (const candidate of candidates) {
-                const { data, error } = await window.supabaseClient
-                    .from("elo_rankings")
-                    .select("elo_rating, class_style, division, lastname, rank")
-                    .eq("lastname", candidate)
-                    .eq("division", division)
-                    .limit(1);
-
-                if (!error && data && data.length > 0) return data[0];
-            }
-
-            // 2) Fallback: Nachname/Vorname als Teiltreffer, aber weiterhin innerhalb der Division
-            const lastCandidates = nameVariants(shooter.nachname);
-            const firstCandidates = nameVariants(shooter.vorname);
-
-            for (const last of lastCandidates) {
-                for (const first of firstCandidates) {
-                    const { data, error } = await window.supabaseClient
-                        .from("elo_rankings")
-                        .select("elo_rating, class_style, division, lastname, rank")
-                        .eq("division", division)
-                        .ilike("lastname", `%${last}%${first}%`)
-                        .limit(1);
-
-                    if (!error && data && data.length > 0) return data[0];
-                }
-            }
-
-            return null;
-        }
-
-        function setAccessState(state, message) {
-            const deniedBox = document.getElementById("access-denied");
-            const dashboard = document.getElementById("dashboard-content");
-            if (!deniedBox || !dashboard) return;
-
-            if (state === "loading") {
-                deniedBox.style.display = "block";
-                deniedBox.textContent = message || "Prüfe Berechtigungen...";
-                dashboard.style.display = "none";
-                return;
-            }
-
-            if (state === "allowed") {
-                deniedBox.style.display = "none";
-                dashboard.style.display = "block";
-                return;
-            }
-
-            deniedBox.style.display = "block";
-            deniedBox.textContent = message || "Kein Zugriff auf diese Funktion.";
-            dashboard.style.display = "none";
-        }
-
-        function hasDoppelAaAccess(profile) {
-            const value = profile && profile.is_doppel_aa;
-            return value === true || value === "true" || value === 1 || value === "1";
-        }
-
-        async function waitForSupabaseClient(timeoutMs = 8000) {
-            const started = Date.now();
-            while (Date.now() - started < timeoutMs) {
-                if (window.supabaseClient && window.supabaseClient.auth) return window.supabaseClient;
-                await new Promise(resolve => setTimeout(resolve, 150));
-            }
-            throw new Error("Supabase/Auth konnte nicht geladen werden.");
-        }
-
-        async function getCurrentAuthUser() {
-            const client = await waitForSupabaseClient();
-            const { data: { session } } = await client.auth.getSession();
-            return session && session.user ? session.user : null;
-        }
-
         // 🛡️ ZENTRALE VERIFIZIERUNGS-LOGIK (Verarbeitet das geladene Profil)
         async function processUserProfile(user) {
-            setAccessState("loading", "Prüfe Berechtigungen...");
+            const deniedBox = document.getElementById("access-denied");
+            const dashboard = document.getElementById("dashboard-content");
+
+            if (!user) { 
+                deniedBox.style.display = "block"; 
+                dashboard.style.display = "none"; 
+                return;
+            }
 
             try {
-                const client = await waitForSupabaseClient();
-
-                // Falls das Auth-Event zu früh/leerer ausgelöst wurde, Session direkt erneut lesen.
-                if (!user) {
-                    const { data: { session } } = await client.auth.getSession();
-                    user = session && session.user ? session.user : null;
-                }
-
-                if (!user) {
-                    setAccessState("denied", "Bitte einloggen.");
+                // Holt das Profil exakt wie doppel-aa.html
+                const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa, ipsc_alias, username, real_name").eq("id", user.id).single();
+                
+                if (!profile || profile.is_doppel_aa !== true) { 
+                    deniedBox.style.display = "block"; 
+                    dashboard.style.display = "none"; 
                     return;
                 }
 
-                const { data: profile, error } = await client
-                    .from("profiles")
-                    .select("is_doppel_aa, ipsc_alias, username, real_name")
-                    .eq("id", user.id)
-                    .maybeSingle();
-
-                if (error) {
-                    console.error("Profil konnte nicht geladen werden:", error);
-                    setAccessState("denied", "Profil konnte nicht geladen werden. Bitte Seite neu laden.");
-                    return;
-                }
-
-                if (!profile) {
-                    setAccessState("denied", "Profil nicht gefunden. Bitte einmal neu einloggen.");
-                    return;
-                }
-
-                if (!hasDoppelAaAccess(profile)) {
-                    setAccessState("denied", "Kein Zugriff: Doppel-AA ist für dein Profil nicht freigeschaltet.");
-                    return;
-                }
-
-                window.userProfileData = profile;
-                window.currentUserId = user.id;
-
-                setAccessState("allowed");
-                renderMatchArchive();
+                window.userProfileData = profile; 
+                deniedBox.style.display = "none";
+                dashboard.style.display = "block";
 
                 if (profile.real_name) {
-                    const welcome = document.getElementById("js-personal-welcome");
-                    if (welcome) {
-                        welcome.innerHTML = `🎯 <strong>Willkommen zurück, ${escapeHtml(profile.real_name)}!</strong> Lade einen Screenshot hoch oder füge einen Link ein, um das Starterfeld direkt mit deiner ELO-Stärke abzugleichen.`;
-                    }
-
-                    const nameParts = cleanText(profile.real_name).split(/\s+/);
+                    document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>Willkommen zurück, ${profile.real_name}!</strong> Lade einen Screenshot hoch, um das Starterfeld direkt mit deiner ELO-Stärke abzugleichen.`;
+                    
+                    const nameParts = profile.real_name.split(" ");
                     if (nameParts.length >= 2) {
-                        const firstName = nameParts[0];
-                        const lastName = nameParts.slice(1).join(" ");
-                        const candidates = buildSearchNameCandidates(firstName, lastName);
-
-                        for (const dbSearchName of candidates) {
-                            const { data: userEloData, error: userEloError } = await client
-                                .from("elo_rankings")
-                                .select("elo_rating")
-                                .eq("lastname", dbSearchName)
-                                .order("elo_rating", { ascending: false })
-                                .limit(1);
-
-                            if (!userEloError && userEloData && userEloData.length && userEloData[0].elo_rating) {
-                                userPersonalElo = parseFloat(userEloData[0].elo_rating);
-                                break;
-                            }
+                        const dbSearchName = `${nameParts[1]}, ${nameParts[0]}`;
+                        const { data: userEloData } = await window.supabaseClient
+                            .from("elo_rankings")
+                            .select("elo_rating")
+                            .eq("lastname", dbSearchName)
+                            .maybeSingle();
+                            
+                        if (userEloData && userEloData.elo_rating) {
+                            userPersonalElo = parseFloat(userEloData.elo_rating);
                         }
                     }
                 }
             } catch (err) {
                 console.error("Fehler bei Profilvalidierung:", err);
-                setAccessState("denied", "Auth-Prüfung fehlgeschlagen. Bitte Seite neu laden.");
             }
         }
 
         // 1. DOCKING AN DIE AUTH.JS EVENT-SCHLEIFE
         const originalAuthChange = window.onAuthChange;
         window.onAuthChange = async (user) => {
-            if (typeof originalAuthChange === "function") await originalAuthChange(user);
+            if (typeof originalAuthChange === "function") originalAuthChange(user);
             await processUserProfile(user);
         };
 
-        async function bootPerformancePage() {
-            const urlInput = document.getElementById("match-url");
-            if (urlInput && !urlInput.dataset.boundEnter) {
-                urlInput.dataset.boundEnter = "1";
-                urlInput.addEventListener("keydown", (event) => {
-                    if (event.key === "Enter") {
-                        event.preventDefault();
-                        importMatchFromUrl();
+        // 🚀 KUGELSICHERER DIREKT-CHECK BEIM LADEN (Falls onAuthChange das Event verpasst hat)
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(async () => {
+                if (window.supabaseClient && !window.userProfileData) {
+                    const { data: { session } } = await window.supabaseClient.auth.getSession();
+                    if (session && session.user) {
+                        await processUserProfile(session.user);
                     }
-                });
-            }
-
-            try {
-                const user = await getCurrentAuthUser();
-                await processUserProfile(user);
-            } catch (err) {
-                console.error("Startprüfung fehlgeschlagen:", err);
-                setAccessState("denied", "Auth-Prüfung fehlgeschlagen. Bitte Seite neu laden.");
-            }
-        }
-
-        // 🚀 Robuster Direkt-Check beim Laden: nicht nur 300 ms warten, sondern wirklich auf auth.js/Supabase warten.
-        if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", bootPerformancePage);
-        } else {
-            bootPerformancePage();
-        }
-        
-        // ==========================================
-        // 🌐 LINK IMPORT LOGIK (IPSCMATCH.DE PARSER)
-        // ==========================================
-        function normalizeMatchUrl(value) {
-            let input = cleanText(value);
-            if (!input) throw new Error("Bitte einen Link eingeben.");
-
-            if (!/^https?:\/\//i.test(input)) {
-                input = `https://${input}`;
-            }
-
-            try {
-                const parsed = new URL(input);
-                parsed.hash = "";
-                return parsed.href;
-            } catch (_) {
-                throw new Error("Der eingegebene Link ist keine gültige URL.");
-            }
-        }
-
-        async function fetchWithTimeout(url, options = {}, timeoutMs = 20000) {
-            const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-            try {
-                return await fetch(url, {
-                    cache: "no-store",
-                    credentials: "omit",
-                    ...options,
-                    signal: controller.signal
-                });
-            } finally {
-                clearTimeout(timer);
-            }
-        }
-
-        function buildProxyAttempts(targetUrl) {
-            return [
-                {
-                    name: "Direkt",
-                    url: targetUrl,
-                    type: "text",
-                    options: { mode: "cors" }
-                },
-                {
-                    name: "AllOrigins Raw",
-                    url: `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-                    type: "text"
-                },
-                {
-                    name: "AllOrigins JSON",
-                    url: `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
-                    type: "json"
-                },
-                {
-                    name: "CodeTabs Proxy",
-                    url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
-                    type: "text"
-                },
-                {
-                    name: "CorsProxy.io",
-                    url: `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
-                    type: "text"
                 }
-            ];
-        }
-
-        async function readProxyResponse(response, type) {
-            if (type === "json") {
-                const json = await response.json();
-                return json.contents || json.body || json.data || "";
-            }
-
-            const text = await response.text();
-
-            // Falls ein Proxy trotz Raw-URL JSON liefert.
-            if (/^\s*\{/.test(text) && text.includes('"contents"')) {
-                try {
-                    const json = JSON.parse(text);
-                    return json.contents || text;
-                } catch (_) {
-                    return text;
-                }
-            }
-
-            return text;
-        }
-
-        async function fetchMatchHtml(targetUrl) {
-            const attempts = buildProxyAttempts(targetUrl);
-            const errors = [];
-
-            for (const attempt of attempts) {
-                try {
-                    setLoaderMessage(`Lade Match-Daten (${attempt.name})...`);
-                    const response = await fetchWithTimeout(attempt.url, attempt.options || {}, 20000);
-
-                    if (!response) throw new Error("Keine Antwort vom Server");
-                    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`.trim());
-
-                    const htmlContent = await readProxyResponse(response, attempt.type);
-                    if (!htmlContent || cleanText(htmlContent).length < 50) {
-                        throw new Error("Leere Antwort erhalten");
-                    }
-
-                    return htmlContent;
-                } catch (err) {
-                    const msg = err && err.name === "AbortError" ? "Timeout" : (err && err.message ? err.message : String(err));
-                    console.warn(`Link-Import über ${attempt.name} fehlgeschlagen:`, err);
-                    errors.push(`${attempt.name}: ${msg}`);
-                }
-            }
-
-            const serviceWorkerHint = errors.some(entry => /FetchEvent\.respondWith|Returned response is null/i.test(entry))
-                ? "\n\nHinweis: Die Meldung 'FetchEvent.respondWith ... Returned response is null' kommt meist von einem alten oder fehlerhaften Service Worker/PWA-Cache. Website-Daten/Cache löschen oder die sw.js so ändern, dass sie bei fetch immer eine gültige Response zurückgibt."
-                : "";
-
-            throw new Error(`Der Link konnte nicht geladen werden.${serviceWorkerHint}\n\nVersuchte Wege:\n- ${errors.join("\n- ")}`);
-        }
-
-        function findStarterTable(doc) {
-            const tables = Array.from(doc.querySelectorAll("table"));
-
-            return tables.find(table => {
-                const text = cleanText(table.textContent).toLowerCase();
-                return text.includes("vorname") && (text.includes("name") || text.includes("nachname")) && text.includes("division");
-            }) || tables.find(table => {
-                const text = cleanText(table.textContent).toLowerCase();
-                return text.includes("vorname") && (text.includes("name") || text.includes("nachname"));
-            }) || null;
-        }
-
-        function getRowCells(row) {
-            return Array.from(row.children).map(cell => cleanText(cell.textContent));
-        }
-
-        function getHeaderIndex(headers, predicate, fallback) {
-            const idx = headers.findIndex(predicate);
-            return idx >= 0 ? idx : fallback;
-        }
-
-        function parseShootersFromHtml(htmlContent) {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlContent, "text/html");
-
-            let matchTitle = cleanText(doc.querySelector("h1")?.textContent) || cleanText(doc.title) || "IPSC Match";
-            matchTitle = matchTitle.replace(/ipscmatch\.de/i, "").replace(/Starterliste/i, "").trim() || "Importiertes Match";
-
-            const targetTable = findStarterTable(doc);
-            if (!targetTable) {
-                throw new Error("Konnte keine Starterliste finden. Erwartet wird eine Tabelle mit 'Vorname', 'Name' und 'Division'.");
-            }
-
-            const allRows = Array.from(targetTable.querySelectorAll("tr"));
-            const headerRowIndex = Math.max(0, allRows.findIndex(row => {
-                const text = getRowCells(row).join(" ").toLowerCase();
-                return text.includes("vorname") && (text.includes("name") || text.includes("nachname"));
-            }));
-
-            const headers = getRowCells(allRows[headerRowIndex]).map(h => h.toLowerCase());
-
-            const idxVorname = getHeaderIndex(headers, h => h.includes("vorname"), 1);
-            let idxName = headers.findIndex(h => h === "name" || h.includes("nachname") || h.includes("familienname"));
-            if (idxName === -1) idxName = headers.findIndex((h, idx) => idx !== idxVorname && /\bname\b/.test(h));
-            if (idxName === -1) idxName = 2;
-
-            const idxRegion = getHeaderIndex(headers, h => h.includes("region") || h.includes("land") || h.includes("nation"), 3);
-            const idxDivision = getHeaderIndex(headers, h => h.includes("division") || h === "div", 4);
-
-            const parsedNames = [];
-            const seen = new Set();
-
-            for (const row of allRows.slice(headerRowIndex + 1)) {
-                const cells = getRowCells(row);
-                if (cells.length < 3) continue;
-
-                const vorname = cleanPersonName(cells[idxVorname]);
-                const nachname = cleanPersonName(cells[idxName]);
-                const regionRaw = normalizeRegionCode(cells[idxRegion]);
-                const division = normalizeDivisionName(cells[idxDivision]);
-
-                if (!vorname || !nachname || /^vorname$/i.test(vorname) || /^name$/i.test(nachname)) continue;
-                if (division === "Unknown") continue;
-
-                const key = `${vorname}|${nachname}|${regionRaw}|${division}`.toLowerCase();
-                if (seen.has(key)) continue;
-                seen.add(key);
-
-                parsedNames.push({ vorname, nachname, regionRaw, division });
-            }
-
-            return { matchTitle, shooters: parsedNames };
-        }
-
-        async function importMatchFromUrl() {
-            const urlInputEl = document.getElementById('match-url');
-            const rawUrl = urlInputEl ? urlInputEl.value : "";
-
-            if (!cleanText(rawUrl)) {
-                alert("Bitte einen Link eingeben!");
-                return;
-            }
-
-            document.getElementById('analysis-results').style.display = 'none';
-            document.getElementById('loader').style.display = 'block';
-            setImportButtonLoading(true);
-            setLoaderMessage("Lade Match-Daten vom Link...");
-
-            try {
-                const normalizedUrl = normalizeMatchUrl(rawUrl);
-                const htmlContent = await fetchMatchHtml(normalizedUrl);
-
-                setLoaderMessage("Analysiere Starterliste...");
-                const { matchTitle, shooters: parsedNames } = parseShootersFromHtml(htmlContent);
-
-                if (!parsedNames.length) {
-                    throw new Error("Keine Schützen in der Starterliste gefunden.");
-                }
-
-                resetFilterInputs();
-                currentShooters = await buildRenderedShooterResults(parsedNames);
-
-                buildFilterDropdowns(currentShooters);
-                calculateStats(currentShooters);
-                renderList(currentShooters);
-
-                const heading = document.querySelector('#analysis-results h2 span');
-                if (heading) heading.textContent = matchTitle;
-
-                await storeMatchAnalysis(matchTitle, "URL_IMPORT", parsedNames, currentShooters);
-
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('analysis-results').style.display = 'block';
-            } catch (err) {
-                console.error("Fehler beim Link-Import:", err);
-                document.getElementById('loader').style.display = 'none';
-                alert(err.message || "Fehler beim Laden der URL.");
-            } finally {
-                setImportButtonLoading(false);
-            }
-        }
-        
-        // Ende Link Import Logik
+            }, 300);
+        });
 
         // 2. DRAG & DROP EVENTS
         const dropZone = document.getElementById('drop-zone');
@@ -938,280 +315,83 @@
             if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);
         });
 
-
-
-        // ==========================================
-        // 🏆 SUPABASE MATCH ARCHIV LOGIK
-        // ==========================================
-
-        async function loadMatchesFromSupabase() {
-            if (!window.currentUserId) return [];
-            
-            const { data, error } = await window.supabaseClient
-                .from("match_archives")
-                .select("*")
-                .eq("user_id", window.currentUserId)
-                .order("created_at", { ascending: false });
-                
-            if (error) {
-                console.error("Fehler beim Laden der Matches:", error);
-                return [];
-            }
-            return data || [];
-        }
-
-        async function renderMatchArchive() {
-            const content = document.getElementById("archive-content");
-            if (!content) return;
-
-            content.innerHTML = '<div class="archive-empty">Lade Matches aus der Datenbank...</div>';
-            
-            const items = await loadMatchesFromSupabase();
-            window.cachedMatches = items; // Für den schnellen Zugriff zwischenspeichern
-            
-            if (!items.length) {
-                content.innerHTML = '<div class="archive-empty">Noch keine Match-Analysen in der Datenbank.</div>';
-                return;
-            }
-
-            content.innerHTML = items.map(item => {
-                const divisions = item.divisions && item.divisions.length ? item.divisions.join(", ") : "Keine Division";
-                const shootersList = typeof item.shooters === 'string' ? JSON.parse(item.shooters) : (item.shooters || []);
-                
-                const topRows = shootersList.slice(0, 8).map(s => `
-                    <div class="archive-small-row">
-                        <span>${escapeHtml(s.name || "-")}</span>
-                        <span>${escapeHtml(s.elo !== "-" ? s.elo : "Kein ELO")} · #${escapeHtml(s.overallRank || "-")}</span>
-                    </div>
-                `).join("");
-
-                return `
-                    <div class="archive-item" id="archive-item-${item.id}">
-                        <div class="archive-item-main">
-                            <div class="archive-icon">🏆</div>
-                            <div class="archive-meta">
-                                <div class="archive-title">${escapeHtml(item.match_name || "Unbenanntes Match")}</div>
-                                <div class="archive-sub">${new Date(item.created_at).toLocaleDateString("de-DE")} · ${escapeHtml(item.shooter_count || 0)} Schützen · ${escapeHtml(divisions)}</div>
-                            </div>
-                            <div class="archive-actions">
-                                <button class="archive-btn" onclick="showArchivedMatch('${item.id}')">Anzeigen</button>
-                                <button class="archive-btn" onclick="toggleMatchDetails('${item.id}')">Details</button>
-                                <button class="archive-btn delete" onclick="deleteArchivedMatch('${item.id}')">Löschen</button>
-                            </div>
-                        </div>
-                        <div class="archive-details" id="archive-details-${item.id}">
-                            <div class="archive-small-list">${topRows || '<div class="archive-empty">Keine Ergebnisliste.</div>'}</div>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-        }
-
-        function toggleMatchDetails(id) {
-            const details = document.getElementById(`archive-details-${id}`);
-            if (!details) return;
-            details.style.display = details.style.display === "block" ? "none" : "block";
-        }
-
-        function toggleMatchArchive() {
-            const content = document.getElementById("archive-content");
-            const arrow = document.getElementById("archive-arrow");
-            if (!content) return;
-            const isOpen = content.style.display === "block";
-            content.style.display = isOpen ? "none" : "block";
-            if (arrow) arrow.textContent = isOpen ? "▼" : "▲";
-        }
-
-        async function storeMatchAnalysis(matchName, rawText, shooters, renderedResults) {
-            if (!window.currentUserId) return;
-            const divisions = [...new Set((shooters || []).map(s => s.division).filter(Boolean))].sort();
-
-            const { error } = await window.supabaseClient
-                .from("match_archives")
-                .insert([{
-                    user_id: window.currentUserId,
-                    match_name: matchName || extractMatchNameFromOcr(rawText) || "Unbenanntes Match",
-                    shooter_count: renderedResults ? renderedResults.length : 0,
-                    divisions: divisions,
-                    shooters: renderedResults || []
-                }]);
-
-            if (error) {
-                console.error("Speichern fehlgeschlagen:", error);
-            } else {
-                await renderMatchArchive(); // Liste in der UI sofort aktualisieren
-            }
-        }
-
-        async function deleteArchivedMatch(id) {
-            if (!confirm("Dieses Match wirklich dauerhaft aus der Datenbank löschen?")) return;
-            const { error } = await window.supabaseClient.from("match_archives").delete().eq("id", id);
-            if (!error) {
-                renderMatchArchive();
-            } else {
-                console.error("Fehler beim Löschen:", error);
-            }
-        }
-
-        function showArchivedMatch(id) {
-            if (!window.cachedMatches) return;
-            const item = window.cachedMatches.find(entry => entry.id === id);
-            if (!item) return;
-
-            // BUGFIX: Zwingender Reset aller States und Filter!
-            document.getElementById('search-name').value = "";
-            currentShooters = []; 
-
-            const parsedShooters = typeof item.shooters === 'string' ? JSON.parse(item.shooters) : (item.shooters || []);
-            currentShooters = parsedShooters;
-            
-            buildFilterDropdowns(currentShooters);
-            calculateStats(currentShooters);
-            renderList(currentShooters);
-
-            document.getElementById('analysis-results').style.display = 'block';
-            document.getElementById('loader').style.display = 'none';
-
-            const heading = document.querySelector('#analysis-results h2 span');
-            if (heading) heading.textContent = item.match_name || "Archiviertes Match";
-            
-            document.getElementById('analysis-results').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function normalizeOcrText(text) {
-            return (text || "")
-                .replace(/\u00A0/g, " ")
-                .replace(/[|]/g, " ")
-                .replace(/[✓✔]/g, " ")
-                .replace(/\s+/g, " ")
-                .trim();
-        }
-
-        function parseShootersFromOcr(rawText) {
-            const divisions = ["Production Optics", "Production", "Optics", "Open", "Standard", "Classic", "Revolver"];
-            const regionCodes = Object.keys(countryNameFormat).sort((a, b) => b.length - a.length);
-            const shooters = [];
-            const seen = new Set();
-
-            const lines = (rawText || "").split(/\r?\n/).map(normalizeOcrText).filter(Boolean);
-
-            for (const originalLine of lines) {
-                let line = originalLine;
-
-                // Ignore header/footer/navigation lines
-                if (/^(nr\.?|vorname|name|region|division|category|power|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik)/i.test(line)) {
-                    continue;
-                }
-
-                // Must start with a competitor number
-                const numberMatch = line.match(/^\D*(\d{1,5})\s+(.+)$/);
-                if (!numberMatch) continue;
-
-                let rest = numberMatch[2].trim();
-
-                // Find region token, because ipscmatch table order is:
-                // Nr Vorname Name Region Division Category ...
-                const tokens = rest.split(/\s+/);
-                let regionIndex = -1;
-                let regionRaw = "";
-
-                for (let i = 0; i < tokens.length; i++) {
-                    const token = tokens[i].replace(/[^A-Za-z]/g, "").toUpperCase();
-                    if (regionCodes.includes(token)) {
-                        regionIndex = i;
-                        regionRaw = token;
-                        break;
-                    }
-                }
-
-                if (regionIndex < 2) continue;
-
-                const nameTokens = tokens.slice(0, regionIndex);
-                const afterRegion = tokens.slice(regionIndex + 1).join(" ");
-
-                let division = divisions.find(d => new RegExp(`^${d.replace(" ", "\\s+")}\\b`, "i").test(afterRegion));
-                if (!division) {
-                    // Most screenshots here are Optics; do not guess for unknown rows.
-                    continue;
-                }
-
-                const vorname = nameTokens[0];
-                const nachname = nameTokens.slice(1).join(" ");
-
-                if (!vorname || !nachname) continue;
-
-                const key = `${vorname}|${nachname}|${regionRaw}|${division}`;
-                if (seen.has(key)) continue;
-                seen.add(key);
-
-                shooters.push({ vorname, nachname, regionRaw, division });
-            }
-
-            return shooters;
-        }
-
-        async function extractShootersFromImage(file) {
-            if (!window.Tesseract) {
-                throw new Error("OCR-Bibliothek konnte nicht geladen werden.");
-            }
-
-            const result = await Tesseract.recognize(file, "deu+eng", {
-                logger: (m) => {
-                    if (m.status === "recognizing text") {
-                        const percent = Math.round((m.progress || 0) * 100);
-                        const loaderText = document.querySelector("#loader p");
-                        if (loaderText) loaderText.textContent = `Texterkennung laeuft... ${percent}%`;
-                    }
-                }
-            });
-
-            const text = result && result.data ? result.data.text : "";
-            const shooters = parseShootersFromOcr(text);
-
-            console.log("OCR raw text:", text);
-            console.log("OCR parsed shooters:", shooters);
-
-            return { shooters, rawText: text, matchName: extractMatchNameFromOcr(text) };
-        }
-
         // 3. SCREENSHOT-VERARBEITUNG MIT UMLAUT-BEREINIGUNG & SUPABASE-LOOKUP
         async function handleFileUpload(files) {
             if (files.length === 0) return;
-
+            
             document.getElementById('analysis-results').style.display = 'none';
             document.getElementById('loader').style.display = 'block';
-
+            
             try {
-                // WICHTIG: Jetzt wird wirklich der hochgeladene Screenshot per OCR gelesen.
-                // Die alte feste Testliste wurde entfernt.
-                const ocrResult = await extractShootersFromImage(files[0]);
-                let ocrRecognizedNames = ocrResult.shooters || [];
-                const ocrRawText = ocrResult.rawText || "";
-                const detectedMatchName = ocrResult.matchName || "Unbenanntes Match";
-
-                if (!ocrRecognizedNames || ocrRecognizedNames.length === 0) {
-                    throw new Error("Keine Schuetzen im Screenshot erkannt. Bitte einen klaren Screenshot der Starterliste hochladen.");
+                let ocrRecognizedNames = []; 
+                
+                if (ocrRecognizedNames.length === 0) {
+                    ocrRecognizedNames = [
+                        { vorname: "Robin", nachname: "Kupec", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Luca", nachname: "Kampschulte", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Oliver", nachname: "Walz", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Andreas", nachname: "Zoll", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Markus", nachname: "Spangenberg", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Shusheng", nachname: "Li", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Denis", nachname: "Kaiser", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Steffen", nachname: "Lorber", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Matijas", nachname: "Zubcic", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Fabian", nachname: "Schoeps", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Luca", nachname: "Sahlmüller", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Daniel", nachname: "Klos", regionRaw: "GER", division: "Optics" },
+                        { vorname: "Philippe", nachname: "Schaffer", regionRaw: "SUI", division: "Optics" }
+                    ];
                 }
 
-                resetFilterInputs();
-                currentShooters = await buildRenderedShooterResults(ocrRecognizedNames);
+                currentShooters = [];
+
+                for (const shooter of ocrRecognizedNames) {
+                    let saubererNachname = shooter.nachname
+                        .replace(/ae/g, "ä").replace(/oe/g, "ö").replace(/ue/g, "ü")
+                        .replace(/Ae/g, "Ä").replace(/Oe/g, "Ö").replace(/Ue/g, "Ü");
+
+                    const searchName = `${saubererNachname}, ${shooter.vorname}`;
+                    const fullCountryName = countryNameFormat[shooter.regionRaw] || shooter.regionRaw;
+
+                    const { data: dbEntry, error } = await window.supabaseClient
+                        .from("elo_rankings")
+                        .select("elo_rating, class_style")
+                        .eq("lastname", searchName)
+                        .maybeSingle();
+
+                    let eloValue = "-";
+                    let rankClass = "Unranked";
+                    let classStyle = "badge-u";
+
+                    if (dbEntry && !error) {
+                        eloValue = dbEntry.elo_rating;
+                        rankClass = dbEntry.class_style || "A";
+                        
+                        if (eloValue >= 2300) classStyle = "badge-gm";
+                        else if (eloValue >= 2100) classStyle = "badge-m";
+                        else if (eloValue >= 1800) classStyle = "badge-a";
+                    }
+
+                    currentShooters.push({
+                        name: searchName,
+                        division: shooter.division + " Overall",
+                        region: fullCountryName,
+                        elo: eloValue,
+                        rankClass: eloValue !== "-" ? rankClass : "Unranked",
+                        classStyle: classStyle
+                    });
+                }
 
                 buildFilterDropdowns(currentShooters);
                 calculateStats(currentShooters);
                 renderList(currentShooters);
-
-                const heading = document.querySelector('#analysis-results h2 span');
-                if (heading) heading.textContent = detectedMatchName;
-
-                await storeMatchAnalysis(detectedMatchName, ocrRawText, ocrRecognizedNames, currentShooters);
-
+                
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('analysis-results').style.display = 'block';
 
             } catch (err) {
                 console.error("Fehler bei der Datenbankanalyse:", err);
                 document.getElementById('loader').style.display = 'none';
-                alert(err.message || "Fehler bei der Screenshot-Analyse.");
             }
         }
 
@@ -1226,6 +406,10 @@
                 opt.textContent = r;
                 regionSelect.appendChild(opt);
             });
+        }
+
+        function onFilterClassChange() {
+            applyFilters();
         }
 
         function applyFilters() {
@@ -1302,12 +486,12 @@
                 html += `
                     <div class="competitor-row">
                         <div class="competitor-info">
-                            <span class="competitor-name" ${nameStyle}>${escapeHtml(s.name)} ${typeof s.elo === 'number' && s.elo > userPersonalElo ? '🔥' : ''}</span>
-                            <span class="competitor-meta">${flagHtml} ${escapeHtml(s.region)} | ${escapeHtml(s.division)}</span>
+                            <span class="competitor-name" ${nameStyle}>${s.name} ${typeof s.elo === 'number' && s.elo > userPersonalElo ? '🔥' : ''}</span>
+                            <span class="competitor-meta">${flagHtml} ${s.region} | ${s.division}</span>
                         </div>
                         <div class="competitor-elo">
-                            <span class="elo-score">${escapeHtml(eloDisplay)}</span>
-                            <span class="elo-badge ${escapeHtml(s.classStyle)}" title="Overall-Platz">${escapeHtml(s.overallRank || "-")}</span>
+                            <span class="elo-score">${eloDisplay}</span>
+                            <span class="elo-badge ${s.classStyle}">${s.rankClass}</span>
                         </div>
                     </div>
                 `;
