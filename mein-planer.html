@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mein Wettkampfplaner | Startplatz Börse</title>
     
-    <!-- PWA & App-Icons -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e293b">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -79,12 +78,22 @@
         .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
         .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
 
-        /* NEUE KLASSE FÜR DIE ZWEI SPALTEN IM PLANER */
         .planner-form-row { display: flex; gap: 15px; }
 
         .match-item { background-color: var(--bg-color); border-left: 4px solid var(--accent-color); padding: 15px; margin-bottom: 12px; border-radius: var(--radius); border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); }
         .match-item h4 { margin: 0 0 5px 0; color: var(--text-color); font-size: 16px; font-weight: 600; }
+        .match-item h4 a { color: var(--info-color); text-decoration: none; }
+        .match-item h4 a:hover { text-decoration: underline; }
         .match-item p { margin: 0; font-size: 13px; color: var(--text-muted); }
+        
+        /* Badges für Status, Squad und Auto-Import */
+        .badge { display: inline-block; padding: 3px 7px; font-size: 11px; font-weight: 700; border-radius: 4px; margin-left: 5px; text-transform: uppercase; }
+        .badge-approved { background-color: rgba(16, 185, 129, 0.15); color: var(--success-color); }
+        .badge-pending { background-color: rgba(59, 130, 246, 0.15); color: var(--info-color); }
+        .badge-warteliste { background-color: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+        .badge-bot { background-color: rgba(99, 102, 241, 0.15); color: #6366f1; text-transform: none; }
+        .badge-squad { background-color: var(--border-color); color: var(--text-color); }
+
         .delete-btn { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); width: auto; padding: 5px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; box-shadow: none; }
         .delete-btn:hover { background-color: var(--danger-color); color: #fff; }
 
@@ -113,7 +122,7 @@
             border: 1px solid var(--border-color); 
             width: 100%; 
             max-width: 440px; 
-            max-height: 90vh; /* Scrollbar aktivieren */
+            max-height: 90vh; 
             overflow-y: auto; 
             box-sizing: border-box; 
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -172,7 +181,6 @@
         .modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; font-weight: 600; }
         .modal-footer a:hover { text-decoration: underline; }
 
-        /* --- LOGIK-KLASSEN FÜR LIVE-CHAT BEREICH --- */
         .chat-history-area { height: 300px; overflow-y: auto; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: var(--radius); padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
         .chat-bubble { max-width: 75%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.4; word-wrap: break-word; }
         .bubble-me { background-color: var(--accent-color); color: #1a1a1a; align-self: flex-end; border-bottom-right-radius: 2px; }
@@ -185,28 +193,14 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        /* ========================================================
-           ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES
-           ======================================================== */
         @media (max-width: 768px) {
             html, body { overflow-x: hidden !important; width: 100% !important; }
             .container { padding: 0 10px !important; margin-top: 15px !important; width: 100% !important; box-sizing: border-box !important; }
             .info-box, .form-section, .post-card, .match-card, #logged-out-section, #planner-section, #username-setup-section, #logged-out-msg { padding: 12px !important; margin-bottom: 12px !important; width: 100% !important; box-sizing: border-box !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
-            .form-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
-            .toggle-selector { flex-direction: column !important; gap: 8px !important; align-items: flex-start !important; }
             button, .btn-submit { width: 100% !important; box-sizing: border-box !important; }
-            .match-card { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
-            .card-actions { align-items: flex-start !important; width: 100% !important; border-top: 1px solid var(--border-color) !important; padding-top: 10px !important; }
-            .action-buttons-group { width: 100% !important; display: flex !important; gap: 6px !important; }
-            .action-buttons-group button, .btn-contact { flex: 1 !important; text-align: center !important; width: 100% !important; }
-            .fab { bottom: 15px !important; right: 15px !important; padding: 10px 16px !important; font-size: 13px !important; z-index: 999 !important; }
             .match-item { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
             .match-item div[style*="display: flex"] { width: 100% !important; justify-content: space-between !important; }
-            
-            /* HIER LÖST SICH DAS ÜBERLAGERUNGSPROBLEM IM PLANER AUF DEM HANDY */
             .planner-form-row { flex-direction: column !important; gap: 0 !important; }
-
-            /* Mobile Modal Fixes */
             .modal { padding: 10px !important; }
             .modal-content { padding: 24px 16px !important; max-height: 95vh !important; }
             .modal-close-container { top: 12px !important; right: 12px !important; }
@@ -238,7 +232,6 @@
                 <input type="text" id="match-name" placeholder="z.B. Helmbrechts-Cup 2026">
             </div>
             
-            <!-- HIER WURDE DIE NEUE RESPONSIVE KLASSE EINGESETZT -->
             <div class="planner-form-row">
                 <div class="form-group" style="flex: 1;">
                     <label data-txt="planner-lbl-match-date">Datum</label>
@@ -261,7 +254,6 @@
 
     </div>
 
-    <!-- MODALS BEREICH -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -270,13 +262,10 @@
             
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
-                
                 <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
                     <span>📱</span> Login mit FaceID / Fingerabdruck
                 </button>
-                
                 <div class="modal-divider">oder klassisch mit E-Mail</div>
-
                 <form id="login-form">
                     <div class="form-group">
                         <label data-txt="lbl-email">E-Mail *</label>
@@ -341,10 +330,8 @@
                 </form>
             </div>
 
-            <!-- GLOBAL REPARIERTES KONTO-EINSTELLUNGEN POPUP -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
-                
                 <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
                     <label style="color: var(--success-color); font-weight: 700;" data-txt="modal-settings-deals">📈 Erfolgreiche Vermittlungen</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
@@ -357,90 +344,29 @@
                             <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-buyer">Als Käufer</p>
                         </div>
                     </div>
-                    
-                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
-                        <div><span data-txt="modal-settings-comm">💬 Kommunikation:</span> <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
-                        <div><span data-txt="modal-settings-pay">💳 Bezahlung:</span> <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
-                    </div>
                 </div>
 
                 <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
                     <label style="color: #3498db;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</label>
-                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
                     <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
                 </div>
 
                 <form id="settings-form">
                     <div class="form-group">
                         <label data-txt="lbl-username">Schützenname / Anzeigename</label>
-                        <input type="text" id="settings-username" data-txt-ph="ph-username" placeholder="z.B. IPSCShooter99">
+                        <input type="text" id="settings-username" placeholder="z.B. IPSCShooter99">
                     </div>
-                    
-                    <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 4px; border-left: 3px solid var(--success-color); margin-bottom: 20px;">
-                        <label style="color: var(--success-color); margin-bottom: 2px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
-                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-ipsc-alias-desc">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
-                        <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
-                    </div>
-
-                    <div class="form-group">
-                        <label data-txt="lbl-profile-pic">Profilbild (Optional)</label>
-                        <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
-                        <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
-                    </div>
-                    <div class="form-group">
-                        <label data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
-                        <input type="password" id="settings-password" minlength="6" data-txt-ph="ph-password" placeholder="Mindestens 6 Zeichen">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
+                    <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Änderungen保存</button>
                 </form>
                 <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
-                <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="chat-modal">
-        <div class="modal-content" style="max-width: 500px; padding: 25px;">
-            <div class="modal-close-container">
-                <button class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</button>
-            </div>
-            <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
-            <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
-            
-            <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                <button type="button" class="btn-export" id="btn-chat-email-reminder" style="margin-top: 0; background-color: rgba(59, 130, 246, 0.1); color: var(--info-color); border-color: var(--info-color); padding: 6px 12px;" onclick="triggerChatEmailReminder()">
-                    ✉️ Schützen per E-Mail anstupsen
-                </button>
-            </div>
-            
-            <div class="chat-history-area" id="chat-box-messages"></div>
-            
-            <form id="chat-send-form" style="display: flex; gap: 8px;">
-                <input type="hidden" id="chat-edit-id" value="">
-                <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
-                <button type="submit" id="btn-chat-send" class="btn-submit" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
-            </form>
-        </div>
-    </div>
-
-    <div class="modal" id="global-inbox-modal">
-        <div class="modal-content" style="max-width: 450px; padding: 25px;">
-            <div class="modal-close-container">
-                <button class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</button>
-            </div>
-            <h3>Meine Nachrichten</h3>
-            <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven Gespräche.</p>
-            
-            <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
-                <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
+                <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto löschen</button>
             </div>
         </div>
     </div>
 
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
-            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
-     
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum</a>
             <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
@@ -452,13 +378,6 @@
         let myMatches = [];
 
         function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
-            if (typeof updateThemeToggleIcon === "function") {
-                updateThemeToggleIcon(savedThemeSetting);
-            }
-        });
 
         window.onAuthChange = (user) => {
             if (user) {
@@ -516,10 +435,41 @@
                 const safeName = encodeURIComponent(match.match_name);
                 const safeLocation = encodeURIComponent(match.match_location || '');
                 
+                // --- NEUE LOGIK FÜR TITEL-LINK & BADGES ---
+                let matchTitleHtml = escapeHtml(match.match_name);
+                if (match.match_url) {
+                    matchTitleHtml = `<a href="${escapeHtml(match.match_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(match.match_name)} 🔗</a>`;
+                }
+
+                // Badges generieren
+                let badgesHtml = '';
+                
+                // Bot / Auto-Import Kennzeichnung
+                if (match.auto_imported) {
+                    badgesHtml += `<span class="badge badge-bot">🤖 Auto-Import</span>`;
+                }
+
+                // Status Badge (Farbe je nach Wert)
+                if (match.status) {
+                    const statusLower = match.status.toLowerCase();
+                    if (statusLower.includes('approved') || statusLower.includes('bestätigt')) {
+                        badgesHtml += `<span class="badge badge-approved">Approved</span>`;
+                    } else if (statusLower.includes('warteliste') || statusLower.includes('waiting')) {
+                        badgesHtml += `<span class="badge badge-warteliste">Warteliste</span>`;
+                    } else {
+                        badgesHtml += `<span class="badge badge-pending">${escapeHtml(match.status)}</span>`;
+                    }
+                }
+
+                // Squad Badge
+                if (match.squad && match.squad !== 'TBD') {
+                    badgesHtml += `<span class="badge badge-squad">${escapeHtml(match.squad)}</span>`;
+                }
+
                 container.innerHTML += `
                     <div class="match-item">
                         <div>
-                            <h4>${escapeHtml(match.match_name)}</h4>
+                            <h4>${matchTitleHtml} ${badgesHtml}</h4>
                             <p>📅 ${displayDate} | 📍 ${escapeHtml(match.match_location || '-')}</p>
                         </div>
                         <div style="display: flex; gap: 10px; align-items: center;">
@@ -563,22 +513,7 @@
             document.body.removeChild(link);
         }
 
-        window.onLanguageChanged = () => { 
-            const selector = document.getElementById("language-select");
-            if (selector) selector.value = window.currentLang;
-            renderMatches(); 
-        };
-    </script>
-    
-    <!-- PWA Service Worker Registrierung -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('PWA Service Worker registriert!', reg.scope))
-                    .catch(err => console.error('PWA Fehler:', err));
-            });
-        }
+        window.onLanguageChanged = () => { renderMatches(); };
     </script>
 </body>
 </html>
