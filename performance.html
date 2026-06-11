@@ -5,241 +5,338 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Performance-Check | IPSC ELO Analyse</title>
     
-    <!-- 🌍 Offizielle Flaggen-Icons (CSS-Bibliothek) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
 
     <style>
         :root, html[data-theme="light"] {
-            --bg-color: #f8f9fa; --card-bg: #ffffff; --text-color: #1e293b; --text-muted: #64748b;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff; --text-color: #1e293b; --text-muted: #64748b;
             --border-color: #e2e8f0; --input-bg: #ffffff; --accent-color: #ff9f43; --danger-color: #ef4444;
             --success-color: #10b981; --info-color: #3b82f6; --radius: 8px;
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
         html[data-theme="dark"] {
-            --bg-color: #0f172a; --card-bg: #1e293b; --text-color: #f8fafc; --text-muted: #94a3b8;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b; --text-color: #f8fafc; --text-muted: #94a3b8;
             --border-color: #334155; --input-bg: #0f172a;
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
         }
 
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; min-height: 100vh; }
-        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; min-height: 100vh;
+        }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px;
+        }
         
-        header { text-align: center; padding: 15px 0; }
+        header { text-align: center;
+            padding: 15px 0; }
         
-        .info-box { background-color: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--info-color); color: var(--text-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; border: 1px solid var(--border-color); }
-        .danger-box { background-color: rgba(239, 68, 68, 0.08); border-left: 4px solid var(--danger-color); color: var(--danger-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; font-weight: bold; text-align: center; }
+        .info-box { background-color: rgba(59, 130, 246, 0.08);
+            border-left: 4px solid var(--info-color); color: var(--text-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; border: 1px solid var(--border-color);
+        }
+        .danger-box { background-color: rgba(239, 68, 68, 0.08); border-left: 4px solid var(--danger-color);
+            color: var(--danger-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; font-weight: bold; text-align: center;
+        }
         
         /* 📤 UPLOAD ZONE */
-        .upload-zone { border: 2px dashed var(--accent-color); background-color: rgba(255, 159, 67, 0.03); padding: 50px 20px; text-align: center; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; margin-bottom: 30px; }
-        .upload-zone:hover { background-color: rgba(255, 159, 67, 0.08); }
-        .upload-icon { font-size: 48px; margin-bottom: 15px; }
-        .upload-title { font-size: 18px; font-weight: 600; color: var(--text-color); margin: 0 0 10px 0; }
-        .upload-desc { font-size: 14px; color: var(--text-muted); margin: 0; }
-        #file-input { display: none; }
+        .upload-zone { border: 2px dashed var(--accent-color);
+            background-color: rgba(255, 159, 67, 0.03); padding: 50px 20px; text-align: center; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; margin-bottom: 30px;
+        }
+        .upload-zone:hover { background-color: rgba(255, 159, 67, 0.08);
+        }
+        .upload-icon { font-size: 48px; margin-bottom: 15px;
+        }
+        .upload-title { font-size: 18px; font-weight: 600; color: var(--text-color);
+            margin: 0 0 10px 0; }
+        .upload-desc { font-size: 14px; color: var(--text-muted);
+            margin: 0; }
+        #file-input { display: none;
+        }
 
         /* 📊 ANALYSIS RESULTS */
-        #analysis-results { display: none; }
-        .elo-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; }
-        .elo-stat-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm); }
-        .elo-stat-val { font-size: 24px; font-weight: 700; color: var(--accent-color); margin-bottom: 5px; }
-        .elo-stat-lbl { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        #analysis-results { display: none;
+        }
+        .elo-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px;
+        }
+        .elo-stat-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: var(--radius);
+            text-align: center; box-shadow: var(--shadow-sm); }
+        .elo-stat-val { font-size: 24px; font-weight: 700; color: var(--accent-color);
+            margin-bottom: 5px; }
+        .elo-stat-lbl { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;
+        }
 
         /* ℹ️ AUSKLAPPBARE LEGENDE */
-        .legend-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 12px 15px; margin-bottom: 25px; box-shadow: var(--shadow-sm); font-size: 13px; }
-        .legend-title { font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); }
-        .legend-content { display: none; margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 10px; }
-        .legend-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
-        .legend-table th, .legend-table td { text-align: left; padding: 6px 8px; font-size: 12px; }
-        .legend-table th { color: var(--text-muted); text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
-        .legend-table tr:not(:last-child) { border-bottom: 1px solid var(--border-color); }
+        .legend-box { background: var(--card-bg);
+            border: 1px solid var(--border-color); border-radius: var(--radius); padding: 12px 15px; margin-bottom: 25px; box-shadow: var(--shadow-sm); font-size: 13px;
+        }
+        .legend-title { font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+            color: var(--text-muted); }
+        .legend-content { display: none; margin-top: 10px; border-top: 1px dashed var(--border-color);
+            padding-top: 10px; }
+        .legend-table { width: 100%; border-collapse: collapse; margin-top: 5px;
+        }
+        .legend-table th, .legend-table td { text-align: left; padding: 6px 8px; font-size: 12px;
+        }
+        .legend-table th { color: var(--text-muted); text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;
+        }
+        .legend-table tr:not(:last-child) { border-bottom: 1px solid var(--border-color);
+        }
 
         /* 🔍 INTERAKTIVE FILTER-BAR */
-        .filter-bar { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; box-shadow: var(--shadow-sm); }
-        .filter-input { flex: 2; min-width: 200px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 12px; border-radius: 6px; font-size: 14px; outline: none; }
-        .filter-select { flex: 1; min-width: 140px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 12px; border-radius: 6px; font-size: 14px; outline: none; cursor: pointer; }
+        .filter-bar { background: var(--card-bg);
+            border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; box-shadow: var(--shadow-sm);
+        }
+        .filter-input { flex: 2; min-width: 200px; background: var(--input-bg); border: 1px solid var(--border-color);
+            color: var(--text-color); padding: 8px 12px; border-radius: 6px; font-size: 14px; outline: none;
+        }
+        .filter-select { flex: 1; min-width: 140px; background: var(--input-bg); border: 1px solid var(--border-color);
+            color: var(--text-color); padding: 8px 12px; border-radius: 6px; font-size: 14px; outline: none; cursor: pointer;
+        }
 
         /* 👤 REIHEN-LAYOUT MIT FLAGGEN */
-        .competitor-list { display: flex; flex-direction: column; gap: 10px; }
-        .competitor-row { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px 20px; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); transition: transform 0.1s; }
-        .competitor-row:hover { transform: translateX(2px); }
-        .competitor-info { display: flex; flex-direction: column; gap: 4px; }
-        .competitor-name { font-size: 16px; font-weight: 600; color: var(--text-color); }
-        .competitor-meta { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+        .competitor-list { display: flex;
+            flex-direction: column; gap: 10px; }
+        .competitor-row { background: var(--card-bg); border: 1px solid var(--border-color);
+            padding: 15px 20px; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); transition: transform 0.1s;
+        }
+        .competitor-row:hover { transform: translateX(2px);
+        }
+        .competitor-info { display: flex; flex-direction: column; gap: 4px;
+        }
+        .competitor-name { font-size: 16px; font-weight: 600; color: var(--text-color);
+        }
+        .competitor-meta { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px;
+        }
         
-        .fi { border-radius: 3px; box-shadow: 0 0 1px rgba(0,0,0,0.2); }
+        .fi { border-radius: 3px;
+            box-shadow: 0 0 1px rgba(0,0,0,0.2); }
         
-        .competitor-row .competitor-elo { display: flex; align-items: center; gap: 10px; }
-        .elo-score { font-size: 18px; font-weight: 700; color: var(--text-color); }
-        .elo-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; width: 45px; text-align: center; }
-        .badge-gm { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); }
-        .badge-m { background: rgba(255, 159, 67, 0.1); color: var(--accent-color); }
-        .badge-a { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
-        .badge-u { background: rgba(100, 116, 139, 0.1); color: var(--text-muted); }
+        .competitor-row .competitor-elo { display: flex;
+            align-items: center; gap: 10px; }
+        .elo-score { font-size: 18px; font-weight: 700; color: var(--text-color);
+        }
+        .elo-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;
+            width: 45px; text-align: center; }
+        .badge-gm { background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color); }
+        .badge-m { background: rgba(255, 159, 67, 0.1); color: var(--accent-color);
+        }
+        .badge-a { background: rgba(16, 185, 129, 0.1); color: var(--success-color);
+        }
+        .badge-u { background: rgba(100, 116, 139, 0.1); color: var(--text-muted);
+        }
 
 
         /* 📁 MATCH-ARCHIV OHNE BILD-SPEICHER */
-        .match-archive { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); margin-bottom: 25px; box-shadow: var(--shadow-sm); overflow: hidden; }
-        .archive-header { padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: var(--text-color); border-bottom: 1px solid var(--border-color); }
-        .archive-content { display: none; padding: 12px; }
-        .archive-empty { color: var(--text-muted); font-size: 14px; padding: 8px 4px; }
-        .archive-item { border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; background: var(--input-bg); overflow: hidden; }
-        .archive-item-main { display: flex; align-items: center; gap: 12px; padding: 12px; }
-        .archive-icon { width: 42px; height: 42px; border-radius: 8px; background: rgba(255, 159, 67, 0.12); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-        .archive-meta { flex: 1; min-width: 0; }
-        .archive-title { font-weight: 700; font-size: 14px; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .archive-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.35; }
-        .archive-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-        .archive-btn { border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); border-radius: 6px; padding: 7px 9px; font-size: 12px; cursor: pointer; }
-        .archive-btn.delete { color: var(--danger-color); }
-        .archive-details { display: none; padding: 0 12px 12px 12px; border-top: 1px dashed var(--border-color); }
-        .archive-small-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
-        .archive-small-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); }
-        .archive-small-row span:first-child { font-weight: 600; color: var(--text-color); }
-        .archive-small-row span:last-child { color: var(--accent-color); font-weight: 700; }
+        .match-archive { background: var(--card-bg);
+            border: 1px solid var(--border-color); border-radius: var(--radius); margin-bottom: 25px; box-shadow: var(--shadow-sm); overflow: hidden;
+        }
+        .archive-header { padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between;
+            align-items: center; font-weight: 700; color: var(--text-color); border-bottom: 1px solid var(--border-color);
+        }
+        .archive-content { display: none; padding: 12px;
+        }
+        .archive-empty { color: var(--text-muted); font-size: 14px; padding: 8px 4px;
+        }
+        .archive-item { border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; background: var(--input-bg);
+            overflow: hidden; }
+        .archive-item-main { display: flex; align-items: center; gap: 12px; padding: 12px;
+        }
+        .archive-icon { width: 42px; height: 42px; border-radius: 8px;
+            background: rgba(255, 159, 67, 0.12); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+        }
+        .archive-meta { flex: 1; min-width: 0;
+        }
+        .archive-title { font-weight: 700; font-size: 14px; color: var(--text-color); white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis; }
+        .archive-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.35;
+        }
+        .archive-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;
+        }
+        .archive-btn { border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); border-radius: 6px;
+            padding: 7px 9px; font-size: 12px; cursor: pointer; }
+        .archive-btn.delete { color: var(--danger-color);
+        }
+        .archive-details { display: none; padding: 0 12px 12px 12px;
+            border-top: 1px dashed var(--border-color); }
+        .archive-small-list { display: flex; flex-direction: column; gap: 6px;
+            margin-top: 10px; }
+        .archive-small-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px;
+            padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg);
+        }
+        .archive-small-row span:first-child { font-weight: 600; color: var(--text-color);
+        }
+        .archive-small-row span:last-child { color: var(--accent-color); font-weight: 700;
+        }
 
         /* LOADING SPINNER */
-        .loader-container { display: none; text-align: center; padding: 40px; }
-        .spinner { border: 4px solid rgba(0,0,0,0.1); border-left-color: var(--accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loader-container { display: none;
+            text-align: center; padding: 40px; }
+        .spinner { border: 4px solid rgba(0,0,0,0.1); border-left-color: var(--accent-color);
+            border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);
+        } }
 
         @media (max-width: 650px) {
-            .elo-stats-grid { grid-template-columns: 1fr; }
-            .filter-bar { flex-direction: column; }
-            .competitor-row { flex-direction: column; align-items: flex-start; gap: 10px; }
-            .competitor-elo { width: 100%; justify-content: space-between; }
+            .elo-stats-grid { grid-template-columns: 1fr;
+            }
+            .filter-bar { flex-direction: column;
+            }
+            .competitor-row { flex-direction: column; align-items: flex-start; gap: 10px;
+            }
+            .competitor-elo { width: 100%; justify-content: space-between;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Dynamischer Header -->
     <header></header>
     <script src="header.js"></script>
 
     <div class="container">
-        <!-- SPERRBILDSCHIRM BEI FEHLENDER LIZENZ -->
         <div id="access-denied" class="danger-box">Prüfe Berechtigungen... (Bitte einloggen)</div>
 
-        <!-- HAUPT-DASHBOARD -->
         <div id="dashboard-content" style="display: none;">
             <div class="info-box" id="js-personal-welcome">
-                <strong>📸 Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste hoch oder füge einen Link ein. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
-            </div>
+                 [span_0](start_span)<strong>📸 Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste hoch.[span_0](end_span)
+ [span_1](start_span)Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.[span_1](end_span)
+ </div>
 
-            <!-- 🔗 URL IMPORT BEREICH -->
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <input type="url" id="match-url" placeholder="https://ipscmatch.de/... Link hier einfügen" style="flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--input-bg); color: var(--text-color); font-size: 14px;">
-                <button onclick="importMatchFromUrl()" style="padding: 12px 24px; background: var(--info-color); color: #fff; border: none; border-radius: var(--radius); cursor: pointer; font-weight: bold; font-size: 14px; transition: opacity 0.2s;">Link abrufen</button>
-            </div>
-
-            <!-- UPLOAD BEREICH -->
             <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click();">
                 <div class="upload-icon">📄</div>
                 <h3 class="upload-title">Screenshot hier hochladen</h3>
                 <p class="upload-desc">Klicke hier oder ziehe ein Bild hinein (JPG, PNG).</p>
-                <input type="file" id="file-input" accept="image/*" onchange="handleFileUpload(this.files)">
+         
+        [span_2](start_span)<input type="file" id="file-input" accept="image/*" onchange="handleFileUpload(this.files)">[span_2](end_span)
             </div>
 
-            <!-- MATCH-ARCHIV OHNE BILD-SPEICHER -->
             <div class="match-archive" id="match-archive">
                 <div class="archive-header" onclick="toggleMatchArchive()">
                     <span>📁 Bisherige Match-Analysen</span>
-                    <span id="archive-arrow">▼</span>
+       
+                     [span_3](start_span)<span id="archive-arrow">▼</span>[span_3](end_span)
                 </div>
                 <div class="archive-content" id="archive-content">
                     <div class="archive-empty">Noch keine Match-Analysen gespeichert.</div>
                 </div>
-            </div>
+            
+ [span_4](start_span)</div>[span_4](end_span)
 
-            <!-- LADEANIMATION -->
             <div class="loader-container" id="loader">
                 <div class="spinner"></div>
-                <h3 style="margin: 0; color: var(--text-color);">Analysiere Starterfeld...</h3>
-                <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 14px;">Texterkennung läuft und ELO-Datenbank wird abgefragt.</p>
+                <h3 style="margin: 0;
+ [span_5](start_span)color: var(--text-color);">Analysiere Starterfeld...</h3>[span_5](end_span)
+                <p style="margin: 5px 0 0 0;
+ [span_6](start_span)color: var(--text-muted); font-size: 14px;">Texterkennung läuft und ELO-Datenbank wird abgefragt.</p>[span_6](end_span)
             </div>
 
-            <!-- ERGEBNIS BEREICH -->
             <div id="analysis-results">
                 <h2 style="margin-bottom: 20px;">Auswertung: <span style="color: var(--accent-color);">Optics Overall</span></h2>
                 
-                <div class="elo-stats-grid">
+              
+   [span_7](start_span)<div class="elo-stats-grid">[span_7](end_span)
                     <div class="elo-stat-card">
                         <div class="elo-stat-val" id="stat-user-elo">-</div>
                         <div class="elo-stat-lbl" id="stat-user-label">Dein ELO-Rating</div>
                     </div>
-                    <div class="elo-stat-card">
+   
+                  [span_8](start_span)<div class="elo-stat-card">[span_8](end_span)
                         <div class="elo-stat-val" id="stat-stronger-count">0</div>
                         <div class="elo-stat-lbl">Gegner über deinem ELO</div>
                     </div>
-                    <div class="elo-stat-card">
+        
+             [span_9](start_span)<div class="elo-stat-card">[span_9](end_span)
                         <div class="elo-stat-val" id="stat-level">-</div>
                         <div class="elo-stat-lbl">Herausforderung für dich</div>
                     </div>
-                </div>
+              
+   [span_10](start_span)</div>[span_10](end_span)
 
-                <!-- ℹ️ AUSKLAPPBARE LEGENDE -->
                 <div class="legend-box">
                     <div class="legend-title" onclick="toggleLegend()">
                         <span>ℹ️ Wie berechnet sich das Wettkampf-Niveau?</span>
-                        <span id="legend-arrow">▼</span>
+          
+                       [span_11](start_span)<span id="legend-arrow">▼</span>[span_11](end_span)
                     </div>
                     <div class="legend-content" id="legend-content">
-                        <p style="margin: 0 0 10px 0; line-height: 1.4; color: var(--text-muted);"> Das Niveau misst sich nicht an starren Weltklasse-Werten, sondern **ganz persönlich an deiner eigenen Stärke**. Es berechnet den prozentualen Anteil der Schützen im Feld, die ein höheres ELO besitzen als du selbst:</p>
+                        <p style="margin: 0 0 10px 0;
+ line-height: 1.4; color: var(--text-muted);"> Das Niveau misst sich nicht an starren Weltklasse-Werten, sondern **ganz persönlich an deiner eigenen Stärke**. [span_12](start_span)Es berechnet den prozentualen Anteil der Schützen im Feld, die ein höheres ELO besitzen als du selbst:</p>[span_12](end_span)
                         <table class="legend-table">
                             <thead>
-                                <tr>
+            
+                    [span_13](start_span)<tr>[span_13](end_span)
                                     <th>Anteil stärkerer Gegner</th>
                                     <th>Niveau-Einstufung</th>
-                                    <th>Bedeutung für dich</th>
+      
+                                    [span_14](start_span)<th>Bedeutung für dich</th>[span_14](end_span)
                                 </tr>
                             </thead>
-                            <tbody>
+        
+                    [span_15](start_span)<tbody>[span_15](end_span)
                                 <tr>
-                                    <td style="font-weight: 600; color: var(--danger-color);">Über 50 %</td>
-                                    <td style="font-weight: bold; color: var(--danger-color);">Sehr Hoch</td>
+                                    <td style="font-weight: 600;
+ [span_16](start_span)color: var(--danger-color);">Über 50 %</td>[span_16](end_span)
+                                    <td style="font-weight: bold;
+ [span_17](start_span)color: var(--danger-color);">Sehr Hoch</td>[span_17](end_span)
                                     <td>Du bist der Underdog. Mehr als die Hälfte des Feldes ist stärker eingestuft.</td>
                                 </tr>
-                                <tr>
-                                    <td style="font-weight: 600; color: var(--accent-color);">21 % bis 50 %</td>
-                                    <td style="font-weight: bold; color: var(--accent-color);">Hoch</td>
+                  
+               [span_18](start_span)<tr>[span_18](end_span)
+                                    <td style="font-weight: 600;
+ [span_19](start_span)color: var(--accent-color);">21 % bis 50 %</td>[span_19](end_span)
+                                    <td style="font-weight: bold;
+ [span_20](start_span)color: var(--accent-color);">Hoch</td>[span_20](end_span)
                                     <td>Sehr anspruchsvolles Starterfeld. Ein gutes Viertel steht vor dir.</td>
                                 </tr>
-                                <tr>
-                                    <td style="font-weight: 600; color: var(--info-color);">6 % bis 20 %</td>
-                                    <td style="font-weight: bold; color: var(--info-color);">Mittel</td>
+                       
+          [span_21](start_span)<tr>[span_21](end_span)
+                                    <td style="font-weight: 600;
+ [span_22](start_span)color: var(--info-color);">6 % bis 20 %</td>[span_22](end_span)
+                                    <td style="font-weight: bold;
+ [span_23](start_span)color: var(--info-color);">Mittel</td>[span_23](end_span)
                                     <td>Solides Mittelfeld-Turnier. Du bist vorne gut mit dabei.</td>
                                 </tr>
-                                <tr>
-                                    <td style="font-weight: 600; color: var(--success-color);">Bis zu 5 %</td>
-                                    <td style="font-weight: bold; color: var(--success-color);">Gering</td>
+                        
+         [span_24](start_span)<tr>[span_24](end_span)
+                                    <td style="font-weight: 600;
+ [span_25](start_span)color: var(--success-color);">Bis zu 5 %</td>[span_25](end_span)
+                                    <td style="font-weight: bold;
+ [span_26](start_span)color: var(--success-color);">Gering</td>[span_26](end_span)
                                     <td>Du gehst als einer der absoluten Top-Favoriten ins Rennen!</td>
                                 </tr>
-                            </tbody>
+                       
+      [span_27](start_span)</tbody>[span_27](end_span)
                         </table>
                     </div>
                 </div>
 
-                <h3 style="margin: 30px 0 15px 0; font-size: 18px;">Gefundene Konkurrenten</h3>
+                <h3 style="margin: 30px 0 15px 0;
+ [span_28](start_span)font-size: 18px;">Gefundene Konkurrenten</h3>[span_28](end_span)
                 
-                <!-- 🔍 FILTER-BAR -->
                 <div class="filter-bar">
-                    <input type="text" id="search-name" class="filter-input" placeholder="Nach Name suchen..." oninput="applyFilters()">
-                    
+                    [span_29](start_span)<input type="text" id="search-name" class="filter-input" placeholder="Nach Name suchen..." oninput="applyFilters()">[span_29](end_span)
+                   
+  
                     <select id="filter-region" class="filter-select" onchange="applyFilters()">
                         <option value="">Alle Länder</option>
                     </select>
                     
-                    <select id="filter-class" class="filter-select" onchange="onFilterClassChange()">
+          
+           [span_30](start_span)<select id="filter-class" class="filter-select" onchange="onFilterClassChange()">[span_30](end_span)
                         <option value="">Alle Klassen</option>
                         <option value="GM">Grand Master (GM)</option>
                         <option value="M">Master (M)</option>
-                        <option value="A">A-Class</option>
+        
+                 [span_31](start_span)<option value="A">A-Class</option>[span_31](end_span)
                         <option value="Unranked">Unranked</option>
                     </select>
                 </div>
 
                 <div class="competitor-list" id="competitor-list">
-                    <!-- Wird dynamisch durch JavaScript befüllt -->
+    
+                 [span_32](start_span)
                 </div>
             </div>
         </div>
@@ -251,7 +348,7 @@
     
     <script>
         let currentShooters = [];
-        let userPersonalElo = 1700; 
+        let userPersonalElo = 1700;[span_32](end_span)
 
         const countryCodes = {
             "germany": "de", "ger": "de", "deu": "de",
@@ -259,152 +356,151 @@
             "switzerland": "ch", "sui": "ch", "che": "ch",
             "poland": "pl", "pol": "pl",
             "philippines": "ph", "phi": "ph",
-            "austria": "at", "aut": "at"
+            "austria": "at", 
+            [span_33](start_span)"aut": "at"[span_33](end_span)
         };
-
-        const countryNameFormat = {
+        [span_34](start_span)const countryNameFormat = {[span_34](end_span)
             "GER": "Germany", "DEU": "Germany", "GERMANY": "Germany",
             "FRA": "France", "FRANCE": "France",
             "SUI": "Switzerland", "CHE": "Switzerland", "SWITZERLAND": "Switzerland",
             "POL": "Poland", "POLAND": "Poland",
             "PHI": "Philippines", "PHILIPPINES": "Philippines",
             "NED": "Netherlands", "NETHERLANDS": "Netherlands",
-            "BEL": "Belgium", "BELGIUM": "Belgium",
+   
+             [span_35](start_span)"BEL": "Belgium", "BELGIUM": "Belgium",[span_35](end_span)
             "AUT": "Austria", "AUSTRIA": "Austria",
             "ITA": "Italy", "ITALY": "Italy",
             "ESP": "Spain", "SPAIN": "Spain",
             "POR": "Portugal", "PORTUGAL": "Portugal",
             "BRA": "Brazil", "BRASIL": "Brazil", "BRAZIL": "Brazil",
-            "USA": "United States", "UNITED STATES": "United States",
+           
+  [span_36](start_span)"USA": "United States", "UNITED STATES": "United States",[span_36](end_span)
             "NOR": "Norway", "NORWAY": "Norway",
             "SWE": "Sweden", "SWEDEN": "Sweden",
             "CZE": "Czech Republic", "CZECH": "Czech Republic",
             "SVK": "Slovakia", "SLOVAKIA": "Slovakia",
             "SLO": "Slovenia", "SVN": "Slovenia", "SLOVENIA": "Slovenia",
-            "SRB": "Serbia", "SERBIA": "Serbia"
+            "SRB": "Serbia", 
+            [span_37](start_span)"SERBIA": "Serbia"[span_37](end_span)
         };
-
-        function toggleLegend() {
-            const content = document.getElementById('legend-content');
-            const arrow = document.getElementById('legend-arrow');
+        [span_38](start_span)function toggleLegend() {[span_38](end_span)
+            [span_39](start_span)const content = document.getElementById('legend-content');[span_39](end_span)
+            [span_40](start_span)const arrow = document.getElementById('legend-arrow');[span_40](end_span)
             if (content.style.display === 'block') {
                 content.style.display = 'none';
-                arrow.textContent = '▼';
+                [span_41](start_span)arrow.textContent = '▼';[span_41](end_span)
             } else {
                 content.style.display = 'block';
-                arrow.textContent = '▲';
+                [span_42](start_span)arrow.textContent = '▲';[span_42](end_span)
             }
         }
 
 
         // 🔎 Robuster ELO-Lookup: Name + Division, mit Umlaut-/Schreibvarianten
         function uniqueArray(values) {
-            return [...new Set(values.filter(Boolean))];
+            [span_43](start_span)return [...new Set(values.filter(Boolean))];[span_43](end_span)
         }
 
         function nameVariants(value) {
-            if (!value) return [];
-            const variants = [value.trim()];
+            [span_44](start_span)if (!value) return [];[span_44](end_span)
+            [span_45](start_span)const variants = [value.trim()];[span_45](end_span)
             const replacements = [
                 [/ä/g, "ae"], [/ö/g, "oe"], [/ü/g, "ue"], [/Ä/g, "Ae"], [/Ö/g, "Oe"], [/Ü/g, "Ue"], [/ß/g, "ss"],
                 [/ae/g, "ä"], [/oe/g, "ö"], [/ue/g, "ü"], [/Ae/g, "Ä"], [/Oe/g, "Ö"], [/Ue/g, "Ü"]
             ];
-            for (const [from, to] of replacements) {
-                variants.push(value.replace(from, to).trim());
+            [span_46](start_span)for (const [from, to] of replacements) {[span_46](end_span)
+                [span_47](start_span)variants.push(value.replace(from, to).trim());[span_47](end_span)
             }
-            return uniqueArray(variants);
+            [span_48](start_span)return uniqueArray(variants);[span_48](end_span)
         }
 
         function buildSearchNameCandidates(vorname, nachname) {
-            const firstVariants = nameVariants(vorname);
-            const lastVariants = nameVariants(nachname);
+            [span_49](start_span)const firstVariants = nameVariants(vorname);[span_49](end_span)
+            [span_50](start_span)const lastVariants = nameVariants(nachname);[span_50](end_span)
             const candidates = [];
 
             for (const last of lastVariants) {
                 for (const first of firstVariants) {
-                    candidates.push(`${last}, ${first}`);
+                    [span_51](start_span)candidates.push(`${last}, ${first}`);[span_51](end_span)
                 }
             }
-            return uniqueArray(candidates);
+            [span_52](start_span)return uniqueArray(candidates);[span_52](end_span)
         }
 
         async function findEloEntry(shooter) {
-            const division = shooter.division;
-            const candidates = buildSearchNameCandidates(shooter.vorname, shooter.nachname);
+            [span_53](start_span)const division = shooter.division;[span_53](end_span)
+            [span_54](start_span)const candidates = buildSearchNameCandidates(shooter.vorname, shooter.nachname);[span_54](end_span)
 
             // 1) Exakter Treffer: lastname + division
             for (const candidate of candidates) {
                 const { data, error } = await window.supabaseClient
                     .from("elo_rankings")
                     .select("elo_rating, class_style, division, lastname, rank")
-                    .eq("lastname", candidate)
+     
+                    [span_55](start_span).eq("lastname", candidate)[span_55](end_span)
                     .eq("division", division)
                     .limit(1);
-
-                if (!error && data && data.length > 0) return data[0];
+                [span_56](start_span)if (!error && data && data.length > 0) return data[0];[span_56](end_span)
             }
 
             // 2) Fallback: Nachname/Vorname als Teiltreffer, aber weiterhin innerhalb der Division
-            const lastCandidates = nameVariants(shooter.nachname);
-            const firstCandidates = nameVariants(shooter.vorname);
+            [span_57](start_span)const lastCandidates = nameVariants(shooter.nachname);[span_57](end_span)
+            [span_58](start_span)const firstCandidates = nameVariants(shooter.vorname);[span_58](end_span)
 
             for (const last of lastCandidates) {
                 for (const first of firstCandidates) {
                     const { data, error } = await window.supabaseClient
                         .from("elo_rankings")
-                        .select("elo_rating, class_style, division, lastname, rank")
+                   
+                      [span_59](start_span).select("elo_rating, class_style, division, lastname, rank")[span_59](end_span)
                         .eq("division", division)
                         .ilike("lastname", `%${last}%${first}%`)
                         .limit(1);
-
-                    if (!error && data && data.length > 0) return data[0];
+                    [span_60](start_span)if (!error && data && data.length > 0) return data[0];[span_60](end_span)
                 }
             }
 
-            return null;
+            [span_61](start_span)return null;[span_61](end_span)
         }
 
         // 🛡️ ZENTRALE VERIFIZIERUNGS-LOGIK (Verarbeitet das geladene Profil)
         async function processUserProfile(user) {
-            const deniedBox = document.getElementById("access-denied");
-            const dashboard = document.getElementById("dashboard-content");
+            [span_62](start_span)const deniedBox = document.getElementById("access-denied");[span_62](end_span)
+            [span_63](start_span)const dashboard = document.getElementById("dashboard-content");[span_63](end_span)
 
             if (!user) { 
-                deniedBox.style.display = "block"; 
-                dashboard.style.display = "none"; 
+                deniedBox.style.display = "block";
+                [span_64](start_span)dashboard.style.display = "none";[span_64](end_span)
                 return;
             }
 
             try {
                 // Holt das Profil exakt wie doppel-aa.html
                 const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa, ipsc_alias, username, real_name").eq("id", user.id).single();
-                
-                if (!profile || profile.is_doppel_aa !== true) { 
-                    deniedBox.style.display = "block"; 
-                    dashboard.style.display = "none"; 
+                [span_65](start_span)if (!profile || profile.is_doppel_aa !== true) {[span_65](end_span)
+                    deniedBox.style.display = "block";
+                    [span_66](start_span)dashboard.style.display = "none";[span_66](end_span)
                     return;
                 }
 
-                window.userProfileData = profile;
-                window.currentUserId = user.id;
+                [span_67](start_span)window.userProfileData = profile;[span_67](end_span)
+                [span_68](start_span)window.currentUserId = user.id;[span_68](end_span)
                 renderMatchArchive(); 
                 deniedBox.style.display = "none";
-                dashboard.style.display = "block";
-
-                if (profile.real_name) {
-                    document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>Willkommen zurück, ${profile.real_name}!</strong> Lade einen Screenshot hoch oder füge einen Link ein, um das Starterfeld direkt mit deiner ELO-Stärke abzugleichen.`;
-                    
-                    const nameParts = profile.real_name.split(" ");
+                [span_69](start_span)dashboard.style.display = "block";[span_69](end_span)
+                [span_70](start_span)if (profile.real_name) {[span_70](end_span)
+                    [span_71](start_span)document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>Willkommen zurück, ${profile.real_name}!</strong> Lade einen Screenshot hoch, um das Starterfeld direkt mit deiner ELO-Stärke abzugleichen.`;[span_71](end_span)
+                    [span_72](start_span)const nameParts = profile.real_name.split(" ");[span_72](end_span)
                     if (nameParts.length >= 2) {
-                        const dbSearchName = `${nameParts[1]}, ${nameParts[0]}`;
+                        [span_73](start_span)const dbSearchName = `${nameParts[1]}, ${nameParts[0]}`;[span_73](end_span)
                         const { data: userEloData } = await window.supabaseClient
                             .from("elo_rankings")
                             .select("elo_rating")
                             .eq("lastname", dbSearchName)
-                            .maybeSingle();
-                            
-                        if (userEloData && userEloData.elo_rating) {
-                            userPersonalElo = parseFloat(userEloData.elo_rating);
+        
+                            [span_74](start_span).maybeSingle();[span_74](end_span)
+                        [span_75](start_span)if (userEloData && userEloData.elo_rating) {[span_75](end_span)
+                            [span_76](start_span)userPersonalElo = parseFloat(userEloData.elo_rating);[span_76](end_span)
                         }
                     }
                 }
@@ -414,10 +510,10 @@
         }
 
         // 1. DOCKING AN DIE AUTH.JS EVENT-SCHLEIFE
-        const originalAuthChange = window.onAuthChange;
-        window.onAuthChange = async (user) => {
-            if (typeof originalAuthChange === "function") originalAuthChange(user);
-            await processUserProfile(user);
+        [span_77](start_span)const originalAuthChange = window.onAuthChange;[span_77](end_span)
+        [span_78](start_span)window.onAuthChange = async (user) => {[span_78](end_span)
+            [span_79](start_span)if (typeof originalAuthChange === "function") originalAuthChange(user);[span_79](end_span)
+            [span_80](start_span)await processUserProfile(user);[span_80](end_span)
         };
 
         // 🚀 KUGELSICHERER DIREKT-CHECK BEIM LADEN (Falls onAuthChange das Event verpasst hat)
@@ -425,292 +521,306 @@
             setTimeout(async () => {
                 if (window.supabaseClient && !window.userProfileData) {
                     const { data: { session } } = await window.supabaseClient.auth.getSession();
-                    if (session && session.user) {
+           
+                     [span_81](start_span)if (session && session.user) {[span_81](end_span)
                         await processUserProfile(session.user);
                     }
                 }
             }, 300);
         });
-
-        
         // ==========================================
         // 🌐 LINK IMPORT LOGIK (IPSCMATCH.DE PARSER)
         // ==========================================
         async function importMatchFromUrl() {
-            const urlInput = document.getElementById('match-url').value.trim();
-            if (!urlInput) {
-                alert("Bitte einen Link eingeben!");
+            const urlInput = document.getElementById('match-url')?.value?.trim() || [span_82](start_span)"";[span_82](end_span)
+            [span_83](start_span)if (!urlInput) {[span_83](end_span)
+                [span_84](start_span)alert("Bitte einen Link eingeben!");[span_84](end_span)
                 return;
             }
 
-            document.getElementById('analysis-results').style.display = 'none';
-            document.getElementById('loader').style.display = 'block';
-            const loaderText = document.querySelector("#loader p");
-            loaderText.textContent = "Lade Match-Daten vom Link...";
-
+            [span_85](start_span)document.getElementById('analysis-results').style.display = 'none';[span_85](end_span)
+            [span_86](start_span)document.getElementById('loader').style.display = 'block';[span_86](end_span)
+            [span_87](start_span)const loaderText = document.querySelector("#loader p");[span_87](end_span)
+            [span_88](start_span)if (loaderText) loaderText.textContent = "Lade Match-Daten vom Link...";[span_88](end_span)
+            
             try {
                 // CORS-Proxy umgehen, um HTML von ipscmatch.de zu laden
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(urlInput)}`;
-                const response = await fetch(proxyUrl);
-                if (!response.ok) throw new Error("Netzwerkfehler beim Abrufen des Links");
+                [span_89](start_span)const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(urlInput)}`;[span_89](end_span)
+                [span_90](start_span)const response = await fetch(proxyUrl);[span_90](end_span)
                 
-                const data = await response.json();
-                const htmlContent = data.contents;
+                if (!response.ok) throw new Error("Netzwerkfehler beim Abrufen des Links über den Proxy.");
 
-                loaderText.textContent = "Analysiere Tabelle...";
+                [span_91](start_span)const data = await response.json();[span_91](end_span)
+                
+                // FEHLER-ABFANG-LOGIK: Falls allorigins null oder ungültige Contents liefert
+                if (!data || !data.contents) {
+                    throw new Error("Der CORS-Proxy hat eine leere Antwort geliefert (Response ist null). Bitte lade stattdessen einen Screenshot hoch.");
+                }
+                
+                [span_92](start_span)const htmlContent = data.contents;[span_92](end_span)
+
+                if (loaderText) loaderText.textContent = "Analysiere Tabelle...";
 
                 // HTML in ein manipulierbares Dokument umwandeln
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(htmlContent, 'text/html');
+                [span_93](start_span)const parser = new DOMParser();[span_93](end_span)
+                [span_94](start_span)const doc = parser.parseFromString(htmlContent, 'text/html');[span_94](end_span)
                 
                 // Matchnamen finden
-                let matchTitle = doc.querySelector('h1')?.textContent || doc.title || "IPSC Match";
-                matchTitle = matchTitle.replace(/ipscmatch\.de/i, '').replace(/Starterliste/i, '').trim() || "Importiertes Match";
-
+                [span_95](start_span)let matchTitle = doc.querySelector('h1')?.textContent ||[span_95](end_span)
+                                 doc.title || [span_96](start_span)"IPSC Match";[span_96](end_span)
+                matchTitle = matchTitle.replace(/ipscmatch\.de/i, '').replace(/Starterliste/i, '').trim() || [span_97](start_span)"Importiertes Match";[span_97](end_span)
+                
                 // Tabellen suchen
-                const tables = doc.querySelectorAll('table');
-                let targetTable = null;
-                for (let table of tables) {
-                    const text = table.textContent.toLowerCase();
-                    if (text.includes('vorname') && text.includes('name')) {
-                        targetTable = table;
-                        break;
+                [span_98](start_span)const tables = doc.querySelectorAll('table');[span_98](end_span)
+                [span_99](start_span)let targetTable = null;[span_99](end_span)
+                [span_100](start_span)for (let table of tables) {[span_100](end_span)
+                    [span_101](start_span)const text = table.textContent.toLowerCase();[span_101](end_span)
+                    [span_102](start_span)if (text.includes('vorname') && text.includes('name')) {[span_102](end_span)
+                        [span_103](start_span)targetTable = table;[span_103](end_span)
+                        [span_104](start_span)break;[span_104](end_span)
                     }
                 }
 
                 if (!targetTable) {
-                    throw new Error("Konnte keine Starterliste (Tabelle mit 'Vorname' und 'Name') auf dieser Seite finden.");
+                    [span_105](start_span)throw new Error("Konnte keine Starterliste (Tabelle mit 'Vorname' und 'Name') auf dieser Seite finden.");[span_105](end_span)
                 }
 
                 // Spalten zuordnen
-                const headers = Array.from(targetTable.querySelectorAll('tr')[0].querySelectorAll('th, td')).map(th => th.textContent.trim().toLowerCase());
-                const rows = Array.from(targetTable.querySelectorAll('tr')).slice(1); 
+                const headerRow = targetTable.querySelectorAll('tr')[0];
+                if (!headerRow) throw new Error("Die Tabelle hat keine Tabellenkopf-Zeile.");
                 
-                let idxVorname = headers.findIndex(h => h.includes('vorname'));
-                let idxName = headers.findIndex(h => h === 'name' || h.includes('nachname'));
-                let idxRegion = headers.findIndex(h => h.includes('region') || h.includes('land'));
-                let idxDivision = headers.findIndex(h => h.includes('division'));
-
+                [span_106](start_span)const headers = Array.from(headerRow.querySelectorAll('th, td')).map(th => th.textContent.trim().toLowerCase());[span_106](end_span)
+                [span_107](start_span)const rows = Array.from(targetTable.querySelectorAll('tr')).slice(1);[span_107](end_span)
+                
+                [span_108](start_span)let idxVorname = headers.findIndex(h => h.includes('vorname'));[span_108](end_span)
+                [span_109](start_span)let idxName = headers.findIndex(h => h === 'name' || h.includes('nachname'));[span_109](end_span)
+                [span_110](start_span)let idxRegion = headers.findIndex(h => h.includes('region') || h.includes('land'));[span_110](end_span)
+                [span_111](start_span)let idxDivision = headers.findIndex(h => h.includes('division'));[span_111](end_span)
+                
                 // Fallbacks, falls Header nicht sauber sind
-                if (idxVorname === -1) idxVorname = 1; 
-                if (idxName === -1) idxName = 2;
-                if (idxRegion === -1) idxRegion = 3;
-                if (idxDivision === -1) idxDivision = 4;
+                [span_112](start_span)if (idxVorname === -1) idxVorname = 1;[span_112](end_span)
+                [span_113](start_span)if (idxName === -1) idxName = 2;[span_113](end_span)
+                [span_114](start_span)if (idxRegion === -1) idxRegion = 3;[span_114](end_span)
+                [span_115](start_span)if (idxDivision === -1) idxDivision = 4;[span_115](end_span)
 
-                const parsedNames = [];
-                for (const row of rows) {
-                    const cells = Array.from(row.querySelectorAll('td'));
-                    if (cells.length < 5) continue; 
+                [span_116](start_span)const parsedNames = [];[span_116](end_span)
+                [span_117](start_span)for (const row of rows) {[span_117](end_span)
+                    [span_118](start_span)const cells = Array.from(row.querySelectorAll('td'));[span_118](end_span)
+                    [span_119](start_span)if (cells.length < 5) continue;[span_119](end_span)
 
-                    const vorname = cells[idxVorname]?.textContent.trim();
-                    const nachname = cells[idxName]?.textContent.trim();
-                    const regionRaw = cells[idxRegion]?.textContent.trim();
-                    const division = cells[idxDivision]?.textContent.trim();
+                    [span_120](start_span)const vorname = cells[idxVorname]?.textContent.trim();[span_120](end_span)
+                    [span_121](start_span)const nachname = cells[idxName]?.textContent.trim();[span_121](end_span)
+                    [span_122](start_span)const regionRaw = cells[idxRegion]?.textContent.trim();[span_122](end_span)
+                    [span_123](start_span)const division = cells[idxDivision]?.textContent.trim();[span_123](end_span)
 
-                    if (vorname && nachname) {
-                        parsedNames.push({ vorname, nachname, regionRaw, division });
+                    [span_124](start_span)if (vorname && nachname) {[span_124](end_span)
+                        [span_125](start_span)parsedNames.push({ vorname, nachname, regionRaw, division });[span_125](end_span)
                     }
                 }
 
                 if (parsedNames.length === 0) {
-                    throw new Error("Keine Schützen in der Tabelle gefunden.");
+                    [span_126](start_span)throw new Error("Keine Schützen in der Tabelle gefunden.");[span_126](end_span)
                 }
 
-                loaderText.textContent = `Gleiche ${parsedNames.length} Schützen mit ELO-Datenbank ab...`;
+                [span_127](start_span)if (loaderText) loaderText.textContent = `Gleiche ${parsedNames.length} Schützen mit ELO-Datenbank ab...`;[span_127](end_span)
                 
                 // ELO ABGLEICH
-                currentShooters = [];
+                [span_128](start_span)currentShooters = [];[span_128](end_span)
+                [span_129](start_span)for (const shooter of parsedNames) {[span_129](end_span)
+                    [span_130](start_span)const displayName = `${shooter.nachname}, ${shooter.vorname}`;[span_130](end_span)
+                    const fullCountryName = window.countryNameFormat ? (window.countryNameFormat[String(shooter.regionRaw || "")[span_131](start_span).toUpperCase()] || shooter.regionRaw || "Unknown") : (shooter.regionRaw || "Unknown");[span_131](end_span)
+                    [span_132](start_span)const dbEntry = await findEloEntry(shooter);[span_132](end_span)
 
-                for (const shooter of parsedNames) {
-                    const displayName = `${shooter.nachname}, ${shooter.vorname}`;
-                    const fullCountryName = window.countryNameFormat ? (window.countryNameFormat[String(shooter.regionRaw || "").toUpperCase()] || shooter.regionRaw || "Unknown") : (shooter.regionRaw || "Unknown");
-                    
-                    const dbEntry = await findEloEntry(shooter);
+                    [span_133](start_span)let eloValue = "-";[span_133](end_span)
+                    [span_134](start_span)let overallRank = "-";[span_134](end_span)
+                    [span_135](start_span)let rankClass = "Unranked";[span_135](end_span)
+                    [span_136](start_span)let classStyle = "badge-u";[span_136](end_span)
 
-                    let eloValue = "-";
-                    let overallRank = "-";
-                    let rankClass = "Unranked";
-                    let classStyle = "badge-u";
+                    [span_137](start_span)if (dbEntry && dbEntry.elo_rating !== null && dbEntry.elo_rating !== undefined) {[span_137](end_span)
+                        [span_138](start_span)eloValue = Number(dbEntry.elo_rating);[span_138](end_span)
+                        overallRank = dbEntry.rank || [span_139](start_span)"-";[span_139](end_span)
+                        rankClass = dbEntry.class_style || [span_140](start_span)"A";[span_140](end_span)
 
-                    if (dbEntry && dbEntry.elo_rating !== null && dbEntry.elo_rating !== undefined) {
-                        eloValue = Number(dbEntry.elo_rating);
-                        overallRank = dbEntry.rank || "-";
-                        rankClass = dbEntry.class_style || "A";
-
-                        if (eloValue >= 2300) classStyle = "badge-gm";
-                        else if (eloValue >= 2100) classStyle = "badge-m";
-                        else if (eloValue >= 1800) classStyle = "badge-a";
+                        [span_141](start_span)if (eloValue >= 2300) classStyle = "badge-gm";[span_141](end_span)
+                        [span_142](start_span)else if (eloValue >= 2100) classStyle = "badge-m";[span_142](end_span)
+                        [span_143](start_span)else if (eloValue >= 1800) classStyle = "badge-a";[span_143](end_span)
                     }
 
                     currentShooters.push({
                         name: displayName,
-                        division: shooter.division ? shooter.division + " Overall" : "Unknown Overall",
-                        region: fullCountryName,
-                        elo: eloValue,
-                        overallRank: overallRank,
-                        rankClass: eloValue !== "-" ? rankClass : "Unranked",
-                        classStyle: classStyle
+                        [span_144](start_span)division: shooter.division ? shooter.division + " Overall" : "Unknown Overall",[span_144](end_span)
+                        [span_145](start_span)region: fullCountryName,[span_145](end_span)
+                        [span_146](start_span)elo: eloValue,[span_146](end_span)
+                        [span_147](start_span)overallRank: overallRank,[span_147](end_span)
+                        [span_148](start_span)rankClass: eloValue !== "-" ? rankClass : "Unranked",[span_148](end_span)
+                        [span_149](start_span)classStyle: classStyle[span_149](end_span)
                     });
                 }
 
-                buildFilterDropdowns(currentShooters);
-                calculateStats(currentShooters);
-                renderList(currentShooters);
-
-                const heading = document.querySelector('#analysis-results h2 span');
-                if (heading) heading.textContent = matchTitle;
-
+                [span_150](start_span)buildFilterDropdowns(currentShooters);[span_150](end_span)
+                [span_151](start_span)calculateStats(currentShooters);[span_151](end_span)
+                [span_152](start_span)renderList(currentShooters);[span_152](end_span)
+                
+                [span_153](start_span)const heading = document.querySelector('#analysis-results h2 span');[span_153](end_span)
+                [span_154](start_span)if (heading) heading.textContent = matchTitle;[span_154](end_span)
+                
                 // Ins Archiv speichern
-                storeMatchAnalysis(matchTitle, "URL_IMPORT", parsedNames, currentShooters);
-
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('analysis-results').style.display = 'block';
+                [span_155](start_span)storeMatchAnalysis(matchTitle, "URL_IMPORT", parsedNames, currentShooters);[span_155](end_span)
+                
+                [span_156](start_span)document.getElementById('loader').style.display = 'none';[span_156](end_span)
+                [span_157](start_span)document.getElementById('analysis-results').style.display = 'block';[span_157](end_span)
 
             } catch (err) {
-                console.error("Fehler beim Link-Import:", err);
-                document.getElementById('loader').style.display = 'none';
-                alert(err.message || "Fehler beim Laden der URL.");
+                [span_158](start_span)console.error("Fehler beim Link-Import:", err);[span_158](end_span)
+                
+                // REPARATUR-KORREKTUR: Loader wird hier zwingend versteckt, damit kein ewiger Kringel bleibt
+                [span_159](start_span)document.getElementById('loader').style.display = 'none';[span_159](end_span)
+                [span_160](start_span)alert(err.message || "Fehler beim Laden der URL.");[span_160](end_span)
             }
         }
-        
         // Ende Link Import Logik
 
         // 2. DRAG & DROP EVENTS
-        const dropZone = document.getElementById('drop-zone');
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--info-color)"; });
-        dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--accent-color)"; });
-        dropZone.addEventListener('drop', (e) => {
+        [span_161](start_span)const dropZone = document.getElementById('drop-zone');[span_161](end_span)
+        [span_162](start_span)dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--info-color)"; });[span_162](end_span)
+        [span_163](start_span)dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--accent-color)"; });[span_163](end_span)
+        [span_164](start_span)dropZone.addEventListener('drop', (e) => {[span_164](end_span)
             e.preventDefault();
             dropZone.style.borderColor = "var(--accent-color)";
-            if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);
+            [span_165](start_span)if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);[span_165](end_span)
         });
-
-
-
         // ==========================================
         // 🏆 SUPABASE MATCH ARCHIV LOGIK
         // ==========================================
 
         async function loadMatchesFromSupabase() {
-            if (!window.currentUserId) return [];
-            
-            const { data, error } = await window.supabaseClient
+            [span_166](start_span)if (!window.currentUserId) return [];[span_166](end_span)
+            [span_167](start_span)const { data, error } = await window.supabaseClient[span_167](end_span)
                 .from("match_archives")
                 .select("*")
                 .eq("user_id", window.currentUserId)
                 .order("created_at", { ascending: false });
-                
-            if (error) {
-                console.error("Fehler beim Laden der Matches:", error);
-                return [];
+            [span_168](start_span)if (error) {[span_168](end_span)
+                [span_169](start_span)console.error("Fehler beim Laden der Matches:", error);[span_169](end_span)
+                [span_170](start_span)return [];[span_170](end_span)
             }
-            return data || [];
+            return data || [span_171](start_span)[];[span_171](end_span)
         }
 
         async function renderMatchArchive() {
-            const content = document.getElementById("archive-content");
-            if (!content) return;
+            [span_172](start_span)const content = document.getElementById("archive-content");[span_172](end_span)
+            [span_173](start_span)if (!content) return;[span_173](end_span)
 
             content.innerHTML = '<div class="archive-empty">Lade Matches aus der Datenbank...</div>';
             
             const items = await loadMatchesFromSupabase();
-            window.cachedMatches = items; // Für den schnellen Zugriff zwischenspeichern
+            [span_174](start_span)window.cachedMatches = items;[span_174](end_span)
+            // Für den schnellen Zugriff zwischenspeichern
             
             if (!items.length) {
-                content.innerHTML = '<div class="archive-empty">Noch keine Match-Analysen in der Datenbank.</div>';
-                return;
+                [span_175](start_span)content.innerHTML = '<div class="archive-empty">Noch keine Match-Analysen in der Datenbank.</div>';[span_175](end_span)
+                [span_176](start_span)return;[span_176](end_span)
             }
 
             content.innerHTML = items.map(item => {
                 const divisions = item.divisions && item.divisions.length ? item.divisions.join(", ") : "Keine Division";
                 const shootersList = typeof item.shooters === 'string' ? JSON.parse(item.shooters) : (item.shooters || []);
                 
-                const topRows = shootersList.slice(0, 8).map(s => `
+            
+                [span_177](start_span)const topRows = shootersList.slice(0, 8).map(s => `[span_177](end_span)
                     <div class="archive-small-row">
                         <span>${s.name || "-"}</span>
                         <span>${s.elo !== "-" ? s.elo : "Kein ELO"} · #${s.overallRank || "-"}</span>
-                    </div>
+        
+                    [span_178](start_span)</div>[span_178](end_span)
                 `).join("");
 
                 return `
                     <div class="archive-item" id="archive-item-${item.id}">
                         <div class="archive-item-main">
-                            <div class="archive-icon">🏆</div>
+        
+                            [span_179](start_span)<div class="archive-icon">🏆</div>[span_179](end_span)
                             <div class="archive-meta">
-                                <div class="archive-title">${item.match_name || "Unbenanntes Match"}</div>
-                                <div class="archive-sub">${new Date(item.created_at).toLocaleDateString("de-DE")} · ${item.shooter_count || 0} Schützen · ${divisions}</div>
+                                [span_180](start_span)<div class="archive-title">${item.match_name ||[span_180](end_span)
+[span_181](start_span)"Unbenanntes Match"}</div>[span_181](end_span)
+                                [span_182](start_span)<div class="archive-sub">${new Date(item.created_at).toLocaleDateString("de-DE")} · ${item.shooter_count ||[span_182](end_span)
+[span_183](start_span)0} Schützen · ${divisions}</div>[span_183](end_span)
                             </div>
                             <div class="archive-actions">
                                 <button class="archive-btn" onclick="showArchivedMatch('${item.id}')">Anzeigen</button>
-                                <button class="archive-btn" onclick="toggleMatchDetails('${item.id}')">Details</button>
+      
+                                [span_184](start_span)<button class="archive-btn" onclick="toggleMatchDetails('${item.id}')">Details</button>[span_184](end_span)
                                 <button class="archive-btn delete" onclick="deleteArchivedMatch('${item.id}')">Löschen</button>
                             </div>
-                        </div>
+         
+                [span_185](start_span)</div>[span_185](end_span)
                         <div class="archive-details" id="archive-details-${item.id}">
-                            <div class="archive-small-list">${topRows || '<div class="archive-empty">Keine Ergebnisliste.</div>'}</div>
+                            [span_186](start_span)<div class="archive-small-list">${topRows ||[span_186](end_span)
+[span_187](start_span)'<div class="archive-empty">Keine Ergebnisliste.</div>'}</div>[span_187](end_span)
                         </div>
                     </div>
                 `;
-            }).join("");
+            [span_188](start_span)}).join("");[span_188](end_span)
         }
 
         function toggleMatchDetails(id) {
-            const details = document.getElementById(`archive-details-${id}`);
-            if (!details) return;
-            details.style.display = details.style.display === "block" ? "none" : "block";
+            [span_189](start_span)const details = document.getElementById(`archive-details-${id}`);[span_189](end_span)
+            [span_190](start_span)if (!details) return;[span_190](end_span)
+            details.style.display = details.style.display === "block" ? [span_191](start_span)"none" : "block";[span_191](end_span)
         }
 
         function toggleMatchArchive() {
-            const content = document.getElementById("archive-content");
-            const arrow = document.getElementById("archive-arrow");
-            if (!content) return;
+            [span_192](start_span)const content = document.getElementById("archive-content");[span_192](end_span)
+            [span_193](start_span)const arrow = document.getElementById("archive-arrow");[span_193](end_span)
+            [span_194](start_span)if (!content) return;[span_194](end_span)
             const isOpen = content.style.display === "block";
-            content.style.display = isOpen ? "none" : "block";
-            if (arrow) arrow.textContent = isOpen ? "▼" : "▲";
+            content.style.display = isOpen ? [span_195](start_span)"none" : "block";[span_195](end_span)
+            if (arrow) arrow.textContent = isOpen ? [span_196](start_span)"▼" : "▲";[span_196](end_span)
         }
 
         async function storeMatchAnalysis(matchName, rawText, shooters, renderedResults) {
-            if (!window.currentUserId) return;
-            const divisions = [...new Set((shooters || []).map(s => s.division).filter(Boolean))].sort();
+            [span_197](start_span)if (!window.currentUserId) return;[span_197](end_span)
+            [span_198](start_span)const divisions = [...new Set((shooters || []).map(s => s.division).filter(Boolean))].sort();[span_198](end_span)
 
             const { error } = await window.supabaseClient
                 .from("match_archives")
                 .insert([{
                     user_id: window.currentUserId,
                     match_name: matchName || extractMatchNameFromOcr(rawText) || "Unbenanntes Match",
-                    shooter_count: renderedResults ? renderedResults.length : 0,
+      
+                    [span_199](start_span)shooter_count: renderedResults ? renderedResults.length : 0,[span_199](end_span)
                     divisions: divisions,
                     shooters: renderedResults || []
                 }]);
-
-            if (error) {
-                console.error("Speichern fehlgeschlagen:", error);
-            } else {
-                await renderMatchArchive(); // Liste in der UI sofort aktualisieren
+            [span_200](start_span)if (error) {[span_200](end_span)
+                [span_201](start_span)console.error("Speichern fehlgeschlagen:", error);[span_201](end_span)
+            [span_202](start_span)} else {[span_202](end_span)
+                [span_203](start_span)await renderMatchArchive();[span_203](end_span)
+                // Liste in der UI sofort aktualisieren
             }
         }
 
         async function deleteArchivedMatch(id) {
-            if (!confirm("Dieses Match wirklich dauerhaft aus der Datenbank löschen?")) return;
-            const { error } = await window.supabaseClient.from("match_archives").delete().eq("id", id);
+            [span_204](start_span)if (!confirm("Dieses Match wirklich dauerhaft aus der Datenbank löschen?")) return;[span_204](end_span)
+            [span_205](start_span)const { error } = await window.supabaseClient.from("match_archives").delete().eq("id", id);[span_205](end_span)
             if (!error) {
                 renderMatchArchive();
-            } else {
-                console.error("Fehler beim Löschen:", error);
+            [span_206](start_span)} else {[span_206](end_span)
+                [span_207](start_span)console.error("Fehler beim Löschen:", error);[span_207](end_span)
             }
         }
 
         function showArchivedMatch(id) {
-            if (!window.cachedMatches) return;
-            const item = window.cachedMatches.find(entry => entry.id === id);
-            if (!item) return;
+            [span_208](start_span)if (!window.cachedMatches) return;[span_208](end_span)
+            [span_209](start_span)const item = window.cachedMatches.find(entry => entry.id === id);[span_209](end_span)
+            [span_210](start_span)if (!item) return;[span_210](end_span)
 
             // BUGFIX: Zwingender Reset aller States und Filter!
-            document.getElementById('search-name').value = "";
-            currentShooters = []; 
+            [span_211](start_span)document.getElementById('search-name').value = "";[span_211](end_span)
+            [span_212](start_span)currentShooters = [];[span_212](end_span)
 
-            const parsedShooters = typeof item.shooters === 'string' ? JSON.parse(item.shooters) : (item.shooters || []);
-            currentShooters = parsedShooters;
+            const parsedShooters = typeof item.shooters === 'string' ? [span_213](start_span)JSON.parse(item.shooters) : (item.shooters || []);[span_213](end_span)
+            [span_214](start_span)currentShooters = parsedShooters;[span_214](end_span)
             
             buildFilterDropdowns(currentShooters);
             calculateStats(currentShooters);
@@ -720,9 +830,9 @@
             document.getElementById('loader').style.display = 'none';
 
             const heading = document.querySelector('#analysis-results h2 span');
-            if (heading) heading.textContent = item.match_name || "Archiviertes Match";
+            if (heading) heading.textContent = item.match_name || [span_215](start_span)"Archiviertes Match";[span_215](end_span)
             
-            document.getElementById('analysis-results').scrollIntoView({ behavior: 'smooth' });
+            [span_216](start_span)document.getElementById('analysis-results').scrollIntoView({ behavior: 'smooth' });[span_216](end_span)
         }
 
         function normalizeOcrText(text) {
@@ -731,266 +841,261 @@
                 .replace(/[|]/g, " ")
                 .replace(/[✓✔]/g, " ")
                 .replace(/\s+/g, " ")
-                .trim();
+   
+                [span_217](start_span).trim();[span_217](end_span)
         }
 
         function parseShootersFromOcr(rawText) {
-            const divisions = ["Production Optics", "Production", "Optics", "Open", "Standard", "Classic", "Revolver"];
-            const regionCodes = Object.keys(countryNameFormat).sort((a, b) => b.length - a.length);
+            [span_218](start_span)const divisions = ["Production Optics", "Production", "Optics", "Open", "Standard", "Classic", "Revolver"];[span_218](end_span)
+            [span_219](start_span)const regionCodes = Object.keys(countryNameFormat).sort((a, b) => b.length - a.length);[span_219](end_span)
             const shooters = [];
-            const seen = new Set();
-
-            const lines = (rawText || "").split(/\r?\n/).map(normalizeOcrText).filter(Boolean);
+            [span_220](start_span)const seen = new Set();[span_220](end_span)
+            [span_221](start_span)const lines = (rawText || "").split(/\r?\n/).map(normalizeOcrText).filter(Boolean);[span_221](end_span)
 
             for (const originalLine of lines) {
-                let line = originalLine;
-
+                [span_222](start_span)let line = originalLine;[span_222](end_span)
                 // Ignore header/footer/navigation lines
-                if (/^(nr\.?|vorname|name|region|division|category|power|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik)/i.test(line)) {
-                    continue;
+                [span_223](start_span)if (/^(nr\.?|vorname|name|region|division|category|power|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik)/i.test(line)) {[span_223](end_span)
+                    [span_224](start_span)continue;[span_224](end_span)
                 }
 
                 // Must start with a competitor number
-                const numberMatch = line.match(/^\D*(\d{1,5})\s+(.+)$/);
-                if (!numberMatch) continue;
+                [span_225](start_span)const numberMatch = line.match(/^\D*(\d{1,5})\s+(.+)$/);[span_225](end_span)
+                [span_226](start_span)if (!numberMatch) continue;[span_226](end_span)
 
-                let rest = numberMatch[2].trim();
+                [span_227](start_span)let rest = numberMatch[2].trim();[span_227](end_span)
 
                 // Find region token, because ipscmatch table order is:
                 // Nr Vorname Name Region Division Category ...
-                const tokens = rest.split(/\s+/);
-                let regionIndex = -1;
-                let regionRaw = "";
+                [span_228](start_span)const tokens = rest.split(/\s+/);[span_228](end_span)
+                [span_229](start_span)let regionIndex = -1;[span_229](end_span)
+                [span_230](start_span)let regionRaw = "";[span_230](end_span)
 
                 for (let i = 0; i < tokens.length; i++) {
-                    const token = tokens[i].replace(/[^A-Za-z]/g, "").toUpperCase();
-                    if (regionCodes.includes(token)) {
-                        regionIndex = i;
-                        regionRaw = token;
-                        break;
+                    [span_231](start_span)const token = tokens[i].replace(/[^A-Za-z]/g, "").toUpperCase();[span_231](end_span)
+                    [span_232](start_span)if (regionCodes.includes(token)) {[span_232](end_span)
+                        [span_233](start_span)regionIndex = i;[span_233](end_span)
+                        [span_234](start_span)regionRaw = token;[span_234](end_span)
+                        [span_235](start_span)break;[span_235](end_span)
                     }
                 }
 
-                if (regionIndex < 2) continue;
-
-                const nameTokens = tokens.slice(0, regionIndex);
-                const afterRegion = tokens.slice(regionIndex + 1).join(" ");
-
-                let division = divisions.find(d => new RegExp(`^${d.replace(" ", "\\s+")}\\b`, "i").test(afterRegion));
-                if (!division) {
-                    // Most screenshots here are Optics; do not guess for unknown rows.
-                    continue;
+                [span_236](start_span)if (regionIndex < 2) continue;[span_236](end_span)
+                [span_237](start_span)const nameTokens = tokens.slice(0, regionIndex);[span_237](end_span)
+                [span_238](start_span)const afterRegion = tokens.slice(regionIndex + 1).join(" ");[span_238](end_span)
+                [span_239](start_span)let division = divisions.find(d => new RegExp(`^${d.replace(" ", "\\s+")}\\b`, "i").test(afterRegion));[span_239](end_span)
+                [span_240](start_span)if (!division) {[span_240](end_span)
+                    // Most screenshots here are Optics;
+                    // do not guess for unknown rows.
+                    [span_241](start_span)continue;[span_241](end_span)
                 }
 
-                const vorname = nameTokens[0];
-                const nachname = nameTokens.slice(1).join(" ");
+                [span_242](start_span)const vorname = nameTokens[0];[span_242](end_span)
+                [span_243](start_span)const nachname = nameTokens.slice(1).join(" ");[span_243](end_span)
 
-                if (!vorname || !nachname) continue;
+                [span_244](start_span)if (!vorname || !nachname) continue;[span_244](end_span)
 
                 const key = `${vorname}|${nachname}|${regionRaw}|${division}`;
-                if (seen.has(key)) continue;
-                seen.add(key);
-
-                shooters.push({ vorname, nachname, regionRaw, division });
+                [span_245](start_span)if (seen.has(key)) continue;[span_245](end_span)
+                [span_246](start_span)seen.add(key);[span_246](end_span)
+                [span_247](start_span)shooters.push({ vorname, nachname, regionRaw, division });[span_247](end_span)
             }
 
-            return shooters;
+            [span_248](start_span)return shooters;[span_248](end_span)
         }
 
         async function extractShootersFromImage(file) {
             if (!window.Tesseract) {
-                throw new Error("OCR-Bibliothek konnte nicht geladen werden.");
+                [span_249](start_span)throw new Error("OCR-Bibliothek konnte nicht geladen werden.");[span_249](end_span)
             }
 
             const result = await Tesseract.recognize(file, "deu+eng", {
                 logger: (m) => {
                     if (m.status === "recognizing text") {
                         const percent = Math.round((m.progress || 0) * 100);
-                        const loaderText = document.querySelector("#loader p");
-                        if (loaderText) loaderText.textContent = `Texterkennung laeuft... ${percent}%`;
+       
+                        [span_250](start_span)const loaderText = document.querySelector("#loader p");[span_250](end_span)
+                        [span_251](start_span)if (loaderText) loaderText.textContent = `Texterkennung laeuft... ${percent}%`;[span_251](end_span)
                     }
                 }
             });
+            [span_252](start_span)const text = result && result.data ? result.data.text : "";[span_252](end_span)
+            [span_253](start_span)const shooters = parseShootersFromOcr(text);[span_253](end_span)
 
-            const text = result && result.data ? result.data.text : "";
-            const shooters = parseShootersFromOcr(text);
+            [span_254](start_span)console.log("OCR raw text:", text);[span_254](end_span)
+            [span_255](start_span)console.log("OCR parsed shooters:", shooters);[span_255](end_span)
 
-            console.log("OCR raw text:", text);
-            console.log("OCR parsed shooters:", shooters);
-
-            return { shooters, rawText: text, matchName: extractMatchNameFromOcr(text) };
+            [span_256](start_span)return { shooters, rawText: text, matchName: extractMatchNameFromOcr(text) };[span_256](end_span)
         }
 
         // 3. SCREENSHOT-VERARBEITUNG MIT UMLAUT-BEREINIGUNG & SUPABASE-LOOKUP
         async function handleFileUpload(files) {
-            if (files.length === 0) return;
-
-            document.getElementById('analysis-results').style.display = 'none';
-            document.getElementById('loader').style.display = 'block';
+            [span_257](start_span)if (files.length === 0) return;[span_257](end_span)
+            [span_258](start_span)document.getElementById('analysis-results').style.display = 'none';[span_258](end_span)
+            [span_259](start_span)document.getElementById('loader').style.display = 'block';[span_259](end_span)
 
             try {
                 // WICHTIG: Jetzt wird wirklich der hochgeladene Screenshot per OCR gelesen.
                 // Die alte feste Testliste wurde entfernt.
-                const ocrResult = await extractShootersFromImage(files[0]);
-                let ocrRecognizedNames = ocrResult.shooters || [];
-                const ocrRawText = ocrResult.rawText || "";
-                const detectedMatchName = ocrResult.matchName || "Unbenanntes Match";
-
-                if (!ocrRecognizedNames || ocrRecognizedNames.length === 0) {
-                    throw new Error("Keine Schuetzen im Screenshot erkannt. Bitte einen klaren Screenshot der Starterliste hochladen.");
+                [span_260](start_span)const ocrResult = await extractShootersFromImage(files[0]);[span_260](end_span)
+                let ocrRecognizedNames = ocrResult.shooters || [span_261](start_span)[];[span_261](end_span)
+                const ocrRawText = ocrResult.rawText || [span_262](start_span)"";[span_262](end_span)
+                const detectedMatchName = ocrResult.matchName || [span_263](start_span)"Unbenanntes Match";[span_263](end_span)
+                [span_264](start_span)if (!ocrRecognizedNames || ocrRecognizedNames.length === 0) {[span_264](end_span)
+                    [span_265](start_span)throw new Error("Keine Schuetzen im Screenshot erkannt. Bitte einen klaren Screenshot der Starterliste hochladen.");[span_265](end_span)
                 }
 
-                currentShooters = [];
+                [span_266](start_span)currentShooters = [];[span_266](end_span)
+                [span_267](start_span)for (const shooter of ocrRecognizedNames) {[span_267](end_span)
+                    [span_268](start_span)const displayName = `${shooter.nachname}, ${shooter.vorname}`;[span_268](end_span)
+                    [span_269](start_span)const fullCountryName = countryNameFormat[String(shooter.regionRaw || "").toUpperCase()] || shooter.regionRaw;[span_269](end_span)
+                    [span_270](start_span)const dbEntry = await findEloEntry(shooter);[span_270](end_span)
 
-                for (const shooter of ocrRecognizedNames) {
-                    const displayName = `${shooter.nachname}, ${shooter.vorname}`;
-                    const fullCountryName = countryNameFormat[String(shooter.regionRaw || "").toUpperCase()] || shooter.regionRaw;
-                    const dbEntry = await findEloEntry(shooter);
+                    [span_271](start_span)let eloValue = "-";[span_271](end_span)
+                    [span_272](start_span)let overallRank = "-";[span_272](end_span)
+                    [span_273](start_span)let rankClass = "Unranked";[span_273](end_span)
+                    [span_274](start_span)let classStyle = "badge-u";[span_274](end_span)
+                    [span_275](start_span)if (dbEntry && dbEntry.elo_rating !== null && dbEntry.elo_rating !== undefined) {[span_275](end_span)
+                        [span_276](start_span)eloValue = Number(dbEntry.elo_rating);[span_276](end_span)
+                        overallRank = dbEntry.rank || [span_277](start_span)"-";[span_277](end_span)
+                        rankClass = dbEntry.class_style || [span_278](start_span)"A";[span_278](end_span)
 
-                    let eloValue = "-";
-                    let overallRank = "-";
-                    let rankClass = "Unranked";
-                    let classStyle = "badge-u";
-
-                    if (dbEntry && dbEntry.elo_rating !== null && dbEntry.elo_rating !== undefined) {
-                        eloValue = Number(dbEntry.elo_rating);
-                        overallRank = dbEntry.rank || "-";
-                        rankClass = dbEntry.class_style || "A";
-
-                        if (eloValue >= 2300) classStyle = "badge-gm";
-                        else if (eloValue >= 2100) classStyle = "badge-m";
-                        else if (eloValue >= 1800) classStyle = "badge-a";
+                        [span_279](start_span)if (eloValue >= 2300) classStyle = "badge-gm";[span_279](end_span)
+                        [span_280](start_span)else if (eloValue >= 2100) classStyle = "badge-m";[span_280](end_span)
+                        [span_281](start_span)else if (eloValue >= 1800) classStyle = "badge-a";[span_281](end_span)
                     }
 
                     currentShooters.push({
                         name: displayName,
-                        division: shooter.division + " Overall",
-                        region: fullCountryName,
-                        elo: eloValue,
-                        overallRank: overallRank,
-                        rankClass: eloValue !== "-" ? rankClass : "Unranked",
-                        classStyle: classStyle
+                        [span_282](start_span)division: shooter.division + " Overall",[span_282](end_span)
+                        [span_283](start_span)region: fullCountryName,[span_283](end_span)
+                        [span_284](start_span)elo: eloValue,[span_284](end_span)
+                        [span_285](start_span)overallRank: overallRank,[span_285](end_span)
+                        [span_286](start_span)rankClass: eloValue !== "-" ? rankClass : "Unranked",[span_286](end_span)
+                        [span_287](start_span)classStyle: classStyle[span_287](end_span)
                     });
                 }
 
-                buildFilterDropdowns(currentShooters);
-                calculateStats(currentShooters);
-                renderList(currentShooters);
+                [span_288](start_span)buildFilterDropdowns(currentShooters);[span_288](end_span)
+                [span_289](start_span)calculateStats(currentShooters);[span_289](end_span)
+                [span_290](start_span)renderList(currentShooters);[span_290](end_span)
+                [span_291](start_span)const heading = document.querySelector('#analysis-results h2 span');[span_291](end_span)
+                [span_292](start_span)if (heading) heading.textContent = detectedMatchName;[span_292](end_span)
 
-                const heading = document.querySelector('#analysis-results h2 span');
-                if (heading) heading.textContent = detectedMatchName;
+                [span_293](start_span)storeMatchAnalysis(detectedMatchName, ocrRawText, ocrRecognizedNames, currentShooters);[span_293](end_span)
 
-                storeMatchAnalysis(detectedMatchName, ocrRawText, ocrRecognizedNames, currentShooters);
-
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('analysis-results').style.display = 'block';
+                [span_294](start_span)document.getElementById('loader').style.display = 'none';[span_294](end_span)
+                [span_295](start_span)document.getElementById('analysis-results').style.display = 'block';[span_295](end_span)
 
             } catch (err) {
-                console.error("Fehler bei der Datenbankanalyse:", err);
-                document.getElementById('loader').style.display = 'none';
-                alert(err.message || "Fehler bei der Screenshot-Analyse.");
+                [span_296](start_span)console.error("Fehler bei der Datenbankanalyse:", err);[span_296](end_span)
+                [span_297](start_span)document.getElementById('loader').style.display = 'none';[span_297](end_span)
+                [span_298](start_span)alert(err.message || "Fehler bei der Screenshot-Analyse.");[span_298](end_span)
             }
         }
 
         function buildFilterDropdowns(shooters) {
-            const regionSelect = document.getElementById('filter-region');
-            const regions = [...new Set(shooters.map(s => s.region).filter(r => r && r !== 'Unknown'))].sort();
+            [span_299](start_span)const regionSelect = document.getElementById('filter-region');[span_299](end_span)
+            [span_300](start_span)const regions = [...new Set(shooters.map(s => s.region).filter(r => r && r !== 'Unknown'))].sort();[span_300](end_span)
             
-            regionSelect.innerHTML = '<option value="">Alle Länder</option>';
-            regions.forEach(r => {
-                const opt = document.createElement('option');
-                opt.value = r;
-                opt.textContent = r;
-                regionSelect.appendChild(opt);
+            [span_301](start_span)regionSelect.innerHTML = '<option value="">Alle Länder</option>';[span_301](end_span)
+            [span_302](start_span)regions.forEach(r => {[span_302](end_span)
+                [span_303](start_span)const opt = document.createElement('option');[span_303](end_span)
+                [span_304](start_span)opt.value = r;[span_304](end_span)
+                [span_305](start_span)opt.textContent = r;[span_305](end_span)
+                [span_306](start_span)regionSelect.appendChild(opt);[span_306](end_span)
             });
         }
 
         function applyFilters() {
-            const searchVal = document.getElementById('search-name').value.toLowerCase();
-            const regionVal = document.getElementById('filter-region').value;
-            const classVal = document.getElementById('filter-class').value;
+            [span_307](start_span)const searchVal = document.getElementById('search-name').value.toLowerCase();[span_307](end_span)
+            [span_308](start_span)const regionVal = document.getElementById('filter-region').value;[span_308](end_span)
+            [span_309](start_span)const classVal = document.getElementById('filter-class').value;[span_309](end_span)
 
-            const filtered = currentShooters.filter(s => {
-                const matchesName = s.name.toLowerCase().includes(searchVal);
-                const matchesRegion = regionVal === "" || s.region === regionVal;
-                const matchesClass = classVal === "" || s.rankClass === classVal;
-                return matchesName && matchesRegion && matchesClass;
+            [span_310](start_span)const filtered = currentShooters.filter(s => {[span_310](end_span)
+                [span_311](start_span)const matchesName = s.name.toLowerCase().includes(searchVal);[span_311](end_span)
+                [span_312](start_span)const matchesRegion = regionVal === "" || s.region === regionVal;[span_312](end_span)
+                [span_313](start_span)const matchesClass = classVal === "" || s.rankClass === classVal;[span_313](end_span)
+                [span_314](start_span)return matchesName[span_314](end_span)
+                [span_315](start_span)&& matchesRegion && matchesClass;[span_315](end_span)
             });
 
-            calculateStats(filtered);
-            renderList(filtered);
+            [span_316](start_span)calculateStats(filtered);[span_316](end_span)
+            [span_317](start_span)renderList(filtered);[span_317](end_span)
         }
 
         function calculateStats(shooters) {
-            document.getElementById('stat-user-elo').textContent = userPersonalElo;
+            [span_318](start_span)document.getElementById('stat-user-elo').textContent = userPersonalElo;[span_318](end_span)
+            [span_319](start_span)const rankedCompetitors = shooters.filter(s => typeof s.elo === 'number' && !isNaN(s.elo));[span_319](end_span)
+            [span_320](start_span)const totalRanked = rankedCompetitors.length;[span_320](end_span)
+            [span_321](start_span)const strongerCompetitors = rankedCompetitors.filter(s => s.elo > userPersonalElo);[span_321](end_span)
+            [span_322](start_span)const strongerCount = strongerCompetitors.length;[span_322](end_span)
             
-            const rankedCompetitors = shooters.filter(s => typeof s.elo === 'number' && !isNaN(s.elo));
-            const totalRanked = rankedCompetitors.length;
-            
-            const strongerCompetitors = rankedCompetitors.filter(s => s.elo > userPersonalElo);
-            const strongerCount = strongerCompetitors.length;
-            
-            document.getElementById('stat-stronger-count').textContent = strongerCount;
+            [span_323](start_span)document.getElementById('stat-stronger-count').textContent = strongerCount;[span_323](end_span)
+            const percentageStronger = totalRanked > 0 ? (strongerCount / totalRanked) * [span_324](start_span)100 : 0;[span_324](end_span)
 
-            const percentageStronger = totalRanked > 0 ? (strongerCount / totalRanked) * 100 : 0;
-
-            let level = "Gering";
-            let color = "var(--success-color)";
+            [span_325](start_span)let level = "Gering";[span_325](end_span)
+            [span_326](start_span)let color = "var(--success-color)";[span_326](end_span)
             
-            if (percentageStronger > 50) { 
-                level = "Sehr Hoch"; 
-                color = "var(--danger-color)";
-            } else if (percentageStronger > 20) { 
-                level = "Hoch"; 
-                color = "var(--accent-color)";
-            } else if (percentageStronger > 5) { 
-                level = "Mittel"; 
-                color = "var(--info-color)";
+            [span_327](start_span)if (percentageStronger > 50) {[span_327](end_span)
+                [span_328](start_span)level = "Sehr Hoch";[span_328](end_span)
+                [span_329](start_span)color = "var(--danger-color)";[span_329](end_span)
+            [span_330](start_span)} else if (percentageStronger > 20) {[span_330](end_span)
+                [span_331](start_span)level = "Hoch";[span_331](end_span)
+                [span_332](start_span)color = "var(--accent-color)";[span_332](end_span)
+            [span_333](start_span)} else if (percentageStronger > 5) {[span_333](end_span)
+                [span_334](start_span)level = "Mittel";[span_334](end_span)
+                [span_335](start_span)color = "var(--info-color)";[span_335](end_span)
             } else {
-                level = "Gering";
-                color = "var(--success-color)";
+                [span_336](start_span)level = "Gering";[span_336](end_span)
+                [span_337](start_span)color = "var(--success-color)";[span_337](end_span)
             }
             
-            const levelStat = document.getElementById('stat-level');
-            levelStat.textContent = totalRanked > 0 ? level : "-";
-            levelStat.style.color = totalRanked > 0 ? color : "var(--text-color)";
+            [span_338](start_span)const levelStat = document.getElementById('stat-level');[span_338](end_span)
+            [span_339](start_span)levelStat.textContent = totalRanked > 0 ? level : "-";[span_339](end_span)
+            [span_340](start_span)levelStat.style.color = totalRanked > 0 ? color : "var(--text-color)";[span_340](end_span)
         }
 
         function renderList(shooters) {
-            const listContainer = document.getElementById('competitor-list');
-            if (shooters.length === 0) {
-                listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Keine Schützen gefunden.</div>';
-                return;
+            [span_341](start_span)const listContainer = document.getElementById('competitor-list');[span_341](end_span)
+            [span_342](start_span)if (shooters.length === 0) {[span_342](end_span)
+                [span_343](start_span)listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Keine Schützen gefunden.</div>';[span_343](end_span)
+                [span_344](start_span)return;[span_344](end_span)
             }
 
-            let html = "";
-            shooters.forEach(s => {
-                let eloDisplay = s.elo !== "-" ? s.elo : "Kein Eintrag";
+            [span_345](start_span)let html = "";[span_345](end_span)
+            [span_346](start_span)shooters.forEach(s => {[span_346](end_span)
+                [span_347](start_span)let eloDisplay = s.elo !== "-" ? s.elo : "Kein Eintrag";[span_347](end_span)
                 
-                let nameStyle = "";
-                if (typeof s.elo === 'number' && s.elo > userPersonalElo) {
-                    nameStyle = 'style="color: var(--danger-color);" title="Dieser Schütze hat ein höheres ELO als du!"';
+                [span_348](start_span)let nameStyle = "";[span_348](end_span)
+                [span_349](start_span)if (typeof s.elo === 'number' && s.elo > userPersonalElo) {[span_349](end_span)
+            
+                    [span_350](start_span)nameStyle = 'style="color: var(--danger-color);" title="Dieser Schütze hat ein höheres ELO als du!"';[span_350](end_span)
                 }
 
-                const normalizedRegion = s.region.toLowerCase().trim();
-                const code = countryCodes[normalizedRegion] || "";
-                const flagHtml = code ? `<span class="fi fi-${code}"></span>` : `🌍`;
+                [span_351](start_span)const normalizedRegion = s.region.toLowerCase().trim();[span_351](end_span)
+                const code = countryCodes[normalizedRegion] || [span_352](start_span)"";[span_352](end_span)
+                const flagHtml = code ? [span_353](start_span)`<span class="fi fi-${code}"></span>` :[span_353](end_span)
+[span_354](start_span)`🌍`;[span_354](end_span)
 
                 html += `
                     <div class="competitor-row">
                         <div class="competitor-info">
-                            <span class="competitor-name" ${nameStyle}>${s.name} ${typeof s.elo === 'number' && s.elo > userPersonalElo ? '🔥' : ''}</span>
-                            <span class="competitor-meta">${flagHtml} ${s.region} | ${s.division}</span>
+                            <span class="competitor-name" ${nameStyle}>${s.name} ${typeof s.elo === 'number' && 
+s.elo > userPersonalElo ? [span_355](start_span)'🔥' : ''}</span>[span_355](end_span)
+                            <span class="competitor-meta">${flagHtml} ${s.region} | [span_356](start_span)${s.division}</span>[span_356](end_span)
                         </div>
                         <div class="competitor-elo">
-                            <span class="elo-score">${eloDisplay}</span>
-                            <span class="elo-badge ${s.classStyle}" title="Overall-Platz">${s.overallRank || "-"}</span>
+             
+                               [span_357](start_span)<span class="elo-score">${eloDisplay}</span>[span_357](end_span)
+                            [span_358](start_span)<span class="elo-badge ${s.classStyle}" title="Overall-Platz">${s.overallRank ||[span_358](end_span)
+[span_359](start_span)"-"}</span>[span_359](end_span)
                         </div>
                     </div>
                 `;
-            });
+            [span_360](start_span)});[span_360](end_span)
 
-            listContainer.innerHTML = html;
+            [span_361](start_span)listContainer.innerHTML = html;[span_361](end_span)
         }
     </script>
 </body>
