@@ -243,6 +243,13 @@
                                 </tr>
                             </tbody>
                         </table>
+
+                        <p style="margin-top:18px;line-height:1.5;color:var(--text-muted);">
+                            💡 <strong>Beispiel:</strong><br><br>
+                            Ein Match kann für dich persönlich eine <strong>hohe Herausforderung</strong> darstellen und gleichzeitig eine <strong>sehr hohe Feldstärke</strong> besitzen. Dadurch werden sowohl deine individuellen Chancen als auch die Qualität des gesamten Starterfeldes getrennt bewertet.
+                            <br><br>
+                            Ein Match mit vielen unbekannten oder ungerankten Teilnehmern kann deshalb für dich schwierig sein, ohne dass es automatisch ein internationales Spitzenfeld sein muss.
+                        </p>
                     </div>
                 </div>
 
@@ -580,6 +587,7 @@
             return session && session.user ? session.user : null;
         }
 
+        // 🛡️ ZENTRALE VERIFIZIERUNGS-LOGIK
         async function processUserProfile(user) {
             const deniedBox = document.getElementById("access-denied");
             const dashboard = document.getElementById("dashboard-content");
@@ -635,6 +643,7 @@
                     }
                 }
                 
+                // --- SCHNELLSTART AUS DEM PLANER ---
                 const { data: plannedMatches } = await window.supabaseClient
                     .from("user_matches")
                     .select("*")
@@ -648,7 +657,14 @@
                     let hasValid = false;
 
                     plannedMatches.forEach(m => {
-                        if (m.status && (m.status.toLowerCase().includes('approved') || m.status.toLowerCase().includes('warteliste'))) {
+                        const status = (m.status || "").toLowerCase();
+                        const squad = (m.squad || "").toUpperCase();
+                        
+                        // FILTER: Zeige den Button NICHT, wenn Status Warteliste oder Squad SQ99 ist
+                        const isApproved = status.includes('approved') || status.includes('bestätigt');
+                        const isWarteliste = status.includes('warteliste') || squad.includes('99');
+
+                        if (isApproved && !isWarteliste) {
                             hasValid = true;
                             const btn = document.createElement("button");
                             btn.className = "archive-btn";
@@ -670,6 +686,7 @@
                     if (hasValid) container.style.display = "block";
                 }
 
+                // --- AUTOMATISCHER START VOM PLANER ---
                 const urlParams = new URLSearchParams(window.location.search);
                 const autoUrl = urlParams.get('url');
                 if (autoUrl) {
@@ -802,7 +819,6 @@
 
             for (const attempt of attempts) {
                 try {
-                    setLoaderMessage(`Lade Match-Daten (${attempt.name})...`);
                     const response = await fetchWithTimeout(attempt.url, attempt.options || {}, 20000);
 
                     if (!response) throw new Error("Keine Antwort vom Server");
@@ -816,7 +832,6 @@
                     return htmlContent;
                 } catch (err) {
                     const msg = err && err.name === "AbortError" ? "Timeout" : (err && err.message ? err.message : String(err));
-                    console.warn(`Link-Import über ${attempt.name} fehlgeschlagen:`, err);
                     errors.push(`${attempt.name}: ${msg}`);
                 }
             }
@@ -826,34 +841,6 @@
                 : "";
 
             throw new Error(`Der Link konnte nicht geladen werden.${serviceWorkerHint}\n\nVersuchte Wege:\n- ${errors.join("\n- ")}`);
-        }
-
-        function extractIpscCandidateLinks(htmlContent, baseUrl) {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlContent, "text/html");
-            const candidates = [];
-            const seen = new Set([baseUrl]);
-
-            const wanted = /(starter|startliste|starterliste|teilnehmer|participants?|shooters?|schützen|schuetzen|squad|squads|registration|anmeldung|liste|list|status|utilisation|complist)/i;
-
-            Array.from(doc.querySelectorAll("a[href]")).forEach(link => {
-                const href = link.getAttribute("href") || "";
-                const text = cleanText(link.textContent || "");
-                const combined = `${text} ${href}`;
-                
-                try {
-                    const url = new URL(href, baseUrl);
-                    url.hash = "";
-                    const absolute = url.href;
-
-                    if (!seen.has(absolute) && wanted.test(combined)) {
-                        seen.add(absolute);
-                        candidates.push(absolute);
-                    }
-                } catch(e) {}
-            });
-
-            return candidates.slice(0, 12);
         }
 
         function findStarterTable(doc, forcedDiv) {
@@ -981,10 +968,22 @@
             return parsedNames;
         }
 
-        async function parseShootersFromHtml(htmlContent, options = {}) {
+        async function parseShootersFromHtml(htmlContent, currentUrl, options = {}) {
             const parser = new DOMParser();
             let doc = parser.parseFromString(htmlContent, "text/html");
             const forcedDiv = options.forcedDivision;
+
+            const listLink = doc.querySelector("a[href*='list=starter'], a[href*='list=main_match'], a[href*='list=overall'], a[href*='list=squad'], a[href*='list=teilnehmer']");
+            // Wir folgen dem Link nur, wenn wir nicht explizit durch skipAutoFollow gestoppt wurden
+            if (listLink && currentUrl && !options.skipAutoFollow) {
+                try {
+                    const targetUrl = new URL(listLink.getAttribute("href"), currentUrl).href;
+                    const nestedHtml = await fetchMatchHtml(targetUrl);
+                    doc = parser.parseFromString(nestedHtml, "text/html");
+                } catch(e) {
+                    console.warn("Automatisches Nachladen fehlgeschlagen:", e);
+                }
+            }
 
             let matchTitle = cleanText(doc.querySelector("h1")?.textContent) || cleanText(doc.title) || "IPSC Match";
             matchTitle = matchTitle.replace(/ipscmatch\.de/i, "").replace(/Starterliste/i, "").trim() || "Importiertes Match";
@@ -1055,26 +1054,6 @@
             return { matchTitle, shooters: parsedNames };
         }
 
-        // --- HILFSFUNKTION FÜR DIE INTELLIGENTE DIVISIONS-ERKENNUNG ---
-        function extractDivFromDoc(doc, myName) {
-            const myNameParts = myName.toLowerCase().split(" ");
-            const rows = Array.from(doc.querySelectorAll("tr"));
-            for (const row of rows) {
-                const text = cleanText(row.textContent).toLowerCase();
-                // Prüfe ob Vor- und Nachname in der Tabellenzeile stehen
-                if (myNameParts.every(p => text.includes(p))) {
-                    const cells = Array.from(row.querySelectorAll("td, th")).map(c => cleanText(c.textContent));
-                    for (let cell of cells) {
-                        const parsedDiv = normalizeDivisionFromFreeText(cell);
-                        if (parsedDiv !== "Unknown") return parsedDiv;
-                    }
-                    const parsedRowDiv = normalizeDivisionFromFreeText(text);
-                    if (parsedRowDiv !== "Unknown") return parsedRowDiv;
-                }
-            }
-            return null;
-        }
-
         async function importMatchFromUrl() {
             const urlInputEl = document.getElementById('match-url');
             const rawUrl = urlInputEl ? urlInputEl.value : "";
@@ -1090,95 +1069,66 @@
 
             try {
                 const normalizedUrl = normalizeMatchUrl(rawUrl);
+                setLoaderMessage("Lade Match-Daten...");
                 
-                // --- NEUE LOGIK: FINDE DEINE DIVISION UND BAUE DEN COMPLIST LINK ---
-                let targetUrl = normalizedUrl;
+                let htmlContent = await fetchMatchHtml(normalizedUrl);
+                
+                // 1. Zuerst die Seite normal parsen, um den User zu finden
+                let { matchTitle, shooters: allShooters } = await parseShootersFromHtml(htmlContent, normalizedUrl);
+                
+                let finalShooters = allShooters;
                 let knownDivision = null;
+                
                 const myName = window.userProfileData ? window.userProfileData.real_name : null;
                 const matchIdMatch = normalizedUrl.match(/match=([A-Za-z0-9_]+)/i);
                 const matchId = matchIdMatch ? matchIdMatch[1] : null;
 
                 if (myName && matchId) {
-                    setLoaderMessage("Suche deine Division im Match...");
-                    try {
-                        let baseHtml = await fetchMatchHtml(normalizedUrl);
-                        let doc = new DOMParser().parseFromString(baseHtml, "text/html");
-                        
-                        knownDivision = extractDivFromDoc(doc, myName);
-
-                        // Wenn auf Hauptseite nicht gefunden, durchsuche Starter-/Squadlisten
-                        if (!knownDivision) {
-                            const listLinks = Array.from(doc.querySelectorAll("a[href]"))
-                                .map(a => a.getAttribute("href"))
-                                .filter(href => href.includes("list=starter") || href.includes("list=squad") || href.includes("list=main_match") || href.includes("list=teilnehmer"));
-                            
-                            for (const link of listLinks) {
-                                if (knownDivision) break;
-                                const nextUrl = new URL(link, normalizedUrl).href;
-                                const nextHtml = await fetchMatchHtml(nextUrl);
-                                const nextDoc = new DOMParser().parseFromString(nextHtml, "text/html");
-                                knownDivision = extractDivFromDoc(nextDoc, myName);
-                            }
-                        }
-
-                        if (knownDivision) {
-                            console.log("🎯 Deine Division für dieses Match:", knownDivision);
-                            // Baue exakt den complist Link! Production Optics erzeugt automatisch "Production%20Optics"
-                            targetUrl = `https://ipscmatch.de/index.pl?match=${matchId}&complist&grepdiv=${encodeURIComponent(knownDivision)}`;
-                            console.log("🔗 Lade exklusives Divisions-Feld:", targetUrl);
-                        } else {
-                            console.warn("Konnte deine Division nicht finden. Lade normales Match.");
-                        }
-                    } catch (e) {
-                        console.warn("Fehler bei der Divisions-Suche:", e);
-                    }
-                }
-                // --------------------------------------------------------
-
-                const urlsToTry = [targetUrl];
-                if (targetUrl !== normalizedUrl) urlsToTry.push(normalizedUrl);
-                
-                const tried = new Set();
-                let lastHtml = "";
-                let parsed = null;
-                let lastError = "";
-
-                for (let i = 0; i < urlsToTry.length && i < 13; i++) {
-                    const urlToTry = urlsToTry[i];
-                    if (tried.has(urlToTry)) continue;
-                    tried.add(urlToTry);
-
-                    setLoaderMessage(i === 0 ? "Lade Starterliste..." : `Suche Starterliste (${i + 1}/${urlsToTry.length})...`);
-                    lastHtml = await fetchMatchHtml(urlToTry);
-
-                    // Option { forcedDivision: knownDivision } übergeben, da die Tabelle keine "Division" Spalte mehr hat
-                    const parsedAttempt = parseShootersFromHtml(lastHtml, { silent: true, forcedDivision: knownDivision });
-                    if (parsedAttempt.shooters && parsedAttempt.shooters.length) {
-                        parsed = parsedAttempt;
-                        break;
-                    }
+                    setLoaderMessage("Lese deine Division aus...");
+                    const myNameParts = myName.toLowerCase().split(" ");
                     
-                    // Fallback Link-Extraction
-                    const extraLinks = extractIpscCandidateLinks(lastHtml, urlToTry);
-                    for (const extra of extraLinks) {
-                        // Verhindere das irregeleitete Öffnen anderer Divisions-Links (z.B. Standard & Senior)
-                        if (knownDivision && extra.includes('grepdiv=') && !extra.includes(encodeURIComponent(knownDivision))) {
-                            continue;
+                    // Suche dich selbst in der riesigen Liste (100% Umlaut-sicher!)
+                    const me = allShooters.find(s => {
+                        const sName = `${s.vorname} ${s.nachname}`.toLowerCase();
+                        return myNameParts.every(part => {
+                             const cleanPart = part.replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss");
+                             const cleanSName = sName.replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss");
+                             return cleanSName.includes(cleanPart) || sName.includes(part);
+                        });
+                    });
+
+                    if (me && me.division && me.division !== "Unknown") {
+                        knownDivision = me.division;
+                        console.log("🎯 Deine Division:", knownDivision);
+                        
+                        // 2. Baue den perfekten complist-Link
+                        const targetUrl = `https://ipscmatch.de/index.pl?match=${matchId}&complist&grepdiv=${encodeURIComponent(knownDivision)}`;
+                        console.log("🔗 Lade exklusives Divisions-Feld:", targetUrl);
+                        
+                        setLoaderMessage(`Lade Gegner (${knownDivision})...`);
+                        try {
+                            const divHtml = await fetchMatchHtml(targetUrl);
+                            // Lade nur noch die gefilterte Liste (z.B. 25 Gegner statt 150)
+                            const divParsed = await parseShootersFromHtml(divHtml, targetUrl, { forcedDivision: knownDivision, silent: true, skipAutoFollow: true });
+                            if (divParsed.shooters && divParsed.shooters.length > 0) {
+                                finalShooters = divParsed.shooters;
+                                matchTitle = divParsed.matchTitle;
+                            }
+                        } catch(e) {
+                            console.warn("Fehler beim Laden des Divisions-Links, nutze lokalen Filter.", e);
+                            finalShooters = allShooters.filter(s => s.division === knownDivision);
                         }
-                        if (!tried.has(extra) && !urlsToTry.includes(extra)) urlsToTry.push(extra);
                     }
-                    lastError = `Keine Schützen auf ${urlToTry} gefunden.`;
                 }
 
-                if (!parsed || !parsed.shooters.length) {
-                    throw new Error(`${lastError || "Konnte keine Starterliste finden."}`);
+                if (!finalShooters || !finalShooters.length) {
+                    throw new Error("Konnte keine Schützen in der Starterliste finden.");
                 }
 
                 setLoaderMessage("Analysiere Starterfeld...");
-                const { matchTitle, shooters: parsedNames } = parsed;
 
                 resetFilterInputs();
-                currentShooters = await buildRenderedShooterResults(parsedNames);
+                currentShooters = await buildRenderedShooterResults(finalShooters);
 
                 buildFilterDropdowns(currentShooters);
                 calculateStats(currentShooters);
@@ -1186,11 +1136,10 @@
 
                 const heading = document.querySelector('#analysis-results h2 span');
                 if (heading) {
-                    // Setzt den Divisionsnamen in die Überschrift, falls erfolgreich isoliert
                     heading.textContent = knownDivision ? `${matchTitle} (${knownDivision})` : matchTitle;
                 }
 
-                await storeMatchAnalysis(matchTitle, "URL_IMPORT", parsedNames, currentShooters);
+                await storeMatchAnalysis(matchTitle, "URL_IMPORT", finalShooters, currentShooters);
 
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('analysis-results').style.display = 'block';
