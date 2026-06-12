@@ -1,7 +1,6 @@
 import os
 import time
 import re
-import unicodedata
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -19,42 +18,6 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 def log(msg):
     print(msg, flush=True)
 
-def normalize_text(text):
-    """Normalisiert Umlaute und Text für einen sicheren Vergleich."""
-    if not text:
-        return ""
-    text = text.lower()
-    text = text.replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
-    text = "".join(c for c in unicodedata.normalize('NFD', text) if unicodedata.category(c) != 'Mn')
-    return text.strip()
-
-def extract_date_and_location(driver):
-    """Versucht das echte Datum und den Ort aus der Match-Seite zu fischen."""
-    match_date = "2026-01-01" 
-    location = "Unbekannt"
-    
-    try:
-        body_text = driver.find_element(By.TAG_NAME, "body").text
-        
-        # Versuche typische Datumsformate zu finden
-        date_matches = re.findall(r'(\d{2}\.\d{2}\.\d{4})', body_text)
-        if date_matches:
-            parts = date_matches[0].split('.')
-            match_date = f"{parts[2]}-{parts[1]}-{parts[0]}"
-        else:
-            date_matches_iso = re.findall(r'(\d{4}-\d{2}-\d{2})', body_text)
-            if date_matches_iso:
-                match_date = date_matches_iso[0]
-
-        # Einfache Orts-Suche nach Keywords
-        loc_match = re.search(r'(?:Ort|Location|Austragungsort):\s*([^\n\r]+)', body_text, re.I)
-        if loc_match:
-            location = loc_match.group(1).strip()
-    except Exception as e:
-        log(f"WARN: Datum/Ort Extraktion fehlgeschlagen: {e}")
-        
-    return match_date, location
-
 def get_app_users():
     """Holt alle User aus der Datenbank, die einen real_name hinterlegt haben."""
     log("Lade User aus der profiles-Tabelle...")
@@ -68,29 +31,31 @@ def get_app_users():
         return []
 
 def update_or_create_match(user_id, real_name, match_data):
+    """
+    Prüft, ob das Match für den User schon existiert.
+    Wenn ja: Update (z.B. neuer Status/Squad). Wenn nein: Neu anlegen.
+    """
     match_name = match_data['match_name']
     
+    # 1. Prüfen, ob der User dieses Match schon hat
     existing = supabase.table("user_matches").select("*") \
         .eq("user_id", user_id) \
         .eq("match_name", match_name).execute()
         
     if existing.data and len(existing.data) > 0:
         db_match = existing.data[0]
-        if (db_match.get('status') != match_data['status'] or 
-            db_match.get('squad') != match_data['squad'] or 
-            db_match.get('match_date') != match_data['match_date']):
-            
-            log(f"🔄 UPDATE: '{real_name}' bei '{match_name}' -> Status: {match_data['status']} | Squad: {match_data['squad']} | Datum: {match_data['match_date']}")
+        # Nur updaten, wenn sich Status oder Squad geändert haben
+        if db_match.get('status') != match_data['status'] or db_match.get('squad') != match_data['squad']:
+            log(f"🔄 UPDATE: Schütze '{real_name}' beim Match '{match_name}' aktualisiert (Neuer Status: {match_data['status']} | Squad: {match_data['squad']})")
             supabase.table("user_matches").update({
-                "match_date": match_data['match_date'],
-                "match_location": match_data['location'],
                 "status": match_data['status'],
                 "squad": match_data['squad'],
                 "auto_imported": True, 
                 "match_url": match_data['match_url']
             }).eq("id", db_match['id']).execute()
     else:
-        log(f"✨ NEU HINZUGEFÜGT: Schütze '{real_name}' wurde zum Match '{match_name}' eingetragen (Squad: {match_data['squad']} | Status: {match_data['status']}).")
+        # Match existiert noch nicht -> Neu anlegen
+        log(f"✨ NEU HINZUGEFÜGT: Schütze '{real_name}' wurde zum Match '{match_name}' eingetragen.")
         supabase.table("user_matches").insert({
             "user_id": user_id,
             "match_name": match_name,
@@ -137,77 +102,35 @@ def scrape_ipscmatch_and_sync():
         log(f"{len(match_links)} Matches auf der Startseite gefunden.")
 
         for match in match_links:
-            log(f"\n--- Durchsuche Match: {match['name']} ---")
+            log(f"Durchsuche Match: {match['name']}...")
             driver.get(match['url'])
             time.sleep(2) 
             
-            # Hole Echtzeit-Datum und Ort von der HAUPTSEITE
-            real_match_date, real_location = extract_date_and_location(driver)
+            page_text = driver.find_element(By.TAG_NAME, "body").text
             
-            # 🚀 NEU: GEHE ZUR STARTERLISTE
-            try:
-                starter_link = driver.find_element(By.XPATH, "//a[contains(@href, 'list=starter') or contains(@href, 'list=main_match') or contains(@href, 'list=overall')]")
-                starter_url = starter_link.get_attribute("href")
-                log(f"Folge Link zur Starterliste...")
-                driver.get(starter_url)
-                time.sleep(2)
-            except Exception:
-                log(f"Keine öffentliche Starterliste für dieses Match gefunden. Überspringe.")
-                continue
-            
-            # Jetzt suchen wir auf der Starterliste!
-            rows = driver.find_elements(By.XPATH, "//tr | //p | //div")
-            
-            for row in rows:
-                row_text = row.text.strip()
-                if not row_text:
-                    continue
-                    
-                normalized_row = normalize_text(row_text)
+            for user in app_users:
+                real_name = user['real_name']
                 
-                for user in app_users:
-                    real_name = user['real_name']
-                    normalized_name = normalize_text(real_name)
+                if real_name.lower() in page_text.lower():
+                    # TREFFER LOG
+                    log(f"🎯 TREFFER auf der Webseite: '{real_name}' steht auf der Liste für '{match['name']}'. Starte Datenbank-Abgleich...")
                     
-                    if normalized_name in normalized_row:
-                        log(f"🎯 TREFFER: '{real_name}' auf der Liste gefunden!")
-                        
-                        squad = "TBD"
-                        status = "Approved"
-                        
-                        # 1. Methode: Steht explizit "Squad XY" in der Zeile?
-                        squad_match = re.search(r'(?:squad|sq|gruppe)\s*:?\s*(\d+)', normalized_row)
-                        
-                        # 2. Methode: Steht die Squad als nackte Zahl am Zeilenende (typisch für Tabellen)?
-                        end_match = re.search(r'\b(\d{1,2})$', normalized_row)
-                        
-                        if squad_match:
-                            squad_num = squad_match.group(1)
-                            squad = f"Squad {squad_num}"
-                            if squad_num == "99":
-                                status = "Warteliste"
-                                squad = "SQ99"
-                        elif end_match:
-                            squad_num = end_match.group(1)
-                            squad = f"Squad {squad_num}"
-                            if squad_num == "99":
-                                status = "Warteliste"
-                                squad = "SQ99"
-                        elif "99" in row_text:
-                            status = "Warteliste"
-                            squad = "SQ99"
-                        
-                        match_data = {
-                            "match_name": match['name'],
-                            "match_date": real_match_date,
-                            "location": real_location,
-                            "status": status,
-                            "squad": squad,
-                            "match_url": match['url']
-                        }
-                        
-                        update_or_create_match(user['id'], real_name, match_data)
-                        break 
+                    squad = "TBD" 
+                    status = "Pending/Approved" 
+                    match_date = "2026-08-01" 
+                    location = "Deutschland"
+                    
+                    match_data = {
+                        "match_name": match['name'],
+                        "match_date": match_date,
+                        "location": location,
+                        "status": status,
+                        "squad": squad,
+                        "match_url": match['url']
+                    }
+                    
+                    # Übergabe von real_name an die DB-Funktion für saubere Logs
+                    update_or_create_match(user['id'], real_name, match_data)
 
     except Exception as e:
         log(f"KRITISCHER FEHLER beim Scraping: {e}")
