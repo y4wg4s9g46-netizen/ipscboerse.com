@@ -1467,6 +1467,30 @@
             return null;
         }
 
+        function getReadyAnalysisUrlFromPlannedMatch(plannedMatch) {
+            if (!plannedMatch) return null;
+            const candidates = [plannedMatch.analysis_url, plannedMatch.performance_url];
+            for (const candidate of candidates) {
+                if (!candidate) continue;
+                try {
+                    const normalized = normalizeMatchUrl(candidate);
+                    const matchId = getMatchIdFromUrl(normalized);
+                    const div = getGrepDivisionFromUrl(normalized);
+                    if (matchId && div && isValidIpscDivision(div)) {
+                        return buildIpscComplistUrl(matchId, div);
+                    }
+                } catch (_) {}
+            }
+
+            const hintedDiv = getPlannedMatchDivisionHint(plannedMatch);
+            const matchId = getMatchIdFromUrl(plannedMatch.match_url || "");
+            if (matchId && hintedDiv && isValidIpscDivision(hintedDiv)) {
+                return buildIpscComplistUrl(matchId, hintedDiv);
+            }
+
+            return null;
+        }
+
         async function importPlannedMatch(plannedMatch) {
             const urlInputEl = document.getElementById('match-url');
             const rawUrl = plannedMatch && plannedMatch.match_url ? plannedMatch.match_url : "";
@@ -1485,6 +1509,23 @@
                 const matchId = getMatchIdFromUrl(normalizedUrl);
                 const myName = window.userProfileData ? window.userProfileData.real_name : null;
                 const expectedSquad = plannedMatch.squad || plannedMatch.squad_no || plannedMatch.squad_number || null;
+
+                // Schnellweg: Der neue mein_planer/match_scraper speichert bereits die fertige Analyse-URL.
+                // Dann wird nichts mehr live gesucht, sondern der Button ist direkt mit grepdiv verknuepft.
+                const readyAnalysisUrl = getReadyAnalysisUrlFromPlannedMatch(plannedMatch);
+                if (readyAnalysisUrl) {
+                    const readyDivision = getGrepDivisionFromUrl(readyAnalysisUrl);
+                    if (urlInputEl) urlInputEl.value = readyAnalysisUrl;
+                    window.pendingPlannedMatchHint = {
+                        matchId: getMatchIdFromUrl(readyAnalysisUrl),
+                        division: readyDivision,
+                        squad: expectedSquad,
+                        sourceUrl: normalizedUrl,
+                        ownEntry: { division: readyDivision, squad: expectedSquad, line: "analysis_url/ipsc_division aus user_matches", source: "user_matches" }
+                    };
+                    await importMatchFromUrl();
+                    return;
+                }
 
                 const cachedEntry = matchId && myName ? readCachedOwnDivision(matchId, myName) : null;
                 let knownDivision = getPlannedMatchDivisionHint(plannedMatch) || (cachedEntry && cachedEntry.division) || getGrepDivisionFromUrl(normalizedUrl);
