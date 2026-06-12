@@ -70,24 +70,24 @@ def update_or_create_match(user_id, real_name, match_data):
         
     if existing.data and len(existing.data) > 0:
         db_match = existing.data[0]
-        # Überprüfen, ob sich etwas geändert hat (inkl. ipsc_division)
+        # HIER NEU: Prüfen ob sich auch die Division geändert hat
         if (db_match.get('status') != match_data['status'] or 
             db_match.get('squad') != match_data['squad'] or 
             db_match.get('match_date') != match_data['match_date'] or
-            db_match.get('ipsc_division') != match_data['division']):
+            db_match.get('ipsc_division') != match_data['ipsc_division']):
             
-            log(f"🔄 UPDATE: '{real_name}' bei '{match_name}' -> Status: {match_data['status']} | Squad: {match_data['squad']} | Div: {match_data['division']}")
+            log(f"🔄 UPDATE: '{real_name}' bei '{match_name}' -> Status: {match_data['status']} | Squad: {match_data['squad']} | Div: {match_data['ipsc_division']}")
             supabase.table("user_matches").update({
                 "match_date": match_data['match_date'],
                 "match_location": match_data['location'],
                 "status": match_data['status'],
                 "squad": match_data['squad'],
-                "ipsc_division": match_data['division'], # <-- NEU
+                "ipsc_division": match_data['ipsc_division'], # <-- NEU
                 "auto_imported": True, 
                 "match_url": match_data['match_url']
             }).eq("id", db_match['id']).execute()
     else:
-        log(f"✨ NEU HINZUGEFÜGT: '{real_name}' -> '{match_name}' (Squad: {match_data['squad']} | Div: {match_data['division']}).")
+        log(f"✨ NEU HINZUGEFÜGT: '{real_name}' wurde zum Match '{match_name}' eingetragen (Squad: {match_data['squad']} | Div: {match_data['ipsc_division']}).")
         supabase.table("user_matches").insert({
             "user_id": user_id,
             "match_name": match_name,
@@ -95,7 +95,7 @@ def update_or_create_match(user_id, real_name, match_data):
             "match_location": match_data['location'],
             "status": match_data['status'],
             "squad": match_data['squad'],
-            "ipsc_division": match_data['division'], # <-- NEU
+            "ipsc_division": match_data['ipsc_division'], # <-- NEU
             "auto_imported": True,
             "match_url": match_data['match_url']
         }).execute()
@@ -157,20 +157,20 @@ def scrape_ipscmatch_and_sync():
             page_text = driver.find_element(By.TAG_NAME, "body").text
             lines = page_text.split('\n')
             
-            # URSPRÜNGLICHE LOGIK BEIBEHALTEN:
             for user in app_users:
                 real_name = user['real_name']
+                # Zerlege den Namen ("Fabian Schöps" -> ["fabian", "schoeps"])
                 search_parts = normalize_text(real_name).split()
                 
                 current_squad = "TBD"
                 status = "Approved"
                 found = False
-                division = "Unknown" # <-- NEU: Variable für die Division
+                division = "Unknown" # <-- HIER NEU: Initialisierung der Division
                 
                 for line in lines:
                     norm_line = normalize_text(line)
                     
-                    # 1. SQUAD-GEDÄCHTNIS
+                    # 1. SQUAD-GEDÄCHTNIS: Wenn die Zeile ein Squad-Header ist (z.B. "Sq. 12")
                     squad_match = re.search(r'(?:squad|sq\.?|gruppe)\s*(\d+)', norm_line)
                     if squad_match:
                         squad_num = squad_match.group(1)
@@ -184,24 +184,23 @@ def scrape_ipscmatch_and_sync():
                         current_squad = "SQ99"
                         status = "Warteliste"
 
-                    # 2. NAMENS-CHECK
+                    # 2. NAMENS-CHECK: Sind alle Namens-Teile in der Zeile?
                     if all(part in norm_line for part in search_parts):
-                        # <-- NEU: EXTRAHIERE DIE DIVISION -->
+                        # <-- HIER NEU: EXTRAKTION DER DIVISION -->
                         if "ger" in norm_line:
                             parts = norm_line.split("ger")[-1].strip().split()
                             if len(parts) > 0:
-                                # Abfangen von z.B. "Prod. Optics"
+                                # Abfangen von "Prod. Optics"
                                 if parts[0] == "prod." and len(parts) > 1 and parts[1] == "optics":
                                     division = "Production Optics"
                                 elif parts[0] in ["prod", "production"]:
                                     division = "Production"
                                 else:
-                                    # Erster Buchstabe groß, z.B. "open" -> "Open", "optics" -> "Optics"
-                                    division = parts[0].capitalize()
-                        
+                                    division = parts[0].capitalize() # z.B. "open" -> "Open"
+
                         log(f"🎯 TREFFER: '{real_name}' -> {current_squad} ({status}) | Div: {division}")
                         found = True
-                        break 
+                        break # Wir haben ihn gefunden, können für diesen User aufhören
                 
                 if found:
                     match_data = {
@@ -210,7 +209,7 @@ def scrape_ipscmatch_and_sync():
                         "location": real_location,
                         "status": status,
                         "squad": current_squad,
-                        "division": division, # <-- NEU: An Funktion weitergeben
+                        "ipsc_division": division, # <-- HIER NEU: Division ins Payload
                         "match_url": match['url']
                     }
                     update_or_create_match(user['id'], real_name, match_data)
