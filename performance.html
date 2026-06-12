@@ -28,7 +28,7 @@
         .info-box { background-color: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--info-color); color: var(--text-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; border: 1px solid var(--border-color); }
         .danger-box { background-color: rgba(239, 68, 68, 0.08); border-left: 4px solid var(--danger-color); color: var(--danger-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; font-weight: bold; text-align: center; }
         
-        /* 📤 UPLOAD ZONE */
+        /* đ¤ UPLOAD ZONE */
         .upload-zone { border: 2px dashed var(--accent-color); background-color: rgba(255, 159, 67, 0.03); padding: 50px 20px; text-align: center; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; margin-bottom: 30px; }
         .upload-zone:hover { background-color: rgba(255, 159, 67, 0.08); }
         .upload-icon { font-size: 48px; margin-bottom: 15px; }
@@ -36,7 +36,7 @@
         .upload-desc { font-size: 14px; color: var(--text-muted); margin: 0; }
         #file-input { display: none; }
 
-        /* 🔗 LINK IMPORT */
+        /* đ LINK IMPORT */
         .link-import-bar { display: flex; gap: 14px; margin: 0 0 30px 0; align-items: stretch; }
         .url-input { flex: 1; min-width: 0; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 13px 15px; border-radius: var(--radius); font-size: 15px; outline: none; box-shadow: var(--shadow-sm); }
         .url-input:focus { border-color: var(--info-color); }
@@ -44,14 +44,14 @@
         .primary-btn:hover { filter: brightness(1.06); }
         .primary-btn:disabled { opacity: 0.65; cursor: wait; }
 
-        /* 📊 ANALYSIS RESULTS */
+        /* đ ANALYSIS RESULTS */
         #analysis-results { display: none; }
         .elo-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px; }
         .elo-stat-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm); }
         .elo-stat-val { font-size: 24px; font-weight: 700; color: var(--accent-color); margin-bottom: 5px; }
         .elo-stat-lbl { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
 
-        /* ℹ️ AUSKLAPPBARE LEGENDE */
+        /* âšď¸ AUSKLAPPBARE LEGENDE */
         .legend-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 12px 15px; margin-bottom: 25px; box-shadow: var(--shadow-sm); font-size: 13px; }
         .legend-title { font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); }
         .legend-content { display: none; margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 10px; }
@@ -60,12 +60,12 @@
         .legend-table th { color: var(--text-muted); text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
         .legend-table tr:not(:last-child) { border-bottom: 1px solid var(--border-color); }
 
-        /* 🔍 INTERAKTIVE FILTER-BAR */
+        /* đ INTERAKTIVE FILTER-BAR */
         .filter-bar { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; box-shadow: var(--shadow-sm); }
         .filter-input { flex: 2; min-width: 200px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 12px; border-radius: 6px; font-size: 14px; outline: none; }
         .filter-select { flex: 1; min-width: 140px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 12px; border-radius: 6px; font-size: 14px; outline: none; cursor: pointer; }
 
-        /* 👤 REIHEN-LAYOUT MIT FLAGGEN */
+        /* đ¤ REIHEN-LAYOUT MIT FLAGGEN */
         .competitor-list { display: flex; flex-direction: column; gap: 10px; }
         .competitor-row { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px 20px; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); transition: transform 0.1s; }
         .competitor-row:hover { transform: translateX(2px); }
@@ -83,7 +83,7 @@
         .badge-a { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
         .badge-u { background: rgba(100, 116, 139, 0.1); color: var(--text-muted); }
 
-        /* 📁 MATCH-ARCHIV */
+        /* đ MATCH-ARCHIV */
         .match-archive { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); margin-bottom: 25px; box-shadow: var(--shadow-sm); overflow: hidden; }
         .archive-header { padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: var(--text-color); border-bottom: 1px solid var(--border-color); }
         .archive-content { display: none; padding: 12px; }
@@ -123,15 +123,15 @@
     <script src="header.js"></script>
 
     <div class="container">
-        <div id="access-denied" class="danger-box">Prüfe Berechtigungen... (Bitte einloggen)</div>
+        <div id="access-denied" class="danger-box">PrĂźfe Berechtigungen... (Bitte einloggen)</div>
 
         <div id="dashboard-content" style="display: none;">
             <div class="info-box" id="js-personal-welcome">
-                <strong>📸 Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste hoch oder füge einen IPSCMatch-Link ein. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
+                <strong>đ¸ Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste hoch oder fĂźge einen IPSCMatch-Link ein. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
             </div>
 
             <div id="quick-analyze-section" style="display: none; background: rgba(59, 130, 246, 0.05); border: 1px solid var(--info-color); padding: 15px; border-radius: var(--radius); margin-bottom: 20px;">
-                <h4 style="margin: 0 0 12px 0; color: var(--info-color); font-size: 14px;">🎯 Deine anstehenden Matches (aus Mein Planer)</h4>
+                <h4 style="margin: 0 0 12px 0; color: var(--info-color); font-size: 14px;">đŻ Deine anstehenden Matches (aus Mein Planer)</h4>
                 <div id="quick-analyze-buttons" style="display: flex; gap: 8px; flex-direction: column;"></div>
             </div>
 
@@ -141,7 +141,7 @@
             </div>
 
             <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click();">
-                <div class="upload-icon">📄</div>
+                <div class="upload-icon">đ</div>
                 <h3 class="upload-title">Screenshot hier hochladen</h3>
                 <p class="upload-desc">Klicke hier oder ziehe ein Bild hinein (JPG, PNG).</p>
                 <input type="file" id="file-input" accept="image/*" onchange="handleFileUpload(this.files)">
@@ -149,8 +149,8 @@
 
             <div class="match-archive" id="match-archive">
                 <div class="archive-header" onclick="toggleMatchArchive()">
-                    <span>📁 Bisherige Match-Analysen</span>
-                    <span id="archive-arrow">▼</span>
+                    <span>đ Bisherige Match-Analysen</span>
+                    <span id="archive-arrow">âź</span>
                 </div>
                 <div class="archive-content" id="archive-content">
                     <div class="archive-empty">Noch keine Match-Analysen gespeichert.</div>
@@ -160,7 +160,7 @@
             <div class="loader-container" id="loader">
                 <div class="spinner"></div>
                 <h3 style="margin: 0; color: var(--text-color);">Analysiere Starterfeld...</h3>
-                <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 14px;">Texterkennung läuft und ELO-Datenbank wird abgefragt.</p>
+                <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 14px;">Texterkennung lĂ¤uft und ELO-Datenbank wird abgefragt.</p>
             </div>
 
             <div id="analysis-results">
@@ -173,47 +173,47 @@
                     </div>
                     <div class="elo-stat-card">
                         <div class="elo-stat-val" id="stat-stronger-count">0</div>
-                        <div class="elo-stat-lbl">Gegner über deinem ELO</div>
+                        <div class="elo-stat-lbl">Gegner Ăźber deinem ELO</div>
                     </div>
                     <div class="elo-stat-card">
                         <div class="elo-stat-val" id="stat-level">-</div>
-                        <div class="elo-stat-lbl">Herausforderung für dich</div>
+                        <div class="elo-stat-lbl">Herausforderung fĂźr dich</div>
                     </div>
                     <div class="elo-stat-card">
                         <div class="elo-stat-val" id="stat-field-strength">-</div>
-                        <div class="elo-stat-lbl">Feldstärke</div>
+                        <div class="elo-stat-lbl">FeldstĂ¤rke</div>
                     </div>
                 </div>
 
                 <div class="legend-box">
                     <div class="legend-title" onclick="toggleLegend()">
-                        <span>ℹ️ Wie berechnet sich das Wettkampf-Niveau?</span>
-                        <span id="legend-arrow">▼</span>
+                        <span>âšď¸ Wie berechnet sich das Wettkampf-Niveau?</span>
+                        <span id="legend-arrow">âź</span>
                     </div>
                     <div class="legend-content" id="legend-content">
                         <p style="margin:0 0 15px 0; line-height:1.5; color:var(--text-muted);">
                             Diese Analyse betrachtet ein Match aus zwei verschiedenen Perspektiven.
                             <br><br>
-                            🎯 <strong>Herausforderung für dich</strong><br>
-                            Dieser Wert ist vollständig auf deine persönliche ELO-Stärke abgestimmt. Er zeigt, wie viele Teilnehmer im Starterfeld ein höheres ELO besitzen als du selbst. Dadurch erhältst du eine realistische Einschätzung, wie anspruchsvoll dieses Match für dich persönlich sein wird.
+                            đŻ <strong>Herausforderung fĂźr dich</strong><br>
+                            Dieser Wert ist vollstĂ¤ndig auf deine persĂśnliche ELO-StĂ¤rke abgestimmt. Er zeigt, wie viele Teilnehmer im Starterfeld ein hĂśheres ELO besitzen als du selbst. Dadurch erhĂ¤ltst du eine realistische EinschĂ¤tzung, wie anspruchsvoll dieses Match fĂźr dich persĂśnlich sein wird.
                             <br><br>
-                            🏆 <strong>Feldstärke</strong><br>
-                            Die Feldstärke bewertet das Match unabhängig von deinem eigenen ELO. Dabei werden die durchschnittliche Spielstärke der bekannten Teilnehmer, die Stärke der Top-Schützen sowie die Anzahl besonders leistungsstarker Schützen berücksichtigt. Dadurch lassen sich verschiedene Matches besser miteinander vergleichen.
+                            đ <strong>FeldstĂ¤rke</strong><br>
+                            Die FeldstĂ¤rke bewertet das Match unabhĂ¤ngig von deinem eigenen ELO. Dabei werden die durchschnittliche SpielstĂ¤rke der bekannten Teilnehmer, die StĂ¤rke der Top-SchĂźtzen sowie die Anzahl besonders leistungsstarker SchĂźtzen berĂźcksichtigt. Dadurch lassen sich verschiedene Matches besser miteinander vergleichen.
                         </p>
 
                         <table class="legend-table">
                             <thead>
                                 <tr>
-                                    <th>Anteil stärkerer Gegner</th>
+                                    <th>Anteil stĂ¤rkerer Gegner</th>
                                     <th>Herausforderung</th>
                                     <th>Bedeutung</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td style="font-weight:600;color:var(--danger-color);">Über 50 %</td>
+                                    <td style="font-weight:600;color:var(--danger-color);">Ăber 50 %</td>
                                     <td style="font-weight:bold;color:var(--danger-color);">Sehr Hoch</td>
-                                    <td>Du gehst als Außenseiter ins Match. Mehr als die Hälfte des Starterfeldes besitzt ein höheres ELO.</td>
+                                    <td>Du gehst als AuĂenseiter ins Match. Mehr als die HĂ¤lfte des Starterfeldes besitzt ein hĂśheres ELO.</td>
                                 </tr>
                                 <tr>
                                     <td style="font-weight:600;color:var(--accent-color);">21 % bis 50 %</td>
@@ -223,12 +223,12 @@
                                 <tr>
                                     <td style="font-weight:600;color:var(--info-color);">6 % bis 20 %</td>
                                     <td style="font-weight:bold;color:var(--info-color);">Mittel</td>
-                                    <td>Du befindest dich im oberen Bereich des Feldes und kannst vorne mitkämpfen.</td>
+                                    <td>Du befindest dich im oberen Bereich des Feldes und kannst vorne mitkĂ¤mpfen.</td>
                                 </tr>
                                 <tr>
                                     <td style="font-weight:600;color:var(--success-color);">Bis 5 %</td>
                                     <td style="font-weight:bold;color:var(--success-color);">Gering</td>
-                                    <td>Du gehörst zu den Favoriten des Wettbewerbs.</td>
+                                    <td>Du gehĂśrst zu den Favoriten des Wettbewerbs.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -241,7 +241,7 @@
                     <input type="text" id="search-name" class="filter-input" placeholder="Nach Name suchen..." oninput="applyFilters()">
                     
                     <select id="filter-region" class="filter-select" onchange="applyFilters()">
-                        <option value="">Alle Länder</option>
+                        <option value="">Alle LĂ¤nder</option>
                     </select>
                     
                     <select id="filter-class" class="filter-select" onchange="onFilterClassChange()">
@@ -439,7 +439,7 @@
 
             for (let i = 0; i < total; i++) {
                 const shooter = shooters[i];
-                setLoaderMessage(`Gleiche ${i + 1}/${total} Schützen mit ELO-Datenbank ab...`);
+                setLoaderMessage(`Gleiche ${i + 1}/${total} SchĂźtzen mit ELO-Datenbank ab...`);
                 const dbEntry = await findEloEntry(shooter);
                 results.push(renderShooterResult(shooter, dbEntry));
             }
@@ -452,10 +452,10 @@
             const arrow = document.getElementById('legend-arrow');
             if (content.style.display === 'block') {
                 content.style.display = 'none';
-                arrow.textContent = '▼';
+                arrow.textContent = 'âź';
             } else {
                 content.style.display = 'block';
-                arrow.textContent = '▲';
+                arrow.textContent = 'â˛';
             }
         }
 
@@ -467,8 +467,8 @@
             if (!value) return [];
             const variants = [value.trim()];
             const replacements = [
-                [/ä/g, "ae"], [/ö/g, "oe"], [/ü/g, "ue"], [/Ä/g, "Ae"], [/Ö/g, "Oe"], [/Ü/g, "Ue"], [/ß/g, "ss"],
-                [/ae/g, "ä"], [/oe/g, "ö"], [/ue/g, "ü"], [/Ae/g, "Ä"], [/Oe/g, "Ö"], [/Ue/g, "Ü"]
+                [/Ă¤/g, "ae"], [/Ăś/g, "oe"], [/Ăź/g, "ue"], [/Ă/g, "Ae"], [/Ă/g, "Oe"], [/Ă/g, "Ue"], [/Ă/g, "ss"],
+                [/ae/g, "Ă¤"], [/oe/g, "Ăś"], [/ue/g, "Ăź"], [/Ae/g, "Ă"], [/Oe/g, "Ă"], [/Ue/g, "Ă"]
             ];
             for (const [from, to] of replacements) {
                 variants.push(value.replace(from, to).trim());
@@ -532,7 +532,7 @@
 
             if (state === "loading") {
                 deniedBox.style.display = "block";
-                deniedBox.textContent = message || "Prüfe Berechtigungen...";
+                deniedBox.textContent = message || "PrĂźfe Berechtigungen...";
                 dashboard.style.display = "none";
                 return;
             }
@@ -586,7 +586,7 @@
                     .maybeSingle();
                 
                 if (error) {
-                    console.error("🚨 Supabase Profil-Abfrage fehlgeschlagen:", error);
+                    console.error("đ¨ Supabase Profil-Abfrage fehlgeschlagen:", error);
                 }
 
                 if (!profile || profile.is_doppel_aa !== true) { 
@@ -606,7 +606,7 @@
                 }
 
                 if (profile.real_name) {
-                    document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>Willkommen zurück, ${profile.real_name}!</strong> Lade einen Screenshot hoch oder füge einen IPSCMatch-Link ein, um das Starterfeld direkt mit deiner ELO-Stärke abzugleichen.`;
+                    document.getElementById("js-personal-welcome").innerHTML = `đŻ <strong>Willkommen zurĂźck, ${profile.real_name}!</strong> Lade einen Screenshot hoch oder fĂźge einen IPSCMatch-Link ein, um das Starterfeld direkt mit deiner ELO-StĂ¤rke abzugleichen.`;
                     
                     const nameParts = profile.real_name.split(" ");
                     if (nameParts.length >= 2) {
@@ -639,7 +639,7 @@
                         const status = (m.status || "").toLowerCase();
                         const squad = (m.squad || "").toUpperCase();
                         
-                        const isApproved = status.includes('approved') || status.includes('bestätigt');
+                        const isApproved = status.includes('approved') || status.includes('bestĂ¤tigt');
                         const isWarteliste = status.includes('warteliste') || squad.includes('99');
 
                         if (isApproved && !isWarteliste) {
@@ -658,7 +658,9 @@
                             const squadInfo = m.squad ? ` | ${escapeHtml(m.squad)}` : "";
                             const divInfo = m.ipsc_division && m.ipsc_division !== "Unknown" ? ` | Div: ${escapeHtml(m.ipsc_division)}` : "";
                             
-                            btn.innerHTML = `📊 ${escapeHtml(m.match_name)}${squadInfo}${divInfo}`;
+                            btn.innerHTML = `đ ${escapeHtml(m.match_name)}${squadInfo}${divInfo}`;
+                            btn.dataset.matchName = m.match_name || "";
+                            btn.dataset.matchId = getMatchIdFromUrl(m.match_url || "") || "";
                             
                             btn.onclick = () => {
                                 importPlannedMatch(m);
@@ -667,6 +669,7 @@
                         }
                     });
                     if (hasValid) container.style.display = "block";
+                    if (typeof syncQuickAnalyzeVisibility === "function") syncQuickAnalyzeVisibility();
                 }
 
                 const urlParams = new URLSearchParams(window.location.search);
@@ -714,7 +717,7 @@
         });
         
         // ==========================================
-        // 🌐 LINK IMPORT LOGIK (IPSCMATCH.DE PARSER)
+        // đ LINK IMPORT LOGIK (IPSCMATCH.DE PARSER)
         // ==========================================
         function normalizeMatchUrl(value) {
             let input = cleanText(value);
@@ -729,7 +732,7 @@
                 parsed.hash = "";
                 return parsed.href;
             } catch (_) {
-                throw new Error("Der eingegebene Link ist keine gültige URL.");
+                throw new Error("Der eingegebene Link ist keine gĂźltige URL.");
             }
         }
 
@@ -819,7 +822,7 @@
             }
 
             const serviceWorkerHint = errors.some(entry => /FetchEvent\.respondWith|Returned response is null/i.test(entry))
-                ? "\n\nHinweis: Die Meldung 'FetchEvent.respondWith ... Returned response is null' kommt meist von einem alten Service Worker. Website-Daten/Cache löschen."
+                ? "\n\nHinweis: Die Meldung 'FetchEvent.respondWith ... Returned response is null' kommt meist von einem alten Service Worker. Website-Daten/Cache lĂśschen."
                 : "";
 
             throw new Error(`Der Link konnte nicht geladen werden.${serviceWorkerHint}\n\nVersuchte Wege:\n- ${errors.join("\n- ")}`);
@@ -831,7 +834,7 @@
             const candidates = [];
             const seen = new Set([baseUrl]);
 
-            const wanted = /(starter|startliste|starterliste|teilnehmer|participants?|shooters?|schützen|schuetzen|squad|squads|registration|anmeldung|liste|list|status|utilisation|complist)/i;
+            const wanted = /(starter|startliste|starterliste|teilnehmer|participants?|shooters?|schĂźtzen|schuetzen|squad|squads|registration|anmeldung|liste|list|status|utilisation|complist)/i;
 
             Array.from(doc.querySelectorAll("a[href]")).forEach(link => {
                 const href = link.getAttribute("href") || "";
@@ -882,9 +885,9 @@
         function splitTextIntoPossibleStarterRows(text) {
             return String(text || "")
                 .replace(/\u00A0/g, " ")
-                .replace(/[✓✔]/g, " ")
-                .replace(/(\d{1,5})\s*(?=[A-Za-zÄÖÜäöüß])/g, "\n$1 ")
-                .replace(/\s+(?=\d{1,5}\s+[A-Za-zÄÖÜäöüß])/g, "\n")
+                .replace(/[ââ]/g, " ")
+                .replace(/(\d{1,5})\s*(?=[A-Za-zĂĂĂĂ¤ĂśĂźĂ])/g, "\n$1 ")
+                .replace(/\s+(?=\d{1,5}\s+[A-Za-zĂĂĂĂ¤ĂśĂźĂ])/g, "\n")
                 .split(/\r?\n/)
                 .map(cleanText)
                 .filter(Boolean);
@@ -926,7 +929,7 @@
             const regionCodes = Object.keys(countryNameFormat).sort((a, b) => b.length - a.length);
 
             let cleaned = cleanText(line)
-                .replace(/^[-–—•]+\s*/, "")
+                .replace(/^[-âââ˘]+\s*/, "")
                 .replace(/^(nr\.?|no\.?|#)\s*/i, "");
 
             if (/^(vorname|name|region|division|category|power|factor|ro|sponsor|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik|results?|stage|team|certificates?)/i.test(cleaned)) {
@@ -988,7 +991,7 @@
             const rows = splitTextIntoPossibleStarterRows(text);
 
             for (const row of rows) {
-                // 🛑 FILTER: Warteliste / SQ99 komplett ausschließen
+                // đ FILTER: Warteliste / SQ99 komplett ausschlieĂen
                 const rowTextLower = row.toLowerCase();
                 if (rowTextLower.includes("warteliste") || rowTextLower.includes("sq99") || rowTextLower.includes("sq 99") || rowTextLower.includes("squad 99") || rowTextLower.includes("squad99")) {
                     continue;
@@ -1040,7 +1043,7 @@
                     const cells = getRowCells(row);
                     if (cells.length < 3) continue;
 
-                    // 🛑 FILTER: Warteliste / SQ99 in Tabellenzeilen ausschließen
+                    // đ FILTER: Warteliste / SQ99 in Tabellenzeilen ausschlieĂen
                     const rowTextCombined = cells.join(" ").toLowerCase();
                     if (rowTextCombined.includes("warteliste") || rowTextCombined.includes("sq99") || rowTextCombined.includes("sq 99") || rowTextCombined.includes("squad 99") || rowTextCombined.includes("squad99")) {
                         continue;
@@ -1092,7 +1095,7 @@
                 .toLowerCase()
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
-                .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
+                .replace(/Ă¤/g, "ae").replace(/Ăś/g, "oe").replace(/Ăź/g, "ue").replace(/Ă/g, "ss")
                 .replace(/[^a-z0-9]+/g, " ")
                 .replace(/\s+/g, " ")
                 .trim();
@@ -1104,7 +1107,7 @@
                 profile.real_name,
                 profile.ipsc_alias,
                 profile.username,
-                "Fabian Schöps"
+                "Fabian SchĂśps"
             ].map(cleanText).filter(Boolean));
         }
 
@@ -1233,7 +1236,7 @@
         function extractOwnEntryFromTokenStream(doc, myName, expectedSquad = null) {
             const textContent = doc.body ? (doc.body.innerText || doc.body.textContent || "") : "";
             const tokens = textContent
-                .replace(/[✓✔✗×]/g, " ")
+                .replace(/[âââĂ]/g, " ")
                 .replace(/ /g, " ")
                 .split(/\s+/)
                 .map(t => cleanText(t).replace(/^[,.;:()\[\]{}]+|[,.;:()\[\]{}]+$/g, ""))
@@ -1482,7 +1485,7 @@
             const rawUrl = plannedMatch && plannedMatch.match_url ? plannedMatch.match_url : "";
 
             if (!cleanText(rawUrl)) {
-                alert("Für dieses Match fehlt der IPSCMatch-Link in der Datenbank.");
+                alert("FĂźr dieses Match fehlt der IPSCMatch-Link in der Datenbank.");
                 return;
             }
 
@@ -1512,15 +1515,16 @@
                     urlInputEl.value = targetUrl;
                 }
                 
-                // 5. Übergabe an den Scraper
+                // 5. Ăbergabe an den Scraper
                 window.pendingPlannedMatchHint = {
                     matchId: matchId,
                     division: knownDivision,
                     squad: expectedSquad,
-                    sourceUrl: targetUrl
+                    sourceUrl: targetUrl,
+                    plannedName: plannedMatch.match_name || ""
                 };
 
-                console.log("🎯 Daten aus 'Mein Planer' gezogen. Generierter Link:", targetUrl);
+                console.log("đŻ Daten aus 'Mein Planer' gezogen. Generierter Link:", targetUrl);
                 
                 // Import direkt starten
                 await importMatchFromUrl();
@@ -1571,8 +1575,8 @@
                             targetUrl = buildIpscComplistUrl(matchId, knownDivision);
                             if (urlInputEl) urlInputEl.value = targetUrl;
 
-                            console.log("🎯 Eigener Start gefunden:", ownEntry);
-                            console.log("🔗 Lade Divisions-Feld:", targetUrl);
+                            console.log("đŻ Eigener Start gefunden:", ownEntry);
+                            console.log("đ Lade Divisions-Feld:", targetUrl);
                         } else {
                             console.warn("Konnte deinen Namen/deine Division nicht finden. Lade die normale Starterliste.");
                         }
@@ -1613,7 +1617,7 @@
                     for (const extra of extraLinks) {
                         if (!tried.has(extra) && !urlsToTry.includes(extra)) urlsToTry.push(extra);
                     }
-                    lastError = `Keine Schützen auf ${urlToTry} gefunden.`;
+                    lastError = `Keine SchĂźtzen auf ${urlToTry} gefunden.`;
                 }
 
                 if (!parsed || !parsed.shooters.length) {
@@ -1635,7 +1639,8 @@
                     heading.textContent = knownDivision ? `${matchTitle} (${knownDivision})` : matchTitle;
                 }
 
-                await storeMatchAnalysis(matchTitle, "URL_IMPORT", parsedNames, currentShooters);
+                const archiveMatchName = plannedHint && plannedHint.plannedName ? plannedHint.plannedName : matchTitle;
+                await storeMatchAnalysis(archiveMatchName, "URL_IMPORT", parsedNames, currentShooters);
 
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('analysis-results').style.display = 'block';
@@ -1660,7 +1665,7 @@
         });
 
         // ==========================================
-        // 🏆 SUPABASE MATCH ARCHIV LOGIK
+        // đ SUPABASE MATCH ARCHIV LOGIK
         // ==========================================
         async function loadMatchesFromSupabase() {
             if (!window.currentUserId) return [];
@@ -1678,6 +1683,39 @@
             return data || [];
         }
 
+
+        function normalizeMatchKey(value) {
+            return cleanText(value)
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[Ě-ÍŻ]/g, "")
+                .replace(/[^a-z0-9]+/g, "");
+        }
+
+        function isMatchNameArchived(matchName) {
+            const plannedKey = normalizeMatchKey(matchName);
+            if (!plannedKey || !window.cachedMatches || !window.cachedMatches.length) return false;
+
+            return window.cachedMatches.some(item => {
+                const archiveKey = normalizeMatchKey(item.match_name || "");
+                return archiveKey && (archiveKey === plannedKey || archiveKey.includes(plannedKey) || plannedKey.includes(archiveKey));
+            });
+        }
+
+        function syncQuickAnalyzeVisibility() {
+            const section = document.getElementById("quick-analyze-section");
+            const buttonContainer = document.getElementById("quick-analyze-buttons");
+            if (!section || !buttonContainer) return;
+
+            Array.from(buttonContainer.querySelectorAll("button[data-match-name]")).forEach(button => {
+                const alreadyArchived = isMatchNameArchived(button.dataset.matchName || "");
+                button.style.display = alreadyArchived ? "none" : "";
+            });
+
+            const visibleButtons = Array.from(buttonContainer.querySelectorAll("button[data-match-name]")).filter(button => button.style.display !== "none");
+            section.style.display = visibleButtons.length ? "block" : "none";
+        }
+
         async function renderMatchArchive() {
             const content = document.getElementById("archive-content");
             if (!content) return;
@@ -1689,6 +1727,7 @@
             
             if (!items.length) {
                 content.innerHTML = '<div class="archive-empty">Noch keine Match-Analysen in der Datenbank.</div>';
+                syncQuickAnalyzeVisibility();
                 return;
             }
 
@@ -1696,7 +1735,7 @@
                 const divisions = item.divisions && item.divisions.length ? item.divisions.join(", ") : "Keine Division";
                 let shootersList = typeof item.shooters === 'string' ? JSON.parse(item.shooters) : (item.shooters || []);
                 
-                // 🛑 FILTER: Auch im Archiv-Vorschauteil Wartelisten rauswerfen
+                // đ FILTER: Auch im Archiv-Vorschauteil Wartelisten rauswerfen
                 shootersList = shootersList.filter(s => {
                     const checkStr = ((s.name || "") + " " + (s.division || "")).toLowerCase();
                     return !(checkStr.includes("warteliste") || checkStr.includes("sq99") || checkStr.includes("sq 99") || checkStr.includes("squad 99") || checkStr.includes("squad99"));
@@ -1705,7 +1744,7 @@
                 const topRows = shootersList.slice(0, 8).map(s => `
                     <div class="archive-small-row">
                         <span>${escapeHtml(s.name || "-")}</span>
-                        <span>${escapeHtml(s.elo !== "-" ? s.elo : "Kein ELO")} · #${escapeHtml(s.overallRank || "-")}</span>
+                        <span>${escapeHtml(s.elo !== "-" ? s.elo : "Kein ELO")} Âˇ #${escapeHtml(s.overallRank || "-")}</span>
                     </div>
                 `).join("");
 
@@ -1713,16 +1752,16 @@
                     <div class="archive-item" id="archive-item-${item.id}">
                         <div style="padding: 15px;">
                             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
-                                <div class="archive-icon">🏆</div>
+                                <div class="archive-icon">đ</div>
                                 <div class="archive-meta" style="flex: 1; min-width: 0;">
                                     <div class="archive-title" style="white-space: normal; word-break: break-word; line-height: 1.3;">${escapeHtml(item.match_name || "Unbenanntes Match")}</div>
-                                    <div class="archive-sub">${new Date(item.created_at).toLocaleDateString("de-DE")} · ${escapeHtml(shootersList.length)} Schützen · ${escapeHtml(divisions)}</div>
+                                    <div class="archive-sub">${new Date(item.created_at).toLocaleDateString("de-DE")} Âˇ ${escapeHtml(shootersList.length)} SchĂźtzen Âˇ ${escapeHtml(divisions)}</div>
                                 </div>
                             </div>
                             <div style="display: flex; gap: 8px; justify-content: space-between;">
                                 <button class="archive-btn" style="flex: 1; padding: 10px 5px;" onclick="showArchivedMatch('${item.id}')">Anzeigen</button>
                                 <button class="archive-btn" style="flex: 1; padding: 10px 5px;" onclick="toggleMatchDetails('${item.id}')">Details</button>
-                                <button class="archive-btn delete" style="flex: 1; padding: 10px 5px;" onclick="deleteArchivedMatch('${item.id}')">Löschen</button>
+                                <button class="archive-btn delete" style="flex: 1; padding: 10px 5px;" onclick="deleteArchivedMatch('${item.id}')">LĂśschen</button>
                             </div>
                         </div>
                         <div class="archive-details" id="archive-details-${item.id}">
@@ -1731,6 +1770,8 @@
                     </div>
                 `;
             }).join("");
+
+            syncQuickAnalyzeVisibility();
         }
 
         function toggleMatchDetails(id) {
@@ -1745,7 +1786,7 @@
             if (!content) return;
             const isOpen = content.style.display === "block";
             content.style.display = isOpen ? "none" : "block";
-            if (arrow) arrow.textContent = isOpen ? "▼" : "▲";
+            if (arrow) arrow.textContent = isOpen ? "âź" : "â˛";
         }
 
         async function storeMatchAnalysis(matchName, rawText, shooters, renderedResults) {
@@ -1770,12 +1811,12 @@
         }
 
         async function deleteArchivedMatch(id) {
-            if (!confirm("Dieses Match wirklich dauerhaft aus der Datenbank löschen?")) return;
+            if (!confirm("Dieses Match wirklich dauerhaft aus der Datenbank lĂśschen?")) return;
             const { error } = await window.supabaseClient.from("match_archives").delete().eq("id", id);
             if (!error) {
                 renderMatchArchive();
             } else {
-                console.error("Fehler beim Löschen:", error);
+                console.error("Fehler beim LĂśschen:", error);
             }
         }
 
@@ -1789,7 +1830,7 @@
 
             const parsedShooters = typeof item.shooters === 'string' ? JSON.parse(item.shooters) : (item.shooters || []);
             
-            // 🛑 FILTER: Wartelisten beim Laden aus dem Archiv herausfiltern
+            // đ FILTER: Wartelisten beim Laden aus dem Archiv herausfiltern
             currentShooters = parsedShooters.filter(s => {
                 const checkStr = ((s.name || "") + " " + (s.division || "")).toLowerCase();
                 return !(checkStr.includes("warteliste") || checkStr.includes("sq99") || checkStr.includes("sq 99") || checkStr.includes("squad 99") || checkStr.includes("squad99"));
@@ -1812,7 +1853,7 @@
             return (text || "")
                 .replace(/\u00A0/g, " ")
                 .replace(/[|]/g, " ")
-                .replace(/[✓✔]/g, " ")
+                .replace(/[ââ]/g, " ")
                 .replace(/\s+/g, " ")
                 .trim();
         }
@@ -1828,7 +1869,7 @@
             for (const originalLine of lines) {
                 let line = originalLine;
 
-                // 🛑 FILTER: Warteliste / SQ99 in OCR-Screenshots ignorieren
+                // đ FILTER: Warteliste / SQ99 in OCR-Screenshots ignorieren
                 const lineTextLower = line.toLowerCase();
                 if (lineTextLower.includes("warteliste") || lineTextLower.includes("sq99") || lineTextLower.includes("sq 99") || lineTextLower.includes("squad 99") || lineTextLower.includes("squad99")) {
                     continue;
@@ -1943,7 +1984,7 @@
             const regionSelect = document.getElementById('filter-region');
             const regions = [...new Set(shooters.map(s => s.region).filter(r => r && r !== 'Unknown'))].sort();
             
-            regionSelect.innerHTML = '<option value="">Alle Länder</option>';
+            regionSelect.innerHTML = '<option value="">Alle LĂ¤nder</option>';
             regions.forEach(r => {
                 const opt = document.createElement('option');
                 opt.value = r;
@@ -2000,7 +2041,7 @@
             levelStat.textContent = totalCompetitors > 0 ? level : "-";
             levelStat.style.color = totalCompetitors > 0 ? color : "var(--text-color)";
             levelStat.title = totalCompetitors > 0
-                ? `${strongerCount} von ${totalCompetitors} Teilnehmern sind über deinem ELO (${percentageStronger.toFixed(1)}%). ${rankedCount} Teilnehmer hatten ein bekanntes ELO.`
+                ? `${strongerCount} von ${totalCompetitors} Teilnehmern sind Ăźber deinem ELO (${percentageStronger.toFixed(1)}%). ${rankedCount} Teilnehmer hatten ein bekanntes ELO.`
                 : "";
 
             const sortedElos = rankedCompetitors.map(s => s.elo).sort((a, b) => b - a);
@@ -2040,7 +2081,7 @@
                 fieldStat.textContent = fieldStrength;
                 fieldStat.style.color = fieldColor;
                 fieldStat.title = rankedCount > 0
-                    ? `Feldstärke basiert auf ${rankedCount} bekannten ELOs von ${totalCompetitors} Teilnehmern. Ø ELO: ${avgElo.toFixed(0)}, Top-${topCount}-Ø: ${top10Avg.toFixed(0)}, Master+: ${masterCount}, GM: ${gmCount}.${rankedCoverage < 0.25 ? " *Wenig bekannte ELOs, Einschätzung unsicherer." : ""}`
+                    ? `FeldstĂ¤rke basiert auf ${rankedCount} bekannten ELOs von ${totalCompetitors} Teilnehmern. Ă ELO: ${avgElo.toFixed(0)}, Top-${topCount}-Ă: ${top10Avg.toFixed(0)}, Master+: ${masterCount}, GM: ${gmCount}.${rankedCoverage < 0.25 ? " *Wenig bekannte ELOs, EinschĂ¤tzung unsicherer." : ""}`
                     : "Keine bekannten ELOs im Feld.";
             }
         }
@@ -2048,7 +2089,7 @@
         function renderList(shooters) {
             const listContainer = document.getElementById('competitor-list');
             if (shooters.length === 0) {
-                listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Keine Schützen gefunden.</div>';
+                listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Keine SchĂźtzen gefunden.</div>';
                 return;
             }
 
@@ -2058,17 +2099,17 @@
                 
                 let nameStyle = "";
                 if (typeof s.elo === 'number' && s.elo > userPersonalElo) {
-                    nameStyle = 'style="color: var(--danger-color);" title="Dieser Schütze hat ein höheres ELO als du!"';
+                    nameStyle = 'style="color: var(--danger-color);" title="Dieser SchĂźtze hat ein hĂśheres ELO als du!"';
                 }
 
                 const normalizedRegion = s.region.toLowerCase().trim();
                 const code = countryCodes[normalizedRegion] || "";
-                const flagHtml = code ? `<span class="fi fi-${code}"></span>` : `🌍`;
+                const flagHtml = code ? `<span class="fi fi-${code}"></span>` : `đ`;
 
                 html += `
                     <div class="competitor-row">
                         <div class="competitor-info">
-                            <span class="competitor-name" ${nameStyle}>${escapeHtml(s.name)} ${typeof s.elo === 'number' && s.elo > userPersonalElo ? '🔥' : ''}</span>
+                            <span class="competitor-name" ${nameStyle}>${escapeHtml(s.name)} ${typeof s.elo === 'number' && s.elo > userPersonalElo ? 'đĽ' : ''}</span>
                             <span class="competitor-meta">${flagHtml} ${escapeHtml(s.region)} | ${escapeHtml(s.division)}</span>
                         </div>
                         <div class="competitor-elo">
