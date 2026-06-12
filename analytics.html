@@ -14,10 +14,36 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <link rel="stylesheet" href="global.css">
-
     <style>
-        /* Spezifische Styles für Analytics */
+        :root, html[data-theme="light"] {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --input-bg: #ffffff;
+            --accent-color: #ff9f43;
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --info-color: #3b82f6;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --radius: 8px;
+        }
+
+        html[data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --input-bg: #0f172a;
+        }
+
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        header { background-color: var(--card-bg); padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
+        
         select { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px 14px; border-radius: var(--radius); font-size: 15px; font-weight: 600; width: 100%; box-shadow: var(--shadow-sm); cursor: pointer; outline: none; appearance: none; }
         select:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(255, 159, 67, 0.15); }
         .select-wrapper { position: relative; margin-bottom: 20px; }
@@ -62,6 +88,10 @@
         .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
         .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
         .chat-history-area { height: 300px; overflow-y: auto; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: var(--radius); padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+
+        @media (max-width: 768px) {
+            .container { padding: 0 10px !important; margin-top: 15px !important; }
+        }
     </style>
 </head>
 <body>
@@ -179,19 +209,19 @@
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
                 <div class="hit-input-group">
-                    <label for="edit-a" style="color: var(--success-color);">Alphas (A)</label>
+                    <label style="color: var(--success-color);">Alphas (A)</label>
                     <input type="number" id="edit-a" min="0" onfocus="this.select()">
                 </div>
                 <div class="hit-input-group">
-                    <label for="edit-c" style="color: var(--accent-color);">Charlies (C)</label>
+                    <label style="color: var(--accent-color);">Charlies (C)</label>
                     <input type="number" id="edit-c" min="0" onfocus="this.select()">
                 </div>
                 <div class="hit-input-group">
-                    <label for="edit-d" style="color: var(--danger-color);">Deltas (D)</label>
+                    <label style="color: var(--danger-color);">Deltas (D)</label>
                     <input type="number" id="edit-d" min="0" onfocus="this.select()">
                 </div>
                 <div class="hit-input-group">
-                    <label for="edit-m" style="color: var(--text-muted);">Misses (M)</label>
+                    <label style="color: var(--text-muted);">Misses (M)</label>
                     <input type="number" id="edit-m" min="0" onfocus="this.select()">
                 </div>
             </div>
@@ -214,7 +244,7 @@
             </p>
             
             <div class="hit-input-group" style="margin-bottom: 20px;">
-                <label for="setup-real-name" style="color: var(--accent-color); font-weight: 700; margin-bottom: 6px;" data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
+                <label style="color: var(--accent-color); font-weight: 700; margin-bottom: 6px;" data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
                 <input type="text" id="setup-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann" style="text-align: left; padding: 12px; font-size: 15px;">
             </div>
             
@@ -239,12 +269,12 @@
                 <div class="modal-divider">oder klassisch mit E-Mail</div>
                 <form id="login-form">
                     <div class="form-group">
-                        <label for="login-email" data-txt="lbl-email">E-Mail *</label>
+                        <label data-txt="lbl-email">E-Mail *</label>
                         <input type="email" id="login-email" required placeholder="name@beispiel.de">
                     </div>
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <label for="login-password" style="margin-bottom: 0;">Passwort *</label>
+                            <label style="margin-bottom: 0;">Passwort *</label>
                             <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
                         </div>
                         <input type="password" id="login-password" required placeholder="••••••••">
@@ -261,11 +291,11 @@
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
                     <div class="form-group">
-                        <label for="register-email" data-txt="lbl-email">E-Mail *</label>
+                        <label data-txt="lbl-email">E-Mail *</label>
                         <input type="email" id="register-email" required placeholder="name@beispiel.de">
                     </div>
                     <div class="form-group">
-                        <label for="register-password">Passwort *</label>
+                        <label>Passwort *</label>
                         <input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen">
                     </div>
                     
@@ -288,7 +318,7 @@
                 <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
                 <form id="forgot-form">
                     <div class="form-group">
-                        <label for="forgot-email" data-txt="lbl-email">Deine E-Mail-Adresse *</label>
+                        <label data-txt="lbl-email">Deine E-Mail-Adresse *</label>
                         <input type="email" id="forgot-email" required placeholder="name@beispiel.de">
                     </div>
                     <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
@@ -302,7 +332,7 @@
                 <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                 <form id="reset-password-form">
                     <div class="form-group">
-                        <label for="reset-password-input" data-txt="lbl-new-password">Neues Passwort *</label>
+                        <label data-txt="lbl-new-password">Neues Passwort *</label>
                         <input type="password" id="reset-password-input" required minlength="6" placeholder="Mindestens 6 Zeichen">
                     </div>
                     <button type="submit" class="btn-primary-auth" data-txt="btn-save">Speichern</button>
@@ -338,31 +368,30 @@
                 </div>
 
                 <form id="settings-form">
-                    
-                    <div class="form-group" style="display: none;">
-                        <label for="settings-username" data-txt="lbl-username">Schützenname / Anzeigename</label>
+                    <div class="form-group">
+                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
                         <input type="text" id="settings-username" data-txt-ph="ph-username" placeholder="z.B. IPSCShooter99">
                     </div>
                     
                     <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 4px; border-left: 3px solid var(--success-color); margin-bottom: 20px;">
-                        <label for="settings-ipsc-alias" style="color: var(--success-color); margin-bottom: 2px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
+                        <label style="color: var(--success-color); margin-bottom: 2px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
                         <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-ipsc-alias-desc">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
                         <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
                     </div>
 
                     <div class="form-group" style="background-color: rgba(59, 130, 246, 0.04); padding: 12px; border-radius: 4px; border-left: 3px solid var(--info-color); margin-bottom: 20px;">
-                        <label for="settings-real-name" style="color: var(--info-color); margin-bottom: 2px;" data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
+                        <label style="color: var(--info-color); margin-bottom: 2px;" data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
                         <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-real-name-desc">Trage hier deinen Klarnamen ein. Dieser Name wird niemals öffentlich auf der Seite gezeigt.</p>
                         <input type="text" id="settings-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann">
                     </div>
 
                     <div class="form-group">
-                        <label for="settings-avatar" data-txt="lbl-profile-pic">Profilbild (Optional)</label>
+                        <label data-txt="lbl-profile-pic">Profilbild (Optional)</label>
                         <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
                         <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
                     </div>
                     <div class="form-group">
-                        <label for="settings-password" data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
+                        <label data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
                         <input type="password" id="settings-password" minlength="6" data-txt-ph="ph-password" placeholder="Mindestens 6 Zeichen">
                     </div>
                     <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
@@ -462,6 +491,7 @@
         async function initAnalytics(supabase) {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
+                
                 // --- SPERRE FÜR AUSGELOGGTE NUTZER ---
                 if (!session) {
                     document.getElementById("analytics-loader").style.display = "none";
@@ -485,6 +515,7 @@
                     .select('real_name')
                     .eq('id', session.user.id)
                     .single();
+                
                 if (!profileErr && currentProfile && (!currentProfile.real_name || currentProfile.real_name.trim() === "")) {
                     setTimeout(() => {
                         document.getElementById('name-setup-modal').style.display = 'flex';
@@ -639,6 +670,7 @@
             let labelWin = isOverall ? (isEn ? "Match Winner" : "Match Sieger") : (isEn ? "Stage Winner" : "Stage Sieger");
             let textWin = isOverall ? "100%" : `${winHf.toFixed(4)} HF`;
             let widthWin = isOverall ? 100 : winPerc;
+
             let labelMe = isOverall ? (isEn ? "Overall Result" : "Overall Wertung") : (isEn ? "My Hit Factor" : "Mein Hit Factor");
             let myOverallPerc = stage.pts ? parseFloat(stage.pts) : 0; 
             let textMe = isOverall ? `${myOverallPerc.toFixed(1)}%` : `${hf.toFixed(4)} HF`;
@@ -707,7 +739,6 @@
                     </div>
                     
                     ${buddyBarHtml}
-            
                     ${insightHtml}
 
                     <div style="display: flex; gap: 15px; margin-top: 15px; font-size: 11px; color: var(--text-muted); flex-wrap: wrap; align-items: center;">
@@ -729,7 +760,6 @@
         
         document.getElementById("kpi-avg-hf").innerText = avgHf;
         document.getElementById("kpi-division").innerText = division;
-        
         if (stagePercents.length > 1) {
             const maxP = Math.max(...stagePercents);
             const minP = Math.min(...stagePercents);
@@ -779,12 +809,10 @@
             const client = window.supabaseClient || window.supabase;
             const { data: { session } } = await client.auth.getSession();
             if (!session) return;
-            
             const { error = null } = await client
                 .from('profiles')
                 .update({ real_name: inputName })
                 .eq('id', session.user.id);
-                
             if (error) throw error;
 
             alert(isEn 
@@ -876,7 +904,6 @@
                 .from('user_match_analytics')
                 .update({ alphas: a, charlies: c, deltas: d, misses: m })
                 .eq('id', currentEditStage.id);
-                
             if (error) throw error;
             
             currentEditStage.alphas = a;
