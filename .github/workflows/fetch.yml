@@ -1,34 +1,27 @@
-name: IPSCMatch Auto-Sync
-
+name: Update Matches
 on:
   schedule:
-    # Läuft jeden Tag um 04:00 Uhr und 16:00 Uhr UTC
-    - cron: '0 4,16 * * *'
-  workflow_dispatch: # Erlaubt es dir, das Skript bei GitHub auch manuell per Button zu starten!
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
 jobs:
-  scrape-and-sync:
+  build:
     runs-on: ubuntu-latest
-
+    permissions: { contents: write }
     steps:
-      - name: Repository auschecken
-        uses: actions/checkout@v4
-
-      - name: Python einrichten
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Abhängigkeiten installieren
-        run: |
-          python -m pip install --upgrade pip
-          pip install selenium webdriver-manager supabase
-
-      - name: Scraper starten
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
-          EMAIL_USER: ${{ secrets.EMAIL_USER }}
-          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-        run: python match_scraper.py
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with: { python-version: '3.9' }
+      - run: |
+          pip install requests beautifulsoup4
+          python fetch_matches.py
+          git config user.name "bot"
+          git config user.email "bot@users.noreply.github.com"
+          
+          # HIER IST DIE ÄNDERUNG:
+          git pull origin main --rebase
+          
+          git add matches.json
+          git commit -m "Update matches.json"
+          git push origin main
