@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Performance-Check | IPSC ELO Analyse</title>
     
-    <!-- 🌍 Offizielle Flaggen-Icons (CSS-Bibliothek) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
 
     <style>
@@ -120,33 +119,27 @@
 </head>
 <body>
 
-    <!-- Dynamischer Header -->
     <header></header>
     <script src="header.js"></script>
 
     <div class="container">
-        <!-- SPERRBILDSCHIRM BEI FEHLENDER LIZENZ -->
         <div id="access-denied" class="danger-box">Prüfe Berechtigungen... (Bitte einloggen)</div>
 
-        <!-- HAUPT-DASHBOARD -->
         <div id="dashboard-content" style="display: none;">
             <div class="info-box" id="js-personal-welcome">
                 <strong>📸 Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste hoch oder füge einen IPSCMatch-Link ein. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
             </div>
 
-            <!-- SCHNELLSTART AUS DEM PLANER -->
             <div id="quick-analyze-section" style="display: none; background: rgba(59, 130, 246, 0.05); border: 1px solid var(--info-color); padding: 15px; border-radius: var(--radius); margin-bottom: 20px;">
                 <h4 style="margin: 0 0 12px 0; color: var(--info-color); font-size: 14px;">🎯 Deine anstehenden Matches (aus Mein Planer)</h4>
                 <div id="quick-analyze-buttons" style="display: flex; gap: 8px; flex-direction: column;"></div>
             </div>
 
-            <!-- LINK IMPORT BEREICH -->
             <div class="link-import-bar" id="link-import-bar">
                 <input type="url" id="match-url" class="url-input" placeholder="https://ipscmatch.de/index.php?..." autocomplete="url" inputmode="url">
                 <button type="button" id="match-url-btn" class="primary-btn" onclick="importMatchFromUrl()">Link abrufen</button>
             </div>
 
-            <!-- UPLOAD BEREICH -->
             <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click();">
                 <div class="upload-icon">📄</div>
                 <h3 class="upload-title">Screenshot hier hochladen</h3>
@@ -154,7 +147,6 @@
                 <input type="file" id="file-input" accept="image/*" onchange="handleFileUpload(this.files)">
             </div>
 
-            <!-- MATCH-ARCHIV OHNE BILD-SPEICHER -->
             <div class="match-archive" id="match-archive">
                 <div class="archive-header" onclick="toggleMatchArchive()">
                     <span>📁 Bisherige Match-Analysen</span>
@@ -165,14 +157,12 @@
                 </div>
             </div>
 
-            <!-- LADEANIMATION -->
             <div class="loader-container" id="loader">
                 <div class="spinner"></div>
                 <h3 style="margin: 0; color: var(--text-color);">Analysiere Starterfeld...</h3>
                 <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 14px;">Texterkennung läuft und ELO-Datenbank wird abgefragt.</p>
             </div>
 
-            <!-- ERGEBNIS BEREICH -->
             <div id="analysis-results">
                 <h2 style="margin-bottom: 20px;">Auswertung: <span style="color: var(--accent-color);">Optics Overall</span></h2>
                 
@@ -195,7 +185,6 @@
                     </div>
                 </div>
 
-                <!-- ℹ️ AUSKLAPPBARE LEGENDE -->
                 <div class="legend-box">
                     <div class="legend-title" onclick="toggleLegend()">
                         <span>ℹ️ Wie berechnet sich das Wettkampf-Niveau?</span>
@@ -248,7 +237,6 @@
 
                 <h3 style="margin: 30px 0 15px 0; font-size: 18px;">Gefundene Konkurrenten</h3>
                 
-                <!-- 🔍 FILTER-BAR -->
                 <div class="filter-bar">
                     <input type="text" id="search-name" class="filter-input" placeholder="Nach Name suchen..." oninput="applyFilters()">
                     
@@ -266,8 +254,7 @@
                 </div>
 
                 <div class="competitor-list" id="competitor-list">
-                    <!-- Wird dynamisch durch JavaScript befüllt -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
@@ -666,7 +653,13 @@
                             btn.style.width = "100%";
                             btn.style.textAlign = "left";
                             btn.style.padding = "10px 15px";
-                            btn.innerHTML = `📊 ${escapeHtml(m.match_name)}`;
+                            
+                            // Anzeige von Squad und Division auf dem Button
+                            const squadInfo = m.squad ? ` | ${escapeHtml(m.squad)}` : "";
+                            const divInfo = m.ipsc_division && m.ipsc_division !== "Unknown" ? ` | Div: ${escapeHtml(m.ipsc_division)}` : "";
+                            
+                            btn.innerHTML = `📊 ${escapeHtml(m.match_name)}${squadInfo}${divInfo}`;
+                            
                             btn.onclick = () => {
                                 importPlannedMatch(m);
                             };
@@ -851,9 +844,6 @@
                     const absolute = url.href;
 
                     if (!seen.has(absolute) && wanted.test(combined)) {
-                        // IGNORIERE ALLE FREMDEN FILTER-LINKS. Besonders wichtig:
-                        // IPSCMatch erzeugt manchmal Links wie &complist=-nr. Das ist KEINE Starterliste,
-                        // sondern ein Sortier-/Pseudo-Link. Diese Links duerfen nie analysiert werden.
                         if (/[?&]grep(?:div|cat|reg)=/i.test(absolute) || /[?&]complist=/i.test(absolute)) {
                              return; 
                         }
@@ -998,6 +988,12 @@
             const rows = splitTextIntoPossibleStarterRows(text);
 
             for (const row of rows) {
+                // 🛑 FILTER: Warteliste / SQ99 komplett ausschließen
+                const rowTextLower = row.toLowerCase();
+                if (rowTextLower.includes("warteliste") || rowTextLower.includes("sq99") || rowTextLower.includes("sq 99") || rowTextLower.includes("squad 99") || rowTextLower.includes("squad99")) {
+                    continue;
+                }
+
                 const shooter = parseShooterFromTextLine(row, forcedDiv);
                 if (!shooter) continue;
 
@@ -1043,6 +1039,12 @@
                 for (const row of allRows.slice(headerRowIndex + 1)) {
                     const cells = getRowCells(row);
                     if (cells.length < 3) continue;
+
+                    // 🛑 FILTER: Warteliste / SQ99 in Tabellenzeilen ausschließen
+                    const rowTextCombined = cells.join(" ").toLowerCase();
+                    if (rowTextCombined.includes("warteliste") || rowTextCombined.includes("sq99") || rowTextCombined.includes("sq 99") || rowTextCombined.includes("squad 99") || rowTextCombined.includes("squad99")) {
+                        continue;
+                    }
 
                     let vorname = "";
                     let nachname = "";
@@ -1114,10 +1116,8 @@
                 const parts = normalizeNameSearchText(candidate).split(/\s+/).filter(Boolean);
                 if (parts.length < 2) return false;
 
-                // Normalfall: "Fabian Schöps" / "Fabian Schoeps" steht irgendwo in der Zeile.
                 if (parts.every(part => normLine.includes(part))) return true;
 
-                // Fallback für "Schöps, Fabian" oder vertauschte Namen.
                 const reversed = [...parts].reverse();
                 return reversed.every(part => normLine.includes(part));
             });
@@ -1180,7 +1180,6 @@
             const nameCandidates = uniqueArray([myName, ...getOwnNameCandidates()].map(cleanText).filter(Boolean));
             let currentSquad = null;
 
-            // 1) HTML-Tabellen: IPSCMatch baut die Squad-Listen meist als Tabellen.
             for (const table of Array.from(doc.querySelectorAll("table"))) {
                 currentSquad = extractSquadFromText(table.previousElementSibling?.textContent || "") || currentSquad;
 
@@ -1191,10 +1190,6 @@
                     if (rowSquad) currentSquad = rowSquad;
 
                     if (!lineContainsName(rowText, nameCandidates)) continue;
-                    // Squad ist ein Hinweis aus Mein Planer, aber kein harter Blocker.
-                    // Bei IPSCMatch sind die Squad-Überschriften oft ausserhalb der Tabellenzeile
-                    // oder bei zwei Spalten anders im DOM verschachtelt. Deshalb nur ablehnen,
-                    // wenn wir wirklich sicher in einer anderen Squad sind.
                     if (expectedSquad && currentSquad && !squadMatches(currentSquad, expectedSquad)) continue;
 
                     let division = extractDivisionAfterRegionFromCells(cells);
@@ -1206,7 +1201,6 @@
                 }
             }
 
-            // 2) Plaintext-Fallback: wichtig, wenn der Proxy/Browser das HTML anders aufbereitet.
             const textContent = doc.body ? (doc.body.innerText || doc.body.textContent || "") : "";
             const lines = textContent.split(/\r?\n/).map(cleanText).filter(Boolean);
             currentSquad = null;
@@ -1216,7 +1210,6 @@
                 if (squad) currentSquad = squad;
 
                 if (!lineContainsName(line, nameCandidates)) continue;
-                // Squad nicht erzwingen, wenn die aktuelle Textzeile keine Squad-Zuordnung hergibt.
                 if (expectedSquad && currentSquad && !squadMatches(currentSquad, expectedSquad)) continue;
 
                 const division = extractDivisionAfterRegionFromLine(line);
@@ -1225,9 +1218,6 @@
                 }
             }
 
-            // 3) Token-Fallback: narrensicher gegen IPSCMatch-Layout mit getrennten Zellen/Zeilen.
-            // Beispiel im Textstrom: "4 Fabian Schöps GER Optics Overall" oder mit Zeilenumbrüchen
-            // zwischen Name, GER und Division. Wir suchen den Namen und lesen rechts nach dem Land die Division.
             const tokenEntry = extractOwnEntryFromTokenStream(doc, myName, expectedSquad);
             if (tokenEntry && tokenEntry.division) return tokenEntry;
 
@@ -1244,7 +1234,7 @@
             const textContent = doc.body ? (doc.body.innerText || doc.body.textContent || "") : "";
             const tokens = textContent
                 .replace(/[✓✔✗×]/g, " ")
-                .replace(/ /g, " ")
+                .replace(/ /g, " ")
                 .split(/\s+/)
                 .map(t => cleanText(t).replace(/^[,.;:()\[\]{}]+|[,.;:()\[\]{}]+$/g, ""))
                 .filter(Boolean);
@@ -1268,7 +1258,6 @@
                     const reverseOrder = t0 === last && t1 === first;
                     if (!normalOrder && !reverseOrder) continue;
 
-                    // Suche rechts vom Namen nach dem Länderkürzel, danach kommt bei IPSCMatch die Division.
                     for (let r = i + 2; r < Math.min(tokens.length, i + 10); r++) {
                         const tokenClean = tokens[r].replace(/[^A-Za-z]/g, "").toUpperCase();
                         if (!regionCodes.includes(tokenClean)) continue;
@@ -1299,11 +1288,12 @@
         }
 
         function buildIpscComplistUrl(matchId, division = null) {
-            const url = new URL("https://ipscmatch.de/index.pl");
-            url.searchParams.set("match", matchId);
-            // IPSCMatch nutzt "complist" als Flag ohne Wert. So entsteht exakt: ?match=XYZ&complist&grepdiv=Optics
-            let href = `${url.origin}${url.pathname}?match=${encodeURIComponent(matchId)}&complist`;
-            if (division) href += `&grepdiv=${encodeURIComponent(division)}`;
+            // Neuer Aufbau exakt nach deinen Vorgaben (inklusive lang=de)
+            let href = `https://ipscmatch.de/index.pl?lang=de&match=${encodeURIComponent(matchId)}&complist`;
+            
+            if (division && division !== "Unknown") {
+                href += `&grepdiv=${encodeURIComponent(division)}`;
+            }
             return href;
         }
 
@@ -1379,8 +1369,6 @@
         }
 
         async function trySaveDivisionToUserMatch(plannedMatch, division, analysisUrl) {
-            // Optionaler Performance-Boost: Wenn die Spalten in user_matches existieren, speichern wir
-            // Division und fertigen Analyse-Link. Wenn nicht, ignorieren wir den Supabase-Fehler sauber.
             if (!plannedMatch || !plannedMatch.id || !window.supabaseClient) return;
             try {
                 const payload = {};
@@ -1456,8 +1444,6 @@
                 }
             }
 
-            // Letzter, sehr robuster Fallback: nicht mehr versuchen, die Squad-Seite zu verstehen,
-            // sondern jede echte Division direkt laden und schauen, in welcher Divisionsliste der eigene Name steht.
             const entryFromDivisionList = await findOwnDivisionByTestingDivisionLists(matchId, myName);
             if (entryFromDivisionList && entryFromDivisionList.division) {
                 writeCachedOwnDivision(matchId, myName, entryFromDivisionList);
@@ -1496,7 +1482,7 @@
             const rawUrl = plannedMatch && plannedMatch.match_url ? plannedMatch.match_url : "";
 
             if (!cleanText(rawUrl)) {
-                alert("Für dieses Match fehlt der IPSCMatch-Link aus Mein Planer.");
+                alert("Für dieses Match fehlt der IPSCMatch-Link in der Datenbank.");
                 return;
             }
 
@@ -1505,59 +1491,40 @@
             setImportButtonLoading(true);
 
             try {
-                const normalizedUrl = normalizeMatchUrl(rawUrl);
-                const matchId = getMatchIdFromUrl(normalizedUrl);
-                const myName = window.userProfileData ? window.userProfileData.real_name : null;
-                const expectedSquad = plannedMatch.squad || plannedMatch.squad_no || plannedMatch.squad_number || null;
-
-                // Schnellweg: Der neue mein_planer/match_scraper speichert bereits die fertige Analyse-URL.
-                // Dann wird nichts mehr live gesucht, sondern der Button ist direkt mit grepdiv verknuepft.
-                const readyAnalysisUrl = getReadyAnalysisUrlFromPlannedMatch(plannedMatch);
-                if (readyAnalysisUrl) {
-                    const readyDivision = getGrepDivisionFromUrl(readyAnalysisUrl);
-                    if (urlInputEl) urlInputEl.value = readyAnalysisUrl;
-                    window.pendingPlannedMatchHint = {
-                        matchId: getMatchIdFromUrl(readyAnalysisUrl),
-                        division: readyDivision,
-                        squad: expectedSquad,
-                        sourceUrl: normalizedUrl,
-                        ownEntry: { division: readyDivision, squad: expectedSquad, line: "analysis_url/ipsc_division aus user_matches", source: "user_matches" }
-                    };
-                    await importMatchFromUrl();
-                    return;
-                }
-
-                const cachedEntry = matchId && myName ? readCachedOwnDivision(matchId, myName) : null;
-                let knownDivision = getPlannedMatchDivisionHint(plannedMatch) || (cachedEntry && cachedEntry.division) || getGrepDivisionFromUrl(normalizedUrl);
-                if (knownDivision && !isValidIpscDivision(knownDivision)) knownDivision = null;
-                let ownEntry = knownDivision ? { division: knownDivision, squad: expectedSquad, line: "Division aus Mein Planer/Cache/Link" } : null;
-
-                if (!knownDivision && matchId && myName) {
-                    setLoaderMessage(`Suche deine Division in Squad ${expectedSquad || "?"}...`);
-                    ownEntry = await findOwnDivisionForMatch(matchId, myName, expectedSquad);
-                    knownDivision = ownEntry && ownEntry.division ? ownEntry.division : null;
-                }
-
+                // 1. Match ID extrahieren
+                const matchId = getMatchIdFromUrl(rawUrl);
                 if (!matchId) throw new Error("Konnte die match= ID aus dem Planer-Link nicht lesen.");
-                if (!knownDivision) throw new Error("Konnte deine Division im Match nicht finden. Der Planer kennt Name und Squad, aber in der Starterliste wurde keine passende Division erkannt.");
 
-                const cleanDivisionUrl = buildIpscComplistUrl(matchId, knownDivision);
-                writeCachedOwnDivision(matchId, myName, { division: knownDivision, squad: expectedSquad, line: ownEntry && ownEntry.line, source: ownEntry && ownEntry.source });
-                await trySaveDivisionToUserMatch(plannedMatch, knownDivision, cleanDivisionUrl);
+                // 2. Daten direkt aus "Mein Planer" (Datenbank) auslesen
+                const expectedSquad = plannedMatch.squad || null;
+                const dbDivision = plannedMatch.ipsc_division; 
+                
+                let knownDivision = null;
+                if (dbDivision && dbDivision !== "Unknown") {
+                    knownDivision = normalizeDivisionName(dbDivision);
+                }
 
-                // Wichtig: Der Button verknüpft jetzt direkt den fertigen Divisions-Link mit dem Eingabefeld.
-                // Dadurch wird unten genau dieses Feld eingelesen, nicht der alte Planer-Link mit grepreg/grepcat.
-                if (urlInputEl) urlInputEl.value = cleanDivisionUrl;
+                // 3. Generiere exakt den direkten Link, der importiert werden soll
+                const targetUrl = buildIpscComplistUrl(matchId, knownDivision);
+
+                // 4. Setze den generierten Link sichtbar in das Input-Feld
+                if (urlInputEl) {
+                    urlInputEl.value = targetUrl;
+                }
+                
+                // 5. Übergabe an den Scraper
                 window.pendingPlannedMatchHint = {
-                    matchId,
+                    matchId: matchId,
                     division: knownDivision,
                     squad: expectedSquad,
-                    sourceUrl: normalizedUrl,
-                    ownEntry
+                    sourceUrl: targetUrl
                 };
 
-                console.log("🎯 Planer-Match aufgelöst:", window.pendingPlannedMatchHint);
+                console.log("🎯 Daten aus 'Mein Planer' gezogen. Generierter Link:", targetUrl);
+                
+                // Import direkt starten
                 await importMatchFromUrl();
+
             } catch (err) {
                 console.error("Fehler beim Planer-Import:", err);
                 document.getElementById('loader').style.display = 'none';
@@ -1590,9 +1557,6 @@
                 const myName = window.userProfileData ? window.userProfileData.real_name : null;
                 const matchId = (plannedHint && plannedHint.matchId) || getMatchIdFromUrl(normalizedUrl);
 
-                // Wichtig: Links aus „Mein Planer“ koennen schon Filter enthalten, z.B. grepreg=LUX.
-                // Diese Links duerfen NICHT direkt analysiert werden, sonst sucht der Parser im falschen Land.
-                // Fuer IPSCMatch wird immer zuerst der neutrale complist-Link des Matches benutzt.
                 const baseMatchUrl = matchId ? buildIpscComplistUrl(matchId) : normalizedUrl;
                 let targetUrl = (matchId && knownDivision) ? buildIpscComplistUrl(matchId, knownDivision) : baseMatchUrl;
                 if (urlInputEl && matchId && knownDivision) urlInputEl.value = targetUrl;
@@ -1620,8 +1584,6 @@
                 const urlsToTry = [targetUrl];
                 if (matchId) urlsToTry.push(baseMatchUrl);
 
-                // Nur als Fallback den Original-Link versuchen, wenn er KEINEN IPSCMatch-Filter enthaelt.
-                // grepreg/grepcat/grepdiv aus dem Planer kann sonst ein falsches Teilfeld liefern.
                 const originalHasIpscFilter = /[?&](?:grep(?:reg|cat|div)=|complist=|list=|squads\b)/i.test(normalizedUrl);
                 if (targetUrl !== normalizedUrl && !originalHasIpscFilter) urlsToTry.push(normalizedUrl);
                 
@@ -1683,8 +1645,6 @@
             }
         }
         
-        // Ende Link Import Logik
-
         // 2. DRAG & DROP EVENTS
         const dropZone = document.getElementById('drop-zone');
         dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--info-color)"; });
@@ -1695,12 +1655,9 @@
             if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);
         });
 
-
-
         // ==========================================
         // 🏆 SUPABASE MATCH ARCHIV LOGIK
         // ==========================================
-
         async function loadMatchesFromSupabase() {
             if (!window.currentUserId) return [];
             
@@ -1733,8 +1690,14 @@
 
             content.innerHTML = items.map(item => {
                 const divisions = item.divisions && item.divisions.length ? item.divisions.join(", ") : "Keine Division";
-                const shootersList = typeof item.shooters === 'string' ? JSON.parse(item.shooters) : (item.shooters || []);
+                let shootersList = typeof item.shooters === 'string' ? JSON.parse(item.shooters) : (item.shooters || []);
                 
+                // 🛑 FILTER: Auch im Archiv-Vorschauteil Wartelisten rauswerfen
+                shootersList = shootersList.filter(s => {
+                    const checkStr = ((s.name || "") + " " + (s.division || "")).toLowerCase();
+                    return !(checkStr.includes("warteliste") || checkStr.includes("sq99") || checkStr.includes("sq 99") || checkStr.includes("squad 99") || checkStr.includes("squad99"));
+                });
+
                 const topRows = shootersList.slice(0, 8).map(s => `
                     <div class="archive-small-row">
                         <span>${escapeHtml(s.name || "-")}</span>
@@ -1749,7 +1712,7 @@
                                 <div class="archive-icon">🏆</div>
                                 <div class="archive-meta" style="flex: 1; min-width: 0;">
                                     <div class="archive-title" style="white-space: normal; word-break: break-word; line-height: 1.3;">${escapeHtml(item.match_name || "Unbenanntes Match")}</div>
-                                    <div class="archive-sub">${new Date(item.created_at).toLocaleDateString("de-DE")} · ${escapeHtml(item.shooter_count || 0)} Schützen · ${escapeHtml(divisions)}</div>
+                                    <div class="archive-sub">${new Date(item.created_at).toLocaleDateString("de-DE")} · ${escapeHtml(shootersList.length)} Schützen · ${escapeHtml(divisions)}</div>
                                 </div>
                             </div>
                             <div style="display: flex; gap: 8px; justify-content: space-between;">
@@ -1821,7 +1784,12 @@
             currentShooters = []; 
 
             const parsedShooters = typeof item.shooters === 'string' ? JSON.parse(item.shooters) : (item.shooters || []);
-            currentShooters = parsedShooters;
+            
+            // 🛑 FILTER: Wartelisten beim Laden aus dem Archiv herausfiltern
+            currentShooters = parsedShooters.filter(s => {
+                const checkStr = ((s.name || "") + " " + (s.division || "")).toLowerCase();
+                return !(checkStr.includes("warteliste") || checkStr.includes("sq99") || checkStr.includes("sq 99") || checkStr.includes("squad 99") || checkStr.includes("squad99"));
+            });
             
             buildFilterDropdowns(currentShooters);
             calculateStats(currentShooters);
@@ -1856,6 +1824,12 @@
             for (const originalLine of lines) {
                 let line = originalLine;
 
+                // 🛑 FILTER: Warteliste / SQ99 in OCR-Screenshots ignorieren
+                const lineTextLower = line.toLowerCase();
+                if (lineTextLower.includes("warteliste") || lineTextLower.includes("sq99") || lineTextLower.includes("sq 99") || lineTextLower.includes("squad 99") || lineTextLower.includes("squad99")) {
+                    continue;
+                }
+
                 if (/^(nr\.?|vorname|name|region|division|category|power|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik)/i.test(line)) {
                     continue;
                 }
@@ -1864,7 +1838,6 @@
                 if (!numberMatch) continue;
 
                 let rest = numberMatch[2].trim();
-
                 const tokens = rest.split(/\s+/);
                 let regionIndex = -1;
                 let regionRaw = "";
