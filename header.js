@@ -14,7 +14,7 @@
 
         // 🌟 NEU: Dynamische Texte für den Header (inkl. "Double Alpha")
         const headerTitle = isVipPage ? "Double Alpha" : "IPSC STARTPLATZ-BÖRSE";
-        const headerSub = isVipPage ? "Exklusiver Vereins-Bereich 🔒" : "Von Schützen für Schützen";
+        const headerSub = isVipPage ? "Vereins-Bereich 🔒" : "Von Schützen für Schützen";
 
         const links = [
             { href: "index.html", text: "Startseite", key: "nav-startseite" },
