@@ -106,7 +106,6 @@ def normalize_division(text):
     return None
 
 def extract_date_and_location(body_text):
-    # Standard-Datum für das aktuelle/zukünftige Jahr, falls nichts gefunden wird
     match_date = "2026-01-01" 
     location = "Unbekannt"
     try:
@@ -172,11 +171,15 @@ def candidate_urls(match_url):
 # 4. EXTRAKTIONS-LOGIK
 # ==========================================
 def extract_squad_from_text(text):
-    m = re.search(r"(?:Sq\.?|Squad|Gruppe)\s*(\d+)", text, re.I)
-    if not m: return "TBD", "Approved"
+    m = re.search(r"(?:Sq\.?|Squad|Gruppe)[\s:]*(\d+)", text, re.I)
+    if not m: 
+        if re.search(r"warteliste", text, re.I): return "SQ99", "Warteliste"
+        return "TBD", "Approved"
+    
     num = m.group(1)
-    if num == "99" or re.search(r"warteliste", text, re.I):
-        return "SQ99", "Warteliste"
+    if num == "0": return "TBD", "Approved"
+    elif num == "99" or re.search(r"warteliste", text, re.I): return "SQ99", "Warteliste"
+        
     return f"Squad {num}", "Approved"
 
 def extract_from_segment(segment, real_name, squad="TBD", status="Approved"):
@@ -208,26 +211,62 @@ def extract_from_segment(segment, real_name, squad="TBD", status="Approved"):
 def scan_tables(soup, real_name):
     results = []
     for table in soup.select("table"):
-        table_text = clean_text(table.get_text(" "))
-        squad, status = extract_squad_from_text(table_text)
+        current_squad_left = "TBD"
+        current_squad_right = "TBD"
 
         for tr in table.select("tr"):
             cells = [clean_text(td.get_text(" ")) for td in tr.find_all(["td", "th"])]
             cells = [c for c in cells if c]
             if not cells: continue
-            row = clean_text(" ".join(cells))
-            if re.search(r"\b(Name|Vorname|Region|Division|Category)\b", row, re.I): continue
+
+            # 1. Check: Sind in dieser Tabellen-Zeile Squad-Header? (Links und/oder Rechts)
+            squad_matches = []
+            for idx, cell in enumerate(cells):
+                m = re.search(r"(?:Sq\.?|Squad|Gruppe)[\s:]*(\d+)", cell, re.I)
+                if m:
+                    sq_num = m.group(1)
+                    if sq_num == "0": sq_str = "TBD"
+                    elif sq_num == "99": sq_str = "SQ99"
+                    else: sq_str = f"Squad {sq_num}"
+                    squad_matches.append(sq_str)
+
+            if squad_matches:
+                current_squad_left = squad_matches[0]
+                # Wenn es ein Zwei-Spalten-Layout ist, gibt es einen zweiten Header für rechts!
+                current_squad_right = squad_matches[1] if len(squad_matches) > 1 else current_squad_left
+                continue # Diese Zeile war nur der Header, weiter zur nächsten Zeile
+
+            # 2. Check: Zeile mit Schützen auswerten
+            row_text = clean_text(" ".join(cells))
+            if re.search(r"\b(Name|Vorname|Region|Division|Category)\b", row_text, re.I): continue
+
+            status = "Warteliste" if "warteliste" in row_text.lower() else "Approved"
 
             for i, c in enumerate(cells):
+                # Wir suchen wieder die Region (GER, SUI, etc.) als Ankerpunkt
                 if re.sub(r"[^A-Za-z]", "", c).upper() in COUNTRY_CODES and i >= 1:
                     name_cell = re.sub(r"^[✓✔✗×xX\s#\d.\-]+", "", cells[i-1]).strip()
+                    
                     if name_parts_match(name_cell, real_name):
                         div = normalize_division(" ".join(cells[i+1:i+4]))
-                        if div:
-                            results.append({"squad": squad, "status": status, "division": div})
+                        
+                        # HIER IST DIE MAGIE: Steht der Schütze links oder rechts?
+                        assigned_squad = current_squad_left
+                        # Wenn die Region in der zweiten Hälfte der Spalten gefunden wurde -> Rechte Squad!
+                        if len(cells) >= 6 and i >= (len(cells) / 2):
+                            assigned_squad = current_squad_right
+                            
+                        if assigned_squad == "Squad 99": 
+                            assigned_squad = "SQ99"
+                            status = "Warteliste"
+
+                        if div or assigned_squad != "TBD":
+                            results.append({"squad": assigned_squad, "status": status, "division": div})
             
-            hit = extract_from_segment(row, real_name, squad, status)
+            # Fallback für chaotische Zeilen ohne klares Tabellenmuster
+            hit = extract_from_segment(row_text, real_name, current_squad_left, status)
             if hit: results.append(hit)
+
     return results
 
 def scan_text_blocks(soup, real_name):
