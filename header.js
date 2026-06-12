@@ -12,8 +12,8 @@
         // 🌟 NEU: Prüfen, ob wir auf einer der beiden VIP-Seiten sind
         const isVipPage = (page === "doppel-aa.html" || page === "performance.html");
 
-        // 🌟 NEU: Dynamische Texte für den Header
-        const headerTitle = isVipPage ? "DOUBLE ALPHA ELITE" : "IPSC STARTPLATZ-BÖRSE";
+        // 🌟 NEU: Dynamische Texte für den Header (inkl. "Double Alpha")
+        const headerTitle = isVipPage ? "Double Alpha" : "IPSC STARTPLATZ-BÖRSE";
         const headerSub = isVipPage ? "Exklusiver Vereins-Bereich 🔒" : "Von Schützen für Schützen";
 
         const links = [
@@ -35,10 +35,11 @@
             navHtml += `<a href="${link.href}" class="${className}" data-txt="${link.key}">${link.text}</a>`;
         });
 
+        // 🌟 FIX: data-txt wird auf VIP-Seiten entfernt, damit das Skript den Titel nicht überschreibt!
         header.innerHTML = `
             <a href="index.html" style="text-decoration: none; color: inherit; display: inline-block; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Zur Startseite">
-                <h1 data-txt="main-title" class="${isVipPage ? 'vip-title' : ''}">${headerTitle}</h1>
-                <p style="color: ${isVipPage ? 'var(--accent-color)' : 'var(--text-muted)'}; margin: 5px 0 0 0; font-size: 13px; font-weight: ${isVipPage ? 'bold' : 'normal'};" data-txt="sub-title">${headerSub}</p>
+                <h1 ${isVipPage ? '' : 'data-txt="main-title"'} class="${isVipPage ? 'vip-title' : ''}">${headerTitle}</h1>
+                <p style="color: ${isVipPage ? 'var(--accent-color)' : 'var(--text-muted)'}; margin: 5px 0 0 0; font-size: 13px; font-weight: ${isVipPage ? 'bold' : 'normal'};" ${isVipPage ? '' : 'data-txt="sub-title"'}>${headerSub}</p>
             </a>
             
             <div class="header-controls">
@@ -63,7 +64,7 @@
             </nav>
         `;
 
-        // 🌟 NEU: Exklusives VIP-Styling nur für diese zwei Seiten injizieren
+        // 🌟 Exklusives VIP-Styling nur für diese zwei Seiten injizieren
         if (isVipPage) {
             const vipStyle = document.createElement('style');
             vipStyle.innerHTML = `
