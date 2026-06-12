@@ -9,10 +9,10 @@
 
         const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
 
-        // 🌟 NEU: Prüfen, ob wir auf einer der beiden VIP-Seiten sind
+        // 🌟 Prüfen, ob wir auf einer der beiden VIP-Seiten sind
         const isVipPage = (page === "doppel-aa.html" || page === "performance.html");
 
-        // 🌟 NEU: Dynamische Texte für den Header (inkl. "Double Alpha")
+        // 🌟 Dynamische Texte für den Header
         const headerTitle = isVipPage ? "Double Alpha" : "IPSC STARTPLATZ-BÖRSE";
         const headerSub = isVipPage ? "Vereins-Bereich 🔒" : "Von Schützen für Schützen";
 
@@ -35,7 +35,7 @@
             navHtml += `<a href="${link.href}" class="${className}" data-txt="${link.key}">${link.text}</a>`;
         });
 
-        // 🌟 FIX: data-txt wird auf VIP-Seiten entfernt, damit das Skript den Titel nicht überschreibt!
+        // 🌟 Aufbau des HTML (ohne data-txt, Chat und Sprache auf VIP-Seiten)
         header.innerHTML = `
             <a href="index.html" style="text-decoration: none; color: inherit; display: inline-block; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Zur Startseite">
                 <h1 ${isVipPage ? '' : 'data-txt="main-title"'} class="${isVipPage ? 'vip-title' : ''}">${headerTitle}</h1>
@@ -45,6 +45,7 @@
             <div class="header-controls">
                 <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()">🌓</button>
 
+                ${isVipPage ? '' : `
                 <button id="header-chat-btn" class="theme-toggle-btn" onclick="toggleGlobalInbox()" style="position: relative; font-size: 18px;" title="Nachrichten">
                     💬
                     <span id="chat-badge-count" style="display: none; position: absolute; top: -4px; right: -4px; background: var(--danger-color); color: white; font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold;">0</span>
@@ -54,8 +55,10 @@
                     <option value="de" ${savedLanguageSetting === 'de' ? 'selected' : ''}>DE</option>
                     <option value="en" ${savedLanguageSetting === 'en' ? 'selected' : ''}>EN</option>
                 </select>
+                `}
+                
                 <div id="auth-status-container">
-                    <button class="btn-auth" id="btn-open-login" data-txt="btn-login-reg">Login / Registrieren</button>
+                    <button class="btn-auth" id="btn-open-login" ${isVipPage ? 'onclick="window.location.href=\'index.html\'"' : 'data-txt="btn-login-reg"'}>Login / Registrieren</button>
                 </div>
             </div>
 
@@ -64,7 +67,7 @@
             </nav>
         `;
 
-                // 🌟 Exklusives VIP-Styling nur für diese zwei Seiten injizieren
+        // 🌟 Exklusives VIP-Styling nur für diese zwei Seiten injizieren
         if (isVipPage) {
             const vipStyle = document.createElement('style');
             vipStyle.innerHTML = `
@@ -89,7 +92,7 @@
                 }
 
                 /* Helle Controls im dunklen Header erzwingen */
-                header .theme-toggle-btn, header .lang-select, header .btn-auth, header .main-nav a.inactive {
+                header .theme-toggle-btn, header .btn-auth, header .main-nav a.inactive {
                     background: rgba(255, 255, 255, 0.1) !important;
                     color: #ffffff !important;
                     border-color: rgba(255, 255, 255, 0.2) !important;
@@ -107,7 +110,7 @@
                     border: 1px solid rgba(255, 159, 67, 0.3) !important;
                 }
 
-                /* 🌟 NEU: Überschreibt die blauen Elemente im unteren Bereich! */
+                /* Überschreibt die blauen Elemente im unteren Bereich! */
                 #quick-analyze-section {
                     background: rgba(255, 159, 67, 0.05) !important;
                     border: 1px solid rgba(255, 159, 67, 0.4) !important;
@@ -121,7 +124,7 @@
                     background-color: rgba(255, 159, 67, 0.05) !important;
                 }
                 
-                /* Den dicken "Link abrufen" Button in den VIP-Look (Dunkles Blau/Grau mit Gold-Text) ziehen */
+                /* Den dicken "Link abrufen" Button in den VIP-Look ziehen */
                 .primary-btn {
                     background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%) !important;
                     border: 1px solid var(--accent-color) !important;
@@ -134,7 +137,6 @@
             `;
             document.head.appendChild(vipStyle);
         }
-
 
         const style = document.createElement('style');
         style.innerHTML = `
