@@ -185,12 +185,17 @@ def extract_squad_from_text(text):
 def extract_from_segment(segment, real_name, squad="TBD", status="Approved"):
     if not name_parts_match(segment, real_name): return None
     tokens = clean_text(segment).split()
-    start_idx = 0
+    
+    start_idx = -1
+    
     for i in range(len(tokens)):
-        window = " ".join(tokens[i:i+5])
+        window = " ".join(tokens[i:i+6])
         if name_parts_match(window, real_name):
             start_idx = i
             break
+
+    if start_idx == -1:
+        return None
 
     tail_tokens = tokens[start_idx:]
     country_idx = None
@@ -213,59 +218,97 @@ def scan_tables(soup, real_name):
     for table in soup.select("table"):
         current_squad_left = "TBD"
         current_squad_right = "TBD"
+        squad_col_idx = -1
 
         for tr in table.select("tr"):
             cells = [clean_text(td.get_text(" ")) for td in tr.find_all(["td", "th"])]
             cells = [c for c in cells if c]
             if not cells: continue
 
-            # 1. Check: Sind in dieser Tabellen-Zeile Squad-Header? (Links und/oder Rechts)
+            # 1. Block-Header für Squads
             squad_matches = []
             for idx, cell in enumerate(cells):
-                m = re.search(r"(?:Sq\.?|Squad|Gruppe)[\s:]*(\d+)", cell, re.I)
-                if m:
-                    sq_num = m.group(1)
-                    if sq_num == "0": sq_str = "TBD"
-                    elif sq_num == "99": sq_str = "SQ99"
-                    else: sq_str = f"Squad {sq_num}"
-                    squad_matches.append(sq_str)
+                if re.search(r"^(?:Sq\.?|Squad|Gruppe)[\s:]*\d+", cell, re.I):
+                    m = re.search(r"(\d+)", cell)
+                    if m:
+                        sq_num = m.group(1)
+                        if sq_num == "0": squad_matches.append("TBD")
+                        elif sq_num == "99": squad_matches.append("SQ99")
+                        else: squad_matches.append(f"Squad {sq_num}")
 
             if squad_matches:
                 current_squad_left = squad_matches[0]
-                # Wenn es ein Zwei-Spalten-Layout ist, gibt es einen zweiten Header für rechts!
                 current_squad_right = squad_matches[1] if len(squad_matches) > 1 else current_squad_left
-                continue # Diese Zeile war nur der Header, weiter zur nächsten Zeile
+                continue 
 
-            # 2. Check: Zeile mit Schützen auswerten
+            # 2. Spalten-Köpfe einer flachen Tabelle
             row_text = clean_text(" ".join(cells))
-            if re.search(r"\b(Name|Vorname|Region|Division|Category)\b", row_text, re.I): continue
+            if re.search(r"\b(Name|Vorname|Region|Division|Category|Competitor)\b", row_text, re.I):
+                for idx, val in enumerate(cells):
+                    if re.search(r"^(?:Sq|Squad|Gruppe)\b", val, re.I):
+                        squad_col_idx = idx
+                continue 
 
             status = "Warteliste" if "warteliste" in row_text.lower() else "Approved"
 
+            # 3. Schützen-Zeile auswerten
             for i, c in enumerate(cells):
-                # Wir suchen wieder die Region (GER, SUI, etc.) als Ankerpunkt
                 if re.sub(r"[^A-Za-z]", "", c).upper() in COUNTRY_CODES and i >= 1:
                     name_cell = re.sub(r"^[✓✔✗×xX\s#\d.\-]+", "", cells[i-1]).strip()
                     
                     if name_parts_match(name_cell, real_name):
-                        div = normalize_division(" ".join(cells[i+1:i+4]))
+                        div = normalize_division(" ".join(cells[i+1:]))
                         
-                        # HIER IST DIE MAGIE: Steht der Schütze links oder rechts?
                         assigned_squad = current_squad_left
-                        # Wenn die Region in der zweiten Hälfte der Spalten gefunden wurde -> Rechte Squad!
-                        if len(cells) >= 6 and i >= (len(cells) / 2):
+                        if len(cells) >= 6 and i >= (len(cells) / 2) and current_squad_right != "TBD":
                             assigned_squad = current_squad_right
-                            
-                        if assigned_squad == "Squad 99": 
-                            assigned_squad = "SQ99"
+                        
+                        if squad_col_idx != -1 and squad_col_idx < len(cells):
+                            sq_val = cells[squad_col_idx]
+                            m = re.search(r"(\d+)", sq_val)
+                            if m:
+                                sq_num = m.group(1)
+                                if sq_num == "0": assigned_squad = "TBD"
+                                elif sq_num == "99": assigned_squad = "SQ99"
+                                else: assigned_squad = f"Squad {sq_num}"
+
+                        if assigned_squad == "TBD":
+                            for cell_val in reversed(cells[i:]):
+                                val_clean = cell_val.strip()
+                                m = re.search(r"^(?:Sq\.?\s*|Squad\s*)?(\d{1,3})$", val_clean, re.I)
+                                if m:
+                                    sq_num = m.group(1)
+                                    if sq_num == "99": assigned_squad = "SQ99"
+                                    elif sq_num != "0": assigned_squad = f"Squad {sq_num}"
+                                    break
+
+                        if assigned_squad == "SQ99":
                             status = "Warteliste"
 
                         if div or assigned_squad != "TBD":
                             results.append({"squad": assigned_squad, "status": status, "division": div})
             
-            # Fallback für chaotische Zeilen ohne klares Tabellenmuster
+            # Fallback
             hit = extract_from_segment(row_text, real_name, current_squad_left, status)
-            if hit: results.append(hit)
+            if hit:
+                if hit["squad"] == "TBD":
+                    if squad_col_idx != -1 and squad_col_idx < len(cells):
+                        sq_val = cells[squad_col_idx]
+                        m = re.search(r"(\d+)", sq_val)
+                        if m:
+                            sq_num = m.group(1)
+                            if sq_num == "99": hit["squad"] = "SQ99"; hit["status"] = "Warteliste"
+                            elif sq_num != "0": hit["squad"] = f"Squad {sq_num}"
+                    else:
+                        for cell_val in reversed(cells):
+                            val_clean = cell_val.strip()
+                            m = re.search(r"^(?:Sq\.?\s*|Squad\s*)?(\d{1,3})$", val_clean, re.I)
+                            if m:
+                                sq_num = m.group(1)
+                                if sq_num == "99": hit["squad"] = "SQ99"; hit["status"] = "Warteliste"
+                                elif sq_num != "0": hit["squad"] = f"Squad {sq_num}"
+                                break
+                results.append(hit)
 
     return results
 
