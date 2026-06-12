@@ -42,6 +42,7 @@ def extract_date_and_location(driver):
     try:
         body_text = driver.find_element(By.TAG_NAME, "body").text
         
+        # Datum extrahieren
         date_matches = re.findall(r'(\d{2}\.\d{2}\.\d{4})', body_text)
         if date_matches:
             parts = date_matches[0].split('.')
@@ -51,28 +52,39 @@ def extract_date_and_location(driver):
             if date_matches_iso:
                 match_date = date_matches_iso[0]
 
+        # Ort extrahieren
         lines = body_text.split('\n')
         for i, line in enumerate(lines):
-            # Suche explizit nach "Ort" oder "Location", ignoriere Datum
             if re.match(r'^(Ort|Location|Austragungsort)', line, re.I):
-                if ':' in line:
-                    potential_loc = line.split(':', 1)[1].strip()
-                    # Filter: Darf kein Datum sein
-                    if potential_loc and not re.search(r'\d{2}\.\d{2}\.\d{4}', potential_loc):
-                        location = potential_loc
-                        break
-                elif i + 1 < len(lines):
+                # Entfernt das Schlüsselwort (Ort/Location/etc.) und sämtliche folgenden Doppelpunkte/Leerzeichen/Tabs
+                clean_line = re.sub(r'^(Ort|Location|Austragungsort)[:\s]*', '', line, flags=re.I).strip()
+                
+                # Variante 1: Ort steht direkt in derselben Zeile (wie auf dem Screenshot)
+                if clean_line:
+                    location = clean_line
+                    break
+                    
+                # Variante 2: Ort steht wirklich erst komplett in der nächsten Zeile
+                if i + 1 < len(lines):
                     next_line = lines[i+1].strip()
-                    # Filter: Ignoriere Zeilen, die selbst Labels sind
-                    if next_line and not re.match(r'^(Datum|Match|Level|Stages|Veranstalter|Region|Registration|Date)', next_line, re.I):
-                        # Filter: Ignoriere Zeilen die nur aus Datums-Formaten bestehen
-                        if not re.search(r'\d{2}\.\d{2}\.\d{4}', next_line):
-                            location = next_line
-                            break
+                    if next_line and not re.match(r'^(Datum|Match|Level|Stages|Veranstalter|Region|Registration)', next_line, re.I):
+                        location = next_line
+                        break
     except Exception as e:
         log(f"WARN: Datum/Ort Extraktion fehlgeschlagen: {e}")
         
     return match_date, location
+
+def get_app_users():
+    log("Lade User aus der profiles-Tabelle...")
+    try:
+        response = supabase.table("profiles").select("id, real_name").execute()
+        users = [u for u in response.data if u.get('real_name')]
+        log(f"{len(users)} User mit real_name gefunden.")
+        return users
+    except Exception as e:
+        log(f"Fehler beim Laden der User: {e}")
+        return []
 
 def send_summary_email(summary_data):
     """Versendet eine E-Mail, wenn es Neuerungen gab."""
@@ -163,10 +175,10 @@ def update_or_create_match(user_id, real_name, match_data, summary_data):
         }).execute()
 
 def scrape_ipscmatch_and_sync():
-    # Lade User
-    response = supabase.table("profiles").select("id, real_name").execute()
-    app_users = [u for u in response.data if u.get('real_name')]
-    
+    app_users = get_app_users()
+    if not app_users:
+        return
+
     # Hier speichern wir uns alles für die Zusammenfassung/E-Mail
     summary_data = {'new': [], 'updates': []}
 
@@ -176,7 +188,8 @@ def scrape_ipscmatch_and_sync():
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--window-size=1920,1080")
-    
+    chrome_options.page_load_strategy = 'eager'
+
     driver = None
     try:
         service = Service(ChromeDriverManager().install())
@@ -301,6 +314,7 @@ def scrape_ipscmatch_and_sync():
                         "ipsc_division": division, 
                         "match_url": match['url']
                     }
+                    # Hier übergeben wir nun auch 'summary_data' an die Funktion
                     update_or_create_match(user['id'], real_name, match_data, summary_data)
 
     except Exception as e:
@@ -309,8 +323,15 @@ def scrape_ipscmatch_and_sync():
         if driver:
             driver.quit()
         
-        log("\n--- ZUSAMMENFASSUNG ---")
-        log(f"Neu: {len(summary_data['new'])} | Updates: {len(summary_data['updates'])}")
+        # GANZ AM ENDE: Zusammenfassung anzeigen & Mail verschicken
+        log("\n==========================================")
+        log("📊 ZUSAMMENFASSUNG DES SCRAPER-DURCHLAUFS")
+        log("==========================================")
+        log(f"Neue Einträge gefunden: {len(summary_data['new'])}")
+        log(f"Aktualisierte Einträge: {len(summary_data['updates'])}")
+        log("==========================================\n")
+        
+        # Versende Mail (nur wenn neue/geänderte Daten vorhanden sind)
         send_summary_email(summary_data)
 
 if __name__ == "__main__":
