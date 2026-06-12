@@ -569,12 +569,47 @@
             return previous[b.length];
         }
 
+        function splitStoredLastname(value) {
+            const text = cleanText(value);
+            if (text.includes(',')) {
+                const parts = text.split(',').map(cleanText).filter(Boolean);
+                return { nachname: parts[0] || '', vorname: parts.slice(1).join(' ') || '' };
+            }
+            const parts = text.split(/\s+/).filter(Boolean);
+            return { nachname: parts[0] || '', vorname: parts.slice(1).join(' ') || '' };
+        }
+
+        function nameSimilarityScore(row, shooter) {
+            const stored = splitStoredLastname(row.lastname || '');
+            const firstTargets = nameVariants(shooter.vorname || '');
+            const lastTargets = nameVariants(shooter.nachname || '');
+            let bestFirst = Number.POSITIVE_INFINITY;
+            let bestLast = Number.POSITIVE_INFINITY;
+            for (const first of firstTargets) bestFirst = Math.min(bestFirst, levenshteinDistance(stored.vorname, first));
+            for (const last of lastTargets) bestLast = Math.min(bestLast, levenshteinDistance(stored.nachname, last));
+            const storedFull = `${stored.nachname}, ${stored.vorname}`;
+            const targetFull = `${shooter.nachname || ''}, ${shooter.vorname || ''}`;
+            const fullDistance = levenshteinDistance(storedFull, targetFull);
+            return { row, firstDistance: bestFirst, lastDistance: bestLast, fullDistance, score: (bestLast * 2) + bestFirst };
+        }
+
+        function pickBestEloShooterMatch(rows, shooter) {
+            if (!rows || rows.length === 0 || !shooter) return null;
+            const scored = rows
+                .map(row => nameSimilarityScore(row, shooter))
+                .sort((a, b) => a.score - b.score || a.fullDistance - b.fullDistance);
+            const best = scored[0];
+            if (!best) return null;
+            const lastOk = best.lastDistance <= 2;
+            const firstOk = best.firstDistance <= 1;
+            const fullOk = best.fullDistance <= 3;
+            return (lastOk && firstOk && fullOk) ? best.row : null;
+        }
+
         function pickBestEloNameMatch(rows, targetCandidates) {
             if (!rows || rows.length === 0) return null;
-
             let bestRow = null;
             let bestDistance = Number.POSITIVE_INFINITY;
-
             for (const row of rows) {
                 for (const target of targetCandidates) {
                     const distance = levenshteinDistance(row.lastname, target);
@@ -584,19 +619,107 @@
                     }
                 }
             }
-
             const bestNameLength = bestRow ? normalizeNameForMatching(bestRow.lastname).length : 0;
-            const allowedDistance = bestNameLength <= 10 ? 1 : 2;
+            const allowedDistance = bestNameLength <= 10 ? 1 : 3;
             return bestDistance <= allowedDistance ? bestRow : null;
         }
 
-        async function findEloEntry(shooter) {
+        function divisionMatches(rowDivision, targetDivision) {
+            return normalizeDivisionName(rowDivision) === normalizeDivisionName(targetDivision);
+        }
+
+        function pickBestEloShooterMatchInDivision(rows, shooter, division) {
+            const sameDivisionRows = (rows || []).filter(row => divisionMatches(row.division, division));
+            return pickBestEloShooterMatch(sameDivisionRows, shooter);
+        }
+
+        async function fetchEloRowsByDivisionAndNamePart(division, namePart, limit = 200) {
+            const part = cleanText(namePart);
+            if (!part || part.length < 2 || !window.supabaseClient) return [];
+
+            const { data, error } = await window.supabaseClient
+                .from("elo_rankings")
+                .select("elo_rating, class_style, division, lastname, rank")
+                .eq("division", division)
+                .ilike("lastname", `%${part}%`)
+                .limit(limit);
+
+            if (error || !data) return [];
+            return data.filter(row => divisionMatches(row.division, division));
+        }
+
+        async function fetchEloRowsByDivisionPaged(division, maxRows = 6000, pageSize = 1000) {
+            const allRows = [];
+            if (!window.supabaseClient) return allRows;
+
+            for (let from = 0; from < maxRows; from += pageSize) {
+                const to = from + pageSize - 1;
+                const { data, error } = await window.supabaseClient
+                    .from("elo_rankings")
+                    .select("elo_rating, class_style, division, lastname, rank")
+                    .eq("division", division)
+                    .range(from, to);
+
+                if (error || !data || data.length === 0) break;
+                allRows.push(...data.filter(row => divisionMatches(row.division, division)));
+                if (data.length < pageSize) break;
+            }
+
+            return allRows;
+        }
+
+        async function findNameInOtherDivisionsForDebug(shooter, currentDivision) {
+            // Nur Diagnose: niemals für die Anzeige zurückgeben.
+            // Beispiel: Desmedt, Mike existiert in Production Optics, aber nicht in Optics -> Anzeige bleibt "Kein Eintrag".
             if (!window.supabaseClient) return null;
+            const candidates = buildSearchNameCandidates(shooter.vorname, shooter.nachname);
+            const firstCandidates = nameVariants(shooter.vorname || '');
+            const rows = [];
+
+            for (const candidate of candidates.slice(0, 4)) {
+                const { data } = await window.supabaseClient
+                    .from("elo_rankings")
+                    .select("elo_rating, class_style, division, lastname, rank")
+                    .eq("lastname", candidate)
+                    .neq("division", currentDivision)
+                    .limit(10);
+                if (data && data.length) rows.push(...data);
+            }
+
+            for (const first of firstCandidates.slice(0, 2)) {
+                if (!first || first.length < 3) continue;
+                const { data } = await window.supabaseClient
+                    .from("elo_rankings")
+                    .select("elo_rating, class_style, division, lastname, rank")
+                    .ilike("lastname", `%${first}%`)
+                    .neq("division", currentDivision)
+                    .limit(50);
+                if (data && data.length) rows.push(...data);
+            }
+
+            const best = pickBestEloShooterMatch(rows, shooter);
+            if (best) {
+                console.info("ELO-Eintrag nur in anderer Division gefunden; wird nicht angezeigt:", {
+                    shooter: `${shooter.nachname}, ${shooter.vorname}`,
+                    requestedDivision: currentDivision,
+                    foundDivision: best.division,
+                    dbName: best.lastname
+                });
+            }
+            return best || null;
+        }
+
+        async function findEloEntry(shooter) {
+            if (!window.supabaseClient || !shooter) return null;
 
             const division = normalizeDivisionName(shooter.division);
-            const candidates = buildSearchNameCandidates(shooter.vorname, shooter.nachname);
+            if (!division || division === "Unknown") return null;
 
-            // 1) Exakter Treffer, schnellster und sicherster Weg.
+            const candidates = buildSearchNameCandidates(shooter.vorname, shooter.nachname);
+            const lastCandidates = nameVariants(shooter.nachname || '');
+            const firstCandidates = nameVariants(shooter.vorname || '');
+
+            // 1) Exakt: gleicher Name UND gleiche Division.
             for (const candidate of candidates) {
                 const { data, error } = await window.supabaseClient
                     .from("elo_rankings")
@@ -605,63 +728,45 @@
                     .eq("division", division)
                     .limit(1);
 
-                if (!error && data && data.length > 0) return data[0];
-            }
-
-            const lastCandidates = nameVariants(shooter.nachname);
-            const firstCandidates = nameVariants(shooter.vorname);
-
-            // 2) Bisherige Teilstring-Suche.
-            for (const last of lastCandidates) {
-                for (const first of firstCandidates) {
-                    const { data, error } = await window.supabaseClient
-                        .from("elo_rankings")
-                        .select("elo_rating, class_style, division, lastname, rank")
-                        .eq("division", division)
-                        .ilike("lastname", `%${last}%${first}%`)
-                        .limit(1);
-
-                    if (!error && data && data.length > 0) return data[0];
+                if (!error && data && data.length > 0 && divisionMatches(data[0].division, division)) {
+                    return data[0];
                 }
             }
 
-            // 3) Fuzzy-Fallback fuer kleine Schreib-/OCR-Abweichungen:
-            //    z.B. "Wismann, Volkert" aus der Starterliste vs. "Wisman, Volkert" in Supabase.
-            const fuzzyTargets = candidates;
-
+            // 2) Tolerant innerhalb der gleichen Division: Vorname reicht oft, um OCR-/Schreibfehler beim Nachnamen zu finden.
+            // Beispiel: Starterliste "Wismann, Volkert" findet DB "Wisman, Volkert" in Optics.
+            let sameDivisionCandidates = [];
             for (const first of firstCandidates) {
                 if (!first || first.length < 3) continue;
-
-                const { data, error } = await window.supabaseClient
-                    .from("elo_rankings")
-                    .select("elo_rating, class_style, division, lastname, rank")
-                    .eq("division", division)
-                    .ilike("lastname", `%${first}%`)
-                    .limit(25);
-
-                if (!error) {
-                    const best = pickBestEloNameMatch(data, fuzzyTargets);
-                    if (best) return best;
-                }
+                sameDivisionCandidates.push(...await fetchEloRowsByDivisionAndNamePart(division, first, 200));
             }
 
+            // 3) Weitere Kandidaten innerhalb der gleichen Division über Nachnamen-Präfixe.
             for (const last of lastCandidates) {
-                const lastPrefix = normalizeNameForMatching(last).slice(0, 5);
-                if (!lastPrefix || lastPrefix.length < 4) continue;
+                const normalizedLast = normalizeNameForMatching(last).replace(/\s+/g, '');
+                const prefixes = uniqueArray([
+                    normalizedLast.slice(0, 3),
+                    normalizedLast.slice(0, 4),
+                    normalizedLast.slice(0, 5),
+                    normalizedLast.slice(0, 6)
+                ].filter(part => part.length >= 3));
 
-                const { data, error } = await window.supabaseClient
-                    .from("elo_rankings")
-                    .select("elo_rating, class_style, division, lastname, rank")
-                    .eq("division", division)
-                    .ilike("lastname", `%${lastPrefix}%`)
-                    .limit(25);
-
-                if (!error) {
-                    const best = pickBestEloNameMatch(data, fuzzyTargets);
-                    if (best) return best;
+                for (const prefix of prefixes) {
+                    sameDivisionCandidates.push(...await fetchEloRowsByDivisionAndNamePart(division, prefix, 200));
                 }
             }
 
+            sameDivisionCandidates = uniqueArray(sameDivisionCandidates.map(row => JSON.stringify(row))).map(text => JSON.parse(text));
+            let best = pickBestEloShooterMatchInDivision(sameDivisionCandidates, shooter, division) || pickBestEloNameMatch(sameDivisionCandidates, candidates);
+            if (best && divisionMatches(best.division, division)) return best;
+
+            // 4) Letzter Fallback: alle Zeilen der angeforderten Division paginiert laden und lokal fuzzy vergleichen.
+            const divisionRows = await fetchEloRowsByDivisionPaged(division, 6000, 1000);
+            best = pickBestEloShooterMatchInDivision(divisionRows, shooter, division) || pickBestEloNameMatch(divisionRows, candidates);
+            if (best && divisionMatches(best.division, division)) return best;
+
+            // 5) Quervergleich nur als Debug-Hinweis, nicht als Treffer.
+            await findNameInOtherDivisionsForDebug(shooter, division);
             return null;
         }
 
@@ -1960,7 +2065,61 @@
             }
         }
 
-        function showArchivedMatch(id) {
+        function shooterFromRenderedResult(result) {
+            const name = cleanText(result && result.name);
+            if (!name) return null;
+            let nachname = '';
+            let vorname = '';
+            if (name.includes(',')) {
+                const parts = name.split(',').map(cleanText).filter(Boolean);
+                nachname = parts[0] || '';
+                vorname = parts.slice(1).join(' ') || '';
+            } else {
+                const parts = name.split(/\s+/).filter(Boolean);
+                vorname = parts[0] || '';
+                nachname = parts.slice(1).join(' ') || '';
+            }
+            return { vorname, nachname, regionRaw: result.region || 'UNKNOWN', division: normalizeDivisionName(result.division || 'Unknown') };
+        }
+
+        async function repairMissingEloInRenderedResults(results) {
+            const repaired = [];
+            let changed = false;
+
+            for (const result of (results || [])) {
+                const copy = { ...result };
+                const shooter = shooterFromRenderedResult(copy);
+                const dbEntry = shooter ? await findEloEntry(shooter) : null;
+
+                if (dbEntry && dbEntry.elo_rating !== null && dbEntry.elo_rating !== undefined) {
+                    const eloValue = Number(dbEntry.elo_rating);
+                    const nextClassStyle = eloValue >= 2300 ? 'badge-gm' : eloValue >= 2100 ? 'badge-m' : eloValue >= 1800 ? 'badge-a' : 'badge-u';
+
+                    if (copy.elo !== eloValue || copy.overallRank !== (dbEntry.rank || '-') || copy.rankClass !== (dbEntry.class_style || 'A')) {
+                        changed = true;
+                    }
+
+                    copy.elo = eloValue;
+                    copy.overallRank = dbEntry.rank || '-';
+                    copy.rankClass = dbEntry.class_style || 'A';
+                    copy.classStyle = nextClassStyle;
+                } else {
+                    const wasFilled = !(copy.elo === '-' || copy.elo === null || copy.elo === undefined || copy.elo === 'Kein Eintrag');
+                    if (wasFilled) changed = true;
+
+                    copy.elo = '-';
+                    copy.overallRank = '-';
+                    copy.rankClass = 'Unranked';
+                    copy.classStyle = 'badge-u';
+                }
+
+                repaired.push(copy);
+            }
+
+            return { repaired, changed };
+        }
+
+        async function showArchivedMatch(id) {
             if (!window.cachedMatches) return;
             const item = window.cachedMatches.find(entry => entry.id === id);
             if (!item) return;
@@ -1971,10 +2130,25 @@
             const parsedShooters = typeof item.shooters === 'string' ? JSON.parse(item.shooters) : (item.shooters || []);
             
             // \u{1F6D1} FILTER: Wartelisten beim Laden aus dem Archiv herausfiltern
-            currentShooters = parsedShooters.filter(s => {
+            const filteredShooters = parsedShooters.filter(s => {
                 const checkStr = ((s.name || "") + " " + (s.division || "")).toLowerCase();
                 return !(checkStr.includes("warteliste") || checkStr.includes("sq99") || checkStr.includes("sq 99") || checkStr.includes("squad 99") || checkStr.includes("squad99"));
             });
+
+            const repairedResult = await repairMissingEloInRenderedResults(filteredShooters);
+            currentShooters = repairedResult.repaired;
+
+            if (repairedResult.changed && window.supabaseClient) {
+                try {
+                    await window.supabaseClient
+                        .from("match_archives")
+                        .update({ shooters: currentShooters })
+                        .eq("id", id);
+                    item.shooters = currentShooters;
+                } catch (e) {
+                    console.warn("Archiv-ELO konnte nicht aktualisiert werden:", e);
+                }
+            }
             
             buildFilterDropdowns(currentShooters);
             calculateStats(currentShooters);
