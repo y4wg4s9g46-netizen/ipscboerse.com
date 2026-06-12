@@ -1231,16 +1231,21 @@
             try {
                 const normalizedUrl = normalizeMatchUrl(rawUrl);
                 
-                let targetUrl = normalizedUrl;
                 let knownDivision = null;
                 const myName = window.userProfileData ? window.userProfileData.real_name : null;
                 const matchIdMatch = normalizedUrl.match(/match=([A-Za-z0-9_]+)/i);
                 const matchId = matchIdMatch ? matchIdMatch[1] : null;
 
+                // Wichtig: Links aus „Mein Planer“ koennen schon Filter enthalten, z.B. grepreg=LUX.
+                // Diese Links duerfen NICHT direkt analysiert werden, sonst sucht der Parser im falschen Land.
+                // Fuer IPSCMatch wird immer zuerst der neutrale complist-Link des Matches benutzt.
+                const baseMatchUrl = matchId ? buildIpscComplistUrl(matchId) : normalizedUrl;
+                let targetUrl = baseMatchUrl;
+
                 if (myName && matchId) {
                     setLoaderMessage("Suche deinen Namen, deine Squad und deine Division im Match...");
                     try {
-                        const discoveryUrls = buildDivisionDiscoveryUrls(normalizedUrl, matchId);
+                        const discoveryUrls = buildDivisionDiscoveryUrls(baseMatchUrl, matchId);
                         const seenDiscoveryUrls = new Set();
                         let ownEntry = null;
 
@@ -1278,8 +1283,12 @@
                 }
 
                 const urlsToTry = [targetUrl];
-                if (matchId) urlsToTry.push(buildIpscComplistUrl(matchId));
-                if (targetUrl !== normalizedUrl) urlsToTry.push(normalizedUrl);
+                if (matchId) urlsToTry.push(baseMatchUrl);
+
+                // Nur als Fallback den Original-Link versuchen, wenn er KEINEN IPSCMatch-Filter enthaelt.
+                // grepreg/grepcat/grepdiv aus dem Planer kann sonst ein falsches Teilfeld liefern.
+                const originalHasIpscFilter = /[?&]grep(?:reg|cat|div)=/i.test(normalizedUrl);
+                if (targetUrl !== normalizedUrl && !originalHasIpscFilter) urlsToTry.push(normalizedUrl);
                 
                 const tried = new Set();
                 let lastHtml = "";
