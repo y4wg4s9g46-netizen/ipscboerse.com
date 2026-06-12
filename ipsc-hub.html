@@ -6,7 +6,7 @@
     <title>IPSC Hub | Startplatz Börse</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1e293b">
+    <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="IPSC Börse">
@@ -14,114 +14,112 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
+    <link rel="stylesheet" href="global.css">
+
     <style>
-        /* Modernes Variablen-System für Hell- und Dunkelmodus */
-        :root, html[data-theme="light"] {
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-color: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --input-bg: #ffffff;
-            
-            --accent-color: #ff9f43; /* IPSC Orange */
-            --danger-color: #ef4444;
-            --success-color: #10b981;
-            --info-color: #3b82f6;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            --radius: 8px;
+        /* ==========================================================================
+           HUB-SPEZIFISCHES LAYOUT (Nutzt nun global.css Variablen)
+           ========================================================================== */
+
+        .hub-header-area { text-align: center; margin-bottom: 48px; }
+        .hub-header-area h2 { font-size: clamp(24px, 5vw, 32px); font-weight: 800; margin-bottom: 12px; color: var(--text-color); letter-spacing: -0.5px; }
+        .hub-header-area p { color: var(--text-muted); font-size: 15px; max-width: 650px; margin: 0 auto; line-height: 1.6; }
+
+        .hub-category-title { 
+            margin-top: 40px; 
+            margin-bottom: 24px; 
+            font-size: 20px; 
+            color: var(--text-color); 
+            border-bottom: 2px solid var(--bg-color); 
+            padding-bottom: 12px; 
+            font-weight: 800; 
         }
-
-        /* Dunkler Modus */
-        html[data-theme="dark"] {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --input-bg: #0f172a;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        
+        .hub-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 24px; 
         }
-
-        @media (prefers-color-scheme: dark) {
-            html:not([data-theme="light"]) {
-                --bg-color: #0f172a;
-                --card-bg: #1e293b;
-                --text-color: #f8fafc;
-                --text-muted: #94a3b8;
-                --border-color: #334155;
-                --input-bg: #0f172a;
-            }
+        
+        .hub-card { 
+            background: var(--card-bg); 
+            border: 1px solid var(--border-color); 
+            border-radius: var(--radius-lg); 
+            padding: 24px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 16px; 
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03); 
+            transition: var(--transition); 
+            text-decoration: none; 
+            color: inherit; 
+            position: relative; 
+            overflow: hidden; 
         }
-
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        .hub-card:hover { 
+            transform: translateY(-4px); 
+            box-shadow: var(--shadow-md); 
+            border-color: #cbd5e1; 
+        }
+        html[data-theme="dark"] .hub-card:hover { border-color: var(--text-muted); }
         
-        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
-        
-        /* --- KACHEL-DESIGN (GRID) FÜR DEN IPSC HUB --- */
-        .hub-header-area { text-align: center; margin-bottom: 40px; }
-        .hub-header-area h2 { font-size: 28px; font-weight: 800; margin-bottom: 10px; color: var(--text-color); }
-        .hub-header-area p { color: var(--text-muted); font-size: 15px; max-width: 600px; margin: 0 auto; }
-
-        .hub-category-title { margin-top: 40px; margin-bottom: 20px; font-size: 20px; color: var(--text-color); border-bottom: 2px solid var(--border-color); padding-bottom: 8px; font-weight: 700; }
-        
-        .hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        
-        .hub-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: var(--shadow-sm); transition: all 0.2s ease; text-decoration: none; color: inherit; position: relative; overflow: hidden; }
-        .hub-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--accent-color); }
-        .hub-card::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: var(--accent-color); transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease; }
+        .hub-card::after { 
+            content: ''; 
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 4px; 
+            background: var(--accent-gradient); 
+            transform: scaleX(0); 
+            transform-origin: left; 
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
         .hub-card:hover::after { transform: scaleX(1); }
 
-        .hub-card-header { display: flex; align-items: center; gap: 15px; }
-        .hub-icon { width: 50px; height: 50px; border-radius: 10px; background: var(--bg-color); display: flex; justify-content: center; align-items: center; font-size: 24px; border: 1px solid var(--border-color); flex-shrink: 0; }
-        
+        .hub-card-header { display: flex; align-items: center; gap: 16px; }
+        .hub-icon { 
+            width: 52px; 
+            height: 52px; 
+            border-radius: 12px; 
+            background: var(--input-bg); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 24px; 
+            border: 1px solid var(--border-color); 
+            flex-shrink: 0; 
+            box-shadow: var(--shadow-sm);
+        }
         .hub-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
 
-        .hub-title { margin: 0; font-size: 18px; font-weight: 700; color: var(--text-color); }
-        .hub-desc { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.5; flex-grow: 1; }
+        .hub-title { margin: 0; font-size: 18px; font-weight: 800; color: var(--text-color); }
+        .hub-desc { margin: 0; font-size: 14px; color: var(--text-muted); line-height: 1.6; flex-grow: 1; }
         
-        .hub-btn { background: var(--bg-color); color: var(--accent-color); border: 1px solid var(--accent-color); padding: 8px 15px; border-radius: 6px; text-align: center; font-weight: 600; font-size: 13px; transition: all 0.2s; margin-top: auto; }
-        .hub-card:hover .hub-btn { background: var(--accent-color); color: #fff; }
-
-        /* --- Modals CSS --- */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease-out; padding: 20px; box-sizing: border-box; }
-        .modal-content { background-color: var(--card-bg); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative; margin: auto; }
-        .modal-content h3 { color: var(--text-color); margin-top: 0; margin-bottom: 24px; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; padding-right: 30px; }
-        .modal-close-container { position: absolute; top: 20px; right: 20px; z-index: 1010; }
-        .modal-close-trigger { background: transparent; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; padding: 4px; line-height: 1; transition: color 0.15s; }
-        .modal-close-trigger:hover { color: var(--text-color); }
-        .modal-content .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
-        .modal-content label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .modal-content input { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px 14px; border-radius: var(--radius); font-size: 14px; transition: all 0.15s ease; box-shadow: var(--shadow-sm); }
-        .modal-content input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); }
-        .modal-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px; }
-        .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
-        .modal-divider:not(:empty)::before { margin-right: .75em; }
-        .modal-divider:not(:empty)::after { margin-left: .75em; }
-        .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; }
-        .btn-primary-auth:hover { opacity: 0.9; }
-        .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
-        .btn-secondary-auth:hover { background-color: var(--border-color); }
-        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 30px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 10px; box-shadow: var(--shadow-sm); }
-        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
-        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
-
-        /* Chat Styles */
-        .chat-history-area { height: 300px; overflow-y: auto; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: var(--radius); padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        .hub-btn { 
+            background: var(--bg-color); 
+            color: var(--text-color); 
+            border: 2px solid var(--border-color); 
+            padding: 10px 16px; 
+            border-radius: var(--radius); 
+            text-align: center; 
+            font-weight: 700; 
+            font-size: 13px; 
+            transition: var(--transition); 
+            margin-top: auto; 
+        }
+        .hub-card:hover .hub-btn { 
+            background: var(--accent-color); 
+            color: #fff; 
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 14px rgba(255, 159, 67, 0.3);
+            transform: translateY(-2px);
+        }
 
         @media (max-width: 768px) {
-            html, body { overflow-x: hidden !important; width: 100% !important; }
-            .container { padding: 0 10px !important; margin-top: 15px !important; width: 100% !important; box-sizing: border-box !important; }
-            .hub-header-area h2 { font-size: 22px; }
-            .hub-grid { grid-template-columns: 1fr; }
-            .modal { padding: 10px !important; }
-            .modal-content { padding: 24px 16px !important; max-height: 95vh !important; }
-            .modal-close-container { top: 12px !important; right: 12px !important; }
-            .modal-close-trigger { font-size: 28px !important; }
+            .hub-grid { grid-template-columns: 1fr; gap: 16px; }
+            .hub-category-title { font-size: 18px; margin-top: 30px; }
         }
     </style>
 </head>
@@ -211,6 +209,7 @@
 
     </div>
 
+    <!-- MODALS -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -301,11 +300,11 @@
                 <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
                     <label style="color: var(--success-color); font-weight: 700;" data-txt="modal-settings-deals">📈 Erfolgreiche Vermittlungen</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                        <div style="background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
                             <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
                             <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-seller">Als Verkäufer</p>
                         </div>
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                        <div style="background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
                             <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
                             <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-buyer">Als Käufer</p>
                         </div>
@@ -320,7 +319,7 @@
                 <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
                     <label style="color: #3498db;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</label>
                     <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
+                    <button type="button" class="btn-primary-auth" style="width:100%; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; margin-top: 8px; border: none;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
                 </div>
 
                 <form id="settings-form">
@@ -344,7 +343,7 @@
                         <label data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
                         <input type="password" id="settings-password" minlength="6" data-txt-ph="ph-password" placeholder="Mindestens 6 Zeichen">
                     </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Änderungen speichern</button>
+                    <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
                 </form>
                 <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
                 <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
@@ -363,7 +362,7 @@
             <form id="chat-send-form" style="display: flex; gap: 8px;">
                 <input type="hidden" id="chat-edit-id" value="">
                 <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
-                <button type="submit" id="btn-chat-send" class="btn-submit" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
+                <button type="submit" id="btn-chat-send" class="btn-primary-auth" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
             </form>
         </div>
     </div>
