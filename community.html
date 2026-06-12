@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Community | Startplatz Börse</title>
     
-    <!-- PWA & App-Icons -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e293b">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,12 +16,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/nsfwjs@2.4.0/dist/browser/nsfwjs.min.js"></script>
 
-    <!-- 🌟 DAS GLOBALE CSS -->
     <link rel="stylesheet" href="global.css">
 
     <style>
-        header { background-color: var(--card-bg); padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
-        
         /* Spezifisches Community-Layout überschreibt das globale Container-Layout leicht */
         .container { max-width: 600px; margin: 0 auto; padding: 20px; flex: 1; width: 100%; box-sizing: border-box; position: relative; }
         
@@ -59,41 +55,15 @@
         .fab { position: fixed; bottom: 30px; right: 30px; background-color: var(--accent-color); color: white; border: none; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-md); z-index: 100; display: flex; align-items: center; gap: 8px; transition: transform 0.15s; }
         .fab:hover { transform: translateY(-2px); }
 
-        /* --- Luxuriöses & Modernes Modal-Design --- */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease-out; padding: 20px; box-sizing: border-box; }
-        .modal-content { background-color: var(--card-bg); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative; margin: auto; }
-        .modal-content h3 { color: var(--text-color); margin-top: 0; margin-bottom: 24px; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; padding-right: 30px; }
-        .modal-close-container { position: absolute; top: 20px; right: 20px; z-index: 1010; }
-        .modal-close-trigger { background: transparent; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; padding: 4px; line-height: 1; transition: color 0.15s; }
-        .modal-close-trigger:hover { color: var(--text-color); }
-        .modal-content .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
-        .modal-content label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .modal-content input, textarea { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px 14px; border-radius: var(--radius); font-size: 14px; transition: all 0.15s ease; box-shadow: var(--shadow-sm); font-family: inherit; }
-        .modal-content input:focus, textarea:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); }
-        .modal-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px; }
-        .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
-        .btn-primary-auth, .btn-post { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; }
-        .btn-primary-auth:hover, .btn-post:hover { opacity: 0.9; }
-        .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
-        .btn-secondary-auth:hover { background-color: var(--border-color); }
-        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 30px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 10px; box-shadow: var(--shadow-sm); }
-        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
-        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
         #logged-out-msg, #username-setup-section { text-align: center; padding: 40px; background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border-color); margin-top: 20px; box-shadow: var(--shadow-sm); }
-        footer { background-color: var(--card-bg); border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted); text-align: center; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
         /* ========================================================
            ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES
            ======================================================== */
         @media (max-width: 768px) {
-            html, body { overflow-x: hidden !important; width: 100% !important; }
-            .container { padding: 0 10px !important; margin-top: 15px !important; width: 100% !important; box-sizing: border-box !important; }
             .info-box, .form-section, .post-card, .match-card, #logged-out-section, #planner-section, #username-setup-section, #logged-out-msg { padding: 12px !important; margin-bottom: 12px !important; width: 100% !important; box-sizing: border-box !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
             .form-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
             .toggle-selector { flex-direction: column !important; gap: 8px !important; align-items: flex-start !important; }
-            button, .btn-submit { width: 100% !important; box-sizing: border-box !important; }
             .match-card { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
             .card-actions { align-items: flex-start !important; width: 100% !important; border-top: 1px solid var(--border-color) !important; padding-top: 10px !important; }
             .action-buttons-group { width: 100% !important; display: flex !important; gap: 6px !important; }
@@ -101,12 +71,6 @@
             .fab { bottom: 15px !important; right: 15px !important; padding: 10px 16px !important; font-size: 13px !important; z-index: 999 !important; }
             .match-item { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
             .match-item div[style*="display: flex"] { width: 100% !important; justify-content: space-between !important; }
-            
-            /* Mobile Modal Fixes */
-            .modal { padding: 10px !important; }
-            .modal-content { padding: 24px 16px !important; max-height: 95vh !important; }
-            .modal-close-container { top: 12px !important; right: 12px !important; }
-            .modal-close-trigger { font-size: 28px !important; }
         }
     </style>
 </head>
@@ -154,7 +118,6 @@
 
     </div>
 
-    <!-- MODAL NEUER BEITRAG -->
     <div class="modal" id="post-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -165,7 +128,7 @@
             </div>
             <textarea id="post-content" placeholder="Was gibt's Neues rund um IPSC?"></textarea>
             
-            <label for="post-image" style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:5px; font-weight: 600;" data-txt="lbl-add-photo">Foto hinzufügen (Optional)</label>
+            <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:5px; font-weight: 600;" data-txt="lbl-add-photo">Foto hinzufügen (Optional)</label>
             <input type="file" id="post-image" accept="image/*" onchange="previewPostImage(this)" style="margin-bottom: 15px; color: var(--text-color); width:100%;">
             <img id="post-image-preview" style="width: 100%; border-radius: var(--radius); margin-bottom: 15px; display: none; object-fit: cover; max-height: 250px; border: 1px solid var(--border-color);">
             
@@ -173,7 +136,6 @@
         </div>
     </div>
 
-    <!-- AUTH MODAL -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -191,21 +153,21 @@
 
                 <form id="login-form">
                     <div class="form-group">
-                        <label for="login-email" data-txt="lbl-email">E-Mail *</label>
+                        <label data-txt="lbl-email">E-Mail *</label>
                         <input type="email" id="login-email" required placeholder="name@beispiel.de">
                     </div>
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <label for="login-password" style="margin-bottom: 0;">Passwort *</label>
+                            <label style="margin-bottom: 0;">Passwort *</label>
                             <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
                         </div>
                         <input type="password" id="login-password" required placeholder="••••••••">
                     </div>
                     <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
                 </form>
-                <div class="modal-footer" style="text-align: center; margin-top: 15px;">
-                    <span data-txt="modal-no-acc" style="font-size: 12px;">Noch kein Konto?</span>
-                    <a onclick="toggleAuthView('register')" data-txt="modal-link-reg" style="color: var(--accent-color); font-size: 12px; font-weight: bold; cursor: pointer;">Registrieren</a>
+                <div class="modal-footer">
+                    <span data-txt="modal-no-acc">Noch kein Konto?</span>
+                    <a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a>
                 </div>
             </div>
 
@@ -213,55 +175,49 @@
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
                     <div class="form-group">
-                        <label for="register-email" data-txt="lbl-email">E-Mail *</label>
+                        <label data-txt="lbl-email">E-Mail *</label>
                         <input type="email" id="register-email" required placeholder="name@beispiel.de">
                     </div>
                     <div class="form-group">
-                        <label for="register-password">Passwort *</label>
+                        <label>Passwort *</label>
                         <input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen">
                     </div>
                     
                     <div class="form-group" style="flex-direction: row; align-items: flex-start; gap: 10px; margin-top: 5px; margin-bottom: 20px;">
                         <input type="checkbox" id="register-agb" required style="margin-top: 3px; width: 16px; height: 16px; cursor: pointer;">
-                        <label for="register-agb" style="font-size: 12px; color: var(--text-muted); font-weight: normal; line-height: 1.4; margin: 0; text-transform: none;">
+                        <label for="register-agb" style="font-size: 12px; color: var(--text-muted); font-weight: normal; line-height: 1.4; margin: 0;">
                             Ich akzeptiere die AGB und Nutzungsbedingungen. Weitere Details findest du im <a href="/impressum.html" target="_blank" style="color: var(--accent-color); text-decoration: underline;">Impressum</a>. *
                         </label>
                     </div>
 
                     <button type="submit" class="btn-primary-auth" data-txt="modal-btn-reg">Konto erstellen</button>
                 </form>
-                <div class="modal-footer" style="text-align: center; margin-top: 15px;">
-                    <span data-txt="modal-has-acc" style="font-size: 12px;">Bereits registriert?</span>
-                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login" style="color: var(--accent-color); font-size: 12px; font-weight: bold; cursor: pointer;">Zum Login</a>
-                </div>
+                <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a></div>
             </div>
 
             <div id="modal-forgot-view" style="display: none;">
                 <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
                 <form id="forgot-form">
                     <div class="form-group">
-                        <label for="forgot-email" data-txt="lbl-email">Deine E-Mail-Adresse *</label>
+                        <label data-txt="lbl-email">Deine E-Mail-Adresse *</label>
                         <input type="email" id="forgot-email" required placeholder="name@beispiel.de">
                     </div>
                     <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
                 </form>
-                <div class="modal-footer" style="text-align: center; margin-top: 15px;">
-                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login" style="color: var(--accent-color); font-size: 12px; font-weight: bold; cursor: pointer;">Zurück zum Login</a>
-                </div>
+                <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a></div>
             </div>
 
             <div id="modal-reset-view" style="display: none;">
                 <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                 <form id="reset-password-form">
                     <div class="form-group">
-                        <label for="reset-password-input" data-txt="lbl-new-password">Neues Passwort *</label>
+                        <label data-txt="lbl-new-password">Neues Passwort *</label>
                         <input type="password" id="reset-password-input" required minlength="6" placeholder="Mindestens 6 Zeichen">
                     </div>
                     <button type="submit" class="btn-primary-auth" data-txt="btn-save">Speichern</button>
                 </form>
             </div>
 
-            <!-- EINSTELLUNGS-MODAL OPTIMIERT -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
@@ -277,35 +233,38 @@
                             <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-buyer">Als Käufer</p>
                         </div>
                     </div>
+                    
+                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
+                        <div><span data-txt="modal-settings-comm">💬 Kommunikation:</span> <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
+                        <div><span data-txt="modal-settings-pay">💳 Bezahlung:</span> <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
+                    <label style="color: #3498db;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</label>
+                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
+                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
                 </div>
 
                 <form id="settings-form">
-                    
-                    <!-- FELD UNSICHTBAR GEMACHT -->
-                    <div class="form-group" style="display: none;">
-                        <label for="settings-username" data-txt="lbl-username">Schützenname / Anzeigename</label>
+                    <div class="form-group">
+                        <label data-txt="lbl-username">Schützenname / Anzeigename</label>
                         <input type="text" id="settings-username" data-txt-ph="ph-username" placeholder="z.B. IPSCShooter99">
                     </div>
                     
                     <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 4px; border-left: 3px solid var(--success-color); margin-bottom: 20px;">
-                        <label for="settings-ipsc-alias" style="color: var(--success-color); margin-bottom: 2px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
+                        <label style="color: var(--success-color); margin-bottom: 2px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
                         <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-ipsc-alias-desc">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
                         <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
                     </div>
 
-                    <div class="form-group" style="background-color: rgba(59, 130, 246, 0.04); padding: 12px; border-radius: 4px; border-left: 3px solid var(--info-color); margin-bottom: 20px;">
-                        <label for="settings-real-name" style="color: var(--info-color); margin-bottom: 2px;" data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
-                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-real-name-desc">Trage hier deinen Klarnamen ein. Dieser Name wird niemals öffentlich auf der Seite gezeigt.</p>
-                        <input type="text" id="settings-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann">
-                    </div>
-
                     <div class="form-group">
-                        <label for="settings-avatar" data-txt="lbl-profile-pic">Profilbild (Optional)</label>
+                        <label data-txt="lbl-profile-pic">Profilbild (Optional)</label>
                         <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
                         <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
                     </div>
                     <div class="form-group">
-                        <label for="settings-password" data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
+                        <label data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
                         <input type="password" id="settings-password" minlength="6" data-txt-ph="ph-password" placeholder="Mindestens 6 Zeichen">
                     </div>
                     <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
@@ -316,7 +275,6 @@
         </div>
     </div>
 
-    <!-- ENTKOPPELTES MODAL FÜR DEN PRIVAT-CHAT MIT E-MAIL-REMINDER -->
     <div class="modal" id="chat-modal">
         <div class="modal-content" style="max-width: 500px; padding: 25px;">
             <div class="modal-close-container">
@@ -325,17 +283,14 @@
             <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
             <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
             
-            <!-- Manuelle E-Mail-Anstups-Zeile direkt über dem Verlauf -->
             <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
                 <button type="button" class="btn-export" id="btn-chat-email-reminder" style="margin-top: 0; background-color: rgba(59, 130, 246, 0.1); color: var(--info-color); border-color: var(--info-color); padding: 6px 12px;" onclick="triggerChatEmailReminder()">
                     ✉️ Schützen per E-Mail anstupsen
                 </button>
             </div>
             
-            <!-- Nachrichten-Verlauf -->
             <div class="chat-history-area" id="chat-box-messages"></div>
             
-            <!-- Eingabezeile -->
             <form id="chat-send-form" style="display: flex; gap: 8px;">
                 <input type="hidden" id="chat-edit-id" value="">
                 <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
@@ -344,7 +299,6 @@
         </div>
     </div>
 
-    <!-- GLOBALER POSTEINGANG / OVERLAY-LISTE FÜR BESTEHENDE CHATS -->
     <div class="modal" id="global-inbox-modal">
         <div class="modal-content" style="max-width: 450px; padding: 25px;">
             <div class="modal-close-container">
@@ -353,7 +307,6 @@
             <h3>Meine Nachrichten</h3>
             <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven Gespräche.</p>
             
-            <!-- Liste der Chat-Partner -->
             <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
                 <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
             </div>
@@ -376,7 +329,6 @@
         </div>
     </footer>
 
-    <!-- SKRIPTE VERKNÜPFEN -->
     <script src="auth.js"></script>
     <script src="lang.js"></script>
     <script src="app.js"></script>
@@ -617,7 +569,6 @@
         });
     </script>
     
-    <!-- PWA Service Worker Registrierung -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
