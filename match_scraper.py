@@ -194,57 +194,79 @@ def update_or_create_match(user_id, real_name, match_data):
         )
 
 def normalize_token(token):
-    """Token-Normalisierung fuer Namen/Laender in zusammengeklebten IPSCMatch-Zeilen."""
+    """Token-Normalisierung fuer Namen/Laender in IPSCMatch-Zeilen."""
     return normalize_text(re.sub(r"[^A-Za-zÃÃÃÃ¤Ã¶Ã¼Ã0-9\-]", "", str(token or "")))
+
+def name_text_variants(value):
+    """Erzeugt Varianten: SchÃ¶ps, Schoeps, Schops werden vergleichbar."""
+    raw = str(value or "").lower()
+    variants = set()
+
+    def cleanup(v):
+        v = "".join(c for c in unicodedata.normalize('NFD', v) if unicodedata.category(c) != 'Mn')
+        v = re.sub(r"[^a-z0-9]+", " ", v)
+        return re.sub(r"\s+", " ", v).strip()
+
+    repl_sets = [
+        {'Ã¤': 'ae', 'Ã¶': 'oe', 'Ã¼': 'ue', 'Ã': 'ss'},
+        {'Ã¤': 'a',  'Ã¶': 'o',  'Ã¼': 'u',  'Ã': 'ss'},
+    ]
+    for repl in repl_sets:
+        v = raw
+        for a, b in repl.items():
+            v = v.replace(a, b)
+        variants.add(cleanup(v))
+
+    variants.add(cleanup(normalize_text(value)))
+    return {v for v in variants if v}
+
+def name_matches(candidate_name, real_name):
+    """True, wenn alle Teile des Profilnamens im Kandidatennamen vorkommen; umlauttolerant."""
+    candidate_variants = name_text_variants(candidate_name)
+    raw_parts = [p for p in re.split(r"\s+", str(real_name or "").strip()) if p]
+    if not raw_parts:
+        return False
+
+    for candidate in candidate_variants:
+        ok = True
+        for part in raw_parts:
+            part_variants = name_text_variants(part)
+            if not any(p and p in candidate for p in part_variants):
+                ok = False
+                break
+        if ok:
+            return True
+    return False
 
 def find_name_token_span(tokens, real_name):
     """
     Gibt (start, ende_exklusiv) der Namens-Tokens zurueck.
-    Wichtig: Selenium klebt bei IPSCMatch manchmal zwei Schuetzen in eine Textzeile.
-    Deshalb darf die Division nicht hinter dem ersten GER der Zeile gelesen werden,
-    sondern hinter dem GER, das NACH dem gesuchten Namen kommt.
+    Akzeptiert Schoeps/SchÃ¶ps/Schops und verhindert, dass die Division vom vorherigen Schuetzen gezogen wird.
     """
-    name_parts = [p for p in normalize_text(real_name).split() if p]
-    norm_tokens = [normalize_token(t) for t in tokens]
+    name_parts_raw = [p for p in re.split(r"\s+", str(real_name or "").strip()) if p]
+    norm_tokens_joined = [" ".join(name_text_variants(t)) for t in tokens]
 
-    if not name_parts:
-        return None
-
-    for start in range(len(norm_tokens)):
-        if not norm_tokens[start]:
-            continue
-
-        pos = start
-        matched = 0
-
-        while pos < len(norm_tokens) and matched < len(name_parts):
-            token = norm_tokens[pos]
-            part = name_parts[matched]
-
-            if token == part or part in token or token in part:
-                matched += 1
-                pos += 1
-            elif matched > 0 and token in {"", "-", "â"}:
-                pos += 1
-            else:
-                break
-
-        if matched == len(name_parts):
-            return start, pos
-
+    for start in range(len(tokens)):
+        for end in range(start + 1, min(len(tokens), start + len(name_parts_raw) + 4) + 1):
+            candidate = " ".join(tokens[start:end])
+            if name_matches(candidate, real_name):
+                return start, end
     return None
 
-def extract_division_after_name(line, real_name):
-    """Liest die Division hinter dem Laenderkuerzel, das nach dem gesuchten Namen steht."""
+def extract_division_segment_after_name(line, real_name):
+    """
+    Schneidet aus zusammengeklebten Zeilen nur den Teil des gesuchten Schuetzen heraus.
+    Beispiel:
+    '... Daniel ... GER Optics Overall 11 Thomas Krieter GER Open Overall'
+    wird fuer Thomas zu 'Thomas Krieter GER Open Overall'.
+    """
     tokens = line.split()
     span = find_name_token_span(tokens, real_name)
     if not span:
-        return None
+        return None, None
 
-    _, name_end = span
+    name_start, name_end = span
 
-    # Nur NACH dem gesuchten Namen suchen. Damit wird bei
-    # "Daniel ... GER Optics ... Thomas Krieter GER Open" nicht Daniels Optics genommen.
     region_index = -1
     for i in range(name_end, len(tokens)):
         token_clean = re.sub(r'[^A-Za-z]', '', tokens[i]).upper()
@@ -252,30 +274,126 @@ def extract_division_after_name(line, real_name):
             region_index = i
             break
 
-    if region_index >= 0 and region_index + 1 < len(tokens):
-        after_region = " ".join(tokens[region_index + 1: region_index + 8])
-        division = normalize_division(after_region)
-        if division:
-            return division
+    if region_index < 0:
+        segment = " ".join(tokens[name_start:min(len(tokens), name_end + 8)])
+        return normalize_division(segment), segment
 
-    # Extra-Fallback: kleines Fenster AB dem Namen, nicht die ganze Zeile.
-    window = " ".join(tokens[name_end:name_end + 10])
-    return normalize_division(window)
+    # Ab LandeskÃ¼rzel nur bis zur Kategorie oder bis zum nÃ¤chsten Startnummernblock lesen.
+    stop = min(len(tokens), region_index + 8)
+    category_words = {"overall", "senior", "lady", "junior", "supersenior", "super", "grand", "master"}
+    for j in range(region_index + 1, min(len(tokens), region_index + 8)):
+        tj = normalize_token(tokens[j])
+        # Nach Kategorie stoppen, damit kein fremder Folgeschuetze mit in den Log/Parser faellt.
+        if tj in category_words:
+            stop = j + 1
+            break
+        # Falls direkt ein neuer Datensatz beginnt: Nummer + Name ...
+        if j > region_index + 1 and re.fullmatch(r"\d{1,5}", tokens[j]):
+            stop = j
+            break
+
+    segment = " ".join(tokens[name_start:stop])
+    after_region = " ".join(tokens[region_index + 1:stop])
+    division = normalize_division(after_region) or normalize_division(segment)
+    return division, segment
+
+def extract_structured_entries_from_dom(driver):
+    """
+    Liest Tabellenzellen statt body.text. Das ist viel stabiler, weil IPSCMatch mobile/HTML
+    teils zwei Schuetzen in eine sichtbare Textzeile klebt.
+    """
+    entries = []
+    try:
+        tables = driver.execute_script("""
+            return Array.from(document.querySelectorAll('table')).map(table => ({
+                text: table.innerText || '',
+                rows: Array.from(table.querySelectorAll('tr')).map(tr =>
+                    Array.from(tr.children).map(td => (td.innerText || '').trim())
+                )
+            }));
+        """) or []
+    except Exception:
+        return entries
+
+    current_squad = "TBD"
+    current_status = "Approved"
+
+    for table in tables:
+        table_text = clean_text(table.get('text', ''))
+        sq_in_table = re.search(r'(?:Sq\.?|Squad|Gruppe)\s*(\d+)', table_text, re.I)
+        if sq_in_table:
+            num = sq_in_table.group(1)
+            current_squad = "SQ99" if num == "99" else f"Squad {num}"
+            current_status = "Warteliste" if num == "99" or "warteliste" in table_text.lower() else "Approved"
+
+        for cells in table.get('rows', []):
+            cells = [clean_text(c) for c in cells if clean_text(c)]
+            if not cells:
+                continue
+            row_text = clean_text(" ".join(cells))
+
+            sq = re.search(r'(?:Sq\.?|Squad|Gruppe)\s*(\d+)', row_text, re.I)
+            if sq:
+                num = sq.group(1)
+                current_squad = "SQ99" if num == "99" else f"Squad {num}"
+                current_status = "Warteliste" if num == "99" or "warteliste" in row_text.lower() else "Approved"
+
+            if re.search(r'\b(Name|Vorname|Region|Division|Category)\b', row_text, re.I):
+                continue
+
+            # Suche jede LÃ¤nderzelle. Die Zelle links davon ist in IPSCMatch fast immer der Name.
+            for i, cell in enumerate(cells):
+                country = re.sub(r'[^A-Za-z]', '', cell).upper()
+                if country not in COUNTRY_CODES or i < 1:
+                    continue
+
+                name_cell = clean_text(cells[i - 1])
+                # HÃ¤kchen/Kreuz/Nummern aus dem Namen entfernen.
+                name_cell = re.sub(r'^[âââÃxX\s#\d.\-]+', '', name_cell).strip()
+                name_cell = re.sub(r'\s+', ' ', name_cell)
+                if len(name_cell) < 3 or re.search(r'^(name|vorname)$', name_cell, re.I):
+                    continue
+
+                division_text = " ".join(cells[i + 1:i + 4])
+                division = normalize_division(division_text)
+                if not division:
+                    continue
+
+                entries.append({
+                    "name": name_cell,
+                    "country": country,
+                    "division": division,
+                    "squad": current_squad,
+                    "status": current_status,
+                    "raw_line": f"{name_cell} {country} {division_text}".strip(),
+                })
+
+    return entries
+
+def extract_user_start_from_entries(entries, real_name):
+    for entry in entries:
+        if name_matches(entry.get('name'), real_name):
+            log(
+                f"ð¯ TREFFER: '{real_name}' -> {entry.get('squad')} ({entry.get('status')}) | "
+                f"Division: {entry.get('division')} | Tabellenzeile: {entry.get('raw_line')}"
+            )
+            return {
+                "status": entry.get('status') or "Approved",
+                "squad": entry.get('squad') or "TBD",
+                "ipsc_division": entry.get('division'),
+                "raw_line": entry.get('raw_line') or entry.get('name'),
+            }
+    return None
 
 def extract_user_start_from_lines(lines, real_name):
-    """
-    Findet Name, aktuelle Squad und Division aus der IPSCMatch-Textansicht.
-    Robust gegen zusammengeklebte Zeilen mit mehreren Schuetzen nebeneinander.
-    """
-    search_parts = normalize_text(real_name).split()
-    if not search_parts:
-        return None
-
+    """Fallback fuer Seiten ohne auswertbare Tabellen."""
     current_squad = "TBD"
     status = "Approved"
 
     for raw_line in lines:
         line = clean_text(raw_line)
+        if not line:
+            continue
         norm_line = normalize_text(line)
 
         squad_match = re.search(r'(?:squad|sq\.?|gruppe)\s*(\d+)', norm_line)
@@ -291,17 +409,19 @@ def extract_user_start_from_lines(lines, real_name):
             current_squad = "SQ99"
             status = "Warteliste"
 
-        if not all(part in norm_line for part in search_parts):
+        if not name_matches(line, real_name):
             continue
 
-        division = extract_division_after_name(line, real_name)
-
-        log(f"ð¯ TREFFER: '{real_name}' -> {current_squad} ({status}) | Division: {division or 'UNERKANNT'} | Zeile: {line}")
+        division, segment = extract_division_segment_after_name(line, real_name)
+        log(
+            f"ð¯ TREFFER: '{real_name}' -> {current_squad} ({status}) | "
+            f"Division: {division or 'UNERKANNT'} | Segment: {segment or line}"
+        )
         return {
             "status": status,
             "squad": current_squad,
             "ipsc_division": division,
-            "raw_line": line,
+            "raw_line": segment or line,
         }
 
     return None
@@ -311,8 +431,8 @@ def find_starter_page(driver):
     link_xpaths = [
         "//a[contains(@href, 'list=starter')]",
         "//a[contains(@href, 'list=main_match')]",
-        "//a[contains(@href, 'list=overall')]",
         "//a[contains(@href, 'squads')]",
+        "//a[contains(@href, 'complist')]",
         "//a[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZÃÃÃ', 'abcdefghijklmnopqrstuvwxyzÃ¤Ã¶Ã¼'), 'starter')]",
         "//a[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZÃÃÃ', 'abcdefghijklmnopqrstuvwxyzÃ¤Ã¶Ã¼'), 'squad')]",
         "//a[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZÃÃÃ', 'abcdefghijklmnopqrstuvwxyzÃ¤Ã¶Ã¼'), 'teilnehmer')]",
@@ -328,6 +448,51 @@ def find_starter_page(driver):
         except Exception:
             continue
     return driver.current_url
+
+def generated_candidate_urls(match_url):
+    match_id = get_match_id(match_url)
+    urls = [match_url]
+    if match_id:
+        base = f"https://ipscmatch.de/index.pl?match={quote(match_id)}"
+        urls.extend([
+            f"{base}&squads",
+            f"{base}&list=starter",
+            f"{base}&list=main_match",
+            f"{base}&complist",
+        ])
+    # Reihenfolge erhalten, Duplikate entfernen
+    seen = set()
+    out = []
+    for url in urls:
+        if url and url not in seen:
+            seen.add(url)
+            out.append(url)
+    return out
+
+def extract_all_user_starts_from_current_page(driver, app_users):
+    """Erst Tabellen sauber auslesen, danach nur als Fallback body.text scannen."""
+    found_by_user_id = {}
+    entries = extract_structured_entries_from_dom(driver)
+
+    for user in app_users:
+        found = extract_user_start_from_entries(entries, user['real_name'])
+        if found:
+            found_by_user_id[user['id']] = found
+
+    remaining = [u for u in app_users if u['id'] not in found_by_user_id]
+    if remaining:
+        try:
+            page_text = driver.find_element(By.TAG_NAME, "body").text
+            lines = page_text.split('\n')
+        except Exception:
+            lines = []
+
+        for user in remaining:
+            found = extract_user_start_from_lines(lines, user['real_name'])
+            if found:
+                found_by_user_id[user['id']] = found
+
+    return found_by_user_id
 
 def scrape_ipscmatch_and_sync():
     app_users = get_app_users()
@@ -367,6 +532,7 @@ def scrape_ipscmatch_and_sync():
 
         for match in match_links:
             log(f"\n--- Durchsuche: {match['name']} ---")
+
             try:
                 driver.get(match['url'])
                 time.sleep(2)
@@ -374,29 +540,56 @@ def scrape_ipscmatch_and_sync():
                 log("Timeout bei Hauptseite, probiere weiter...")
 
             real_match_date, real_location = extract_date_and_location(driver)
-            starter_url = find_starter_page(driver)
 
-            page_text = driver.find_element(By.TAG_NAME, "body").text
-            lines = page_text.split('\n')
+            # Erst den offiziellen Link suchen, danach zusÃ¤tzlich generierte IPSCMatch-Standardseiten testen.
+            candidate_urls = []
+            try:
+                starter_url = find_starter_page(driver)
+                candidate_urls.append(starter_url)
+            except Exception:
+                pass
+            candidate_urls.extend(generated_candidate_urls(match['url']))
+
+            seen_urls = set()
+            found_by_user_id = {}
+            last_url = match['url']
+
+            for url in candidate_urls:
+                if not url or url in seen_urls:
+                    continue
+                seen_urls.add(url)
+                last_url = url
+                try:
+                    driver.get(url)
+                    time.sleep(1.5)
+                except Exception:
+                    continue
+
+                page_found = extract_all_user_starts_from_current_page(driver, app_users)
+                found_by_user_id.update({k: v for k, v in page_found.items() if k not in found_by_user_id})
+
+                # Wenn alle User fuer dieses Match gefunden wurden, nicht weiter Seiten pruefen.
+                if len(found_by_user_id) == len(app_users):
+                    break
 
             for user in app_users:
-                real_name = user['real_name']
-                found = extract_user_start_from_lines(lines, real_name)
+                found = found_by_user_id.get(user['id'])
+                if not found:
+                    continue
 
-                if found:
-                    analysis_url = build_analysis_url(match['url'], found.get('ipsc_division'))
-                    match_data = {
-                        "match_name": match['name'],
-                        "match_date": real_match_date,
-                        "location": real_location,
-                        "status": found['status'],
-                        "squad": found['squad'],
-                        "match_url": match['url'],
-                        "ipsc_division": found.get('ipsc_division'),
-                        "analysis_url": analysis_url,
-                        "starter_url": starter_url,
-                    }
-                    update_or_create_match(user['id'], real_name, match_data)
+                analysis_url = build_analysis_url(match['url'], found.get('ipsc_division'))
+                match_data = {
+                    "match_name": match['name'],
+                    "match_date": real_match_date,
+                    "location": real_location,
+                    "status": found['status'],
+                    "squad": found['squad'],
+                    "match_url": match['url'],
+                    "ipsc_division": found.get('ipsc_division'),
+                    "analysis_url": analysis_url,
+                    "starter_url": last_url,
+                }
+                update_or_create_match(user['id'], user['real_name'], match_data)
 
     except Exception as e:
         log(f"KRITISCHER FEHLER: {e}")
