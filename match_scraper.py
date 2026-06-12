@@ -1,5 +1,4 @@
 import os
-import sys
 import time
 import re
 import unicodedata
@@ -9,7 +8,6 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException, WebDriverException
 from webdriver_manager.chrome import ChromeDriverManager
 from supabase import create_client, Client
 
@@ -18,10 +16,6 @@ from supabase import create_client, Client
 # ==========================================
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://huprxirlthkisjngwash.supabase.co")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
-if not SUPABASE_KEY:
-    print("KRITISCH: SUPABASE_KEY fehlt.", flush=True)
-    sys.exit(1)
-
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 BASE_URL = "https://ipscmatch.de/"
@@ -29,8 +23,7 @@ BASE_URL = "https://ipscmatch.de/"
 COUNTRY_CODES = {
     "GER", "DEU", "SUI", "CHE", "BEL", "NED", "POL", "AUT", "FRA", "ITA", "ESP", "POR",
     "LUX", "CZE", "SVK", "SLO", "SVN", "SRB", "NOR", "SWE", "DEN", "FIN", "USA", "BRA",
-    "HUN", "CRO", "HRV", "GBR", "UK", "IRL", "LIE", "MON", "AND", "PHI", "PHL", "ROU",
-    "GRE", "GRC", "BUL", "UKR", "EST", "LAT", "LTU", "TUR", "ISR", "RSA", "AUS", "NZL"
+    "HUN", "CRO", "HRV", "GBR", "UK", "IRL", "LIE", "MON", "AND", "POL"
 }
 
 DIVISION_PATTERNS = [
@@ -53,12 +46,15 @@ def clean_text(value):
     return re.sub(r"\s+", " ", str(value or "").replace("\xa0", " ")).strip()
 
 
-def normalize_text(value):
-    value = str(value or "").lower()
-    value = value.replace("Ã¤", "ae").replace("Ã¶", "oe").replace("Ã¼", "ue").replace("Ã", "ss")
-    value = "".join(c for c in unicodedata.normalize("NFD", value) if unicodedata.category(c) != "Mn")
-    value = re.sub(r"[^a-z0-9]+", " ", value)
-    return re.sub(r"\s+", " ", value).strip()
+def normalize_text(text):
+    """Normalisiert Umlaute und Text fÃ¼r einen robusten Abgleich."""
+    if not text:
+        return ""
+    text = str(text).lower()
+    text = text.replace("Ã¤", "ae").replace("Ã¶", "oe").replace("Ã¼", "ue").replace("Ã", "ss")
+    text = "".join(c for c in unicodedata.normalize("NFD", text) if unicodedata.category(c) != "Mn")
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def part_variants(part):
@@ -78,6 +74,7 @@ def part_variants(part):
 
 
 def name_parts_match(text, real_name):
+    """Findet Fabian SchÃ¶ps auch als Fabian Schoeps oder Fabian Schops."""
     norm = normalize_text(text)
     parts = [p for p in str(real_name or "").split() if p]
     if not parts:
@@ -105,13 +102,15 @@ def get_match_id(url):
 
 
 def base_match_url(url):
-    mid = get_match_id(url)
-    if not mid:
+    match_id = get_match_id(url)
+    if not match_id:
         return url
-    return f"https://ipscmatch.de/index.pl?match={quote(mid)}"
+    return f"https://ipscmatch.de/index.pl?match={quote(match_id)}"
 
 
 def analysis_url(match_url, division):
+    if not division:
+        return match_url
     return f"{base_match_url(match_url)}&complist&grepdiv={quote(division)}"
 
 
@@ -119,8 +118,6 @@ def extract_squad_from_text(text):
     text = clean_text(text)
     m = re.search(r"(?:Sq\.?|Squad|Gruppe)\s*(\d+)", text, re.I)
     if not m:
-        if re.search(r"warteliste", text, re.I):
-            return "SQ99", "Warteliste"
         return "TBD", "Approved"
     num = m.group(1)
     if num == "99" or re.search(r"warteliste", text, re.I):
@@ -128,11 +125,208 @@ def extract_squad_from_text(text):
     return f"Squad {num}", "Approved"
 
 
+def extract_from_segment(segment, real_name, squad="TBD", status="Approved"):
+    """Colab-Logik: Im Treffersegment nach Name -> nÃ¤chstes Land -> Division suchen."""
+    if not name_parts_match(segment, real_name):
+        return None
+
+    tokens = clean_text(segment).split()
+    if not tokens:
+        return None
+
+    # Name-Start im Originalsegment suchen; damit nehmen wir nicht die Division eines vorherigen SchÃ¼tzen.
+    start_idx = 0
+    for i in range(len(tokens)):
+        window = " ".join(tokens[i:i + 6])
+        if name_parts_match(window, real_name):
+            start_idx = i
+            break
+
+    tail_tokens = tokens[start_idx:]
+    country_idx = None
+    for i, token in enumerate(tail_tokens):
+        country = re.sub(r"[^A-Za-z]", "", token).upper()
+        if country in COUNTRY_CODES:
+            country_idx = i
+            break
+
+    if country_idx is None:
+        div = normalize_division(" ".join(tail_tokens))
+        raw = " ".join(tail_tokens[:12])
+    else:
+        after_country = " ".join(tail_tokens[country_idx + 1:country_idx + 8])
+        div = normalize_division(after_country)
+        raw = " ".join(tail_tokens[:country_idx + 8])
+
+    if not div:
+        return None
+
+    return {
+        "squad": squad,
+        "status": status,
+        "division": div,
+        "raw": raw,
+    }
+
+
+def safe_get(driver, url, wait_seconds=1.5):
+    """Selenium-Laden wie im Backup, aber mit window.stop() bei Timeout."""
+    try:
+        driver.get(url)
+        time.sleep(wait_seconds)
+        return True
+    except Exception as exc:
+        log(f"WARN: Timeout/Fehler beim Laden von {url}: {exc}")
+        try:
+            driver.execute_script("window.stop();")
+            time.sleep(0.5)
+            return True
+        except Exception:
+            return False
+
+
+def get_body_text(driver):
+    try:
+        return driver.find_element(By.TAG_NAME, "body").text
+    except Exception:
+        return ""
+
+
+def scan_tables_selenium(driver, real_name):
+    """Liest echte Tabellenzeilen. Das lÃ¶st FÃ¤lle wie Fabian Schoeps in Squad 12."""
+    results = []
+    try:
+        tables = driver.find_elements(By.CSS_SELECTOR, "table")
+    except Exception:
+        tables = []
+
+    for table in tables:
+        try:
+            table_text = clean_text(table.text)
+        except Exception:
+            table_text = ""
+        squad, status = extract_squad_from_text(table_text)
+
+        try:
+            rows = table.find_elements(By.CSS_SELECTOR, "tr")
+        except Exception:
+            rows = []
+
+        for row_el in rows:
+            try:
+                cells = [clean_text(c.text) for c in row_el.find_elements(By.CSS_SELECTOR, "td, th")]
+            except Exception:
+                cells = []
+            cells = [c for c in cells if c]
+            if not cells:
+                continue
+
+            row = clean_text(" ".join(cells))
+            if re.search(r"\b(Name|Vorname|Region|Division|Category|Nr\.?|PlÃ¤tze)\b", row, re.I):
+                continue
+
+            # 1) Tabellenstruktur: Nr | Name | Region | Division | Category
+            for i, cell in enumerate(cells):
+                country = re.sub(r"[^A-Za-z]", "", cell).upper()
+                if country in COUNTRY_CODES and i >= 1:
+                    name_cell = re.sub(r"^[âââÃxX\s#\d.\-]+", "", cells[i - 1]).strip()
+                    if name_parts_match(name_cell, real_name):
+                        div = normalize_division(" ".join(cells[i + 1:i + 4]))
+                        if div:
+                            results.append({
+                                "squad": squad,
+                                "status": status,
+                                "division": div,
+                                "raw": row,
+                            })
+
+            # 2) Fallback fÃ¼r zusammengeklebte Zeilen
+            hit = extract_from_segment(row, real_name, squad, status)
+            if hit:
+                results.append(hit)
+
+    return results
+
+
+def scan_text_blocks(text, real_name):
+    """Fallback fÃ¼r IPSCMatch-Seiten ohne saubere Tabellenstruktur."""
+    text = str(text or "")
+    parts = re.split(r"(?=(?:Sq\.?|Squad|Gruppe)\s*\d+)", text, flags=re.I)
+    blocks = [p for p in parts if clean_text(p)] or [text]
+
+    results = []
+    for block in blocks:
+        block_clean = clean_text(block)
+        if not name_parts_match(block_clean, real_name):
+            continue
+        squad, status = extract_squad_from_text(block_clean)
+        hit = extract_from_segment(block_clean, real_name, squad, status)
+        if hit:
+            results.append(hit)
+    return results
+
+
+def dedupe_hits(hits):
+    unique = []
+    seen = set()
+    for hit in hits:
+        key = (hit.get("squad"), hit.get("status"), hit.get("division"), hit.get("raw", "")[:120])
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(hit)
+    return unique
+
+
+def find_user_on_current_page(driver, real_name):
+    hits = []
+    hits.extend(scan_tables_selenium(driver, real_name))
+    hits.extend(scan_text_blocks(get_body_text(driver), real_name))
+    hits = dedupe_hits(hits)
+    return hits[0] if hits else None
+
+
+def candidate_urls_for_match(driver, match_url):
+    """Backup-kompatibel: Selenium bleibt Quelle; wir probieren nur die bekannten IPSCMatch-Listen."""
+    base = base_match_url(match_url)
+    urls = [
+        match_url,
+        base,
+        f"{base}&squads",
+        f"{base}&list=starter",
+        f"{base}&list=main_match",
+        f"{base}&complist",
+    ]
+
+    # Link-Discovery aus der gerade geladenen Seite, ohne bs4/requests.
+    try:
+        links = driver.find_elements(By.CSS_SELECTOR, "a[href]")
+        for link in links:
+            href = link.get_attribute("href") or ""
+            text = clean_text(link.text).lower()
+            combined = f"{text} {href}".lower()
+            if any(k in combined for k in ["squad", "starter", "teilnehmer", "shooter", "list", "complist", "main_match"]):
+                urls.append(urljoin(base, href))
+    except Exception:
+        pass
+
+    out = []
+    seen = set()
+    for url in urls:
+        if not url:
+            continue
+        url = url.replace("index.php", "index.pl")
+        if url not in seen:
+            seen.add(url)
+            out.append(url)
+    return out
+
+
 def extract_date_and_location(driver):
     match_date = "2026-01-01"
     location = "Unbekannt"
     try:
-        body_text = driver.find_element(By.TAG_NAME, "body").text
+        body_text = get_body_text(driver)
         date_matches = re.findall(r"(\d{2}\.\d{2}\.\d{4})", body_text)
         if date_matches:
             parts = date_matches[0].split(".")
@@ -163,33 +357,37 @@ def get_app_users():
         return []
 
 
-def safe_update_user_match(row_id, payload):
-    """Update mit neuen Spalten. Falls DB-Spalten noch fehlen, Fallback ohne neue Felder."""
-    try:
-        supabase.table("user_matches").update(payload).eq("id", row_id).execute()
-        return
-    except Exception as e:
-        msg = str(e)
-        if "ipsc_division" not in msg and "analysis_url" not in msg:
-            raise
-        fallback = dict(payload)
-        fallback.pop("ipsc_division", None)
-        fallback.pop("analysis_url", None)
-        supabase.table("user_matches").update(fallback).eq("id", row_id).execute()
+def build_db_payload(match_data, include_analysis_fields=True):
+    payload = {
+        "match_date": match_data["match_date"],
+        "match_location": match_data["location"],
+        "status": match_data["status"],
+        "squad": match_data["squad"],
+        "auto_imported": True,
+        "match_url": match_data["match_url"],
+    }
+    if include_analysis_fields:
+        payload["ipsc_division"] = match_data.get("division")
+        payload["analysis_url"] = match_data.get("analysis_url")
+    return payload
 
 
-def safe_insert_user_match(payload):
+def execute_with_optional_analysis_fields(operation, table_query, payload):
+    """Falls ipsc_division/analysis_url noch nicht in Supabase existieren, lÃ¤uft das Backup trotzdem weiter."""
     try:
-        supabase.table("user_matches").insert(payload).execute()
-        return
-    except Exception as e:
-        msg = str(e)
-        if "ipsc_division" not in msg and "analysis_url" not in msg:
+        if operation == "update":
+            return table_query.update(payload).execute()
+        if operation == "insert":
+            return table_query.insert(payload).execute()
+    except Exception as exc:
+        if "ipsc_division" not in str(exc) and "analysis_url" not in str(exc) and "column" not in str(exc).lower():
             raise
-        fallback = dict(payload)
-        fallback.pop("ipsc_division", None)
-        fallback.pop("analysis_url", None)
-        supabase.table("user_matches").insert(fallback).execute()
+        log("WARN: Spalten ipsc_division/analysis_url fehlen offenbar. Speichere ohne diese Felder.")
+        fallback = {k: v for k, v in payload.items() if k not in ("ipsc_division", "analysis_url")}
+        if operation == "update":
+            return table_query.update(fallback).execute()
+        if operation == "insert":
+            return table_query.insert(fallback).execute()
 
 
 def update_or_create_match(user_id, real_name, match_data):
@@ -199,338 +397,106 @@ def update_or_create_match(user_id, real_name, match_data):
         .eq("user_id", user_id) \
         .eq("match_name", match_name).execute()
 
-    payload = {
-        "match_date": match_data["match_date"],
-        "match_location": match_data["location"],
-        "status": match_data["status"],
-        "squad": match_data["squad"],
-        "auto_imported": True,
-        "match_url": match_data["match_url"],
-        "ipsc_division": match_data.get("division"),
-        "analysis_url": match_data.get("analysis_url"),
-    }
-
     if existing.data and len(existing.data) > 0:
         db_match = existing.data[0]
-        changed = (
+        needs_update = (
             db_match.get("status") != match_data["status"] or
             db_match.get("squad") != match_data["squad"] or
             db_match.get("match_date") != match_data["match_date"] or
             db_match.get("ipsc_division") != match_data.get("division") or
             db_match.get("analysis_url") != match_data.get("analysis_url")
         )
-        if changed:
+
+        if needs_update:
             log(
                 f"ð UPDATE: '{real_name}' bei '{match_name}' -> "
                 f"Status: {match_data['status']} | Squad: {match_data['squad']} | "
                 f"Division: {match_data.get('division') or '-'}"
             )
-            safe_update_user_match(db_match["id"], payload)
+            payload = build_db_payload(match_data, include_analysis_fields=True)
+            query = supabase.table("user_matches").eq("id", db_match["id"])
+            execute_with_optional_analysis_fields("update", query, payload)
     else:
         log(
-            f"â¨ NEU: '{real_name}' -> '{match_name}' "
+            f"â¨ NEU HINZUGEFÃGT: '{real_name}' wurde zum Match '{match_name}' eingetragen "
             f"(Squad: {match_data['squad']} | Status: {match_data['status']} | "
-            f"Division: {match_data.get('division') or '-'})"
+            f"Division: {match_data.get('division') or '-'})."
         )
-        insert_payload = {
+        payload = {
             "user_id": user_id,
             "match_name": match_name,
-            **payload,
+            **build_db_payload(match_data, include_analysis_fields=True),
         }
-        safe_insert_user_match(insert_payload)
-
-
-def robust_get(driver, url, wait_seconds=1.5):
-    """LÃ¤dt per Selenium. Bei Timeout wird das Laden gestoppt und der bereits gerenderte DOM trotzdem genutzt."""
-    try:
-        driver.get(url)
-        time.sleep(wait_seconds)
-        return True
-    except TimeoutException as e:
-        log(f"WARN: Timeout beim Laden, nutze vorhandenen DOM weiter: {url}")
-        try:
-            driver.execute_script("window.stop();")
-        except Exception:
-            pass
-        time.sleep(0.5)
-        return True
-    except WebDriverException as e:
-        log(f"WARN: Selenium konnte URL nicht laden: {url} | {e}")
-        return False
-    except Exception as e:
-        log(f"WARN: URL konnte nicht geladen werden: {url} | {e}")
-        return False
-
-
-def extract_match_links_from_current_page(driver):
-    links = []
-    seen = set()
-    try:
-        elements = driver.find_elements(By.CSS_SELECTOR, "a[href*='match=']")
-        for el in elements:
-            url = el.get_attribute("href") or ""
-            name = clean_text(el.text)
-            if not url:
-                continue
-            mid = get_match_id(url)
-            if not mid:
-                continue
-            clean_url = base_match_url(url)
-            key = mid
-            if key in seen:
-                continue
-            seen.add(key)
-            links.append({"name": name or mid, "url": clean_url})
-    except Exception as e:
-        log(f"WARN: Matchlinks konnten nicht gelesen werden: {e}")
-    return links
-
-
-def discover_candidate_urls(driver, match_url):
-    base = base_match_url(match_url)
-    urls = [
-        base,
-        f"{base}&squads",
-        f"{base}&list=starter",
-        f"{base}&list=main_match",
-        f"{base}&complist",
-    ]
-    try:
-        for a in driver.find_elements(By.CSS_SELECTOR, "a[href]"):
-            href = a.get_attribute("href") or ""
-            txt = clean_text(a.text)
-            combined = f"{txt} {href}".lower()
-            if any(k in combined for k in ["squad", "starter", "teilnehmer", "shooter", "list", "complist", "main_match"]):
-                if "match=" in href:
-                    urls.append(href.replace("index.php", "index.pl"))
-    except Exception:
-        pass
-
-    seen = set()
-    out = []
-    for u in urls:
-        u = (u or "").replace("index.php", "index.pl")
-        if u and u not in seen:
-            seen.add(u)
-            out.append(u)
-    return out
-
-
-def extract_from_segment(segment, real_name, squad="TBD", status="Approved"):
-    if not name_parts_match(segment, real_name):
-        return None
-
-    tokens = clean_text(segment).split()
-    if not tokens:
-        return None
-
-    # Suche Tokenfenster, in dem der Name beginnt. Danach erst Land + Division lesen.
-    start_idx = 0
-    for i in range(len(tokens)):
-        window = " ".join(tokens[i:i + 6])
-        if name_parts_match(window, real_name):
-            start_idx = i
-            break
-
-    tail_tokens = tokens[start_idx:]
-    country_idx = None
-    for i, t in enumerate(tail_tokens):
-        tc = re.sub(r"[^A-Za-z]", "", t).upper()
-        if tc in COUNTRY_CODES:
-            country_idx = i
-            break
-
-    if country_idx is None:
-        div = normalize_division(" ".join(tail_tokens))
-        raw = " ".join(tail_tokens[:12])
-    else:
-        after_country = " ".join(tail_tokens[country_idx + 1:country_idx + 8])
-        div = normalize_division(after_country)
-        raw = " ".join(tail_tokens[:country_idx + 8])
-
-    if not div:
-        return None
-
-    return {
-        "squad": squad,
-        "status": status,
-        "division": div,
-        "raw": raw,
-    }
-
-
-def scan_tables(driver, real_name):
-    results = []
-    try:
-        tables = driver.find_elements(By.CSS_SELECTOR, "table")
-    except Exception:
-        return results
-
-    for table in tables:
-        try:
-            table_text = clean_text(table.text)
-            squad, status = extract_squad_from_text(table_text)
-            rows = table.find_elements(By.CSS_SELECTOR, "tr")
-        except Exception:
-            continue
-
-        for tr in rows:
-            try:
-                cells = [clean_text(td.text) for td in tr.find_elements(By.CSS_SELECTOR, "td, th")]
-            except Exception:
-                continue
-            cells = [c for c in cells if c]
-            if not cells:
-                continue
-
-            row = clean_text(" ".join(cells))
-            if re.search(r"\b(Name|Vorname|Region|Division|Category|Kategorie)\b", row, re.I):
-                continue
-
-            # Struktur: ... Name | Region | Division | Category
-            for i, c in enumerate(cells):
-                country = re.sub(r"[^A-Za-z]", "", c).upper()
-                if country in COUNTRY_CODES and i >= 1:
-                    name_cell = re.sub(r"^[âââÃxX\s#\d.\-]+", "", cells[i - 1]).strip()
-                    if name_parts_match(name_cell, real_name):
-                        div = normalize_division(" ".join(cells[i + 1:i + 4]))
-                        if div:
-                            results.append({"squad": squad, "status": status, "division": div, "raw": row})
-
-            # Fallback fÃ¼r zusammengeklebte Tabellenzeilen.
-            hit = extract_from_segment(row, real_name, squad, status)
-            if hit:
-                results.append(hit)
-
-    return dedupe_hits(results)
-
-
-def scan_body_text(driver, real_name):
-    try:
-        text = driver.find_element(By.TAG_NAME, "body").text
-    except Exception:
-        return []
-
-    text = text.replace("\xa0", " ")
-    # In Squad-BlÃ¶cke schneiden; wichtig fÃ¼r Screenshot-Struktur mit vielen Squads auf einer Seite.
-    parts = re.split(r"(?=(?:Sq\.?|Squad|Gruppe)\s*\d+)", text, flags=re.I)
-    blocks = [p for p in parts if clean_text(p)] or [text]
-
-    results = []
-    for block in blocks:
-        block_clean = clean_text(block)
-        if not name_parts_match(block_clean, real_name):
-            continue
-        squad, status = extract_squad_from_text(block_clean)
-        hit = extract_from_segment(block_clean, real_name, squad, status)
-        if hit:
-            results.append(hit)
-
-    # ZusÃ¤tzlich zeilenweise mit Squad-GedÃ¤chtnis wie im Backup.
-    current_squad = "TBD"
-    current_status = "Approved"
-    for line in text.split("\n"):
-        line_clean = clean_text(line)
-        if not line_clean:
-            continue
-        sq, st = extract_squad_from_text(line_clean)
-        if sq != "TBD" or "warteliste" in normalize_text(line_clean):
-            current_squad, current_status = sq, st
-        if name_parts_match(line_clean, real_name):
-            hit = extract_from_segment(line_clean, real_name, current_squad, current_status)
-            if hit:
-                results.append(hit)
-
-    return dedupe_hits(results)
-
-
-def dedupe_hits(hits):
-    unique = []
-    seen = set()
-    for h in hits:
-        key = (h.get("squad"), h.get("status"), h.get("division"), clean_text(h.get("raw", ""))[:120])
-        if key in seen:
-            continue
-        seen.add(key)
-        unique.append(h)
-    return unique
-
-
-def find_users_on_current_page(driver, users, already_found):
-    page_hits = {}
-    remaining = [u for u in users if u["id"] not in already_found]
-    for user in remaining:
-        name = user["real_name"]
-        hits = []
-        hits.extend(scan_tables(driver, name))
-        hits.extend(scan_body_text(driver, name))
-        hits = dedupe_hits(hits)
-        if hits:
-            page_hits[user["id"]] = hits[0]
-    return page_hits
+        execute_with_optional_analysis_fields("insert", supabase.table("user_matches"), payload)
 
 
 def scrape_ipscmatch_and_sync():
     app_users = get_app_users()
     if not app_users:
         log("Keine User gefunden. Breche ab.")
-        return 0
+        return
 
     log("Starte Chrome-Browser...")
     chrome_options = Options()
     chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1920,1080")
-    chrome_options.add_argument("--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/125 Safari/537.36")
     chrome_options.page_load_strategy = "eager"
 
     driver = None
     try:
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=chrome_options)
-        driver.set_page_load_timeout(45)
+        driver.set_page_load_timeout(25)
 
-        log("Lade IPSCMatch-Startseite...")
-        robust_get(driver, BASE_URL, wait_seconds=2)
+        safe_get(driver, BASE_URL, wait_seconds=2)
 
         log("Suche nach Matches...")
-        match_links = extract_match_links_from_current_page(driver)
-        if not match_links:
-            log("KRITISCH: Keine Match-Links gefunden. IPSCMatch war vermutlich nicht erreichbar oder hat leer geladen.")
-            return 1
+        match_links = []
+        elements = driver.find_elements(By.CSS_SELECTOR, "a[href*='match=']")
+        for el in elements:
+            url = el.get_attribute("href")
+            name = clean_text(el.text)
+            if url and name and url not in [m["url"] for m in match_links]:
+                match_links.append({"name": name, "url": url})
 
-        log(f"{len(match_links)} Matches gefunden.")
+        if not match_links:
+            raise RuntimeError("Keine Match-Links gefunden. IPSCMatch-Startseite wurde vermutlich nicht korrekt geladen.")
 
         for match in match_links:
             log(f"\n--- Durchsuche: {match['name']} ---")
-            if not robust_get(driver, match["url"], wait_seconds=1.5):
-                continue
 
+            safe_get(driver, match["url"], wait_seconds=1.5)
             real_match_date, real_location = extract_date_and_location(driver)
-            candidate_urls = discover_candidate_urls(driver, match["url"])
+            urls_to_try = candidate_urls_for_match(driver, match["url"])
 
-            found_users = set()
-            for url in candidate_urls:
-                if len(found_users) >= len(app_users):
+            found_users_in_match = set()
+
+            for url in urls_to_try:
+                if len(found_users_in_match) == len(app_users):
                     break
-                if not robust_get(driver, url, wait_seconds=1.0):
-                    continue
 
-                hits = find_users_on_current_page(driver, app_users, found_users)
-                for user_id, hit in hits.items():
-                    user = next((u for u in app_users if u["id"] == user_id), None)
-                    if not user:
+                safe_get(driver, url, wait_seconds=1.2)
+
+                for user in app_users:
+                    user_id = user["id"]
+                    real_name = user["real_name"]
+
+                    if user_id in found_users_in_match:
                         continue
 
-                    found_users.add(user_id)
-                    div = hit.get("division")
-                    final_analysis_url = analysis_url(match["url"], div) if div else None
+                    hit = find_user_on_current_page(driver, real_name)
+                    if not hit:
+                        continue
+
+                    found_users_in_match.add(user_id)
+                    division = hit.get("division")
+                    final_analysis_url = analysis_url(match["url"], division) if division else match["url"]
 
                     log(
-                        f"ð¯ TREFFER: '{user['real_name']}' -> {hit.get('squad')} ({hit.get('status')}) | "
-                        f"Division: {div} | Segment: {hit.get('raw')}"
+                        f"ð¯ TREFFER: '{real_name}' -> {hit.get('squad')} ({hit.get('status')}) | "
+                        f"Division: {division} | Segment: {hit.get('raw')}"
                     )
 
                     match_data = {
@@ -539,24 +505,19 @@ def scrape_ipscmatch_and_sync():
                         "location": real_location,
                         "status": hit.get("status") or "Approved",
                         "squad": hit.get("squad") or "TBD",
-                        "match_url": match["url"],
-                        "division": div,
+                        "division": division,
                         "analysis_url": final_analysis_url,
+                        "match_url": match["url"],
                     }
-                    update_or_create_match(user_id, user["real_name"], match_data)
-
-        return 0
+                    update_or_create_match(user_id, real_name, match_data)
 
     except Exception as e:
         log(f"KRITISCHER FEHLER: {e}")
-        return 1
+        raise
     finally:
         if driver:
-            try:
-                driver.quit()
-            except Exception:
-                pass
+            driver.quit()
 
 
 if __name__ == "__main__":
-    sys.exit(scrape_ipscmatch_and_sync())
+    scrape_ipscmatch_and_sync()
