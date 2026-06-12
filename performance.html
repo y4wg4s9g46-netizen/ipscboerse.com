@@ -354,7 +354,8 @@
             const raw = cleanText(value).replace(/\bOverall\b/ig, "").trim();
             const lower = raw.toLowerCase();
 
-            if (lower.includes("production optics")) return "Production Optics";
+            if (!raw || /^[-_=#.:;]+$/.test(raw) || /^-?nr\.?$/i.test(raw)) return "Unknown";
+            if (lower.includes("production optics") || /prod\.?\s*opt/.test(lower)) return "Production Optics";
             if (lower.includes("carry optics")) return "Optics";
             if (lower.includes("optic")) return "Optics";
             if (lower.includes("production")) return "Production";
@@ -364,7 +365,7 @@
             if (lower.includes("open")) return "Open";
             if (lower.includes("pcc")) return "PCC";
 
-            return raw || "Unknown";
+            return "Unknown";
         }
 
         function normalizeRegionCode(value) {
@@ -910,6 +911,11 @@
             return "Unknown";
         }
 
+        function isValidIpscDivision(value) {
+            return ["Production Optics", "Optics", "Production", "Standard", "Classic", "Revolver", "Open", "PCC"]
+                .includes(normalizeDivisionName(value));
+        }
+
         function parseShooterFromTextLine(line, forcedDiv) {
             const regionCodes = Object.keys(countryNameFormat).sort((a, b) => b.length - a.length);
 
@@ -1169,7 +1175,11 @@
                     if (rowSquad) currentSquad = rowSquad;
 
                     if (!lineContainsName(rowText, nameCandidates)) continue;
-                    if (expectedSquad && !squadMatches(currentSquad || rowText, expectedSquad)) continue;
+                    // Squad ist ein Hinweis aus Mein Planer, aber kein harter Blocker.
+                    // Bei IPSCMatch sind die Squad-Überschriften oft ausserhalb der Tabellenzeile
+                    // oder bei zwei Spalten anders im DOM verschachtelt. Deshalb nur ablehnen,
+                    // wenn wir wirklich sicher in einer anderen Squad sind.
+                    if (expectedSquad && currentSquad && !squadMatches(currentSquad, expectedSquad)) continue;
 
                     let division = extractDivisionAfterRegionFromCells(cells);
                     if (division === "Unknown") division = extractDivisionAfterRegionFromLine(rowText) || "Unknown";
@@ -1190,11 +1200,77 @@
                 if (squad) currentSquad = squad;
 
                 if (!lineContainsName(line, nameCandidates)) continue;
-                if (expectedSquad && !squadMatches(currentSquad || line, expectedSquad)) continue;
+                // Squad nicht erzwingen, wenn die aktuelle Textzeile keine Squad-Zuordnung hergibt.
+                if (expectedSquad && currentSquad && !squadMatches(currentSquad, expectedSquad)) continue;
 
                 const division = extractDivisionAfterRegionFromLine(line);
                 if (division) {
                     return { division: normalizeDivisionName(division), squad: currentSquad, line };
+                }
+            }
+
+            // 3) Token-Fallback: narrensicher gegen IPSCMatch-Layout mit getrennten Zellen/Zeilen.
+            // Beispiel im Textstrom: "4 Fabian Schöps GER Optics Overall" oder mit Zeilenumbrüchen
+            // zwischen Name, GER und Division. Wir suchen den Namen und lesen rechts nach dem Land die Division.
+            const tokenEntry = extractOwnEntryFromTokenStream(doc, myName, expectedSquad);
+            if (tokenEntry && tokenEntry.division) return tokenEntry;
+
+            return null;
+        }
+
+        function tokenEqualsNormalized(token, wanted) {
+            const a = normalizeNameSearchText(token);
+            const b = normalizeNameSearchText(wanted);
+            return !!a && !!b && a === b;
+        }
+
+        function extractOwnEntryFromTokenStream(doc, myName, expectedSquad = null) {
+            const textContent = doc.body ? (doc.body.innerText || doc.body.textContent || "") : "";
+            const tokens = textContent
+                .replace(/[✓✔✗×]/g, " ")
+                .replace(/ /g, " ")
+                .split(/\s+/)
+                .map(t => cleanText(t).replace(/^[,.;:()\[\]{}]+|[,.;:()\[\]{}]+$/g, ""))
+                .filter(Boolean);
+
+            if (!tokens.length) return null;
+
+            const nameCandidates = uniqueArray([myName, ...getOwnNameCandidates()].map(cleanText).filter(Boolean));
+            const regionCodes = getKnownRegionCodes();
+
+            for (const candidate of nameCandidates) {
+                const parts = normalizeNameSearchText(candidate).split(/\s+/).filter(Boolean);
+                if (parts.length < 2) continue;
+
+                const first = parts[0];
+                const last = parts[parts.length - 1];
+
+                for (let i = 0; i < tokens.length - 1; i++) {
+                    const t0 = normalizeNameSearchText(tokens[i]);
+                    const t1 = normalizeNameSearchText(tokens[i + 1]);
+                    const normalOrder = t0 === first && t1 === last;
+                    const reverseOrder = t0 === last && t1 === first;
+                    if (!normalOrder && !reverseOrder) continue;
+
+                    // Suche rechts vom Namen nach dem Länderkürzel, danach kommt bei IPSCMatch die Division.
+                    for (let r = i + 2; r < Math.min(tokens.length, i + 10); r++) {
+                        const tokenClean = tokens[r].replace(/[^A-Za-z]/g, "").toUpperCase();
+                        if (!regionCodes.includes(tokenClean)) continue;
+
+                        const afterRegionTokens = tokens.slice(r + 1, Math.min(tokens.length, r + 7));
+                        for (let len = 1; len <= afterRegionTokens.length; len++) {
+                            const divText = afterRegionTokens.slice(0, len).join(" ");
+                            const parsedDiv = normalizeDivisionFromFreeText(divText);
+                            if (parsedDiv !== "Unknown") {
+                                return {
+                                    division: normalizeDivisionName(parsedDiv),
+                                    squad: expectedSquad || null,
+                                    line: tokens.slice(Math.max(0, i - 2), Math.min(tokens.length, r + 7)).join(" "),
+                                    source: "token-stream"
+                                };
+                            }
+                        }
+                    }
                 }
             }
 
@@ -1248,7 +1324,7 @@
             const raw = plannedMatch && (plannedMatch.division || plannedMatch.match_division || plannedMatch.ipsc_division || plannedMatch.grepdiv);
             if (!raw) return null;
             const div = normalizeDivisionName(raw);
-            return div && div !== "Unknown" ? div : null;
+            return isValidIpscDivision(div) ? div : null;
         }
 
         async function findOwnDivisionForMatch(matchId, myName, expectedSquad) {
@@ -1298,6 +1374,7 @@
                 const expectedSquad = plannedMatch.squad || plannedMatch.squad_no || plannedMatch.squad_number || null;
 
                 let knownDivision = getPlannedMatchDivisionHint(plannedMatch) || getGrepDivisionFromUrl(normalizedUrl);
+                if (knownDivision && !isValidIpscDivision(knownDivision)) knownDivision = null;
                 let ownEntry = knownDivision ? { division: knownDivision, squad: expectedSquad, line: "Division aus Mein Planer/Link" } : null;
 
                 if (!knownDivision && matchId && myName) {
@@ -1351,6 +1428,7 @@
                 
                 const plannedHint = window.pendingPlannedMatchHint || null;
                 let knownDivision = plannedHint && plannedHint.division ? plannedHint.division : getGrepDivisionFromUrl(normalizedUrl);
+                if (knownDivision && !isValidIpscDivision(knownDivision)) knownDivision = null;
                 const expectedSquad = plannedHint && plannedHint.squad ? plannedHint.squad : null;
                 const myName = window.userProfileData ? window.userProfileData.real_name : null;
                 const matchId = (plannedHint && plannedHint.matchId) || getMatchIdFromUrl(normalizedUrl);
@@ -1387,7 +1465,7 @@
 
                 // Nur als Fallback den Original-Link versuchen, wenn er KEINEN IPSCMatch-Filter enthaelt.
                 // grepreg/grepcat/grepdiv aus dem Planer kann sonst ein falsches Teilfeld liefern.
-                const originalHasIpscFilter = /[?&]grep(?:reg|cat|div)=/i.test(normalizedUrl);
+                const originalHasIpscFilter = /[?&](?:grep(?:reg|cat|div)=|complist=|list=|squads\b)/i.test(normalizedUrl);
                 if (targetUrl !== normalizedUrl && !originalHasIpscFilter) urlsToTry.push(normalizedUrl);
                 
                 const tried = new Set();
