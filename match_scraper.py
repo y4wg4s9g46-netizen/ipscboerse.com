@@ -193,11 +193,79 @@ def update_or_create_match(user_id, real_name, match_data):
             fallback_insert_payload,
         )
 
+def normalize_token(token):
+    """Token-Normalisierung fuer Namen/Laender in zusammengeklebten IPSCMatch-Zeilen."""
+    return normalize_text(re.sub(r"[^A-Za-zÃÃÃÃ¤Ã¶Ã¼Ã0-9\-]", "", str(token or "")))
+
+def find_name_token_span(tokens, real_name):
+    """
+    Gibt (start, ende_exklusiv) der Namens-Tokens zurueck.
+    Wichtig: Selenium klebt bei IPSCMatch manchmal zwei Schuetzen in eine Textzeile.
+    Deshalb darf die Division nicht hinter dem ersten GER der Zeile gelesen werden,
+    sondern hinter dem GER, das NACH dem gesuchten Namen kommt.
+    """
+    name_parts = [p for p in normalize_text(real_name).split() if p]
+    norm_tokens = [normalize_token(t) for t in tokens]
+
+    if not name_parts:
+        return None
+
+    for start in range(len(norm_tokens)):
+        if not norm_tokens[start]:
+            continue
+
+        pos = start
+        matched = 0
+
+        while pos < len(norm_tokens) and matched < len(name_parts):
+            token = norm_tokens[pos]
+            part = name_parts[matched]
+
+            if token == part or part in token or token in part:
+                matched += 1
+                pos += 1
+            elif matched > 0 and token in {"", "-", "â"}:
+                pos += 1
+            else:
+                break
+
+        if matched == len(name_parts):
+            return start, pos
+
+    return None
+
+def extract_division_after_name(line, real_name):
+    """Liest die Division hinter dem Laenderkuerzel, das nach dem gesuchten Namen steht."""
+    tokens = line.split()
+    span = find_name_token_span(tokens, real_name)
+    if not span:
+        return None
+
+    _, name_end = span
+
+    # Nur NACH dem gesuchten Namen suchen. Damit wird bei
+    # "Daniel ... GER Optics ... Thomas Krieter GER Open" nicht Daniels Optics genommen.
+    region_index = -1
+    for i in range(name_end, len(tokens)):
+        token_clean = re.sub(r'[^A-Za-z]', '', tokens[i]).upper()
+        if token_clean in COUNTRY_CODES:
+            region_index = i
+            break
+
+    if region_index >= 0 and region_index + 1 < len(tokens):
+        after_region = " ".join(tokens[region_index + 1: region_index + 8])
+        division = normalize_division(after_region)
+        if division:
+            return division
+
+    # Extra-Fallback: kleines Fenster AB dem Namen, nicht die ganze Zeile.
+    window = " ".join(tokens[name_end:name_end + 10])
+    return normalize_division(window)
+
 def extract_user_start_from_lines(lines, real_name):
     """
     Findet Name, aktuelle Squad und Division aus der IPSCMatch-Textansicht.
-    Wichtig: Hier lÃ¤uft Selenium im echten Browser. Genau dort funktioniert IPSCMatch stabiler
-    als im Handy-Browser/Proxy der Performance-Seite.
+    Robust gegen zusammengeklebte Zeilen mit mehreren Schuetzen nebeneinander.
     """
     search_parts = normalize_text(real_name).split()
     if not search_parts:
@@ -226,23 +294,7 @@ def extract_user_start_from_lines(lines, real_name):
         if not all(part in norm_line for part in search_parts):
             continue
 
-        # 1) Standardfall: komplette Zeile enthÃ¤lt Name, Region, Division
-        tokens = line.split()
-        region_index = -1
-        for i, token in enumerate(tokens):
-            token_clean = re.sub(r'[^A-Za-z]', '', token).upper()
-            if token_clean in COUNTRY_CODES:
-                region_index = i
-                break
-
-        division = None
-        if region_index >= 0 and region_index + 1 < len(tokens):
-            after_region = " ".join(tokens[region_index + 1: region_index + 6])
-            division = normalize_division(after_region)
-
-        # 2) Fallback: ganze Zeile scannen
-        if not division:
-            division = normalize_division(line)
+        division = extract_division_after_name(line, real_name)
 
         log(f"ð¯ TREFFER: '{real_name}' -> {current_squad} ({status}) | Division: {division or 'UNERKANNT'} | Zeile: {line}")
         return {
