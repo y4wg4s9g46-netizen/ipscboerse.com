@@ -6,7 +6,7 @@
     <title>Community | Startplatz Börse</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1e293b">
+    <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="IPSC Börse">
@@ -19,59 +19,34 @@
     <link rel="stylesheet" href="global.css">
 
     <style>
-        /* Spezifisches Community-Layout überschreibt das globale Container-Layout leicht */
+        /* Spezifisches Community-Layout, das NICHT mit global.css kollidiert */
         .container { max-width: 600px; margin: 0 auto; padding: 20px; flex: 1; width: 100%; box-sizing: border-box; position: relative; }
         
-        .social-nav { display: flex; gap: 10px; margin-bottom: 25px; }
-        .social-tab { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-sm); transition: all 0.15s; }
-        .social-tab:hover { background-color: var(--card-bg); color: var(--text-color); }
-        .social-tab.active { background-color: var(--accent-color); color: #fff; border-color: var(--accent-color); }
-
-        .post-card { background-color: var(--card-bg); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 15px; box-shadow: var(--shadow-sm); }
         .post-header { display: flex; align-items: center; margin-bottom: 15px; gap: 15px; }
         .avatar { width: 40px; height: 40px; background-color: var(--border-color); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 16px; color: var(--text-color); border: 1px solid var(--border-color); }
-        .post-meta h4 { margin: 0; font-size: 15px; color: var(--text-color); font-weight: 600; display: flex; align-items: center; gap: 8px;}
+        .post-meta h4 { margin: 0; font-size: 15px; color: var(--text-color); font-weight: 700; display: flex; align-items: center; gap: 8px;}
         .post-meta span { font-size: 12px; color: var(--text-muted); }
-        .post-content { font-size: 14px; line-height: 1.5; color: var(--text-color); white-space: pre-wrap; }
+        .post-content { font-size: 15px; line-height: 1.6; color: var(--text-color); white-space: pre-wrap; }
         
-        .post-card.admin-post { border: 1px solid var(--accent-color); background-color: rgba(255, 159, 67, 0.03); }
-        .admin-badge { background-color: var(--accent-color); color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+        .post-card.admin-post { border: 2px solid rgba(255, 159, 67, 0.4); background-color: rgba(255, 159, 67, 0.03); }
         .avatar.admin-avatar { background-color: var(--accent-color); color: #fff; border-color: var(--accent-color); }
 
         .post-actions-bar { display: flex; gap: 20px; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 12px; font-size: 13px; font-weight: 600; }
         .action-trigger { cursor: pointer; display: flex; align-items: center; gap: 5px; user-select: none; transition: opacity 0.15s; }
         .action-trigger:hover { opacity: 0.7; }
 
-        .comments-wrapper { display: none; margin-top: 15px; background: var(--bg-color); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); }
-        .comment-item { border-bottom: 1px solid var(--border-color); padding: 8px 0; font-size: 13px; }
+        .comments-wrapper { display: none; margin-top: 15px; background: var(--input-bg); padding: 15px; border-radius: var(--radius); border: 1px solid var(--border-color); }
+        .comment-item { border-bottom: 1px solid var(--border-color); padding: 10px 0; font-size: 13px; }
         .comment-item:last-child { border-bottom: none; }
-        .comment-meta { font-weight: 600; color: var(--text-color); margin-bottom: 3px; display: flex; justify-content: space-between; font-size: 12px; }
+        .comment-meta { font-weight: 700; color: var(--text-color); margin-bottom: 4px; display: flex; justify-content: space-between; font-size: 12px; }
         .comment-meta span { color: var(--text-muted); font-weight: normal; }
         .comment-input-box { display: flex; gap: 10px; margin-top: 15px; }
-        .comment-input-box input { flex: 1; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 12px; border-radius: 4px; font-family: inherit; font-size: 13px; box-shadow: var(--shadow-sm); }
-        .comment-input-box input:focus { outline: none; border-color: var(--social-accent); }
-        .comment-input-box button { width: auto; background: var(--social-accent); color: #fff; padding: 8px 16px; font-weight: 600; border-radius: 4px; border: none; cursor: pointer; font-size: 13px; }
+        .comment-input-box input { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px 14px; border-radius: var(--radius); font-family: inherit; font-size: 13px; transition: var(--transition); }
+        .comment-input-box input:focus { outline: none; border-color: var(--accent-color); }
+        .comment-input-box button { background: var(--accent-color); color: #fff; padding: 10px 16px; font-weight: 700; border-radius: var(--radius); border: none; cursor: pointer; font-size: 13px; transition: var(--transition); }
+        .comment-input-box button:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        .fab { position: fixed; bottom: 30px; right: 30px; background-color: var(--accent-color); color: white; border: none; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-md); z-index: 100; display: flex; align-items: center; gap: 8px; transition: transform 0.15s; }
-        .fab:hover { transform: translateY(-2px); }
-
-        #logged-out-msg, #username-setup-section { text-align: center; padding: 40px; background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border-color); margin-top: 20px; box-shadow: var(--shadow-sm); }
-
-        /* ========================================================
-           ULTRA-OPTIMIERUNG FÜR MOBILE SMARTPHONES
-           ======================================================== */
-        @media (max-width: 768px) {
-            .info-box, .form-section, .post-card, .match-card, #logged-out-section, #planner-section, #username-setup-section, #logged-out-msg { padding: 12px !important; margin-bottom: 12px !important; width: 100% !important; box-sizing: border-box !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
-            .form-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
-            .toggle-selector { flex-direction: column !important; gap: 8px !important; align-items: flex-start !important; }
-            .match-card { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
-            .card-actions { align-items: flex-start !important; width: 100% !important; border-top: 1px solid var(--border-color) !important; padding-top: 10px !important; }
-            .action-buttons-group { width: 100% !important; display: flex !important; gap: 6px !important; }
-            .action-buttons-group button, .btn-contact { flex: 1 !important; text-align: center !important; width: 100% !important; }
-            .fab { bottom: 15px !important; right: 15px !important; padding: 10px 16px !important; font-size: 13px !important; z-index: 999 !important; }
-            .match-item { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
-            .match-item div[style*="display: flex"] { width: 100% !important; justify-content: space-between !important; }
-        }
+        #logged-out-msg, #username-setup-section { text-align: center; padding: 40px 20px; background: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-top: 20px; box-shadow: var(--shadow-sm); }
     </style>
 </head>
 <body>
@@ -81,15 +56,15 @@
 
     <div class="container">
         
-        <div class="social-nav">
-            <button id="tab-feed-btn" class="social-tab active" onclick="switchTab('feed')" data-txt="tab-posts">Beiträge</button>
-            <button id="tab-groups-btn" class="social-tab" onclick="switchTab('groups')" data-txt="tab-groups">Gruppen</button>
+        <div class="tabs-container">
+            <button id="tab-feed-btn" class="tab-button active" onclick="switchTab('feed')" data-txt="tab-posts">Beiträge</button>
+            <button id="tab-groups-btn" class="tab-button" onclick="switchTab('groups')" data-txt="tab-groups">Gruppen</button>
         </div>
 
         <div id="logged-out-msg">
             <h2 data-txt="comm-logged-out-title">Werde Teil der Community</h2>
-            <p style="color: var(--text-muted); margin-bottom: 20px;" data-txt="comm-logged-out-desc">Bitte logge dich ein, um Beiträge zu lesen und mit anderen Schützen zu diskutieren.</p>
-            <button onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" class="btn-auth" style="background: var(--accent-color); color: #fff; border-color: var(--accent-color);" data-txt="comm-logged-out-btn">Jetzt einloggen</button>
+            <p style="color: var(--text-muted); margin-bottom: 24px;" data-txt="comm-logged-out-desc">Bitte logge dich ein, um Beiträge zu lesen und mit anderen Schützen zu diskutieren.</p>
+            <button onclick="document.getElementById('auth-modal').style.display = 'flex'; toggleAuthView('login');" class="btn-primary-auth" style="width: auto;" data-txt="comm-logged-out-btn">Jetzt einloggen</button>
         </div>
 
         <div id="username-setup-section" style="display: none; border-color: var(--accent-color);">
@@ -98,7 +73,7 @@
             <div style="max-width: 320px; margin: 0 auto 15px auto;" class="form-group">
                 <input type="text" id="initial-username" placeholder="z.B. AlphaShooter">
             </div>
-            <button onclick="saveInitialUsername()" style="background: var(--accent-color); color: #fff; width: auto; padding: 12px 30px; font-weight:bold; border:none; border-radius:var(--radius); cursor:pointer; box-shadow: var(--shadow-sm);" data-txt="comm-setup-btn">Namen speichern & starten</button>
+            <button onclick="saveInitialUsername()" class="btn-primary-auth" style="width: auto;" data-txt="comm-setup-btn">Namen speichern & starten</button>
         </div>
 
         <div id="feed-section" style="display: none;">
@@ -106,9 +81,11 @@
                 <p style="color: var(--text-muted); text-align: center;" data-txt="comm-loading">Lade Beiträge...</p>
             </div>
             
-            <button class="fab" onclick="openPostModal()" data-txt="fab-create-post">
-                <span style="font-size: 20px; margin-top: -2px;">+</span> Beitrag erstellen
-            </button>
+            <div class="floating-action-bar">
+                <button class="btn-post" onclick="openPostModal()" data-txt="fab-create-post">
+                    <span style="font-size: 20px; margin-top: -2px;">+</span> Beitrag erstellen
+                </button>
+            </div>
         </div>
 
         <div id="groups-section" style="display: none; text-align: center; padding: 40px; color: var(--text-muted);">
@@ -126,11 +103,11 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h3 style="margin: 0; color: var(--accent-color);" data-txt="modal-new-post">Neuer Beitrag</h3>
             </div>
-            <textarea id="post-content" placeholder="Was gibt's Neues rund um IPSC?"></textarea>
+            <textarea id="post-content" placeholder="Was gibt's Neues rund um IPSC?" style="width: 100%; border-radius: var(--radius); border: 2px solid var(--border-color); padding: 14px; margin-bottom: 15px; font-family: inherit; font-size: 15px; background: var(--input-bg); color: var(--text-color); box-sizing: border-box; resize: vertical; min-height: 100px;"></textarea>
             
-            <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:5px; font-weight: 600;" data-txt="lbl-add-photo">Foto hinzufügen (Optional)</label>
-            <input type="file" id="post-image" accept="image/*" onchange="previewPostImage(this)" style="margin-bottom: 15px; color: var(--text-color); width:100%;">
-            <img id="post-image-preview" style="width: 100%; border-radius: var(--radius); margin-bottom: 15px; display: none; object-fit: cover; max-height: 250px; border: 1px solid var(--border-color);">
+            <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:8px; font-weight: 700;" data-txt="lbl-add-photo">Foto hinzufügen (Optional)</label>
+            <input type="file" id="post-image" accept="image/*" onchange="previewPostImage(this)" style="margin-bottom: 20px; color: var(--text-color); width:100%; font-size: 14px;">
+            <img id="post-image-preview" style="width: 100%; border-radius: var(--radius); margin-bottom: 20px; display: none; object-fit: cover; max-height: 300px; border: 1px solid var(--border-color);">
             
             <button class="btn-post" id="btn-submit-post" onclick="submitPost()" data-txt="btn-share-post">Teilen</button>
         </div>
@@ -159,7 +136,7 @@
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                             <label style="margin-bottom: 0;">Passwort *</label>
-                            <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
+                            <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 600;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
                         </div>
                         <input type="password" id="login-password" required placeholder="••••••••">
                     </div>
@@ -220,7 +197,6 @@
 
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
-                
                 <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
                     <label style="color: var(--success-color); font-weight: 700;" data-txt="modal-settings-deals">📈 Erfolgreiche Vermittlungen</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
@@ -349,9 +325,12 @@
         function switchTab(tab) {
             if (window.currentUser && (!window.currentUser.user_metadata?.username || window.currentUser.user_metadata.username.trim() === "")) return;
             currentActiveTabId = tab;
-            document.querySelectorAll('.social-tab').forEach(t => t.classList.remove('active'));
+            
+            // HIER WURDE .social-tab ZU .tab-button GEÄNDERT
+            document.querySelectorAll('.tab-button').forEach(t => t.classList.remove('active'));
             document.getElementById('feed-section').style.display = 'none';
             document.getElementById('groups-section').style.display = 'none';
+            
             if(tab === 'feed') {
                 document.getElementById('tab-feed-btn').classList.add('active');
                 if (window.currentUser) document.getElementById('feed-section').style.display = 'block';
@@ -397,6 +376,7 @@
             const { data, error } = await window.supabaseClient.from('community_posts').select('*').order('created_at', { ascending: false }).limit(50);
             if (error) { container.innerHTML = 'Fehler beim Laden.'; return; }
             container.innerHTML = '';
+            
             if(data.length === 0) {
                 container.innerHTML = '<p style="text-align:center; color:#888;">Noch keine Beiträge. Mach den Anfang!</p>';
                 return;
@@ -409,17 +389,21 @@
                 const isAdmin = post.author_email && post.author_email.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim();
                 const avatarClass = isAdmin ? 'avatar admin-avatar' : 'avatar';
                 const initial = post.author_name ? post.author_name.charAt(0).toUpperCase() : '?';
-                const adminBadge = isAdmin ? '<span class="admin-badge">Admin News</span>' : '';
+                
+                // HIER WURDE admin-badge ZU badge-admin GEÄNDERT
+                const adminBadge = isAdmin ? '<span class="badge-admin">Admin News</span>' : '';
 
                 const avatarHtml = post.author_avatar
                     ? `<img src="${post.author_avatar}" class="${avatarClass}" style="object-fit: cover; padding: 0; border: none;">`
                     : `<div class="${avatarClass}">${initial}</div>`;
 
                 const postImageHtml = post.image_url
-                    ? `<img src="${post.image_url}" style="width: 100%; border-radius: 8px; margin-top: 15px; border: 1px solid #444;">`
+                    ? `<img src="${post.image_url}" style="width: 100%; border-radius: 12px; margin-top: 15px; border: 1px solid var(--border-color);">`
                     : '';
+                    
                 const isOwner = window.currentUser.email === post.author_email || window.currentUser.email === ADMIN_EMAIL;
-                const deleteBtn = isOwner ? `<button onclick="deletePost(${post.id})" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size:12px; float:right;">Löschen</button>` : '';
+                const deleteBtn = isOwner ? `<button onclick="deletePost(${post.id})" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size:12px; float:right; padding:4px;">Löschen</button>` : '';
+                
                 container.innerHTML += `
                     <div class="post-card ${isAdmin ? 'admin-post' : ''}">
                         ${deleteBtn}
@@ -487,7 +471,7 @@
             container.innerHTML = data.map(c => {
                 const dObj = new Date(c.created_at);
                 const dStr = dObj.toLocaleDateString('de-DE') + ' ' + dObj.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
-                return `<div class="comment-item"><div class="comment-meta">${escapeHtml(c.author_name)} <span>${dStr}</span></div><div style="color: #ccc;">${escapeHtml(c.content)}</div></div>`;
+                return `<div class="comment-item"><div class="comment-meta">${escapeHtml(c.author_name)} <span>${dStr}</span></div><div style="color: var(--text-color);">${escapeHtml(c.content)}</div></div>`;
             }).join('');
         }
 
