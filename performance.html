@@ -528,12 +528,75 @@
             return uniqueArray(candidates);
         }
 
+        function normalizeNameForMatching(value) {
+            return cleanText(value)
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/ä/g, "ae")
+                .replace(/ö/g, "oe")
+                .replace(/ü/g, "ue")
+                .replace(/ß/g, "ss")
+                .replace(/[^a-z0-9]+/g, " ")
+                .replace(/(.)\1+/g, "$1")
+                .replace(/\s+/g, " ")
+                .trim();
+        }
+
+        function levenshteinDistance(a, b) {
+            a = normalizeNameForMatching(a);
+            b = normalizeNameForMatching(b);
+            if (a === b) return 0;
+            if (!a) return b.length;
+            if (!b) return a.length;
+
+            const previous = Array.from({ length: b.length + 1 }, (_, i) => i);
+            const current = new Array(b.length + 1);
+
+            for (let i = 1; i <= a.length; i++) {
+                current[0] = i;
+                for (let j = 1; j <= b.length; j++) {
+                    const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+                    current[j] = Math.min(
+                        previous[j] + 1,
+                        current[j - 1] + 1,
+                        previous[j - 1] + cost
+                    );
+                }
+                for (let j = 0; j <= b.length; j++) previous[j] = current[j];
+            }
+
+            return previous[b.length];
+        }
+
+        function pickBestEloNameMatch(rows, targetCandidates) {
+            if (!rows || rows.length === 0) return null;
+
+            let bestRow = null;
+            let bestDistance = Number.POSITIVE_INFINITY;
+
+            for (const row of rows) {
+                for (const target of targetCandidates) {
+                    const distance = levenshteinDistance(row.lastname, target);
+                    if (distance < bestDistance) {
+                        bestDistance = distance;
+                        bestRow = row;
+                    }
+                }
+            }
+
+            const bestNameLength = bestRow ? normalizeNameForMatching(bestRow.lastname).length : 0;
+            const allowedDistance = bestNameLength <= 10 ? 1 : 2;
+            return bestDistance <= allowedDistance ? bestRow : null;
+        }
+
         async function findEloEntry(shooter) {
             if (!window.supabaseClient) return null;
 
             const division = normalizeDivisionName(shooter.division);
             const candidates = buildSearchNameCandidates(shooter.vorname, shooter.nachname);
 
+            // 1) Exakter Treffer, schnellster und sicherster Weg.
             for (const candidate of candidates) {
                 const { data, error } = await window.supabaseClient
                     .from("elo_rankings")
@@ -548,6 +611,7 @@
             const lastCandidates = nameVariants(shooter.nachname);
             const firstCandidates = nameVariants(shooter.vorname);
 
+            // 2) Bisherige Teilstring-Suche.
             for (const last of lastCandidates) {
                 for (const first of firstCandidates) {
                     const { data, error } = await window.supabaseClient
@@ -558,6 +622,43 @@
                         .limit(1);
 
                     if (!error && data && data.length > 0) return data[0];
+                }
+            }
+
+            // 3) Fuzzy-Fallback fuer kleine Schreib-/OCR-Abweichungen:
+            //    z.B. "Wismann, Volkert" aus der Starterliste vs. "Wisman, Volkert" in Supabase.
+            const fuzzyTargets = candidates;
+
+            for (const first of firstCandidates) {
+                if (!first || first.length < 3) continue;
+
+                const { data, error } = await window.supabaseClient
+                    .from("elo_rankings")
+                    .select("elo_rating, class_style, division, lastname, rank")
+                    .eq("division", division)
+                    .ilike("lastname", `%${first}%`)
+                    .limit(25);
+
+                if (!error) {
+                    const best = pickBestEloNameMatch(data, fuzzyTargets);
+                    if (best) return best;
+                }
+            }
+
+            for (const last of lastCandidates) {
+                const lastPrefix = normalizeNameForMatching(last).slice(0, 5);
+                if (!lastPrefix || lastPrefix.length < 4) continue;
+
+                const { data, error } = await window.supabaseClient
+                    .from("elo_rankings")
+                    .select("elo_rating, class_style, division, lastname, rank")
+                    .eq("division", division)
+                    .ilike("lastname", `%${lastPrefix}%`)
+                    .limit(25);
+
+                if (!error) {
+                    const best = pickBestEloNameMatch(data, fuzzyTargets);
+                    if (best) return best;
                 }
             }
 
