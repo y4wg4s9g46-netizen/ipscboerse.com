@@ -70,7 +70,6 @@ def update_or_create_match(user_id, real_name, match_data):
         
     if existing.data and len(existing.data) > 0:
         db_match = existing.data[0]
-        # HIER NEU: Prüfen ob sich auch die Division geändert hat
         if (db_match.get('status') != match_data['status'] or 
             db_match.get('squad') != match_data['squad'] or 
             db_match.get('match_date') != match_data['match_date'] or
@@ -82,12 +81,12 @@ def update_or_create_match(user_id, real_name, match_data):
                 "match_location": match_data['location'],
                 "status": match_data['status'],
                 "squad": match_data['squad'],
-                "ipsc_division": match_data['ipsc_division'], # <-- NEU
+                "ipsc_division": match_data['ipsc_division'],
                 "auto_imported": True, 
                 "match_url": match_data['match_url']
             }).eq("id", db_match['id']).execute()
     else:
-        log(f"✨ NEU HINZUGEFÜGT: '{real_name}' wurde zum Match '{match_name}' eingetragen (Squad: {match_data['squad']} | Div: {match_data['ipsc_division']}).")
+        log(f"✨ NEU HINZUGEFÜGT: '{real_name}' -> '{match_name}' (Squad: {match_data['squad']} | Div: {match_data['ipsc_division']}).")
         supabase.table("user_matches").insert({
             "user_id": user_id,
             "match_name": match_name,
@@ -95,7 +94,7 @@ def update_or_create_match(user_id, real_name, match_data):
             "match_location": match_data['location'],
             "status": match_data['status'],
             "squad": match_data['squad'],
-            "ipsc_division": match_data['ipsc_division'], # <-- NEU
+            "ipsc_division": match_data['ipsc_division'],
             "auto_imported": True,
             "match_url": match_data['match_url']
         }).execute()
@@ -103,7 +102,6 @@ def update_or_create_match(user_id, real_name, match_data):
 def scrape_ipscmatch_and_sync():
     app_users = get_app_users()
     if not app_users:
-        log("Keine User gefunden. Breche ab.")
         return
 
     log("Starte Chrome-Browser...")
@@ -120,9 +118,8 @@ def scrape_ipscmatch_and_sync():
         driver = webdriver.Chrome(service=service, options=chrome_options)
         driver.set_page_load_timeout(25)
         
-        base_url = "https://ipscmatch.de/"
         try:
-            driver.get(base_url)
+            driver.get("https://ipscmatch.de/")
             time.sleep(2)
         except Exception:
             pass
@@ -146,7 +143,6 @@ def scrape_ipscmatch_and_sync():
 
             real_match_date, real_location = extract_date_and_location(driver)
             
-            # Navigiere zur echten Starterliste, falls auf Hauptseite
             try:
                 starter_link = driver.find_element(By.XPATH, "//a[contains(@href, 'list=starter') or contains(@href, 'list=main_match') or contains(@href, 'list=overall')]")
                 driver.get(starter_link.get_attribute("href"))
@@ -159,18 +155,17 @@ def scrape_ipscmatch_and_sync():
             
             for user in app_users:
                 real_name = user['real_name']
-                # Zerlege den Namen ("Fabian Schöps" -> ["fabian", "schoeps"])
                 search_parts = normalize_text(real_name).split()
                 
                 current_squad = "TBD"
                 status = "Approved"
                 found = False
-                division = "Unknown" # <-- HIER NEU: Initialisierung der Division
+                division = "Unknown" 
                 
                 for line in lines:
                     norm_line = normalize_text(line)
                     
-                    # 1. SQUAD-GEDÄCHTNIS: Wenn die Zeile ein Squad-Header ist (z.B. "Sq. 12")
+                    # 1. SQUAD-GEDÄCHTNIS
                     squad_match = re.search(r'(?:squad|sq\.?|gruppe)\s*(\d+)', norm_line)
                     if squad_match:
                         squad_num = squad_match.group(1)
@@ -184,23 +179,61 @@ def scrape_ipscmatch_and_sync():
                         current_squad = "SQ99"
                         status = "Warteliste"
 
-                    # 2. NAMENS-CHECK: Sind alle Namens-Teile in der Zeile?
+                    # 2. NAMENS-CHECK & ZIELGENAUE DIVISION-EXTRAKTION
                     if all(part in norm_line for part in search_parts):
-                        # <-- HIER NEU: EXTRAKTION DER DIVISION -->
-                        if "ger" in norm_line:
-                            parts = norm_line.split("ger")[-1].strip().split()
-                            if len(parts) > 0:
-                                # Abfangen von "Prod. Optics"
-                                if parts[0] == "prod." and len(parts) > 1 and parts[1] == "optics":
+                        
+                        # Wir suchen exakt den Namen in der Zeile, um den Rest abzutrennen
+                        pattern = r'\s+'.join(map(re.escape, search_parts))
+                        match_name = re.search(pattern, norm_line)
+                        
+                        if match_name:
+                            # Schneide alles VOR und INKLUSIVE dem Namen weg.
+                            # So bleibt nur der Text übrig, der direkt HINTER dem Schützen steht.
+                            chunk_after_name = norm_line[match_name.end():].strip()
+                            chunk_words = chunk_after_name.split()
+                            
+                            # Wir prüfen nur die ersten 4 Wörter NACH dem Namen. 
+                            # Das verhindert, dass wir die zweite Tabellenspalte lesen!
+                            for i in range(len(chunk_words)):
+                                w1 = chunk_words[i]
+                                w2 = chunk_words[i+1] if i+1 < len(chunk_words) else ""
+                                combined = f"{w1} {w2}".strip()
+                                
+                                if combined in ["prod. optics", "production optics", "prod optics"]:
                                     division = "Production Optics"
-                                elif parts[0] in ["prod", "production"]:
+                                    break
+                                elif combined == "optics light":
+                                    division = "Optics Light"
+                                    break
+                                elif w1 == "optics":
+                                    division = "Optics"
+                                    break
+                                elif w1 in ["production", "prod.", "prod"]:
                                     division = "Production"
-                                else:
-                                    division = parts[0].capitalize() # z.B. "open" -> "Open"
+                                    break
+                                elif w1 == "standard":
+                                    division = "Standard"
+                                    break
+                                elif w1 == "open":
+                                    division = "Open"
+                                    break
+                                elif w1 == "classic":
+                                    division = "Classic"
+                                    break
+                                elif w1 == "revolver":
+                                    division = "Revolver"
+                                    break
+                                elif w1 == "pcc":
+                                    division = "PCC"
+                                    break
+                                
+                                # Nach dem 4. Wort abbrechen -> Schützt vor der Nachbar-Spalte
+                                if i >= 3:
+                                    break
 
                         log(f"🎯 TREFFER: '{real_name}' -> {current_squad} ({status}) | Div: {division}")
                         found = True
-                        break # Wir haben ihn gefunden, können für diesen User aufhören
+                        break 
                 
                 if found:
                     match_data = {
@@ -209,7 +242,7 @@ def scrape_ipscmatch_and_sync():
                         "location": real_location,
                         "status": status,
                         "squad": current_squad,
-                        "ipsc_division": division, # <-- HIER NEU: Division ins Payload
+                        "ipsc_division": division, 
                         "match_url": match['url']
                     }
                     update_or_create_match(user['id'], real_name, match_data)
