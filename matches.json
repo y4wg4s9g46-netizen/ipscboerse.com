@@ -2,7 +2,7 @@
     {
         "name": "Summer Cup Guyane 2026",
         "datum": "14.06.2026",
-        "auslastung": "50%",
+        "auslastung": "57%",
         "region": "FRA",
         "level": "2",
         "disziplin": "HG",
@@ -29,7 +29,7 @@
     {
         "name": "Bracara Augusta Match 2026",
         "datum": "11.07.2026",
-        "auslastung": "80%",
+        "auslastung": "81%",
         "region": "POR",
         "level": "3",
         "disziplin": "HG",
@@ -110,7 +110,7 @@
     {
         "name": "Adeje Shooters Cup",
         "datum": "03.10.2026",
-        "auslastung": "8%",
+        "auslastung": "9%",
         "region": "ESP",
         "level": "2",
         "disziplin": "HG, PCC, MR",
@@ -119,7 +119,7 @@
     {
         "name": "V Extreme Adeje Shooters",
         "datum": "11.10.2026",
-        "auslastung": "11%",
+        "auslastung": "12%",
         "region": "ESP",
         "level": "3",
         "disziplin": "HG, PCC, MR",
