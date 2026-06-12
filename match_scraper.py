@@ -53,32 +53,26 @@ def extract_date_and_location(driver):
 
         lines = body_text.split('\n')
         for i, line in enumerate(lines):
+            # Suche explizit nach "Ort" oder "Location", ignoriere Datum
             if re.match(r'^(Ort|Location|Austragungsort)', line, re.I):
                 if ':' in line:
                     potential_loc = line.split(':', 1)[1].strip()
-                    if potential_loc:
+                    # Filter: Darf kein Datum sein
+                    if potential_loc and not re.search(r'\d{2}\.\d{2}\.\d{4}', potential_loc):
                         location = potential_loc
                         break
-                if i + 1 < len(lines):
+                elif i + 1 < len(lines):
                     next_line = lines[i+1].strip()
-                    if next_line and not re.match(r'^(Datum|Match|Level|Stages|Veranstalter|Region|Registration)', next_line, re.I):
-                        location = next_line
-                        break
+                    # Filter: Ignoriere Zeilen, die selbst Labels sind
+                    if next_line and not re.match(r'^(Datum|Match|Level|Stages|Veranstalter|Region|Registration|Date)', next_line, re.I):
+                        # Filter: Ignoriere Zeilen die nur aus Datums-Formaten bestehen
+                        if not re.search(r'\d{2}\.\d{2}\.\d{4}', next_line):
+                            location = next_line
+                            break
     except Exception as e:
         log(f"WARN: Datum/Ort Extraktion fehlgeschlagen: {e}")
         
     return match_date, location
-
-def get_app_users():
-    log("Lade User aus der profiles-Tabelle...")
-    try:
-        response = supabase.table("profiles").select("id, real_name").execute()
-        users = [u for u in response.data if u.get('real_name')]
-        log(f"{len(users)} User mit real_name gefunden.")
-        return users
-    except Exception as e:
-        log(f"Fehler beim Laden der User: {e}")
-        return []
 
 def send_summary_email(summary_data):
     """Versendet eine E-Mail, wenn es Neuerungen gab."""
@@ -169,10 +163,10 @@ def update_or_create_match(user_id, real_name, match_data, summary_data):
         }).execute()
 
 def scrape_ipscmatch_and_sync():
-    app_users = get_app_users()
-    if not app_users:
-        return
-
+    # Lade User
+    response = supabase.table("profiles").select("id, real_name").execute()
+    app_users = [u for u in response.data if u.get('real_name')]
+    
     # Hier speichern wir uns alles für die Zusammenfassung/E-Mail
     summary_data = {'new': [], 'updates': []}
 
@@ -182,8 +176,7 @@ def scrape_ipscmatch_and_sync():
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--window-size=1920,1080")
-    chrome_options.page_load_strategy = 'eager'
-
+    
     driver = None
     try:
         service = Service(ChromeDriverManager().install())
@@ -308,7 +301,6 @@ def scrape_ipscmatch_and_sync():
                         "ipsc_division": division, 
                         "match_url": match['url']
                     }
-                    # Hier übergeben wir nun auch 'summary_data' an die Funktion
                     update_or_create_match(user['id'], real_name, match_data, summary_data)
 
     except Exception as e:
@@ -317,15 +309,8 @@ def scrape_ipscmatch_and_sync():
         if driver:
             driver.quit()
         
-        # GANZ AM ENDE: Zusammenfassung anzeigen & Mail verschicken
-        log("\n==========================================")
-        log("📊 ZUSAMMENFASSUNG DES SCRAPER-DURCHLAUFS")
-        log("==========================================")
-        log(f"Neue Einträge gefunden: {len(summary_data['new'])}")
-        log(f"Aktualisierte Einträge: {len(summary_data['updates'])}")
-        log("==========================================\n")
-        
-        # Versende Mail (nur wenn neue/geänderte Daten vorhanden sind)
+        log("\n--- ZUSAMMENFASSUNG ---")
+        log(f"Neu: {len(summary_data['new'])} | Updates: {len(summary_data['updates'])}")
         send_summary_email(summary_data)
 
 if __name__ == "__main__":
