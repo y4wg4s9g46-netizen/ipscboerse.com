@@ -64,7 +64,7 @@
             </nav>
         `;
 
-        // 🌟 Exklusives VIP-Styling nur für diese zwei Seiten injizieren
+                // 🌟 Exklusives VIP-Styling nur für diese zwei Seiten injizieren
         if (isVipPage) {
             const vipStyle = document.createElement('style');
             vipStyle.innerHTML = `
@@ -106,9 +106,35 @@
                 .match-card, .elo-stat-card, .filter-bar, .legend-box, .upload-zone {
                     border: 1px solid rgba(255, 159, 67, 0.3) !important;
                 }
+
+                /* 🌟 NEU: Überschreibt die blauen Elemente im unteren Bereich! */
+                #quick-analyze-section {
+                    background: rgba(255, 159, 67, 0.05) !important;
+                    border: 1px solid rgba(255, 159, 67, 0.4) !important;
+                }
+                #quick-analyze-section h4 {
+                    color: var(--accent-color) !important;
+                }
+                #quick-analyze-buttons .archive-btn {
+                    color: var(--accent-color) !important;
+                    border-color: var(--accent-color) !important;
+                    background-color: rgba(255, 159, 67, 0.05) !important;
+                }
+                
+                /* Den dicken "Link abrufen" Button in den VIP-Look (Dunkles Blau/Grau mit Gold-Text) ziehen */
+                .primary-btn {
+                    background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%) !important;
+                    border: 1px solid var(--accent-color) !important;
+                    color: #ff9f43 !important;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important;
+                }
+                .primary-btn:hover {
+                    filter: brightness(1.2) !important;
+                }
             `;
             document.head.appendChild(vipStyle);
         }
+
 
         const style = document.createElement('style');
         style.innerHTML = `
