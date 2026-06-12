@@ -851,8 +851,10 @@
                     const absolute = url.href;
 
                     if (!seen.has(absolute) && wanted.test(combined)) {
-                        // IGNORIERE ALLE FREMDEN GREPDIV Oder GREPCAT LINKS
-                        if (absolute.includes('grepdiv=') || absolute.includes('grepcat=')) {
+                        // IGNORIERE ALLE FREMDEN FILTER-LINKS. Besonders wichtig:
+                        // IPSCMatch erzeugt manchmal Links wie &complist=-nr. Das ist KEINE Starterliste,
+                        // sondern ein Sortier-/Pseudo-Link. Diese Links duerfen nie analysiert werden.
+                        if (/[?&]grep(?:div|cat|reg)=/i.test(absolute) || /[?&]complist=/i.test(absolute)) {
                              return; 
                         }
                         seen.add(absolute);
@@ -911,9 +913,23 @@
             return "Unknown";
         }
 
+        function getValidIpscDivisions() {
+            return ["Production Optics", "Optics", "Production", "Standard", "Open", "Classic", "Revolver", "PCC"];
+        }
+
         function isValidIpscDivision(value) {
-            return ["Production Optics", "Optics", "Production", "Standard", "Classic", "Revolver", "Open", "PCC"]
-                .includes(normalizeDivisionName(value));
+            return getValidIpscDivisions().includes(normalizeDivisionName(value));
+        }
+
+        function namesMatchShooter(shooter, nameCandidates) {
+            const shooterText = normalizeNameSearchText(`${shooter.vorname || ""} ${shooter.nachname || ""}`);
+            if (!shooterText) return false;
+
+            return nameCandidates.some(candidate => {
+                const parts = normalizeNameSearchText(candidate).split(/\s+/).filter(Boolean);
+                if (parts.length < 2) return false;
+                return parts.every(part => shooterText.includes(part));
+            });
         }
 
         function parseShooterFromTextLine(line, forcedDiv) {
@@ -1322,13 +1338,99 @@
 
         function getPlannedMatchDivisionHint(plannedMatch) {
             const raw = plannedMatch && (plannedMatch.division || plannedMatch.match_division || plannedMatch.ipsc_division || plannedMatch.grepdiv);
-            if (!raw) return null;
-            const div = normalizeDivisionName(raw);
-            return isValidIpscDivision(div) ? div : null;
+            if (raw) {
+                const div = normalizeDivisionName(raw);
+                if (isValidIpscDivision(div)) return div;
+            }
+
+            const urlFields = plannedMatch ? [plannedMatch.analysis_url, plannedMatch.performance_url, plannedMatch.match_url] : [];
+            for (const url of urlFields) {
+                const divFromUrl = getGrepDivisionFromUrl(url);
+                if (divFromUrl && isValidIpscDivision(divFromUrl)) return divFromUrl;
+            }
+
+            return null;
+        }
+
+        function getDivisionCacheKey(matchId, myName) {
+            return `ipsc_own_division_v1:${matchId}:${normalizeNameSearchText(myName)}`;
+        }
+
+        function readCachedOwnDivision(matchId, myName) {
+            try {
+                const key = getDivisionCacheKey(matchId, myName);
+                const cached = JSON.parse(localStorage.getItem(key) || "null");
+                if (cached && cached.division && isValidIpscDivision(cached.division)) return cached;
+            } catch (_) {}
+            return null;
+        }
+
+        function writeCachedOwnDivision(matchId, myName, entry) {
+            try {
+                if (!entry || !entry.division || !isValidIpscDivision(entry.division)) return;
+                localStorage.setItem(getDivisionCacheKey(matchId, myName), JSON.stringify({
+                    division: normalizeDivisionName(entry.division),
+                    squad: entry.squad || null,
+                    line: entry.line || "",
+                    source: entry.source || "unknown",
+                    savedAt: new Date().toISOString()
+                }));
+            } catch (_) {}
+        }
+
+        async function trySaveDivisionToUserMatch(plannedMatch, division, analysisUrl) {
+            // Optionaler Performance-Boost: Wenn die Spalten in user_matches existieren, speichern wir
+            // Division und fertigen Analyse-Link. Wenn nicht, ignorieren wir den Supabase-Fehler sauber.
+            if (!plannedMatch || !plannedMatch.id || !window.supabaseClient) return;
+            try {
+                const payload = {};
+                if ("ipsc_division" in plannedMatch) payload.ipsc_division = division;
+                if ("analysis_url" in plannedMatch) payload.analysis_url = analysisUrl;
+                if ("performance_url" in plannedMatch) payload.performance_url = analysisUrl;
+                if (Object.keys(payload).length === 0) return;
+
+                await window.supabaseClient
+                    .from("user_matches")
+                    .update(payload)
+                    .eq("id", plannedMatch.id);
+            } catch (e) {
+                console.warn("Division konnte nicht in user_matches gespeichert werden:", e);
+            }
+        }
+
+        async function findOwnDivisionByTestingDivisionLists(matchId, myName) {
+            const nameCandidates = uniqueArray([myName, ...getOwnNameCandidates()].map(cleanText).filter(Boolean));
+
+            for (const division of getValidIpscDivisions()) {
+                const divisionUrl = buildIpscComplistUrl(matchId, division);
+                setLoaderMessage(`Pruefe Division ${division}...`);
+
+                try {
+                    const html = await fetchMatchHtml(divisionUrl);
+                    const parsed = await parseShootersFromHtml(html, { silent: true, forcedDivision: division });
+                    const found = (parsed.shooters || []).some(shooter => namesMatchShooter(shooter, nameCandidates));
+
+                    if (found) {
+                        return {
+                            division: normalizeDivisionName(division),
+                            squad: null,
+                            line: `Name in Divisionsliste ${division} gefunden`,
+                            source: "division-list-test"
+                        };
+                    }
+                } catch (e) {
+                    console.warn(`Division ${division} konnte nicht geprueft werden:`, e);
+                }
+            }
+
+            return null;
         }
 
         async function findOwnDivisionForMatch(matchId, myName, expectedSquad) {
             if (!matchId || !myName) return null;
+
+            const cached = readCachedOwnDivision(matchId, myName);
+            if (cached) return { ...cached, source: cached.source || "local-cache" };
 
             const baseMatchUrl = buildIpscComplistUrl(matchId);
             const discoveryUrls = buildDivisionDiscoveryUrls(baseMatchUrl, matchId);
@@ -1343,12 +1445,23 @@
                 const doc = new DOMParser().parseFromString(html, "text/html");
                 const ownEntry = extractOwnEntryFromDoc(doc, myName, expectedSquad);
 
-                if (ownEntry && ownEntry.division) return ownEntry;
+                if (ownEntry && ownEntry.division) {
+                    writeCachedOwnDivision(matchId, myName, ownEntry);
+                    return ownEntry;
+                }
 
                 const extraLinks = extractIpscCandidateLinks(html, discoverUrl);
                 for (const extra of extraLinks) {
                     if (!seenDiscoveryUrls.has(extra) && !discoveryUrls.includes(extra)) discoveryUrls.push(extra);
                 }
+            }
+
+            // Letzter, sehr robuster Fallback: nicht mehr versuchen, die Squad-Seite zu verstehen,
+            // sondern jede echte Division direkt laden und schauen, in welcher Divisionsliste der eigene Name steht.
+            const entryFromDivisionList = await findOwnDivisionByTestingDivisionLists(matchId, myName);
+            if (entryFromDivisionList && entryFromDivisionList.division) {
+                writeCachedOwnDivision(matchId, myName, entryFromDivisionList);
+                return entryFromDivisionList;
             }
 
             return null;
@@ -1373,9 +1486,10 @@
                 const myName = window.userProfileData ? window.userProfileData.real_name : null;
                 const expectedSquad = plannedMatch.squad || plannedMatch.squad_no || plannedMatch.squad_number || null;
 
-                let knownDivision = getPlannedMatchDivisionHint(plannedMatch) || getGrepDivisionFromUrl(normalizedUrl);
+                const cachedEntry = matchId && myName ? readCachedOwnDivision(matchId, myName) : null;
+                let knownDivision = getPlannedMatchDivisionHint(plannedMatch) || (cachedEntry && cachedEntry.division) || getGrepDivisionFromUrl(normalizedUrl);
                 if (knownDivision && !isValidIpscDivision(knownDivision)) knownDivision = null;
-                let ownEntry = knownDivision ? { division: knownDivision, squad: expectedSquad, line: "Division aus Mein Planer/Link" } : null;
+                let ownEntry = knownDivision ? { division: knownDivision, squad: expectedSquad, line: "Division aus Mein Planer/Cache/Link" } : null;
 
                 if (!knownDivision && matchId && myName) {
                     setLoaderMessage(`Suche deine Division in Squad ${expectedSquad || "?"}...`);
@@ -1387,6 +1501,8 @@
                 if (!knownDivision) throw new Error("Konnte deine Division im Match nicht finden. Der Planer kennt Name und Squad, aber in der Starterliste wurde keine passende Division erkannt.");
 
                 const cleanDivisionUrl = buildIpscComplistUrl(matchId, knownDivision);
+                writeCachedOwnDivision(matchId, myName, { division: knownDivision, squad: expectedSquad, line: ownEntry && ownEntry.line, source: ownEntry && ownEntry.source });
+                await trySaveDivisionToUserMatch(plannedMatch, knownDivision, cleanDivisionUrl);
 
                 // Wichtig: Der Button verknüpft jetzt direkt den fertigen Divisions-Link mit dem Eingabefeld.
                 // Dadurch wird unten genau dieses Feld eingelesen, nicht der alte Planer-Link mit grepreg/grepcat.
