@@ -15,6 +15,7 @@
     --danger-color: #ef4444;
     --success-color: #10b981;
     --info-color: #3b82f6;
+    --social-accent: #3498db;
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
     --radius: 8px;
@@ -59,6 +60,15 @@ body {
     -webkit-font-smoothing: antialiased; 
 }
 
+header { 
+    background-color: var(--card-bg); 
+    padding: 20px; 
+    text-align: center; 
+    border-bottom: 1px solid var(--border-color); 
+    position: relative; 
+}
+header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-color); }
+
 .container { 
     max-width: 1000px; 
     margin: 30px auto; 
@@ -73,3 +83,102 @@ body {
     html, body { overflow-x: hidden !important; width: 100% !important; }
     .container { padding: 0 10px !important; margin-top: 15px !important; width: 100% !important; box-sizing: border-box !important; }
 }
+
+footer { background-color: var(--card-bg); border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: 50px; font-size: 13px; color: var(--text-muted); text-align: center; }
+
+/* ==========================================================================
+   MODALS (Popups)
+   ========================================================================== */
+
+.modal, .modal-overlay { 
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); 
+    justify-content: center; align-items: center; z-index: 1000; 
+    animation: fadeIn 0.2s ease-out; padding: 20px; box-sizing: border-box; 
+}
+
+.modal-content { 
+    background-color: var(--card-bg); padding: 32px; border-radius: 12px; 
+    border: 1px solid var(--border-color); width: 100%; max-width: 440px; 
+    max-height: 90vh; overflow-y: auto; box-sizing: border-box; 
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); 
+    position: relative; margin: auto; 
+}
+
+.modal-content h3 { color: var(--text-color); margin-top: 0; margin-bottom: 24px; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; padding-right: 30px; }
+
+.modal-close-container { position: absolute; top: 20px; right: 20px; z-index: 1010; }
+.modal-close-trigger { background: transparent; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; padding: 4px; line-height: 1; transition: color 0.15s; }
+.modal-close-trigger:hover { color: var(--text-color); }
+
+.modal-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+.modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
+.modal-divider:not(:empty)::before { margin-right: .75em; }
+.modal-divider:not(:empty)::after { margin-left: .75em; }
+
+.modal-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 6px; font-size: 13px; color: var(--text-muted); text-align: center;}
+.modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; font-weight: 600; }
+.modal-footer a:hover { text-decoration: underline; }
+
+@media (max-width: 768px) {
+    .modal, .modal-overlay { padding: 10px !important; }
+    .modal-content { padding: 24px 16px !important; max-height: 95vh !important; }
+    .modal-close-container { top: 12px !important; right: 12px !important; }
+    .modal-close-trigger { font-size: 28px !important; }
+}
+
+/* ==========================================================================
+   FORMS & INPUTS
+   ========================================================================== */
+
+.form-group, .hit-input-group { margin-bottom: 20px; display: flex; flex-direction: column; }
+.form-group label, .hit-input-group label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.form-group input, .hit-input-group input, .modal-content input, .modal-content textarea { 
+    background-color: var(--input-bg); border: 1px solid var(--border-color); 
+    color: var(--text-color); padding: 12px 14px; border-radius: var(--radius); 
+    font-size: 14px; transition: all 0.15s ease; box-shadow: var(--shadow-sm); font-family: inherit; 
+}
+.form-group input:focus, .hit-input-group input:focus, .modal-content input:focus, .modal-content textarea:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); }
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+
+.btn-primary-auth, .btn-post, .btn-submit { 
+    background-color: var(--accent-color); color: #ffffff; border: none; 
+    padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); 
+    cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; 
+}
+.btn-submit { padding: 12px 30px; margin-top: 10px; width: auto;}
+.btn-primary-auth:hover, .btn-post:hover, .btn-submit:hover { opacity: 0.9; }
+
+.btn-secondary-auth { 
+    background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); 
+    padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); 
+    cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; 
+    gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; 
+}
+.btn-secondary-auth:hover { background-color: var(--border-color); }
+
+.btn-danger-block { 
+    background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); 
+    padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); 
+    cursor: pointer; margin-top: 15px; transition: all 0.2s; 
+}
+.btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
+
+@media (max-width: 768px) {
+    button, .btn-submit { width: 100% !important; box-sizing: border-box !important; }
+}
+
+/* ==========================================================================
+   CHAT / MESSAGING
+   ========================================================================== */
+.chat-history-area { 
+    height: 300px; overflow-y: auto; border: 1px solid var(--border-color); 
+    background-color: var(--bg-color); border-radius: var(--radius); 
+    padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; 
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
