@@ -2,13 +2,13 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Mein Wettkampfplaner | Startplatz Börse</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e293b">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="IPSC Börse">
     <link rel="apple-touch-icon" href="icon-192.png">
 
@@ -58,7 +58,7 @@
             }
         }
 
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); display: flex; flex-direction: column; min-height: 100vh; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
         header { background-color: var(--card-bg); padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
         header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-color); }
         
@@ -66,9 +66,9 @@
         
         #logged-out-section, #planner-section { background-color: var(--card-bg); padding: 25px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px; box-shadow: var(--shadow-sm); }
         .form-section h2, #planner-section h2 { margin-top: 0; font-size: 20px; font-weight: 700; color: var(--text-color); }
-        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; min-width: 0; }
         .form-group label { display: block; margin-bottom: 6px; color: var(--text-color); font-size: 13px; font-weight: 600; }
-        .form-group input { width: 100%; padding: 10px 12px; border-radius: var(--radius); border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box; font-family: inherit; font-size: 14px; }
+        .form-group input { width: 100%; max-width: 100%; min-width: 0; padding: 10px 12px; border-radius: var(--radius); border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box; font-family: inherit; font-size: 14px; }
         .form-group input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(255, 159, 67, 0.15); }
         
         button { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 20px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; font-size: 15px; box-shadow: var(--shadow-sm); transition: opacity 0.15s; }
@@ -195,13 +195,17 @@
 
         @media (max-width: 768px) {
             html, body { overflow-x: hidden !important; width: 100% !important; }
-            .container { padding: 0 10px !important; margin-top: 15px !important; width: 100% !important; box-sizing: border-box !important; }
-            .info-box, .form-section, .post-card, .match-card, #logged-out-section, #planner-section, #username-setup-section, #logged-out-msg { padding: 12px !important; margin-bottom: 12px !important; width: 100% !important; box-sizing: border-box !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
+            body { min-height: 100dvh; }
+            header { padding-top: max(20px, env(safe-area-inset-top)) !important; }
+            .container { padding: 0 10px !important; margin-top: 15px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; }
+            .info-box, .form-section, .post-card, .match-card, #logged-out-section, #planner-section, #username-setup-section, #logged-out-msg { padding: 12px !important; margin-bottom: 12px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
+            .form-group, .planner-form-row > .form-group { width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; }
+            .form-group input { width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; }
             button, .btn-submit { width: 100% !important; box-sizing: border-box !important; }
             .match-item { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
             .match-item div[style*="display: flex"] { width: 100% !important; justify-content: space-between !important; }
             .planner-form-row { flex-direction: column !important; gap: 0 !important; }
-            .modal { padding: 10px !important; }
+            .modal { padding: 10px !important; padding-top: max(10px, env(safe-area-inset-top)) !important; }
             .modal-content { padding: 24px 16px !important; max-height: 95vh !important; }
             .modal-close-container { top: 12px !important; right: 12px !important; }
             .modal-close-trigger { font-size: 28px !important; }
@@ -445,16 +449,12 @@
                     badgesHtml += `<span class="badge badge-bot">🤖 Auto-Import</span>`;
                 }
 
-                let isApproved = false;
                 if (match.status) {
                     const statusLower = match.status.toLowerCase();
                     if (statusLower.includes('approved') || statusLower.includes('bestätigt')) {
                         badgesHtml += `<span class="badge badge-approved">Approved</span>`;
-                        isApproved = true;
                     } else if (statusLower.includes('warteliste') || statusLower.includes('waiting')) {
                         badgesHtml += `<span class="badge badge-warteliste">Warteliste</span>`;
-                        // Optional: Warteliste-Matches können auch analysiert werden
-                        isApproved = true; 
                     } else {
                         badgesHtml += `<span class="badge badge-pending">${escapeHtml(match.status)}</span>`;
                     }
@@ -462,12 +462,6 @@
 
                 if (match.squad && match.squad !== 'TBD') {
                     badgesHtml += `<span class="badge badge-squad">${escapeHtml(match.squad)}</span>`;
-                }
-
-                // NEU: Analyse-Button für Approved/Wartelisten Matches mit URL
-                let analyseButton = '';
-                if (isApproved && match.match_url) {
-                    analyseButton = `<button onclick="window.location.href='performance.html?url=${encodeURIComponent(match.match_url)}'" style="background-color: var(--info-color); color: #fff; width: auto; padding: 6px 12px; font-size: 12px; border: none; box-shadow: none;">📊 Gegner-Analyse</button>`;
                 }
 
                 container.innerHTML += `
@@ -478,7 +472,6 @@
                         </div>
                         <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap;">
                             <button onclick="inserierenAufMarktplatz('${safeName}', '${match.match_date}', '${safeLocation}')" style="background-color: var(--accent-color); color: #000; width: auto; padding: 6px 12px; font-size: 12px;">📢 Inserieren</button>
-                            ${analyseButton}
                             <button onclick="deleteMatch(${match.id})" class="delete-btn">Löschen</button>
                         </div>
                     </div>
