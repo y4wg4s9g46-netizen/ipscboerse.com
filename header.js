@@ -9,6 +9,13 @@
 
         const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
 
+        // 🌟 NEU: Prüfen, ob wir auf einer der beiden VIP-Seiten sind
+        const isVipPage = (page === "doppel-aa.html" || page === "performance.html");
+
+        // 🌟 NEU: Dynamische Texte für den Header
+        const headerTitle = isVipPage ? "DOUBLE ALPHA ELITE" : "IPSC STARTPLATZ-BÖRSE";
+        const headerSub = isVipPage ? "Exklusiver Vereins-Bereich 🔒" : "Von Schützen für Schützen";
+
         const links = [
             { href: "index.html", text: "Startseite", key: "nav-startseite" },
             { href: "marktplatz.html", text: "Marktplatz", key: "card-title-market" },
@@ -30,8 +37,8 @@
 
         header.innerHTML = `
             <a href="index.html" style="text-decoration: none; color: inherit; display: inline-block; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Zur Startseite">
-                <h1 data-txt="main-title">IPSC STARTPLATZ-BÖRSE</h1>
-                <p style="color: var(--text-muted); margin: 5px 0 0 0; font-size: 13px;" data-txt="sub-title">Von Schützen für Schützen</p>
+                <h1 data-txt="main-title" class="${isVipPage ? 'vip-title' : ''}">${headerTitle}</h1>
+                <p style="color: ${isVipPage ? 'var(--accent-color)' : 'var(--text-muted)'}; margin: 5px 0 0 0; font-size: 13px; font-weight: ${isVipPage ? 'bold' : 'normal'};" data-txt="sub-title">${headerSub}</p>
             </a>
             
             <div class="header-controls">
@@ -55,6 +62,52 @@
                 ${navHtml}
             </nav>
         `;
+
+        // 🌟 NEU: Exklusives VIP-Styling nur für diese zwei Seiten injizieren
+        if (isVipPage) {
+            const vipStyle = document.createElement('style');
+            vipStyle.innerHTML = `
+                /* Dunkler VIP-Header mit edlem Verlauf */
+                header {
+                    background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%) !important;
+                    border-bottom: 2px solid var(--accent-color) !important;
+                    border-radius: 0 0 15px 15px;
+                    padding-bottom: 20px !important;
+                    margin-bottom: 20px;
+                    box-shadow: 0 10px 20px rgba(255, 159, 67, 0.15) !important;
+                }
+                
+                /* Gold-Metallic-Effekt für die Überschrift */
+                header .vip-title {
+                    background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    font-size: 26px !important;
+                    letter-spacing: 1.5px;
+                    text-shadow: 0px 2px 4px rgba(0,0,0,0.4);
+                }
+
+                /* Helle Controls im dunklen Header erzwingen */
+                header .theme-toggle-btn, header .lang-select, header .btn-auth, header .main-nav a.inactive {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    color: #ffffff !important;
+                    border-color: rgba(255, 255, 255, 0.2) !important;
+                }
+                
+                /* VIP-Akzente für die Content-Boxen auf der restlichen Seite */
+                .info-box {
+                    background-color: rgba(255, 159, 67, 0.08) !important;
+                    border: 1px solid rgba(255, 159, 67, 0.4) !important;
+                    border-left: 4px solid var(--accent-color) !important;
+                    color: var(--text-color) !important;
+                }
+                
+                .match-card, .elo-stat-card, .filter-bar, .legend-box, .upload-zone {
+                    border: 1px solid rgba(255, 159, 67, 0.3) !important;
+                }
+            `;
+            document.head.appendChild(vipStyle);
+        }
 
         const style = document.createElement('style');
         style.innerHTML = `
@@ -287,7 +340,7 @@
                     const isSniperActive = (page === "doppel-aa.html");
                     const sniperLink = document.createElement('a');
                     sniperLink.href = 'doppel-aa.html'; 
-                    sniperLink.innerText = '🎯 Double Alpha'; //[span_2](start_span)[span_2](end_span)
+                    sniperLink.innerText = '🎯 Double Alpha';
                     sniperLink.className = isSniperActive ? "active" : "inactive";
                     
                     if (!isSniperActive) {
