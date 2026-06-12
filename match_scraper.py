@@ -55,17 +55,17 @@ def strip_accents(value):
 def normalize_text(value):
     value = str(value or "")
     value = value.replace("\xa0", " ")
-    value = value.replace("✓", " ")
-    value = value.replace("✔", " ")
-    value = value.replace("✗", " ")
-    value = value.replace("×", " ")
+    value = value.replace("â", " ")
+    value = value.replace("â", " ")
+    value = value.replace("â", " ")
+    value = value.replace("Ã", " ")
     value = re.sub(r"\s+", " ", value)
     return value.strip()
 
 
 def normalize_for_match(value):
     value = normalize_text(value).lower()
-    value = value.replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")
+    value = value.replace("Ã¤", "ae").replace("Ã¶", "oe").replace("Ã¼", "ue").replace("Ã", "ss")
     value = strip_accents(value)
     value = re.sub(r"[^a-z0-9]+", " ", value)
     return re.sub(r"\s+", " ", value).strip()
@@ -77,14 +77,14 @@ def make_name_variants(name):
     variants = set()
 
     variants.add(raw)
-    variants.add(raw.replace("ö", "oe").replace("ä", "ae").replace("ü", "ue").replace("ß", "ss"))
-    variants.add(raw.replace("oe", "ö").replace("ae", "ä").replace("ue", "ü"))
+    variants.add(raw.replace("Ã¶", "oe").replace("Ã¤", "ae").replace("Ã¼", "ue").replace("Ã", "ss"))
+    variants.add(raw.replace("oe", "Ã¶").replace("ae", "Ã¤").replace("ue", "Ã¼"))
 
-    # Schöps/Schoeps/Schops-Fallback
+    # SchÃ¶ps/Schoeps/Schops-Fallback
     variants.add(strip_accents(raw))
     variants.add(
         strip_accents(
-            raw.replace("ö", "oe").replace("ä", "ae").replace("ü", "ue").replace("ß", "ss")
+            raw.replace("Ã¶", "oe").replace("Ã¤", "ae").replace("Ã¼", "ue").replace("Ã", "ss")
         )
     )
 
@@ -95,7 +95,7 @@ def make_name_variants(name):
         variants.add(f"{last}, {first}")
 
         last_ascii = strip_accents(
-            last.replace("ö", "oe").replace("ä", "ae").replace("ü", "ue").replace("ß", "ss")
+            last.replace("Ã¶", "oe").replace("Ã¤", "ae").replace("Ã¼", "ue").replace("Ã", "ss")
         )
         first_ascii = strip_accents(first)
         variants.add(f"{first_ascii} {last_ascii}")
@@ -160,9 +160,9 @@ def get_page_lines(html):
         if txt:
             lines.append(txt)
 
-    # 2. Gesamttext zusätzlich in mögliche Starterzeilen zerlegen
+    # 2. Gesamttext zusÃ¤tzlich in mÃ¶gliche Starterzeilen zerlegen
     body_text = normalize_text(soup.get_text(" ", strip=True))
-    split = re.sub(r"\s+(?=\d{1,4}\s+[A-Za-zÄÖÜäöüß#])", "\n", body_text)
+    split = re.sub(r"\s+(?=\d{1,4}\s+[A-Za-zÃÃÃÃ¤Ã¶Ã¼Ã#])", "\n", body_text)
     for line in split.splitlines():
         line = normalize_text(line)
         if line:
@@ -207,8 +207,8 @@ def extract_division_after_name_and_region(line, target_name, forced_division=No
     if not name_parts:
         return None
 
-    # Position des Namens ungefähr finden. Wichtig bei zusammengeklebten Zeilen:
-    # Division wird ab dem Landeskürzel NACH dem gesuchten Namen gelesen.
+    # Position des Namens ungefÃ¤hr finden. Wichtig bei zusammengeklebten Zeilen:
+    # Division wird ab dem LandeskÃ¼rzel NACH dem gesuchten Namen gelesen.
     name_start = 0
     joined_norm = " ".join(norm_tokens)
     joined_name = " ".join(name_parts)
@@ -218,7 +218,7 @@ def extract_division_after_name_and_region(line, target_name, forced_division=No
         prefix = joined_norm[:char_pos]
         name_start = len(prefix.split())
     else:
-        # Falls Schöps/Schoeps-Variante nicht exakt matcht, Varianten probieren.
+        # Falls SchÃ¶ps/Schoeps-Variante nicht exakt matcht, Varianten probieren.
         for variant in make_name_variants(target_name):
             pos = joined_norm.find(variant)
             if pos >= 0:
@@ -415,7 +415,7 @@ def update_or_create_match(user_id, real_name, match_data):
 
         if changed:
             log(
-                f"🔄 UPDATE: '{real_name}' bei '{match_name}' -> "
+                f"ð UPDATE: '{real_name}' bei '{match_name}' -> "
                 f"Status: {match_data['status']} | Squad: {match_data['squad']} | "
                 f"Division: {match_data.get('ipsc_division') or '-'}"
             )
@@ -437,7 +437,7 @@ def update_or_create_match(user_id, real_name, match_data):
             **base_payload,
         }
         log(
-            f"✨ NEU: '{real_name}' -> '{match_name}' "
+            f"â¨ NEU: '{real_name}' -> '{match_name}' "
             f"(Squad: {match_data['squad']} | Status: {match_data['status']} | "
             f"Division: {match_data.get('ipsc_division') or '-'})"
         )
@@ -474,8 +474,8 @@ def scrape_ipscmatch_and_sync():
 
         urls = candidate_urls_for_match(match_id)
 
-        # WICHTIG: pro Match können mehrere User gefunden werden.
-        # Wir brechen nur die URL-Schleife für den EINEN User ab, sobald er gefunden wurde.
+        # WICHTIG: pro Match kÃ¶nnen mehrere User gefunden werden.
+        # Wir brechen nur die URL-Schleife fÃ¼r den EINEN User ab, sobald er gefunden wurde.
         for user in app_users:
             real_name = user.get("real_name") or ""
             found = None
@@ -484,7 +484,7 @@ def scrape_ipscmatch_and_sync():
             for url in urls:
                 try:
                     html = main_html if url == canonical_match_url and 'main_html' in locals() else fetch_html(url)
-                    log(f"   Prüfe für {real_name}: {url} | HTML Länge: {len(html)}")
+                    log(f"   PrÃ¼fe fÃ¼r {real_name}: {url} | HTML LÃ¤nge: {len(html)}")
                     result = search_name_in_html(html, real_name, forced_division=forced_division_from_url(url))
                     if result:
                         found = result
@@ -499,7 +499,7 @@ def scrape_ipscmatch_and_sync():
 
             analysis_url = build_analysis_url(match_id, found.get("ipsc_division"))
             log(
-                f"🎯 TREFFER: '{real_name}' -> {found['squad']} ({found['status']}) | "
+                f"ð¯ TREFFER: '{real_name}' -> {found['squad']} ({found['status']}) | "
                 f"Division: {found.get('ipsc_division') or '-'} | Raw: {found.get('raw_line')}"
             )
             log(f"   Analyse: {analysis_url}")
