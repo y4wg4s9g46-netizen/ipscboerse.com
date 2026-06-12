@@ -1584,7 +1584,7 @@
                 const urlsToTry = [targetUrl];
                 if (matchId) urlsToTry.push(baseMatchUrl);
 
-                const originalHasIpscFilter = /[?&](?:grep(?:reg|cat|div)=|complist=|list=|squads\b)/i.test(normalizedUrl);
+                const originalHasIpscFilter = /[?&](?:grep(?:reg|cat|div)=|complist\b|list=|squads\b)/i.test(normalizedUrl);
                 if (targetUrl !== normalizedUrl && !originalHasIpscFilter) urlsToTry.push(normalizedUrl);
                 
                 const tried = new Set();
@@ -1600,7 +1600,10 @@
                     setLoaderMessage(i === 0 ? "Lade Starterliste..." : `Suche Starterliste (${i + 1}/${urlsToTry.length})...`);
                     lastHtml = await fetchMatchHtml(urlToTry);
 
-                    const parsedAttempt = parseShootersFromHtml(lastHtml, { silent: true, forcedDivision: knownDivision });
+                    const parsedAttempt = await parseShootersFromHtml(lastHtml, {
+                        silent: true,
+                        forcedDivision: knownDivision
+                    });
                     if (parsedAttempt.shooters && parsedAttempt.shooters.length) {
                         parsed = parsedAttempt;
                         break;
@@ -1641,6 +1644,7 @@
                 document.getElementById('loader').style.display = 'none';
                 alert(err.message || "Fehler beim Laden der URL.");
             } finally {
+                window.pendingPlannedMatchHint = null;
                 setImportButtonLoading(false);
             }
         }
