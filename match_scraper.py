@@ -38,7 +38,7 @@ def update_or_create_match(user_id, real_name, match_data):
         "match_location": match_data['location'],
         "status": match_data['status'],
         "squad": match_data['squad'],
-        "division": match_data['division'],
+        "ipsc_division": match_data['division'],  # <--- HIER ANGEPASST (ipsc_division statt division)
         "auto_imported": True,
         "match_url": match_data['match_url']
     }
@@ -92,7 +92,16 @@ def scrape_ipscmatch_and_sync():
                 # Squad extrahieren
                 squad_match = re.search(r'(?:squad|sq\.?|gruppe)\s*(\d+)', norm_line)
                 if squad_match: 
-                    current_squad = f"Squad {squad_match.group(1)}"
+                    # 99 = Warteliste Logik wieder eingebaut
+                    if squad_match.group(1) == "99":
+                        current_squad = "SQ99"
+                    else:
+                        current_squad = f"Squad {squad_match.group(1)}"
+                elif "warteliste" in norm_line:
+                    current_squad = "SQ99"
+                
+                # Status basierend auf Squad
+                status = "Warteliste" if current_squad == "SQ99" else "Approved"
                 
                 # User abgleichen
                 for user in app_users:
@@ -102,17 +111,22 @@ def scrape_ipscmatch_and_sync():
                         division = "Unknown"
                         if "ger" in norm_line:
                             parts = norm_line.split("ger")[-1].strip().split()
-                            if parts: division = parts[0]
+                            if parts: 
+                                division = parts[0]
+                                # Fall: "prod. optics"
+                                if "prod." in division.lower():
+                                    division = "Production Optics"
                         
                         update_or_create_match(user['id'], user['real_name'], {
                             "match_name": match['name'],
-                            "match_date": "2026-01-01", 
+                            "match_date": "2026-01-01", # Passe dies an, falls du das dynamische Datum brauchst
                             "location": "Unbekannt",
-                            "status": "Approved",
+                            "status": status,
                             "squad": current_squad,
                             "division": division,
                             "match_url": match['url']
                         })
+                        break # Wir haben ihn gefunden, können für diesen User aufhören
     except Exception as e:
         log(f"KRITISCHER FEHLER: {e}")
     finally:
