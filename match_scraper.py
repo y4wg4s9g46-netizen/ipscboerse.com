@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import re
 import unicodedata
@@ -8,6 +9,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException, WebDriverException
 from webdriver_manager.chrome import ChromeDriverManager
 from supabase import create_client, Client
 
@@ -16,6 +18,10 @@ from supabase import create_client, Client
 # ==========================================
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://huprxirlthkisjngwash.supabase.co")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+if not SUPABASE_KEY:
+    print("KRITISCH: SUPABASE_KEY fehlt.", flush=True)
+    sys.exit(1)
+
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 BASE_URL = "https://ipscmatch.de/"
@@ -23,7 +29,8 @@ BASE_URL = "https://ipscmatch.de/"
 COUNTRY_CODES = {
     "GER", "DEU", "SUI", "CHE", "BEL", "NED", "POL", "AUT", "FRA", "ITA", "ESP", "POR",
     "LUX", "CZE", "SVK", "SLO", "SVN", "SRB", "NOR", "SWE", "DEN", "FIN", "USA", "BRA",
-    "HUN", "CRO", "HRV", "GBR", "UK", "IRL", "LIE", "MON", "AND"
+    "HUN", "CRO", "HRV", "GBR", "UK", "IRL", "LIE", "MON", "AND", "PHI", "PHL", "ROU",
+    "GRE", "GRC", "BUL", "UKR", "EST", "LAT", "LTU", "TUR", "ISR", "RSA", "AUS", "NZL"
 }
 
 DIVISION_PATTERNS = [
@@ -46,13 +53,12 @@ def clean_text(value):
     return re.sub(r"\s+", " ", str(value or "").replace("\xa0", " ")).strip()
 
 
-def normalize_text(text):
-    """Umlaut-/Sonderzeichen-toleranter Vergleich wie im funktionierenden Colab-Test."""
-    text = str(text or "").lower()
-    text = text.replace("Ã¤", "ae").replace("Ã¶", "oe").replace("Ã¼", "ue").replace("Ã", "ss")
-    text = "".join(c for c in unicodedata.normalize("NFD", text) if unicodedata.category(c) != "Mn")
-    text = re.sub(r"[^a-z0-9]+", " ", text)
-    return re.sub(r"\s+", " ", text).strip()
+def normalize_text(value):
+    value = str(value or "").lower()
+    value = value.replace("Ã¤", "ae").replace("Ã¶", "oe").replace("Ã¼", "ue").replace("Ã", "ss")
+    value = "".join(c for c in unicodedata.normalize("NFD", value) if unicodedata.category(c) != "Mn")
+    value = re.sub(r"[^a-z0-9]+", " ", value)
+    return re.sub(r"\s+", " ", value).strip()
 
 
 def part_variants(part):
@@ -60,7 +66,7 @@ def part_variants(part):
     variants = set()
     replacements = [
         {"Ã¤": "ae", "Ã¶": "oe", "Ã¼": "ue", "Ã": "ss"},
-        {"Ã¤": "a",  "Ã¶": "o",  "Ã¼": "u",  "Ã": "ss"},
+        {"Ã¤": "a", "Ã¶": "o", "Ã¼": "u", "Ã": "ss"},
     ]
     for repl in replacements:
         v = raw
@@ -72,7 +78,6 @@ def part_variants(part):
 
 
 def name_parts_match(text, real_name):
-    """Findet z.B. Fabian SchÃ¶ps auch als Fabian Schoeps oder Fabian Schops."""
     norm = normalize_text(text)
     parts = [p for p in str(real_name or "").split() if p]
     if not parts:
@@ -106,71 +111,21 @@ def base_match_url(url):
     return f"https://ipscmatch.de/index.pl?match={quote(mid)}"
 
 
-def make_analysis_url(match_url, division):
-    if not division:
-        return None
+def analysis_url(match_url, division):
     return f"{base_match_url(match_url)}&complist&grepdiv={quote(division)}"
 
 
-def extract_squad_from_text(text, previous_squad="TBD", previous_status="Approved"):
+def extract_squad_from_text(text):
     text = clean_text(text)
     m = re.search(r"(?:Sq\.?|Squad|Gruppe)\s*(\d+)", text, re.I)
-    if m:
-        num = m.group(1)
-        if num == "99" or re.search(r"warteliste", text, re.I):
+    if not m:
+        if re.search(r"warteliste", text, re.I):
             return "SQ99", "Warteliste"
-        return f"Squad {num}", "Approved"
-    if re.search(r"warteliste", text, re.I):
+        return "TBD", "Approved"
+    num = m.group(1)
+    if num == "99" or re.search(r"warteliste", text, re.I):
         return "SQ99", "Warteliste"
-    return previous_squad, previous_status
-
-
-def extract_from_segment(segment, real_name, squad="TBD", status="Approved"):
-    """
-    Kernlogik aus Colab, aber ohne BeautifulSoup-AbhÃ¤ngigkeit.
-    Wichtig: Erst Zielnamen finden, dann erst das nÃ¤chste LandeskÃ¼rzel NACH diesem Namen nehmen.
-    So wird bei zusammengeklebten Zeilen nicht die Division vom vorherigen SchÃ¼tzen gelesen.
-    """
-    if not name_parts_match(segment, real_name):
-        return None
-
-    tokens = clean_text(segment).split()
-    if not tokens:
-        return None
-
-    start_idx = 0
-    for i in range(len(tokens)):
-        window = " ".join(tokens[i:i + 6])
-        if name_parts_match(window, real_name):
-            start_idx = i
-            break
-
-    tail_tokens = tokens[start_idx:]
-
-    country_idx = None
-    for i, token in enumerate(tail_tokens):
-        token_clean = re.sub(r"[^A-Za-z]", "", token).upper()
-        if token_clean in COUNTRY_CODES:
-            country_idx = i
-            break
-
-    if country_idx is None:
-        div = normalize_division(" ".join(tail_tokens[:10]))
-        raw = " ".join(tail_tokens[:10])
-    else:
-        after_country = " ".join(tail_tokens[country_idx + 1:country_idx + 8])
-        div = normalize_division(after_country)
-        raw = " ".join(tail_tokens[:country_idx + 8])
-
-    if not div:
-        return None
-
-    return {
-        "squad": squad,
-        "status": status,
-        "division": div,
-        "raw": raw,
-    }
+    return f"Squad {num}", "Approved"
 
 
 def extract_date_and_location(driver):
@@ -208,29 +163,33 @@ def get_app_users():
         return []
 
 
-def safe_update_user_match(row_id, update_data):
-    """Falls ipsc_division/analysis_url noch nicht in Supabase existieren, fÃ¤llt er sauber zurÃ¼ck."""
+def safe_update_user_match(row_id, payload):
+    """Update mit neuen Spalten. Falls DB-Spalten noch fehlen, Fallback ohne neue Felder."""
     try:
-        supabase.table("user_matches").update(update_data).eq("id", row_id).execute()
+        supabase.table("user_matches").update(payload).eq("id", row_id).execute()
+        return
     except Exception as e:
         msg = str(e)
-        if "ipsc_division" in msg or "analysis_url" in msg or "PGRST" in msg:
-            fallback = {k: v for k, v in update_data.items() if k not in ("ipsc_division", "analysis_url")}
-            supabase.table("user_matches").update(fallback).eq("id", row_id).execute()
-        else:
+        if "ipsc_division" not in msg and "analysis_url" not in msg:
             raise
+        fallback = dict(payload)
+        fallback.pop("ipsc_division", None)
+        fallback.pop("analysis_url", None)
+        supabase.table("user_matches").update(fallback).eq("id", row_id).execute()
 
 
-def safe_insert_user_match(insert_data):
+def safe_insert_user_match(payload):
     try:
-        supabase.table("user_matches").insert(insert_data).execute()
+        supabase.table("user_matches").insert(payload).execute()
+        return
     except Exception as e:
         msg = str(e)
-        if "ipsc_division" in msg or "analysis_url" in msg or "PGRST" in msg:
-            fallback = {k: v for k, v in insert_data.items() if k not in ("ipsc_division", "analysis_url")}
-            supabase.table("user_matches").insert(fallback).execute()
-        else:
+        if "ipsc_division" not in msg and "analysis_url" not in msg:
             raise
+        fallback = dict(payload)
+        fallback.pop("ipsc_division", None)
+        fallback.pop("analysis_url", None)
+        supabase.table("user_matches").insert(fallback).execute()
 
 
 def update_or_create_match(user_id, real_name, match_data):
@@ -240,14 +199,14 @@ def update_or_create_match(user_id, real_name, match_data):
         .eq("user_id", user_id) \
         .eq("match_name", match_name).execute()
 
-    base_payload = {
+    payload = {
         "match_date": match_data["match_date"],
         "match_location": match_data["location"],
         "status": match_data["status"],
         "squad": match_data["squad"],
         "auto_imported": True,
         "match_url": match_data["match_url"],
-        "ipsc_division": match_data.get("ipsc_division"),
+        "ipsc_division": match_data.get("division"),
         "analysis_url": match_data.get("analysis_url"),
     }
 
@@ -257,56 +216,77 @@ def update_or_create_match(user_id, real_name, match_data):
             db_match.get("status") != match_data["status"] or
             db_match.get("squad") != match_data["squad"] or
             db_match.get("match_date") != match_data["match_date"] or
-            db_match.get("match_url") != match_data["match_url"] or
-            db_match.get("ipsc_division") != match_data.get("ipsc_division") or
+            db_match.get("ipsc_division") != match_data.get("division") or
             db_match.get("analysis_url") != match_data.get("analysis_url")
         )
         if changed:
             log(
                 f"ð UPDATE: '{real_name}' bei '{match_name}' -> "
                 f"Status: {match_data['status']} | Squad: {match_data['squad']} | "
-                f"Division: {match_data.get('ipsc_division') or '-'}"
+                f"Division: {match_data.get('division') or '-'}"
             )
-            safe_update_user_match(db_match["id"], base_payload)
+            safe_update_user_match(db_match["id"], payload)
     else:
         log(
-            f"â¨ NEU HINZUGEFÃGT: '{real_name}' wurde zum Match '{match_name}' eingetragen "
+            f"â¨ NEU: '{real_name}' -> '{match_name}' "
             f"(Squad: {match_data['squad']} | Status: {match_data['status']} | "
-            f"Division: {match_data.get('ipsc_division') or '-'})."
+            f"Division: {match_data.get('division') or '-'})"
         )
         insert_payload = {
             "user_id": user_id,
             "match_name": match_name,
-            **base_payload,
+            **payload,
         }
         safe_insert_user_match(insert_payload)
 
 
-def discover_match_links(driver):
-    log("Lade IPSCMatch-Startseite...")
-    driver.get(BASE_URL)
-    time.sleep(2)
+def robust_get(driver, url, wait_seconds=1.5):
+    """LÃ¤dt per Selenium. Bei Timeout wird das Laden gestoppt und der bereits gerenderte DOM trotzdem genutzt."""
+    try:
+        driver.get(url)
+        time.sleep(wait_seconds)
+        return True
+    except TimeoutException as e:
+        log(f"WARN: Timeout beim Laden, nutze vorhandenen DOM weiter: {url}")
+        try:
+            driver.execute_script("window.stop();")
+        except Exception:
+            pass
+        time.sleep(0.5)
+        return True
+    except WebDriverException as e:
+        log(f"WARN: Selenium konnte URL nicht laden: {url} | {e}")
+        return False
+    except Exception as e:
+        log(f"WARN: URL konnte nicht geladen werden: {url} | {e}")
+        return False
 
-    log("Suche nach Matches...")
-    match_links = []
+
+def extract_match_links_from_current_page(driver):
+    links = []
     seen = set()
-    elements = driver.find_elements(By.CSS_SELECTOR, "a[href*='match=']")
-    for el in elements:
-        url = el.get_attribute("href")
-        name = clean_text(el.text)
-        if not url:
-            continue
-        mid = get_match_id(url)
-        if not mid or mid in seen:
-            continue
-        seen.add(mid)
-        match_links.append({"name": name or mid, "url": url.replace("index.php", "index.pl")})
+    try:
+        elements = driver.find_elements(By.CSS_SELECTOR, "a[href*='match=']")
+        for el in elements:
+            url = el.get_attribute("href") or ""
+            name = clean_text(el.text)
+            if not url:
+                continue
+            mid = get_match_id(url)
+            if not mid:
+                continue
+            clean_url = base_match_url(url)
+            key = mid
+            if key in seen:
+                continue
+            seen.add(key)
+            links.append({"name": name or mid, "url": clean_url})
+    except Exception as e:
+        log(f"WARN: Matchlinks konnten nicht gelesen werden: {e}")
+    return links
 
-    log(f"{len(match_links)} Matches gefunden.")
-    return match_links
 
-
-def candidate_urls_for_current_match(driver, match_url):
+def discover_candidate_urls(driver, match_url):
     base = base_match_url(match_url)
     urls = [
         base,
@@ -315,235 +295,268 @@ def candidate_urls_for_current_match(driver, match_url):
         f"{base}&list=main_match",
         f"{base}&complist",
     ]
-
     try:
-        links = driver.find_elements(By.CSS_SELECTOR, "a[href]")
-        for a in links:
+        for a in driver.find_elements(By.CSS_SELECTOR, "a[href]"):
             href = a.get_attribute("href") or ""
             txt = clean_text(a.text)
             combined = f"{txt} {href}".lower()
             if any(k in combined for k in ["squad", "starter", "teilnehmer", "shooter", "list", "complist", "main_match"]):
-                try:
-                    urls.append(urljoin(match_url, href).replace("index.php", "index.pl"))
-                except Exception:
-                    pass
+                if "match=" in href:
+                    urls.append(href.replace("index.php", "index.pl"))
     except Exception:
         pass
 
     seen = set()
     out = []
     for u in urls:
-        if not u or u in seen:
-            continue
-        seen.add(u)
-        out.append(u)
+        u = (u or "").replace("index.php", "index.pl")
+        if u and u not in seen:
+            seen.add(u)
+            out.append(u)
     return out
 
 
-def scan_tables_on_page(driver, remaining_users):
-    hits = {}
+def extract_from_segment(segment, real_name, squad="TBD", status="Approved"):
+    if not name_parts_match(segment, real_name):
+        return None
+
+    tokens = clean_text(segment).split()
+    if not tokens:
+        return None
+
+    # Suche Tokenfenster, in dem der Name beginnt. Danach erst Land + Division lesen.
+    start_idx = 0
+    for i in range(len(tokens)):
+        window = " ".join(tokens[i:i + 6])
+        if name_parts_match(window, real_name):
+            start_idx = i
+            break
+
+    tail_tokens = tokens[start_idx:]
+    country_idx = None
+    for i, t in enumerate(tail_tokens):
+        tc = re.sub(r"[^A-Za-z]", "", t).upper()
+        if tc in COUNTRY_CODES:
+            country_idx = i
+            break
+
+    if country_idx is None:
+        div = normalize_division(" ".join(tail_tokens))
+        raw = " ".join(tail_tokens[:12])
+    else:
+        after_country = " ".join(tail_tokens[country_idx + 1:country_idx + 8])
+        div = normalize_division(after_country)
+        raw = " ".join(tail_tokens[:country_idx + 8])
+
+    if not div:
+        return None
+
+    return {
+        "squad": squad,
+        "status": status,
+        "division": div,
+        "raw": raw,
+    }
+
+
+def scan_tables(driver, real_name):
+    results = []
     try:
-        tables = driver.find_elements(By.TAG_NAME, "table")
+        tables = driver.find_elements(By.CSS_SELECTOR, "table")
     except Exception:
-        return hits
+        return results
 
     for table in tables:
         try:
             table_text = clean_text(table.text)
+            squad, status = extract_squad_from_text(table_text)
+            rows = table.find_elements(By.CSS_SELECTOR, "tr")
         except Exception:
             continue
-        table_squad, table_status = extract_squad_from_text(table_text)
 
-        try:
-            rows = table.find_elements(By.TAG_NAME, "tr")
-        except Exception:
-            rows = []
-
-        for row_el in rows:
+        for tr in rows:
             try:
-                cells = [clean_text(c.text) for c in row_el.find_elements(By.CSS_SELECTOR, "td,th")]
-                cells = [c for c in cells if c]
-                row_text = clean_text(" ".join(cells)) if cells else clean_text(row_el.text)
+                cells = [clean_text(td.text) for td in tr.find_elements(By.CSS_SELECTOR, "td, th")]
             except Exception:
                 continue
-
-            if not row_text or re.search(r"\b(Name|Vorname|Region|Division|Category)\b", row_text, re.I):
+            cells = [c for c in cells if c]
+            if not cells:
                 continue
 
-            row_squad, row_status = extract_squad_from_text(row_text, table_squad, table_status)
+            row = clean_text(" ".join(cells))
+            if re.search(r"\b(Name|Vorname|Region|Division|Category|Kategorie)\b", row, re.I):
+                continue
 
-            for user in remaining_users:
-                uid = user["id"]
-                if uid in hits:
-                    continue
+            # Struktur: ... Name | Region | Division | Category
+            for i, c in enumerate(cells):
+                country = re.sub(r"[^A-Za-z]", "", c).upper()
+                if country in COUNTRY_CODES and i >= 1:
+                    name_cell = re.sub(r"^[âââÃxX\s#\d.\-]+", "", cells[i - 1]).strip()
+                    if name_parts_match(name_cell, real_name):
+                        div = normalize_division(" ".join(cells[i + 1:i + 4]))
+                        if div:
+                            results.append({"squad": squad, "status": status, "division": div, "raw": row})
 
-                real_name = user["real_name"]
+            # Fallback fÃ¼r zusammengeklebte Tabellenzeilen.
+            hit = extract_from_segment(row, real_name, squad, status)
+            if hit:
+                results.append(hit)
 
-                # Strukturierte Tabellen: Name direkt vor Land, Division direkt nach Land.
-                found_structured = False
-                for i, c in enumerate(cells):
-                    country = re.sub(r"[^A-Za-z]", "", c).upper()
-                    if country in COUNTRY_CODES and i >= 1:
-                        name_cell = re.sub(r"^[âââÃxX\s#\d.\-]+", "", cells[i - 1]).strip()
-                        if name_parts_match(name_cell, real_name):
-                            div = normalize_division(" ".join(cells[i + 1:i + 4]))
-                            if div:
-                                hits[uid] = {
-                                    "squad": row_squad,
-                                    "status": row_status,
-                                    "division": div,
-                                    "raw": row_text,
-                                }
-                                found_structured = True
-                                break
-                if found_structured:
-                    continue
-
-                hit = extract_from_segment(row_text, real_name, row_squad, row_status)
-                if hit:
-                    hits[uid] = hit
-
-    return hits
+    return dedupe_hits(results)
 
 
-def scan_body_text_on_page(driver, remaining_users):
-    hits = {}
+def scan_body_text(driver, real_name):
     try:
-        body_text = driver.find_element(By.TAG_NAME, "body").text
+        text = driver.find_element(By.TAG_NAME, "body").text
     except Exception:
-        return hits
+        return []
 
+    text = text.replace("\xa0", " ")
+    # In Squad-BlÃ¶cke schneiden; wichtig fÃ¼r Screenshot-Struktur mit vielen Squads auf einer Seite.
+    parts = re.split(r"(?=(?:Sq\.?|Squad|Gruppe)\s*\d+)", text, flags=re.I)
+    blocks = [p for p in parts if clean_text(p)] or [text]
+
+    results = []
+    for block in blocks:
+        block_clean = clean_text(block)
+        if not name_parts_match(block_clean, real_name):
+            continue
+        squad, status = extract_squad_from_text(block_clean)
+        hit = extract_from_segment(block_clean, real_name, squad, status)
+        if hit:
+            results.append(hit)
+
+    # ZusÃ¤tzlich zeilenweise mit Squad-GedÃ¤chtnis wie im Backup.
     current_squad = "TBD"
     current_status = "Approved"
-
-    # Body-Zeilen behalten die Squad-Reihenfolge aus der IPSCMatch-Seite.
-    for raw_line in body_text.split("\n"):
-        line = clean_text(raw_line)
-        if not line:
+    for line in text.split("\n"):
+        line_clean = clean_text(line)
+        if not line_clean:
             continue
-
-        current_squad, current_status = extract_squad_from_text(line, current_squad, current_status)
-
-        for user in remaining_users:
-            uid = user["id"]
-            if uid in hits:
-                continue
-            hit = extract_from_segment(line, user["real_name"], current_squad, current_status)
+        sq, st = extract_squad_from_text(line_clean)
+        if sq != "TBD" or "warteliste" in normalize_text(line_clean):
+            current_squad, current_status = sq, st
+        if name_parts_match(line_clean, real_name):
+            hit = extract_from_segment(line_clean, real_name, current_squad, current_status)
             if hit:
-                hits[uid] = hit
+                results.append(hit)
 
-    return hits
+    return dedupe_hits(results)
 
 
-def scan_current_page(driver, remaining_users):
-    hits = {}
+def dedupe_hits(hits):
+    unique = []
+    seen = set()
+    for h in hits:
+        key = (h.get("squad"), h.get("status"), h.get("division"), clean_text(h.get("raw", ""))[:120])
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(h)
+    return unique
 
-    table_hits = scan_tables_on_page(driver, remaining_users)
-    hits.update(table_hits)
 
-    still_missing = [u for u in remaining_users if u["id"] not in hits]
-    if still_missing:
-        text_hits = scan_body_text_on_page(driver, still_missing)
-        hits.update(text_hits)
-
-    return hits
+def find_users_on_current_page(driver, users, already_found):
+    page_hits = {}
+    remaining = [u for u in users if u["id"] not in already_found]
+    for user in remaining:
+        name = user["real_name"]
+        hits = []
+        hits.extend(scan_tables(driver, name))
+        hits.extend(scan_body_text(driver, name))
+        hits = dedupe_hits(hits)
+        if hits:
+            page_hits[user["id"]] = hits[0]
+    return page_hits
 
 
 def scrape_ipscmatch_and_sync():
     app_users = get_app_users()
     if not app_users:
         log("Keine User gefunden. Breche ab.")
-        return
+        return 0
 
     log("Starte Chrome-Browser...")
     chrome_options = Options()
     chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--window-size=1920,1080")
     chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument("--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/125 Safari/537.36")
     chrome_options.page_load_strategy = "eager"
 
     driver = None
     try:
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=chrome_options)
-        driver.set_page_load_timeout(30)
+        driver.set_page_load_timeout(45)
 
-        try:
-            match_links = discover_match_links(driver)
-        except Exception as e:
-            log(f"KRITISCH: IPSCMatch-Startseite konnte nicht geladen werden: {e}")
-            return
+        log("Lade IPSCMatch-Startseite...")
+        robust_get(driver, BASE_URL, wait_seconds=2)
+
+        log("Suche nach Matches...")
+        match_links = extract_match_links_from_current_page(driver)
+        if not match_links:
+            log("KRITISCH: Keine Match-Links gefunden. IPSCMatch war vermutlich nicht erreichbar oder hat leer geladen.")
+            return 1
+
+        log(f"{len(match_links)} Matches gefunden.")
 
         for match in match_links:
             log(f"\n--- Durchsuche: {match['name']} ---")
-            found_users_in_match = set()  # wichtig: pro Match + pro User nur einmal, aber mehrere User pro Match bleiben mÃ¶glich
-            real_match_date = "2026-01-01"
-            real_location = "Unbekannt"
+            if not robust_get(driver, match["url"], wait_seconds=1.5):
+                continue
 
-            try:
-                driver.get(match["url"])
-                time.sleep(1.5)
-                real_match_date, real_location = extract_date_and_location(driver)
-                candidate_urls = candidate_urls_for_current_match(driver, match["url"])
-            except Exception as e:
-                log(f"WARN: Match-Hauptseite nicht ladbar: {e}")
-                candidate_urls = [base_match_url(match["url"]), f"{base_match_url(match['url'])}&squads", f"{base_match_url(match['url'])}&complist"]
+            real_match_date, real_location = extract_date_and_location(driver)
+            candidate_urls = discover_candidate_urls(driver, match["url"])
 
+            found_users = set()
             for url in candidate_urls:
-                remaining_users = [u for u in app_users if u["id"] not in found_users_in_match]
-                if not remaining_users:
+                if len(found_users) >= len(app_users):
                     break
-
-                try:
-                    driver.get(url)
-                    time.sleep(1.2)
-                except Exception as e:
-                    log(f"WARN: Kandidaten-Link nicht ladbar: {url} | {e}")
+                if not robust_get(driver, url, wait_seconds=1.0):
                     continue
 
-                hits = scan_current_page(driver, remaining_users)
-                if not hits:
-                    continue
-
-                for user in remaining_users:
-                    uid = user["id"]
-                    if uid not in hits:
+                hits = find_users_on_current_page(driver, app_users, found_users)
+                for user_id, hit in hits.items():
+                    user = next((u for u in app_users if u["id"] == user_id), None)
+                    if not user:
                         continue
 
-                    hit = hits[uid]
-                    found_users_in_match.add(uid)
-                    division = hit.get("division")
-                    analysis_link = make_analysis_url(match["url"], division)
+                    found_users.add(user_id)
+                    div = hit.get("division")
+                    final_analysis_url = analysis_url(match["url"], div) if div else None
 
                     log(
                         f"ð¯ TREFFER: '{user['real_name']}' -> {hit.get('squad')} ({hit.get('status')}) | "
-                        f"Division: {division}"
+                        f"Division: {div} | Segment: {hit.get('raw')}"
                     )
-                    log(f"   RAW: {hit.get('raw', '')}")
-                    if analysis_link:
-                        log(f"   Analyse-Link: {analysis_link}")
 
                     match_data = {
                         "match_name": match["name"],
                         "match_date": real_match_date,
                         "location": real_location,
-                        "status": hit.get("status", "Approved"),
-                        "squad": hit.get("squad", "TBD"),
+                        "status": hit.get("status") or "Approved",
+                        "squad": hit.get("squad") or "TBD",
                         "match_url": match["url"],
-                        "ipsc_division": division,
-                        "analysis_url": analysis_link,
+                        "division": div,
+                        "analysis_url": final_analysis_url,
                     }
-                    update_or_create_match(uid, user["real_name"], match_data)
+                    update_or_create_match(user_id, user["real_name"], match_data)
+
+        return 0
 
     except Exception as e:
         log(f"KRITISCHER FEHLER: {e}")
+        return 1
     finally:
         if driver:
-            driver.quit()
+            try:
+                driver.quit()
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":
-    scrape_ipscmatch_and_sync()
+    sys.exit(scrape_ipscmatch_and_sync())
