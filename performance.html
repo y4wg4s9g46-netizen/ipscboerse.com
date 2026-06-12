@@ -667,8 +667,7 @@
                             btn.style.padding = "10px 15px";
                             btn.innerHTML = `📊 ${escapeHtml(m.match_name)}`;
                             btn.onclick = () => {
-                                document.getElementById('match-url').value = m.match_url;
-                                importMatchFromUrl();
+                                importPlannedMatch(m);
                             };
                             btnContainer.appendChild(btn);
                         }
@@ -1108,6 +1107,19 @@
             return match ? match[1] : null;
         }
 
+        function normalizeSquadValue(value) {
+            const text = cleanText(value).toUpperCase();
+            const squad = extractSquadFromText(text) || text;
+            return squad.replace(/^0+/, "").replace(/[^A-Z0-9]/g, "");
+        }
+
+        function squadMatches(currentSquad, expectedSquad) {
+            if (!expectedSquad) return true;
+            const current = normalizeSquadValue(currentSquad);
+            const expected = normalizeSquadValue(expectedSquad);
+            return !!current && !!expected && current === expected;
+        }
+
         function getKnownRegionCodes() {
             return Object.keys(countryNameFormat).map(k => k.toUpperCase());
         }
@@ -1142,7 +1154,7 @@
             return parsedRowDiv !== "Unknown" ? parsedRowDiv : null;
         }
 
-        function extractOwnEntryFromDoc(doc, myName) {
+        function extractOwnEntryFromDoc(doc, myName, expectedSquad = null) {
             const nameCandidates = uniqueArray([myName, ...getOwnNameCandidates()].map(cleanText).filter(Boolean));
             let currentSquad = null;
 
@@ -1157,6 +1169,7 @@
                     if (rowSquad) currentSquad = rowSquad;
 
                     if (!lineContainsName(rowText, nameCandidates)) continue;
+                    if (expectedSquad && !squadMatches(currentSquad || rowText, expectedSquad)) continue;
 
                     let division = extractDivisionAfterRegionFromCells(cells);
                     if (division === "Unknown") division = extractDivisionAfterRegionFromLine(rowText) || "Unknown";
@@ -1177,6 +1190,7 @@
                 if (squad) currentSquad = squad;
 
                 if (!lineContainsName(line, nameCandidates)) continue;
+                if (expectedSquad && !squadMatches(currentSquad || line, expectedSquad)) continue;
 
                 const division = extractDivisionAfterRegionFromLine(line);
                 if (division) {
@@ -1187,8 +1201,8 @@
             return null;
         }
 
-        function extractDivFromDoc(doc, myName) {
-            const entry = extractOwnEntryFromDoc(doc, myName);
+        function extractDivFromDoc(doc, myName, expectedSquad = null) {
+            const entry = extractOwnEntryFromDoc(doc, myName, expectedSquad);
             return entry ? entry.division : null;
         }
 
@@ -1215,6 +1229,110 @@
             return uniqueArray(urls);
         }
 
+        function getMatchIdFromUrl(value) {
+            const match = String(value || "").match(/[?&]match=([^&]+)/i);
+            return match ? decodeURIComponent(match[1]) : null;
+        }
+
+        function getGrepDivisionFromUrl(value) {
+            try {
+                const parsed = new URL(value);
+                const div = parsed.searchParams.get("grepdiv");
+                return div ? normalizeDivisionName(div) : null;
+            } catch (_) {
+                return null;
+            }
+        }
+
+        function getPlannedMatchDivisionHint(plannedMatch) {
+            const raw = plannedMatch && (plannedMatch.division || plannedMatch.match_division || plannedMatch.ipsc_division || plannedMatch.grepdiv);
+            if (!raw) return null;
+            const div = normalizeDivisionName(raw);
+            return div && div !== "Unknown" ? div : null;
+        }
+
+        async function findOwnDivisionForMatch(matchId, myName, expectedSquad) {
+            if (!matchId || !myName) return null;
+
+            const baseMatchUrl = buildIpscComplistUrl(matchId);
+            const discoveryUrls = buildDivisionDiscoveryUrls(baseMatchUrl, matchId);
+            const seenDiscoveryUrls = new Set();
+
+            for (let i = 0; i < discoveryUrls.length && i < 16; i++) {
+                const discoverUrl = discoveryUrls[i];
+                if (!discoverUrl || seenDiscoveryUrls.has(discoverUrl)) continue;
+                seenDiscoveryUrls.add(discoverUrl);
+
+                const html = await fetchMatchHtml(discoverUrl);
+                const doc = new DOMParser().parseFromString(html, "text/html");
+                const ownEntry = extractOwnEntryFromDoc(doc, myName, expectedSquad);
+
+                if (ownEntry && ownEntry.division) return ownEntry;
+
+                const extraLinks = extractIpscCandidateLinks(html, discoverUrl);
+                for (const extra of extraLinks) {
+                    if (!seenDiscoveryUrls.has(extra) && !discoveryUrls.includes(extra)) discoveryUrls.push(extra);
+                }
+            }
+
+            return null;
+        }
+
+        async function importPlannedMatch(plannedMatch) {
+            const urlInputEl = document.getElementById('match-url');
+            const rawUrl = plannedMatch && plannedMatch.match_url ? plannedMatch.match_url : "";
+
+            if (!cleanText(rawUrl)) {
+                alert("Für dieses Match fehlt der IPSCMatch-Link aus Mein Planer.");
+                return;
+            }
+
+            document.getElementById('analysis-results').style.display = 'none';
+            document.getElementById('loader').style.display = 'block';
+            setImportButtonLoading(true);
+
+            try {
+                const normalizedUrl = normalizeMatchUrl(rawUrl);
+                const matchId = getMatchIdFromUrl(normalizedUrl);
+                const myName = window.userProfileData ? window.userProfileData.real_name : null;
+                const expectedSquad = plannedMatch.squad || plannedMatch.squad_no || plannedMatch.squad_number || null;
+
+                let knownDivision = getPlannedMatchDivisionHint(plannedMatch) || getGrepDivisionFromUrl(normalizedUrl);
+                let ownEntry = knownDivision ? { division: knownDivision, squad: expectedSquad, line: "Division aus Mein Planer/Link" } : null;
+
+                if (!knownDivision && matchId && myName) {
+                    setLoaderMessage(`Suche deine Division in Squad ${expectedSquad || "?"}...`);
+                    ownEntry = await findOwnDivisionForMatch(matchId, myName, expectedSquad);
+                    knownDivision = ownEntry && ownEntry.division ? ownEntry.division : null;
+                }
+
+                if (!matchId) throw new Error("Konnte die match= ID aus dem Planer-Link nicht lesen.");
+                if (!knownDivision) throw new Error("Konnte deine Division im Match nicht finden. Der Planer kennt Name und Squad, aber in der Starterliste wurde keine passende Division erkannt.");
+
+                const cleanDivisionUrl = buildIpscComplistUrl(matchId, knownDivision);
+
+                // Wichtig: Der Button verknüpft jetzt direkt den fertigen Divisions-Link mit dem Eingabefeld.
+                // Dadurch wird unten genau dieses Feld eingelesen, nicht der alte Planer-Link mit grepreg/grepcat.
+                if (urlInputEl) urlInputEl.value = cleanDivisionUrl;
+                window.pendingPlannedMatchHint = {
+                    matchId,
+                    division: knownDivision,
+                    squad: expectedSquad,
+                    sourceUrl: normalizedUrl,
+                    ownEntry
+                };
+
+                console.log("🎯 Planer-Match aufgelöst:", window.pendingPlannedMatchHint);
+                await importMatchFromUrl();
+            } catch (err) {
+                console.error("Fehler beim Planer-Import:", err);
+                document.getElementById('loader').style.display = 'none';
+                alert(err.message || "Fehler beim Laden des Planer-Matches.");
+            } finally {
+                setImportButtonLoading(false);
+            }
+        }
+
         async function importMatchFromUrl() {
             const urlInputEl = document.getElementById('match-url');
             const rawUrl = urlInputEl ? urlInputEl.value : "";
@@ -1231,41 +1349,23 @@
             try {
                 const normalizedUrl = normalizeMatchUrl(rawUrl);
                 
-                let knownDivision = null;
+                const plannedHint = window.pendingPlannedMatchHint || null;
+                let knownDivision = plannedHint && plannedHint.division ? plannedHint.division : getGrepDivisionFromUrl(normalizedUrl);
+                const expectedSquad = plannedHint && plannedHint.squad ? plannedHint.squad : null;
                 const myName = window.userProfileData ? window.userProfileData.real_name : null;
-                const matchIdMatch = normalizedUrl.match(/match=([A-Za-z0-9_]+)/i);
-                const matchId = matchIdMatch ? matchIdMatch[1] : null;
+                const matchId = (plannedHint && plannedHint.matchId) || getMatchIdFromUrl(normalizedUrl);
 
                 // Wichtig: Links aus „Mein Planer“ koennen schon Filter enthalten, z.B. grepreg=LUX.
                 // Diese Links duerfen NICHT direkt analysiert werden, sonst sucht der Parser im falschen Land.
                 // Fuer IPSCMatch wird immer zuerst der neutrale complist-Link des Matches benutzt.
                 const baseMatchUrl = matchId ? buildIpscComplistUrl(matchId) : normalizedUrl;
-                let targetUrl = baseMatchUrl;
+                let targetUrl = (matchId && knownDivision) ? buildIpscComplistUrl(matchId, knownDivision) : baseMatchUrl;
+                if (urlInputEl && matchId && knownDivision) urlInputEl.value = targetUrl;
 
-                if (myName && matchId) {
+                if (!knownDivision && myName && matchId) {
                     setLoaderMessage("Suche deinen Namen, deine Squad und deine Division im Match...");
                     try {
-                        const discoveryUrls = buildDivisionDiscoveryUrls(baseMatchUrl, matchId);
-                        const seenDiscoveryUrls = new Set();
-                        let ownEntry = null;
-
-                        for (let i = 0; i < discoveryUrls.length && i < 16; i++) {
-                            const discoverUrl = discoveryUrls[i];
-                            if (!discoverUrl || seenDiscoveryUrls.has(discoverUrl)) continue;
-                            seenDiscoveryUrls.add(discoverUrl);
-
-                            const html = await fetchMatchHtml(discoverUrl);
-                            const doc = new DOMParser().parseFromString(html, "text/html");
-                            ownEntry = extractOwnEntryFromDoc(doc, myName);
-
-                            if (ownEntry && ownEntry.division) break;
-
-                            // Folge zusätzlich allen IPSCMatch-Links, die nach Starter-/Squadlisten aussehen.
-                            const extraLinks = extractIpscCandidateLinks(html, discoverUrl);
-                            for (const extra of extraLinks) {
-                                if (!seenDiscoveryUrls.has(extra) && !discoveryUrls.includes(extra)) discoveryUrls.push(extra);
-                            }
-                        }
+                        let ownEntry = await findOwnDivisionForMatch(matchId, myName, expectedSquad);
 
                         if (ownEntry && ownEntry.division) {
                             knownDivision = ownEntry.division;
