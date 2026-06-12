@@ -1,5 +1,4 @@
 import os
-import time
 import re
 import unicodedata
 import html
@@ -107,6 +106,7 @@ def normalize_division(text):
     return None
 
 def extract_date_and_location(body_text):
+    # Standard-Datum für das aktuelle/zukünftige Jahr, falls nichts gefunden wird
     match_date = "2026-01-01" 
     location = "Unbekannt"
     try:
@@ -140,6 +140,11 @@ def base_match_url(url):
     if not mid: return url
     return f"https://ipscmatch.de/index.pl?match={quote(mid)}"
 
+def analysis_url(match_url, division):
+    if not division:
+        return None
+    return f"{base_match_url(match_url)}&complist&grepdiv={quote(division)}"
+
 def candidate_urls(match_url):
     base = base_match_url(match_url)
     urls = [base, f"{base}&squads", f"{base}&list=starter", f"{base}&list=main_match", f"{base}&complist"]
@@ -164,7 +169,7 @@ def candidate_urls(match_url):
     return out
 
 # ==========================================
-# 4. EXTRAKTIONS-LOGIK (AUS COLAB)
+# 4. EXTRAKTIONS-LOGIK
 # ==========================================
 def extract_squad_from_text(text):
     m = re.search(r"(?:Sq\.?|Squad|Gruppe)\s*(\d+)", text, re.I)
@@ -264,7 +269,7 @@ def update_or_create_match(user_id, real_name, match_data):
         if (db_match.get('status') != match_data['status'] or 
             db_match.get('squad') != match_data['squad'] or 
             db_match.get('match_date') != match_data['match_date'] or
-            db_match.get('division') != match_data['division']): # <-- NEU!
+            db_match.get('ipsc_division') != match_data['division']): 
             
             log(f"🔄 UPDATE: '{real_name}' bei '{match_name}' -> Status: {match_data['status']} | Squad: {match_data['squad']} | Div: {match_data.get('division')}")
             supabase.table("user_matches").update({
@@ -272,7 +277,8 @@ def update_or_create_match(user_id, real_name, match_data):
                 "match_location": match_data['location'],
                 "status": match_data['status'],
                 "squad": match_data['squad'],
-                "division": match_data['division'],
+                "ipsc_division": match_data['division'],
+                "analysis_url": match_data['analysis_url'],
                 "auto_imported": True, 
                 "match_url": match_data['match_url']
             }).eq("id", db_match['id']).execute()
@@ -285,7 +291,8 @@ def update_or_create_match(user_id, real_name, match_data):
             "match_location": match_data['location'],
             "status": match_data['status'],
             "squad": match_data['squad'],
-            "division": match_data['division'],
+            "ipsc_division": match_data['division'],
+            "analysis_url": match_data['analysis_url'],
             "auto_imported": True,
             "match_url": match_data['match_url']
         }).execute()
@@ -320,7 +327,6 @@ def scrape_ipscmatch_and_sync():
     for match in match_links:
         log(f"\n--- Durchsuche: {match['name']} ---")
         
-        # 1. Hole Datum & Ort (von der Basis-URL)
         match_date, location = "2026-01-01", "Unbekannt"
         try:
             r_match = requests.get(match['url'], headers=HEADERS, timeout=15)
@@ -328,12 +334,11 @@ def scrape_ipscmatch_and_sync():
         except Exception:
             pass
 
-        # 2. Generiere alle Starter-URLs für dieses Match
         urls_to_check = candidate_urls(match['url'])
-        found_users = set() # Tracken, wen wir in diesem Match schon gefunden haben
+        found_users = set()
 
         for url in urls_to_check:
-            if len(found_users) == len(app_users): break # Alle gefunden!
+            if len(found_users) == len(app_users): break 
             
             try:
                 r_page = requests.get(url, headers=HEADERS, timeout=15)
@@ -345,12 +350,13 @@ def scrape_ipscmatch_and_sync():
                 real_name = user['real_name']
                 if real_name in found_users: continue
                 
-                # Suchen
                 hits = scan_tables(soup, real_name) + scan_text_blocks(soup, real_name)
                 
                 if hits:
-                    best_hit = hits[0] # Nimm den ersten sauberen Treffer
+                    best_hit = hits[0] 
                     found_users.add(real_name)
+                    
+                    div = best_hit.get('division')
                     
                     match_data = {
                         "match_name": match['name'],
@@ -358,8 +364,9 @@ def scrape_ipscmatch_and_sync():
                         "location": location,
                         "status": best_hit['status'],
                         "squad": best_hit['squad'],
-                        "division": best_hit.get('division'),
-                        "match_url": match['url']
+                        "division": div,
+                        "match_url": match['url'],
+                        "analysis_url": analysis_url(match['url'], div)
                     }
                     update_or_create_match(user['id'], real_name, match_data)
 
