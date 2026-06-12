@@ -53,7 +53,7 @@ html[data-theme="dark"] {
 }
 
 /* ==========================================================================
-   BASE LAYOUT
+   BASE LAYOUT & HEADER
    ========================================================================== */
 
 body { 
@@ -70,22 +70,30 @@ body {
 }
 
 header { 
-    background-color: var(--card-bg); 
-    padding: 24px 20px; 
+    background-color: rgba(255, 255, 255, 0.95); 
+    backdrop-filter: blur(10px);
+    /* env() verhindert die Überlappung mit der iPhone Notch/Uhrzeit */
+    padding: max(20px, env(safe-area-inset-top)) 20px 16px; 
     text-align: center; 
-    border-bottom: 1px solid var(--border-color); 
-    position: sticky; /* Hält den Header beim Scrollen oben (optional) */
+    border-bottom: 1px solid rgba(0,0,0,0.05); 
+    position: sticky; 
     top: 0;
-    z-index: 50;
+    z-index: 100;
     box-shadow: var(--shadow-sm);
+}
+
+html[data-theme="dark"] header {
+    background-color: rgba(30, 41, 59, 0.95);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
 header h1 { 
     margin: 0; 
-    font-size: 24px; 
+    font-size: clamp(18px, 5vw, 22px); 
     font-weight: 800; 
     letter-spacing: -0.5px; 
     color: var(--text-color); 
+    margin-bottom: 4px;
 }
 
 .container { 
@@ -97,10 +105,9 @@ header h1 {
     box-sizing: border-box; 
 }
 
-/* Container-Anpassungen für Mobile */
 @media (max-width: 768px) {
-    html, body { overflow-x: hidden !important; width: 100% !important; }
-    .container { padding: 0 16px !important; margin-top: 20px !important; width: 100% !important; box-sizing: border-box !important; }
+    html, body { overflow-x: hidden; width: 100%; }
+    .container { padding: 0 16px; margin-top: 20px; width: 100%; box-sizing: border-box; }
 }
 
 footer { 
@@ -111,6 +118,64 @@ footer {
     font-size: 14px; 
     color: var(--text-muted); 
     text-align: center; 
+    padding-bottom: max(40px, env(safe-area-inset-bottom));
+}
+
+/* ==========================================================================
+   FEED, BEITRÄGE & TABS (Premium Layout)
+   ========================================================================== */
+
+/* Die Container-Klasse für einzelne Beiträge */
+.post-card { 
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color); 
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03); 
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+/* Modernes Admin/News Badge */
+.badge-admin {
+    background-color: rgba(255, 159, 67, 0.15);
+    color: #e67e22;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+/* Tabs (Beiträge / Gruppen) */
+.tabs-container {
+    background-color: var(--border-color);
+    padding: 4px;
+    border-radius: 12px;
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+}
+
+.tab-button {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.tab-button.active {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
 
 /* ==========================================================================
@@ -119,7 +184,7 @@ footer {
 
 .modal, .modal-overlay { 
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); /* Stärkerer Blur für modernes Feeling */
+    background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); 
     justify-content: center; align-items: center; z-index: 1000; 
     animation: fadeInModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
     padding: 20px; box-sizing: border-box; 
@@ -158,7 +223,7 @@ footer {
 .modal-close-trigger:hover { 
     color: var(--text-color); 
     background: var(--border-color);
-    transform: rotate(90deg); /* Kleine, spielerische Animation beim Schließen */
+    transform: rotate(90deg); 
 }
 
 .modal-divider { 
@@ -178,8 +243,8 @@ footer {
 .modal-footer a:hover { opacity: 0.8; }
 
 @media (max-width: 768px) {
-    .modal, .modal-overlay { padding: 16px !important; }
-    .modal-content { padding: 28px 20px !important; border-radius: 24px !important; }
+    .modal, .modal-overlay { padding: 16px; }
+    .modal-content { padding: 28px 20px; border-radius: 24px; }
 }
 
 /* ==========================================================================
@@ -197,9 +262,7 @@ footer {
     color: var(--text-color); padding: 14px 16px; border-radius: var(--radius); 
     font-size: 15px; transition: var(--transition); font-family: inherit; 
 }
-.form-group input:hover, .hit-input-group input:hover {
-    border-color: #cbd5e1;
-}
+.form-group input:hover, .hit-input-group input:hover { border-color: #cbd5e1; }
 .form-group input:focus, .hit-input-group input:focus, .modal-content input:focus, .modal-content textarea:focus { 
     outline: none; border-color: var(--accent-color); 
     box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); 
@@ -207,7 +270,7 @@ footer {
 }
 
 /* ==========================================================================
-   BUTTONS
+   BUTTONS & ACTION BARS
    ========================================================================== */
 
 .btn-primary-auth, .btn-post, .btn-submit { 
@@ -215,7 +278,7 @@ footer {
     color: #ffffff; border: none; 
     padding: 14px 28px; font-size: 15px; font-weight: 700; 
     border-radius: var(--radius); cursor: pointer; width: 100%; 
-    box-shadow: 0 4px 14px 0 rgba(255, 159, 67, 0.3); /* Farblich passender Schatten */
+    box-shadow: 0 4px 14px 0 rgba(255, 159, 67, 0.3); 
     transition: var(--transition); 
 }
 .btn-submit { padding: 14px 32px; margin-top: 10px; width: auto;}
@@ -223,9 +286,7 @@ footer {
     box-shadow: 0 6px 20px rgba(255, 159, 67, 0.4);
     transform: translateY(-2px); 
 }
-.btn-primary-auth:active, .btn-post:active, .btn-submit:active {
-    transform: translateY(0);
-}
+.btn-primary-auth:active, .btn-post:active, .btn-submit:active { transform: translateY(0); }
 
 .btn-secondary-auth { 
     background-color: var(--card-bg); color: var(--text-color); border: 2px solid var(--border-color); 
@@ -248,8 +309,27 @@ footer {
     box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
 }
 
+/* Floating Action Bar (für "Beitrag erstellen" auf Mobile) */
+.floating-action-bar {
+    position: fixed;
+    bottom: max(20px, env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 32px); 
+    max-width: 400px;
+    z-index: 90;
+}
+
+.floating-action-bar button, .floating-action-bar .btn-post {
+    width: 100%;
+    border-radius: 100px; /* Macht den Button komplett abgerundet */
+    padding: 16px 24px;
+    font-size: 16px;
+    box-shadow: 0 10px 25px rgba(255, 159, 67, 0.4);
+}
+
 @media (max-width: 768px) {
-    button, .btn-submit { width: 100% !important; box-sizing: border-box !important; }
+    button, .btn-submit { width: 100%; box-sizing: border-box; }
 }
 
 /* ==========================================================================
@@ -259,7 +339,7 @@ footer {
     height: 350px; overflow-y: auto; border: 1px solid var(--border-color); 
     background-color: var(--input-bg); border-radius: var(--radius); 
     padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; 
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); /* Innerer Schatten für Tiefe */
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); 
 }
 
 /* Animations */
