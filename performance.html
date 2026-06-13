@@ -6,114 +6,213 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Performance-Check | IPSC ELO Analyse</title>
     
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="IPSC Börse">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+
+    <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
+    <link rel="stylesheet" href="global.css">
 
     <style>
-        :root, html[data-theme="light"] {
-            --bg-color: #f8f9fa; --card-bg: #ffffff; --text-color: #1e293b; --text-muted: #64748b;
-            --border-color: #e2e8f0; --input-bg: #ffffff; --accent-color: #ff9f43; --danger-color: #ef4444;
-            --success-color: #10b981; --info-color: #3b82f6; --radius: 8px;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        }
-        html[data-theme="dark"] {
-            --bg-color: #0f172a; --card-bg: #1e293b; --text-color: #f8fafc; --text-muted: #94a3b8;
-            --border-color: #334155; --input-bg: #0f172a;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-        }
+        /* ==========================================================================
+           PERFORMANCE-CHECK - SPEZIFISCHES LAYOUT (Nutzt global.css Variablen)
+           ========================================================================== */
 
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; min-height: 100vh; }
-        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 24px; }
         
-        header { text-align: center; padding: 15px 0; }
+        .info-box { 
+            background-color: rgba(59, 130, 246, 0.08); 
+            border-left: 4px solid var(--info-color); 
+            color: var(--text-color); 
+            padding: 16px; 
+            margin-bottom: 30px; 
+            border-radius: var(--radius); 
+            font-size: 14px; 
+            border: 1px solid var(--border-color); 
+            border-left-width: 4px;
+        }
         
-        .info-box { background-color: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--info-color); color: var(--text-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; border: 1px solid var(--border-color); }
-        .danger-box { background-color: rgba(239, 68, 68, 0.08); border-left: 4px solid var(--danger-color); color: var(--danger-color); padding: 15px; margin-bottom: 30px; border-radius: var(--radius); font-size: 14px; font-weight: bold; text-align: center; }
+        .danger-box { 
+            background-color: rgba(239, 68, 68, 0.06); 
+            border: 2px dashed rgba(239, 68, 68, 0.2);
+            color: var(--danger-color); 
+            padding: 24px; 
+            margin-bottom: 30px; 
+            border-radius: var(--radius-lg); 
+            font-size: 15px; 
+            font-weight: 700; 
+            text-align: center; 
+        }
         
-        /* &#128228; UPLOAD ZONE */
-        .upload-zone { border: 2px dashed var(--accent-color); background-color: rgba(255, 159, 67, 0.03); padding: 50px 20px; text-align: center; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; margin-bottom: 30px; }
-        .upload-zone:hover { background-color: rgba(255, 159, 67, 0.08); }
-        .upload-icon { font-size: 48px; margin-bottom: 15px; }
-        .upload-title { font-size: 18px; font-weight: 600; color: var(--text-color); margin: 0 0 10px 0; }
-        .upload-desc { font-size: 14px; color: var(--text-muted); margin: 0; }
+        /* 📤 UPLOAD ZONE */
+        .upload-zone { 
+            border: 2px dashed var(--accent-color); 
+            background-color: rgba(255, 159, 67, 0.03); 
+            padding: 48px 24px; 
+            text-align: center; 
+            border-radius: var(--radius-lg); 
+            cursor: pointer; 
+            transition: var(--transition); 
+            margin-bottom: 32px; 
+        }
+        .upload-zone:hover { background-color: rgba(255, 159, 67, 0.08); border-color: #ff8008; }
+        .upload-icon { font-size: 48px; margin-bottom: 16px; line-height: 1; }
+        .upload-title { font-size: 18px; font-weight: 800; color: var(--text-color); margin: 0 0 8px 0; letter-spacing: -0.5px; }
+        .upload-desc { font-size: 14px; color: var(--text-muted); margin: 0; font-weight: 600; }
         #file-input { display: none; }
 
-        /* &#128279; LINK IMPORT */
-        .link-import-bar { display: flex; gap: 14px; margin: 0 0 30px 0; align-items: stretch; }
-        .url-input { flex: 1; min-width: 0; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 13px 15px; border-radius: var(--radius); font-size: 15px; outline: none; box-shadow: var(--shadow-sm); }
+        /* 🔗 LINK IMPORT */
+        .link-import-bar { display: flex; gap: 16px; margin: 0 0 32px 0; align-items: stretch; }
+        .url-input { 
+            flex: 1; 
+            min-width: 0; 
+            background: var(--input-bg); 
+            border: 2px solid var(--border-color); 
+            color: var(--text-color); 
+            padding: 14px 16px; 
+            border-radius: var(--radius); 
+            font-size: 15px; 
+            outline: none; 
+            box-shadow: var(--shadow-sm); 
+            transition: var(--transition);
+        }
         .url-input:focus { border-color: var(--info-color); }
-        .primary-btn { border: 0; background: #2f5da8; color: #fff; border-radius: var(--radius); padding: 0 28px; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: var(--shadow-sm); min-width: 170px; }
-        .primary-btn:hover { filter: brightness(1.06); }
+        
+        .primary-btn { 
+            border: 0; 
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); 
+            color: #fff; 
+            border-radius: var(--radius); 
+            padding: 0 28px; 
+            font-size: 15px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3); 
+            min-width: 170px; 
+            transition: var(--transition);
+        }
+        .primary-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); }
         .primary-btn:disabled { opacity: 0.65; cursor: wait; }
 
-        /* &#128202; ANALYSIS RESULTS */
+        /* 📊 ANALYSIS RESULTS */
         #analysis-results { display: none; }
-        .elo-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px; }
-        .elo-stat-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm); }
-        .elo-stat-val { font-size: 24px; font-weight: 700; color: var(--accent-color); margin-bottom: 5px; }
-        .elo-stat-lbl { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .elo-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .elo-stat-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: var(--radius-lg); text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
+        .elo-stat-val { font-size: 26px; font-weight: 900; color: var(--accent-color); margin-bottom: 6px; letter-spacing: -0.5px; }
+        .elo-stat-lbl { font-size: 12px; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* &#8505;&#65039; AUSKLAPPBARE LEGENDE */
-        .legend-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 12px 15px; margin-bottom: 25px; box-shadow: var(--shadow-sm); font-size: 13px; }
-        .legend-title { font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); }
-        .legend-content { display: none; margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 10px; }
-        .legend-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
-        .legend-table th, .legend-table td { text-align: left; padding: 6px 8px; font-size: 12px; }
-        .legend-table th { color: var(--text-muted); text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
+        /* ℹ️ AUSKLAPPBARE LEGENDE */
+        .legend-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 32px; box-shadow: var(--shadow-sm); font-size: 14px; }
+        .legend-title { font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); line-height: 1.35; }
+        .legend-content { display: none; margin-top: 16px; border-top: 1px dashed var(--border-color); padding-top: 16px; }
+        .legend-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 8px; }
+        .legend-table th, .legend-table td { text-align: left; padding: 10px 12px; font-size: 13px; }
+        .legend-table th { color: var(--text-muted); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; font-weight: 800; background-color: var(--bg-color); }
+        .legend-table th:first-child { border-top-left-radius: 6px; }
+        .legend-table th:last-child { border-top-right-radius: 6px; }
         .legend-table tr:not(:last-child) { border-bottom: 1px solid var(--border-color); }
 
-        /* &#128269; INTERAKTIVE FILTER-BAR */
-        .filter-bar { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; box-shadow: var(--shadow-sm); }
-        .filter-input { flex: 2; min-width: 200px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 12px; border-radius: 6px; font-size: 14px; outline: none; }
-        .filter-select { flex: 1; min-width: 140px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 12px; border-radius: 6px; font-size: 14px; outline: none; cursor: pointer; }
+        /* 🔍 INTERAKTIVE FILTER-BAR */
+        .filter-bar { background: var(--card-bg); border: 1px solid var(--border-color); padding: 16px; border-radius: var(--radius-lg); margin-bottom: 24px; display: flex; gap: 14px; flex-wrap: wrap; box-shadow: var(--shadow-sm); }
+        .filter-input { 
+            flex: 2; 
+            min-width: 200px; 
+            background: var(--input-bg); 
+            border: 2px solid var(--border-color); 
+            color: var(--text-color); 
+            padding: 10px 14px; 
+            border-radius: var(--radius); 
+            font-size: 14px; 
+            outline: none; 
+            font-family: inherit;
+            transition: var(--transition);
+        }
+        .filter-input:focus { border-color: var(--accent-color); }
+        
+        .filter-select { 
+            flex: 1; 
+            min-width: 140px; 
+            background: var(--input-bg); 
+            border: 2px solid var(--border-color); 
+            color: var(--text-color); 
+            padding: 10px 14px; 
+            border-radius: var(--radius); 
+            font-size: 14px; 
+            outline: none; 
+            cursor: pointer; 
+            font-family: inherit;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .filter-select:focus { border-color: var(--accent-color); }
 
-        /* &#128100; REIHEN-LAYOUT MIT FLAGGEN */
-        .competitor-list { display: flex; flex-direction: column; gap: 10px; }
-        .competitor-row { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px 20px; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); transition: transform 0.1s; }
-        .competitor-row:hover { transform: translateX(2px); }
-        .competitor-info { display: flex; flex-direction: column; gap: 4px; }
-        .competitor-name { font-size: 16px; font-weight: 600; color: var(--text-color); }
-        .competitor-meta { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+        /* 👥 REIHEN-LAYOUT MIT FLAGGEN */
+        .competitor-list { display: flex; flex-direction: column; gap: 12px; }
+        .competitor-row { background: var(--card-bg); border: 1px solid var(--border-color); padding: 16px 24px; border-radius: var(--radius-lg); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: var(--transition); }
+        .competitor-row:hover { transform: translateX(4px); border-color: #cbd5e1; }
+        .competitor-info { display: flex; flex-direction: column; gap: 6px; }
+        .competitor-name { font-size: 16px; font-weight: 700; color: var(--text-color); }
+        .competitor-meta { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; font-weight: 600; }
         
-        .fi { border-radius: 3px; box-shadow: 0 0 1px rgba(0,0,0,0.2); }
+        .fi { border-radius: 4px; box-shadow: 0 0 2px rgba(0,0,0,0.15); }
         
-        .competitor-row .competitor-elo { display: flex; align-items: center; gap: 10px; }
-        .elo-score { font-size: 18px; font-weight: 700; color: var(--text-color); }
-        .elo-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; width: 45px; text-align: center; }
+        .competitor-row .competitor-elo { display: flex; align-items: center; gap: 14px; }
+        .elo-score { font-size: 18px; font-weight: 800; color: var(--text-color); font-variant-numeric: tabular-nums; }
+        .elo-badge { padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; min-width: 45px; text-align: center; box-shadow: var(--shadow-sm); }
         .badge-gm { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); }
         .badge-m { background: rgba(255, 159, 67, 0.1); color: var(--accent-color); }
         .badge-a { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
         .badge-u { background: rgba(100, 116, 139, 0.1); color: var(--text-muted); }
 
-        /* &#128193; MATCH-ARCHIV */
-        .match-archive { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); margin-bottom: 25px; box-shadow: var(--shadow-sm); overflow: hidden; }
-        .archive-header { padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: var(--text-color); border-bottom: 1px solid var(--border-color); }
-        .archive-content { display: none; padding: 12px; }
-        .archive-empty { color: var(--text-muted); font-size: 14px; padding: 8px 4px; }
-        .archive-item { border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; background: var(--input-bg); overflow: hidden; }
+        /* 📂 MATCH-ARCHIV */
+        .match-archive { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); margin-bottom: 32px; box-shadow: var(--shadow-sm); overflow: hidden; }
+        .archive-header { padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--text-color); border-bottom: 1px solid var(--border-color); letter-spacing: -0.5px; }
+        .archive-content { display: none; padding: 16px; background-color: var(--input-bg); }
+        .archive-empty { color: var(--text-muted); font-size: 14px; padding: 12px 4px; font-style: italic; font-weight: 600; }
+        .archive-item { border: 1px solid var(--border-color); border-radius: var(--radius-lg); margin-bottom: 14px; background: var(--card-bg); overflow: hidden; box-shadow: var(--shadow-sm); }
         .archive-meta { flex: 1; min-width: 0; }
-        .archive-title { font-weight: 700; font-size: 14px; color: var(--text-color); white-space: normal; word-break: break-word; line-height: 1.3; }
-        .archive-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
-        .archive-btn { border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); border-radius: 6px; padding: 10px 5px; font-size: 12px; cursor: pointer; font-weight: 600; text-align: center; }
-        .archive-btn:hover { background-color: var(--border-color); }
-        .archive-btn.delete { color: var(--danger-color); }
-        .archive-btn.delete:hover { background-color: rgba(239, 68, 68, 0.1); }
-        .archive-details { display: none; padding: 0 12px 12px 12px; border-top: 1px dashed var(--border-color); }
-        .archive-small-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
-        .archive-small-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); }
-        .archive-small-row span:first-child { font-weight: 600; color: var(--text-color); }
-        .archive-small-row span:last-child { color: var(--accent-color); font-weight: 700; }
+        .archive-title { font-weight: 800; font-size: 15px; color: var(--text-color); white-space: normal; word-break: break-word; line-height: 1.3; }
+        .archive-sub { font-size: 13px; color: var(--text-muted); margin-top: 6px; line-height: 1.4; font-weight: 600; }
+        
+        .archive-btn { 
+            border: 2px solid var(--border-color); 
+            background: var(--card-bg); 
+            color: var(--text-color); 
+            border-radius: var(--radius); 
+            padding: 10px 14px; 
+            font-size: 13px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            text-align: center; 
+            transition: var(--transition);
+        }
+        .archive-btn:hover { background-color: var(--bg-color); border-color: #cbd5e1; transform: translateY(-1px); }
+        .archive-btn.delete { color: var(--danger-color); border-color: rgba(239, 68, 68, 0.2); }
+        .archive-btn.delete:hover { background-color: rgba(239, 68, 68, 0.05); border-color: var(--danger-color); }
+        
+        .archive-details { display: none; padding: 4px 16px 16px 16px; border-top: 1px dashed var(--border-color); background-color: var(--input-bg); }
+        .archive-small-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+        .archive-small-row { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--card-bg); box-shadow: var(--shadow-sm); }
+        .archive-small-row span:first-child { font-weight: 700; color: var(--text-color); }
+        .archive-small-row span:last-child { color: var(--accent-color); font-weight: 800; font-variant-numeric: tabular-nums; }
 
         /* LOADING SPINNER */
-        .loader-container { display: none; text-align: center; padding: 40px; }
-        .spinner { border: 4px solid rgba(0,0,0,0.1); border-left-color: var(--accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        .loader-container { display: none; text-align: center; padding: 48px 24px; }
+        .spinner { border: 4px solid var(--border-color); border-left-color: var(--accent-color); border-radius: 50%; width: 44px; height: 44px; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-
 
         /* Saubere Darstellung: keine Encoding-Abhaengigkeit + bessere Karten */
         #quick-analyze-section {
-            background: rgba(59, 130, 246, 0.07) !important;
-            border: 1px solid rgba(59, 130, 246, 0.55) !important;
+            background: rgba(59, 130, 246, 0.06) !important;
+            border: 1px solid rgba(59, 130, 246, 0.3) !important;
+            border-radius: var(--radius-lg) !important;
+            padding: 20px !important;
+            margin-bottom: 24px !important;
             box-shadow: var(--shadow-sm);
         }
         #quick-analyze-section h4 {
@@ -121,38 +220,38 @@
             align-items: center;
             gap: 8px;
             line-height: 1.35;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
         #quick-analyze-buttons .archive-btn {
             min-height: 44px;
-            border-radius: 10px !important;
+            border-radius: var(--radius) !important;
             line-height: 1.35;
             white-space: normal;
             word-break: break-word;
+            border: 2px solid rgba(59, 130, 246, 0.3) !important;
+            transition: var(--transition);
         }
-        .archive-header span:first-child,
-        .legend-title span:first-child {
-            line-height: 1.35;
+        #quick-analyze-buttons .archive-btn:hover {
+            background-color: var(--card-bg) !important;
+            border-color: var(--info-color) !important;
+            transform: translateY(-1px);
         }
-        .upload-icon {
-            line-height: 1;
-        }
+        
         @media (max-width: 650px) {
             body { padding-top: env(safe-area-inset-top); }
-            .container { margin: 14px auto; padding: 0 12px; box-sizing: border-box; }
-            #quick-analyze-section { padding: 14px !important; }
-            .upload-zone { padding: 42px 16px; }
-            .archive-header { padding: 14px; }
+            .container { margin: 20px auto; padding: 0 16px; box-sizing: border-box; }
+            #quick-analyze-section { padding: 16px !important; }
+            .upload-zone { padding: 40px 16px; margin-bottom: 24px; }
+            .archive-header { padding: 16px; }
             .archive-item { padding: 0; }
-            .archive-small-row { flex-direction: column; }
-        }
-
-        @media (max-width: 650px) {
-            .elo-stats-grid { grid-template-columns: 1fr; }
-            .filter-bar { flex-direction: column; }
-            .link-import-bar { flex-direction: column; }
-            .primary-btn { min-width: 0; padding: 13px 18px; }
-            .competitor-row { flex-direction: column; align-items: flex-start; gap: 10px; }
-            .competitor-elo { width: 100%; justify-content: space-between; }
+            .archive-small-row { flex-direction: column; gap: 4px; }
+            .elo-stats-grid { grid-template-columns: 1fr; gap: 12px; }
+            .filter-bar { flex-direction: column; gap: 12px; }
+            .link-import-bar { flex-direction: column; gap: 12px; margin-bottom: 24px; }
+            .primary-btn { min-width: 0; padding: 14px 18px; width: 100%; }
+            .competitor-row { flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; }
+            .competitor-elo { width: 100%; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 4px; }
         }
     </style>
 </head>
@@ -169,9 +268,9 @@
                 <strong>&#128248; Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste hoch oder f&#252;ge einen IPSCMatch-Link ein. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
             </div>
 
-            <div id="quick-analyze-section" style="display: none; background: rgba(59, 130, 246, 0.05); border: 1px solid var(--info-color); padding: 15px; border-radius: var(--radius); margin-bottom: 20px;">
-                <h4 style="margin: 0 0 12px 0; color: var(--info-color); font-size: 14px;">&#127919; Deine anstehenden Matches (aus Mein Planer)</h4>
-                <div id="quick-analyze-buttons" style="display: flex; gap: 8px; flex-direction: column;"></div>
+            <div id="quick-analyze-section" style="display: none;">
+                <h4 style="margin: 0 0 14px 0; color: var(--info-color); font-size: 15px;">&#127919; Deine anstehenden Matches (aus Mein Planer)</h4>
+                <div id="quick-analyze-buttons" style="display: flex; gap: 10px; flex-direction: column;"></div>
             </div>
 
             <div class="link-import-bar" id="link-import-bar">
@@ -198,12 +297,12 @@
 
             <div class="loader-container" id="loader">
                 <div class="spinner"></div>
-                <h3 style="margin: 0; color: var(--text-color);">Analysiere Starterfeld...</h3>
-                <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 14px;">Texterkennung l&#228;uft und ELO-Datenbank wird abgefragt.</p>
+                <h3 style="margin: 0; color: var(--text-color); font-weight: 800;">Analysiere Starterfeld...</h3>
+                <p style="margin: 6px 0 0 0; color: var(--text-muted); font-size: 14px; font-weight: 600;">Texterkennung l&#228;uft und ELO-Datenbank wird abgefragt.</p>
             </div>
 
             <div id="analysis-results">
-                <h2 style="margin-bottom: 20px;">Auswertung: <span style="color: var(--accent-color);">Optics Overall</span></h2>
+                <h2 style="margin-bottom: 24px; font-weight: 800; letter-spacing: -0.5px;">Auswertung: <span style="color: var(--accent-color);">Optics Overall</span></h2>
                 
                 <div class="elo-stats-grid">
                     <div class="elo-stat-card">
@@ -230,7 +329,7 @@
                         <span id="legend-arrow">&#9660;</span>
                     </div>
                     <div class="legend-content" id="legend-content">
-                        <p style="margin:0 0 15px 0; line-height:1.5; color:var(--text-muted);">
+                        <p style="margin:0 0 20px 0; line-height:1.6; color:var(--text-muted);">
                             Diese Analyse betrachtet ein Match aus zwei verschiedenen Perspektiven.
                             <br><br>
                             &#127919; <strong>Herausforderung f&#252;r dich</strong><br>
@@ -250,22 +349,22 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td style="font-weight:600;color:var(--danger-color);">&#220;ber 50 %</td>
+                                    <td style="font-weight:700;color:var(--danger-color);">&#220;ber 50 %</td>
                                     <td style="font-weight:bold;color:var(--danger-color);">Sehr Hoch</td>
                                     <td>Du gehst als Au&#223;enseiter ins Match. Mehr als die H&#228;lfte des Starterfeldes besitzt ein h&#246;heres ELO.</td>
                                 </tr>
                                 <tr>
-                                    <td style="font-weight:600;color:var(--accent-color);">21 % bis 50 %</td>
+                                    <td style="font-weight:700;color:var(--accent-color);">21 % bis 50 %</td>
                                     <td style="font-weight:bold;color:var(--accent-color);">Hoch</td>
                                     <td>Anspruchsvolles Match. Ein bedeutender Teil des Feldes liegt vor dir.</td>
                                 </tr>
                                 <tr>
-                                    <td style="font-weight:600;color:var(--info-color);">6 % bis 20 %</td>
+                                    <td style="font-weight:700;color:var(--info-color);">6 % bis 20 %</td>
                                     <td style="font-weight:bold;color:var(--info-color);">Mittel</td>
                                     <td>Du befindest dich im oberen Bereich des Feldes und kannst vorne mitk&#228;mpfen.</td>
                                 </tr>
                                 <tr>
-                                    <td style="font-weight:600;color:var(--success-color);">Bis 5 %</td>
+                                    <td style="font-weight:700;color:var(--success-color);">Bis 5 %</td>
                                     <td style="font-weight:bold;color:var(--success-color);">Gering</td>
                                     <td>Du geh&#246;rst zu den Favoriten des Wettbewerbs.</td>
                                 </tr>
@@ -274,7 +373,7 @@
                     </div>
                 </div>
 
-                <h3 style="margin: 30px 0 15px 0; font-size: 18px;">Gefundene Konkurrenten</h3>
+                <h3 style="margin: 36px 0 16px 0; font-size: 18px; font-weight: 800; letter-spacing: -0.5px;">Gefundene Konkurrenten</h3>
                 
                 <div class="filter-bar">
                     <input type="text" id="search-name" class="filter-input" placeholder="Nach Name suchen..." oninput="applyFilters()">
@@ -292,8 +391,7 @@
                     </select>
                 </div>
 
-                <div class="competitor-list" id="competitor-list">
-                    </div>
+                <div class="competitor-list" id="competitor-list"></div>
             </div>
         </div>
     </div>
@@ -669,8 +767,6 @@
         }
 
         async function findNameInOtherDivisionsForDebug(shooter, currentDivision) {
-            // Nur Diagnose: niemals für die Anzeige zurückgeben.
-            // Beispiel: Desmedt, Mike existiert in Production Optics, aber nicht in Optics -> Anzeige bleibt "Kein Eintrag".
             if (!window.supabaseClient) return null;
             const candidates = buildSearchNameCandidates(shooter.vorname, shooter.nachname);
             const firstCandidates = nameVariants(shooter.vorname || '');
@@ -719,7 +815,6 @@
             const lastCandidates = nameVariants(shooter.nachname || '');
             const firstCandidates = nameVariants(shooter.vorname || '');
 
-            // 1) Exakt: gleicher Name UND gleiche Division.
             for (const candidate of candidates) {
                 const { data, error } = await window.supabaseClient
                     .from("elo_rankings")
@@ -733,15 +828,12 @@
                 }
             }
 
-            // 2) Tolerant innerhalb der gleichen Division: Vorname reicht oft, um OCR-/Schreibfehler beim Nachnamen zu finden.
-            // Beispiel: Starterliste "Wismann, Volkert" findet DB "Wisman, Volkert" in Optics.
             let sameDivisionCandidates = [];
             for (const first of firstCandidates) {
                 if (!first || first.length < 3) continue;
                 sameDivisionCandidates.push(...await fetchEloRowsByDivisionAndNamePart(division, first, 200));
             }
 
-            // 3) Weitere Kandidaten innerhalb der gleichen Division über Nachnamen-Präfixe.
             for (const last of lastCandidates) {
                 const normalizedLast = normalizeNameForMatching(last).replace(/\s+/g, '');
                 const prefixes = uniqueArray([
@@ -760,12 +852,10 @@
             let best = pickBestEloShooterMatchInDivision(sameDivisionCandidates, shooter, division) || pickBestEloNameMatch(sameDivisionCandidates, candidates);
             if (best && divisionMatches(best.division, division)) return best;
 
-            // 4) Letzter Fallback: alle Zeilen der angeforderten Division paginiert laden und lokal fuzzy vergleichen.
             const divisionRows = await fetchEloRowsByDivisionPaged(division, 6000, 1000);
             best = pickBestEloShooterMatchInDivision(divisionRows, shooter, division) || pickBestEloNameMatch(divisionRows, candidates);
             if (best && divisionMatches(best.division, division)) return best;
 
-            // 5) Quervergleich nur als Debug-Hinweis, nicht als Treffer.
             await findNameInOtherDivisionsForDebug(shooter, division);
             return null;
         }
@@ -859,7 +949,6 @@
                         const { data: userEloData } = await window.supabaseClient
                             .from("elo_rankings")
                             .select("elo_rating")
-                            .eq("lastname", dbSearchName)
                             .maybeSingle();
                             
                         if (userEloData && userEloData.elo_rating) {
@@ -899,7 +988,6 @@
                             btn.style.textAlign = "left";
                             btn.style.padding = "10px 15px";
                             
-                            // Anzeige von Squad und Division auf dem Button
                             const squadInfo = m.squad ? ` | ${escapeHtml(m.squad)}` : "";
                             const divInfo = m.ipsc_division && m.ipsc_division !== "Unknown" ? ` | Div: ${escapeHtml(m.ipsc_division)}` : "";
                             
@@ -961,9 +1049,6 @@
             }, 300);
         });
         
-        // ==========================================
-        // \u{1F310} LINK IMPORT LOGIK (IPSCMATCH.DE PARSER)
-        // ==========================================
         function normalizeMatchUrl(value) {
             let input = cleanText(value);
             if (!input) throw new Error("Bitte einen Link eingeben.");
@@ -1236,7 +1321,6 @@
             const rows = splitTextIntoPossibleStarterRows(text);
 
             for (const row of rows) {
-                // \u{1F6D1} FILTER: Warteliste / SQ99 komplett ausschlie\u00DFen
                 const rowTextLower = row.toLowerCase();
                 if (rowTextLower.includes("warteliste") || rowTextLower.includes("sq99") || rowTextLower.includes("sq 99") || rowTextLower.includes("squad 99") || rowTextLower.includes("squad99")) {
                     continue;
@@ -1288,7 +1372,6 @@
                     const cells = getRowCells(row);
                     if (cells.length < 3) continue;
 
-                    // \u{1F6D1} FILTER: Warteliste / SQ99 in Tabellenzeilen ausschlie\u00DFen
                     const rowTextCombined = cells.join(" ").toLowerCase();
                     if (rowTextCombined.includes("warteliste") || rowTextCombined.includes("sq99") || rowTextCombined.includes("sq 99") || rowTextCombined.includes("squad 99") || rowTextCombined.includes("squad99")) {
                         continue;
@@ -1334,7 +1417,6 @@
             return { matchTitle, shooters: parsedNames };
         }
 
-        // --- ROBUSTE SUCHE: eigener Name -> Squad-Zeile -> Division -> fertiger complist-Link ---
         function normalizeNameSearchText(value) {
             return cleanText(value)
                 .toLowerCase()
@@ -1536,7 +1618,6 @@
         }
 
         function buildIpscComplistUrl(matchId, division = null) {
-            // Neuer Aufbau exakt nach deinen Vorgaben (inklusive lang=de)
             let href = `https://ipscmatch.de/index.pl?lang=de&match=${encodeURIComponent(matchId)}&complist`;
             
             if (division && division !== "Unknown") {
@@ -1739,11 +1820,9 @@
             setImportButtonLoading(true);
 
             try {
-                // 1. Match ID extrahieren
                 const matchId = getMatchIdFromUrl(rawUrl);
                 if (!matchId) throw new Error("Konnte die match= ID aus dem Planer-Link nicht lesen.");
 
-                // 2. Daten direkt aus "Mein Planer" (Datenbank) auslesen
                 const expectedSquad = plannedMatch.squad || null;
                 const dbDivision = plannedMatch.ipsc_division; 
                 
@@ -1752,15 +1831,12 @@
                     knownDivision = normalizeDivisionName(dbDivision);
                 }
 
-                // 3. Generiere exakt den direkten Link, der importiert werden soll
                 const targetUrl = buildIpscComplistUrl(matchId, knownDivision);
 
-                // 4. Setze den generierten Link sichtbar in das Input-Feld
                 if (urlInputEl) {
                     urlInputEl.value = targetUrl;
                 }
                 
-                // 5. \u00DCbergabe an den Scraper
                 window.pendingPlannedMatchHint = {
                     matchId: matchId,
                     division: knownDivision,
@@ -1770,8 +1846,6 @@
                 };
 
                 console.log("\u{1F3AF} Daten aus 'Mein Planer' gezogen. Generierter Link:", targetUrl);
-                
-                // Import direkt starten
                 await importMatchFromUrl();
 
             } catch (err) {
@@ -1899,7 +1973,6 @@
             }
         }
         
-        // 2. DRAG & DROP EVENTS
         const dropZone = document.getElementById('drop-zone');
         dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--info-color)"; });
         dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--accent-color)"; });
@@ -1909,9 +1982,6 @@
             if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);
         });
 
-        // ==========================================
-        // \u{1F3C6} SUPABASE MATCH ARCHIV LOGIK
-        // ==========================================
         async function loadMatchesFromSupabase() {
             if (!window.currentUserId) return [];
             
@@ -1927,7 +1997,6 @@
             }
             return data || [];
         }
-
 
         function normalizeMatchKey(value) {
             return cleanText(value)
@@ -1980,7 +2049,6 @@
                 const divisions = item.divisions && item.divisions.length ? item.divisions.join(", ") : "Keine Division";
                 let shootersList = typeof item.shooters === 'string' ? JSON.parse(item.shooters) : (item.shooters || []);
                 
-                // \u{1F6D1} FILTER: Auch im Archiv-Vorschauteil Wartelisten rauswerfen
                 shootersList = shootersList.filter(s => {
                     const checkStr = ((s.name || "") + " " + (s.division || "")).toLowerCase();
                     return !(checkStr.includes("warteliste") || checkStr.includes("sq99") || checkStr.includes("sq 99") || checkStr.includes("squad 99") || checkStr.includes("squad99"));
@@ -2129,7 +2197,6 @@
 
             const parsedShooters = typeof item.shooters === 'string' ? JSON.parse(item.shooters) : (item.shooters || []);
             
-            // \u{1F6D1} FILTER: Wartelisten beim Laden aus dem Archiv herausfiltern
             const filteredShooters = parsedShooters.filter(s => {
                 const checkStr = ((s.name || "") + " " + (s.division || "")).toLowerCase();
                 return !(checkStr.includes("warteliste") || checkStr.includes("sq99") || checkStr.includes("sq 99") || checkStr.includes("squad 99") || checkStr.includes("squad99"));
@@ -2183,7 +2250,6 @@
             for (const originalLine of lines) {
                 let line = originalLine;
 
-                // \u{1F6D1} FILTER: Warteliste / SQ99 in OCR-Screenshots ignorieren
                 const lineTextLower = line.toLowerCase();
                 if (lineTextLower.includes("warteliste") || lineTextLower.includes("sq99") || lineTextLower.includes("sq 99") || lineTextLower.includes("squad 99") || lineTextLower.includes("squad99")) {
                     continue;
@@ -2395,7 +2461,7 @@
                 fieldStat.textContent = fieldStrength;
                 fieldStat.style.color = fieldColor;
                 fieldStat.title = rankedCount > 0
-                    ? `Feldst\u00E4rke basiert auf ${rankedCount} bekannten ELOs von ${totalCompetitors} Teilnehmern. \u00D8 ELO: ${avgElo.toFixed(0)}, Top-${topCount}-\u00D8: ${top10Avg.toFixed(0)}, Master+: ${masterCount}, GM: ${gmCount}.${rankedCoverage < 0.25 ? " *Wenig bekannte ELOs, Einsch\u00E4tzung unsicherer." : ""}`
+                    ? `Feldst\u00E4rke basiert on ${rankedCount} bekannten ELOs von ${totalCompetitors} Teilnehmern. \u00D8 ELO: ${avgElo.toFixed(0)}, Top-${topCount}-\u00D8: ${top10Avg.toFixed(0)}, Master+: ${masterCount}, GM: ${gmCount}.${rankedCoverage < 0.25 ? " *Wenig bekannte ELOs, Einsch\u00E4tzung unsicherer." : ""}`
                     : "Keine bekannten ELOs im Feld.";
             }
         }
