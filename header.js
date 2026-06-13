@@ -35,11 +35,28 @@
             navHtml += `<a href="${link.href}" class="${className}" data-txt="${link.key}">${link.text}</a>`;
         });
 
-        // 🌟 Aufbau des HTML mit messerscharfen SVG-Icons
+        // 🌟 Aufbau des HTML mit dem brandneuen IPSC-Target-Logo (Kombination aus Text & SVG-Scheibe)
         header.innerHTML = `
-            <a href="index.html" style="text-decoration: none; color: inherit; display: inline-block; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Zur Startseite">
-                <h1 ${isVipPage ? '' : 'data-txt="main-title"'} class="${isVipPage ? 'vip-title' : ''}">${headerTitle}</h1>
-                <p style="color: ${isVipPage ? 'var(--accent-color)' : 'var(--text-muted)'}; margin: 5px 0 0 0; font-size: 13px; font-weight: ${isVipPage ? 'bold' : 'normal'};" ${isVipPage ? '' : 'data-txt="sub-title"'}>${headerSub}</p>
+            <a href="index.html" class="header-logo-link" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 14px; cursor: pointer; transition: opacity 0.2s; text-align: left;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Zur Startseite">
+                
+                <!-- 🆕 IPSC Classic Target SVG (Maßstabsgetreuer Nachbau aus image_11.png) -->
+                <svg width="34" height="43" viewBox="0 0 46 58" fill="none" stroke="var(--accent-color)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; filter: drop-shadow(0 2px 8px rgba(255,159,67,0.25));">
+                    <!-- Äußere D-Zone (Oktagon) -->
+                    <path d="M 14,1 L 32,1 L 45,14 L 45,44 L 32,57 L 14,57 L 1,44 L 1,14 Z" stroke-width="2.5" />
+                    <!-- Mittlere C-Zone (Gepunktete Linie) -->
+                    <path d="M 14,8 L 32,8 L 39,17 L 39,41 L 32,50 L 14,50 L 7,41 L 7,17 Z" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.6" />
+                    <!-- Innere A-Zone (Zentrales Feld) -->
+                    <path d="M 16,15 L 30,15 L 33,20 L 33,38 L 30,43 L 16,43 L 13,38 L 13,20 Z" stroke-width="1.8" />
+                    
+                    <!-- Die zwei Double-Alpha Einschusslöcher aus dem Bild! -->
+                    <circle cx="23" cy="25" r="2" fill="var(--text-color)" stroke="var(--accent-color)" stroke-width="0.5" />
+                    <circle cx="23" cy="35" r="2" fill="var(--text-color)" stroke="var(--accent-color)" stroke-width="0.5" />
+                </svg>
+
+                <div class="logo-text-group">
+                    <h1 ${isVipPage ? '' : 'data-txt="main-title"'} class="${isVipPage ? 'vip-title' : ''}" style="margin: 0; line-height: 1.1;">${headerTitle}</h1>
+                    <p style="color: ${isVipPage ? 'var(--accent-color)' : 'var(--text-muted)'}; margin: 3px 0 0 0; font-size: 12px;" ${isVipPage ? '' : 'data-txt="sub-title"'}>${headerSub}</p>
+                </div>
             </a>
             
             <div class="header-controls">
@@ -146,10 +163,9 @@
             document.head.appendChild(vipStyle);
         }
 
-        // 🌟 Hier war der Fehler – jetzt zu 100% vollständig wiederhergestellt:
         const style = document.createElement('style');
         style.innerHTML = `
-            header { position: relative; }
+            header { position: relative; display: flex; flex-direction: column; align-items: center; }
             
             header .header-controls {
                 position: absolute !important;
@@ -250,6 +266,7 @@
             }
 
             header .main-nav { 
+                width: 100% !important;
                 margin-top: 20px !important; 
                 display: flex !important; 
                 justify-content: center !important; 
@@ -301,8 +318,8 @@
             }
 
             @media (max-width: 768px) {
-                header { padding: 16px 12px 8px 12px !important; }
-                header h1 { font-size: 20px !important; margin-bottom: 4px !important; }
+                header { padding: 16px 12px 8px 12px !important; display: flex; flex-direction: column; align-items: center; }
+                header .header-logo-link { justify-content: center !important; width: 100% !important; margin: 0 auto !important; }
                 
                 header .header-controls { 
                     position: static !important; 
@@ -311,7 +328,7 @@
                     justify-content: center !important; 
                     align-items: center !important; 
                     gap: 8px !important; 
-                    margin-top: 10px !important; 
+                    margin-top: 14px !important; 
                     width: 100% !important; 
                     transform: none !important; 
                     flex-wrap: wrap !important;
