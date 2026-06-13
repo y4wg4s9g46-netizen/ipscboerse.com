@@ -5,6 +5,268 @@ window.activeChatRoom = null; // Speichert den aktiven Chat-Kontext
 // Behebt den Badge-Zähler-Fehler: Filtert alte gelesene Nachrichten heraus
 window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new Date().toISOString();
 
+// ==========================================================================
+// GLOBALE INJEKTION FÜR KONTO-EINSTELLUNGEN, AUTH, CHAT & INBOX
+// ==========================================================================
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. AUTH- & SETTINGS-MODAL INJEKTION
+    if (!document.getElementById("auth-modal")) {
+        const authModalHtml = `
+        <div class="modal" id="auth-modal">
+            <div class="modal-content">
+                <div class="modal-close-container">
+                    <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
+                </div>
+                
+                <!-- LOGIN VIEW -->
+                <div id="modal-login-view">
+                    <h3 data-txt="modal-login-title">Anmelden</h3>
+                    <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
+                        <span>📱</span> Login mit FaceID / Fingerabdruck
+                    </button>
+                    <div class="modal-divider">oder klassisch mit E-Mail</div>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="login-email" data-txt="lbl-email">E-Mail *</label>
+                            <input type="email" id="login-email" required placeholder="name@beispiel.de">
+                        </div>
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <label for="login-password" style="margin-bottom: 0;">Passwort *</label>
+                                <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 600;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
+                            </div>
+                            <input type="password" id="login-password" required placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
+                    </form>
+                    <div class="modal-footer" style="margin-top: 15px; text-align: center; font-size: 13px;">
+                        <span data-txt="modal-no-acc">Noch kein Konto?</span>
+                        <a onclick="toggleAuthView('register')" data-txt="modal-link-reg" style="color: var(--accent-color); cursor: pointer; font-weight: 700;">Registrieren</a>
+                    </div>
+                </div>
+
+                <!-- REGISTER VIEW -->
+                <div id="modal-register-view" style="display: none;">
+                    <h3 data-txt="modal-reg-title">Konto erstellen</h3>
+                    <form id="register-form">
+                        <div class="form-group">
+                            <label for="register-email" data-txt="lbl-email">E-Mail *</label>
+                            <input type="email" id="register-email" required placeholder="name@beispiel.de">
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password">Passwort *</label>
+                            <input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen">
+                        </div>
+                        <div class="form-group" style="flex-direction: row; align-items: flex-start; gap: 10px; margin-top: 5px; margin-bottom: 20px;">
+                            <input type="checkbox" id="register-agb" required style="margin-top: 3px; width: 16px; height: 16px; cursor: pointer;">
+                            <label for="register-agb" style="font-size: 12px; color: var(--text-muted); font-weight: normal; line-height: 1.4; margin: 0; text-transform: none; letter-spacing: normal;">
+                                Ich akzeptiere die AGB und Nutzungsbedingungen. Weitere Details findest du im <a href="/impressum.html" target="_blank" style="color: var(--accent-color); text-decoration: underline;">Impressum</a>. *
+                            </label>
+                        </div>
+                        <button type="submit" class="btn-primary-auth" data-txt="modal-btn-reg">Konto erstellen</button>
+                    </form>
+                    <div class="modal-footer" style="margin-top: 15px; text-align: center; font-size: 13px;">
+                        <span data-txt="modal-has-acc">Bereits registriert?</span>
+                        <a onclick="toggleAuthView('login')" data-txt="modal-link-login" style="color: var(--accent-color); cursor: pointer; font-weight: 700;">Zum Login</a>
+                    </div>
+                </div>
+
+                <!-- FORGOT PASSWORD VIEW -->
+                <div id="modal-forgot-view" style="display: none;">
+                    <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
+                    <form id="forgot-form">
+                        <div class="form-group">
+                            <label for="forgot-email" data-txt="lbl-email">Deine E-Mail-Adresse *</label>
+                            <input type="email" id="forgot-email" required placeholder="name@beispiel.de">
+                        </div>
+                        <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
+                    </form>
+                    <div class="modal-footer" style="margin-top: 15px; text-align: center; font-size: 13px;">
+                        <a onclick="toggleAuthView('login')" data-txt="modal-link-login" style="color: var(--accent-color); cursor: pointer; font-weight: 700;">Zurück zum Login</a>
+                    </div>
+                </div>
+
+                <!-- RESET PASSWORD VIEW -->
+                <div id="modal-reset-view" style="display: none;">
+                    <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
+                    <form id="reset-password-form">
+                        <div class="form-group">
+                            <label for="reset-password-input" data-txt="lbl-new-password">Neues Passwort *</label>
+                            <input type="password" id="reset-password-input" required minlength="6" placeholder="Mindestens 6 Zeichen">
+                        </div>
+                        <button type="submit" class="btn-primary-auth" data-txt="btn-save">Speichern</button>
+                    </form>
+                </div>
+
+                <!-- SETTINGS VIEW -->
+                <div id="modal-settings-view" style="display: none;">
+                    <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
+                    
+                    <div class="settings-stats-card" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
+                        <span class="settings-stats-title" style="color: var(--success-color); font-weight: 700; margin-bottom: 8px; display: block;" data-txt="modal-settings-deals">📈 Erfolgreiche Vermittlungen</span>
+                        <div class="settings-stats-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
+                            <div class="settings-stat-item" style="background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                                <span class="settings-stat-val" style="color: var(--accent-color); font-size: 20px; font-weight: bold;" id="profile-sales-count">0</span>
+                                <p class="settings-stat-lbl" style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-seller">Als Verkäufer</p>
+                            </div>
+                            <div class="settings-stat-item" style="background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                                <span class="settings-stat-val" style="color: var(--success-color); font-size: 20px; font-weight: bold;" id="profile-purchases-count">0</span>
+                                <p class="settings-stat-lbl" style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-buyer">Als Käufer</p>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-ratings" style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
+                            <div><span data-txt="modal-settings-comm">💬 Kommunikation:</span> <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
+                            <div><span data-txt="modal-settings-pay">💳 Bezahlung:</span> <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
+                        </div>
+                    </div>
+
+                    <div class="settings-passkey-card" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid rgba(52, 152, 219, 0.3); margin-bottom: 20px;">
+                        <span class="settings-passkey-title" style="color: #3498db; font-weight: 600; display: block; margin-bottom: 4px;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</span>
+                        <p class="help-text" style="font-size: 12px; margin-top: 0; color: var(--text-muted); line-height: 1.4;" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
+                        <button type="button" class="btn-primary-auth" style="width:100%; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; margin-top: 8px; border: none;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
+                    </div>
+
+                    <form id="settings-form">
+                        <div class="form-group">
+                            <label for="settings-username" data-txt="lbl-username">Schützenname / Anzeigename</label>
+                            <input type="text" id="settings-username" data-txt-ph="ph-username" placeholder="z.B. IPSCShooter99">
+                        </div>
+                        
+                        <div class="settings-alias-card" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: 6px; border-left: 4px solid var(--success-color); margin-bottom: 20px; display: flex; flex-direction: column;">
+                            <label for="settings-ipsc-alias" class="settings-alias-title" style="color: var(--success-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
+                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-ipsc-alias-desc">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
+                            <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
+                        </div>
+
+                        <div class="settings-realname-card" style="background-color: rgba(59, 130, 246, 0.04); padding: 16px; border-radius: 6px; border-left: 4px solid var(--info-color); margin-bottom: 20px; display: flex; flex-direction: column;">
+                            <label for="settings-real-name" class="settings-realname-title" style="color: var(--info-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
+                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-real-name-desc">Trage hier deinen Klarnamen ein. Dieser Name wird niemals öffentlich auf der Seite gezeigt.</p>
+                            <input type="text" id="settings-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="settings-avatar" data-txt="lbl-profile-pic">Profilbild (Optional)</label>
+                            <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
+                            <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="settings-password" data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
+                            <input type="password" id="settings-password" minlength="6" data-txt-ph="ph-password" placeholder="Mindestens 6 Zeichen">
+                        </div>
+                        
+                        <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
+                    </form>
+                    
+                    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
+                    <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
+                </div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML("beforeend", authModalHtml);
+        
+        document.getElementById("btn-close-modal")?.addEventListener("click", () => {
+            document.getElementById("auth-modal").style.display = "none";
+            const title = document.querySelector("#modal-settings-view h3");
+            if (title) title.innerText = "Konto-Einstellungen";
+            const elementsToHide = [
+                document.querySelector("#modal-settings-view div[style*='3498db']"),
+                document.getElementById("settings-password")?.closest(".form-group"),
+                document.querySelector("#modal-settings-view button[type='submit']"),
+                document.getElementById("btn-delete-account"),
+                document.getElementById("settings-avatar")?.closest(".form-group")
+            ];
+            elementsToHide.forEach(el => { if(el) el.style.display = "block"; });
+            if (document.getElementById("settings-username")) document.getElementById("settings-username").readOnly = false;
+            if (document.getElementById("settings-ipsc-alias")) document.getElementById("settings-ipsc-alias").readOnly = false;
+        });
+    }
+
+    // 2. CHAT-MODAL INJEKTION
+    if (!document.getElementById("chat-modal")) {
+        const chatModalHtml = `
+        <div class="modal" id="chat-modal">
+            <div class="modal-content" style="max-width: 500px; padding: 25px;">
+                <div class="modal-close-container">
+                    <button class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</button>
+                </div>
+                <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
+                <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
+                <div class="chat-history-area" id="chat-box-messages"></div>
+                <form id="chat-send-form" style="display: flex; gap: 8px;">
+                    <input type="hidden" id="chat-edit-id" value="">
+                    <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
+                    <button type="submit" id="btn-chat-send" class="btn-primary-auth" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
+                </form>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML("beforeend", chatModalHtml);
+        
+        // Re-binden des Submit-Events für das dynamische Formular
+        document.getElementById("chat-send-form")?.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          if (!window.activeChatRoom || !window.currentUser) return;
+
+          const input = document.getElementById("chat-message-input");
+          const editIdInput = document.getElementById("chat-edit-id");
+          const messageText = input.value.trim();
+          if (!messageText) return;
+
+          const editId = editIdInput ? editIdInput.value : "";
+
+          if (editId) {
+            const { error } = await window.supabaseClient.from("chat_messages").update({ message: messageText }).eq("id", editId);
+            if (error) {
+              alert("Fehler beim Aktualisieren: " + error.message);
+            } else {
+              if (editIdInput) editIdInput.value = "";
+              input.value = "";
+              const sendBtn = document.getElementById("btn-chat-send");
+              if (sendBtn) sendBtn.innerText = window.currentLang === "en" ? "Send" : "Senden";
+              await loadChatMessages();
+            }
+          } else {
+            const { error } = await window.supabaseClient.from("chat_messages").insert([{
+              match_id: window.activeChatRoom.matchId,
+              match_name: window.activeChatRoom.matchName,
+              sender_email: window.currentUser.email,
+              receiver_email: window.activeChatRoom.receiverEmail,
+              message: messageText
+            }]);
+
+            if (error) {
+              alert("Fehler beim Senden: " + error.message);
+            } else {
+              input.value = "";
+            }
+          }
+        });
+    }
+
+    // 3. GLOBAL INBOX-MODAL INJEKTION
+    if (!document.getElementById("global-inbox-modal")) {
+        const inboxModalHtml = `
+        <div class="modal" id="global-inbox-modal">
+            <div class="modal-content" style="max-width: 450px; padding: 25px;">
+                <div class="modal-close-container">
+                    <button class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</button>
+                </div>
+                <h3>Meine Nachrichten</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven Gespräche.</p>
+                <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
+                    <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
+                </div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML("beforeend", inboxModalHtml);
+    }
+
+    if (typeof window.translatePortalPage === "function") {
+        window.translatePortalPage();
+    }
+});
+
 // Verhindert das Auswählen von Daten in der Vergangenheit
 function enforceFutureDates() {
   const dateInput = document.getElementById("match-date");
@@ -285,48 +547,6 @@ function closeChatSystem() {
   document.getElementById("chat-modal").style.display = "none";
 }
 window.closeChatSystem = closeChatSystem;
-
-// Senden oder Aktualisieren einer Nachricht über dasselbe Formular
-document.getElementById("chat-send-form")?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  if (!window.activeChatRoom || !window.currentUser) return;
-
-  const input = document.getElementById("chat-message-input");
-  const editIdInput = document.getElementById("chat-edit-id");
-  const messageText = input.value.trim();
-  if (!messageText) return;
-
-  const editId = editIdInput ? editIdInput.value : "";
-
-  if (editId) {
-    // UPDATE Modus ausführen
-    const { error } = await window.supabaseClient.from("chat_messages").update({ message: messageText }).eq("id", editId);
-    if (error) {
-      alert("Fehler beim Aktualisieren: " + error.message);
-    } else {
-      if (editIdInput) editIdInput.value = "";
-      input.value = "";
-      const sendBtn = document.getElementById("btn-chat-send");
-      if (sendBtn) sendBtn.innerText = window.currentLang === "en" ? "Send" : "Senden";
-      await loadChatMessages();
-    }
-  } else {
-    // Klassischer INSERT Modus
-    const { error } = await window.supabaseClient.from("chat_messages").insert([{
-      match_id: window.activeChatRoom.matchId,
-      match_name: window.activeChatRoom.matchName,
-      sender_email: window.currentUser.email,
-      receiver_email: window.activeChatRoom.receiverEmail,
-      message: messageText
-    }]);
-
-    if (error) {
-      alert("Fehler beim Senden: " + error.message);
-    } else {
-      input.value = "";
-    }
-  }
-});
 
 // Halb-automatischer E-Mail-Reminder aus dem Live-Chat heraus
 function triggerChatEmailReminder() {
@@ -626,7 +846,7 @@ function checkPlannerImport() {
 }
 
 // =========================================================================
-// NEU: AUTOMATISCHE LADEN & SPEICHERN LOGIK FÜR DEN ECHTEN CLAR-NAMEN
+// AUTOMATISCHE LADEN & SPEICHERN LOGIK FÜR DEN ECHTEN CLAR-NAMEN
 // =========================================================================
 async function loadUserSettingsProfile() {
   if (!window.currentUser) return;
