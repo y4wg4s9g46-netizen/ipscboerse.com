@@ -6,7 +6,7 @@
     <title>Tools & Training | Startplatz Börse</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1e293b">
+    <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="IPSC Börse">
@@ -14,124 +14,159 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
+    <link rel="stylesheet" href="global.css">
+
     <style>
-        /* Modernes Variablen-System für Hell- und Dunkelmodus */
-        :root, html[data-theme="light"] {
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-color: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --input-bg: #ffffff;
-            
-            --accent-color: #ff9f43; /* IPSC Orange */
-            --danger-color: #ef4444;
-            --success-color: #10b981;
-            --info-color: #3b82f6;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            --radius: 8px;
+        /* ==========================================================================
+           TOOLS & TRAINING - SPEZIFISCHES LAYOUT
+           ========================================================================== */
+
+        .tool-section { 
+            background: var(--card-bg); 
+            padding: 32px; 
+            border-radius: var(--radius-lg); 
+            border: 1px solid var(--border-color); 
+            margin-bottom: 40px; 
+            box-shadow: var(--shadow-sm); 
         }
 
-        /* Dunkler Modus */
-        html[data-theme="dark"] {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --input-bg: #0f172a;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        .tool-section h2 { 
+            margin-top: 0; 
+            font-size: 24px; 
+            font-weight: 800; 
+            color: var(--text-color); 
+            border-bottom: 2px solid var(--bg-color); 
+            padding-bottom: 16px; 
+            margin-bottom: 24px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            letter-spacing: -0.5px;
         }
-
-        @media (prefers-color-scheme: dark) {
-            html:not([data-theme="light"]) {
-                --bg-color: #0f172a;
-                --card-bg: #1e293b;
-                --text-color: #f8fafc;
-                --text-muted: #94a3b8;
-                --border-color: #334155;
-                --input-bg: #0f172a;
-            }
-        }
-
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; }
-        header { background-color: var(--card-bg); padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
-        
-        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
-
-        .tool-section { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 30px; box-shadow: var(--shadow-sm); }
-        .tool-section h2 { margin-top: 0; font-size: 22px; color: var(--text-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-
-        /* Formular Elemente */
-        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
-        .form-group label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; }
-        .form-group input, .form-group select { width: 100%; background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px 12px; border-radius: var(--radius); font-size: 14px; box-sizing: border-box; font-family: inherit; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(255, 159, 67, 0.15); }
-
-        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 20px; font-size: 15px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; transition: opacity 0.15s; }
-        .btn-submit:hover { opacity: 0.9; }
-        .btn-secondary { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 10px 15px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; }
-        .btn-secondary:hover { border-color: var(--text-muted); }
-
-        /* Dry-Fire Spezifisch */
-        .timer-display { font-size: 48px; font-weight: 900; text-align: center; margin: 20px 0; font-variant-numeric: tabular-nums; color: var(--text-color); }
-        .timer-status { text-align: center; font-size: 18px; font-weight: 600; color: var(--accent-color); height: 25px; margin-bottom: 15px; }
-        .drill-box { background: var(--bg-color); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); text-align: center; font-size: 15px; line-height: 1.5; margin-bottom: 20px; min-height: 60px; display: flex; align-items: center; justify-content: center; }
 
         /* Hit-Factor Spezifisch */
-        .scoring-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; }
+        .scoring-grid { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 12px; 
+            margin-bottom: 24px; 
+        }
         .scoring-grid .form-group { margin-bottom: 0; }
-        .scoring-grid input { text-align: center; font-weight: bold; font-size: 16px; }
-        .input-A { border-color: var(--success-color) !important; }
-        .input-M { border-color: var(--danger-color) !important; }
+        .scoring-grid input { 
+            text-align: center; 
+            font-weight: 800; 
+            font-size: 18px; 
+            border-width: 2px;
+        }
+        .input-A { border-color: rgba(16, 185, 129, 0.4) !important; background-color: rgba(16, 185, 129, 0.05) !important; }
+        .input-M { border-color: rgba(239, 68, 68, 0.4) !important; background-color: rgba(239, 68, 68, 0.05) !important; }
 
-        .leaderboard { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-        .leaderboard th, .leaderboard td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
-        .leaderboard th { font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 12px; }
-        .leaderboard tr:hover { background-color: rgba(255, 159, 67, 0.05); }
-        .rank-1 { font-weight: bold; color: var(--accent-color); font-size: 16px; }
+        .leaderboard { 
+            width: 100%; 
+            border-collapse: separate; 
+            border-spacing: 0;
+            margin-top: 24px; 
+            font-size: 15px; 
+        }
+        .leaderboard th, .leaderboard td { 
+            padding: 14px 16px; 
+            text-align: left; 
+            border-bottom: 1px solid var(--border-color); 
+        }
+        .leaderboard th { 
+            font-weight: 800; 
+            color: var(--text-muted); 
+            text-transform: uppercase; 
+            font-size: 12px; 
+            letter-spacing: 0.5px;
+            background-color: var(--bg-color);
+        }
+        .leaderboard th:first-child { border-top-left-radius: 8px; }
+        .leaderboard th:last-child { border-top-right-radius: 8px; }
+        
+        .leaderboard tr { transition: var(--transition); }
+        .leaderboard tr:hover { background-color: var(--input-bg); transform: scale(1.01); }
+        .rank-1 { font-weight: 900; color: var(--accent-color); font-size: 18px; }
 
-        /* --- Luxuriöses Modal CSS --- */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease-out; padding: 20px; box-sizing: border-box; }
-        .modal-content { background-color: var(--card-bg); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 440px; position: relative; margin: auto; }
-        .modal-content h3 { color: var(--text-color); margin-top: 0; margin-bottom: 24px; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; padding-right: 30px; }
-        .modal-close-container { position: absolute; top: 20px; right: 20px; z-index: 1010; }
-        .modal-close-trigger { background: transparent; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; padding: 4px; line-height: 1; transition: color 0.15s; }
-        .modal-close-trigger:hover { color: var(--text-color); }
-        .modal-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px; }
-        .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
-        .modal-divider:not(:empty)::before { margin-right: .75em; }
-        .modal-divider:not(:empty)::after { margin-left: .75em; }
-        .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; }
-        .btn-primary-auth:hover { opacity: 0.9; }
-        .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
-        .btn-secondary-auth:hover { background-color: var(--border-color); }
-        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
-        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
+        /* Dry-Fire Spezifisch */
+        .timer-display { 
+            font-size: 64px; 
+            font-weight: 900; 
+            text-align: center; 
+            margin: 24px 0; 
+            font-variant-numeric: tabular-nums; 
+            color: var(--text-color); 
+            letter-spacing: -2px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .timer-status { 
+            text-align: center; 
+            font-size: 20px; 
+            font-weight: 800; 
+            color: var(--accent-color); 
+            height: 30px; 
+            margin-bottom: 20px; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .drill-box { 
+            background: var(--input-bg); 
+            border: 2px dashed var(--border-color); 
+            padding: 24px; 
+            border-radius: var(--radius-lg); 
+            text-align: center; 
+            font-size: 16px; 
+            line-height: 1.6; 
+            margin-bottom: 24px; 
+            min-height: 80px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: var(--transition);
+        }
+        
+        /* Select Formular-Anpassung für die Tools Seite */
+        select { 
+            width: 100%; 
+            background-color: var(--input-bg); 
+            border: 2px solid var(--border-color); 
+            color: var(--text-color); 
+            padding: 14px 16px; 
+            border-radius: var(--radius); 
+            font-size: 15px; 
+            box-sizing: border-box; 
+            font-family: inherit;
+            transition: var(--transition);
+        }
+        select:focus { outline: none; border-color: var(--accent-color); }
 
-        /* Chat Styles */
-        .chat-history-area { height: 300px; overflow-y: auto; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: var(--radius); padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .chat-bubble { max-width: 75%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.4; word-wrap: break-word; }
-        .bubble-me { background-color: var(--accent-color); color: #1a1a1a; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .bubble-other { background-color: var(--card-bg); color: var(--text-color); align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid var(--border-color); }
-
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        .btn-secondary { 
+            background-color: var(--card-bg); 
+            color: var(--text-color); 
+            border: 2px solid var(--border-color); 
+            padding: 14px 24px; 
+            font-size: 15px; 
+            font-weight: 700; 
+            border-radius: var(--radius); 
+            cursor: pointer; 
+            transition: var(--transition); 
+        }
+        .btn-secondary:hover { 
+            background-color: var(--bg-color); 
+            border-color: #cbd5e1; 
+            transform: translateY(-2px);
+        }
 
         /* Mobile Fixes */
         @media (max-width: 768px) {
-            html, body { overflow-x: hidden !important; width: 100% !important; }
-            .container { padding: 0 10px !important; margin-top: 15px !important; width: 100% !important; box-sizing: border-box !important; }
-            .tool-section { padding: 15px !important; margin-bottom: 15px !important; }
-            .scoring-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .tool-section { padding: 20px !important; margin-bottom: 20px !important; border-radius: 20px !important; }
+            .tool-section h2 { font-size: 20px; }
+            .scoring-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
             .scoring-grid label { font-size: 11px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
-            .scoring-grid input { padding: 8px 4px !important; font-size: 14px !important; width: 100% !important; box-sizing: border-box !important; }
-            .leaderboard th, .leaderboard td { padding: 8px 4px; font-size: 12px; }
-            .modal { padding: 10px !important; }
-            .modal-content { padding: 24px 16px !important; }
-            .modal-close-container { top: 12px !important; right: 12px !important; }
-            .modal-close-trigger { font-size: 28px !important; }
+            .scoring-grid input { padding: 12px 8px !important; font-size: 16px !important; }
+            .leaderboard th, .leaderboard td { padding: 10px 6px; font-size: 13px; }
+            .timer-display { font-size: 56px; }
         }
     </style>
 </head>
@@ -144,27 +179,27 @@
         
         <div class="tool-section">
             <h2 data-txt="tools-hf-title">🏆 Hit-Factor Battle</h2>
-            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;" data-txt="tools-hf-desc">Trage die Ergebnisse von dir und deinen Freunden ein, um eine Live-Rangliste für die Stage zu erstellen.</p>
+            <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 24px; line-height: 1.5;" data-txt="tools-hf-desc">Trage die Ergebnisse von dir und deinen Freunden ein, um eine Live-Rangliste für die Stage zu erstellen.</p>
             
-            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
                 <div class="form-group" style="flex: 1 1 100%;">
                     <label data-txt="tools-hf-name">Schützenname</label>
                     <input type="text" id="hf-name" placeholder="z.B. Max Mustermann">
                 </div>
-                <div class="form-group" style="flex: 1; min-width: 100px;">
+                <div class="form-group" style="flex: 1; min-width: 120px;">
                     <label data-txt="tools-hf-pf">Wertung</label>
                     <select id="hf-pf">
                         <option value="minor">Minor</option>
                         <option value="major">Major</option>
                     </select>
                 </div>
-                <div class="form-group" style="flex: 1; min-width: 100px;">
+                <div class="form-group" style="flex: 1; min-width: 120px;">
                     <label data-txt="tools-hf-time">Zeit (Sek.)</label>
                     <input type="number" id="hf-time" step="0.01" min="0" placeholder="0.00">
                 </div>
             </div>
 
-            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;" data-txt="tools-hf-scoring">Trefferaufnahme</label>
+            <label style="font-size: 13px; font-weight: 700; margin-bottom: 8px; display: block; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;" data-txt="tools-hf-scoring">Trefferaufnahme</label>
             <div class="scoring-grid">
                 <div class="form-group"><label style="color: var(--success-color);" data-txt="tools-hf-alpha">Alpha (A)</label><input type="number" id="hf-a" class="input-A" min="0" value="0"></div>
                 <div class="form-group"><label data-txt="tools-hf-charlie">Charlie (C)</label><input type="number" id="hf-c" min="0" value="0"></div>
@@ -179,7 +214,7 @@
                 <table class="leaderboard" id="ranking-table" style="display: none;">
                     <thead>
                         <tr>
-                            <th style="width: 30px;">#</th>
+                            <th style="width: 40px;">#</th>
                             <th data-txt="tools-th-name">Name</th>
                             <th data-txt="tools-th-pts">Pts</th>
                             <th data-txt="tools-th-time">Zeit</th>
@@ -190,7 +225,7 @@
                     <tbody id="ranking-body"></tbody>
                 </table>
             </div>
-            <button id="btn-clear-ranking" class="btn-secondary" style="margin-top: 15px; display: none; width: 100%; color: var(--danger-color); border-color: var(--danger-color);" onclick="clearRanking()" data-txt="tools-hf-btn-clear">Rangliste leeren</button>
+            <button id="btn-clear-ranking" class="btn-secondary" style="margin-top: 20px; display: none; width: 100%; color: var(--danger-color); border-color: rgba(239, 68, 68, 0.3);" onclick="clearRanking()" data-txt="tools-hf-btn-clear">Rangliste leeren</button>
         </div>
 
         <div class="tool-section">
@@ -198,23 +233,24 @@
             <div class="drill-box" id="drill-output" data-txt="tools-df-placeholder">
                 Klicke auf den Button, um einen zufälligen Trockentrainings-Ablauf zu generieren.
             </div>
-            <button class="btn-secondary" style="width: 100%; margin-bottom: 30px;" onclick="generateDrill()" data-txt="tools-df-btn-gen">🎲 Neuen Drill generieren</button>
+            <button class="btn-secondary" style="width: 100%; margin-bottom: 40px;" onclick="generateDrill()" data-txt="tools-df-btn-gen">🎲 Neuen Drill generieren</button>
 
-            <div style="border-top: 1px solid var(--border-color); padding-top: 20px;">
+            <div style="border-top: 2px solid var(--bg-color); padding-top: 32px;">
                 <div class="form-group" style="max-width: 200px; margin: 0 auto;">
-                    <label style="text-align: center;" data-txt="tools-df-par">Par-Zeit (Sekunden)</label>
-                    <input type="number" id="par-time" step="0.1" min="0.5" value="3.0" style="text-align: center; font-size: 18px; font-weight: bold;">
+                    <label style="text-align: center; color: var(--text-muted);" data-txt="tools-df-par">Par-Zeit (Sekunden)</label>
+                    <input type="number" id="par-time" step="0.1" min="0.5" value="3.0" style="text-align: center; font-size: 24px; font-weight: 800; border-width: 2px;">
                 </div>
 
                 <div class="timer-display" id="timer-display">0.00</div>
                 <div class="timer-status" id="timer-status" data-txt="tools-df-status-ready">Bereit</div>
 
-                <button class="btn-submit" id="btn-start-timer" style="background-color: var(--success-color);" onclick="startTimer()" data-txt="tools-df-btn-start">Start Timer (Zufalls-Delay)</button>
+                <button class="btn-submit" id="btn-start-timer" style="background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); padding: 16px;" onclick="startTimer()" data-txt="tools-df-btn-start">Start Timer (Zufalls-Delay)</button>
             </div>
         </div>
 
     </div>
 
+    <!-- MODALS IDENTISCH -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -230,7 +266,7 @@
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                             <label style="margin-bottom: 0;">Passwort *</label>
-                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
+                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 600;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
                         </div>
                         <input type="password" id="login-password" required placeholder="••••••••">
                     </div>
@@ -272,11 +308,11 @@
                 <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
                     <label style="color: var(--success-color); font-weight: 700;" data-txt="modal-settings-deals">📈 Erfolgreiche Vermittlungen</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                        <div style="background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
                             <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
                             <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-seller">Als Verkäufer</p>
                         </div>
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                        <div style="background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
                             <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
                             <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-buyer">Als Käufer</p>
                         </div>
@@ -289,9 +325,9 @@
                 </div>
 
                 <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
-                    <label style="color: #3498db;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</label>
-                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
+                    <label style="color: #3498db; font-weight: 700;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</label>
+                    <p style="font-size: 12px; margin-top: 4px; color: var(--text-muted);" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
+                    <button type="button" class="btn-primary-auth" style="width:100%; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; margin-top: 8px; border: none;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
                 </div>
 
                 <form id="settings-form">
@@ -315,7 +351,7 @@
                         <label data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
                         <input type="password" id="settings-password" minlength="6" data-txt-ph="ph-password" placeholder="Mindestens 6 Zeichen">
                     </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Änderungen speichern</button>
+                    <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
                 </form>
                 <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
                 <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
@@ -334,7 +370,7 @@
             <form id="chat-send-form" style="display: flex; gap: 8px;">
                 <input type="hidden" id="chat-edit-id" value="">
                 <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
-                <button type="submit" style="background:var(--accent-color); color:white; border:none; padding:10px 20px; border-radius:var(--radius); font-weight:bold; cursor:pointer;">Senden</button>
+                <button type="submit" class="btn-submit" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
             </form>
         </div>
     </div>
@@ -352,13 +388,12 @@
         </div>
     </div>
 
-      <footer>
+    <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
             <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
             <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-
 
     <script src="auth.js"></script>
     <script src="lang.js"></script>
@@ -476,8 +511,8 @@
                         <td><strong>${shooter.name}</strong> <span style="font-size: 10px; color: var(--text-muted);">${shooter.pf}</span></td>
                         <td>${shooter.points}</td>
                         <td>${timeDisplay}s</td>
-                        <td style="font-weight: bold; color: var(--accent-color);">${hfDisplay}</td>
-                        <td style="text-align: right;"><button onclick="removeShooter(${shooter.id})" style="background:none; border:none; color:var(--danger-color); cursor:pointer; padding:5px;">&times;</button></td>
+                        <td style="font-weight: 900; color: var(--accent-color);">${hfDisplay}</td>
+                        <td style="text-align: right;"><button onclick="removeShooter(${shooter.id})" style="background:none; border:none; color:var(--danger-color); cursor:pointer; padding:5px; font-size:18px; font-weight:bold;">&times;</button></td>
                     </tr>
                 `;
             });
@@ -599,10 +634,10 @@
             const labelAction = isEn ? "Procedure:" : "Ablauf:";
             const html = `
                 <div style="text-align: left; width: 100%;">
-                    <strong style="color: var(--accent-color);">${labelStart}</strong><br>
-                    ${randomStart}<br><br>
-                    <strong style="color: var(--accent-color);">${labelAction}</strong><br>
-                    ${randomAction}
+                    <strong style="color: var(--accent-color); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">${labelStart}</strong><br>
+                    <span style="font-weight: 700; font-size: 18px;">${randomStart}</span><br><br>
+                    <strong style="color: var(--accent-color); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">${labelAction}</strong><br>
+                    <span style="font-weight: 700; font-size: 18px;">${randomAction}</span>
                 </div>
             `;
             document.getElementById('drill-output').innerHTML = html;
