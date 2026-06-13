@@ -127,21 +127,17 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </div>
 
                     <form id="settings-form">
-                        <div class="form-group">
-                            <label for="settings-username" data-txt="lbl-username">Schützenname / Anzeigename</label>
-                            <input type="text" id="settings-username" data-txt-ph="ph-username" placeholder="z.B. IPSCShooter99">
-                        </div>
                         
+                        <div class="settings-realname-card" style="background-color: rgba(59, 130, 246, 0.04); padding: 16px; border-radius: 6px; border-left: 4px solid var(--info-color); margin-bottom: 20px; display: flex; flex-direction: column;">
+                            <label for="settings-real-name" class="settings-realname-title" style="color: var(--info-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-real-name">🔒 Echter Name (Für Anzeigen & Statistiken)</label>
+                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-real-name-desc">Trage hier deinen Klarnamen ein. Dieser Name wird für ELO-Analysen und den Sniper Bot benötigt.</p>
+                            <input type="text" id="settings-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann">
+                        </div>
+
                         <div class="settings-alias-card" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: 6px; border-left: 4px solid var(--success-color); margin-bottom: 20px; display: flex; flex-direction: column;">
                             <label for="settings-ipsc-alias" class="settings-alias-title" style="color: var(--success-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
                             <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-ipsc-alias-desc">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
                             <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
-                        </div>
-
-                        <div class="settings-realname-card" style="background-color: rgba(59, 130, 246, 0.04); padding: 16px; border-radius: 6px; border-left: 4px solid var(--info-color); margin-bottom: 20px; display: flex; flex-direction: column;">
-                            <label for="settings-real-name" class="settings-realname-title" style="color: var(--info-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
-                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-real-name-desc">Trage hier deinen Klarnamen ein. Dieser Name wird niemals öffentlich auf der Seite gezeigt.</p>
-                            <input type="text" id="settings-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann">
                         </div>
 
                         <div class="form-group">
@@ -220,7 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("settings-avatar")?.closest(".form-group")
             ];
             elementsToHide.forEach(el => { if(el) el.style.display = "block"; });
-            if (document.getElementById("settings-username")) document.getElementById("settings-username").readOnly = false;
+            if (document.getElementById("settings-real-name")) document.getElementById("settings-real-name").readOnly = false;
             if (document.getElementById("settings-ipsc-alias")) document.getElementById("settings-ipsc-alias").readOnly = false;
         });
     }
@@ -232,14 +228,13 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             if (!window.currentUser) return;
 
-            const username = document.getElementById("settings-username")?.value.trim();
-            const ipscAlias = document.getElementById("settings-ipsc-alias")?.value.trim();
             const realName = document.getElementById("settings-real-name")?.value.trim();
+            const ipscAlias = document.getElementById("settings-ipsc-alias")?.value.trim();
 
             const { error } = await window.supabaseClient
                 .from("profiles")
                 .update({
-                    username: username,
+                    username: realName,
                     ipsc_alias: ipscAlias,
                     real_name: realName
                 })
@@ -250,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 alert(window.currentLang === "en" ? "Profile updated successfully!" : "Profil erfolgreich aktualisiert!");
                 if (window.currentUser.user_metadata) {
-                    window.currentUser.user_metadata.username = username;
+                    window.currentUser.user_metadata.username = realName;
                     window.currentUser.user_metadata.ipsc_alias = ipscAlias;
                 }
                 fetchMatches();
@@ -876,17 +871,14 @@ async function loadUserSettingsProfile() {
     .single();
 
   if (!error && profile) {
-    const usrInput = document.getElementById("settings-username");
     const aliasInput = document.getElementById("settings-ipsc-alias");
     const rnInput = document.getElementById("settings-real-name");
 
-    // Falls die Elemente noch nicht da sind, per Retry kurz warten
-    if (!usrInput || !aliasInput || !rnInput) {
+    if (!aliasInput || !rnInput) {
         setTimeout(loadUserSettingsProfile, 100);
         return;
     }
 
-    usrInput.value = profile.username || "";
     aliasInput.value = profile.ipsc_alias || "";
     rnInput.value = profile.real_name || "";
   }
