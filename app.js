@@ -7,7 +7,6 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
 // ==========================================================================
 // GLOBALE INJEKTION FÜR KONTO-EINSTELLUNGEN, AUTH, CHAT & INBOX
 // ==========================================================================
-// WICHTIG: Sofortige Injektion, um Race-Conditions mit Supabase zu verhindern!
 (function injectGlobalModals() {
     if (!document.getElementById("auth-modal")) {
         const authModalHtml = `
@@ -17,7 +16,6 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
                 </div>
                 
-                <!-- LOGIN VIEW -->
                 <div id="modal-login-view">
                     <h3 data-txt="modal-login-title">Anmelden</h3>
                     <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
@@ -44,10 +42,17 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </div>
                 </div>
 
-                <!-- REGISTER VIEW -->
                 <div id="modal-register-view" style="display: none;">
                     <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                     <form id="register-form">
+                        <div class="form-group">
+                            <label for="register-real-name" style="color: var(--info-color);">🔒 Echter Name * (Für Analysen)</label>
+                            <input type="text" id="register-real-name" required placeholder="z.B. Max Mustermann">
+                        </div>
+                        <div class="form-group">
+                            <label for="register-ipsc-alias" style="color: var(--success-color);">🛡️ IPSC Alias / Schützenname *</label>
+                            <input type="text" id="register-ipsc-alias" required placeholder="z.B. GER1234 oder AlphaShooter">
+                        </div>
                         <div class="form-group">
                             <label for="register-email" data-txt="lbl-email">E-Mail *</label>
                             <input type="email" id="register-email" required placeholder="name@beispiel.de">
@@ -70,7 +75,6 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </div>
                 </div>
 
-                <!-- FORGOT PASSWORD VIEW -->
                 <div id="modal-forgot-view" style="display: none;">
                     <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
                     <form id="forgot-form">
@@ -85,7 +89,6 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </div>
                 </div>
 
-                <!-- RESET PASSWORD VIEW -->
                 <div id="modal-reset-view" style="display: none;">
                     <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                     <form id="reset-password-form">
@@ -97,7 +100,6 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </form>
                 </div>
 
-                <!-- SETTINGS VIEW -->
                 <div id="modal-settings-view" style="display: none;">
                     <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                     
@@ -198,7 +200,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
         </div>`;
         document.body.insertAdjacentHTML("beforeend", inboxModalHtml);
     }
-})(); // Direkt ausführen!
+})();
 
 document.addEventListener("DOMContentLoaded", () => {
     // Event-Listener für Modal-Close anheften
@@ -237,13 +239,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const realName = realNameEl ? realNameEl.value.trim() : "";
             const ipscAlias = aliasEl ? aliasEl.value.trim() : "";
 
-            // LOGIK: Nutze den Alias als öffentlichen Username. Wenn leer, nimm E-Mail-Präfix.
             const publicUsername = ipscAlias !== "" ? ipscAlias : window.currentUser.email.split('@')[0];
 
             const { error } = await window.supabaseClient
                 .from("profiles")
                 .update({
-                    username: publicUsername, // Hier ist jetzt der Alias drin
+                    username: publicUsername,
                     ipsc_alias: ipscAlias,
                     real_name: realName
                 })
@@ -254,13 +255,11 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 alert(window.currentLang === "en" ? "Profile updated successfully!" : "Profil erfolgreich aktualisiert!");
                 
-                // Lokale Session direkt updaten
                 if (window.currentUser.user_metadata) {
                     window.currentUser.user_metadata.username = publicUsername;
                     window.currentUser.user_metadata.ipsc_alias = ipscAlias;
                 }
                 
-                // Auth-Update für Metadaten in Supabase (für Konstistenz)
                 await window.supabaseClient.auth.updateUser({
                     data: { username: publicUsername, ipsc_alias: ipscAlias }
                 });
