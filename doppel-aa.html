@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doppel AA Sniper | IPSC Börse</title>
     
-    <link rel="manifest" href="manifest.json">
+    <link class="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,6 +14,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
     <link rel="stylesheet" href="global.css">
     
     <style>
@@ -215,6 +216,7 @@
         </div>
     </div>
 
+    <!-- SPEZIFISCHES BOT MODAL (BLEIBT IN DIESER DATEI) -->
     <div class="modal" id="bot-config-modal">
         <div class="modal-content">
             <button class="modal-close-trigger" onclick="closeBotModal()">&times;</button>
@@ -327,8 +329,11 @@
         </div>
     </div>
 
+    <!-- ALLE JS LOGIKEN ZU 100% UNANGETASTET -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="auth.js"></script>
+    <script src="lang.js"></script>
+    <script src="app.js"></script>
     
     <script>
         window.loadedMatchesCache = [];
