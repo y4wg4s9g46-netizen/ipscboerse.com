@@ -14,7 +14,6 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
     <link rel="stylesheet" href="global.css">
     
     <style>
@@ -216,7 +215,6 @@
         </div>
     </div>
 
-    <!-- SPEZIFISCHES BOT MODAL (BLEIBT IN DIESER DATEI) -->
     <div class="modal" id="bot-config-modal">
         <div class="modal-content">
             <button class="modal-close-trigger" onclick="closeBotModal()">&times;</button>
@@ -241,32 +239,32 @@
                     <div class="form-group">
                         <label>Region</label>
                         <select id="bot-region" required>
-                            <option value="GER" selected>GER Germany</option>
-                            <option value="AND">AND Andorra</option>
-                            <option value="ARG">ARG Argentina</option>
-                            <option value="ARM">ARM Armenia</option>
-                            <option value="ARU">ARU Aruba</option>
-                            <option value="AUS">AUS Australia</option>
-                            <option value="AUT">AUT Austria</option>
-                            <option value="BAR">BAR Barbados</option>
-                            <option value="BEL">BEL Belgium</option>
-                            <option value="BLR">BLR Belarus</option>
-                            <option value="BOL">BOL Bolivia</option>
-                            <option value="CZE">CZE Czech Republic</option>
-                            <option value="ESP">ESP Spain</option>
-                            <option value="FRA">FRA France</option>
-                            <option value="GBR">GBR Great Britain</option>
-                            <option value="ITA">ITA Italy</option>
-                            <option value="NED">NED Netherlands</option>
-                            <option value="POL">POL Poland</option>
-                            <option value="SUI">SUI Switzerland</option>
-                            <option value="SVK">SVK Slovakia</option>
-                            <option value="USA">USA United States</option>
+                            <option value="GER Germany" selected>GER Germany</option>
+                            <option value="AND Andorra">AND Andorra</option>
+                            <option value="ARG Argentina">ARG Argentina</option>
+                            <option value="ARM Armenia">ARM Armenia</option>
+                            <option value="ARU Aruba">ARU Aruba</option>
+                            <option value="AUS Australia">AUS Australia</option>
+                            <option value="AUT Austria">AUT Austria</option>
+                            <option value="BAR Barbados">BAR Barbados</option>
+                            <option value="BEL Belgium">BEL Belgium</option>
+                            <option value="BLR Belarus">BLR Belarus</option>
+                            <option value="BOL Bolivia">BOL Bolivia</option>
+                            <option value="CZE Czech Republic">CZE Czech Republic</option>
+                            <option value="ESP Spain">ESP Spain</option>
+                            <option value="FRA France">FRA France</option>
+                            <option value="GBR Great Britain">GBR Great Britain</option>
+                            <option value="ITA Italy">ITA Italy</option>
+                            <option value="NED Netherlands">NED Netherlands</option>
+                            <option value="POL Poland">POL Poland</option>
+                            <option value="SUI Switzerland">SUI Switzerland</option>
+                            <option value="SVK Slovakia">SVK Slovakia</option>
+                            <option value="USA United States">USA United States</option>
                             <optgroup label="Deutsche Landesverbände (BDS)">
-                                <option value="LV1">LV 1 (Berlin/Brandenburg)</option>
-                                <option value="LV4">LV 4 (Nordrhein-Westfalen)</option>
-                                <option value="LV6">LV 6 (Hessen)</option>
-                                <option value="LV9">LV 9 (Bayern)</option>
+                                <option value="LV 1 (Berlin/Brandenburg)">LV 1 (Berlin/Brandenburg)</option>
+                                <option value="LV 4 (Nordrhein-Westfalen)">LV 4 (Nordrhein-Westfalen)</option>
+                                <option value="LV 6 (Hessen)">LV 6 (Hessen)</option>
+                                <option value="LV 9 (Bayern)">LV 9 (Bayern)</option>
                             </optgroup>
                         </select>
                     </div>
@@ -329,7 +327,6 @@
         </div>
     </div>
 
-    <!-- ALLE JS LOGIKEN ZU 100% UNANGETASTET -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="auth.js"></script>
     <script src="lang.js"></script>
@@ -572,7 +569,7 @@
                 document.getElementById("bot-nachname").value = fd.nachname || "";
                 document.getElementById("bot-email").value = fd.email || "";
                 document.getElementById("bot-lizenz").value = fd.lizenz || "";
-                document.getElementById("bot-region").value = fd.region || "GER";
+                document.getElementById("bot-region").value = fd.region || "GER Germany";
                 document.getElementById("bot-bemerkung").value = fd.bemerkung || "";
                 document.getElementById("bot-squad").value = fd.squad || "";
                 setTimeout(() => {
@@ -652,42 +649,39 @@
             submitBtn.disabled = true;
             
             const targetMatchId = document.getElementById("modal-match-id").value;
-    
             const existingJobId = document.getElementById("modal-existing-job-id").value;
+
+            // 🎯 ZIEL-URL AUS DEM CACHE LADEN
+            const targetMatch = window.loadedMatchesCache.find(m => String(m.id) === String(targetMatchId));
 
             const { data: { session } } = await window.supabaseClient.auth.getSession();
             if (!session) {
                 alert("Fehler: Du bist nicht eingeloggt!");
                 submitBtn.innerText = "Bot jetzt programmieren";
-              
                 submitBtn.disabled = false;
                 return;
             }
             const currentUserId = session.user.id;
-
             const selectedFactor = document.querySelector('input[name="power_factor"]:checked').value;
 
+            // 🎯 FORMDATA MIT MATCH-URL FÜR DIE EDGE FUNCTION
             const formData = {
+                matchUrl: targetMatch ? targetMatch.url : "", 
                 vorname: document.getElementById("bot-vorname").value,
-      
                 nachname: document.getElementById("bot-nachname").value,
                 email: document.getElementById("bot-email").value,
                 lizenz: document.getElementById("bot-lizenz").value,
                 region: document.getElementById("bot-region").value,
                 division: document.getElementById("bot-division").value,
                 category: document.getElementById("bot-category").value,
-    
                 power_factor: selectedFactor,
-                wunschtag: document.getElementById("bot-wunschtag").value, 
+                wunschtag: document.getElementById("bot-wunschtag").value,
                 squad: document.getElementById("bot-squad").value,
                 bemerkung: document.getElementById("bot-bemerkung").value,
-                is_ro: document.getElementById("bot-ro").checked ?
-                "1" : "0",
-                is_sponsor: document.getElementById("bot-sponsor").checked ?
-                "1" : "0",
                 public_visible: document.getElementById("bot-public").value,
-                accept_terms: document.getElementById("bot-agb").checked ?
-                "1" : "0"
+                is_ro: document.getElementById("bot-ro").checked,
+                is_sponsor: document.getElementById("bot-sponsor").checked,
+                accept_terms: document.getElementById("bot-agb").checked ? "1" : "0"
             };
 
             let resultError = null;
