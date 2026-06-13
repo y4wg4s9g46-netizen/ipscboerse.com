@@ -400,15 +400,10 @@ document.addEventListener("click", async (e) => {
         document.getElementById("auth-modal").style.display = "flex";
         toggleAuthView("settings");
         
-        const settingsUser = document.getElementById("settings-username");
-        if (settingsUser && window.currentUser) {
-            settingsUser.value = window.currentUser.user_metadata?.username || "";
-        }
         const settingsIpsc = document.getElementById("settings-ipsc-alias");
         if (settingsIpsc && window.currentUser) {
             settingsIpsc.value = window.currentUser.user_metadata?.ipsc_alias || "";
         }
-        // 🎯 NEU: Lädt beim Öffnen der Einstellungen den echten Namen ins Feld
         const settingsRealName = document.getElementById("settings-real-name");
         if (settingsRealName && window.currentUser) {
             settingsRealName.value = window.currentUser.user_metadata?.real_name || "";
@@ -421,7 +416,7 @@ document.addEventListener("click", async (e) => {
     }
     if (e.target.id === "btn-delete-account") {
         e.preventDefault();
-        if (!confirm("⚠️ WARNUNG:\n\nMöchtest du dein Profil und all deine active Marktplatz-Inserate wirklich unwiderruflich löschen?")) return;
+        if (!confirm("⚠️ WARNUNG:\n\nMöchtest du dein Profil und all deine aktiven Marktplatz-Inserate wirklich unwiderruflich löschen?")) return;
         await window.supabaseClient.from("matches").delete().eq("seller_email", window.currentUser.email);
         await window.supabaseClient.auth.updateUser({ data: { deleted: true, username: "Gelöschter Schütze" } });
         await window.supabaseClient.auth.signOut();
@@ -467,9 +462,23 @@ document.addEventListener("submit", async (e) => {
             return;
         }
 
+        const realName = document.getElementById("register-real-name") ? document.getElementById("register-real-name").value.trim() : "";
+        const ipscAlias = document.getElementById("register-ipsc-alias") ? document.getElementById("register-ipsc-alias").value.trim() : "";
+        const emailValue = document.getElementById("register-email").value;
+        const passwordValue = document.getElementById("register-password").value;
+        
+        const publicUsername = ipscAlias !== "" ? ipscAlias : emailValue.split('@')[0];
+
         const { error } = await window.supabaseClient.auth.signUp({
-            email: document.getElementById("register-email").value,
-            password: document.getElementById("register-password").value,
+            email: emailValue,
+            password: passwordValue,
+            options: {
+                data: {
+                    real_name: realName,
+                    ipsc_alias: ipscAlias,
+                    username: publicUsername
+                }
+            }
         });
         if (error) alert("Registrierung fehlgeschlagen: " + error.message);
         else { alert("Konto erstellt! Bitte überprüfe dein Postfach."); toggleAuthView("login"); }
@@ -493,7 +502,6 @@ document.addEventListener("submit", async (e) => {
             location.reload(); 
         }
     }
-    // 🎯 HIER WAR DER FEHLER: Erweitert um den echten Namen (real_name)
     else if (e.target.id === "settings-form") {
         e.preventDefault();
         const btn = e.target.querySelector('button[type="submit"]');
@@ -501,16 +509,16 @@ document.addEventListener("submit", async (e) => {
         if (btn) btn.innerText = "Speichere... (Bild lädt hoch)";
 
         try {
-            const newUsername = document.getElementById("settings-username").value;
-            const newPassword = document.getElementById("settings-password").value;
-            const newIpscAlias = document.getElementById("settings-ipsc-alias").value; 
-            const newRealName = document.getElementById("settings-real-name").value; // 🔄 Neu ausgelesen
+            const newPassword = document.getElementById("settings-password") ? document.getElementById("settings-password").value : "";
+            const newIpscAlias = document.getElementById("settings-ipsc-alias") ? document.getElementById("settings-ipsc-alias").value.trim() : ""; 
+            const newRealName = document.getElementById("settings-real-name") ? document.getElementById("settings-real-name").value.trim() : "";
+
+            const publicUsername = newIpscAlias !== "" ? newIpscAlias : window.currentUser.email.split('@')[0];
 
             const avatarInput = document.getElementById("settings-avatar");
             const avatarFile = avatarInput && avatarInput.files.length > 0 ? avatarInput.files[0] : null;
             
-            // 🔄 Schreibt den echten Namen DSGVO-konform in die Metadaten
-            let updates = { data: { username: newUsername, ipsc_alias: newIpscAlias, real_name: newRealName } };
+            let updates = { data: { username: publicUsername, ipsc_alias: newIpscAlias, real_name: newRealName } };
             if (newPassword.trim().length >= 6) { updates.password = newPassword; }
 
             if (avatarFile) {
@@ -521,6 +529,13 @@ document.addEventListener("submit", async (e) => {
             const { error } = await window.supabaseClient.auth.updateUser(updates);
             if (error) throw error;
             
+            // Extra Profile Update für Konsistenz in der Supabase DB
+            await window.supabaseClient.from("profiles").update({
+                username: publicUsername,
+                ipsc_alias: newIpscAlias,
+                real_name: newRealName
+            }).eq("id", window.currentUser.id);
+
             alert(window.currentLang === "en" ? "Account updated!" : "Konto erfolgreich aktualisiert!"); 
             location.reload(); 
         } catch (err) {
