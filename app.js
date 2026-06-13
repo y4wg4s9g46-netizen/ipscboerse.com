@@ -7,6 +7,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
 // ==========================================================================
 // GLOBALE INJEKTION FÜR KONTO-EINSTELLUNGEN, AUTH, CHAT & INBOX
 // ==========================================================================
+// WICHTIG: Sofortige Injektion, um Race-Conditions mit Supabase zu verhindern!
 (function injectGlobalModals() {
     if (!document.getElementById("auth-modal")) {
         const authModalHtml = `
@@ -16,6 +17,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
                 </div>
                 
+                <!-- LOGIN VIEW -->
                 <div id="modal-login-view">
                     <h3 data-txt="modal-login-title">Anmelden</h3>
                     <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
@@ -42,6 +44,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </div>
                 </div>
 
+                <!-- REGISTER VIEW -->
                 <div id="modal-register-view" style="display: none;">
                     <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                     <form id="register-form">
@@ -75,6 +78,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </div>
                 </div>
 
+                <!-- FORGOT PASSWORD VIEW -->
                 <div id="modal-forgot-view" style="display: none;">
                     <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
                     <form id="forgot-form">
@@ -89,6 +93,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </div>
                 </div>
 
+                <!-- RESET PASSWORD VIEW -->
                 <div id="modal-reset-view" style="display: none;">
                     <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                     <form id="reset-password-form">
@@ -100,6 +105,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </form>
                 </div>
 
+                <!-- SETTINGS VIEW -->
                 <div id="modal-settings-view" style="display: none;">
                     <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                     
@@ -200,10 +206,10 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
         </div>`;
         document.body.insertAdjacentHTML("beforeend", inboxModalHtml);
     }
-})();
+})(); // Injektion läuft
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Event-Listener für Modal-Close anheften
+    // Schließen-Trigger für das Konto-Modal binden
     const closeBtn = document.getElementById("btn-close-modal");
     if (closeBtn) {
         closeBtn.addEventListener("click", () => {
@@ -223,92 +229,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const aliasInput = document.getElementById("settings-ipsc-alias");
             if (rnInput) rnInput.readOnly = false;
             if (aliasInput) aliasInput.readOnly = false;
-        });
-    }
-
-    // Settings-Formular Listener binden
-    const settingsForm = document.getElementById("settings-form");
-    if (settingsForm) {
-        settingsForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            if (!window.currentUser) return;
-
-            const realNameEl = document.getElementById("settings-real-name");
-            const aliasEl = document.getElementById("settings-ipsc-alias");
-
-            const realName = realNameEl ? realNameEl.value.trim() : "";
-            const ipscAlias = aliasEl ? aliasEl.value.trim() : "";
-
-            const publicUsername = ipscAlias !== "" ? ipscAlias : window.currentUser.email.split('@')[0];
-
-            const { error } = await window.supabaseClient
-                .from("profiles")
-                .update({
-                    username: publicUsername,
-                    ipsc_alias: ipscAlias,
-                    real_name: realName
-                })
-                .eq("id", window.currentUser.id);
-
-            if (error) {
-                alert(window.currentLang === "en" ? "Error saving profile: " + error.message : "Fehler beim Speichern des Profils: " + error.message);
-            } else {
-                alert(window.currentLang === "en" ? "Profile updated successfully!" : "Profil erfolgreich aktualisiert!");
-                
-                if (window.currentUser.user_metadata) {
-                    window.currentUser.user_metadata.username = publicUsername;
-                    window.currentUser.user_metadata.ipsc_alias = ipscAlias;
-                }
-                
-                await window.supabaseClient.auth.updateUser({
-                    data: { username: publicUsername, ipsc_alias: ipscAlias }
-                });
-
-                fetchMatches();
-            }
-        });
-    }
-
-    // Chat-Senden binden
-    const chatForm = document.getElementById("chat-send-form");
-    if (chatForm) {
-        chatForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            if (!window.activeChatRoom || !window.currentUser) return;
-
-            const input = document.getElementById("chat-message-input");
-            const editIdInput = document.getElementById("chat-edit-id");
-            const messageText = input.value.trim();
-            if (!messageText) return;
-
-            const editId = editIdInput ? editIdInput.value : "";
-
-            if (editId) {
-                const { error } = await window.supabaseClient.from("chat_messages").update({ message: messageText }).eq("id", editId);
-                if (error) {
-                    alert("Fehler beim Aktualisieren: " + error.message);
-                } else {
-                    if (editIdInput) editIdInput.value = "";
-                    input.value = "";
-                    const sendBtn = document.getElementById("btn-chat-send");
-                    if (sendBtn) sendBtn.innerText = window.currentLang === "en" ? "Send" : "Senden";
-                    await loadChatMessages();
-                }
-            } else {
-                const { error } = await window.supabaseClient.from("chat_messages").insert([{
-                    match_id: window.activeChatRoom.matchId,
-                    match_name: window.activeChatRoom.matchName,
-                    sender_email: window.currentUser.email,
-                    receiver_email: window.activeChatRoom.receiverEmail,
-                    message: messageText
-                }]);
-
-                if (error) {
-                    alert("Fehler beim Senden: " + error.message);
-                } else {
-                    input.value = "";
-                }
-            }
         });
     }
 
