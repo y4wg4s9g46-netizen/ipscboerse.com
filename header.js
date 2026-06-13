@@ -390,6 +390,15 @@
                         performanceLink.style.border = '1px solid rgba(255, 159, 67, 0.3)';
                     }
                     navContainer.appendChild(performanceLink);
+
+                    // 🔥 SCHRITT 3: DER NEUE FIX!
+                    // Falls einer der beiden VIP-Links aktiv ist, zentrieren wir ihn nachträglich im Blickfeld
+                    const newActiveLink = navContainer.querySelector('a.active');
+                    if (newActiveLink) {
+                        setTimeout(() => {
+                            newActiveLink.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+                        }, 50);
+                    }
                 }
             }
         }, 600);
