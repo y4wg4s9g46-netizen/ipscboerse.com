@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SG Timer Live-Schnittstelle - IPSC Startplatz-Börse</title>
+    
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #ff9f43;
+            --text-color: #ffffff;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --success-color: #4cd964;
+            --danger-color: #ff3b30;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding-bottom: 50px;
+        }
+
+        /* Container-Layout */
+        .main-container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-layout { grid-template-columns: 1fr; }
+        }
+
+        /* Taktische Karten-Steuerung */
+        .panel-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .panel-card h2, .panel-card h3 {
+            margin-top: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.05);
+            margin-bottom: 20px;
+        }
+
+        /* Formulare & Buttons */
+        .form-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .btn-tactic {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.1s, filter 0.2s;
+        }
+        .btn-tactic:active { transform: scale(0.98); }
+        .btn-tactic:hover { filter: brightness(1.1); }
+
+        .btn-blue { background: #007AFF; color: #fff; }
+        .btn-green { background: var(--success-color); color: #fff; }
+        .btn-red { background: var(--danger-color); color: #fff; }
+
+        /* Schuss-Tabelle */
+        .shot-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .shot-table th {
+            color: var(--accent-color);
+            font-size: 12px;
+            text-transform: uppercase;
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .shot-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            text-align: center;
+            font-size: 15px;
+        }
+        .shot-row-new {
+            animation: flashGreen 0.5s ease-out;
+        }
+
+        @keyframes flashGreen {
+            0% { background: rgba(76, 217, 100, 0.2); }
+            100% { background: transparent; }
+        }
+    </style>
+</head>
+<body>
+
+    <header></header>
+
+    <div class="main-container">
+        
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="margin: 0; font-size: 28px;">⏱️ Shooters Global Funk-Zentrale</h1>
+            <p style="color: var(--text-muted); margin: 6px 0 0 0;">Verbinde deinen Hardware-Timer live via Web-Bluetooth mit der Range-App</p>
+        </div>
+
+        <div class="grid-layout">
+            
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                
+                <div class="panel-card">
+                    <h2>Verbindung</h2>
+                    <div id="bt-status-badge" class="status-badge">
+                        <span style="width: 8px; height: 8px; background: var(--danger-color); border-radius: 50%;"></span> Getrennt
+                    </div>
+                    <button id="btn-connect" class="btn-tactic btn-blue" onclick="connectSGTimer()">Gerät scannen & koppeln</button>
+                </div>
+
+                <div class="panel-card">
+                    <h2>RO Fernsteuerung</h2>
+                    <div style="display: flex; gap: 12px; margin-top: 15px;">
+                        <button class="btn-tactic btn-green" onclick="remoteStartSession()">▶️ BIEP (Start)</button>
+                        <button class="btn-tactic btn-red" onclick="remoteStopSession()">⏹️ STOPP</button>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <h2>Par-Setup an Timer senden</h2>
+                    <div class="form-group">
+                        <label>Start-Verzögerung</label>
+                        <select id="par-delay">
+                            <option value="999">Zufällig (1.0s - 4.0s) 🎲</option>
+                            <option value="10">Fest 1.0 Sekunde</option>
+                            <option value="20">Fest 2.0 Sekunden</option>
+                            <option value="30">Fest 3.0 Sekunden</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Zeit-Limit (Par-Time in Sek.)</label>
+                        <input type="number" id="par-time" value="0.0" step="0.1" min="0">
+                    </div>
+                    <button class="btn-tactic btn-blue" style="background: #ff9f43;" onclick="sendParSetup()">Konfiguration schreiben</button>
+                </div>
+
+            </div>
+
+            <div class="panel-card" style="display: flex; flex-direction: column;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                    <h2 style="margin: 0;">🎯 Aktueller Durchgang</h2>
+                    <span id="total-shots-counter" style="font-size: 14px; background: rgba(255,159,67,0.1); color: var(--accent-color); padding: 4px 10px; border-radius: 6px; font-weight: bold;">0 Schüsse</span>
+                </div>
+
+                <div style="flex: 1; overflow-y: auto; max-height: 500px;">
+                    <table class="shot-table">
+                        <thead>
+                            <tr>
+                                <th>Schuss-Nr.</th>
+                                <th>Gesamtzeit</th>
+                                <th>Splitzeit</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shot-table-body">
+                            <tr>
+                                <td colspan="3" style="color: var(--text-muted); padding: 40px 0;">Noch keine Schussdaten aufgezeichnet. Drücke Start oder schieße auf der Range.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="header 12.js"></script>
+
+    <script>
+        [span_3](start_span)[span_4](start_span)// UUIDs aus der Shooters Global Dokumentation[span_3](end_span)[span_4](end_span)
+        const SG_SERVICE_UUID = '7520ffff-14d2-4cda-8b6b-697c554c9311'; [span_5](start_span)[span_6](start_span)// Haupt-Service[span_5](end_span)[span_6](end_span)
+        const SG_CHAR_COMMAND = '75200000-14d2-4cda-8b6b-697c554c9311'; [span_7](start_span)// Schreibkanal Befehle[span_7](end_span)
+        const SG_CHAR_EVENT   = '75200001-14d2-4cda-8b6b-697c554c9311'; [span_8](start_span)// Notify-Kanal Events[span_8](end_span)
+        const SG_CHAR_PAR     = '75200005-14d2-4cda-8b6b-697c554c9311'; [span_9](start_span)// Read/Write Par Setup[span_9](end_span)
+
+        let bluetoothDevice = null;
+        let commandCharacteristic = null;
+        let parCharacteristic = null;
+        let loggedShots = []; // Array zum Abfangen und Berechnen der Splits
+
+        // 1. GERÄT VERBINDEN
+        async function connectSGTimer() {
+            const badge = document.getElementById('bt-status-badge');
+            try {
+                badge.innerHTML = `<span>⏳ Scan läuft...`;
+                
+                [span_10](start_span)// Scan-Aufforderung[span_10](end_span)
+                bluetoothDevice = await navigator.bluetooth.requestDevice({
+                    filters: [{ services: [SG_SERVICE_UUID] }],
+                    optionalServices: [SG_SERVICE_UUID]
+                });
+
+                const server = await bluetoothDevice.gatt.connect();
+                const service = await server.getPrimaryService(SG_SERVICE_UUID);
+
+                commandCharacteristic = await service.getCharacteristic(SG_CHAR_COMMAND);
+                parCharacteristic = await service.getCharacteristic(SG_CHAR_PAR);
+                const eventCharacteristic = await service.getCharacteristic(SG_CHAR_EVENT);
+
+                [span_11](start_span)[span_12](start_span)// Notifications abonnieren[span_11](end_span)[span_12](end_span)
+                await eventCharacteristic.startNotifications();
+                eventCharacteristic.addEventListener('characteristicvaluechanged', handleIncomingTimerEvent);
+
+                // UI Updaten auf "Verbunden"
+                badge.innerHTML = `<span style="width: 8px; height: 8px; background: var(--success-color); border-radius: 50%;"></span> Verbunden mit ${bluetoothDevice.name}`;
+                badge.style.background = "rgba(76, 217, 100, 0.1)";
+                document.getElementById('btn-connect').innerText = "Verbindung trennen";
+                document.getElementById('btn-connect').onclick = disconnectTimer;
+
+            } catch (error) {
+                console.error(error);
+                badge.innerHTML = `<span style="width: 8px; height: 8px; background: var(--danger-color); border-radius: 50%;"></span> Fehler`;
+                alert("Bluetooth-Fehler: " + error.message);
+            }
+        }
+
+        // TIMER TRENNEN
+        function disconnectTimer() {
+            if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+                bluetoothDevice.gatt.disconnect();
+            }
+            location.reload();
+        }
+
+        // 2. LIVE-EVENTS EMPFANGEN & AUTOMATISCH PARSEN
+        function handleIncomingTimerEvent(event) {
+            const value = event.target.value; [span_13](start_span)// DataView[span_13](end_span)
+            if (value.byteLength < 2) return;
+
+            const len = value.getUint8(0); [span_14](start_span)[span_15](start_span)//[span_14](end_span)[span_15](end_span)
+            const eventId = value.getUint8(1); [span_16](start_span)//[span_16](end_span)
+
+            [span_17](start_span)[span_18](start_span)// Event-ID 0x00: Session gestartet -> Tabelle resetten[span_17](end_span)[span_18](end_span)
+            if (eventId === 0x00) {
+                loggedShots = [];
+                document.getElementById('shot-table-body').innerHTML = '';
+                document.getElementById('total-shots-counter').innerText = "0 Schüsse";
+            }
+
+            [span_19](start_span)[span_20](start_span)// Event-ID 0x04: SHOT_DETECTED (Schuss bricht!)[span_19](end_span)[span_20](end_span)
+            if (eventId === 0x04) {
+                [span_21](start_span)[span_22](start_span)// Laut Dokumentation Kapitel 1.2.5 (Daten liegen in Big Endian vor)[span_21](end_span)[span_22](end_span):
+                [span_23](start_span)// Byte 6-7: Schussnummer[span_23](end_span)
+                [span_24](start_span)// Byte 8-11: Schusszeit in ms[span_24](end_span)
+                const shotNum = value.getUint16(6, false); [span_25](start_span)[span_26](start_span)// false = Big Endian[span_25](end_span)[span_26](end_span)
+                const shotTimeMs = value.getUint32(8, false); [span_27](start_span)[span_28](start_span)//[span_27](end_span)[span_28](end_span)
+                const currentShotTime = shotTimeMs / 1000;
+
+                // Splitzeit berechnen
+                let splitTime = currentShotTime;
+                if (loggedShots.length > 0) {
+                    splitTime = currentShotTime - loggedShots[loggedShots.length - 1];
+                }
+
+                loggedShots.push(currentShotTime);
+                renderNewShotRow(shotNum + 1, currentShotTime, splitTime);
+            }
+        }
+
+        // SCHUSS-ZEILE IN DIE TABELLE INJIZIEREN
+        function renderNewShotRow(number, total, split) {
+            const tbody = document.getElementById('shot-table-body');
+            
+            // Platzhalter beim ersten Schuss entfernen
+            if (number === 1) tbody.innerHTML = '';
+
+            const row = document.createElement('tr');
+            row.className = "shot-row-new";
+            row.innerHTML = `
+                <td style="font-weight: bold; color: var(--text-muted);">#${number}</td>
+                <td style="font-weight: bold; font-size: 16px; color: #fff;">${total.toFixed(2)}s</td>
+                <td style="color: var(--accent-color); font-weight: 500;">+${split.toFixed(2)}s</td>
+            `;
+
+            // Neuen Schuss ganz oben anheften (wie PractiScore)
+            tbody.insertBefore(row, tbody.firstChild);
+            document.getElementById('total-shots-counter').innerText = `${number} Schüsse`;
+        }
+
+        [span_29](start_span)// 3. BEFEHLE AN HARDWARE SENDEN[span_29](end_span)
+        async function sendCommand(commandId) {
+            if (!commandCharacteristic) return alert("Bitte zuerst den Timer über Bluetooth verbinden!");
+            
+            [span_30](start_span)// Format laut Dokument Kapitel 1.1: len (1 Byte) + cmd_id (1 Byte)[span_30](end_span)
+            const buffer = new Uint8Array([0x01, commandId]); [span_31](start_span)[span_32](start_span)//[span_31](end_span)[span_32](end_span)
+            await commandCharacteristic.writeValue(buffer);
+        }
+
+        function remoteStartSession() { sendCommand(0x00); [span_33](start_span)} // Session Start[span_33](end_span)
+        function remoteStopSession() { sendCommand(0x03); [span_34](start_span)}  // Session Stop[span_34](end_span)
+
+        [span_35](start_span)[span_36](start_span)// 4. PAR-SETUP SCHREIBEN[span_35](end_span)[span_36](end_span)
+        async function sendParSetup() {
+            if (!parCharacteristic) return alert("Bitte zuerst den Timer verbinden!");
+
+            const delaySelect = document.getElementById('par-delay').value;
+            const parTimeInput = parseFloat(document.getElementById('par-time').value) || 0;
+
+            [span_37](start_span)// Einheiten laut Dokumentation in 0.1 Sekunden[span_37](end_span)
+            let startDelayBytes = parseInt(delaySelect);
+            if (startDelayBytes === 999) startDelayBytes = 0xFFFF; [span_38](start_span)// 0xFFFF = Zufall (1-4 Sek)[span_38](end_span)
+
+            let timeLimitBytes = Math.round(parTimeInput * 10); // z.B. [span_39](start_span)1.5s -> 15[span_39](end_span)
+            let shotLimitBytes = 0; [span_40](start_span)// Unbegrenzt[span_40](end_span)
+
+            [span_41](start_span)[span_42](start_span)// Datenbuffer bauen (Kapitel 1.5: 3x 2-Byte im Big Endian Format)[span_41](end_span)[span_42](end_span)
+            const buffer = new ArrayBuffer(6); [span_43](start_span)// 3 Felder * 2 Bytes = 6 Bytes[span_43](end_span)
+            const view = new DataView(buffer);
+
+            view.setUint16(0, startDelayBytes, false); [span_44](start_span)[span_45](start_span)// false = Big Endian[span_44](end_span)[span_45](end_span)
+            view.setUint16(2, timeLimitBytes, false); [span_46](start_span)[span_47](start_span)//[span_46](end_span)[span_47](end_span)
+            view.setUint16(4, shotLimitBytes, false); [span_48](start_span)[span_49](start_span)//[span_48](end_span)[span_49](end_span)
+
+            try {
+                await parCharacteristic.writeValue(buffer);
+                alert("Par-Setup erfolgreich an den SG Timer übertragen! 🎯");
+            } catch (err) {
+                alert("Fehler beim Senden der Konfiguration: " + err.message);
+            }
+        }
+    </script>
+</body>
+</html>
