@@ -486,8 +486,7 @@
                 const matchName = window.escapeHtml(match.match_name || match.name || "Unbekanntes Turnier");
                 const formattedOpenDate = window.escapeHtml(match.anmeldung_oeffnet || "Unbekannt");
                 const disz = window.escapeHtml(match.disziplin || "HG");
-                const 
-                targetUrl = match.url ? window.escapeHtml(match.url) : "https://www.ipscmatch.de/";
+                const targetUrl = match.url ? window.escapeHtml(match.url) : "https://www.ipscmatch.de/";
                 
                 const level = window.escapeHtml(match.level || "N/A");
                 const ort = window.escapeHtml(match.ort || match.location || "Unbekannter Ort");
@@ -502,12 +501,12 @@
                 if (existingJob) {
                     buttonHtml = `
                         <button class="btn-contact" style="background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);"
-                        onclick="openBotModal('${match.id}', '${matchName.replace(/'/g, "\\'")}', '${formattedOpenDate}', '${disz}')">⚙️ Ändern / Editieren</button>
-                        <button class="btn-delete" onclick="deleteBotJob('${existingJob.id}', '${matchName.replace(/'/g, "\\'")}')">❌ Zurücknehmen</button>
+                        onclick="openBotModal('${match.id}', '${matchName.replace(/'/g, "\'")}', '${formattedOpenDate}', '${disz}')">⚙️ Ändern / Editieren</button>
+                        <button class="btn-delete" onclick="deleteBotJob('${existingJob.id}', '${matchName.replace(/'/g, "\'")}')">❌ Zurücknehmen</button>
                     `;
                 } else {
                     buttonHtml = `
-                        <button class="btn-contact" onclick="openBotModal('${match.id}', '${matchName.replace(/'/g, "\\'")}', '${formattedOpenDate}', '${disz}')">Bot scharfschalten</button>
+                        <button class="btn-contact" onclick="openBotModal('${match.id}', '${matchName.replace(/'/g, "\'")}', '${formattedOpenDate}', '${disz}')">Bot scharfschalten</button>
                     `;
                 }
 
