@@ -35,21 +35,14 @@
             navHtml += `<a href="${link.href}" class="${className}" data-txt="${link.key}">${link.text}</a>`;
         });
 
-        // 🌟 Aufbau des HTML mit deinem echten Double-Alpha PNG-Logo aus image_11.png
+        // 🌟 Zurück zur sauberen Text-Ursprungsdatei (Keine fehleranfälligen Bild-Elemente)
         header.innerHTML = `
-            <a href="index.html" class="header-logo-link" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 14px; cursor: pointer; transition: opacity 0.2s; text-align: left;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Zur Startseite">
-                
-                <!-- 🆕 Dein echtes IPSC Classic Target aus image_11.png integriert -->
-                <img src="image_11.png" alt="IPSC Logo" style="height: 44px; width: auto; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); border-radius: 4px;" />
-
-                <div class="logo-text-group">
-                    <h1 ${isVipPage ? '' : 'data-txt="main-title"'} class="${isVipPage ? 'vip-title' : ''}" style="margin: 0; line-height: 1.1;">${headerTitle}</h1>
-                    <p style="color: ${isVipPage ? 'var(--accent-color)' : 'var(--text-muted)'}; margin: 3px 0 0 0; font-size: 12px;" ${isVipPage ? '' : 'data-txt="sub-title"'}>${headerSub}</p>
-                </div>
+            <a href="index.html" style="text-decoration: none; color: inherit; display: inline-block; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Zur Startseite">
+                <h1 ${isVipPage ? '' : 'data-txt="main-title"'} class="${isVipPage ? 'vip-title' : ''}" style="margin: 0; line-height: 1.1;">${headerTitle}</h1>
+                <p style="color: ${isVipPage ? 'var(--accent-color)' : 'var(--text-muted)'}; margin: 5px 0 0 0; font-size: 13px; font-weight: ${isVipPage ? 'bold' : 'normal'};" ${isVipPage ? '' : 'data-txt="sub-title"'}>${headerSub}</p>
             </a>
             
             <div class="header-controls">
-                <!-- Taktisches Sun/Moon SVG Icon -->
                 <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()" title="Design umschalten">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -57,7 +50,6 @@
                 </button>
 
                 ${isVipPage ? '' : `
-                <!-- Taktisches Chat/Sprechblasen SVG Icon -->
                 <button id="header-chat-btn" class="theme-toggle-btn" onclick="toggleGlobalInbox()" style="position: relative;" title="Nachrichten">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
