@@ -17,6 +17,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
                 </div>
                 
+                <!-- LOGIN VIEW -->
                 <div id="modal-login-view">
                     <h3 data-txt="modal-login-title">Anmelden</h3>
                     <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
@@ -43,6 +44,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </div>
                 </div>
 
+                <!-- REGISTER VIEW -->
                 <div id="modal-register-view" style="display: none;">
                     <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                     <form id="register-form">
@@ -68,6 +70,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </div>
                 </div>
 
+                <!-- FORGOT PASSWORD VIEW -->
                 <div id="modal-forgot-view" style="display: none;">
                     <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
                     <form id="forgot-form">
@@ -82,6 +85,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </div>
                 </div>
 
+                <!-- RESET PASSWORD VIEW -->
                 <div id="modal-reset-view" style="display: none;">
                     <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                     <form id="reset-password-form">
@@ -93,6 +97,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </form>
                 </div>
 
+                <!-- SETTINGS VIEW -->
                 <div id="modal-settings-view" style="display: none;">
                     <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                     
@@ -124,15 +129,15 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     <form id="settings-form">
                         
                         <div class="settings-realname-card" style="background-color: rgba(59, 130, 246, 0.04); padding: 16px; border-radius: 6px; border-left: 4px solid var(--info-color); margin-bottom: 20px; display: flex; flex-direction: column;">
-                            <label for="settings-real-name" class="settings-realname-title" style="color: var(--info-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-real-name">🔒 Echter Name (Für Anzeigen & Statistiken)</label>
-                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-real-name-desc">Trage hier deinen Klarnamen ein. Dieser Name wird für ELO-Analysen und den Sniper Bot benötigt.</p>
+                            <label for="settings-real-name" class="settings-realname-title" style="color: var(--info-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-real-name">🔒 Echter Name (Für Analysen & Bot)</label>
+                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-real-name-desc">Trage hier deinen Klarnamen ein. Dieser Name wird niemals öffentlich auf der Seite gezeigt, sondern arbeitet nur im Hintergrund.</p>
                             <input type="text" id="settings-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann">
                         </div>
 
                         <div class="settings-alias-card" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: 6px; border-left: 4px solid var(--success-color); margin-bottom: 20px; display: flex; flex-direction: column;">
-                            <label for="settings-ipsc-alias" class="settings-alias-title" style="color: var(--success-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
-                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-ipsc-alias-desc">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
-                            <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
+                            <label for="settings-ipsc-alias" class="settings-alias-title" style="color: var(--success-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Schützenname</label>
+                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-ipsc-alias-desc">Dies ist dein öffentlicher Anzeigename in der Community! Füllst du hier deine IPSC-Nummer ein, erhältst du zusätzlich das "Trusted Shooter" Badge.</p>
+                            <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 oder AlphaShooter">
                         </div>
 
                         <div class="form-group">
@@ -193,7 +198,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
         </div>`;
         document.body.insertAdjacentHTML("beforeend", inboxModalHtml);
     }
-})();
+})(); // Direkt ausführen!
 
 document.addEventListener("DOMContentLoaded", () => {
     // Event-Listener für Modal-Close anheften
@@ -232,10 +237,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const realName = realNameEl ? realNameEl.value.trim() : "";
             const ipscAlias = aliasEl ? aliasEl.value.trim() : "";
 
+            // LOGIK: Nutze den Alias als öffentlichen Username. Wenn leer, nimm E-Mail-Präfix.
+            const publicUsername = ipscAlias !== "" ? ipscAlias : window.currentUser.email.split('@')[0];
+
             const { error } = await window.supabaseClient
                 .from("profiles")
                 .update({
-                    username: realName, 
+                    username: publicUsername, // Hier ist jetzt der Alias drin
                     ipsc_alias: ipscAlias,
                     real_name: realName
                 })
@@ -245,10 +253,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert(window.currentLang === "en" ? "Error saving profile: " + error.message : "Fehler beim Speichern des Profils: " + error.message);
             } else {
                 alert(window.currentLang === "en" ? "Profile updated successfully!" : "Profil erfolgreich aktualisiert!");
+                
+                // Lokale Session direkt updaten
                 if (window.currentUser.user_metadata) {
-                    window.currentUser.user_metadata.username = realName;
+                    window.currentUser.user_metadata.username = publicUsername;
                     window.currentUser.user_metadata.ipsc_alias = ipscAlias;
                 }
+                
+                // Auth-Update für Metadaten in Supabase (für Konstistenz)
+                await window.supabaseClient.auth.updateUser({
+                    data: { username: publicUsername, ipsc_alias: ipscAlias }
+                });
+
                 fetchMatches();
             }
         });
@@ -881,7 +897,7 @@ async function loadUserSettingsProfile() {
     }
 
     aliasInput.value = profile.ipsc_alias || "";
-    rnInput.value = profile.real_name || profile.username || "";
+    rnInput.value = profile.real_name || "";
   }
 }
 
