@@ -1,14 +1,5 @@
 [
     {
-        "name": "Summer Cup Guyane 2026",
-        "datum": "14.06.2026",
-        "auslastung": "57%",
-        "region": "FRA",
-        "level": "2",
-        "disziplin": "HG",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_Summer_Cup_Guyane"
-    },
-    {
         "name": "TSV Régional Martinique 2026",
         "datum": "20.06.2026",
         "auslastung": "70%",
@@ -110,7 +101,7 @@
     {
         "name": "Adeje Shooters Cup",
         "datum": "03.10.2026",
-        "auslastung": "9%",
+        "auslastung": "11%",
         "region": "ESP",
         "level": "2",
         "disziplin": "HG, PCC, MR",
@@ -119,7 +110,7 @@
     {
         "name": "V Extreme Adeje Shooters",
         "datum": "11.10.2026",
-        "auslastung": "12%",
+        "auslastung": "14%",
         "region": "ESP",
         "level": "3",
         "disziplin": "HG, PCC, MR",
