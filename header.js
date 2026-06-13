@@ -9,12 +9,12 @@
 
         const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
 
-        // 🌟 Prüfen, ob wir auf einer der beiden VIP-Seiten sind[span_1](start_span)[span_1](end_span)
-        const isVipPage = (page === "doppel-aa.html" || page === "performance.html");[span_2](start_span)[span_2](end_span)
+        // 🌟 Prüfen, ob wir auf einer der beiden VIP-Seiten sind
+        const isVipPage = (page === "doppel-aa.html" || page === "performance.html");
 
-        // 🌟 Dynamische Texte für den Header mit dem neuen BÖRSE-Highlight[span_3](start_span)[span_3](end_span)
-        const headerTitle = isVipPage ? "Double Alpha" : "IPSC STARTPLATZ-<span class='logo-accent'>BÖRSE</span>";[span_4](start_span)[span_4](end_span)
-        const headerSub = isVipPage ? "Vereins-Bereich 🔒" : "Von Schützen für Schützen";[span_5](start_span)[span_5](end_span)
+        // 🌟 Dynamische Texte für den Header mit dem neuen BÖRSE-Highlight
+        const headerTitle = isVipPage ? "Double Alpha" : "IPSC STARTPLATZ-<span class='logo-accent'>BÖRSE</span>";
+        const headerSub = isVipPage ? "Vereins-Bereich 🔒" : "Von Schützen für Schützen";
 
         const links = [
             { href: "index.html", text: "Startseite", key: "nav-startseite" },
@@ -35,7 +35,7 @@
             navHtml += `<a href="${link.href}" class="${className}" data-txt="${link.key}">${link.text}</a>`;
         });
 
-        // 🌟 Aufbau des HTML mit deinem echten Double-Alpha PNG-Logo[span_6](start_span)[span_6](end_span)
+        // 🌟 Aufbau des HTML mit deinem echten Double-Alpha PNG-Logo aus image_11.png
         header.innerHTML = `
             <a href="index.html" class="header-logo-link" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 14px; cursor: pointer; transition: opacity 0.2s; text-align: left;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Zur Startseite">
                 
@@ -49,7 +49,7 @@
             </a>
             
             <div class="header-controls">
-                <!-- Taktisches Sun/Moon SVG Icon[span_7](start_span)[span_7](end_span) -->
+                <!-- Taktisches Sun/Moon SVG Icon -->
                 <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()" title="Design umschalten">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -57,7 +57,7 @@
                 </button>
 
                 ${isVipPage ? '' : `
-                <!-- Taktisches Chat/Sprechblasen SVG Icon[span_8](start_span)[span_8](end_span) -->
+                <!-- Taktisches Chat/Sprechblasen SVG Icon -->
                 <button id="header-chat-btn" class="theme-toggle-btn" onclick="toggleGlobalInbox()" style="position: relative;" title="Nachrichten">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -81,9 +81,9 @@
             </nav>
         `;
 
-        // 🌟 Exklusives VIP-Styling nur für diese zwei Seiten injizieren[span_9](start_span)[span_9](end_span)
-        if (isVipPage) {[span_10](start_span)[span_10](end_span)
-            const vipStyle = document.createElement('style');[span_11](start_span)[span_11](end_span)
+        // 🌟 Exklusives VIP-Styling nur für diese zwei Seiten injizieren
+        if (isVipPage) {
+            const vipStyle = document.createElement('style');
             vipStyle.innerHTML = `
                 /* Dunkler VIP-Header mit edlem Verlauf */
                 header {
@@ -148,11 +148,11 @@
                 .primary-btn:hover {
                     filter: brightness(1.2) !important;
                 }
-            `;[span_12](start_span)[span_12](end_span)
-            document.head.appendChild(vipStyle);[span_13](start_span)[span_13](end_span)
-        }[span_14](start_span)[span_14](end_span)
+            `;
+            document.head.appendChild(vipStyle);
+        }
 
-        const style = document.createElement('style');[span_15](start_span)[span_15](end_span)
+        const style = document.createElement('style');
         style.innerHTML = `
             header { position: relative; display: flex; flex-direction: column; align-items: center; }
             
@@ -340,81 +340,81 @@
                 
                 .modal-content { padding: 24px 16px !important; }
             }
-        `;[span_16](start_span)[span_16](end_span)
-        document.head.appendChild(style);[span_17](start_span)[span_17](end_span)
+        `;
+        document.head.appendChild(style);
 
-        const activeLink = header.querySelector('.main-nav a.active');[span_18](start_span)[span_18](end_span)
-        if (activeLink) {[span_19](start_span)[span_19](end_span)
-            setTimeout(() => {[span_20](start_span)[span_20](end_span)
-                activeLink.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });[span_21](start_span)[span_21](end_span)
-            }, 150);[span_22](start_span)[span_22](end_span)
-        }[span_23](start_span)[span_23](end_span)
+        const activeLink = header.querySelector('.main-nav a.active');
+        if (activeLink) {
+            setTimeout(() => {
+                activeLink.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+            }, 150);
+        }
 
-        return true;[span_24](start_span)[span_24](end_span)
-    };[span_25](start_span)[span_25](end_span)
+        return true;
+    };
 
-    if (!injectHeader()) {[span_26](start_span)[span_26](end_span)
-        document.addEventListener('DOMContentLoaded', injectHeader);[span_27](start_span)[span_27](end_span)
-    }[span_28](start_span)[span_28](end_span)
+    if (!injectHeader()) {
+        document.addEventListener('DOMContentLoaded', injectHeader);
+    }
 
     // ==========================================
-    // 🎯 VIP-ZUGANG: DOUBLE ALPHA SNIPER & PERFORMANCE CHECK LINKS[span_29](start_span)[span_29](end_span)
+    // 🎯 VIP-ZUGANG: DOUBLE ALPHA SNIPER & PERFORMANCE CHECK LINKS
     // ==========================================
-    document.addEventListener("DOMContentLoaded", () => {[span_30](start_span)[span_30](end_span)
-        setTimeout(async () => {[span_31](start_span)[span_31](end_span)
-            if (!window.supabaseClient) return;[span_32](start_span)[span_32](end_span)
+    document.addEventListener("DOMContentLoaded", () => {
+        setTimeout(async () => {
+            if (!window.supabaseClient) return;
 
-            const { data: { session } } = await window.supabaseClient.auth.getSession();[span_33](start_span)[span_33](end_span)
-            if (!session) return;[span_34](start_span)[span_34](end_span)
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (!session) return;
 
-            const { data: profile } = await window.supabaseClient[span_35](start_span)[span_35](end_span)
-                .from("profiles")[span_36](start_span)[span_36](end_span)
-                .select("is_doppel_aa")[span_37](start_span)[span_37](end_span)
-                .eq("id", session.user.id)[span_38](start_span)[span_38](end_span)
-                .single();[span_39](start_span)[span_39](end_span)
+            const { data: profile } = await window.supabaseClient
+                .from("profiles")
+                .select("is_doppel_aa")
+                .eq("id", session.user.id)
+                .single();
 
-            if (profile && profile.is_doppel_aa === true) {[span_40](start_span)[span_40](end_span)
-                const navContainer = document.querySelector('header .main-nav');[span_41](start_span)[span_41](end_span)
+            if (profile && profile.is_doppel_aa === true) {
+                const navContainer = document.querySelector('header .main-nav'); 
                 
-                if (navContainer) {[span_42](start_span)[span_42](end_span)
-                    const path = window.location.pathname;[span_43](start_span)[span_43](end_span)
-                    const page = path.split("/").pop() || "index.html";[span_44](start_span)[span_44](end_span)
+                if (navContainer) {
+                    const path = window.location.pathname;
+                    const page = path.split("/").pop() || "index.html";
                     
-                    // 1. Link für den Bot-Sniper (doppel-aa.html)[span_45](start_span)[span_45](end_span)
-                    const isSniperActive = (page === "doppel-aa.html");[span_46](start_span)[span_46](end_span)
-                    const sniperLink = document.createElement('a');[span_47](start_span)[span_47](end_span)
-                    sniperLink.href = 'doppel-aa.html';[span_48](start_span)[span_48](end_span)
-                    sniperLink.innerText = '🎯 Double Alpha';[span_49](start_span)[span_49](end_span)
-                    sniperLink.className = isSniperActive ? "active" : "inactive";[span_50](start_span)[span_50](end_span)
+                    // 1. Link für den Bot-Sniper (doppel-aa.html)
+                    const isSniperActive = (page === "doppel-aa.html");
+                    const sniperLink = document.createElement('a');
+                    sniperLink.href = 'doppel-aa.html'; 
+                    sniperLink.innerText = '🎯 Double Alpha';
+                    sniperLink.className = isSniperActive ? "active" : "inactive";
                     
-                    if (!isSniperActive) {[span_51](start_span)[span_51](end_span)
-                        sniperLink.style.color = '#ff9f43';[span_52](start_span)[span_52](end_span)
-                        sniperLink.style.border = '1px solid rgba(255, 159, 67, 0.3)';[span_53](start_span)[span_53](end_span)
-                    }[span_54](start_span)[span_54](end_span)
-                    navContainer.appendChild(sniperLink);[span_55](start_span)[span_55](end_span)
+                    if (!isSniperActive) {
+                        sniperLink.style.color = '#ff9f43'; 
+                        sniperLink.style.border = '1px solid rgba(255, 159, 67, 0.3)';
+                    }
+                    navContainer.appendChild(sniperLink);
 
-                    // 2. Link für die Starterlisten-Analyse (performance.html)[span_56](start_span)[span_56](end_span)
-                    const isPerformanceActive = (page === "performance.html");[span_57](start_span)[span_57](end_span)
-                    const performanceLink = document.createElement('a');[span_58](start_span)[span_58](end_span)
-                    performanceLink.href = 'performance.html';[span_59](start_span)[span_59](end_span)
-                    performanceLink.innerText = '📊 Performance-Check';[span_60](start_span)[span_60](end_span)
-                    performanceLink.className = isPerformanceActive ? "active" : "inactive";[span_61](start_span)[span_61](end_span)
+                    // 2. Link für die Starterlisten-Analyse (performance.html)
+                    const isPerformanceActive = (page === "performance.html");
+                    const performanceLink = document.createElement('a');
+                    performanceLink.href = 'performance.html'; 
+                    performanceLink.innerText = '📊 Performance-Check';
+                    performanceLink.className = isPerformanceActive ? "active" : "inactive";
                     
-                    if (!isPerformanceActive) {[span_62](start_span)[span_62](end_span)
-                        performanceLink.style.color = '#ff9f43';[span_63](start_span)[span_63](end_span)
-                        performanceLink.style.border = '1px solid rgba(255, 159, 67, 0.3)';[span_64](start_span)[span_64](end_span)
-                    }[span_65](start_span)[span_65](end_span)
-                    navContainer.appendChild(performanceLink);[span_66](start_span)[span_66](end_span)
+                    if (!isPerformanceActive) {
+                        performanceLink.style.color = '#ff9f43'; 
+                        performanceLink.style.border = '1px solid rgba(255, 159, 67, 0.3)';
+                    }
+                    navContainer.appendChild(performanceLink);
 
-                    const newActiveLink = navContainer.querySelector('a.active');[span_67](start_span)[span_67](end_span)
-                    if (newActiveLink) {[span_68](start_span)[span_68](end_span)
-                        setTimeout(() => {[span_69](start_span)[span_69](end_span)
-                            newActiveLink.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });[span_70](start_span)[span_70](end_span)
-                        }, 50);[span_71](start_span)[span_71](end_span)
-                    }[span_72](start_span)[span_72](end_span)
-                }[span_73](start_span)[span_73](end_span)
-            }[span_74](start_span)[span_74](end_span)
-        }, 600);[span_75](start_span)[span_75](end_span)
-    });[span_76](start_span)[span_76](end_span)
+                    const newActiveLink = navContainer.querySelector('a.active');
+                    if (newActiveLink) {
+                        setTimeout(() => {
+                            newActiveLink.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+                        }, 50);
+                    }
+                }
+            }
+        }, 600);
+    });
 
 })();
