@@ -1,15 +1,14 @@
 let cachedMatches = [];
 window.editingMatchId = null; 
-window.activeChatRoom = null; // Speichert den aktiven Chat-Kontext
+window.activeChatRoom = null; 
 
-// Behebt den Badge-Zähler-Fehler: Filtert alte gelesene Nachrichten heraus
 window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new Date().toISOString();
 
 // ==========================================================================
 // GLOBALE INJEKTION FÜR KONTO-EINSTELLUNGEN, AUTH, CHAT & INBOX
 // ==========================================================================
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. AUTH- & SETTINGS-MODAL INJEKTION
+// WICHTIG: Sofortige Injektion, um Race-Conditions mit Supabase zu verhindern!
+(function injectGlobalModals() {
     if (!document.getElementById("auth-modal")) {
         const authModalHtml = `
         <div class="modal" id="auth-modal">
@@ -165,25 +164,8 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         </div>`;
         document.body.insertAdjacentHTML("beforeend", authModalHtml);
-        
-        document.getElementById("btn-close-modal")?.addEventListener("click", () => {
-            document.getElementById("auth-modal").style.display = "none";
-            const title = document.querySelector("#modal-settings-view h3");
-            if (title) title.innerText = "Konto-Einstellungen";
-            const elementsToHide = [
-                document.querySelector("#modal-settings-view div[style*='3498db']"),
-                document.getElementById("settings-password")?.closest(".form-group"),
-                document.querySelector("#modal-settings-view button[type='submit']"),
-                document.getElementById("btn-delete-account"),
-                document.getElementById("settings-avatar")?.closest(".form-group")
-            ];
-            elementsToHide.forEach(el => { if(el) el.style.display = "block"; });
-            if (document.getElementById("settings-username")) document.getElementById("settings-username").readOnly = false;
-            if (document.getElementById("settings-ipsc-alias")) document.getElementById("settings-ipsc-alias").readOnly = false;
-        });
     }
 
-    // 2. CHAT-MODAL INJEKTION
     if (!document.getElementById("chat-modal")) {
         const chatModalHtml = `
         <div class="modal" id="chat-modal">
@@ -202,49 +184,8 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         </div>`;
         document.body.insertAdjacentHTML("beforeend", chatModalHtml);
-        
-        // Re-binden des Submit-Events für das dynamische Formular
-        document.getElementById("chat-send-form")?.addEventListener("submit", async (e) => {
-          e.preventDefault();
-          if (!window.activeChatRoom || !window.currentUser) return;
-
-          const input = document.getElementById("chat-message-input");
-          const editIdInput = document.getElementById("chat-edit-id");
-          const messageText = input.value.trim();
-          if (!messageText) return;
-
-          const editId = editIdInput ? editIdInput.value : "";
-
-          if (editId) {
-            const { error } = await window.supabaseClient.from("chat_messages").update({ message: messageText }).eq("id", editId);
-            if (error) {
-              alert("Fehler beim Aktualisieren: " + error.message);
-            } else {
-              if (editIdInput) editIdInput.value = "";
-              input.value = "";
-              const sendBtn = document.getElementById("btn-chat-send");
-              if (sendBtn) sendBtn.innerText = window.currentLang === "en" ? "Send" : "Senden";
-              await loadChatMessages();
-            }
-          } else {
-            const { error } = await window.supabaseClient.from("chat_messages").insert([{
-              match_id: window.activeChatRoom.matchId,
-              match_name: window.activeChatRoom.matchName,
-              sender_email: window.currentUser.email,
-              receiver_email: window.activeChatRoom.receiverEmail,
-              message: messageText
-            }]);
-
-            if (error) {
-              alert("Fehler beim Senden: " + error.message);
-            } else {
-              input.value = "";
-            }
-          }
-        });
     }
 
-    // 3. GLOBAL INBOX-MODAL INJEKTION
     if (!document.getElementById("global-inbox-modal")) {
         const inboxModalHtml = `
         <div class="modal" id="global-inbox-modal">
@@ -261,13 +202,110 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>`;
         document.body.insertAdjacentHTML("beforeend", inboxModalHtml);
     }
+})(); // Direkt ausführen!
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Event-Listener für Modal-Close anheften
+    const closeBtn = document.getElementById("btn-close-modal");
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+            document.getElementById("auth-modal").style.display = "none";
+            const title = document.querySelector("#modal-settings-view h3");
+            if (title) title.innerText = "Konto-Einstellungen";
+            const elementsToHide = [
+                document.querySelector("#modal-settings-view div[style*='3498db']"),
+                document.getElementById("settings-password")?.closest(".form-group"),
+                document.querySelector("#modal-settings-view button[type='submit']"),
+                document.getElementById("btn-delete-account"),
+                document.getElementById("settings-avatar")?.closest(".form-group")
+            ];
+            elementsToHide.forEach(el => { if(el) el.style.display = "block"; });
+            if (document.getElementById("settings-username")) document.getElementById("settings-username").readOnly = false;
+            if (document.getElementById("settings-ipsc-alias")) document.getElementById("settings-ipsc-alias").readOnly = false;
+        });
+    }
+
+    // Settings-Formular Listener binden
+    const settingsForm = document.getElementById("settings-form");
+    if (settingsForm) {
+        settingsForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!window.currentUser) return;
+
+            const username = document.getElementById("settings-username")?.value.trim();
+            const ipscAlias = document.getElementById("settings-ipsc-alias")?.value.trim();
+            const realName = document.getElementById("settings-real-name")?.value.trim();
+
+            const { error } = await window.supabaseClient
+                .from("profiles")
+                .update({
+                    username: username,
+                    ipsc_alias: ipscAlias,
+                    real_name: realName
+                })
+                .eq("id", window.currentUser.id);
+
+            if (error) {
+                alert(window.currentLang === "en" ? "Error saving profile: " + error.message : "Fehler beim Speichern des Profils: " + error.message);
+            } else {
+                alert(window.currentLang === "en" ? "Profile updated successfully!" : "Profil erfolgreich aktualisiert!");
+                if (window.currentUser.user_metadata) {
+                    window.currentUser.user_metadata.username = username;
+                    window.currentUser.user_metadata.ipsc_alias = ipscAlias;
+                }
+                fetchMatches();
+            }
+        });
+    }
+
+    // Chat-Senden binden
+    const chatForm = document.getElementById("chat-send-form");
+    if (chatForm) {
+        chatForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!window.activeChatRoom || !window.currentUser) return;
+
+            const input = document.getElementById("chat-message-input");
+            const editIdInput = document.getElementById("chat-edit-id");
+            const messageText = input.value.trim();
+            if (!messageText) return;
+
+            const editId = editIdInput ? editIdInput.value : "";
+
+            if (editId) {
+                const { error } = await window.supabaseClient.from("chat_messages").update({ message: messageText }).eq("id", editId);
+                if (error) {
+                    alert("Fehler beim Aktualisieren: " + error.message);
+                } else {
+                    if (editIdInput) editIdInput.value = "";
+                    input.value = "";
+                    const sendBtn = document.getElementById("btn-chat-send");
+                    if (sendBtn) sendBtn.innerText = window.currentLang === "en" ? "Send" : "Senden";
+                    await loadChatMessages();
+                }
+            } else {
+                const { error } = await window.supabaseClient.from("chat_messages").insert([{
+                    match_id: window.activeChatRoom.matchId,
+                    match_name: window.activeChatRoom.matchName,
+                    sender_email: window.currentUser.email,
+                    receiver_email: window.activeChatRoom.receiverEmail,
+                    message: messageText
+                }]);
+
+                if (error) {
+                    alert("Fehler beim Senden: " + error.message);
+                } else {
+                    input.value = "";
+                }
+            }
+        });
+    }
 
     if (typeof window.translatePortalPage === "function") {
         window.translatePortalPage();
     }
 });
 
-// Verhindert das Auswählen von Daten in der Vergangenheit
 function enforceFutureDates() {
   const dateInput = document.getElementById("match-date");
   if (dateInput) {
@@ -276,7 +314,6 @@ function enforceFutureDates() {
   }
 }
 
-// Lädt die aktiven Inserate für den Marktplatz (und holt sich Profil-Daten der Verkäufer dazu!)
 async function fetchMatches() {
   const { data, error } = await window.supabaseClient
     .from("matches")
@@ -302,7 +339,6 @@ async function fetchMatches() {
   renderMatches(cachedMatches);
 }
 
-// Zeichnet die Inserate in die HTML-Liste
 function renderMatches(matches) {
   const container = document.getElementById("match-container");
   if (!container) return;
@@ -351,7 +387,6 @@ function renderMatches(matches) {
         const contactBtnClass = isWant ? "btn-contact btn-contact-want" : "btn-contact";
         const contactText = isWant ? window.translations[window.currentLang]["btn-contact-want"] : window.translations[window.currentLang]["btn-request"];
 
-        // Profilbild-Struktur definieren (Fallback auf Initialen-Placeholder, falls kein Bild vorhanden)
         const authorName = m.author_name || m.seller_email.split('@')[0];
         const authorAvatar = m.author_avatar || '';
         
@@ -404,7 +439,6 @@ function renderMatches(matches) {
         </div>`;
       }).join("");
   }).catch(() => {
-      // Sicherheitsanker: Falls Profil-Abfrage fehlschlägt, lade Inserate ohne Badge
       container.innerHTML = matches.map(m => {
         const isWant = m.type === "want";
         const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
@@ -435,7 +469,6 @@ function handleContactClick(email, matchName, type) {
 }
 window.handleContactClick = handleContactClick;
 
-// === NATIVER LIVE-CHAT LOGIK-BLOCK ===
 async function openChatSystem(matchId, receiverEmail, matchName) {
   if (!window.currentUser) {
     return alert(window.currentLang === "en" ? "Please log in to chat." : "Bitte logge dich ein, um den Live-Chat zu nutzen.");
@@ -456,7 +489,6 @@ async function openChatSystem(matchId, receiverEmail, matchName) {
   const box = document.getElementById("chat-box-messages");
   if (box) box.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">${window.currentLang === "en" ? "Loading messages..." : "Lade Chat-Verlauf..."}</p>`;
 
-  // Reset Editier-Eingabestatus bei Raumwechsel
   const editIdInput = document.getElementById("chat-edit-id");
   if (editIdInput) editIdInput.value = "";
   const msgInput = document.getElementById("chat-message-input");
@@ -468,7 +500,6 @@ async function openChatSystem(matchId, receiverEmail, matchName) {
 }
 window.openChatSystem = openChatSystem;
 
-// Ausgelagerte Render-Funktion für Chat-Nachrichten inkl. Inline-Aktionen (Bearbeiten, Löschen, Melden)
 async function loadChatMessages() {
   if (!window.activeChatRoom || !window.currentUser) return;
   const box = document.getElementById("chat-box-messages");
@@ -516,7 +547,6 @@ async function loadChatMessages() {
   box.scrollTop = box.scrollHeight;
 }
 
-// Bereitet ein bestehendes Textfeld auf das Update vor
 window.editChatMessage = function(id, text) {
   const editIdInput = document.getElementById("chat-edit-id");
   const msgInput = document.getElementById("chat-message-input");
@@ -527,7 +557,6 @@ window.editChatMessage = function(id, text) {
   if (sendBtn) sendBtn.innerText = window.currentLang === "en" ? "Save" : "Speichern";
 };
 
-// Führt ein physisches Löschen der Nachricht in Supabase aus
 window.deleteChatMessage = async function(id) {
   if (!confirm(window.currentLang === "en" ? "Delete this message?" : "Möchtest du diese Nachricht wirklich löschen?")) return;
   const { error } = await window.supabaseClient.from("chat_messages").delete().eq("id", id);
@@ -535,7 +564,6 @@ window.deleteChatMessage = async function(id) {
   else await loadChatMessages();
 };
 
-// Generiert einen mailto-Report-Link zur Benachrichtigung des Admins
 window.reportChatMessage = function(id) {
   const subject = encodeURIComponent("Chat-Meldung: Nachricht ID " + id);
   const body = encodeURIComponent("Hallo Support,\n\nich möchte die Chat-Nachricht mit der ID " + id + " wegen eines Richtlinienverstoßes melden.\n\nGrund:\n");
@@ -548,7 +576,6 @@ function closeChatSystem() {
 }
 window.closeChatSystem = closeChatSystem;
 
-// Halb-automatischer E-Mail-Reminder aus dem Live-Chat heraus
 function triggerChatEmailReminder() {
   if (!window.activeChatRoom) return;
 
@@ -564,7 +591,6 @@ function triggerChatEmailReminder() {
 }
 window.triggerChatEmailReminder = triggerChatEmailReminder;
 
-// Öffnet oder schließt die Chat-Übersicht im Header
 async function toggleGlobalInbox() {
   if (!window.currentUser) {
     return alert(window.currentLang === "en" ? "Please log in to see your messages." : "Bitte logge dich ein, um deine Nachrichten zu sehen.");
@@ -580,15 +606,13 @@ async function toggleGlobalInbox() {
   
   modal.style.display = "flex";
 
-  // Fix für falsche Rote "1": Klick auf Inbox setzt den Gelesen-Zeitstempel auf JETZT
   window.lastChatCheckedTimestamp = new Date().toISOString();
   localStorage.setItem("lastChatChecked", window.lastChatCheckedTimestamp);
-  updateHeaderChatBadge(); // Badge direkt visuell löschen
+  updateHeaderChatBadge(); 
 
   const listContainer = document.getElementById("global-inbox-list");
   listContainer.innerHTML = `<p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Lade Gespräche...</p>`;
 
-  // Hole alle Nachrichten, bei denen der Nutzer beteiligt ist
   const { data: allMsgs, error } = await window.supabaseClient
     .from("chat_messages")
     .select("*")
@@ -600,7 +624,6 @@ async function toggleGlobalInbox() {
     return;
   }
 
-  // Filtert doppelte Chats heraus, sodass jeder Match-Chat nur einmal auftaucht
   let uniqueChats = {};
   allMsgs.forEach(msg => {
     const partner = msg.sender_email.toLowerCase() === window.currentUser.email.toLowerCase() ? msg.receiver_email : msg.sender_email;
@@ -626,7 +649,6 @@ async function toggleGlobalInbox() {
 }
 window.toggleGlobalInbox = toggleGlobalInbox;
 
-// Live-Zähler im Header korrigiert: Holt nur ungesehene Nachrichten seit dem letzten Inbox-Klick
 function updateHeaderChatBadge() {
   if (!window.currentUser) return;
   window.supabaseClient
@@ -647,7 +669,6 @@ function updateHeaderChatBadge() {
     });
 }
 
-// ABONNEMENT DER SUPABASE REALTIME-SCHNITTSTELLE FÜR LIVE-UPDATES
 setTimeout(() => {
   updateHeaderChatBadge();
   if (window.supabaseClient) {
@@ -658,14 +679,12 @@ setTimeout(() => {
           
           if (!window.activeChatRoom || !window.currentUser) return;
 
-          // Bei Updates oder Löschvorgängen wird der Verlauf sofort für beide Anwesenden neu geladen
           if (payload.eventType === "UPDATE" || payload.eventType === "DELETE") {
               loadChatMessages();
               return;
           }
 
           const newMsg = payload.new;
-          // Prüfen, ob die empfangene Nachricht zum aktuell geöffneten Chatraum gehört
           const matchMatch = newMsg.match_id == window.activeChatRoom.matchId;
           const participantMatch = (newMsg.sender_email.toLowerCase() === window.currentUser.email.toLowerCase() && newMsg.receiver_email.toLowerCase() === window.activeChatRoom.receiverEmail.toLowerCase()) ||
                                    (newMsg.sender_email.toLowerCase() === window.activeChatRoom.receiverEmail.toLowerCase() && newMsg.receiver_email.toLowerCase() === window.currentUser.email.toLowerCase());
@@ -677,7 +696,6 @@ setTimeout(() => {
       .subscribe();
   }
 }, 1000);
-// =============================================
 
 function exportToIcs(id) {
   const match = cachedMatches.find(m => m.id === id);
@@ -846,59 +864,39 @@ function checkPlannerImport() {
 }
 
 // =========================================================================
-// AUTOMATISCHE LADEN & SPEICHERN LOGIK FÜR DEN ECHTEN CLAR-NAMEN
+// AUTOMATISCHE LADEN & SPEICHERN LOGIK FÜR PROFILWERTE
 // =========================================================================
 async function loadUserSettingsProfile() {
   if (!window.currentUser) return;
+
   const { data: profile, error } = await window.supabaseClient
     .from("profiles")
     .select("username, ipsc_alias, real_name")
     .eq("id", window.currentUser.id)
     .single();
-  
+
   if (!error && profile) {
-    if (document.getElementById("settings-username")) document.getElementById("settings-username").value = profile.username || "";
-    if (document.getElementById("settings-ipsc-alias")) document.getElementById("settings-ipsc-alias").value = profile.ipsc_alias || "";
-    if (document.getElementById("settings-real-name")) document.getElementById("settings-real-name").value = profile.real_name || "";
+    const usrInput = document.getElementById("settings-username");
+    const aliasInput = document.getElementById("settings-ipsc-alias");
+    const rnInput = document.getElementById("settings-real-name");
+
+    // Falls die Elemente noch nicht da sind, per Retry kurz warten
+    if (!usrInput || !aliasInput || !rnInput) {
+        setTimeout(loadUserSettingsProfile, 100);
+        return;
+    }
+
+    usrInput.value = profile.username || "";
+    aliasInput.value = profile.ipsc_alias || "";
+    rnInput.value = profile.real_name || "";
   }
 }
 
-// Bestehenden Auth-Hook erweitern, ohne die alte Logik zu überschreiben
 const originalOnAuthChange = window.onAuthChange;
-window.onAuthChange = () => {
-  if (typeof originalOnAuthChange === "function") originalOnAuthChange();
+window.onAuthChange = (user) => {
+  if (typeof originalOnAuthChange === "function") originalOnAuthChange(user);
   loadUserSettingsProfile();
 };
-
-// Event-Listener für das Absenden des Einstellungs-Formulars abfangen und wegschreiben
-document.getElementById("settings-form")?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  if (!window.currentUser) return;
-
-  const username = document.getElementById("settings-username")?.value.trim();
-  const ipscAlias = document.getElementById("settings-ipsc-alias")?.value.trim();
-  const realName = document.getElementById("settings-real-name")?.value.trim();
-
-  const { error } = await window.supabaseClient
-    .from("profiles")
-    .update({
-      username: username,
-      ipsc_alias: ipscAlias,
-      real_name: realName
-    })
-    .eq("id", window.currentUser.id);
-
-  if (error) {
-    alert(window.currentLang === "en" ? "Error saving profile: " + error.message : "Fehler beim Speichern des Profils: " + error.message);
-  } else {
-    alert(window.currentLang === "en" ? "Profile updated successfully!" : "Profil erfolgreich aktualisiert!");
-    if (window.currentUser.user_metadata) {
-      window.currentUser.user_metadata.username = username;
-      window.currentUser.user_metadata.ipsc_alias = ipscAlias;
-    }
-    fetchMatches();
-  }
-});
 
 enforceFutureDates();
 checkPlannerImport();
