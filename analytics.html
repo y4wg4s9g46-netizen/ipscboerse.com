@@ -20,9 +20,9 @@
         /* ==========================================================================
            ANALYTICS-SPEZIFISCHES LAYOUT (Nutzt nun global.css Variablen)
            ========================================================================== */
-        
+      
         select { 
-            background-color: var(--input-bg); 
+            background-color: var(--input-bg);
             border: 2px solid var(--border-color); 
             color: var(--text-color); 
             padding: 14px 16px; 
@@ -30,7 +30,7 @@
             font-size: 15px; 
             font-weight: 700; 
             width: 100%; 
-            box-shadow: var(--shadow-sm); 
+            box-shadow: var(--shadow-sm);
             cursor: pointer; 
             outline: none; 
             appearance: none; 
@@ -41,7 +41,7 @@
         .select-wrapper::after { content: '▼'; position: absolute; right: 16px; top: 16px; font-size: 12px; color: var(--text-muted); pointer-events: none; }
 
         .stage-card { 
-            background: var(--card-bg); 
+            background: var(--card-bg);
             border: 1px solid var(--border-color); 
             border-radius: var(--radius-lg); 
             padding: 24px; 
@@ -73,16 +73,18 @@
 
         /* Modal Overlay CSS angepasst an die global.css Logik */
         .modal-overlay { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); 
-            justify-content: center; align-items: center; z-index: 9999; padding: 20px; box-sizing: border-box; 
+            justify-content: center;
+            align-items: center; z-index: 9999; padding: 20px; box-sizing: border-box; 
             animation: fadeInModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .hit-input-group { margin-bottom: 20px; display: flex; flex-direction: column; }
         .hit-input-group label { font-size: 13px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         .hit-input-group input { 
-            background-color: var(--input-bg); 
+            background-color: var(--input-bg);
             border: 2px solid var(--border-color); 
             color: var(--text-color); 
             padding: 14px 16px; 
@@ -90,7 +92,7 @@
             font-size: 16px; 
             font-family: inherit; 
             transition: var(--transition); 
-            font-weight: 800; 
+            font-weight: 800;
             text-align: center;
         }
         .hit-input-group input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); }
@@ -123,7 +125,7 @@
                 <p style="font-size: 14px; color: var(--text-muted); margin: 0 auto 20px auto; line-height: 1.5; max-width: 400px;">
                     Diese Statistiken und Wettkampf-Auswertungen sind exklusiv für eingeloggte Schützen verwendbar.
                 </p>
-                <button class="btn-primary-auth" id="btn-trigger-login-view" style="width: auto;">Jetzt einloggen</button>
+                <button class="btn-primary-auth" id="btn-trigger-login-view" style="width: auto; padding: 12px 24px;">Jetzt einloggen</button>
             </div>
 
             <div id="analytics-empty-state" style="display: none; background: rgba(255,159,67,0.03); border: 2px dashed rgba(255,159,67,0.3); padding: 40px 20px; border-radius: var(--radius-lg); text-align: center; margin-bottom: 24px;">
@@ -138,6 +140,7 @@
                         <span style="font-size: 16px;">🌙</span>
                         <span id="empty-state-import" data-txt="analytics-empty-import"><strong>Match-Import:</strong> Match-Ergebnisse werden jede Nacht vollautomatisch im System aktualisiert.</span>
                     </div>
+                 
                     <div style="display: flex; gap: 10px; align-items: flex-start; border-top: 1px solid var(--border-color); padding-top: 12px;">
                         <span style="font-size: 16px;">📧</span>
                         <span id="empty-state-email" data-txt="analytics-empty-email"><strong>Treffer-Analyse:</strong> Per E-Mail weitergeleitete PractiScore-Daten werden nach dem ersten Datenzug ca. 3 Stunden später verarbeitet.</span>
@@ -263,120 +266,6 @@
         </div>
     </div>
 
-    <div id="auth-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-close-container">
-                <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
-            </div>
-            
-            <div id="modal-login-view">
-                <h3 data-txt="modal-login-title">Anmelden</h3>
-                <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
-                    <span>📱</span> Login mit FaceID / Fingerabdruck
-                </button>
-                <div class="modal-divider">oder klassisch mit E-Mail</div>
-                <form id="login-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-email">E-Mail *</label>
-                        <input type="email" id="login-email" required placeholder="name@beispiel.de">
-                    </div>
-                    <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <label style="margin-bottom: 0;">Passwort *</label>
-                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 600;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
-                        </div>
-                        <input type="password" id="login-password" required placeholder="••••••••">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
-                </form>
-                <div class="modal-footer" style="text-align: center; margin-top: 15px;">
-                    <span data-txt="modal-no-acc" style="font-size: 13px;">Noch kein Konto?</span>
-                    <a onclick="toggleAuthView('register')" data-txt="modal-link-reg" style="color: var(--info-color); cursor: pointer; font-size: 13px; font-weight: 700;">Registrieren</a>
-                </div>
-            </div>
-
-            <div id="modal-register-view" style="display: none;">
-                <h3 data-txt="modal-reg-title">Konto erstellen</h3>
-                <form id="register-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-email">E-Mail *</label>
-                        <input type="email" id="register-email" required placeholder="name@beispiel.de">
-                    </div>
-                    <div class="form-group">
-                        <label>Passwort *</label>
-                        <input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen">
-                    </div>
-                    
-                    <div class="form-group" style="flex-direction: row; align-items: flex-start; gap: 10px; margin-top: 5px; margin-bottom: 20px;">
-                        <input type="checkbox" id="register-agb" required style="margin-top: 3px; width: 16px; height: 16px; cursor: pointer;">
-                        <label for="register-agb" style="font-size: 12px; color: var(--text-muted); font-weight: normal; line-height: 1.4; margin: 0;">
-                            Ich akzeptiere die AGB und Nutzungsbedingungen. Weitere Details findest du im <a href="/impressum.html" target="_blank" style="color: var(--accent-color); text-decoration: underline;">Impressum</a>. *
-                        </label>
-                    </div>
-
-                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-reg">Konto erstellen</button>
-                </form>
-                <div class="modal-footer" style="text-align: center; margin-top: 15px;">
-                    <span data-txt="modal-has-acc" style="font-size: 13px;">Bereits registriert?</span>
-                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login" style="color: var(--info-color); cursor: pointer; font-size: 13px; font-weight: 700;">Zum Login</a>
-                </div>
-            </div>
-
-            <div id="modal-forgot-view" style="display: none;">
-                <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
-                <form id="forgot-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-email">Deine E-Mail-Adresse *</label>
-                        <input type="email" id="forgot-email" required placeholder="name@beispiel.de">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
-                </form>
-                <div class="modal-footer" style="text-align: center; margin-top: 15px;">
-                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login" style="color: var(--info-color); cursor: pointer; font-size: 13px; font-weight: 700;">Zurück zum Login</a>
-                </div>
-            </div>
-
-            <div id="modal-reset-view" style="display: none;">
-                <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
-                <form id="reset-password-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-new-password">Neues Passwort *</label>
-                        <input type="password" id="reset-password-input" required minlength="6" placeholder="Mindestens 6 Zeichen">
-                    </div>
-                    <button type="submit" class="btn-primary-auth" data-txt="btn-save">Speichern</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div id="global-inbox-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 450px; padding: 25px;">
-            <div class="modal-close-container">
-                <button class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</button>
-            </div>
-            <h3>Meine Nachrichten</h3>
-            <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
-                <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
-            </div>
-        </div>
-    </div>
-    
-    <div id="chat-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 500px; padding: 25px;">
-            <div class="modal-close-container">
-                <button class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</button>
-            </div>
-            <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
-            <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
-            <div class="chat-history-area" id="chat-box-messages"></div>
-            <form id="chat-send-form" style="display: flex; gap: 8px;">
-                <input type="hidden" id="chat-edit-id" value="">
-                <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
-                <button type="submit" class="btn-primary-auth" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
-            </form>
-        </div>
-    </div>
-
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center; padding: 20px 0;">
             <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Hinweise</a>
@@ -438,7 +327,6 @@
         async function initAnalytics(supabase) {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
-                
                 // --- SPERRE FÜR AUSGELOGGTE NUTZER ---
                 if (!session) {
                     document.getElementById("analytics-loader").style.display = "none";
@@ -489,11 +377,9 @@
                         matchMap.set(s.match_id, s.match_name);
                     }
                 });
-                
                 uniqueMatches = Array.from(matchMap, ([id, name]) => ({ id, name }));
                 const selector = document.getElementById("match-selector");
                 selector.innerHTML = "";
-                
                 uniqueMatches.forEach(m => {
                     let opt = document.createElement("option");
                     opt.value = m.id;
@@ -503,7 +389,6 @@
 
                 const { data: profiles } = await supabase.from('profiles').select('id, real_name');
                 window.buddyProfiles = profiles || [];
-                
                 document.getElementById("analytics-loader").style.display = "none";
                 document.getElementById("analytics-dashboard-content").style.display = "block";
                 
@@ -513,7 +398,6 @@
                 }
 
                 renderSelectedMatch();
-                
                 if (typeof window.translatePortalPage === "function") {
                     window.translatePortalPage();
                 }
@@ -547,10 +431,8 @@
 
         const currentUserId = (await client.auth.getSession()).data.session?.user.id;
         const uniqueUserIds = [...new Set(matchGroup.map(g => g.user_id))].filter(id => id !== currentUserId);
-        
         const isEn = localStorage.getItem("selectedLanguage") === "en";
         const placeholderText = isEn ? "-- Choose a buddy to compare --" : "-- Wähle einen Buddy zum Vergleich --";
-        
         let selectHtml = `<div id="buddy-selector-row" class="select-wrapper" style="margin-top: -10px; margin-bottom: 24px;">
             <select id="buddy-selector" onchange="selectBuddy(this.value)">
                 <option value="">${placeholderText}</option>`;
@@ -596,7 +478,6 @@
         let stagePercents = [];
 
         matchStages.sort((a,b) => a.stage_name.localeCompare(b.stage_name, undefined, {numeric: true, sensitivity: 'base'}));
-        
         const stagesHtml = matchStages.map(stage => {
             const hf = stage.hit_factor ? parseFloat(stage.hit_factor) : 0;
             const winHf = stage.winner_hit_factor ? parseFloat(stage.winner_hit_factor) : 0;
