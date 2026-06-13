@@ -17,7 +17,6 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
                 </div>
                 
-                <!-- LOGIN VIEW -->
                 <div id="modal-login-view">
                     <h3 data-txt="modal-login-title">Anmelden</h3>
                     <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
@@ -44,7 +43,6 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </div>
                 </div>
 
-                <!-- REGISTER VIEW -->
                 <div id="modal-register-view" style="display: none;">
                     <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                     <form id="register-form">
@@ -70,7 +68,6 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </div>
                 </div>
 
-                <!-- FORGOT PASSWORD VIEW -->
                 <div id="modal-forgot-view" style="display: none;">
                     <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
                     <form id="forgot-form">
@@ -85,7 +82,6 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </div>
                 </div>
 
-                <!-- RESET PASSWORD VIEW -->
                 <div id="modal-reset-view" style="display: none;">
                     <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                     <form id="reset-password-form">
@@ -97,7 +93,6 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     </form>
                 </div>
 
-                <!-- SETTINGS VIEW -->
                 <div id="modal-settings-view" style="display: none;">
                     <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                     
@@ -198,7 +193,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
         </div>`;
         document.body.insertAdjacentHTML("beforeend", inboxModalHtml);
     }
-})(); // Direkt ausführen!
+})();
 
 document.addEventListener("DOMContentLoaded", () => {
     // Event-Listener für Modal-Close anheften
@@ -216,8 +211,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("settings-avatar")?.closest(".form-group")
             ];
             elementsToHide.forEach(el => { if(el) el.style.display = "block"; });
-            if (document.getElementById("settings-real-name")) document.getElementById("settings-real-name").readOnly = false;
-            if (document.getElementById("settings-ipsc-alias")) document.getElementById("settings-ipsc-alias").readOnly = false;
+            
+            const rnInput = document.getElementById("settings-real-name");
+            const aliasInput = document.getElementById("settings-ipsc-alias");
+            if (rnInput) rnInput.readOnly = false;
+            if (aliasInput) aliasInput.readOnly = false;
         });
     }
 
@@ -228,13 +226,16 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             if (!window.currentUser) return;
 
-            const realName = document.getElementById("settings-real-name")?.value.trim();
-            const ipscAlias = document.getElementById("settings-ipsc-alias")?.value.trim();
+            const realNameEl = document.getElementById("settings-real-name");
+            const aliasEl = document.getElementById("settings-ipsc-alias");
+
+            const realName = realNameEl ? realNameEl.value.trim() : "";
+            const ipscAlias = aliasEl ? aliasEl.value.trim() : "";
 
             const { error } = await window.supabaseClient
                 .from("profiles")
                 .update({
-                    username: realName,
+                    username: realName, 
                     ipsc_alias: ipscAlias,
                     real_name: realName
                 })
@@ -880,7 +881,7 @@ async function loadUserSettingsProfile() {
     }
 
     aliasInput.value = profile.ipsc_alias || "";
-    rnInput.value = profile.real_name || "";
+    rnInput.value = profile.real_name || profile.username || "";
   }
 }
 
