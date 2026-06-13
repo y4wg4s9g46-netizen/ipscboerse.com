@@ -135,7 +135,17 @@
         const style = document.createElement('style');
         style.innerHTML = `
             header { position: relative; display: flex; flex-direction: column; align-items: center; }
-            header .header-controls { position: absolute !important; top: 50% !important; right: 20px !important; transform: translateY(-50%) !important; display: flex !important; align-items: center !important; gap: 10px !important; flex-direction: row !important; }
+header .header-controls {
+    position: absolute !important;
+    top: 24px !important; /* Fest oben auf Höhe des Logos fixiert */
+    right: 20px !important;
+    transform: none !important; /* Die fehlerhafte vertikale Verschiebung entfernt */
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-direction: row !important;
+}
+
             header .theme-toggle-btn { width: 38px !important; height: 38px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; padding: 0 !important; background: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: var(--shadow-sm) !important; font-size: 16px !important; }
             header .theme-toggle-btn:hover { border-color: var(--text-muted) !important; background-color: var(--bg-color) !important; }
             header .lang-select { width: auto !important; height: 38px !important; padding: 0 10px !important; box-sizing: border-box !important; flex-shrink: 0 !important; background: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; font-weight: 600 !important; font-size: 13px !important; box-shadow: var(--shadow-sm) !important; cursor: pointer !important; }
