@@ -14,7 +14,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
     <link rel="stylesheet" href="global.css">
 
     <style>
@@ -97,7 +96,6 @@
             margin-top: 8px; 
         }
 
-        /* Select Input Angleichung (Speziell für Wiederladen-Ansichten) */
         select { 
             width: 100%; 
             background-color: var(--input-bg); 
@@ -269,7 +267,6 @@
             
             calculatePowerFactor();
 
-            // FIXED INITIAL TRIGGER
             setTimeout(() => {
                 if (window.currentUser) {
                     window.onAuthChange(window.currentUser);
