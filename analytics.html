@@ -3,94 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-txt="nav-analytics">Statistiken | IPSC Startplatz-Börse</title>
-
-    <link class="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1e293b">
+    <title>Tools & Training | Startplatz Börse</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="IPSC Börse">
     <link rel="apple-touch-icon" href="icon-192.png">
-    
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
+    <link rel="stylesheet" href="global.css">
+
     <style>
-        :root, html[data-theme="light"] {
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-color: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --input-bg: #ffffff;
-            --accent-color: #ff9f43;
-            --danger-color: #ef4444;
-            --success-color: #10b981;
-            --info-color: #3b82f6;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            --radius: 8px;
+        /* ==========================================================================
+           TOOLS & TRAINING - SPEZIFISCHES LAYOUT
+           ========================================================================== */
+
+        .tool-section { 
+            background: var(--card-bg); 
+            padding: 32px; 
+            border-radius: var(--radius-lg); 
+            border: 1px solid var(--border-color); 
+            margin-bottom: 40px; 
+            box-shadow: var(--shadow-sm); 
         }
 
-        html[data-theme="dark"] {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --input-bg: #0f172a;
+        .tool-section h2 { 
+            margin-top: 0; 
+            font-size: 24px; 
+            font-weight: 800; 
+            color: var(--text-color); 
+            border-bottom: 2px solid var(--bg-color); 
+            padding-bottom: 16px; 
+            margin-bottom: 24px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            letter-spacing: -0.5px;
         }
 
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; }
-        header { background-color: var(--card-bg); padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; }
-        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
-        
-        select { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px 14px; border-radius: var(--radius); font-size: 15px; font-weight: 600; width: 100%; box-shadow: var(--shadow-sm); cursor: pointer; outline: none; appearance: none; }
-        select:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(255, 159, 67, 0.15); }
-        .select-wrapper { position: relative; margin-bottom: 20px; }
-        .select-wrapper::after { content: '▼'; position: absolute; right: 15px; top: 14px; font-size: 12px; color: var(--text-muted); pointer-events: none; }
+        /* Hit-Factor Spezifisch */
+        .scoring-grid { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 12px; 
+            margin-bottom: 24px; 
+        }
+        .scoring-grid .form-group { margin-bottom: 0; }
+        .scoring-grid input { 
+            text-align: center; 
+            font-weight: 800; 
+            font-size: 18px; 
+            border-width: 2px;
+        }
+        .input-A { border-color: rgba(16, 185, 129, 0.4) !important; background-color: rgba(16, 185, 129, 0.05) !important; }
+        .input-M { border-color: rgba(239, 68, 68, 0.4) !important; background-color: rgba(239, 68, 68, 0.05) !important; }
 
-        .stage-card { background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 15px; position: relative; }
-        html[data-theme="dark"] .stage-card { background: rgba(255,255,255, 0.02); }
-        .stage-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .stage-title { font-weight: 700; font-size: 15px; color: var(--text-color); display: flex; align-items: center; gap: 8px; }
-        .stage-rank { background: var(--bg-color); border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; color: var(--accent-color); }
-        .course-badge { font-size: 10px; padding: 3px 6px; border-radius: 4px; background: var(--border-color); color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+        .leaderboard { 
+            width: 100%; 
+            border-collapse: separate; 
+            border-spacing: 0;
+            margin-top: 24px; 
+            font-size: 15px; 
+        }
+        .leaderboard th, .leaderboard td { 
+            padding: 14px 16px; 
+            text-align: left; 
+            border-bottom: 1px solid var(--border-color); 
+        }
+        .leaderboard th { 
+            font-weight: 800; 
+            color: var(--text-muted); 
+            text-transform: uppercase; 
+            font-size: 12px; 
+            letter-spacing: 0.5px;
+            background-color: var(--bg-color);
+        }
+        .leaderboard th:first-child { border-top-left-radius: 8px; }
+        .leaderboard th:last-child { border-top-right-radius: 8px; }
         
-        .bar-container { margin-bottom: 8px; }
-        .bar-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
-        .bar-track { width: 100%; height: 20px; background: var(--bg-color); border-radius: 4px; overflow: hidden; position: relative; border: 1px solid var(--border-color); }
-        .bar-fill { height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-size: 11px; font-weight: 700; color: #fff; transition: width 0.8s ease; }
-        
-        .bar-winner { background: var(--text-muted); }
-        .bar-me { background: var(--accent-color); }
-        .bar-me.high { background: var(--success-color); }
+        .leaderboard tr { transition: var(--transition); }
+        .leaderboard tr:hover { background-color: var(--input-bg); transform: scale(1.01); }
+        .rank-1 { font-weight: 900; color: var(--accent-color); font-size: 18px; }
 
-        .insight-box { background: rgba(255, 159, 67, 0.1); border-left: 3px solid var(--accent-color); padding: 10px; font-size: 12px; margin-top: 10px; border-radius: 0 4px 4px 0; color: var(--text-color); }
-        .btn-small { background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); font-size: 10px; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
-        .btn-small:hover { background: var(--border-color); }
+        /* Dry-Fire Spezifisch */
+        .timer-display { 
+            font-size: 64px; 
+            font-weight: 900; 
+            text-align: center; 
+            margin: 24px 0; 
+            font-variant-numeric: tabular-nums; 
+            color: var(--text-color); 
+            letter-spacing: -2px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .timer-status { 
+            text-align: center; 
+            font-size: 20px; 
+            font-weight: 800; 
+            color: var(--accent-color); 
+            height: 30px; 
+            margin-bottom: 20px; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .drill-box { 
+            background: var(--input-bg); 
+            border: 2px dashed var(--border-color); 
+            padding: 24px; 
+            border-radius: var(--radius-lg); 
+            text-align: center; 
+            font-size: 16px; 
+            line-height: 1.6; 
+            margin-bottom: 24px; 
+            min-height: 80px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: var(--transition);
+        }
         
-        /* Modal Overlay CSS - Fest verankert! */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
-        .modal-content { background-color: var(--card-bg); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; box-shadow: var(--shadow-md); position: relative; margin: auto; }
-        .modal-content h3 { color: var(--text-color); margin-top: 0; margin-bottom: 24px; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
-        .modal-close-container { position: absolute; top: 20px; right: 20px; z-index: 1010; }
-        .modal-close-trigger { background: transparent; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; padding: 4px; line-height: 1; }
-        .modal-close-trigger:hover { color: var(--text-color); }
-        .hit-input-group, .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
-        .hit-input-group label, .form-group label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .hit-input-group input, .form-group input { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px 14px; border-radius: var(--radius); font-size: 14px; box-shadow: var(--shadow-sm); text-align: left; }
-        .hit-input-group input:focus, .form-group input:focus { outline: none; border-color: var(--accent-color); }
-        .modal-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px; }
-        .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
-        .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); }
-        .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); }
-        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 30px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 10px; box-shadow: var(--shadow-sm); }
-        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
-        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
-        .chat-history-area { height: 300px; overflow-y: auto; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: var(--radius); padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        /* Select Formular-Anpassung für die Tools Seite */
+        select { 
+            width: 100%; 
+            background-color: var(--input-bg); 
+            border: 2px solid var(--border-color); 
+            color: var(--text-color); 
+            padding: 14px 16px; 
+            border-radius: var(--radius); 
+            font-size: 15px; 
+            box-sizing: border-box; 
+            font-family: inherit;
+            transition: var(--transition);
+        }
+        select:focus { outline: none; border-color: var(--accent-color); }
 
+        .btn-secondary { 
+            background-color: var(--card-bg); 
+            color: var(--text-color); 
+            border: 2px solid var(--border-color); 
+            padding: 14px 24px; 
+            font-size: 15px; 
+            font-weight: 700; 
+            border-radius: var(--radius); 
+            cursor: pointer; 
+            transition: var(--transition); 
+        }
+        .btn-secondary:hover { 
+            background-color: var(--bg-color); 
+            border-color: #cbd5e1; 
+            transform: translateY(-2px);
+        }
+
+        /* Mobile Fixes */
         @media (max-width: 768px) {
-            .container { padding: 0 10px !important; margin-top: 15px !important; }
+            .tool-section { padding: 20px !important; margin-bottom: 20px !important; border-radius: 20px !important; }
+            .tool-section h2 { font-size: 20px; }
+            .scoring-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+            .scoring-grid label { font-size: 11px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+            .scoring-grid input { padding: 12px 8px !important; font-size: 16px !important; }
+            .leaderboard th, .leaderboard td { padding: 10px 6px; font-size: 13px; }
+            .timer-display { font-size: 56px; }
         }
     </style>
 </head>
@@ -100,162 +176,82 @@
     <script src="header.js"></script>
 
     <div class="container">
-        <div class="tool-section" style="max-width: 600px; margin: 0 auto; padding: 20px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: var(--shadow-sm);">
+        
+        <div class="tool-section">
+            <h2 data-txt="tools-hf-title">🏆 Hit-Factor Battle</h2>
+            <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 24px; line-height: 1.5;" data-txt="tools-hf-desc">Trage die Ergebnisse von dir und deinen Freunden ein, um eine Live-Rangliste für die Stage zu erstellen.</p>
             
-            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px;">
-                <h2 style="font-size: 22px; font-weight: 800; margin: 0;">🏆 Analytics Pro</h2>
-                <button class="btn-small" style="font-size: 12px; padding: 6px 12px; background: rgba(59, 130, 246, 0.1); color: var(--info-color); border-color: var(--info-color);">👥 Buddy Radar</button>
-            </div>
-            
-            <p id="analytics-loader" data-txt="loading" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Lade aktuelle Startplätze...</p>
-
-            <div id="analytics-logged-out-state" style="display: none; background: rgba(239,68,68,0.03); border: 1px dashed var(--danger-color); padding: 30px 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
-                <span style="font-size: 32px;">🔒</span>
-                <h4 style="margin: 12px 0 6px 0; font-weight: 800; font-size: 16px; color: var(--text-color);" data-txt="planner-logged-out-title">Nicht angemeldet</h4>
-                <p style="font-size: 13px; color: var(--text-muted); margin: 0 0 15px 0; line-height: 1.4;">
-                    Diese Statistiken und Wettkampf-Auswertungen sind exklusiv für eingeloggte Schützen verwendbar.
-                </p>
-                <button class="btn-submit" id="btn-trigger-login-view" style="margin-top: 5px;">Jetzt einloggen</button>
-            </div>
-
-            <div id="analytics-empty-state" style="display: none; background: rgba(255,159,67,0.03); border: 1px dashed var(--accent-color); padding: 25px 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
-                <span style="font-size: 28px;">📊</span>
-                <h4 id="empty-state-title" data-txt="analytics-empty-title" style="margin: 12px 0 6px 0; font-weight: 800; font-size: 16px; color: var(--text-color);">Noch keine Match-Daten gefunden</h4>
-                <p id="empty-state-desc" data-txt="analytics-empty-desc" style="font-size: 13px; color: var(--text-muted); margin: 0 0 15px 0; line-height: 1.4;">
-                    Der Bot sucht aktuell nach deinen Stage-Ergebnissen! Das Analyse-System prüft im Hintergrund die offiziellen IPSC-Ergebnisse.
-                </p>
-                
-                <div style="display: flex; flex-direction: column; gap: 8px; max-width: 340px; margin: 0 auto; text-align: left; background: var(--bg-color); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 12px; line-height: 1.4; color: var(--text-muted);">
-                    <div style="display: flex; gap: 8px; align-items: flex-start;">
-                        <span>🌙</span>
-                        <span id="empty-state-import" data-txt="analytics-empty-import"><strong>Match-Import:</strong> Match-Ergebnisse werden jede Nacht vollautomatisch im System aktualisiert.</span>
-                    </div>
-                    <div style="display: flex; gap: 8px; align-items: flex-start; border-top: 1px solid var(--border-color); padding-top: 8px; margin-top: 2px;">
-                        <span>📧</span>
-                        <span id="empty-state-email" data-txt="analytics-empty-email"><strong>Treffer-Analyse:</strong> Per E-Mail weitergeleitete PractiScore-Daten werden nach dem ersten Datenzug ca. 3 Stunden später verarbeitet.</span>
-                    </div>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
+                <div class="form-group" style="flex: 1 1 100%;">
+                    <label data-txt="tools-hf-name">Schützenname</label>
+                    <input type="text" id="hf-name" placeholder="z.B. Max Mustermann">
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 120px;">
+                    <label data-txt="tools-hf-pf">Wertung</label>
+                    <select id="hf-pf">
+                        <option value="minor">Minor</option>
+                        <option value="major">Major</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 120px;">
+                    <label data-txt="tools-hf-time">Zeit (Sek.)</label>
+                    <input type="number" id="hf-time" step="0.01" min="0" placeholder="0.00">
                 </div>
             </div>
 
-            <div id="analytics-dashboard-content" style="display: none;">
-                
-                <div style="background: var(--bg-color); border-left: 4px solid var(--accent-color); border-radius: 4px 8px 8px 4px; padding: 15px; margin-bottom: 20px; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
-                    <h4 data-txt="analytics-box-title" style="margin: 0 0 8px 0; font-size: 14px; font-weight: 800; color: var(--text-color);">📧 A, C, D automatisch eintragen</h4>
-                    <p data-txt="analytics-box-desc" style="margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-                        Ergebnisse und Hitfaktor werden automatisch geladen. Wer auch <strong>A, C, D und Misses</strong> automatisch drin haben will, leitet seine PractiScore-Mails nach dem Match einfach an <strong style="color: var(--text-color);">info@ipscboerse.com</strong> weiter!
-                    </p>
+            <label style="font-size: 13px; font-weight: 700; margin-bottom: 8px; display: block; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;" data-txt="tools-hf-scoring">Trefferaufnahme</label>
+            <div class="scoring-grid">
+                <div class="form-group"><label style="color: var(--success-color);" data-txt="tools-hf-alpha">Alpha (A)</label><input type="number" id="hf-a" class="input-A" min="0" value="0"></div>
+                <div class="form-group"><label data-txt="tools-hf-charlie">Charlie (C)</label><input type="number" id="hf-c" min="0" value="0"></div>
+                <div class="form-group"><label data-txt="tools-hf-delta">Delta (D)</label><input type="number" id="hf-d" min="0" value="0"></div>
+                <div class="form-group"><label style="color: var(--danger-color);" data-txt="tools-hf-miss">Miss (M)</label><input type="number" id="hf-m" class="input-M" min="0" value="0"></div>
+                <div class="form-group"><label style="color: var(--danger-color);" data-txt="tools-hf-ns">No-Shoot</label><input type="number" id="hf-ns" class="input-M" min="0" value="0"></div>
+            </div>
+
+            <button class="btn-submit" onclick="addShooterToRanking()" data-txt="tools-hf-btn-submit">Schütze eintragen & berechnen</button>
+
+            <div style="overflow-x: auto;">
+                <table class="leaderboard" id="ranking-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">#</th>
+                            <th data-txt="tools-th-name">Name</th>
+                            <th data-txt="tools-th-pts">Pts</th>
+                            <th data-txt="tools-th-time">Zeit</th>
+                            <th style="color: var(--accent-color);" data-txt="tools-th-hf">HF</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="ranking-body"></tbody>
+                </table>
+            </div>
+            <button id="btn-clear-ranking" class="btn-secondary" style="margin-top: 20px; display: none; width: 100%; color: var(--danger-color); border-color: rgba(239, 68, 68, 0.3);" onclick="clearRanking()" data-txt="tools-hf-btn-clear">Rangliste leeren</button>
+        </div>
+
+        <div class="tool-section">
+            <h2 data-txt="tools-df-title">⏱️ Dry-Fire Timer & Drill Generator</h2>
+            <div class="drill-box" id="drill-output" data-txt="tools-df-placeholder">
+                Klicke auf den Button, um einen zufälligen Trockentrainings-Ablauf zu generieren.
+            </div>
+            <button class="btn-secondary" style="width: 100%; margin-bottom: 40px;" onclick="generateDrill()" data-txt="tools-df-btn-gen">🎲 Neuen Drill generieren</button>
+
+            <div style="border-top: 2px solid var(--bg-color); padding-top: 32px;">
+                <div class="form-group" style="max-width: 200px; margin: 0 auto;">
+                    <label style="text-align: center; color: var(--text-muted);" data-txt="tools-df-par">Par-Zeit (Sekunden)</label>
+                    <input type="number" id="par-time" step="0.1" min="0.5" value="3.0" style="text-align: center; font-size: 24px; font-weight: 800; border-width: 2px;">
                 </div>
 
-                <div class="select-wrapper">
-                    <select id="match-selector" onchange="renderSelectedMatch()"></select>
-                </div>
+                <div class="timer-display" id="timer-display">0.00</div>
+                <div class="timer-status" id="timer-status" data-txt="tools-df-status-ready">Bereit</div>
 
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px;">
-                    <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); padding: 12px 5px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Division</div>
-                        <div id="kpi-division" style="font-size: 18px; font-weight: 900; margin-top: 4px; color: var(--info-color);">Optics</div>
-                    </div>
-                    <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); padding: 12px 5px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;" data-txt="analytics-kpi-avg-hf">Ø Hit Factor</div>
-                        <div id="kpi-avg-hf" style="font-size: 18px; font-weight: 900; color: var(--text-color); margin-top: 4px;">0.00</div>
-                    </div>
-                    <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); padding: 12px 5px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Konstanz</div>
-                        <div id="kpi-variance" style="font-size: 18px; font-weight: 900; color: var(--text-color); margin-top: 4px;">0%</div>
-                    </div>
-                </div>
-
-                <div style="background: rgba(15, 23, 42, 0.01); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 25px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
-                        <span style="font-weight: 700; color: var(--text-color);" data-txt="analytics-acc-title">🎯 Treffer-Verteilung (Präzision)</span>
-                        <strong id="analytics-alpha-badge" style="color: var(--success-color);">0% Alphas</strong>
-                    </div>
-                    <div style="width: 100%; height: 14px; background: var(--bg-color); border-radius: 7px; overflow: hidden; display: flex;">
-                        <div id="bar-alphas" style="width: 0%; background: var(--success-color); transition: width 0.6s ease;"></div>
-                        <div id="bar-charlies" style="width: 0%; background: var(--accent-color); transition: width 0.6s ease;"></div>
-                        <div id="bar-deltas" style="width: 0%; background: var(--danger-color); transition: width 0.6s ease;"></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 11px; color: var(--text-muted);">
-                        <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--success-color); border-radius: 50%;"></div> A: <span id="count-alphas" style="font-weight: 600;">0</span></div>
-                        <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--accent-color); border-radius: 50%;"></div> C: <span id="count-charlies" style="font-weight: 600;">0</span></div>
-                        <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--danger-color); border-radius: 50%;"></div> D: <span id="count-deltas" style="font-weight: 600;">0</span></div>
-                        <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: var(--text-muted); border-radius: 50%;"></div> M: <span id="count-misses" style="font-weight: 600;">0</span></div>
-                    </div>
-                </div>
-
-                <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 15px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px;" data-txt="analytics-chart-title">📊 Stage Benchmark Vergleich</h3>
-                
-                <div id="stages-container"></div>
-
+                <button class="btn-submit" id="btn-start-timer" style="background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); padding: 16px;" onclick="startTimer()" data-txt="tools-df-btn-start">Start Timer (Zufalls-Delay)</button>
             </div>
         </div>
+
     </div>
 
-    <div id="hit-editor-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <h3 style="margin-top: 0; margin-bottom: 5px; color: var(--text-color);">✏️ Treffer eintragen</h3>
-            <p id="hit-editor-stage-name" style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px; margin-top: 0;"></p>
-            
-            <div style="margin-bottom: 20px; text-align: center;">
-                <textarea id="smart-paste-area" placeholder="📋 Email-Text hier einfügen (Smart Paste)" rows="2" style="width: 100%; border-radius: 8px; border: 1px dashed var(--accent-color); padding: 10px; background: rgba(255,159,67,0.05); color: var(--text-color); font-size: 12px; resize: none; font-weight: bold; font-family: monospace; box-sizing: border-box;"></textarea>
-                <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Fügt A, C, D und M automatisch aus dem Email-Text ein.</div>
-            </div>
-
-            <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
-                <span style="font-size: 10px; color: var(--text-muted); padding: 0 10px; text-transform: uppercase;">Oder manuell prüfen</span>
-                <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
-                <div class="hit-input-group">
-                    <label style="color: var(--success-color);">Alphas (A)</label>
-                    <input type="number" id="edit-a" min="0" onfocus="this.select()">
-                </div>
-                <div class="hit-input-group">
-                    <label style="color: var(--accent-color);">Charlies (C)</label>
-                    <input type="number" id="edit-c" min="0" onfocus="this.select()">
-                </div>
-                <div class="hit-input-group">
-                    <label style="color: var(--danger-color);">Deltas (D)</label>
-                    <input type="number" id="edit-d" min="0" onfocus="this.select()">
-                </div>
-                <div class="hit-input-group">
-                    <label style="color: var(--text-muted);">Misses (M)</label>
-                    <input type="number" id="edit-m" min="0" onfocus="this.select()">
-                </div>
-            </div>
-            
-            <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                <button onclick="closeHitEditor()" style="padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); cursor: pointer; font-weight: bold;" data-txt="btn-cancel">Abbrechen</button>
-                <button id="btn-save-hits" onclick="saveHits()" style="padding: 10px 15px; border-radius: 6px; border: none; background: var(--accent-color); color: #fff; font-weight: bold; cursor: pointer;" data-txt="btn-save">Speichern</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="name-setup-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content" style="max-width: 380px;">
-            <h3 style="margin-top: 0; margin-bottom: 8px; color: var(--text-color); display: flex; align-items: center; gap: 8px;">🚀 Letzter Schritt: Name einrichten</h3>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4;">
-                Damit unser E-Mail-Bot deine PractiScore-Mails fehlerfrei verarbeiten kann, muss dein <strong>vollständiger Name</strong> exakt so hinterlegt sein, wie er in den Match-Ergebnissen steht.
-            </p>
-            <p style="font-size: 12px; color: var(--accent-color); margin-bottom: 15px; line-height: 1.4; background: rgba(255, 159, 67, 0.08); padding: 8px; border-radius: 6px; font-weight: 600;">
-                ⏳ <strong>Bitte beachte:</strong> Nach der Einrichtung kann es bis zu 24 Stunden dauern, bis alle deine historischen Daten vollständig analysiert und angezeigt werden.
-            </p>
-            
-            <div class="hit-input-group" style="margin-bottom: 20px;">
-                <label style="color: var(--accent-color); font-weight: 700; margin-bottom: 6px;" data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
-                <input type="text" id="setup-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann" style="text-align: left; padding: 12px; font-size: 15px;">
-            </div>
-            
-            <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                <button onclick="closeNameSetupModal()" style="padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); cursor: pointer; font-weight: bold; font-size: 13px;" data-txt="btn-cancel">Abbrechen</button>
-                <button id="btn-save-profile-name" onclick="saveProfileName()" style="padding: 10px 15px; border-radius: 6px; border: none; background: var(--success-color); color: #fff; font-weight: bold; cursor: pointer; font-size: 13px;" data-txt="btn-save">Speichern</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="auth-modal" class="modal-overlay" style="display: none;">
+    <!-- MODALS IDENTISCH -->
+    <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
                 <button class="modal-close-trigger" id="btn-close-modal">&times;</button>
@@ -263,78 +259,45 @@
             
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
-                <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()">
-                    <span>📱</span> Login mit FaceID / Fingerabdruck
-                </button>
+                <button type="button" class="btn-secondary-auth" onclick="loginWithPasskey()"><span>📱</span> Login mit FaceID / Fingerabdruck</button>
                 <div class="modal-divider">oder klassisch mit E-Mail</div>
                 <form id="login-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-email">E-Mail *</label>
-                        <input type="email" id="login-email" required placeholder="name@beispiel.de">
-                    </div>
+                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required placeholder="name@beispiel.de"></div>
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                             <label style="margin-bottom: 0;">Passwort *</label>
-                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
+                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 600;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
                         </div>
                         <input type="password" id="login-password" required placeholder="••••••••">
                     </div>
                     <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
                 </form>
-                <div class="modal-footer" style="text-align: center; margin-top: 15px;">
-                    <span data-txt="modal-no-acc" style="font-size: 12px;">Noch kein Konto?</span>
-                    <a onclick="toggleAuthView('register')" data-txt="modal-link-reg" style="color: var(--info-color); cursor: pointer; font-size: 12px; font-weight: bold;">Registrieren</a>
-                </div>
+                <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a></div>
             </div>
 
             <div id="modal-register-view" style="display: none;">
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-email">E-Mail *</label>
-                        <input type="email" id="register-email" required placeholder="name@beispiel.de">
-                    </div>
-                    <div class="form-group">
-                        <label>Passwort *</label>
-                        <input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen">
-                    </div>
-                    
-                    <div class="form-group" style="flex-direction: row; align-items: flex-start; gap: 10px; margin-top: 5px; margin-bottom: 20px;">
-                        <input type="checkbox" id="register-agb" required style="margin-top: 3px; width: 16px; height: 16px; cursor: pointer;">
-                        <label for="register-agb" style="font-size: 12px; color: var(--text-muted); font-weight: normal; line-height: 1.4; margin: 0;">
-                            Ich akzeptiere die AGB und Nutzungsbedingungen. Weitere Details findest du im <a href="/impressum.html" target="_blank" style="color: var(--accent-color); text-decoration: underline;">Impressum</a>. *
-                        </label>
-                    </div>
-
+                    <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="register-email" required placeholder="name@beispiel.de"></div>
+                    <div class="form-group"><label>Passwort *</label><input type="password" id="register-password" required minlength="6"></div>
                     <button type="submit" class="btn-primary-auth" data-txt="modal-btn-reg">Konto erstellen</button>
                 </form>
-                <div class="modal-footer" style="text-align: center; margin-top: 15px;">
-                    <span data-txt="modal-has-acc" style="font-size: 12px;">Bereits registriert?</span>
-                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login" style="color: var(--info-color); cursor: pointer; font-size: 12px; font-weight: bold;">Zum Login</a>
-                </div>
+                <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a></div>
             </div>
 
             <div id="modal-forgot-view" style="display: none;">
                 <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
                 <form id="forgot-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-email">Deine E-Mail-Adresse *</label>
-                        <input type="email" id="forgot-email" required placeholder="name@beispiel.de">
-                    </div>
+                    <div class="form-group"><label data-txt="lbl-email">Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required placeholder="name@beispiel.de"></div>
                     <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
                 </form>
-                <div class="modal-footer" style="text-align: center; margin-top: 15px;">
-                    <a onclick="toggleAuthView('login')" data-txt="modal-link-login" style="color: var(--info-color); cursor: pointer; font-size: 12px; font-weight: bold;">Zurück zum Login</a>
-                </div>
+                <div class="modal-footer"><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a></div>
             </div>
 
             <div id="modal-reset-view" style="display: none;">
                 <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                 <form id="reset-password-form">
-                    <div class="form-group">
-                        <label data-txt="lbl-new-password">Neues Passwort *</label>
-                        <input type="password" id="reset-password-input" required minlength="6" placeholder="Mindestens 6 Zeichen">
-                    </div>
+                    <div class="form-group"><label data-txt="lbl-new-password">Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
                     <button type="submit" class="btn-primary-auth" data-txt="btn-save">Speichern</button>
                 </form>
             </div>
@@ -345,11 +308,11 @@
                 <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
                     <label style="color: var(--success-color); font-weight: 700;" data-txt="modal-settings-deals">📈 Erfolgreiche Vermittlungen</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                        <div style="background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
                             <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
                             <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-seller">Als Verkäufer</p>
                         </div>
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                        <div style="background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
                             <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
                             <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-buyer">Als Käufer</p>
                         </div>
@@ -362,9 +325,9 @@
                 </div>
 
                 <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
-                    <label style="color: #3498db;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</label>
-                    <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
+                    <label style="color: #3498db; font-weight: 700;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</label>
+                    <p style="font-size: 12px; margin-top: 4px; color: var(--text-muted);" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
+                    <button type="button" class="btn-primary-auth" style="width:100%; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; margin-top: 8px; border: none;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
                 </div>
 
                 <form id="settings-form">
@@ -377,12 +340,6 @@
                         <label style="color: var(--success-color); margin-bottom: 2px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Mitgliedsnummer</label>
                         <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-ipsc-alias-desc">Füllst du dieses Feld aus, erhältst du das "Trusted Shooter" Badge an deinen Inseraten!</p>
                         <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 (Optional)">
-                    </div>
-
-                    <div class="form-group" style="background-color: rgba(59, 130, 246, 0.04); padding: 12px; border-radius: 4px; border-left: 3px solid var(--info-color); margin-bottom: 20px;">
-                        <label style="color: var(--info-color); margin-bottom: 2px;" data-txt="lbl-real-name">🔒 Echter Name (Für automatische Statistiken)</label>
-                        <p style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted);" data-txt="lbl-real-name-desc">Trage hier deinen Klarnamen ein. Dieser Name wird niemals öffentlich auf der Seite gezeigt.</p>
-                        <input type="text" id="settings-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann">
                     </div>
 
                     <div class="form-group">
@@ -402,19 +359,7 @@
         </div>
     </div>
 
-    <div id="global-inbox-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content" style="max-width: 450px; padding: 25px;">
-            <div class="modal-close-container">
-                <button class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</button>
-            </div>
-            <h3>Meine Nachrichten</h3>
-            <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
-                <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
-            </div>
-        </div>
-    </div>
-    
-    <div id="chat-modal" class="modal-overlay" style="display: none;">
+    <div class="modal" id="chat-modal">
         <div class="modal-content" style="max-width: 500px; padding: 25px;">
             <div class="modal-close-container">
                 <button class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</button>
@@ -425,501 +370,278 @@
             <form id="chat-send-form" style="display: flex; gap: 8px;">
                 <input type="hidden" id="chat-edit-id" value="">
                 <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
-                <button type="submit" id="btn-chat-send" class="btn-submit" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
+                <button type="submit" class="btn-submit" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
             </form>
         </div>
     </div>
 
+    <div class="modal" id="global-inbox-modal">
+        <div class="modal-content" style="max-width: 450px; padding: 25px;">
+            <div class="modal-close-container">
+                <button class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</button>
+            </div>
+            <h3>Meine Nachrichten</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven Gespräche.</p>
+            <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
+                <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
+            </div>
+        </div>
+    </div>
+
     <footer>
-        <div style="max-width: 1000px; margin: 0 auto; text-align: center; padding: 20px 0;">
-            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Hinweise</a>
-            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
 
     <script src="auth.js"></script>
     <script src="lang.js"></script>
     <script src="app.js"></script>
-
     <script>
-    let allUserStages = [];
-    let allSquadStages = []; 
-    let uniqueMatches = [];
-    let currentEditStage = null;
-    let selectedBuddyId = null; 
+        // --- THEME LOGIK & CHAT BADGE ---
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
+            document.documentElement.setAttribute('data-theme', savedThemeSetting !== 'auto' ? savedThemeSetting : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+            if (typeof updateThemeToggleIcon === "function") updateThemeToggleIcon(savedThemeSetting);
 
-    window.closeSettingsModal = function() {
-        const modal = document.getElementById('auth-modal');
-        if(modal) modal.style.display = 'none';
-    }
-
-    if (window.translations) {
-        window.translations.de["analytics-empty-title"] = "Noch keine Match-Daten gefunden";
-        window.translations.de["analytics-empty-desc"] = "Der Bot sucht aktuell nach deinen Stage-Ergebnissen! Das Analyse-System prüft im Hintergrund die offiziellen IPSC-Ergebnisse.";
-        window.translations.de["analytics-empty-import"] = "<strong>Match-Import:</strong> Match-Ergebnisse werden jede Nacht vollautomatisch im System aktualisiert.";
-        window.translations.de["analytics-empty-email"] = "<strong>Treffer-Analyse:</strong> Per E-Mail weitergeleitete PractiScore-Daten werden nach dem ersten Datenzug ca. 3 Stunden später verarbeitet.";
-
-        window.translations.en["analytics-empty-title"] = "No match data found yet";
-        window.translations.en["analytics-empty-desc"] = "The bot is currently searching for your stage results! The analysis system checks official IPSC results in the background.";
-        window.translations.en["analytics-empty-import"] = "<strong>Match Import:</strong> Full match results are updated completely automatically in the system every night.";
-        window.translations.en["analytics-empty-email"] = "<strong>Hit Analysis:</strong> Forwarded PractiScore emails will be processed approximately 3 hours after the first data access.";
-    }
-
-    (function() {
-        function startAnalyticsPipeline() {
-            const client = window.supabaseClient || window.supabase;
-            if (client) { initAnalytics(client); } 
-            else {
-                let attempts = 0;
-                const checkCtx = setInterval(() => {
-                    attempts++;
-                    const retryClient = window.supabaseClient || window.supabase;
-                    if (retryClient) {
-                        clearInterval(checkCtx);
-                        initAnalytics(retryClient);
-                    } else if (attempts > 15) {
-                        clearInterval(checkCtx);
-                        document.getElementById("analytics-loader").innerText = "❌ Datenbank-Fehler.";
-                    }
-                }, 200);
+            // Sprache beim Start synchronisieren
+            const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
+            const languageSelectorDropdown = document.getElementById("language-select");
+            if (languageSelectorDropdown) {
+                languageSelectorDropdown.value = savedLanguageSetting;
             }
-        }
-
-        if (document.readyState === 'loading') { document.addEventListener("DOMContentLoaded", startAnalyticsPipeline); } 
-        else { startAnalyticsPipeline(); }
-
-        async function initAnalytics(supabase) {
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
-                
-                // --- SPERRE FÜR AUSGELOGGTE NUTZER ---
-                if (!session) {
-                    document.getElementById("analytics-loader").style.display = "none";
-                    document.getElementById("analytics-dashboard-content").style.display = "none";
-                    document.getElementById("analytics-empty-state").style.display = "none";
-                    document.getElementById("analytics-logged-out-state").style.display = "block";
-                    
-                    document.getElementById("btn-trigger-login-view").addEventListener("click", () => {
-                        const modal = document.getElementById("auth-modal");
-                        if (modal) {
-                            modal.style.display = "flex";
-                            if (typeof toggleAuthView === "function") toggleAuthView("login");
-                        }
-                    });
-                    return;
-                }
-
-                // --- AUTOMATISCHE NAMENSPRÜFUNG: NUR BEI REGISTRIERTEM & AKTIVEM USER ---
-                const { data: currentProfile, error: profileErr } = await supabase
-                    .from('profiles')
-                    .select('real_name')
-                    .eq('id', session.user.id)
-                    .single();
-                
-                if (!profileErr && currentProfile && (!currentProfile.real_name || currentProfile.real_name.trim() === "")) {
-                    setTimeout(() => {
-                        document.getElementById('name-setup-modal').style.display = 'flex';
-                    }, 800);
-                }
-
-                const { data: stages, error } = await supabase
-                    .from('user_match_analytics')
-                    .select('*')
-                    .eq('user_id', session.user.id);
-                if (error) throw error;
-
-                if (!stages || stages.length === 0) {
-                    document.getElementById("analytics-loader").style.display = "none";
-                    document.getElementById("analytics-empty-state").style.display = "block";
-                    return;
-                }
-
-                allUserStages = stages;
-                const matchMap = new Map();
-                stages.forEach(s => {
-                    if(!matchMap.has(s.match_id)) {
-                        matchMap.set(s.match_id, s.match_name);
-                    }
-                });
-                uniqueMatches = Array.from(matchMap, ([id, name]) => ({ id, name }));
-                const selector = document.getElementById("match-selector");
-                selector.innerHTML = "";
-                uniqueMatches.forEach(m => {
-                    let opt = document.createElement("option");
-                    opt.value = m.id;
-                    opt.textContent = m.name;
-                    selector.appendChild(opt);
-                });
-
-                const { data: profiles } = await supabase.from('profiles').select('id, real_name');
-                window.buddyProfiles = profiles || [];
-                document.getElementById("analytics-loader").style.display = "none";
-                document.getElementById("analytics-dashboard-content").style.display = "block";
-                
-                const buddyBtn = document.querySelector(".btn-small");
-                if (buddyBtn) {
-                    buddyBtn.setAttribute("onclick", "toggleBuddyRadar()");
-                }
-
-                renderSelectedMatch();
-                if (typeof window.translatePortalPage === "function") {
-                    window.translatePortalPage();
-                }
-            } catch (err) {
-                console.error(err);
-                const isEn = localStorage.getItem("selectedLanguage") === "en";
-                document.getElementById("analytics-loader").innerText = isEn ? "❌ Error loading database." : "❌ Fehler beim Laden.";
-            }
-        }
-    })();
-
-    window.toggleBuddyRadar = async function() {
-        let buddyRow = document.getElementById("buddy-selector-row");
-        if (buddyRow) {
-            buddyRow.remove();
-            selectedBuddyId = null;
-            allSquadStages = [];
-            renderSelectedMatch();
-            return;
-        }
-
-        const matchId = document.getElementById("match-selector").value;
-        const client = window.supabaseClient || window.supabase;
-        
-        const { data: matchGroup } = await client
-            .from('user_match_analytics')
-            .select('user_id')
-            .eq('match_id', matchId);
-        if (!matchGroup) return;
-
-        const currentUserId = (await client.auth.getSession()).data.session?.user.id;
-        const uniqueUserIds = [...new Set(matchGroup.map(g => g.user_id))].filter(id => id !== currentUserId);
-        const isEn = localStorage.getItem("selectedLanguage") === "en";
-        const placeholderText = isEn ? "-- Choose a buddy to compare --" : "-- Wähle einen Buddy zum Vergleich --";
-        let selectHtml = `<div id="buddy-selector-row" class="select-wrapper" style="margin-top: -10px; margin-bottom: 20px;">
-            <select id="buddy-selector" onchange="selectBuddy(this.value)">
-                <option value="">${placeholderText}</option>`;
-        uniqueUserIds.forEach(id => {
-            const profile = (window.buddyProfiles || []).find(p => p.id === id);
-            const name = profile ? profile.real_name : (isEn ? "Anonymous Shooter" : "Anonymer Schütze");
-            selectHtml += `<option value="${id}">${name}</option>`;
         });
-        selectHtml += `</select></div>`;
 
-        document.getElementById("match-selector").parentElement.insertAdjacentHTML('afterend', selectHtml);
-    };
+        window.onAuthChange = () => { 
+            if(typeof updateHeaderChatBadge === 'function') {
+                updateHeaderChatBadge();
+            }
+        };
 
-    window.selectBuddy = async function(buddyId) {
-        if (!buddyId) {
-            selectedBuddyId = null;
-            allSquadStages = [];
-            renderSelectedMatch();
-            return;
+        // FIX: Verhindert den Absturz des Übersetzungssystems auf dieser Seite
+        window.onLanguageChanged = () => { 
+            const selector = document.getElementById("language-select");
+            if (selector) selector.value = window.currentLang;
+        };
+
+        // --- 1. HIT-FACTOR BATTLE LOGIK ---
+        let rankingData = [];
+        function addShooterToRanking() {
+            const name = document.getElementById('hf-name').value.trim() || `Schütze ${rankingData.length + 1}`;
+            const isMajor = document.getElementById('hf-pf').value === 'major';
+            const time = parseFloat(document.getElementById('hf-time').value) || 0;
+            const a = parseInt(document.getElementById('hf-a').value) || 0;
+            const c = parseInt(document.getElementById('hf-c').value) || 0;
+            const d = parseInt(document.getElementById('hf-d').value) || 0;
+            const m = parseInt(document.getElementById('hf-m').value) || 0;
+            const ns = parseInt(document.getElementById('hf-ns').value) || 0;
+            if (time <= 0 && (a+c+d+m) > 0) {
+                alert(window.currentLang === 'en' ? "Please enter a valid time!" : "Bitte gib eine gültige Zeit ein!");
+                return;
+            }
+
+            let pts = a * 5;
+            pts += c * (isMajor ? 4 : 3);
+            pts += d * (isMajor ? 2 : 1);
+            pts -= (m * 10);
+            pts -= (ns * 10);
+            
+            let hf = 0;
+            if (pts > 0 && time > 0) {
+                hf = pts / time;
+            }
+
+            rankingData.push({
+                id: Date.now(),
+                name: name,
+                points: pts,
+                time: time,
+                hf: hf,
+                pf: isMajor ? 'Maj' : 'Min'
+            });
+            rankingData.sort((a, b) => b.hf - a.hf);
+
+            document.getElementById('hf-name').value = '';
+            document.getElementById('hf-a').value = '0';
+            document.getElementById('hf-c').value = '0';
+            document.getElementById('hf-d').value = '0';
+            document.getElementById('hf-m').value = '0';
+            document.getElementById('hf-ns').value = '0';
+
+            renderRanking();
         }
 
-        selectedBuddyId = buddyId;
-        const matchId = document.getElementById("match-selector").value;
-        const client = window.supabaseClient || window.supabase;
+        function removeShooter(id) {
+            rankingData = rankingData.filter(s => s.id !== id);
+            renderRanking();
+        }
 
-        const { data: buddyStages } = await client
-            .from('user_match_analytics')
-            .select('*')
-            .eq('match_id', matchId)
-            .eq('user_id', buddyId);
-        allSquadStages = buddyStages || [];
-        renderSelectedMatch();
-    };
+        function clearRanking() {
+            const msg = window.currentLang === 'en' ? "Are you sure you want to clear the leaderboard?" : "Bist du sicher, dass du die Rangliste löschen möchtest?";
+            if(confirm(msg)) {
+                rankingData = [];
+                renderRanking();
+            }
+        }
 
-    window.renderSelectedMatch = function() {
-        const matchId = document.getElementById("match-selector").value;
-        const matchStages = allUserStages.filter(s => s.match_id === matchId);
-        const isEn = localStorage.getItem("selectedLanguage") === "en";
-        let sumHf = 0, tA = 0, tC = 0, tD = 0, tM = 0;
-        let division = isEn ? "Unknown" : "Unbekannt";
-        let stagePercents = [];
+        function renderRanking() {
+            const table = document.getElementById('ranking-table');
+            const tbody = document.getElementById('ranking-body');
+            const clearBtn = document.getElementById('btn-clear-ranking');
 
-        matchStages.sort((a,b) => a.stage_name.localeCompare(b.stage_name, undefined, {numeric: true, sensitivity: 'base'}));
-        const stagesHtml = matchStages.map(stage => {
-            const hf = stage.hit_factor ? parseFloat(stage.hit_factor) : 0;
-            const winHf = stage.winner_hit_factor ? parseFloat(stage.winner_hit_factor) : 0;
-            const rank = stage.stage_rank ? stage.stage_rank : "-";
-            const time = stage.stage_time ? parseFloat(stage.stage_time) : 0;
-            const isOverall = stage.stage_name.includes("Overall Match Results");
+            if (rankingData.length === 0) {
+                table.style.display = 'none';
+                clearBtn.style.display = 'none';
+                return;
+            }
+
+            table.style.display = 'table';
+            clearBtn.style.display = 'block';
+            tbody.innerHTML = '';
+
+            rankingData.forEach((shooter, index) => {
+                const rankClass = index === 0 ? 'rank-1' : '';
+                const hfDisplay = shooter.hf.toFixed(4);
+                const timeDisplay = shooter.time.toFixed(2);
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="${rankClass}">${index + 1}.</td>
+                        <td><strong>${shooter.name}</strong> <span style="font-size: 10px; color: var(--text-muted);">${shooter.pf}</span></td>
+                        <td>${shooter.points}</td>
+                        <td>${timeDisplay}s</td>
+                        <td style="font-weight: 900; color: var(--accent-color);">${hfDisplay}</td>
+                        <td style="text-align: right;"><button onclick="removeShooter(${shooter.id})" style="background:none; border:none; color:var(--danger-color); cursor:pointer; padding:5px; font-size:18px; font-weight:bold;">&times;</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- 2. DRY-FIRE TIMER & GENERATOR LOGIK ---
+        let audioCtx;
+        function playBeep(frequency, durationMs) {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = 'square'; 
+            oscillator.frequency.value = frequency; 
             
-            const stagePoints = stage.pts ? parseFloat(stage.pts).toFixed(0) : (hf * time).toFixed(0);
-            if(stage.division && stage.division !== "Unknown") division = stage.division;
+            gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (durationMs / 1000));
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.start();
+            setTimeout(() => oscillator.stop(), durationMs);
+        }
 
-            if (!isOverall) {
-                sumHf += hf;
-                tA += stage.alphas || 0;
-                tC += stage.charlies || 0;
-                tD += stage.deltas || 0;
-                tM += stage.misses || 0;
-            }
+        let timerTimeout;
+        let isTimerRunning = false;
+        function startTimer() {
+            if (isTimerRunning) return;
+            const isEn = (window.currentLang === 'en');
+            const btn = document.getElementById('btn-start-timer');
+            const status = document.getElementById('timer-status');
+            const display = document.getElementById('timer-display');
+            const parTimeSec = parseFloat(document.getElementById('par-time').value) || 3.0;
+            
+            isTimerRunning = true;
+            btn.style.opacity = '0.5';
+            btn.innerText = isEn ? "Timer running..." : "Timer läuft...";
+            
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const randomDelay = Math.floor(Math.random() * 2000) + 1000;
+            
+            display.innerText = "0.00";
+            status.innerText = "Standby...";
+            status.style.color = "var(--info-color)";
+            timerTimeout = setTimeout(() => {
+                playBeep(3000, 300);
+                status.innerText = "GO!";
+                status.style.color = "var(--success-color)";
+                
+                let startTime = Date.now();
+                let interval = setInterval(() => {
+                    let elapsed = (Date.now() - startTime) / 1000;
+                    if (elapsed >= parTimeSec) {
+                        clearInterval(interval);
+                        display.innerText = parTimeSec.toFixed(2);
+                    } else {
+                        display.innerText = elapsed.toFixed(2);
+                    }
+                }, 50);
 
-            const buddyStage = allSquadStages.find(bs => bs.stage_name === stage.stage_name);
-            const buddyHf = buddyStage ? parseFloat(buddyStage.hit_factor) : 0;
+                setTimeout(() => {
+                    playBeep(3000, 300);
+                    status.innerText = isEn ? "Par time expired" : "Par-Zeit abgelaufen";
+                    status.style.color = "var(--danger-color)";
+                    isTimerRunning = false;
+                    btn.style.opacity = '1';
+                    btn.innerText = isEn ? "Start Timer (Random Delay)" : "Start Timer (Zufalls-Delay)";
+                }, parTimeSec * 1000);
 
-            let maxHf = Math.max(hf, winHf, buddyHf);
-            if(maxHf === 0) maxHf = 1;
-            let winPerc = (winHf / maxHf) * 100;
-            let myPerc = (hf / maxHf) * 100;
-            let buddyPerc = (buddyHf / maxHf) * 100;
+            }, randomDelay);
+        }
 
-            if (!isOverall) stagePercents.push(myPerc);
-            let labelWin = isOverall ? (isEn ? "Match Winner" : "Match Sieger") : (isEn ? "Stage Winner" : "Stage Sieger");
-            let textWin = isOverall ? "100%" : `${winHf.toFixed(4)} HF`;
-            let widthWin = isOverall ? 100 : winPerc;
-
-            let labelMe = isOverall ? (isEn ? "Overall Result" : "Overall Wertung") : (isEn ? "My Hit Factor" : "Mein Hit Factor");
-            let myOverallPerc = stage.pts ? parseFloat(stage.pts) : 0; 
-            let textMe = isOverall ? `${myOverallPerc.toFixed(1)}%` : `${hf.toFixed(4)} HF`;
-            let widthMe = isOverall ? myOverallPerc : myPerc;
-
-            let bottomPtsText = isOverall ? `${hf.toFixed(2)} PTS` : `${stagePoints} PTS`;
-            let displayTimeAndHits = isOverall ? "display: none !important;" : "";
-
-            let myColorClass = "bar-me";
-            if(widthMe >= 85) myColorClass += " high"; 
-
-            let courseTag = "";
-            if (!isOverall) {
-                if (stagePoints <= 60) courseTag = '<span class="course-badge">Short</span>';
-                else if (stagePoints <= 120) courseTag = '<span class="course-badge">Medium</span>';
-                else courseTag = '<span class="course-badge">Long</span>';
-            } else {
-                courseTag = `<span class="course-badge" style="background:var(--accent-color); color:#fff;">${isEn ? "Match Result" : "Match Ergebnis"}</span>`;
-            }
-
-            let insightHtml = "";
-            if (!isOverall && winHf > 0 && time > 0) {
-                const targetTime = (stagePoints / winHf).toFixed(2);
-                const timeDiff = (time - targetTime).toFixed(2);
-                if (timeDiff > 0.1) {
-                    insightHtml = isEn 
-                        ? `<div class="insight-box">⏱️ For 1st place you should have shot your points in <b>${targetTime}s</b> (You were ${timeDiff}s too slow).</div>`
-                        : `<div class="insight-box">⏱️ Für Platz 1 hättest du deine Punkte in <b>${targetTime}s</b> schießen müssen (Du warst ${timeDiff}s zu langsam).</div>`;
-                } else if (timeDiff < -0.1 && myPerc >= 95) {
-                    insightHtml = isEn
-                        ? `<div class="insight-box" style="border-color: var(--success-color);">🚀 Amazing! You were faster than the winner's target time!</div>`
-                        : `<div class="insight-box" style="border-color: var(--success-color);">🚀 Wahnsinn! Du warst schneller als die Target-Time des Siegers!</div>`;
-                }
-            }
-
-            let buddyBarHtml = "";
-            if (selectedBuddyId && buddyStage) {
-                buddyBarHtml = `
-                    <div class="bar-container" style="margin-top: 4px;">
-                        <div class="bar-label"><span>${isEn ? "My Buddy" : "Mein Buddy"}</span> <span>${buddyHf.toFixed(4)} HF</span></div>
-                        <div class="bar-track">
-                            <div class="bar-fill" style="width: ${buddyPerc}%; background: var(--info-color);">${buddyPerc > 10 ? buddyPerc.toFixed(1) + '%' : ''}</div>
-                        </div>
-                    </div>`;
-            }
-
-            return `
-                <div class="stage-card">
-                    <div class="stage-header">
-                        <span class="stage-title">${stage.stage_name} ${courseTag}</span>
-                        <span class="stage-rank">${isEn ? "Rank" : "Platz"} ${rank}</span>
-                    </div>
-                    
-                    <div class="bar-container">
-                        <div class="bar-label"><span>${labelWin}</span> <span>${textWin}</span></div>
-                        <div class="bar-track">
-                            <div class="bar-fill bar-winner" style="width: ${widthWin}%;">${isOverall ? '100%' : (winPerc > 10 ? '100%' : '')}</div>
-                        </div>
-                    </div>
-
-                    <div class="bar-container">
-                        <div class="bar-label"><span style="color: var(--text-color);">${labelMe}</span> <span>${textMe}</span></div>
-                        <div class="bar-track">
-                            <div class="bar-fill ${myColorClass}" style="width: ${widthMe}%;">${widthMe > 10 ? widthMe.toFixed(1) + '%' : ''}</div>
-                        </div>
-                    </div>
-                    
-                    ${buddyBarHtml}
-                    ${insightHtml}
-
-                    <div style="display: flex; gap: 15px; margin-top: 15px; font-size: 11px; color: var(--text-muted); flex-wrap: wrap; align-items: center;">
-                        <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color); ${displayTimeAndHits}">⏱️ ${time > 0 ? time.toFixed(2) + 's' : '-'}</span>
-                        <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color); font-weight: 700; color: var(--text-color);">💯 ${bottomPtsText}</span>
-                        <span style="flex-grow: 1; text-align: right; ${displayTimeAndHits}">
-                            🎯 A:${stage.alphas||0} C:${stage.charlies||0} D:${stage.deltas||0} 
-                            <button class="btn-small" style="margin-left: 5px;" onclick="openHitEditor('${stage.stage_name.replace(/'/g, "\\'")}')">✏️</button>
-                        </span>
-                    </div>
+        // --- DRILL GENERATOR ---
+        const startPositionsEN = [
+            "Hands relaxed at sides (Condition 1)",
+            "Hands above shoulders (Surrender, Condition 1)",
+            "Gun loaded on the table, hands flat on table",
+            "Gun completely unloaded (Condition 3) in holster",
+            "Facing away from targets (Turn and Draw)",
+            "Strong hand on holster, weak hand relaxed"
+        ];
+        const startPositionsDE = [
+            "Hände entspannt an der Seite (Condition 1)",
+            "Hände über den Schultern (Surrender, Condition 1)",
+            "Waffe geladen auf dem Tisch, Hände flach auf dem Tisch",
+            "Waffe komplett entladen (Condition 3) im Holster",
+            "Rücken zum Ziel (Turn and Draw)",
+            "Starke Hand am Holster, schwache Hand entspannt"
+        ];
+        const actionsEN = [
+            "Draw, 1 shot on T1",
+            "Draw, 2 shots on T1",
+            "Bill Drill (Draw, 6 shots on T1)",
+            "Draw, 2 shots on T1, reload, 2 shots on T1",
+            "Draw, 2 shots on T1, 2 shots on T2 (Transition)",
+            "Draw, 1 shot strong hand only (Strong Hand Only)",
+            "El Presidente (Turn & Draw, 6 shots)"
+        ];
+        const actionsDE = [
+            "Ziehen, 1 Schuss T1",
+            "Ziehen, 2 Schuss T1",
+            "Bill Drill (Ziehen, 6 Schuss auf T1)",
+            "Ziehen, 2 Schuss T1, Magazinwechsel, 2 Schuss T1",
+            "Ziehen, 2 Schuss T1, 2 Schuss T2 (Transition)",
+            "Ziehen, 1 Schuss starker Arm (Strong Hand Only)",
+            "El Presidente (Turn & Draw, 6 Schuss)"
+        ];
+        function generateDrill() {
+            const isEn = (window.currentLang === 'en');
+            const starts = isEn ? startPositionsEN : startPositionsDE;
+            const acts = isEn ? actionsEN : actionsDE;
+            const randomStart = starts[Math.floor(Math.random() * starts.length)];
+            const randomAction = acts[Math.floor(Math.random() * acts.length)];
+            
+            const labelStart = isEn ? "Start Position:" : "Startposition:";
+            const labelAction = isEn ? "Procedure:" : "Ablauf:";
+            const html = `
+                <div style="text-align: left; width: 100%;">
+                    <strong style="color: var(--accent-color); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">${labelStart}</strong><br>
+                    <span style="font-weight: 700; font-size: 18px;">${randomStart}</span><br><br>
+                    <strong style="color: var(--accent-color); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">${labelAction}</strong><br>
+                    <span style="font-weight: 700; font-size: 18px;">${randomAction}</span>
                 </div>
             `;
-        }).join('');
-
-        document.getElementById("stages-container").innerHTML = stagesHtml;
-
-        const realStages = matchStages.filter(s => !s.stage_name.includes("Overall Match Results"));
-        const avgHf = realStages.length > 0 ? (sumHf / realStages.length).toFixed(2) : "0.00";
-        
-        document.getElementById("kpi-avg-hf").innerText = avgHf;
-        document.getElementById("kpi-division").innerText = division;
-        if (stagePercents.length > 1) {
-            const maxP = Math.max(...stagePercents);
-            const minP = Math.min(...stagePercents);
-            const variance = (maxP - minP).toFixed(0);
-            const varEl = document.getElementById("kpi-variance");
-            varEl.innerText = `± ${variance}%`;
-            if (variance <= 15) varEl.style.color = "var(--success-color)";
-            else if (variance >= 35) varEl.style.color = "var(--danger-color)";
-        } else {
-            document.getElementById("kpi-variance").innerText = "-";
+            document.getElementById('drill-output').innerHTML = html;
         }
-
-        const totalHits = tA + tC + tD;
-        const aPerc = totalHits > 0 ? Math.round((tA / totalHits) * 100) : 0;
-        const cPerc = totalHits > 0 ? Math.round((tC / totalHits) * 100) : 0;
-        const dPerc = totalHits > 0 ? Math.round((tD / totalHits) * 100) : 0;
-
-        document.getElementById("count-alphas").innerText = tA;
-        document.getElementById("count-charlies").innerText = tC;
-        document.getElementById("count-deltas").innerText = tD;
-        document.getElementById("count-misses").innerText = tM;
-
-        document.getElementById("analytics-alpha-badge").innerText = `${aPerc}% Alphas`;
-        document.getElementById("bar-alphas").style.width = `${aPerc}%`;
-        document.getElementById("bar-charlies").style.width = `${cPerc}%`;
-        document.getElementById("bar-deltas").style.width = `${dPerc}%`;
-    }
-
-    window.closeNameSetupModal = function() {
-        document.getElementById('name-setup-modal').style.display = 'none';
-    }
-
-    window.saveProfileName = async function() {
-        const inputName = document.getElementById('setup-real-name').value.trim();
-        const isEn = localStorage.getItem("selectedLanguage") === "en";
-        
-        if (!inputName) {
-            alert(isEn ? "Please enter a valid name." : "Bitte gib einen gültigen Namen ein.");
-            return;
-        }
-
-        const btn = document.getElementById('btn-save-profile-name');
-        btn.innerText = isEn ? "Saving..." : "Speichere...";
-        btn.disabled = true;
-
-        try {
-            const client = window.supabaseClient || window.supabase;
-            const { data: { session } } = await client.auth.getSession();
-            if (!session) return;
-            const { error = null } = await client
-                .from('profiles')
-                .update({ real_name: inputName })
-                .eq('id', session.user.id);
-            if (error) throw error;
-
-            alert(isEn 
-                ? "✅ Name saved successfully! The email bot is now ready for you." 
-                : "✅ Name erfolgreich gespeichert! Der E-Mail-Bot ist jetzt für dich einsatzbereit.");
-            closeNameSetupModal();
-            window.location.reload();
-        } catch (err) {
-            console.error(err);
-            alert(isEn ? "Error saving the name." : "Fehler beim Speichern des Namens.");
-        } finally {
-            btn.innerText = isEn ? "Save" : "Speichern";
-            btn.disabled = false;
-        }
-    }
-
-    window.openHitEditor = function(stageName) {
-        const matchId = document.getElementById("match-selector").value;
-        const stage = allUserStages.find(s => s.match_id === matchId && s.stage_name === stageName);
-        if(!stage) return;
-        
-        currentEditStage = stage;
-        document.getElementById('hit-editor-stage-name').innerText = stage.stage_name;
-        document.getElementById('edit-a').value = stage.alphas || 0;
-        document.getElementById('edit-c').value = stage.charlies || 0;
-        document.getElementById('edit-d').value = stage.deltas || 0;
-        document.getElementById('edit-m').value = stage.misses || 0;
-        document.getElementById('smart-paste-area').value = '';
-        
-        document.getElementById('hit-editor-modal').style.display = 'flex';
-    }
-
-    window.closeHitEditor = function() {
-        document.getElementById('hit-editor-modal').style.display = 'none';
-        currentEditStage = null;
-    }
-
-    document.getElementById('smart-paste-area').addEventListener('input', function(e) {
-        let text = e.target.value;
-        if (!text || text.trim() === '') return;
-
-        let cleanText = text.replace(/[\r\n\t]+/g, ' ');
-        let a = 0, c = 0, d = 0, m = 0, success = false;
-
-        let idxACD = cleanText.search(/A\s+C\s+D/i);
-        if (idxACD !== -1) {
-            let nums = cleanText.substring(idxACD + 5).match(/\b\d+\b/g);
-            if (nums && nums.length >= 3) {
-                a = nums[0]; c = nums[1]; d = nums[2];
-                success = true;
-            }
-        }
-
-        let idxMiss = cleanText.search(/Miss/i);
-        if (idxMiss !== -1) {
-            let nums = cleanText.substring(idxMiss + 4).match(/\b\d+\b/g);
-            if (nums && nums.length >= 1) {
-                m = nums[0];
-            }
-        }
-
-        if (success) {
-            document.getElementById('edit-a').value = a;
-            document.getElementById('edit-c').value = c;
-            document.getElementById('edit-d').value = d;
-            document.getElementById('edit-m').value = m;
-            
-            const isEn = localStorage.getItem("selectedLanguage") === "en";
-            e.target.value = '';
-            e.target.placeholder = isEn ? '✅ Hits successfully detected!' : '✅ Treffer erfolgreich erkannt!';
-            setTimeout(() => e.target.placeholder = '📋 Email-Text hier einfügen (Smart Paste)', 3000);
-        }
-    });
-
-    window.saveHits = async function() {
-        if(!currentEditStage) return;
-        const a = parseInt(document.getElementById('edit-a').value) || 0;
-        const c = parseInt(document.getElementById('edit-c').value) || 0;
-        const d = parseInt(document.getElementById('edit-d').value) || 0;
-        const m = parseInt(document.getElementById('edit-m').value) || 0;
-        const btn = document.getElementById('btn-save-hits');
-        
-        const isEn = localStorage.getItem("selectedLanguage") === "en";
-        btn.innerText = isEn ? "Saving..." : "Speichere...";
-        
-        try {
-            const client = window.supabaseClient || window.supabase;
-            const { error = null } = await client
-                .from('user_match_analytics')
-                .update({ alphas: a, charlies: c, deltas: d, misses: m })
-                .eq('id', currentEditStage.id);
-            if (error) throw error;
-            
-            currentEditStage.alphas = a;
-            currentEditStage.charlies = c;
-            currentEditStage.deltas = d;
-            currentEditStage.misses = m;
-            
-            closeHitEditor();
-            renderSelectedMatch();
-        } catch (err) {
-            console.error(err);
-            alert(isEn ? "Error saving to the database!" : "Fehler beim Speichern in der Datenbank!");
-        } finally {
-            btn.innerText = isEn ? "Save" : "Speichern";
-        }
-    }
     </script>
 </body>
 </html>
