@@ -2,25 +2,24 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Performance-Check | IPSC ELO Analyse</title>
+    <title>Doppel AA Sniper | IPSC Börse</title>
     
-    <link rel="manifest" href="manifest.json">
+    <link class="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="IPSC Börse">
     <link rel="apple-touch-icon" href="icon-192.png">
     
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
     <link rel="stylesheet" href="global.css">
-
+    
     <style>
         /* ==========================================================================
-           PERFORMANCE-CHECK - SPEZIFISCHES LAYOUT (Nutzt global.css Variablen)
+           DOUBLE-ALPHA SNIPER - SPEZIFISCHES LAYOUT (Nutzt global.css Variablen)
            ========================================================================== */
 
         .container { max-width: 1000px; margin: 40px auto; padding: 0 24px; }
@@ -33,7 +32,7 @@
             margin-bottom: 30px; 
             border-radius: var(--radius); 
             font-size: 14px; 
-            border: 1px solid var(--border-color); 
+            border: 1px solid var(--border-color);
             border-left-width: 4px;
         }
         
@@ -49,209 +48,145 @@
             text-align: center; 
         }
         
-        /* 📤 UPLOAD ZONE */
-        .upload-zone { 
-            border: 2px dashed var(--accent-color); 
-            background-color: rgba(255, 159, 67, 0.03); 
-            padding: 48px 24px; 
-            text-align: center; 
+        .filter-bar { 
+            background-color: var(--card-bg); 
+            border: 1px solid var(--border-color); 
             border-radius: var(--radius-lg); 
-            cursor: pointer; 
-            transition: var(--transition); 
+            padding: 20px; 
             margin-bottom: 32px; 
-        }
-        .upload-zone:hover { background-color: rgba(255, 159, 67, 0.08); border-color: #ff8008; }
-        .upload-icon { font-size: 48px; margin-bottom: 16px; line-height: 1; }
-        .upload-title { font-size: 18px; font-weight: 800; color: var(--text-color); margin: 0 0 8px 0; letter-spacing: -0.5px; }
-        .upload-desc { font-size: 14px; color: var(--text-muted); margin: 0; font-weight: 600; }
-        #file-input { display: none; }
-
-        /* 🔗 LINK IMPORT */
-        .link-import-bar { display: flex; gap: 16px; margin: 0 0 32px 0; align-items: stretch; }
-        .url-input { 
-            flex: 1; 
-            min-width: 0; 
-            background: var(--input-bg); 
-            border: 2px solid var(--border-color); 
-            color: var(--text-color); 
-            padding: 14px 16px; 
-            border-radius: var(--radius); 
-            font-size: 15px; 
-            outline: none; 
             box-shadow: var(--shadow-sm); 
-            transition: var(--transition);
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 16px; 
+            align-items: flex-end; 
         }
-        .url-input:focus { border-color: var(--info-color); }
         
-        .primary-btn { 
-            border: 0; 
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); 
-            color: #fff; 
-            border-radius: var(--radius); 
-            padding: 0 28px; 
-            font-size: 15px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3); 
-            min-width: 170px; 
-            transition: var(--transition);
-        }
-        .primary-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); }
-        .primary-btn:disabled { opacity: 0.65; cursor: wait; }
-
-        /* 📊 ANALYSIS RESULTS */
-        #analysis-results { display: none; }
-        .elo-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .elo-stat-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: var(--radius-lg); text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
-        .elo-stat-val { font-size: 26px; font-weight: 900; color: var(--accent-color); margin-bottom: 6px; letter-spacing: -0.5px; }
-        .elo-stat-lbl { font-size: 12px; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-
-        /* ℹ️ AUSKLAPPBARE LEGENDE */
-        .legend-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 32px; box-shadow: var(--shadow-sm); font-size: 14px; }
-        .legend-title { font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); line-height: 1.35; }
-        .legend-content { display: none; margin-top: 16px; border-top: 1px dashed var(--border-color); padding-top: 16px; }
-        .legend-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 8px; }
-        .legend-table th, .legend-table td { text-align: left; padding: 10px 12px; font-size: 13px; }
-        .legend-table th { color: var(--text-muted); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; font-weight: 800; background-color: var(--bg-color); }
-        .legend-table th:first-child { border-top-left-radius: 6px; }
-        .legend-table th:last-child { border-top-right-radius: 6px; }
-        .legend-table tr:not(:last-child) { border-bottom: 1px solid var(--border-color); }
-
-        /* 🔍 INTERAKTIVE FILTER-BAR */
-        .filter-bar { background: var(--card-bg); border: 1px solid var(--border-color); padding: 16px; border-radius: var(--radius-lg); margin-bottom: 24px; display: flex; gap: 14px; flex-wrap: wrap; box-shadow: var(--shadow-sm); }
-        .filter-input { 
-            flex: 2; 
-            min-width: 200px; 
-            background: var(--input-bg); 
+        .filter-group { display: flex; flex-direction: column; flex: 1; min-width: 180px; }
+        .filter-group label { font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); letter-spacing: 0.5px; }
+        
+        /* Select-Angleichung an die restliche Plattform */
+        select { 
+            background-color: var(--input-bg); 
             border: 2px solid var(--border-color); 
             color: var(--text-color); 
-            padding: 10px 14px; 
+            padding: 12px 14px; 
             border-radius: var(--radius); 
             font-size: 14px; 
+            font-weight: 600; 
+            cursor: pointer; 
             outline: none; 
-            font-family: inherit;
             transition: var(--transition);
         }
-        .filter-input:focus { border-color: var(--accent-color); }
+        select:focus { border-color: var(--accent-color); }
+
+        .match-list { display: flex; flex-direction: column; gap: 20px; }
         
-        .filter-select { 
-            flex: 1; 
-            min-width: 140px; 
-            background: var(--input-bg); 
-            border: 2px solid var(--border-color); 
-            color: var(--text-color); 
-            padding: 10px 14px; 
-            border-radius: var(--radius); 
-            font-size: 14px; 
-            outline: none; 
-            cursor: pointer; 
-            font-family: inherit;
-            font-weight: 600;
+        .match-card { 
+            background-color: var(--card-bg); 
+            border-radius: var(--radius-lg); 
+            padding: 24px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border: 1px solid var(--border-color); 
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03); 
+            position: relative; 
+            overflow: hidden;
             transition: var(--transition);
         }
-        .filter-select:focus { border-color: var(--accent-color); }
-
-        /* 👥 REIHEN-LAYOUT MIT FLAGGEN */
-        .competitor-list { display: flex; flex-direction: column; gap: 12px; }
-        .competitor-row { background: var(--card-bg); border: 1px solid var(--border-color); padding: 16px 24px; border-radius: var(--radius-lg); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: var(--transition); }
-        .competitor-row:hover { transform: translateX(4px); border-color: #cbd5e1; }
-        .competitor-info { display: flex; flex-direction: column; gap: 6px; }
-        .competitor-name { font-size: 16px; font-weight: 700; color: var(--text-color); }
-        .competitor-meta { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; font-weight: 600; }
+        .match-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: #cbd5e1; }
+        html[data-theme="dark"] .match-card:hover { border-color: var(--text-muted); }
         
-        .fi { border-radius: 4px; box-shadow: 0 0 2px rgba(0,0,0,0.15); }
+        .match-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 6px; background-color: var(--accent-color); }
         
-        .competitor-row .competitor-elo { display: flex; align-items: center; gap: 14px; }
-        .elo-score { font-size: 18px; font-weight: 800; color: var(--text-color); font-variant-numeric: tabular-nums; }
-        .elo-badge { padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; min-width: 45px; text-align: center; box-shadow: var(--shadow-sm); }
-        .badge-gm { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); }
-        .badge-m { background: rgba(255, 159, 67, 0.1); color: var(--accent-color); }
-        .badge-a { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
-        .badge-u { background: rgba(100, 116, 139, 0.1); color: var(--text-muted); }
-
-        /* 📂 MATCH-ARCHIV */
-        .match-archive { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); margin-bottom: 32px; box-shadow: var(--shadow-sm); overflow: hidden; }
-        .archive-header { padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--text-color); border-bottom: 1px solid var(--border-color); letter-spacing: -0.5px; }
-        .archive-content { display: none; padding: 16px; background-color: var(--input-bg); }
-        .archive-empty { color: var(--text-muted); font-size: 14px; padding: 12px 4px; font-style: italic; font-weight: 600; }
-        .archive-item { border: 1px solid var(--border-color); border-radius: var(--radius-lg); margin-bottom: 14px; background: var(--card-bg); overflow: hidden; box-shadow: var(--shadow-sm); }
-        .archive-meta { flex: 1; min-width: 0; }
-        .archive-title { font-weight: 800; font-size: 15px; color: var(--text-color); white-space: normal; word-break: break-word; line-height: 1.3; }
-        .archive-sub { font-size: 13px; color: var(--text-muted); margin-top: 6px; line-height: 1.4; font-weight: 600; }
+        .match-details h3 { margin: 0 0 10px 0; color: var(--text-color); font-size: 18px; font-weight: 800; letter-spacing: -0.5px;}
+        .match-details h3 a { color: inherit; text-decoration: none; transition: var(--transition); }
+        .match-details h3 a:hover { color: var(--accent-color); text-decoration: underline; }
         
-        .archive-btn { 
-            border: 2px solid var(--border-color); 
-            background: var(--card-bg); 
-            color: var(--text-color); 
-            border-radius: var(--radius); 
-            padding: 10px 14px; 
-            font-size: 13px; 
-            cursor: pointer; 
+        .match-actions { display: flex; flex-direction: column; gap: 10px; min-width: 180px; }
+        
+        .badge-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .badge { background-color: rgba(255, 159, 67, 0.1); color: var(--accent-color); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; display: inline-block; border: 1px solid rgba(255, 159, 67, 0.15); }
+        .badge-meta { background-color: var(--input-bg); color: var(--text-muted); border: 1px solid var(--border-color); }
+        .badge-date { background-color: rgba(59, 130, 246, 0.08); color: var(--info-color); border: 1px solid rgba(59, 130, 246, 0.15); }
+        
+        .btn-contact { 
+            background: var(--accent-gradient); 
+            color: #ffffff; 
+            border: none; 
+            padding: 12px 24px; 
             font-weight: 700; 
+            border-radius: var(--radius); 
+            cursor: pointer; 
+            font-size: 14px; 
+            transition: var(--transition); 
             text-align: center; 
-            transition: var(--transition);
+            box-shadow: 0 4px 14px rgba(255, 159, 67, 0.3);
         }
-        .archive-btn:hover { background-color: var(--bg-color); border-color: #cbd5e1; transform: translateY(-1px); }
-        .archive-btn.delete { color: var(--danger-color); border-color: rgba(239, 68, 68, 0.2); }
-        .archive-btn.delete:hover { background-color: rgba(239, 68, 68, 0.05); border-color: var(--danger-color); }
+        .btn-contact:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255, 159, 67, 0.4); }
         
-        .archive-details { display: none; padding: 4px 16px 16px 16px; border-top: 1px dashed var(--border-color); background-color: var(--input-bg); }
-        .archive-small-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
-        .archive-small-row { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--card-bg); box-shadow: var(--shadow-sm); }
-        .archive-small-row span:first-child { font-weight: 700; color: var(--text-color); }
-        .archive-small-row span:last-child { color: var(--accent-color); font-weight: 800; font-variant-numeric: tabular-nums; }
+        .btn-delete { 
+            background-color: transparent; 
+            color: var(--danger-color); 
+            border: 2px solid rgba(239, 68, 68, 0.3); 
+            padding: 10px 16px; 
+            font-weight: 700; 
+            border-radius: var(--radius); 
+            cursor: pointer; 
+            font-size: 13px; 
+            transition: var(--transition); 
+            text-align: center; 
+        }
+        .btn-delete:hover { background-color: var(--danger-color); color: #ffffff; border-color: var(--danger-color); }
 
-        /* LOADING SPINNER */
-        .loader-container { display: none; text-align: center; padding: 48px 24px; }
-        .spinner { border: 4px solid var(--border-color); border-left-color: var(--accent-color); border-radius: 50%; width: 44px; height: 44px; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Saubere Darstellung: keine Encoding-Abhaengigkeit + bessere Karten */
-        #quick-analyze-section {
-            background: rgba(59, 130, 246, 0.06) !important;
-            border: 1px solid rgba(59, 130, 246, 0.3) !important;
-            border-radius: var(--radius-lg) !important;
-            padding: 20px !important;
-            margin-bottom: 24px !important;
-            box-shadow: var(--shadow-sm);
+        /* --- MODAL INPUT GRID CONFIGS --- */
+        .modal { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); 
+            justify-content: center; align-items: center; z-index: 1000; padding: 20px; box-sizing: border-box; 
+            animation: fadeInModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        #quick-analyze-section h4 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            line-height: 1.35;
-            font-weight: 800;
-            letter-spacing: -0.5px;
+        .modal-content { 
+            background-color: var(--card-bg); padding: 36px; border-radius: var(--radius-lg); 
+            border: 1px solid var(--border-color); width: 100%; max-width: 580px; position: relative; 
+            max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); margin: auto;
         }
-        #quick-analyze-buttons .archive-btn {
-            min-height: 44px;
-            border-radius: var(--radius) !important;
-            line-height: 1.35;
-            white-space: normal;
-            word-break: break-word;
-            border: 2px solid rgba(59, 130, 246, 0.3) !important;
-            transition: var(--transition);
-        }
-        #quick-analyze-buttons .archive-btn:hover {
-            background-color: var(--card-bg) !important;
-            border-color: var(--info-color) !important;
-            transform: translateY(-1px);
-        }
+        .modal-close-trigger { background: var(--bg-color); border: none; border-radius: 50%; color: var(--text-muted); font-size: 24px; cursor: pointer; position: absolute; top: 20px; right: 24px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; transition: var(--transition); z-index: 1010; }
+        .modal-close-trigger:hover { color: var(--text-color); background: var(--border-color); transform: rotate(90deg); }
         
+        .form-row { display: flex; gap: 16px; margin-bottom: 0; }
+        .form-row .form-group { flex: 1; }
+        
+        .form-group { margin-bottom: 14px; display: flex; flex-direction: column; }
+        .form-group label { font-size: 12px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; }
+        .form-group input, .form-group select { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px; border-radius: var(--radius); font-size: 14px; box-sizing: border-box; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent-color); }
+
+        .radio-container { display: flex; gap: 24px; padding: 12px 0; font-size: 15px; }
+        .radio-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700 !important; text-transform: none !important; color: var(--text-color); }
+        .radio-label input { cursor: pointer; margin: 0; width: 18px; height: 18px; accent-color: var(--accent-color); }
+
+        .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; background: var(--input-bg); padding: 16px; border-radius: var(--radius); border: 2px dashed var(--border-color); }
+        .checkbox-grid .checkbox-group { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-color); font-weight: 600; }
+        .checkbox-grid .checkbox-group input { cursor: pointer; width: 18px; height: 18px; accent-color: var(--accent-color); margin: 0; }
+
+        .checkbox-group-terms { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-color); margin-bottom: 16px; }
+        .checkbox-group-terms input { cursor: pointer; width: 18px; height: 18px; accent-color: var(--accent-color); margin: 0; }
+
+        .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; margin-top: 10px; box-shadow: var(--shadow-sm); transition: var(--transition); }
+        .btn-primary-auth:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary-auth:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255,159,67,0.3); }
+
+        /* 📱 MOBILE OPTIMIERUNG */
         @media (max-width: 650px) {
-            body { padding-top: env(safe-area-inset-top); }
-            .container { margin: 20px auto; padding: 0 16px; box-sizing: border-box; }
-            #quick-analyze-section { padding: 16px !important; }
-            .upload-zone { padding: 40px 16px; margin-bottom: 24px; }
-            .archive-header { padding: 16px; }
-            .archive-item { padding: 0; }
-            .archive-small-row { flex-direction: column; gap: 4px; }
-            .elo-stats-grid { grid-template-columns: 1fr; gap: 12px; }
-            .filter-bar { flex-direction: column; gap: 12px; }
-            .link-import-bar { flex-direction: column; gap: 12px; margin-bottom: 24px; }
-            .primary-btn { min-width: 0; padding: 14px 18px; width: 100%; }
-            .competitor-row { flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; }
-            .competitor-elo { width: 100%; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 4px; }
+            .form-row { flex-direction: column; gap: 0; }
+            .form-row .form-group { width: 100%; }
+            .checkbox-grid { grid-template-columns: 1fr; }
+            .filter-bar { flex-direction: column; align-items: stretch; gap: 12px; }
+            .modal-content { padding: 28px 20px; }
+            .radio-container { flex-direction: column; gap: 12px; }
+            .match-card { flex-direction: column; align-items: stretch; gap: 16px; }
+            .match-actions { width: 100%; }
         }
     </style>
 </head>
@@ -261,2247 +196,548 @@
     <script src="header.js"></script>
 
     <div class="container">
-        <div id="access-denied" class="danger-box">Pr&#252;fe Berechtigungen... (Bitte einloggen)</div>
+        <div id="access-denied" class="danger-box">Prüfe Berechtigungen... (Bitte einloggen)</div>
 
         <div id="dashboard-content" style="display: none;">
-            <div class="info-box" id="js-personal-welcome">
-                <strong>&#128248; Starterlisten-Analyse:</strong> Lade einen Screenshot der Match-Starterliste hoch oder f&#252;ge einen IPSCMatch-Link ein. Das System erkennt die Namen, gleicht sie mit der aktuellen IPSC ELO Datenbank ab und zeigt dir sofort, wie stark deine Konkurrenz ist.
+            <div class="info-box">
+                <strong>Bereich "Double Alpha":</strong> Hier siehst du Turniere, die noch auf Status "Anmeldung öffnet..." stehen. Wähle ein Match aus, um deinen Bot zu programmieren oder bestehende Einträge anzupassen/zurückzunehmen. Klicke auf den Turniernamen, um das Match direkt auf ipscmatch.de zu öffnen.
             </div>
 
-            <div id="quick-analyze-section" style="display: none;">
-                <h4 style="margin: 0 0 14px 0; color: var(--info-color); font-size: 15px;">&#127919; Deine anstehenden Matches (aus Mein Planer)</h4>
-                <div id="quick-analyze-buttons" style="display: flex; gap: 10px; flex-direction: column;"></div>
+            <div class="filter-bar">
+                <div class="filter-group"><label for="filter-level">Level</label><select id="filter-level" onchange="applyFilters()"><option value="all">Alle Levels</option></select></div>
+                <div class="filter-group"><label for="filter-land">Land</label><select id="filter-land" onchange="applyFilters()"><option value="all">Alle Länder</option></select></div>
+                <div class="filter-group"><label for="filter-disziplin">Disziplin</label><select id="filter-disziplin" onchange="applyFilters()"><option value="all">Alle Disziplinen</option></select></div>
             </div>
 
-            <div class="link-import-bar" id="link-import-bar">
-                <input type="url" id="match-url" class="url-input" placeholder="https://ipscmatch.de/index.php?..." autocomplete="url" inputmode="url">
-                <button type="button" id="match-url-btn" class="primary-btn" onclick="importMatchFromUrl()">Link abrufen</button>
-            </div>
-
-            <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click();">
-                <div class="upload-icon">&#128196;</div>
-                <h3 class="upload-title">Screenshot hier hochladen</h3>
-                <p class="upload-desc">Klicke hier oder ziehe ein Bild hinein (JPG, PNG).</p>
-                <input type="file" id="file-input" accept="image/*" onchange="handleFileUpload(this.files)">
-            </div>
-
-            <div class="match-archive" id="match-archive">
-                <div class="archive-header" onclick="toggleMatchArchive()">
-                    <span>&#128193; Bisherige Match-Analysen</span>
-                    <span id="archive-arrow">&#9660;</span>
-                </div>
-                <div class="archive-content" id="archive-content">
-                    <div class="archive-empty">Noch keine Match-Analysen gespeichert.</div>
-                </div>
-            </div>
-
-            <div class="loader-container" id="loader">
-                <div class="spinner"></div>
-                <h3 style="margin: 0; color: var(--text-color); font-weight: 800;">Analysiere Starterfeld...</h3>
-                <p style="margin: 6px 0 0 0; color: var(--text-muted); font-size: 14px; font-weight: 600;">Texterkennung l&#228;uft und ELO-Datenbank wird abgefragt.</p>
-            </div>
-
-            <div id="analysis-results">
-                <h2 style="margin-bottom: 24px; font-weight: 800; letter-spacing: -0.5px;">Auswertung: <span style="color: var(--accent-color);">Optics Overall</span></h2>
-                
-                <div class="elo-stats-grid">
-                    <div class="elo-stat-card">
-                        <div class="elo-stat-val" id="stat-user-elo">-</div>
-                        <div class="elo-stat-lbl" id="stat-user-label">Dein ELO-Rating</div>
-                    </div>
-                    <div class="elo-stat-card">
-                        <div class="elo-stat-val" id="stat-stronger-count">0</div>
-                        <div class="elo-stat-lbl">Gegner &#252;ber deinem ELO</div>
-                    </div>
-                    <div class="elo-stat-card">
-                        <div class="elo-stat-val" id="stat-level">-</div>
-                        <div class="elo-stat-lbl">Herausforderung f&#252;r dich</div>
-                    </div>
-                    <div class="elo-stat-card">
-                        <div class="elo-stat-val" id="stat-field-strength">-</div>
-                        <div class="elo-stat-lbl">Feldst&#228;rke</div>
-                    </div>
-                </div>
-
-                <div class="legend-box">
-                    <div class="legend-title" onclick="toggleLegend()">
-                        <span>&#8505;&#65039; Wie berechnet sich das Wettkampf-Niveau?</span>
-                        <span id="legend-arrow">&#9660;</span>
-                    </div>
-                    <div class="legend-content" id="legend-content">
-                        <p style="margin:0 0 20px 0; line-height:1.6; color:var(--text-muted);">
-                            Diese Analyse betrachtet ein Match aus zwei verschiedenen Perspektiven.
-                            <br><br>
-                            &#127919; <strong>Herausforderung f&#252;r dich</strong><br>
-                            Dieser Wert ist vollst&#228;ndig auf deine pers&#246;nliche ELO-St&#228;rke abgestimmt. Er zeigt, wie viele Teilnehmer im Starterfeld ein h&#246;heres ELO besitzen als du selbst. Dadurch erh&#228;ltst du eine realistische Einsch&#228;tzung, wie anspruchsvoll dieses Match f&#252;r dich pers&#246;nlich sein wird.
-                            <br><br>
-                            &#127942; <strong>Feldst&#228;rke</strong><br>
-                            Die Feldst&#228;rke bewertet das Match unabh&#228;ngig von deinem eigenen ELO. Dabei werden die durchschnittliche Spielst&#228;rke der bekannten Teilnehmer, die St&#228;rke der Top-Sch&#252;tzen sowie die Anzahl besonders leistungsstarker Sch&#252;tzen ber&#252;cksichtigt. Dadurch lassen sich verschiedene Matches besser miteinander vergleichen.
-                        </p>
-
-                        <table class="legend-table">
-                            <thead>
-                                <tr>
-                                    <th>Anteil st&#228;rkerer Gegner</th>
-                                    <th>Herausforderung</th>
-                                    <th>Bedeutung</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="font-weight:700;color:var(--danger-color);">&#220;ber 50 %</td>
-                                    <td style="font-weight:bold;color:var(--danger-color);">Sehr Hoch</td>
-                                    <td>Du gehst als Au&#223;enseiter ins Match. Mehr als die H&#228;lfte des Starterfeldes besitzt ein h&#246;heres ELO.</td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight:700;color:var(--accent-color);">21 % bis 50 %</td>
-                                    <td style="font-weight:bold;color:var(--accent-color);">Hoch</td>
-                                    <td>Anspruchsvolles Match. Ein bedeutender Teil des Feldes liegt vor dir.</td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight:700;color:var(--info-color);">6 % bis 20 %</td>
-                                    <td style="font-weight:bold;color:var(--info-color);">Mittel</td>
-                                    <td>Du befindest dich im oberen Bereich des Feldes und kannst vorne mitk&#228;mpfen.</td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight:700;color:var(--success-color);">Bis 5 %</td>
-                                    <td style="font-weight:bold;color:var(--success-color);">Gering</td>
-                                    <td>Du geh&#246;rst zu den Favoriten des Wettbewerbs.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <h3 style="margin: 36px 0 16px 0; font-size: 18px; font-weight: 800; letter-spacing: -0.5px;">Gefundene Konkurrenten</h3>
-                
-                <div class="filter-bar">
-                    <input type="text" id="search-name" class="filter-input" placeholder="Nach Name suchen..." oninput="applyFilters()">
-                    
-                    <select id="filter-region" class="filter-select" onchange="applyFilters()">
-                        <option value="">Alle L&#228;nder</option>
-                    </select>
-                    
-                    <select id="filter-class" class="filter-select" onchange="onFilterClassChange()">
-                        <option value="">Alle Klassen</option>
-                        <option value="GM">Grand Master (GM)</option>
-                        <option value="M">Master (M)</option>
-                        <option value="A">A-Class</option>
-                        <option value="Unranked">Unranked</option>
-                    </select>
-                </div>
-
-                <div class="competitor-list" id="competitor-list"></div>
+            <h2 style="margin-bottom: 24px; font-weight: 800; letter-spacing: -0.5px;">Geplante Bot-Aktivierungen</h2>
+            <div class="match-list" id="js-match-container">
+                <p style="color: var(--text-muted); font-style: italic; font-weight: 600;">Lade kommende Matches aus der Datenbank...</p>
             </div>
         </div>
     </div>
 
+    <!-- SPEZIFISCHES BOT MODAL (BLEIBT IN DIESER DATEI) -->
+    <div class="modal" id="bot-config-modal">
+        <div class="modal-content">
+            <button class="modal-close-trigger" onclick="closeBotModal()">&times;</button>
+            <h3 style="margin-top: 0; margin-bottom: 6px; font-weight: 800; letter-spacing: -0.5px;" id="modal-match-name">Match Name</h3>
+            <p style="color: var(--text-muted); font-size: 13px; margin-top: 0; margin-bottom: 24px; font-weight: 600;" id="modal-match-time">Öffnet: -</p>
+            
+            <form id="bot-submit-form">
+                <input type="hidden" id="modal-match-id">
+                <input type="hidden" id="modal-existing-job-id">
+                
+                <div class="form-row">
+                    <div class="form-group"><label>Vorname</label><input type="text" id="bot-vorname" required></div>
+                    <div class="form-group"><label>Nachname</label><input type="text" id="bot-nachname" required></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group"><label>E-Mail</label><input type="email" id="bot-email" required></div>
+                    <div class="form-group"><label>IPSC Lizenznummer / Alias</label><input type="text" id="bot-lizenz" required></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Region</label>
+                        <select id="bot-region" required>
+                            <option value="GER" selected>GER Germany</option>
+                            <option value="AND">AND Andorra</option>
+                            <option value="ARG">ARG Argentina</option>
+                            <option value="ARM">ARM Armenia</option>
+                            <option value="ARU">ARU Aruba</option>
+                            <option value="AUS">AUS Australia</option>
+                            <option value="AUT">AUT Austria</option>
+                            <option value="BAR">BAR Barbados</option>
+                            <option value="BEL">BEL Belgium</option>
+                            <option value="BLR">BLR Belarus</option>
+                            <option value="BOL">BOL Bolivia</option>
+                            <option value="CZE">CZE Czech Republic</option>
+                            <option value="ESP">ESP Spain</option>
+                            <option value="FRA">FRA France</option>
+                            <option value="GBR">GBR Great Britain</option>
+                            <option value="ITA">ITA Italy</option>
+                            <option value="NED">NED Netherlands</option>
+                            <option value="POL">POL Poland</option>
+                            <option value="SUI">SUI Switzerland</option>
+                            <option value="SVK">SVK Slovakia</option>
+                            <option value="USA">USA United States</option>
+                            <optgroup label="Deutsche Landesverbände (BDS)">
+                                <option value="LV1">LV 1 (Berlin/Brandenburg)</option>
+                                <option value="LV4">LV 4 (Nordrhein-Westfalen)</option>
+                                <option value="LV6">LV 6 (Hessen)</option>
+                                <option value="LV9">LV 9 (Bayern)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Division</label><select id="bot-division" required></select></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group"><label>Category</label><select id="bot-category" required></select></div>
+                    <div class="form-group">
+                        <label>Power Factor</label>
+                        <div class="radio-container" style="padding-top: 6px;">
+                            <label class="radio-label"><input type="radio" name="power_factor" value="Minor" id="power-minor" checked> Minor</label>
+                            <label class="radio-label"><input type="radio" name="power_factor" value="Major" id="power-major"> Major</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(59, 130, 246, 0.04); padding: 16px; border-radius: var(--radius); border: 2px dashed rgba(59, 130, 246, 0.2); margin-bottom: 20px;">
+                    <p style="margin: 0 0 12px 0; font-size: 13px; color: var(--text-muted); line-height: 1.5;"><strong>Squad-Analyse:</strong> Der Bot lädt das Formular in Millisekunden und sucht nach einer Squad an deinem Wunsch-Tag. Findet er nichts, nimmt er die erstbeste freie Squad, um deinen Startplatz zu sichern!</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Wunsch-Tag</label>
+                            <select id="bot-wunschtag">
+                                <option value="egal">Egal (Hauptsache drin!)</option>
+                                <option value="freitag">Freitag</option>
+                                <option value="samstag">Samstag</option>
+                                <option value="sonntag">Sonntag</option>
+                                <option value="prematch">Pre-Match (RO/Sponsor)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Oder feste Squad-Nr. (Optional)</label>
+                            <input type="text" id="bot-squad" placeholder="z.B. 15 (überschreibt den Tag)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group"><label>Bemerkung (Optional)</label><input type="text" id="bot-bemerkung" placeholder="Wird ins Bemerkungsfeld eingetragen..."></div>
+
+                <div class="form-group">
+                    <label>Darstellung in Teilnehmerliste</label>
+                    <select id="bot-public" required>
+                        <option value="1">Öffentlich</option>
+                        <option value="0">Nicht öffentlich</option>
+                    </select>
+                </div>
+
+                <div class="checkbox-grid">
+                    <div class="checkbox-group"><input type="checkbox" id="bot-ro"><label for="bot-ro">Ich bin RO</label></div>
+                    <div class="checkbox-group"><input type="checkbox" id="bot-sponsor"><label for="bot-sponsor">Sponsor-Platz</label></div>
+                </div>
+
+                <div class="checkbox-group-terms">
+                    <input type="checkbox" id="bot-agb" required>
+                    <label for="bot-agb"><strong>Ich bin einverstanden</strong> (Pflichtfeld).</label>
+                </div>
+
+                <button type="submit" class="btn-primary-auth" id="bot-submit-btn">Bot jetzt programmieren</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ALLE JS LOGIKEN ZU 100% UNANGETASTET -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="auth.js"></script>
+    <script src="lang.js"></script>
+    <script src="app.js"></script>
     
     <script>
-        let currentShooters = [];
-        let userPersonalElo = 1700; 
-
-        const countryCodes = {
-            "germany": "de", "ger": "de", "deu": "de",
-            "france": "fr", "fra": "fr",
-            "switzerland": "ch", "sui": "ch", "che": "ch",
-            "poland": "pl", "pol": "pl",
-            "philippines": "ph", "phi": "ph",
-            "austria": "at", "aut": "at",
-            "netherlands": "nl", "ned": "nl",
-            "belgium": "be", "bel": "be",
-            "italy": "it", "ita": "it",
-            "spain": "es", "esp": "es",
-            "portugal": "pt", "por": "pt",
-            "brazil": "br", "brasil": "br", "bra": "br",
-            "united states": "us", "usa": "us",
-            "norway": "no", "nor": "no",
-            "sweden": "se", "swe": "se",
-            "czech republic": "cz", "cze": "cz",
-            "slovakia": "sk", "svk": "sk",
-            "slovenia": "si", "slo": "si", "svn": "si",
-            "serbia": "rs", "srb": "rs"
-        };
-
-        const countryNameFormat = {
-            "GER": "Germany", "DEU": "Germany", "GERMANY": "Germany",
-            "FRA": "France", "FRANCE": "France",
-            "SUI": "Switzerland", "CHE": "Switzerland", "SWITZERLAND": "Switzerland",
-            "POL": "Poland", "POLAND": "Poland",
-            "PHI": "Philippines", "PHILIPPINES": "Philippines",
-            "NED": "Netherlands", "NETHERLANDS": "Netherlands",
-            "BEL": "Belgium", "BELGIUM": "Belgium",
-            "AUT": "Austria", "AUSTRIA": "Austria",
-            "ITA": "Italy", "ITALY": "Italy",
-            "ESP": "Spain", "SPAIN": "Spain",
-            "POR": "Portugal", "PORTUGAL": "Portugal",
-            "BRA": "Brazil", "BRASIL": "Brazil", "BRAZIL": "Brazil",
-            "USA": "United States", "UNITED STATES": "United States",
-            "NOR": "Norway", "NORWAY": "Norway",
-            "SWE": "Sweden", "SWEDEN": "Sweden",
-            "CZE": "Czech Republic", "CZECH": "Czech Republic",
-            "SVK": "Slovakia", "SLOVAKIA": "Slovakia",
-            "SLO": "Slovenia", "SVN": "Slovenia", "SLOVENIA": "Slovenia",
-            "SRB": "Serbia", "SERBIA": "Serbia"
-        };
-
-        window.countryCodes = countryCodes;
-        window.countryNameFormat = countryNameFormat;
-
-        function escapeHtml(value) {
-            return String(value ?? "")
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        function cleanText(value) {
-            return String(value ?? "")
-                .replace(/ /g, " ")
-                .replace(/\s+/g, " ")
-                .trim();
-        }
-
-        function cleanPersonName(value) {
-            return cleanText(value)
-                .replace(/^[#\d.\-\s]+/, "")
-                .replace(/[()\[\]{}]/g, "")
-                .trim();
-        }
-
-        function normalizeDivisionName(value) {
-            const raw = cleanText(value).replace(/\bOverall\b/ig, "").trim();
-            const lower = raw.toLowerCase();
-
-            if (!raw || /^[-_=#.:;]+$/.test(raw) || /^-?nr\.?$/i.test(raw)) return "Unknown";
-            if (lower.includes("production optics") || /prod\.?\s*opt/.test(lower)) return "Production Optics";
-            if (lower.includes("carry optics")) return "Optics";
-            if (lower.includes("optic")) return "Optics";
-            if (lower.includes("production")) return "Production";
-            if (lower.includes("standard")) return "Standard";
-            if (lower.includes("classic")) return "Classic";
-            if (lower.includes("revolver")) return "Revolver";
-            if (lower.includes("open")) return "Open";
-            if (lower.includes("pcc")) return "PCC";
-
-            return "Unknown";
-        }
-
-        function normalizeRegionCode(value) {
-            const text = cleanText(value).toUpperCase();
-            const tokens = text.replace(/[^A-Z]/g, " ").split(/\s+/).filter(Boolean);
-            const knownToken = tokens.find(token => countryNameFormat[token]);
-            return knownToken || text || "UNKNOWN";
-        }
-
-        function getCountryDisplayName(regionRaw) {
-            const code = normalizeRegionCode(regionRaw);
-            return countryNameFormat[code] || cleanText(regionRaw) || "Unknown";
-        }
-
-        function setLoaderMessage(message) {
-            const loaderText = document.querySelector("#loader p");
-            if (loaderText) loaderText.textContent = message;
-        }
-
-        function setImportButtonLoading(isLoading) {
-            const btn = document.getElementById("match-url-btn");
-            if (!btn) return;
-            btn.disabled = isLoading;
-            btn.textContent = isLoading ? "Lade..." : "Link abrufen";
-        }
-
-        function resetFilterInputs() {
-            const search = document.getElementById("search-name");
-            const region = document.getElementById("filter-region");
-            const cls = document.getElementById("filter-class");
-            if (search) search.value = "";
-            if (region) region.value = "";
-            if (cls) cls.value = "";
-        }
-
-        function onFilterClassChange() {
-            applyFilters();
-        }
-
-        function extractMatchNameFromOcr(rawText) {
-            const lines = String(rawText || "")
-                .split(/\r?\n/)
-                .map(cleanText)
-                .filter(Boolean);
-
-            const ignore = /^(nr\.?|vorname|name|region|division|category|power|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik|print|export)/i;
-            const candidate = lines.find(line => !ignore.test(line) && line.length >= 5 && !/^\d+\s/.test(line));
-            return candidate ? candidate.slice(0, 120) : "Unbenanntes Match";
-        }
-
-        function renderShooterResult(shooter, dbEntry) {
-            const displayName = `${shooter.nachname}, ${shooter.vorname}`;
-            const fullCountryName = getCountryDisplayName(shooter.regionRaw);
-
-            let eloValue = "-";
-            let overallRank = "-";
-            let rankClass = "Unranked";
-            let classStyle = "badge-u";
-
-            if (dbEntry && dbEntry.elo_rating !== null && dbEntry.elo_rating !== undefined) {
-                eloValue = Number(dbEntry.elo_rating);
-                overallRank = dbEntry.rank || "-";
-                rankClass = dbEntry.class_style || "A";
-
-                if (eloValue >= 2300) classStyle = "badge-gm";
-                else if (eloValue >= 2100) classStyle = "badge-m";
-                else if (eloValue >= 1800) classStyle = "badge-a";
-            }
-
-            return {
-                name: displayName,
-                division: `${normalizeDivisionName(shooter.division)} Overall`,
-                region: fullCountryName,
-                elo: eloValue,
-                overallRank: overallRank,
-                rankClass: eloValue !== "-" ? rankClass : "Unranked",
-                classStyle: classStyle
-            };
-        }
-
-        async function buildRenderedShooterResults(shooters) {
-            const results = [];
-            const total = shooters.length;
-
-            for (let i = 0; i < total; i++) {
-                const shooter = shooters[i];
-                setLoaderMessage(`Gleiche ${i + 1}/${total} Sch\u00FCtzen mit ELO-Datenbank ab...`);
-                const dbEntry = await findEloEntry(shooter);
-                results.push(renderShooterResult(shooter, dbEntry));
-            }
-
-            return results;
-        }
-
-        function toggleLegend() {
-            const content = document.getElementById('legend-content');
-            const arrow = document.getElementById('legend-arrow');
-            if (content.style.display === 'block') {
-                content.style.display = 'none';
-                arrow.textContent = '\u25BC';
-            } else {
-                content.style.display = 'block';
-                arrow.textContent = '\u25B2';
-            }
-        }
-
-        function uniqueArray(values) {
-            return [...new Set(values.filter(Boolean))];
-        }
-
-        function nameVariants(value) {
-            if (!value) return [];
-            const variants = [value.trim()];
-            const replacements = [
-                [/\u00E4/g, "ae"], [/\u00F6/g, "oe"], [/\u00FC/g, "ue"], [/\u00C4/g, "Ae"], [/\u00D6/g, "Oe"], [/\u00DC/g, "Ue"], [/\u00DF/g, "ss"],
-                [/ae/g, "\u00E4"], [/oe/g, "\u00F6"], [/ue/g, "\u00FC"], [/Ae/g, "\u00C4"], [/Oe/g, "\u00D6"], [/Ue/g, "\u00DC"]
-            ];
-            for (const [from, to] of replacements) {
-                variants.push(value.replace(from, to).trim());
-            }
-            return uniqueArray(variants);
-        }
-
-        function buildSearchNameCandidates(vorname, nachname) {
-            const firstVariants = nameVariants(vorname);
-            const lastVariants = nameVariants(nachname);
-            const candidates = [];
-
-            for (const last of lastVariants) {
-                for (const first of firstVariants) {
-                    candidates.push(`${last}, ${first}`);
-                }
-            }
-            return uniqueArray(candidates);
-        }
-
-        function normalizeNameForMatching(value) {
-            return cleanText(value)
-                .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/ä/g, "ae")
-                .replace(/ö/g, "oe")
-                .replace(/ü/g, "ue")
-                .replace(/ß/g, "ss")
-                .replace(/[^a-z0-9]+/g, " ")
-                .replace(/(.)\1+/g, "$1")
-                .replace(/\s+/g, " ")
-                .trim();
-        }
-
-        function levenshteinDistance(a, b) {
-            a = normalizeNameForMatching(a);
-            b = normalizeNameForMatching(b);
-            if (a === b) return 0;
-            if (!a) return b.length;
-            if (!b) return a.length;
-
-            const previous = Array.from({ length: b.length + 1 }, (_, i) => i);
-            const current = new Array(b.length + 1);
-
-            for (let i = 1; i <= a.length; i++) {
-                current[0] = i;
-                for (let j = 1; j <= b.length; j++) {
-                    const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-                    current[j] = Math.min(
-                        previous[j] + 1,
-                        current[j - 1] + 1,
-                        previous[j - 1] + cost
-                    );
-                }
-                for (let j = 0; j <= b.length; j++) previous[j] = current[j];
-            }
-
-            return previous[b.length];
-        }
-
-        function splitStoredLastname(value) {
-            const text = cleanText(value);
-            if (text.includes(',')) {
-                const parts = text.split(',').map(cleanText).filter(Boolean);
-                return { nachname: parts[0] || '', vorname: parts.slice(1).join(' ') || '' };
-            }
-            const parts = text.split(/\s+/).filter(Boolean);
-            return { nachname: parts[0] || '', vorname: parts.slice(1).join(' ') || '' };
-        }
-
-        function nameSimilarityScore(row, shooter) {
-            const stored = splitStoredLastname(row.lastname || '');
-            const firstTargets = nameVariants(shooter.vorname || '');
-            const lastTargets = nameVariants(shooter.nachname || '');
-            let bestFirst = Number.POSITIVE_INFINITY;
-            let bestLast = Number.POSITIVE_INFINITY;
-            for (const first of firstTargets) bestFirst = Math.min(bestFirst, levenshteinDistance(stored.vorname, first));
-            for (const last of lastTargets) bestLast = Math.min(bestLast, levenshteinDistance(stored.nachname, last));
-            const storedFull = `${stored.nachname}, ${stored.vorname}`;
-            const targetFull = `${shooter.nachname || ''}, ${shooter.vorname || ''}`;
-            const fullDistance = levenshteinDistance(storedFull, targetFull);
-            return { row, firstDistance: bestFirst, lastDistance: bestLast, fullDistance, score: (bestLast * 2) + bestFirst };
-        }
-
-        function pickBestEloShooterMatch(rows, shooter) {
-            if (!rows || rows.length === 0 || !shooter) return null;
-            const scored = rows
-                .map(row => nameSimilarityScore(row, shooter))
-                .sort((a, b) => a.score - b.score || a.fullDistance - b.fullDistance);
-            const best = scored[0];
-            if (!best) return null;
-            const lastOk = best.lastDistance <= 2;
-            const firstOk = best.firstDistance <= 1;
-            const fullOk = best.fullDistance <= 3;
-            return (lastOk && firstOk && fullOk) ? best.row : null;
-        }
-
-        function pickBestEloNameMatch(rows, targetCandidates) {
-            if (!rows || rows.length === 0) return null;
-            let bestRow = null;
-            let bestDistance = Number.POSITIVE_INFINITY;
-            for (const row of rows) {
-                for (const target of targetCandidates) {
-                    const distance = levenshteinDistance(row.lastname, target);
-                    if (distance < bestDistance) {
-                        bestDistance = distance;
-                        bestRow = row;
-                    }
-                }
-            }
-            const bestNameLength = bestRow ? normalizeNameForMatching(bestRow.lastname).length : 0;
-            const allowedDistance = bestNameLength <= 10 ? 1 : 3;
-            return bestDistance <= allowedDistance ? bestRow : null;
-        }
-
-        function divisionMatches(rowDivision, targetDivision) {
-            return normalizeDivisionName(rowDivision) === normalizeDivisionName(targetDivision);
-        }
-
-        function pickBestEloShooterMatchInDivision(rows, shooter, division) {
-            const sameDivisionRows = (rows || []).filter(row => divisionMatches(row.division, division));
-            return pickBestEloShooterMatch(sameDivisionRows, shooter);
-        }
-
-        async function fetchEloRowsByDivisionAndNamePart(division, namePart, limit = 200) {
-            const part = cleanText(namePart);
-            if (!part || part.length < 2 || !window.supabaseClient) return [];
-
-            const { data, error } = await window.supabaseClient
-                .from("elo_rankings")
-                .select("elo_rating, class_style, division, lastname, rank")
-                .eq("division", division)
-                .ilike("lastname", `%${part}%`)
-                .limit(limit);
-
-            if (error || !data) return [];
-            return data.filter(row => divisionMatches(row.division, division));
-        }
-
-        async function fetchEloRowsByDivisionPaged(division, maxRows = 6000, pageSize = 1000) {
-            const allRows = [];
-            if (!window.supabaseClient) return allRows;
-
-            for (let from = 0; from < maxRows; from += pageSize) {
-                const to = from + pageSize - 1;
-                const { data, error } = await window.supabaseClient
-                    .from("elo_rankings")
-                    .select("elo_rating, class_style, division, lastname, rank")
-                    .eq("division", division)
-                    .range(from, to);
-
-                if (error || !data || data.length === 0) break;
-                allRows.push(...data.filter(row => divisionMatches(row.division, division)));
-                if (data.length < pageSize) break;
-            }
-
-            return allRows;
-        }
-
-        async function findNameInOtherDivisionsForDebug(shooter, currentDivision) {
-            if (!window.supabaseClient) return null;
-            const candidates = buildSearchNameCandidates(shooter.vorname, shooter.nachname);
-            const firstCandidates = nameVariants(shooter.vorname || '');
-            const rows = [];
-
-            for (const candidate of candidates.slice(0, 4)) {
-                const { data } = await window.supabaseClient
-                    .from("elo_rankings")
-                    .select("elo_rating, class_style, division, lastname, rank")
-                    .eq("lastname", candidate)
-                    .neq("division", currentDivision)
-                    .limit(10);
-                if (data && data.length) rows.push(...data);
-            }
-
-            for (const first of firstCandidates.slice(0, 2)) {
-                if (!first || first.length < 3) continue;
-                const { data } = await window.supabaseClient
-                    .from("elo_rankings")
-                    .select("elo_rating, class_style, division, lastname, rank")
-                    .ilike("lastname", `%${first}%`)
-                    .neq("division", currentDivision)
-                    .limit(50);
-                if (data && data.length) rows.push(...data);
-            }
-
-            const best = pickBestEloShooterMatch(rows, shooter);
-            if (best) {
-                console.info("ELO-Eintrag nur in anderer Division gefunden; wird nicht angezeigt:", {
-                    shooter: `${shooter.nachname}, ${shooter.vorname}`,
-                    requestedDivision: currentDivision,
-                    foundDivision: best.division,
-                    dbName: best.lastname
-                });
-            }
-            return best || null;
-        }
-
-        async function findEloEntry(shooter) {
-            if (!window.supabaseClient || !shooter) return null;
-
-            const division = normalizeDivisionName(shooter.division);
-            if (!division || division === "Unknown") return null;
-
-            const candidates = buildSearchNameCandidates(shooter.vorname, shooter.nachname);
-            const lastCandidates = nameVariants(shooter.nachname || '');
-            const firstCandidates = nameVariants(shooter.vorname || '');
-
-            for (const candidate of candidates) {
-                const { data, error } = await window.supabaseClient
-                    .from("elo_rankings")
-                    .select("elo_rating, class_style, division, lastname, rank")
-                    .eq("lastname", candidate)
-                    .eq("division", division)
-                    .limit(1);
-
-                if (!error && data && data.length > 0 && divisionMatches(data[0].division, division)) {
-                    return data[0];
-                }
-            }
-
-            let sameDivisionCandidates = [];
-            for (const first of firstCandidates) {
-                if (!first || first.length < 3) continue;
-                sameDivisionCandidates.push(...await fetchEloRowsByDivisionAndNamePart(division, first, 200));
-            }
-
-            for (const last of lastCandidates) {
-                const normalizedLast = normalizeNameForMatching(last).replace(/\s+/g, '');
-                const prefixes = uniqueArray([
-                    normalizedLast.slice(0, 3),
-                    normalizedLast.slice(0, 4),
-                    normalizedLast.slice(0, 5),
-                    normalizedLast.slice(0, 6)
-                ].filter(part => part.length >= 3));
-
-                for (const prefix of prefixes) {
-                    sameDivisionCandidates.push(...await fetchEloRowsByDivisionAndNamePart(division, prefix, 200));
-                }
-            }
-
-            sameDivisionCandidates = uniqueArray(sameDivisionCandidates.map(row => JSON.stringify(row))).map(text => JSON.parse(text));
-            let best = pickBestEloShooterMatchInDivision(sameDivisionCandidates, shooter, division) || pickBestEloNameMatch(sameDivisionCandidates, candidates);
-            if (best && divisionMatches(best.division, division)) return best;
-
-            const divisionRows = await fetchEloRowsByDivisionPaged(division, 6000, 1000);
-            best = pickBestEloShooterMatchInDivision(divisionRows, shooter, division) || pickBestEloNameMatch(divisionRows, candidates);
-            if (best && divisionMatches(best.division, division)) return best;
-
-            await findNameInOtherDivisionsForDebug(shooter, division);
-            return null;
-        }
-
-        function setAccessState(state, message) {
-            const deniedBox = document.getElementById("access-denied");
-            const dashboard = document.getElementById("dashboard-content");
-            if (!deniedBox || !dashboard) return;
-
-            if (state === "loading") {
-                deniedBox.style.display = "block";
-                deniedBox.textContent = message || "Pr\u00FCfe Berechtigungen...";
-                dashboard.style.display = "none";
-                return;
-            }
-
-            if (state === "allowed") {
-                deniedBox.style.display = "none";
-                dashboard.style.display = "block";
-                return;
-            }
-
-            deniedBox.style.display = "block";
-            deniedBox.textContent = message || "Kein Zugriff auf diese Funktion.";
-            dashboard.style.display = "none";
-        }
-
-        function hasDoppelAaAccess(profile) {
-            const value = profile && profile.is_doppel_aa;
-            return value === true || value === "true" || value === 1 || value === "1";
-        }
-
-        async function waitForSupabaseClient(timeoutMs = 8000) {
-            const started = Date.now();
-            while (Date.now() - started < timeoutMs) {
-                if (window.supabaseClient && window.supabaseClient.auth) return window.supabaseClient;
-                await new Promise(resolve => setTimeout(resolve, 150));
-            }
-            throw new Error("Supabase/Auth konnte nicht geladen werden.");
-        }
-
-        async function getCurrentAuthUser() {
-            const client = await waitForSupabaseClient();
-            const { data: { session } } = await client.auth.getSession();
-            return session && session.user ? session.user : null;
-        }
-
-        async function processUserProfile(user) {
-            const deniedBox = document.getElementById("access-denied");
-            const dashboard = document.getElementById("dashboard-content");
-
-            if (!user) { 
-                deniedBox.style.display = "block"; 
-                dashboard.style.display = "none"; 
-                return;
-            }
-
-            try {
-                const { data: profile, error } = await window.supabaseClient
-                    .from("profiles")
-                    .select("is_doppel_aa, ipsc_alias, username, real_name")
-                    .eq("id", user.id)
-                    .maybeSingle();
-                
-                if (error) {
-                    console.error("\u{1F6A8} Supabase Profil-Abfrage fehlgeschlagen:", error);
-                }
-
-                if (!profile || profile.is_doppel_aa !== true) { 
-                    deniedBox.style.display = "block"; 
-                    dashboard.style.display = "none"; 
-                    return;
-                }
-
-                window.userProfileData = profile;
-                window.currentUserId = user.id;
-
-                deniedBox.style.display = "none";
-                dashboard.style.display = "block";
-
-                if (typeof renderMatchArchive === "function") {
-                    renderMatchArchive();
-                }
-
-                if (profile.real_name) {
-                    document.getElementById("js-personal-welcome").innerHTML = `\u{1F3AF} <strong>Willkommen zur\u00FCck, ${profile.real_name}!</strong> Lade einen Screenshot hoch oder f\u00FCge einen IPSCMatch-Link ein, um das Starterfeld direkt mit deiner ELO-St\u00E4rke abzugleichen.`;
-                    
-                    const nameParts = profile.real_name.split(" ");
-                    if (nameParts.length >= 2) {
-                        const dbSearchName = `${nameParts[1]}, ${nameParts[0]}`;
-                        const { data: userEloData } = await window.supabaseClient
-                            .from("elo_rankings")
-                            .select("elo_rating")
-                            .maybeSingle();
-                            
-                        if (userEloData && userEloData.elo_rating) {
-                            userPersonalElo = parseFloat(userEloData.elo_rating);
-                        }
-                    }
-                }
-                
-                const { data: plannedMatches } = await window.supabaseClient
-                    .from("user_matches")
-                    .select("*")
-                    .eq("user_id", user.id)
-                    .not("match_url", "is", null);
-
-                if (plannedMatches && plannedMatches.length > 0) {
-                    const container = document.getElementById("quick-analyze-section");
-                    const btnContainer = document.getElementById("quick-analyze-buttons");
-                    btnContainer.innerHTML = "";
-                    let hasValid = false;
-
-                    plannedMatches.forEach(m => {
-                        const status = (m.status || "").toLowerCase();
-                        const squad = (m.squad || "").toUpperCase();
-                        
-                        const isApproved = status.includes('approved') || status.includes('best\u00E4tigt');
-                        const isWarteliste = status.includes('warteliste') || squad.includes('99');
-
-                        if (isApproved && !isWarteliste) {
-                            hasValid = true;
-                            const btn = document.createElement("button");
-                            btn.className = "archive-btn";
-                            btn.style.backgroundColor = "var(--input-bg)";
-                            btn.style.color = "var(--info-color)";
-                            btn.style.border = "1px solid var(--info-color)";
-                            btn.style.fontWeight = "600";
-                            btn.style.width = "100%";
-                            btn.style.textAlign = "left";
-                            btn.style.padding = "10px 15px";
-                            
-                            const squadInfo = m.squad ? ` | ${escapeHtml(m.squad)}` : "";
-                            const divInfo = m.ipsc_division && m.ipsc_division !== "Unknown" ? ` | Div: ${escapeHtml(m.ipsc_division)}` : "";
-                            
-                            btn.innerHTML = `\u{1F4CA} ${escapeHtml(m.match_name)}${squadInfo}${divInfo}`;
-                            btn.dataset.matchName = m.match_name || "";
-                            btn.dataset.matchId = getMatchIdFromUrl(m.match_url || "") || "";
-                            
-                            btn.onclick = () => {
-                                importPlannedMatch(m);
-                            };
-                            btnContainer.appendChild(btn);
-                        }
-                    });
-                    if (hasValid) container.style.display = "block";
-                    if (typeof syncQuickAnalyzeVisibility === "function") syncQuickAnalyzeVisibility();
-                }
-
-                const urlParams = new URLSearchParams(window.location.search);
-                const autoUrl = urlParams.get('url');
-                if (autoUrl) {
-                    document.getElementById('match-url').value = autoUrl;
-                    setTimeout(() => importMatchFromUrl(), 300);
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
-
-            } catch (err) {
-                console.error("Fehler bei Profilvalidierung:", err);
-            }
-        }
-
+        window.loadedMatchesCache = [];
+        window.userActiveJobsCache = [];
         const originalAuthChange = window.onAuthChange;
         window.onAuthChange = async (user) => {
             if (typeof originalAuthChange === "function") originalAuthChange(user);
-            await processUserProfile(user);
+            const deniedBox = document.getElementById("access-denied");
+            const dashboard = document.getElementById("dashboard-content");
+
+            if (!user) { deniedBox.style.display = "block"; dashboard.style.display = "none"; return;
+            }
+
+            const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa, ipsc_alias, username, real_name").eq("id", user.id).single();
+            if (!profile || profile.is_doppel_aa !== true) { deniedBox.style.display = "block"; dashboard.style.display = "none"; return;
+            }
+
+            window.userProfileData = profile; 
+            deniedBox.style.display = "none";
+            dashboard.style.display = "block";
+
+            loadUpcomingMatches(user.id);
         };
 
-        function bindUrlEnterKey() {
-            const urlInput = document.getElementById("match-url");
-            if (urlInput && !urlInput.dataset.boundEnter) {
-                urlInput.dataset.boundEnter = "1";
-                urlInput.addEventListener("keydown", (event) => {
-                    if (event.key === "Enter") {
-                        event.preventDefault();
-                        importMatchFromUrl();
-                    }
-                });
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            bindUrlEnterKey();
-            setTimeout(async () => {
-                if (window.supabaseClient && !window.userProfileData) {
-                    const { data: { session } } = await window.supabaseClient.auth.getSession();
-                    if (session && session.user) {
-                        await processUserProfile(session.user);
-                    }
-                }
-            }, 300);
-        });
-        
-        function normalizeMatchUrl(value) {
-            let input = cleanText(value);
-            if (!input) throw new Error("Bitte einen Link eingeben.");
-
-            if (!/^https?:\/\//i.test(input)) {
-                input = `https://${input}`;
-            }
-
+        function parseIpscDateFrontend(str) {
             try {
-                const parsed = new URL(input);
-                parsed.hash = "";
-                return parsed.href;
-            } catch (_) {
-                throw new Error("Der eingegebene Link ist keine g\u00FCltige URL.");
+                if (!str) return Infinity;
+                const parts = str.split(" ");
+                const tag = parseInt(parts[0]);
+                const monatStr = parts[1].toLowerCase().substring(0, 3);
+                const jahr = parseInt(parts[2]);
+                const zeit = (parts[3] || "00:00").split(":");
+                
+                const monate = { jan: 0, feb: 1, mrz: 2, mar: 2, apr: 3, mai: 4, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, okt: 9, oct: 9, nov: 10, dez: 11, dec: 11 };
+                return new Date(jahr, monate[monatStr] ?? 5, tag, parseInt(zeit[0]), parseInt(zeit[1]), 0).getTime();
+            } catch { return Infinity;
             }
         }
 
-        async function fetchWithTimeout(url, options = {}, timeoutMs = 20000) {
-            const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), timeoutMs);
+        function isMatchExpired(match) {
+            const openTime = parseIpscDateFrontend(match?.anmeldung_oeffnet);
+            if (!Number.isFinite(openTime)) return false;
 
+            const graceMs = 5 * 60 * 1000;
+            return openTime < (Date.now() - graceMs);
+        }
+
+        async function cleanupExpiredMatches(matches, userId) {
+            const expiredMatches = (matches || []).filter(isMatchExpired);
+            if (!expiredMatches.length) return;
+
+            const expiredIds = expiredMatches.map(m => m.id).filter(Boolean);
+            if (!expiredIds.length) return;
             try {
-                return await fetch(url, {
-                    cache: "no-store",
-                    credentials: "omit",
-                    ...options,
-                    signal: controller.signal
-                });
-            } finally {
-                clearTimeout(timer);
-            }
-        }
-
-        function buildProxyAttempts(targetUrl) {
-            return [
-                {
-                    name: "Supabase Edge Proxy",
-                    url: `https://huprxirlthkisjngwash.supabase.co/functions/v1/ipscmatch-proxy?url=${encodeURIComponent(targetUrl)}`,
-                    type: "text"
-                },
-                {
-                    name: "Direkt",
-                    url: targetUrl,
-                    type: "text",
-                    options: { mode: "cors" }
-                },
-                {
-                    name: "AllOrigins JSON",
-                    url: `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
-                    type: "json"
-                },
-                {
-                    name: "AllOrigins Raw",
-                    url: `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-                    type: "text"
+                const { error } = await window.supabaseClient
+                    .from("upcoming_matches")
+                    .delete()
+                    .in("id", expiredIds);
+                if (error) {
+                    console.warn("Abgelaufene Matches konnten nicht automatisch aus upcoming_matches gelöscht werden:", error);
                 }
-            ];
-        }
-
-        async function readProxyResponse(response, type) {
-            if (type === "json") {
-                const json = await response.json();
-                return json.contents || json.body || json.data || "";
+            } catch (err) {
+                console.warn("Cleanup upcoming_matches fehlgeschlagen:", err);
             }
 
-            const text = await response.text();
-
-            if (/^\s*\{/.test(text) && text.includes('"contents"')) {
+            if (userId) {
                 try {
-                    const json = JSON.parse(text);
-                    return json.contents || text;
-                } catch (_) {
-                    return text;
-                }
-            }
-
-            return text;
-        }
-
-        async function fetchMatchHtml(targetUrl) {
-            const attempts = buildProxyAttempts(targetUrl);
-            const errors = [];
-
-            for (const attempt of attempts) {
-                try {
-                    const response = await fetchWithTimeout(attempt.url, attempt.options || {}, 20000);
-
-                    if (!response) throw new Error("Keine Antwort vom Server");
-                    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`.trim());
-
-                    const htmlContent = await readProxyResponse(response, attempt.type);
-                    if (!htmlContent || cleanText(htmlContent).length < 50) {
-                        throw new Error("Leere Antwort erhalten");
+                    const { error } = await window.supabaseClient
+                        .from("bot_queue")
+                        .delete()
+                        .eq("user_id", userId)
+                        .eq("status", "waiting")
+                        .in("match_id", expiredIds);
+                    if (error) {
+                        console.warn("Abgelaufene Bot-Jobs konnten nicht automatisch gelöscht werden:", error);
                     }
-
-                    return htmlContent;
                 } catch (err) {
-                    const msg = err && err.name === "AbortError" ? "Timeout" : (err && err.message ? err.message : String(err));
-                    errors.push(`${attempt.name}: ${msg}`);
+                    console.warn("Cleanup bot_queue fehlgeschlagen:", err);
                 }
             }
-
-            const serviceWorkerHint = errors.some(entry => /FetchEvent\.respondWith|Returned response is null/i.test(entry))
-                ? "\n\nHinweis: Die Meldung 'FetchEvent.respondWith ... Returned response is null' kommt meist von einem alten Service Worker. Website-Daten/Cache l\u00F6schen."
-                : "";
-
-            throw new Error(`Der Link konnte nicht geladen werden.${serviceWorkerHint}\n\nVersuchte Wege:\n- ${errors.join("\n- ")}`);
         }
 
-        function extractIpscCandidateLinks(htmlContent, baseUrl) {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlContent, "text/html");
-            const candidates = [];
-            const seen = new Set([baseUrl]);
-
-            const wanted = /(starter|startliste|starterliste|teilnehmer|participants?|shooters?|sch\u00FCtzen|schuetzen|squad|squads|registration|anmeldung|liste|list|status|utilisation|complist)/i;
-
-            Array.from(doc.querySelectorAll("a[href]")).forEach(link => {
-                const href = link.getAttribute("href") || "";
-                const text = cleanText(link.textContent || "");
-                const combined = `${text} ${href}`;
-                
-                try {
-                    const url = new URL(href, baseUrl);
-                    url.hash = "";
-                    const absolute = url.href;
-
-                    if (!seen.has(absolute) && wanted.test(combined)) {
-                        if (/[?&]grep(?:div|cat|reg)=/i.test(absolute) || /[?&]complist=/i.test(absolute)) {
-                             return; 
-                        }
-                        seen.add(absolute);
-                        candidates.push(absolute);
-                    }
-                } catch(e) {}
-            });
-
-            return candidates.slice(0, 12);
-        }
-
-        function findStarterTable(doc, forcedDiv) {
-            const tables = Array.from(doc.querySelectorAll("table"));
-
-            return tables.find(table => {
-                const text = cleanText(table.textContent).toLowerCase();
-                const hasName = text.includes("vorname") || text.includes("name") || text.includes("nachname");
-                const hasDiv = text.includes("division");
-                return hasName && (hasDiv || forcedDiv);
-            }) || tables.find(table => {
-                const text = cleanText(table.textContent).toLowerCase();
-                return text.includes("vorname") && (text.includes("name") || text.includes("nachname"));
-            }) || null;
-        }
-
-        function getRowCells(row) {
-            return Array.from(row.children).map(cell => cleanText(cell.textContent));
-        }
-
-        function getHeaderIndex(headers, predicate, fallback) {
-            const idx = headers.findIndex(predicate);
-            return idx >= 0 ? idx : fallback;
-        }
-
-        function splitTextIntoPossibleStarterRows(text) {
-            return String(text || "")
-                .replace(/\u00A0/g, " ")
-                .replace(/[\u2713\u2714]/g, " ")
-                .replace(/(\d{1,5})\s*(?=[A-Za-z\u00C4\u00D6\u00DC\u00E4\u00F6\u00FC\u00DF])/g, "\n$1 ")
-                .replace(/\s+(?=\d{1,5}\s+[A-Za-z\u00C4\u00D6\u00DC\u00E4\u00F6\u00FC\u00DF])/g, "\n")
-                .split(/\r?\n/)
-                .map(cleanText)
-                .filter(Boolean);
-        }
-
-        function normalizeDivisionFromFreeText(value) {
-            const text = cleanText(value).toLowerCase();
-            if (/prod\.?\s*opt|production\s+optics|pdo/.test(text)) return "Production Optics";
-            if (/carry\s*opt|\boptics?\b|\bopt\b/.test(text)) return "Optics";
-            if (/production|\bprd\b/.test(text)) return "Production";
-            if (/standard|\bstd\b/.test(text)) return "Standard";
-            if (/classic|\bclc\b/.test(text)) return "Classic";
-            if (/revolver|\brev\b/.test(text)) return "Revolver";
-            if (/open|\bopn\b/.test(text)) return "Open";
-            if (/\bpcc\b/.test(text)) return "PCC";
-            return "Unknown";
-        }
-
-        function getValidIpscDivisions() {
-            return ["Production Optics", "Optics", "Production", "Standard", "Open", "Classic", "Revolver", "PCC"];
-        }
-
-        function isValidIpscDivision(value) {
-            return getValidIpscDivisions().includes(normalizeDivisionName(value));
-        }
-
-        function namesMatchShooter(shooter, nameCandidates) {
-            const shooterText = normalizeNameSearchText(`${shooter.vorname || ""} ${shooter.nachname || ""}`);
-            if (!shooterText) return false;
-
-            return nameCandidates.some(candidate => {
-                const parts = normalizeNameSearchText(candidate).split(/\s+/).filter(Boolean);
-                if (parts.length < 2) return false;
-                return parts.every(part => shooterText.includes(part));
-            });
-        }
-
-        function parseShooterFromTextLine(line, forcedDiv) {
-            const regionCodes = Object.keys(countryNameFormat).sort((a, b) => b.length - a.length);
-
-            let cleaned = cleanText(line)
-                .replace(/^[-\u2013\u2014\u2022]+\s*/, "")
-                .replace(/^(nr\.?|no\.?|#)\s*/i, "");
-
-            if (/^(vorname|name|region|division|category|power|factor|ro|sponsor|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik|results?|stage|team|certificates?)/i.test(cleaned)) {
-                return null;
+        async function loadUpcomingMatches(userId) {
+            if (userId) {
+                const { data: userJobs } = await window.supabaseClient
+                    .from("bot_queue")
+                    .select("*")
+                    .eq("user_id", userId)
+                    .eq("status", "waiting");
+                window.userActiveJobsCache = userJobs || [];
             }
 
-            const numberMatch = cleaned.match(/^\D*(\d{1,5})[.)\-:\s]+(.+)$/);
-            if (!numberMatch) return null;
-
-            const tokens = numberMatch[2].split(/\s+/).filter(Boolean);
-            let regionIndex = -1;
-            let regionRaw = "";
-
-            for (let i = 0; i < tokens.length; i++) {
-                const token = tokens[i].replace(/[^A-Za-z]/g, "").toUpperCase();
-                if (regionCodes.includes(token)) {
-                    regionIndex = i;
-                    regionRaw = token;
-                    break;
-                }
-            }
-
-            if (regionIndex < 1) return null;
-
-            const nameTokens = tokens.slice(0, regionIndex).map(t => cleanPersonName(t)).filter(Boolean);
-            const afterRegion = tokens.slice(regionIndex + 1).join(" ");
-            let division = normalizeDivisionFromFreeText(afterRegion);
-
-            if (division === "Unknown" && forcedDiv) division = forcedDiv;
-
-            if (division === "Unknown") return null;
-            if (nameTokens.length < 2) return null;
-
-            let vorname = nameTokens[0];
-            let nachname = nameTokens.slice(1).join(" ");
-
-            const nameText = nameTokens.join(" ");
-            if (nameText.includes(",")) {
-                const parts = nameText.split(",").map(cleanPersonName).filter(Boolean);
-                if (parts.length >= 2) {
-                    nachname = parts[0];
-                    vorname = parts.slice(1).join(" ");
-                }
-            }
-
-            if (!vorname || !nachname) return null;
-
-            return {
-                vorname,
-                nachname,
-                regionRaw: normalizeRegionCode(regionRaw),
-                division: normalizeDivisionName(division)
-            };
-        }
-
-        function parseShootersFromPlainText(text, forcedDiv) {
-            const parsedNames = [];
-            const seen = new Set();
-            const rows = splitTextIntoPossibleStarterRows(text);
-
-            for (const row of rows) {
-                const rowTextLower = row.toLowerCase();
-                if (rowTextLower.includes("warteliste") || rowTextLower.includes("sq99") || rowTextLower.includes("sq 99") || rowTextLower.includes("squad 99") || rowTextLower.includes("squad99")) {
-                    continue;
-                }
-
-                const shooter = parseShooterFromTextLine(row, forcedDiv);
-                if (!shooter) continue;
-
-                const key = `${shooter.vorname}|${shooter.nachname}|${shooter.regionRaw}|${shooter.division}`.toLowerCase();
-                if (seen.has(key)) continue;
-                seen.add(key);
-                parsedNames.push(shooter);
-            }
-
-            return parsedNames;
-        }
-
-        async function parseShootersFromHtml(htmlContent, options = {}) {
-            const parser = new DOMParser();
-            let doc = parser.parseFromString(htmlContent, "text/html");
-            const forcedDiv = options.forcedDivision;
-
-            let matchTitle = cleanText(doc.querySelector("h1")?.textContent) || cleanText(doc.title) || "IPSC Match";
-            matchTitle = matchTitle.replace(/ipscmatch\.de/i, "").replace(/Starterliste/i, "").trim() || "Importiertes Match";
-
-            let parsedNames = [];
-            const targetTable = findStarterTable(doc, forcedDiv);
-
-            if (targetTable) {
-                const allRows = Array.from(targetTable.querySelectorAll("tr"));
-                const headerRowIndex = Math.max(0, allRows.findIndex(row => {
-                    const text = getRowCells(row).join(" ").toLowerCase();
-                    const hasName = text.includes("name") || text.includes("vorname") || text.includes("nachname");
-                    const hasDiv = text.includes("division");
-                    return hasName && (hasDiv || forcedDiv);
-                }));
-
-                const headers = getRowCells(allRows[headerRowIndex]).map(h => h.toLowerCase());
-
-                const idxVorname = headers.findIndex(h => h.includes("vorname"));
-                let idxName = headers.findIndex(h => h === "name" || h.includes("nachname") || h.includes("familienname"));
-                if (idxName === -1) idxName = headers.findIndex(h => /\bname\b/.test(h));
-                const idxRegion = getHeaderIndex(headers, h => h.includes("region") || h.includes("land") || h.includes("nation"), -1);
-                const idxDivision = getHeaderIndex(headers, h => h.includes("division") || h === "div", -1);
-
-                const seen = new Set();
-
-                for (const row of allRows.slice(headerRowIndex + 1)) {
-                    const cells = getRowCells(row);
-                    if (cells.length < 3) continue;
-
-                    const rowTextCombined = cells.join(" ").toLowerCase();
-                    if (rowTextCombined.includes("warteliste") || rowTextCombined.includes("sq99") || rowTextCombined.includes("sq 99") || rowTextCombined.includes("squad 99") || rowTextCombined.includes("squad99")) {
-                        continue;
-                    }
-
-                    let vorname = "";
-                    let nachname = "";
-
-                    if (idxVorname >= 0 && idxName >= 0) {
-                        vorname = cleanPersonName(cells[idxVorname]);
-                        nachname = cleanPersonName(cells[idxName]);
-                    } else if (idxName >= 0) {
-                        const nameParts = cleanPersonName(cells[idxName]).split(/\s+/).filter(Boolean);
-                        vorname = nameParts[0] || "";
-                        nachname = nameParts.slice(1).join(" ");
-                    }
-
-                    const regionRaw = idxRegion >= 0 ? normalizeRegionCode(cells[idxRegion]) : "UNKNOWN";
-                    let division = idxDivision >= 0 ? normalizeDivisionName(cells[idxDivision]) : normalizeDivisionFromFreeText(cells.join(" "));
-                    
-                    if (division === "Unknown" && forcedDiv) division = forcedDiv;
-
-                    if (!vorname || !nachname || /^vorname$/i.test(vorname) || /^name$/i.test(nachname)) continue;
-                    if (division === "Unknown") continue;
-
-                    const key = `${vorname}|${nachname}|${regionRaw}|${division}`.toLowerCase();
-                    if (seen.has(key)) continue;
-                    seen.add(key);
-
-                    parsedNames.push({ vorname, nachname, regionRaw, division });
-                }
-            }
-
-            if (!parsedNames.length) {
-                const bodyText = doc.body ? doc.body.innerText || doc.body.textContent || "" : "";
-                parsedNames = parseShootersFromPlainText(bodyText || htmlContent, forcedDiv);
-            }
-
-            if (!parsedNames.length && !options.silent) {
-                throw new Error("Konnte keine Starterliste finden. Bitte pruefen, ob der Link wirklich die Starterliste mit Nr., Name, Region und Division zeigt.");
-            }
-
-            return { matchTitle, shooters: parsedNames };
-        }
-
-        function normalizeNameSearchText(value) {
-            return cleanText(value)
-                .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/\u00E4/g, "ae").replace(/\u00F6/g, "oe").replace(/\u00FC/g, "ue").replace(/\u00DF/g, "ss")
-                .replace(/[^a-z0-9]+/g, " ")
-                .replace(/\s+/g, " ")
-                .trim();
-        }
-
-        function getOwnNameCandidates() {
-            const profile = window.userProfileData || {};
-            return uniqueArray([
-                profile.real_name,
-                profile.ipsc_alias,
-                profile.username,
-                "Fabian Sch\u00F6ps"
-            ].map(cleanText).filter(Boolean));
-        }
-
-        function lineContainsName(line, nameCandidates) {
-            const normLine = normalizeNameSearchText(line);
-            if (!normLine) return false;
-
-            return nameCandidates.some(candidate => {
-                const parts = normalizeNameSearchText(candidate).split(/\s+/).filter(Boolean);
-                if (parts.length < 2) return false;
-
-                if (parts.every(part => normLine.includes(part))) return true;
-
-                const reversed = [...parts].reverse();
-                return reversed.every(part => normLine.includes(part));
-            });
-        }
-
-        function extractSquadFromText(value) {
-            const text = cleanText(value);
-            const match = text.match(/\b(?:sq\.?|squad)\s*[:#.-]?\s*(\d{1,3}|\w+)\b/i);
-            return match ? match[1] : null;
-        }
-
-        function normalizeSquadValue(value) {
-            const text = cleanText(value).toUpperCase();
-            const squad = extractSquadFromText(text) || text;
-            return squad.replace(/^0+/, "").replace(/[^A-Z0-9]/g, "");
-        }
-
-        function squadMatches(currentSquad, expectedSquad) {
-            if (!expectedSquad) return true;
-            const current = normalizeSquadValue(currentSquad);
-            const expected = normalizeSquadValue(expectedSquad);
-            return !!current && !!expected && current === expected;
-        }
-
-        function getKnownRegionCodes() {
-            return Object.keys(countryNameFormat).map(k => k.toUpperCase());
-        }
-
-        function extractDivisionAfterRegionFromCells(cells) {
-            const regionCodes = getKnownRegionCodes();
-            for (let i = 0; i < cells.length; i++) {
-                const tokenClean = cleanText(cells[i]).replace(/[^A-Za-z]/g, "").toUpperCase();
-                if (regionCodes.includes(tokenClean)) {
-                    const afterRegion = cells.slice(i + 1).join(" ");
-                    const parsedDiv = normalizeDivisionFromFreeText(afterRegion);
-                    if (parsedDiv !== "Unknown") return parsedDiv;
-                }
-            }
-            return "Unknown";
-        }
-
-        function extractDivisionAfterRegionFromLine(line) {
-            const regionCodes = getKnownRegionCodes();
-            const tokens = cleanText(line).split(/\s+/).filter(Boolean);
-
-            for (let i = 0; i < tokens.length; i++) {
-                const tokenClean = tokens[i].replace(/[^A-Za-z]/g, "").toUpperCase();
-                if (regionCodes.includes(tokenClean)) {
-                    const afterRegion = tokens.slice(i + 1).join(" ");
-                    const parsedDiv = normalizeDivisionFromFreeText(afterRegion);
-                    if (parsedDiv !== "Unknown") return parsedDiv;
-                }
-            }
-
-            const parsedRowDiv = normalizeDivisionFromFreeText(line);
-            return parsedRowDiv !== "Unknown" ? parsedRowDiv : null;
-        }
-
-        function extractOwnEntryFromDoc(doc, myName, expectedSquad = null) {
-            const nameCandidates = uniqueArray([myName, ...getOwnNameCandidates()].map(cleanText).filter(Boolean));
-            let currentSquad = null;
-
-            for (const table of Array.from(doc.querySelectorAll("table"))) {
-                currentSquad = extractSquadFromText(table.previousElementSibling?.textContent || "") || currentSquad;
-
-                for (const row of Array.from(table.querySelectorAll("tr"))) {
-                    const cells = getRowCells(row);
-                    const rowText = cells.join(" ");
-                    const rowSquad = extractSquadFromText(rowText);
-                    if (rowSquad) currentSquad = rowSquad;
-
-                    if (!lineContainsName(rowText, nameCandidates)) continue;
-                    if (expectedSquad && currentSquad && !squadMatches(currentSquad, expectedSquad)) continue;
-
-                    let division = extractDivisionAfterRegionFromCells(cells);
-                    if (division === "Unknown") division = extractDivisionAfterRegionFromLine(rowText) || "Unknown";
-
-                    if (division !== "Unknown") {
-                        return { division: normalizeDivisionName(division), squad: currentSquad, line: rowText };
-                    }
-                }
-            }
-
-            const textContent = doc.body ? (doc.body.innerText || doc.body.textContent || "") : "";
-            const lines = textContent.split(/\r?\n/).map(cleanText).filter(Boolean);
-            currentSquad = null;
-
-            for (const line of lines) {
-                const squad = extractSquadFromText(line);
-                if (squad) currentSquad = squad;
-
-                if (!lineContainsName(line, nameCandidates)) continue;
-                if (expectedSquad && currentSquad && !squadMatches(currentSquad, expectedSquad)) continue;
-
-                const division = extractDivisionAfterRegionFromLine(line);
-                if (division) {
-                    return { division: normalizeDivisionName(division), squad: currentSquad, line };
-                }
-            }
-
-            const tokenEntry = extractOwnEntryFromTokenStream(doc, myName, expectedSquad);
-            if (tokenEntry && tokenEntry.division) return tokenEntry;
-
-            return null;
-        }
-
-        function tokenEqualsNormalized(token, wanted) {
-            const a = normalizeNameSearchText(token);
-            const b = normalizeNameSearchText(wanted);
-            return !!a && !!b && a === b;
-        }
-
-        function extractOwnEntryFromTokenStream(doc, myName, expectedSquad = null) {
-            const textContent = doc.body ? (doc.body.innerText || doc.body.textContent || "") : "";
-            const tokens = textContent
-                .replace(/[\u2713\u2714\u2717\u00D7]/g, " ")
-                .replace(/ /g, " ")
-                .split(/\s+/)
-                .map(t => cleanText(t).replace(/^[,.;:()\[\]{}]+|[,.;:()\[\]{}]+$/g, ""))
-                .filter(Boolean);
-
-            if (!tokens.length) return null;
-
-            const nameCandidates = uniqueArray([myName, ...getOwnNameCandidates()].map(cleanText).filter(Boolean));
-            const regionCodes = getKnownRegionCodes();
-
-            for (const candidate of nameCandidates) {
-                const parts = normalizeNameSearchText(candidate).split(/\s+/).filter(Boolean);
-                if (parts.length < 2) continue;
-
-                const first = parts[0];
-                const last = parts[parts.length - 1];
-
-                for (let i = 0; i < tokens.length - 1; i++) {
-                    const t0 = normalizeNameSearchText(tokens[i]);
-                    const t1 = normalizeNameSearchText(tokens[i + 1]);
-                    const normalOrder = t0 === first && t1 === last;
-                    const reverseOrder = t0 === last && t1 === first;
-                    if (!normalOrder && !reverseOrder) continue;
-
-                    for (let r = i + 2; r < Math.min(tokens.length, i + 10); r++) {
-                        const tokenClean = tokens[r].replace(/[^A-Za-z]/g, "").toUpperCase();
-                        if (!regionCodes.includes(tokenClean)) continue;
-
-                        const afterRegionTokens = tokens.slice(r + 1, Math.min(tokens.length, r + 7));
-                        for (let len = 1; len <= afterRegionTokens.length; len++) {
-                            const divText = afterRegionTokens.slice(0, len).join(" ");
-                            const parsedDiv = normalizeDivisionFromFreeText(divText);
-                            if (parsedDiv !== "Unknown") {
-                                return {
-                                    division: normalizeDivisionName(parsedDiv),
-                                    squad: expectedSquad || null,
-                                    line: tokens.slice(Math.max(0, i - 2), Math.min(tokens.length, r + 7)).join(" "),
-                                    source: "token-stream"
-                                };
-                            }
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        function extractDivFromDoc(doc, myName, expectedSquad = null) {
-            const entry = extractOwnEntryFromDoc(doc, myName, expectedSquad);
-            return entry ? entry.division : null;
-        }
-
-        function buildIpscComplistUrl(matchId, division = null) {
-            let href = `https://ipscmatch.de/index.pl?lang=de&match=${encodeURIComponent(matchId)}&complist`;
-            
-            if (division && division !== "Unknown") {
-                href += `&grepdiv=${encodeURIComponent(division)}`;
-            }
-            return href;
-        }
-
-        function buildDivisionDiscoveryUrls(normalizedUrl, matchId) {
-            const urls = [normalizedUrl];
-            if (matchId) {
-                urls.push(
-                    buildIpscComplistUrl(matchId),
-                    `https://ipscmatch.de/index.pl?match=${encodeURIComponent(matchId)}&squads`,
-                    `https://ipscmatch.de/index.pl?match=${encodeURIComponent(matchId)}&list=squads`,
-                    `https://ipscmatch.de/index.pl?match=${encodeURIComponent(matchId)}&list=starter`,
-                    `https://ipscmatch.de/index.pl?match=${encodeURIComponent(matchId)}&list=main_match`
-                );
-            }
-            return uniqueArray(urls);
-        }
-
-        function getMatchIdFromUrl(value) {
-            const match = String(value || "").match(/[?&]match=([^&]+)/i);
-            return match ? decodeURIComponent(match[1]) : null;
-        }
-
-        function getGrepDivisionFromUrl(value) {
-            try {
-                const parsed = new URL(value);
-                const div = parsed.searchParams.get("grepdiv");
-                return div ? normalizeDivisionName(div) : null;
-            } catch (_) {
-                return null;
-            }
-        }
-
-        function getPlannedMatchDivisionHint(plannedMatch) {
-            const raw = plannedMatch && (plannedMatch.division || plannedMatch.match_division || plannedMatch.ipsc_division || plannedMatch.grepdiv);
-            if (raw) {
-                const div = normalizeDivisionName(raw);
-                if (isValidIpscDivision(div)) return div;
-            }
-
-            const urlFields = plannedMatch ? [plannedMatch.analysis_url, plannedMatch.performance_url, plannedMatch.match_url] : [];
-            for (const url of urlFields) {
-                const divFromUrl = getGrepDivisionFromUrl(url);
-                if (divFromUrl && isValidIpscDivision(divFromUrl)) return divFromUrl;
-            }
-
-            return null;
-        }
-
-        function getDivisionCacheKey(matchId, myName) {
-            return `ipsc_own_division_v1:${matchId}:${normalizeNameSearchText(myName)}`;
-        }
-
-        function readCachedOwnDivision(matchId, myName) {
-            try {
-                const key = getDivisionCacheKey(matchId, myName);
-                const cached = JSON.parse(localStorage.getItem(key) || "null");
-                if (cached && cached.division && isValidIpscDivision(cached.division)) return cached;
-            } catch (_) {}
-            return null;
-        }
-
-        function writeCachedOwnDivision(matchId, myName, entry) {
-            try {
-                if (!entry || !entry.division || !isValidIpscDivision(entry.division)) return;
-                localStorage.setItem(getDivisionCacheKey(matchId, myName), JSON.stringify({
-                    division: normalizeDivisionName(entry.division),
-                    squad: entry.squad || null,
-                    line: entry.line || "",
-                    source: entry.source || "unknown",
-                    savedAt: new Date().toISOString()
-                }));
-            } catch (_) {}
-        }
-
-        async function trySaveDivisionToUserMatch(plannedMatch, division, analysisUrl) {
-            if (!plannedMatch || !plannedMatch.id || !window.supabaseClient) return;
-            try {
-                const payload = {};
-                if ("ipsc_division" in plannedMatch) payload.ipsc_division = division;
-                if ("analysis_url" in plannedMatch) payload.analysis_url = analysisUrl;
-                if ("performance_url" in plannedMatch) payload.performance_url = analysisUrl;
-                if (Object.keys(payload).length === 0) return;
-
-                await window.supabaseClient
-                    .from("user_matches")
-                    .update(payload)
-                    .eq("id", plannedMatch.id);
-            } catch (e) {
-                console.warn("Division konnte nicht in user_matches gespeichert werden:", e);
-            }
-        }
-
-        async function findOwnDivisionByTestingDivisionLists(matchId, myName) {
-            const nameCandidates = uniqueArray([myName, ...getOwnNameCandidates()].map(cleanText).filter(Boolean));
-
-            for (const division of getValidIpscDivisions()) {
-                const divisionUrl = buildIpscComplistUrl(matchId, division);
-                setLoaderMessage(`Pruefe Division ${division}...`);
-
-                try {
-                    const html = await fetchMatchHtml(divisionUrl);
-                    const parsed = await parseShootersFromHtml(html, { silent: true, forcedDivision: division });
-                    const found = (parsed.shooters || []).some(shooter => namesMatchShooter(shooter, nameCandidates));
-
-                    if (found) {
-                        return {
-                            division: normalizeDivisionName(division),
-                            squad: null,
-                            line: `Name in Divisionsliste ${division} gefunden`,
-                            source: "division-list-test"
-                        };
-                    }
-                } catch (e) {
-                    console.warn(`Division ${division} konnte nicht geprueft werden:`, e);
-                }
-            }
-
-            return null;
-        }
-
-        async function findOwnDivisionForMatch(matchId, myName, expectedSquad) {
-            if (!matchId || !myName) return null;
-
-            const cached = readCachedOwnDivision(matchId, myName);
-            if (cached) return { ...cached, source: cached.source || "local-cache" };
-
-            const baseMatchUrl = buildIpscComplistUrl(matchId);
-            const discoveryUrls = buildDivisionDiscoveryUrls(baseMatchUrl, matchId);
-            const seenDiscoveryUrls = new Set();
-
-            for (let i = 0; i < discoveryUrls.length && i < 16; i++) {
-                const discoverUrl = discoveryUrls[i];
-                if (!discoverUrl || seenDiscoveryUrls.has(discoverUrl)) continue;
-                seenDiscoveryUrls.add(discoverUrl);
-
-                const html = await fetchMatchHtml(discoverUrl);
-                const doc = new DOMParser().parseFromString(html, "text/html");
-                const ownEntry = extractOwnEntryFromDoc(doc, myName, expectedSquad);
-
-                if (ownEntry && ownEntry.division) {
-                    writeCachedOwnDivision(matchId, myName, ownEntry);
-                    return ownEntry;
-                }
-
-                const extraLinks = extractIpscCandidateLinks(html, discoverUrl);
-                for (const extra of extraLinks) {
-                    if (!seenDiscoveryUrls.has(extra) && !discoveryUrls.includes(extra)) discoveryUrls.push(extra);
-                }
-            }
-
-            const entryFromDivisionList = await findOwnDivisionByTestingDivisionLists(matchId, myName);
-            if (entryFromDivisionList && entryFromDivisionList.division) {
-                writeCachedOwnDivision(matchId, myName, entryFromDivisionList);
-                return entryFromDivisionList;
-            }
-
-            return null;
-        }
-
-        function getReadyAnalysisUrlFromPlannedMatch(plannedMatch) {
-            if (!plannedMatch) return null;
-            const candidates = [plannedMatch.analysis_url, plannedMatch.performance_url];
-            for (const candidate of candidates) {
-                if (!candidate) continue;
-                try {
-                    const normalized = normalizeMatchUrl(candidate);
-                    const matchId = getMatchIdFromUrl(normalized);
-                    const div = getGrepDivisionFromUrl(normalized);
-                    if (matchId && div && isValidIpscDivision(div)) {
-                        return buildIpscComplistUrl(matchId, div);
-                    }
-                } catch (_) {}
-            }
-
-            const hintedDiv = getPlannedMatchDivisionHint(plannedMatch);
-            const matchId = getMatchIdFromUrl(plannedMatch.match_url || "");
-            if (matchId && hintedDiv && isValidIpscDivision(hintedDiv)) {
-                return buildIpscComplistUrl(matchId, hintedDiv);
-            }
-
-            return null;
-        }
-
-        async function importPlannedMatch(plannedMatch) {
-            const urlInputEl = document.getElementById('match-url');
-            const rawUrl = plannedMatch && plannedMatch.match_url ? plannedMatch.match_url : "";
-
-            if (!cleanText(rawUrl)) {
-                alert("F\u00FCr dieses Match fehlt der IPSCMatch-Link in der Datenbank.");
+            const { data } = await window.supabaseClient.from("upcoming_matches").select("*");
+            if (!data || data.length === 0) {
+                window.loadedMatchesCache = [];
+                renderMatches([]);
                 return;
             }
 
-            document.getElementById('analysis-results').style.display = 'none';
-            document.getElementById('loader').style.display = 'block';
-            setImportButtonLoading(true);
-
-            try {
-                const matchId = getMatchIdFromUrl(rawUrl);
-                if (!matchId) throw new Error("Konnte die match= ID aus dem Planer-Link nicht lesen.");
-
-                const expectedSquad = plannedMatch.squad || null;
-                const dbDivision = plannedMatch.ipsc_division; 
-                
-                let knownDivision = null;
-                if (dbDivision && dbDivision !== "Unknown") {
-                    knownDivision = normalizeDivisionName(dbDivision);
-                }
-
-                const targetUrl = buildIpscComplistUrl(matchId, knownDivision);
-
-                if (urlInputEl) {
-                    urlInputEl.value = targetUrl;
-                }
-                
-                window.pendingPlannedMatchHint = {
-                    matchId: matchId,
-                    division: knownDivision,
-                    squad: expectedSquad,
-                    sourceUrl: targetUrl,
-                    plannedName: plannedMatch.match_name || ""
-                };
-
-                console.log("\u{1F3AF} Daten aus 'Mein Planer' gezogen. Generierter Link:", targetUrl);
-                await importMatchFromUrl();
-
-            } catch (err) {
-                console.error("Fehler beim Planer-Import:", err);
-                document.getElementById('loader').style.display = 'none';
-                alert(err.message || "Fehler beim Laden des Planer-Matches.");
-            } finally {
-                setImportButtonLoading(false);
-            }
+            await cleanupExpiredMatches(data, userId);
+            const visibleMatches = data.filter(match => !isMatchExpired(match));
+            const visibleIds = new Set(visibleMatches.map(match => String(match.id)));
+            window.userActiveJobsCache = (window.userActiveJobsCache || []).filter(job => visibleIds.has(String(job.match_id)));
+            visibleMatches.sort((a, b) => parseIpscDateFrontend(a.anmeldung_oeffnet) - parseIpscDateFrontend(b.anmeldung_oeffnet));
+            window.loadedMatchesCache = visibleMatches;
+            buildFilterDropdowns(visibleMatches);
+            renderMatches(visibleMatches);
         }
 
-        async function importMatchFromUrl() {
-            const urlInputEl = document.getElementById('match-url');
-            const rawUrl = urlInputEl ? urlInputEl.value : "";
+        function buildFilterDropdowns(matches) {
+            const levels = new Set();
+            const laender = new Set(); const disziplinen = new Set();
+            matches.forEach(m => {
+                if (m.level) levels.add(m.level.trim());
+                if (m.region) laender.add(m.region.trim().toUpperCase());
+                if (m.disziplin) disziplinen.add(m.disziplin.trim());
+            });
+            const selectLevel = document.getElementById("filter-level");
+            selectLevel.innerHTML = '<option value="all">Alle Levels</option>';
+            Array.from(levels).sort().forEach(lvl => selectLevel.innerHTML += `<option value="${lvl}">${lvl}</option>`);
 
-            if (!cleanText(rawUrl)) {
-                alert("Bitte einen Link eingeben!");
+            const selectLand = document.getElementById("filter-land");
+            selectLand.innerHTML = '<option value="all">Alle Länder</option>';
+            Array.from(laender).sort().forEach(lnd => selectLand.innerHTML += `<option value="${lnd}">${lnd}</option>`);
+
+            const selectDisz = document.getElementById("filter-disziplin");
+            selectDisz.innerHTML = '<option value="all">Alle Disziplinen</option>';
+            Array.from(disziplinen).sort().forEach(dsz => selectDisz.innerHTML += `<option value="${dsz}">${dsz}</option>`);
+        }
+
+        window.applyFilters = function() { renderMatches(window.loadedMatchesCache);
+        }
+
+        function renderMatches(matchesList) {
+            const container = document.getElementById("js-match-container");
+            const selectedLevel = document.getElementById("filter-level").value;
+            const selectedLand = document.getElementById("filter-land").value;
+            const selectedDisz = document.getElementById("filter-disziplin").value;
+            const filteredMatches = matchesList.filter(match => {
+                if (isMatchExpired(match)) return false;
+                if (selectedLevel !== "all" && match.level !== selectedLevel) return false;
+                if (selectedLand !== "all" && match.region?.trim().toUpperCase() !== selectedLand) return false;
+                if (selectedDisz !== "all" && match.disziplin !== selectedDisz) return false;
+ 
+                return true;
+            });
+            if (!filteredMatches.length) {
+                container.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Keine geplanten Bot-Aktivierungen gefunden.</p>';
                 return;
             }
 
-            document.getElementById('analysis-results').style.display = 'none';
-            document.getElementById('loader').style.display = 'block';
-            setImportButtonLoading(true);
-
-            try {
-                const normalizedUrl = normalizeMatchUrl(rawUrl);
+            container.innerHTML = filteredMatches.map(match => {
+                const matchName = window.escapeHtml(match.match_name || match.name || "Unbekanntes Turnier");
+                const formattedOpenDate = window.escapeHtml(match.anmeldung_oeffnet || "Unbekannt");
+                const disz = window.escapeHtml(match.disziplin || "HG");
+                const 
+                targetUrl = match.url ? window.escapeHtml(match.url) : "https://www.ipscmatch.de/";
                 
-                const plannedHint = window.pendingPlannedMatchHint || null;
-                let knownDivision = plannedHint && plannedHint.division ? plannedHint.division : getGrepDivisionFromUrl(normalizedUrl);
-                if (knownDivision && !isValidIpscDivision(knownDivision)) knownDivision = null;
-                const expectedSquad = plannedHint && plannedHint.squad ? plannedHint.squad : null;
-                const myName = window.userProfileData ? window.userProfileData.real_name : null;
-                const matchId = (plannedHint && plannedHint.matchId) || getMatchIdFromUrl(normalizedUrl);
-
-                const baseMatchUrl = matchId ? buildIpscComplistUrl(matchId) : normalizedUrl;
-                let targetUrl = (matchId && knownDivision) ? buildIpscComplistUrl(matchId, knownDivision) : baseMatchUrl;
-                if (urlInputEl && matchId && knownDivision) urlInputEl.value = targetUrl;
-
-                if (!knownDivision && myName && matchId) {
-                    setLoaderMessage("Suche deinen Namen, deine Squad und deine Division im Match...");
-                    try {
-                        let ownEntry = await findOwnDivisionForMatch(matchId, myName, expectedSquad);
-
-                        if (ownEntry && ownEntry.division) {
-                            knownDivision = ownEntry.division;
-                            targetUrl = buildIpscComplistUrl(matchId, knownDivision);
-                            if (urlInputEl) urlInputEl.value = targetUrl;
-
-                            console.log("\u{1F3AF} Eigener Start gefunden:", ownEntry);
-                            console.log("\u{1F517} Lade Divisions-Feld:", targetUrl);
-                        } else {
-                            console.warn("Konnte deinen Namen/deine Division nicht finden. Lade die normale Starterliste.");
-                        }
-                    } catch (e) {
-                        console.warn("Fehler bei der Divisions-Suche:", e);
-                    }
-                }
-
-                const urlsToTry = [targetUrl];
-                if (matchId) urlsToTry.push(baseMatchUrl);
-
-                const originalHasIpscFilter = /[?&](?:grep(?:reg|cat|div)=|complist\b|list=|squads\b)/i.test(normalizedUrl);
-                if (targetUrl !== normalizedUrl && !originalHasIpscFilter) urlsToTry.push(normalizedUrl);
+                const level = window.escapeHtml(match.level || "N/A");
+                const ort = window.escapeHtml(match.ort || match.location || "Unbekannter Ort");
+                const land = window.escapeHtml(match.region || match.land || "");
+          
+                const matchDatum = window.escapeHtml(match.datum || match.date || "Datum unklar");
                 
-                const tried = new Set();
-                let lastHtml = "";
-                let parsed = null;
-                let lastError = "";
+                const locationString = land ? `${ort} (${land.toUpperCase()})` : ort;
 
-                for (let i = 0; i < urlsToTry.length && i < 13; i++) {
-                    const urlToTry = urlsToTry[i];
-                    if (tried.has(urlToTry)) continue;
-                    tried.add(urlToTry);
-
-                    setLoaderMessage(i === 0 ? "Lade Starterliste..." : `Suche Starterliste (${i + 1}/${urlsToTry.length})...`);
-                    lastHtml = await fetchMatchHtml(urlToTry);
-
-                    const parsedAttempt = await parseShootersFromHtml(lastHtml, {
-                        silent: true,
-                        forcedDivision: knownDivision
-                    });
-                    if (parsedAttempt.shooters && parsedAttempt.shooters.length) {
-                        parsed = parsedAttempt;
-                        break;
-                    }
-                    
-                    const extraLinks = extractIpscCandidateLinks(lastHtml, urlToTry);
-                    for (const extra of extraLinks) {
-                        if (!tried.has(extra) && !urlsToTry.includes(extra)) urlsToTry.push(extra);
-                    }
-                    lastError = `Keine Sch\u00FCtzen auf ${urlToTry} gefunden.`;
+                const existingJob = window.userActiveJobsCache.find(j => String(j.match_id) === String(match.id));
+                let buttonHtml = '';
+                if (existingJob) {
+                    buttonHtml = `
+                        <button class="btn-contact" style="background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);"
+                        onclick="openBotModal('${match.id}', '${matchName.replace(/'/g, "\\'")}', '${formattedOpenDate}', '${disz}')">⚙️ Ändern / Editieren</button>
+                        <button class="btn-delete" onclick="deleteBotJob('${existingJob.id}', '${matchName.replace(/'/g, "\\'")}')">❌ Zurücknehmen</button>
+                    `;
+                } else {
+                    buttonHtml = `
+                        <button class="btn-contact" onclick="openBotModal('${match.id}', '${matchName.replace(/'/g, "\\'")}', '${formattedOpenDate}', '${disz}')">Bot scharfschalten</button>
+                    `;
                 }
-
-                if (!parsed || !parsed.shooters.length) {
-                    throw new Error(`${lastError || "Konnte keine Starterliste finden."}`);
-                }
-
-                setLoaderMessage("Analysiere Starterfeld...");
-                const { matchTitle, shooters: parsedNames } = parsed;
-
-                resetFilterInputs();
-                currentShooters = await buildRenderedShooterResults(parsedNames);
-
-                buildFilterDropdowns(currentShooters);
-                calculateStats(currentShooters);
-                renderList(currentShooters);
-
-                const heading = document.querySelector('#analysis-results h2 span');
-                if (heading) {
-                    heading.textContent = knownDivision ? `${matchTitle} (${knownDivision})` : matchTitle;
-                }
-
-                const archiveMatchName = plannedHint && plannedHint.plannedName ? plannedHint.plannedName : matchTitle;
-                await storeMatchAnalysis(archiveMatchName, "URL_IMPORT", parsedNames, currentShooters);
-
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('analysis-results').style.display = 'block';
-            } catch (err) {
-                console.error("Fehler beim Link-Import:", err);
-                document.getElementById('loader').style.display = 'none';
-                alert(err.message || "Fehler beim Laden der URL.");
-            } finally {
-                window.pendingPlannedMatchHint = null;
-                setImportButtonLoading(false);
-            }
-        }
-        
-        const dropZone = document.getElementById('drop-zone');
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--info-color)"; });
-        dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--accent-color)"; });
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.style.borderColor = "var(--accent-color)";
-            if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);
-        });
-
-        async function loadMatchesFromSupabase() {
-            if (!window.currentUserId) return [];
-            
-            const { data, error } = await window.supabaseClient
-                .from("match_archives")
-                .select("*")
-                .eq("user_id", window.currentUserId)
-                .order("created_at", { ascending: false });
-                
-            if (error) {
-                console.error("Fehler beim Laden der Matches:", error);
-                return [];
-            }
-            return data || [];
-        }
-
-        function normalizeMatchKey(value) {
-            return cleanText(value)
-                .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036F]/g, "")
-                .replace(/[^a-z0-9]+/g, "");
-        }
-
-        function isMatchNameArchived(matchName) {
-            const plannedKey = normalizeMatchKey(matchName);
-            if (!plannedKey || !window.cachedMatches || !window.cachedMatches.length) return false;
-
-            return window.cachedMatches.some(item => {
-                const archiveKey = normalizeMatchKey(item.match_name || "");
-                return archiveKey && (archiveKey === plannedKey || archiveKey.includes(plannedKey) || plannedKey.includes(archiveKey));
-            });
-        }
-
-        function syncQuickAnalyzeVisibility() {
-            const section = document.getElementById("quick-analyze-section");
-            const buttonContainer = document.getElementById("quick-analyze-buttons");
-            if (!section || !buttonContainer) return;
-
-            Array.from(buttonContainer.querySelectorAll("button[data-match-name]")).forEach(button => {
-                const alreadyArchived = isMatchNameArchived(button.dataset.matchName || "");
-                button.style.display = alreadyArchived ? "none" : "";
-            });
-
-            const visibleButtons = Array.from(buttonContainer.querySelectorAll("button[data-match-name]")).filter(button => button.style.display !== "none");
-            section.style.display = visibleButtons.length ? "block" : "none";
-        }
-
-        async function renderMatchArchive() {
-            const content = document.getElementById("archive-content");
-            if (!content) return;
-
-            content.innerHTML = '<div class="archive-empty">Lade Matches aus der Datenbank...</div>';
-            
-            const items = await loadMatchesFromSupabase();
-            window.cachedMatches = items; 
-            
-            if (!items.length) {
-                content.innerHTML = '<div class="archive-empty">Noch keine Match-Analysen in der Datenbank.</div>';
-                syncQuickAnalyzeVisibility();
-                return;
-            }
-
-            content.innerHTML = items.map(item => {
-                const divisions = item.divisions && item.divisions.length ? item.divisions.join(", ") : "Keine Division";
-                let shootersList = typeof item.shooters === 'string' ? JSON.parse(item.shooters) : (item.shooters || []);
-                
-                shootersList = shootersList.filter(s => {
-                    const checkStr = ((s.name || "") + " " + (s.division || "")).toLowerCase();
-                    return !(checkStr.includes("warteliste") || checkStr.includes("sq99") || checkStr.includes("sq 99") || checkStr.includes("squad 99") || checkStr.includes("squad99"));
-                });
-
-                const topRows = shootersList.slice(0, 8).map(s => `
-                    <div class="archive-small-row">
-                        <span>${escapeHtml(s.name || "-")}</span>
-                        <span>${escapeHtml(s.elo !== "-" ? s.elo : "Kein ELO")} \u00B7 #${escapeHtml(s.overallRank || "-")}</span>
-                    </div>
-                `).join("");
 
                 return `
-                    <div class="archive-item" id="archive-item-${item.id}">
-                        <div style="padding: 15px;">
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
-                                <div class="archive-icon">\u{1F3C6}</div>
-                                <div class="archive-meta" style="flex: 1; min-width: 0;">
-                                    <div class="archive-title" style="white-space: normal; word-break: break-word; line-height: 1.3;">${escapeHtml(item.match_name || "Unbenanntes Match")}</div>
-                                    <div class="archive-sub">${new Date(item.created_at).toLocaleDateString("de-DE")} \u00B7 ${escapeHtml(shootersList.length)} Sch\u00FCtzen \u00B7 ${escapeHtml(divisions)}</div>
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 8px; justify-content: space-between;">
-                                <button class="archive-btn" style="flex: 1; padding: 10px 5px;" onclick="showArchivedMatch('${item.id}')">Anzeigen</button>
-                                <button class="archive-btn" style="flex: 1; padding: 10px 5px;" onclick="toggleMatchDetails('${item.id}')">Details</button>
-                                <button class="archive-btn delete" style="flex: 1; padding: 10px 5px;" onclick="deleteArchivedMatch('${item.id}')">L\u00F6schen</button>
+                    <div class="match-card">
+                        <div class="match-details">
+                            <h3><a href="${targetUrl}" target="_blank" title="Auf ipscmatch.de öffnen">${matchName}</a> ${existingJob ?
+                            '<span style="color: var(--success-color); font-size: 14px; font-weight: 800; margin-left: 8px;">(Scharfgeschaltet 🎯)</span>' : ''}</h3>
+                            
+                            <div class="badge-container">
+                                
+                                <span class="badge">⏳ Öffnet: ${formattedOpenDate}</span>
+                                <span class="badge badge-meta">🔫 ${disz}</span>
+                                <span class="badge badge-meta">🏆 Level ${level}</span>
+                          
+                                <span class="badge badge-meta">📍 ${locationString}</span>
+                                <span class="badge badge-date">📅 Match-Tag(e): ${matchDatum}</span>
                             </div>
                         </div>
-                        <div class="archive-details" id="archive-details-${item.id}">
-                            <div class="archive-small-list">${topRows || '<div class="archive-empty">Keine Ergebnisliste.</div>'}</div>
-                        </div>
+   
+                        <div class="match-actions">${buttonHtml}</div>
                     </div>
                 `;
-            }).join("");
-
-            syncQuickAnalyzeVisibility();
+            }).join('');
         }
 
-        function toggleMatchDetails(id) {
-            const details = document.getElementById(`archive-details-${id}`);
-            if (!details) return;
-            details.style.display = details.style.display === "block" ? "none" : "block";
-        }
-
-        function toggleMatchArchive() {
-            const content = document.getElementById("archive-content");
-            const arrow = document.getElementById("archive-arrow");
-            if (!content) return;
-            const isOpen = content.style.display === "block";
-            content.style.display = isOpen ? "none" : "block";
-            if (arrow) arrow.textContent = isOpen ? "\u25BC" : "\u25B2";
-        }
-
-        async function storeMatchAnalysis(matchName, rawText, shooters, renderedResults) {
-            if (!window.currentUserId) return;
-            const divisions = [...new Set((shooters || []).map(s => s.division).filter(Boolean))].sort();
-
-            const { error } = await window.supabaseClient
-                .from("match_archives")
-                .insert([{
-                    user_id: window.currentUserId,
-                    match_name: matchName || extractMatchNameFromOcr(rawText) || "Unbenanntes Match",
-                    shooter_count: renderedResults ? renderedResults.length : 0,
-                    divisions: divisions,
-                    shooters: renderedResults || []
-                }]);
-
-            if (error) {
-                console.error("Speichern fehlgeschlagen:", error);
-            } else {
-                await renderMatchArchive(); 
-            }
-        }
-
-        async function deleteArchivedMatch(id) {
-            if (!confirm("Dieses Match wirklich dauerhaft aus der Datenbank l\u00F6schen?")) return;
-            const { error } = await window.supabaseClient.from("match_archives").delete().eq("id", id);
-            if (!error) {
-                renderMatchArchive();
-            } else {
-                console.error("Fehler beim L\u00F6schen:", error);
-            }
-        }
-
-        function shooterFromRenderedResult(result) {
-            const name = cleanText(result && result.name);
-            if (!name) return null;
-            let nachname = '';
-            let vorname = '';
-            if (name.includes(',')) {
-                const parts = name.split(',').map(cleanText).filter(Boolean);
-                nachname = parts[0] || '';
-                vorname = parts.slice(1).join(' ') || '';
-            } else {
-                const parts = name.split(/\s+/).filter(Boolean);
-                vorname = parts[0] || '';
-                nachname = parts.slice(1).join(' ') || '';
-            }
-            return { vorname, nachname, regionRaw: result.region || 'UNKNOWN', division: normalizeDivisionName(result.division || 'Unknown') };
-        }
-
-        async function repairMissingEloInRenderedResults(results) {
-            const repaired = [];
-            let changed = false;
-
-            for (const result of (results || [])) {
-                const copy = { ...result };
-                const shooter = shooterFromRenderedResult(copy);
-                const dbEntry = shooter ? await findEloEntry(shooter) : null;
-
-                if (dbEntry && dbEntry.elo_rating !== null && dbEntry.elo_rating !== undefined) {
-                    const eloValue = Number(dbEntry.elo_rating);
-                    const nextClassStyle = eloValue >= 2300 ? 'badge-gm' : eloValue >= 2100 ? 'badge-m' : eloValue >= 1800 ? 'badge-a' : 'badge-u';
-
-                    if (copy.elo !== eloValue || copy.overallRank !== (dbEntry.rank || '-') || copy.rankClass !== (dbEntry.class_style || 'A')) {
-                        changed = true;
-                    }
-
-                    copy.elo = eloValue;
-                    copy.overallRank = dbEntry.rank || '-';
-                    copy.rankClass = dbEntry.class_style || 'A';
-                    copy.classStyle = nextClassStyle;
-                } else {
-                    const wasFilled = !(copy.elo === '-' || copy.elo === null || copy.elo === undefined || copy.elo === 'Kein Eintrag');
-                    if (wasFilled) changed = true;
-
-                    copy.elo = '-';
-                    copy.overallRank = '-';
-                    copy.rankClass = 'Unranked';
-                    copy.classStyle = 'badge-u';
-                }
-
-                repaired.push(copy);
-            }
-
-            return { repaired, changed };
-        }
-
-        async function showArchivedMatch(id) {
-            if (!window.cachedMatches) return;
-            const item = window.cachedMatches.find(entry => entry.id === id);
-            if (!item) return;
-
-            document.getElementById('search-name').value = "";
-            currentShooters = []; 
-
-            const parsedShooters = typeof item.shooters === 'string' ? JSON.parse(item.shooters) : (item.shooters || []);
+        window.openBotModal = function(id, name, time, disziplin) {
+            document.getElementById("modal-match-id").value = id;
+            document.getElementById("modal-match-name").innerText = name;
+            document.getElementById("modal-match-time").innerText = "Geplante Öffnung: " + time;
             
-            const filteredShooters = parsedShooters.filter(s => {
-                const checkStr = ((s.name || "") + " " + (s.division || "")).toLowerCase();
-                return !(checkStr.includes("warteliste") || checkStr.includes("sq99") || checkStr.includes("sq 99") || checkStr.includes("squad 99") || checkStr.includes("squad99"));
-            });
+            const divSelect = document.getElementById("bot-division");
+            const catSelect = document.getElementById("bot-category");
+            if (disziplin.toUpperCase().includes("PCC") || disziplin.toUpperCase().includes("RF") || disziplin.toUpperCase().includes("RIFLE")) {
+                divSelect.innerHTML = `<option value="Open">Open</option><option value="Standard">Standard</option>`;
+                catSelect.innerHTML = `<option value="Overall">Overall</option><option value="Senior">Senior</option>`;
+            } else { 
+                divSelect.innerHTML = `
+                    <option value="Open">Open</option><option value="Standard">Standard</option><option value="Production">Production</option>
+                    <option value="Production Optics">Production Optics</option><option value="Revolver">Revolver</option><option value="Classic">Classic</option><option value="Optics">Optics</option>
+                `;
+                catSelect.innerHTML = `<option value="Overall">Overall</option><option value="Lady">Lady</option><option value="Senior">Senior</option>`;
+            }
 
-            const repairedResult = await repairMissingEloInRenderedResults(filteredShooters);
-            currentShooters = repairedResult.repaired;
-
-            if (repairedResult.changed && window.supabaseClient) {
+            const existingJob = window.userActiveJobsCache.find(j => String(j.match_id) === String(id));
+            if (existingJob && existingJob.form_data && typeof existingJob.form_data === "string") {
                 try {
-                    await window.supabaseClient
-                        .from("match_archives")
-                        .update({ shooters: currentShooters })
-                        .eq("id", id);
-                    item.shooters = currentShooters;
+                    existingJob.form_data = JSON.parse(existingJob.form_data);
                 } catch (e) {
-                    console.warn("Archiv-ELO konnte nicht aktualisiert werden:", e);
+                    console.error("Fehler beim JSON-Parsing:", e);
                 }
             }
-            
-            buildFilterDropdowns(currentShooters);
-            calculateStats(currentShooters);
-            renderList(currentShooters);
 
-            document.getElementById('analysis-results').style.display = 'block';
-            document.getElementById('loader').style.display = 'none';
-
-            const heading = document.querySelector('#analysis-results h2 span');
-            if (heading) heading.textContent = item.match_name || "Archiviertes Match";
-            
-            document.getElementById('analysis-results').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function normalizeOcrText(text) {
-            return (text || "")
-                .replace(/\u00A0/g, " ")
-                .replace(/[|]/g, " ")
-                .replace(/[\u2713\u2714]/g, " ")
-                .replace(/\s+/g, " ")
-                .trim();
-        }
-
-        function parseShootersFromOcr(rawText) {
-            const divisions = ["Production Optics", "Production", "Optics", "Open", "Standard", "Classic", "Revolver"];
-            const regionCodes = Object.keys(countryNameFormat).sort((a, b) => b.length - a.length);
-            const shooters = [];
-            const seen = new Set();
-
-            const lines = (rawText || "").split(/\r?\n/).map(normalizeOcrText).filter(Boolean);
-
-            for (const originalLine of lines) {
-                let line = originalLine;
-
-                const lineTextLower = line.toLowerCase();
-                if (lineTextLower.includes("warteliste") || lineTextLower.includes("sq99") || lineTextLower.includes("sq 99") || lineTextLower.includes("squad 99") || lineTextLower.includes("squad99")) {
-                    continue;
+            if (existingJob && existingJob.form_data) {
+                const fd = existingJob.form_data;
+                document.getElementById("modal-existing-job-id").value = existingJob.id;
+                
+                document.getElementById("bot-vorname").value = fd.vorname || "";
+                document.getElementById("bot-nachname").value = fd.nachname || "";
+                document.getElementById("bot-email").value = fd.email || "";
+                document.getElementById("bot-lizenz").value = fd.lizenz || "";
+                document.getElementById("bot-region").value = fd.region || "GER";
+                document.getElementById("bot-bemerkung").value = fd.bemerkung || "";
+                document.getElementById("bot-squad").value = fd.squad || "";
+                setTimeout(() => {
+                    if(fd.division) divSelect.value = fd.division;
+                    if(fd.category) catSelect.value = fd.category;
+                    if(fd.wunschtag) document.getElementById("bot-wunschtag").value = fd.wunschtag;
+                    if(fd.public_visible) document.getElementById("bot-public").value = fd.public_visible;
+      
+                  }, 50);
+                if (fd.power_factor === "Major") {
+                    document.getElementById("power-major").checked = true;
+                } else {
+                    document.getElementById("power-minor").checked = true;
                 }
+                
+                document.getElementById("bot-ro").checked = (fd.is_ro === "1" || fd.is_ro === true);
+                document.getElementById("bot-sponsor").checked = (fd.is_sponsor === "1" || fd.is_sponsor === true);
+                document.getElementById("bot-agb").checked = false;
+                
+                document.getElementById("bot-submit-btn").innerText = "Änderungen speichern";
+            } else {
+                document.getElementById("modal-existing-job-id").value = "";
+                document.getElementById("bot-squad").value = "";
+                document.getElementById("bot-bemerkung").value = "";
+                document.getElementById("bot-wunschtag").value = "egal";
+                document.getElementById("bot-public").value = "1";
+                document.getElementById("bot-ro").checked = false;
+                document.getElementById("bot-sponsor").checked = false;
+                document.getElementById("bot-agb").checked = false;
+                document.getElementById("power-minor").checked = true;
 
-                if (/^(nr\.?|vorname|name|region|division|category|power|squad|startplatz|hauptseite|termine|weiteres|version|impressum|datenschutz|serverstatistik)/i.test(line)) {
-                    continue;
-                }
-
-                const numberMatch = line.match(/^\D*(\d{1,5})\s+(.+)$/);
-                if (!numberMatch) continue;
-
-                let rest = numberMatch[2].trim();
-                const tokens = rest.split(/\s+/);
-                let regionIndex = -1;
-                let regionRaw = "";
-
-                for (let i = 0; i < tokens.length; i++) {
-                    const token = tokens[i].replace(/[^A-Za-z]/g, "").toUpperCase();
-                    if (regionCodes.includes(token)) {
-                        regionIndex = i;
-                        regionRaw = token;
-                        break;
+                const currentAuthUser = window.supabaseClient.auth.user ? window.supabaseClient.auth.user() : null;
+                document.getElementById("bot-email").value = window.currentUser?.email ||
+                (currentAuthUser ? currentAuthUser.email : "");
+                
+                if (window.userProfileData) {
+                    if (window.userProfileData.ipsc_alias) {
+                        document.getElementById("bot-lizenz").value = window.userProfileData.ipsc_alias;
+                    } else {
+                        document.getElementById("bot-lizenz").value = "";
+                    }
+                    
+                    if (window.userProfileData.real_name) {
+                        const names = window.userProfileData.real_name.split(" ");
+                        document.getElementById("bot-vorname").value = names[0] || "";
+                        if (names.length > 1) document.getElementById("bot-nachname").value = names.slice(1).join(" ");
                     }
                 }
-
-                if (regionIndex < 2) continue;
-
-                const nameTokens = tokens.slice(0, regionIndex);
-                const afterRegion = tokens.slice(regionIndex + 1).join(" ");
-
-                let division = divisions.find(d => new RegExp(`^${d.replace(" ", "\\s+")}\\b`, "i").test(afterRegion));
-                if (!division) {
-                    continue;
-                }
-
-                const vorname = nameTokens[0];
-                const nachname = nameTokens.slice(1).join(" ");
-
-                if (!vorname || !nachname) continue;
-
-                const key = `${vorname}|${nachname}|${regionRaw}|${division}`;
-                if (seen.has(key)) continue;
-                seen.add(key);
-
-                shooters.push({ vorname, nachname, regionRaw, division });
+                document.getElementById("bot-submit-btn").innerText = "Bot jetzt programmieren";
             }
 
-            return shooters;
+            document.getElementById("bot-config-modal").style.display = "flex";
         }
 
-        async function extractShootersFromImage(file) {
-            if (!window.Tesseract) {
-                throw new Error("OCR-Bibliothek konnte nicht geladen werden.");
+        window.closeBotModal = function() { document.getElementById("bot-config-modal").style.display = "none";
+        }
+
+        window.deleteBotJob = async function(jobId, matchName) {
+            if (!confirm(`Möchtest du die Bot-Aktivierung für "${matchName}" wirklich komplett zurücknehmen und löschen?`)) return;
+            const { error } = await window.supabaseClient
+                .from("bot_queue")
+                .delete()
+                .eq("id", jobId);
+            if (error) {
+                alert("Fehler beim Löschen: " + error.message);
+            } else {
+                alert("Erfolgreich gelöscht! Der Sniper wurde für dieses Match deaktiviert.");
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                loadUpcomingMatches(session ? session.user.id : null);
             }
+        };
 
-            const result = await Tesseract.recognize(file, "deu+eng", {
-                logger: (m) => {
-                    if (m.status === "recognizing text") {
-                        const percent = Math.round((m.progress || 0) * 100);
-                        const loaderText = document.querySelector("#loader p");
-                        if (loaderText) loaderText.textContent = `Texterkennung laeuft... ${percent}%`;
-                    }
-                }
-            });
-
-            const text = result && result.data ? result.data.text : "";
-            const shooters = parseShootersFromOcr(text);
-
-            return { shooters, rawText: text, matchName: extractMatchNameFromOcr(text) };
-        }
-
-        async function handleFileUpload(files) {
-            if (files.length === 0) return;
-
-            document.getElementById('analysis-results').style.display = 'none';
-            document.getElementById('loader').style.display = 'block';
-
-            try {
-                const ocrResult = await extractShootersFromImage(files[0]);
-                let ocrRecognizedNames = ocrResult.shooters || [];
-                const ocrRawText = ocrResult.rawText || "";
-                const detectedMatchName = ocrResult.matchName || "Unbenanntes Match";
-
-                if (!ocrRecognizedNames || ocrRecognizedNames.length === 0) {
-                    throw new Error("Keine Schuetzen im Screenshot erkannt. Bitte einen klaren Screenshot der Starterliste hochladen.");
-                }
-
-                resetFilterInputs();
-                currentShooters = await buildRenderedShooterResults(ocrRecognizedNames);
-
-                buildFilterDropdowns(currentShooters);
-                calculateStats(currentShooters);
-                renderList(currentShooters);
-
-                const heading = document.querySelector('#analysis-results h2 span');
-                if (heading) heading.textContent = detectedMatchName;
-
-                await storeMatchAnalysis(detectedMatchName, ocrRawText, ocrRecognizedNames, currentShooters);
-
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('analysis-results').style.display = 'block';
-
-            } catch (err) {
-                console.error("Fehler bei der Datenbankanalyse:", err);
-                document.getElementById('loader').style.display = 'none';
-                alert(err.message || "Fehler bei der Screenshot-Analyse.");
-            }
-        }
-
-        function buildFilterDropdowns(shooters) {
-            const regionSelect = document.getElementById('filter-region');
-            const regions = [...new Set(shooters.map(s => s.region).filter(r => r && r !== 'Unknown'))].sort();
+        document.getElementById("bot-submit-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById("bot-submit-btn");
+            submitBtn.innerText = "Speichere Daten...";
+            submitBtn.disabled = true;
             
-            regionSelect.innerHTML = '<option value="">Alle L\u00E4nder</option>';
-            regions.forEach(r => {
-                const opt = document.createElement('option');
-                opt.value = r;
-                opt.textContent = r;
-                regionSelect.appendChild(opt);
-            });
-        }
+            const targetMatchId = document.getElementById("modal-match-id").value;
+    
+            const existingJobId = document.getElementById("modal-existing-job-id").value;
 
-        function applyFilters() {
-            const searchVal = document.getElementById('search-name').value.toLowerCase();
-            const regionVal = document.getElementById('filter-region').value;
-            const classVal = document.getElementById('filter-class').value;
-
-            const filtered = currentShooters.filter(s => {
-                const matchesName = s.name.toLowerCase().includes(searchVal);
-                const matchesRegion = regionVal === "" || s.region === regionVal;
-                const matchesClass = classVal === "" || s.rankClass === classVal;
-                return matchesName && matchesRegion && matchesClass;
-            });
-
-            calculateStats(filtered);
-            renderList(filtered);
-        }
-
-        function calculateStats(shooters) {
-            document.getElementById('stat-user-elo').textContent = userPersonalElo;
-
-            const totalCompetitors = shooters.length;
-            const rankedCompetitors = shooters.filter(s => typeof s.elo === 'number' && !isNaN(s.elo));
-            const rankedCount = rankedCompetitors.length;
-
-            const strongerCompetitors = rankedCompetitors.filter(s => s.elo > userPersonalElo);
-            const strongerCount = strongerCompetitors.length;
-
-            document.getElementById('stat-stronger-count').textContent = strongerCount;
-
-            const percentageStronger = totalCompetitors > 0 ? (strongerCount / totalCompetitors) * 100 : 0;
-
-            let level = "Gering";
-            let color = "var(--success-color)";
-
-            if (percentageStronger > 50) {
-                level = "Sehr Hoch";
-                color = "var(--danger-color)";
-            } else if (percentageStronger > 20) {
-                level = "Hoch";
-                color = "var(--accent-color)";
-            } else if (percentageStronger > 5) {
-                level = "Mittel";
-                color = "var(--info-color)";
-            }
-
-            const levelStat = document.getElementById('stat-level');
-            levelStat.textContent = totalCompetitors > 0 ? level : "-";
-            levelStat.style.color = totalCompetitors > 0 ? color : "var(--text-color)";
-            levelStat.title = totalCompetitors > 0
-                ? `${strongerCount} von ${totalCompetitors} Teilnehmern sind \u00FCber deinem ELO (${percentageStronger.toFixed(1)}%). ${rankedCount} Teilnehmer hatten ein bekanntes ELO.`
-                : "";
-
-            const sortedElos = rankedCompetitors.map(s => s.elo).sort((a, b) => b - a);
-            const avgElo = rankedCount > 0 ? sortedElos.reduce((sum, elo) => sum + elo, 0) / rankedCount : 0;
-            const topCount = Math.min(10, sortedElos.length);
-            const top10Avg = topCount > 0 ? sortedElos.slice(0, topCount).reduce((sum, elo) => sum + elo, 0) / topCount : 0;
-            const gmCount = sortedElos.filter(elo => elo >= 2300).length;
-            const masterCount = sortedElos.filter(elo => elo >= 2100).length;
-            const aClassPlusCount = sortedElos.filter(elo => elo >= 1800).length;
-            const rankedCoverage = totalCompetitors > 0 ? rankedCount / totalCompetitors : 0;
-
-            let fieldStrength = "-";
-            let fieldColor = "var(--text-color)";
-
-            if (rankedCount > 0) {
-                fieldStrength = "Gering";
-                fieldColor = "var(--success-color)";
-
-                if (top10Avg >= 2100 || avgElo >= 1850 || gmCount >= 2 || masterCount >= 5) {
-                    fieldStrength = "Sehr Hoch";
-                    fieldColor = "var(--danger-color)";
-                } else if (top10Avg >= 1900 || avgElo >= 1700 || masterCount >= 2 || aClassPlusCount >= 8) {
-                    fieldStrength = "Hoch";
-                    fieldColor = "var(--accent-color)";
-                } else if (top10Avg >= 1700 || avgElo >= 1500 || aClassPlusCount >= 3) {
-                    fieldStrength = "Mittel";
-                    fieldColor = "var(--info-color)";
-                }
-
-                if (rankedCoverage < 0.25 && fieldStrength !== "Gering") {
-                    fieldStrength += "*";
-                }
-            }
-
-            const fieldStat = document.getElementById('stat-field-strength');
-            if (fieldStat) {
-                fieldStat.textContent = fieldStrength;
-                fieldStat.style.color = fieldColor;
-                fieldStat.title = rankedCount > 0
-                    ? `Feldst\u00E4rke basiert on ${rankedCount} bekannten ELOs von ${totalCompetitors} Teilnehmern. \u00D8 ELO: ${avgElo.toFixed(0)}, Top-${topCount}-\u00D8: ${top10Avg.toFixed(0)}, Master+: ${masterCount}, GM: ${gmCount}.${rankedCoverage < 0.25 ? " *Wenig bekannte ELOs, Einsch\u00E4tzung unsicherer." : ""}`
-                    : "Keine bekannten ELOs im Feld.";
-            }
-        }
-
-        function renderList(shooters) {
-            const listContainer = document.getElementById('competitor-list');
-            if (shooters.length === 0) {
-                listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Keine Sch\u00FCtzen gefunden.</div>';
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (!session) {
+                alert("Fehler: Du bist nicht eingeloggt!");
+                submitBtn.innerText = "Bot jetzt programmieren";
+              
+                submitBtn.disabled = false;
                 return;
             }
+            const currentUserId = session.user.id;
 
-            let html = "";
-            shooters.forEach(s => {
-                let eloDisplay = s.elo !== "-" ? s.elo : "Kein Eintrag";
-                
-                let nameStyle = "";
-                if (typeof s.elo === 'number' && s.elo > userPersonalElo) {
-                    nameStyle = 'style="color: var(--danger-color);" title="Dieser Sch\u00FCtze hat ein h\u00F6heres ELO als du!"';
+            const selectedFactor = document.querySelector('input[name="power_factor"]:checked').value;
+
+            const formData = {
+                vorname: document.getElementById("bot-vorname").value,
+      
+                nachname: document.getElementById("bot-nachname").value,
+                email: document.getElementById("bot-email").value,
+                lizenz: document.getElementById("bot-lizenz").value,
+                region: document.getElementById("bot-region").value,
+                division: document.getElementById("bot-division").value,
+                category: document.getElementById("bot-category").value,
+    
+                power_factor: selectedFactor,
+                wunschtag: document.getElementById("bot-wunschtag").value, 
+                squad: document.getElementById("bot-squad").value,
+                bemerkung: document.getElementById("bot-bemerkung").value,
+                is_ro: document.getElementById("bot-ro").checked ?
+                "1" : "0",
+                is_sponsor: document.getElementById("bot-sponsor").checked ?
+                "1" : "0",
+                public_visible: document.getElementById("bot-public").value,
+                accept_terms: document.getElementById("bot-agb").checked ?
+                "1" : "0"
+            };
+
+            let resultError = null;
+            if (existingJobId) {
+                const { error } = await window.supabaseClient
+                    .from("bot_queue")
+                    .update({ form_data: formData })
+                    .eq("id", existingJobId);
+                resultError = error;
+            } else {
+                const { data: checkJobs } = await window.supabaseClient
+                    .from("bot_queue")
+                    .select("id")
+                    .eq("user_id", currentUserId)
+           
+                    .eq("match_id", targetMatchId)
+                    .eq("status", "waiting");
+                if (checkJobs && checkJobs.length > 0) {
+                    alert("⚠️ Halt! Du hast für dieses Match im Hintergrund bereits einen aktiven Bot. Bitte lade die Seite neu, um ihn zu editieren.");
+                    submitBtn.innerText = "Bot jetzt programmieren";
+                    submitBtn.disabled = false;
+                    return;
                 }
 
-                const normalizedRegion = s.region.toLowerCase().trim();
-                const code = countryCodes[normalizedRegion] || "";
-                const flagHtml = code ? `<span class="fi fi-${code}"></span>` : `\u{1F30D}`;
+                const { error } = await window.supabaseClient
+                    .from("bot_queue")
+                    .insert([{
+                        user_id: currentUserId,
+    
+                        match_id: targetMatchId,
+                        form_data: formData,
+                        status: 'waiting'
+                    }]);
+                resultError = error;
+            }
 
-                html += `
-                    <div class="competitor-row">
-                        <div class="competitor-info">
-                            <span class="competitor-name" ${nameStyle}>${escapeHtml(s.name)} ${typeof s.elo === 'number' && s.elo > userPersonalElo ? '\u{1F525}' : ''}</span>
-                            <span class="competitor-meta">${flagHtml} ${escapeHtml(s.region)} | ${escapeHtml(s.division)}</span>
-                        </div>
-                        <div class="competitor-elo">
-                            <span class="elo-score">${escapeHtml(eloDisplay)}</span>
-                            <span class="elo-badge ${escapeHtml(s.classStyle)}" title="Overall-Platz">${escapeHtml(s.overallRank || "-")}</span>
-                        </div>
-                    </div>
-                `;
-            });
-
-            listContainer.innerHTML = html;
+            if (resultError) {
+                alert("Fehler: " + resultError.message);
+            } else {
+                alert("Erfolgreich gespeichert! Der Sniper-Bot ist auf dem aktuellsten Stand.");
+                closeBotModal();
+                loadUpcomingMatches(currentUserId);
+            }
+            
+            submitBtn.disabled = false;
+        });
+        
+        function escapeHtml(text) { if (!text) return ""; const div = document.createElement("div"); div.textContent = text; return div.innerHTML;
         }
+        window.escapeHtml = escapeHtml;
     </script>
 </body>
 </html>
