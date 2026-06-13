@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doppel AA Sniper | IPSC Börse</title>
     
-    <link class="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,7 +14,6 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
     <link rel="stylesheet" href="global.css">
     
     <style>
@@ -156,6 +155,11 @@
         
         .form-row { display: flex; gap: 16px; margin-bottom: 0; }
         .form-row .form-group { flex: 1; }
+        
+        .form-group { margin-bottom: 14px; display: flex; flex-direction: column; }
+        .form-group label { font-size: 12px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; }
+        .form-group input, .form-group select { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px; border-radius: var(--radius); font-size: 14px; box-sizing: border-box; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent-color); }
 
         .radio-container { display: flex; gap: 24px; padding: 12px 0; font-size: 15px; }
         .radio-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700 !important; text-transform: none !important; color: var(--text-color); }
@@ -167,6 +171,10 @@
 
         .checkbox-group-terms { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-color); margin-bottom: 16px; }
         .checkbox-group-terms input { cursor: pointer; width: 18px; height: 18px; accent-color: var(--accent-color); margin: 0; }
+
+        .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; margin-top: 10px; box-shadow: var(--shadow-sm); transition: var(--transition); }
+        .btn-primary-auth:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary-auth:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255,159,67,0.3); }
 
         /* 📱 MOBILE OPTIMIERUNG */
         @media (max-width: 650px) {
@@ -326,16 +334,17 @@
         window.loadedMatchesCache = [];
         window.userActiveJobsCache = [];
         const originalAuthChange = window.onAuthChange;
-        
         window.onAuthChange = async (user) => {
             if (typeof originalAuthChange === "function") originalAuthChange(user);
             const deniedBox = document.getElementById("access-denied");
             const dashboard = document.getElementById("dashboard-content");
 
-            if (!user) { deniedBox.style.display = "block"; dashboard.style.display = "none"; return; }
+            if (!user) { deniedBox.style.display = "block"; dashboard.style.display = "none"; return;
+            }
 
             const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa, ipsc_alias, username, real_name").eq("id", user.id).single();
-            if (!profile || profile.is_doppel_aa !== true) { deniedBox.style.display = "block"; dashboard.style.display = "none"; return; }
+            if (!profile || profile.is_doppel_aa !== true) { deniedBox.style.display = "block"; dashboard.style.display = "none"; return;
+            }
 
             window.userProfileData = profile; 
             deniedBox.style.display = "none";
@@ -355,7 +364,8 @@
                 
                 const monate = { jan: 0, feb: 1, mrz: 2, mar: 2, apr: 3, mai: 4, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, okt: 9, oct: 9, nov: 10, dez: 11, dec: 11 };
                 return new Date(jahr, monate[monatStr] ?? 5, tag, parseInt(zeit[0]), parseInt(zeit[1]), 0).getTime();
-            } catch { return Infinity; }
+            } catch { return Infinity;
+            }
         }
 
         function isMatchExpired(match) {
@@ -372,13 +382,11 @@
 
             const expiredIds = expiredMatches.map(m => m.id).filter(Boolean);
             if (!expiredIds.length) return;
-
             try {
                 const { error } = await window.supabaseClient
                     .from("upcoming_matches")
                     .delete()
                     .in("id", expiredIds);
-
                 if (error) {
                     console.warn("Abgelaufene Matches konnten nicht automatisch aus upcoming_matches gelöscht werden:", error);
                 }
@@ -394,7 +402,6 @@
                         .eq("user_id", userId)
                         .eq("status", "waiting")
                         .in("match_id", expiredIds);
-
                     if (error) {
                         console.warn("Abgelaufene Bot-Jobs konnten nicht automatisch gelöscht werden:", error);
                     }
@@ -422,11 +429,9 @@
             }
 
             await cleanupExpiredMatches(data, userId);
-
             const visibleMatches = data.filter(match => !isMatchExpired(match));
             const visibleIds = new Set(visibleMatches.map(match => String(match.id)));
             window.userActiveJobsCache = (window.userActiveJobsCache || []).filter(job => visibleIds.has(String(job.match_id)));
-
             visibleMatches.sort((a, b) => parseIpscDateFrontend(a.anmeldung_oeffnet) - parseIpscDateFrontend(b.anmeldung_oeffnet));
             window.loadedMatchesCache = visibleMatches;
             buildFilterDropdowns(visibleMatches);
@@ -434,13 +439,13 @@
         }
 
         function buildFilterDropdowns(matches) {
-            const levels = new Set(); const laender = new Set(); const disziplinen = new Set();
+            const levels = new Set();
+            const laender = new Set(); const disziplinen = new Set();
             matches.forEach(m => {
                 if (m.level) levels.add(m.level.trim());
                 if (m.region) laender.add(m.region.trim().toUpperCase());
                 if (m.disziplin) disziplinen.add(m.disziplin.trim());
             });
-            
             const selectLevel = document.getElementById("filter-level");
             selectLevel.innerHTML = '<option value="all">Alle Levels</option>';
             Array.from(levels).sort().forEach(lvl => selectLevel.innerHTML += `<option value="${lvl}">${lvl}</option>`);
@@ -454,23 +459,22 @@
             Array.from(disziplinen).sort().forEach(dsz => selectDisz.innerHTML += `<option value="${dsz}">${dsz}</option>`);
         }
 
-        window.applyFilters = function() { renderMatches(window.loadedMatchesCache); }
+        window.applyFilters = function() { renderMatches(window.loadedMatchesCache);
+        }
 
         function renderMatches(matchesList) {
             const container = document.getElementById("js-match-container");
-            
             const selectedLevel = document.getElementById("filter-level").value;
             const selectedLand = document.getElementById("filter-land").value;
             const selectedDisz = document.getElementById("filter-disziplin").value;
-
             const filteredMatches = matchesList.filter(match => {
                 if (isMatchExpired(match)) return false;
                 if (selectedLevel !== "all" && match.level !== selectedLevel) return false;
                 if (selectedLand !== "all" && match.region?.trim().toUpperCase() !== selectedLand) return false;
                 if (selectedDisz !== "all" && match.disziplin !== selectedDisz) return false;
+ 
                 return true;
             });
-
             if (!filteredMatches.length) {
                 container.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Keine geplanten Bot-Aktivierungen gefunden.</p>';
                 return;
@@ -480,21 +484,23 @@
                 const matchName = window.escapeHtml(match.match_name || match.name || "Unbekanntes Turnier");
                 const formattedOpenDate = window.escapeHtml(match.anmeldung_oeffnet || "Unbekannt");
                 const disz = window.escapeHtml(match.disziplin || "HG");
-                const targetUrl = match.url ? window.escapeHtml(match.url) : "https://www.ipscmatch.de/";
+                const 
+                targetUrl = match.url ? window.escapeHtml(match.url) : "https://www.ipscmatch.de/";
                 
                 const level = window.escapeHtml(match.level || "N/A");
                 const ort = window.escapeHtml(match.ort || match.location || "Unbekannter Ort");
                 const land = window.escapeHtml(match.region || match.land || "");
+          
                 const matchDatum = window.escapeHtml(match.datum || match.date || "Datum unklar");
                 
                 const locationString = land ? `${ort} (${land.toUpperCase()})` : ort;
 
                 const existingJob = window.userActiveJobsCache.find(j => String(j.match_id) === String(match.id));
-                
                 let buttonHtml = '';
                 if (existingJob) {
                     buttonHtml = `
-                        <button class="btn-contact" style="background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);" onclick="openBotModal('${match.id}', '${matchName.replace(/'/g, "\\'")}', '${formattedOpenDate}', '${disz}')">⚙️ Ändern / Editieren</button>
+                        <button class="btn-contact" style="background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);"
+                        onclick="openBotModal('${match.id}', '${matchName.replace(/'/g, "\\'")}', '${formattedOpenDate}', '${disz}')">⚙️ Ändern / Editieren</button>
                         <button class="btn-delete" onclick="deleteBotJob('${existingJob.id}', '${matchName.replace(/'/g, "\\'")}')">❌ Zurücknehmen</button>
                     `;
                 } else {
@@ -506,16 +512,20 @@
                 return `
                     <div class="match-card">
                         <div class="match-details">
-                            <h3><a href="${targetUrl}" target="_blank" title="Auf ipscmatch.de öffnen">${matchName}</a> ${existingJob ? '<span style="color: var(--success-color); font-size: 14px; font-weight: 800; margin-left: 8px;">(Scharfgeschaltet 🎯)</span>' : ''}</h3>
+                            <h3><a href="${targetUrl}" target="_blank" title="Auf ipscmatch.de öffnen">${matchName}</a> ${existingJob ?
+                            '<span style="color: var(--success-color); font-size: 14px; font-weight: 800; margin-left: 8px;">(Scharfgeschaltet 🎯)</span>' : ''}</h3>
                             
                             <div class="badge-container">
+                                
                                 <span class="badge">⏳ Öffnet: ${formattedOpenDate}</span>
                                 <span class="badge badge-meta">🔫 ${disz}</span>
                                 <span class="badge badge-meta">🏆 Level ${level}</span>
+                          
                                 <span class="badge badge-meta">📍 ${locationString}</span>
                                 <span class="badge badge-date">📅 Match-Tag(e): ${matchDatum}</span>
                             </div>
                         </div>
+   
                         <div class="match-actions">${buttonHtml}</div>
                     </div>
                 `;
@@ -529,7 +539,6 @@
             
             const divSelect = document.getElementById("bot-division");
             const catSelect = document.getElementById("bot-category");
-            
             if (disziplin.toUpperCase().includes("PCC") || disziplin.toUpperCase().includes("RF") || disziplin.toUpperCase().includes("RIFLE")) {
                 divSelect.innerHTML = `<option value="Open">Open</option><option value="Standard">Standard</option>`;
                 catSelect.innerHTML = `<option value="Overall">Overall</option><option value="Senior">Senior</option>`;
@@ -542,7 +551,6 @@
             }
 
             const existingJob = window.userActiveJobsCache.find(j => String(j.match_id) === String(id));
-            
             if (existingJob && existingJob.form_data && typeof existingJob.form_data === "string") {
                 try {
                     existingJob.form_data = JSON.parse(existingJob.form_data);
@@ -562,14 +570,13 @@
                 document.getElementById("bot-region").value = fd.region || "GER";
                 document.getElementById("bot-bemerkung").value = fd.bemerkung || "";
                 document.getElementById("bot-squad").value = fd.squad || "";
-                
                 setTimeout(() => {
                     if(fd.division) divSelect.value = fd.division;
                     if(fd.category) catSelect.value = fd.category;
                     if(fd.wunschtag) document.getElementById("bot-wunschtag").value = fd.wunschtag;
                     if(fd.public_visible) document.getElementById("bot-public").value = fd.public_visible;
-                }, 50);
-                
+      
+                  }, 50);
                 if (fd.power_factor === "Major") {
                     document.getElementById("power-major").checked = true;
                 } else {
@@ -593,7 +600,8 @@
                 document.getElementById("power-minor").checked = true;
 
                 const currentAuthUser = window.supabaseClient.auth.user ? window.supabaseClient.auth.user() : null;
-                document.getElementById("bot-email").value = window.currentUser?.email || (currentAuthUser ? currentAuthUser.email : "");
+                document.getElementById("bot-email").value = window.currentUser?.email ||
+                (currentAuthUser ? currentAuthUser.email : "");
                 
                 if (window.userProfileData) {
                     if (window.userProfileData.ipsc_alias) {
@@ -614,16 +622,15 @@
             document.getElementById("bot-config-modal").style.display = "flex";
         }
 
-        window.closeBotModal = function() { document.getElementById("bot-config-modal").style.display = "none"; }
+        window.closeBotModal = function() { document.getElementById("bot-config-modal").style.display = "none";
+        }
 
         window.deleteBotJob = async function(jobId, matchName) {
             if (!confirm(`Möchtest du die Bot-Aktivierung für "${matchName}" wirklich komplett zurücknehmen und löschen?`)) return;
-
             const { error } = await window.supabaseClient
                 .from("bot_queue")
                 .delete()
                 .eq("id", jobId);
-
             if (error) {
                 alert("Fehler beim Löschen: " + error.message);
             } else {
@@ -640,12 +647,14 @@
             submitBtn.disabled = true;
             
             const targetMatchId = document.getElementById("modal-match-id").value;
+    
             const existingJobId = document.getElementById("modal-existing-job-id").value;
 
             const { data: { session } } = await window.supabaseClient.auth.getSession();
             if (!session) {
                 alert("Fehler: Du bist nicht eingeloggt!");
                 submitBtn.innerText = "Bot jetzt programmieren";
+              
                 submitBtn.disabled = false;
                 return;
             }
@@ -655,24 +664,28 @@
 
             const formData = {
                 vorname: document.getElementById("bot-vorname").value,
+      
                 nachname: document.getElementById("bot-nachname").value,
                 email: document.getElementById("bot-email").value,
                 lizenz: document.getElementById("bot-lizenz").value,
                 region: document.getElementById("bot-region").value,
                 division: document.getElementById("bot-division").value,
                 category: document.getElementById("bot-category").value,
+    
                 power_factor: selectedFactor,
                 wunschtag: document.getElementById("bot-wunschtag").value, 
                 squad: document.getElementById("bot-squad").value,
                 bemerkung: document.getElementById("bot-bemerkung").value,
-                is_ro: document.getElementById("bot-ro").checked ? "1" : "0",
-                is_sponsor: document.getElementById("bot-sponsor").checked ? "1" : "0",
+                is_ro: document.getElementById("bot-ro").checked ?
+                "1" : "0",
+                is_sponsor: document.getElementById("bot-sponsor").checked ?
+                "1" : "0",
                 public_visible: document.getElementById("bot-public").value,
-                accept_terms: document.getElementById("bot-agb").checked ? "1" : "0"
+                accept_terms: document.getElementById("bot-agb").checked ?
+                "1" : "0"
             };
 
             let resultError = null;
-
             if (existingJobId) {
                 const { error } = await window.supabaseClient
                     .from("bot_queue")
@@ -684,9 +697,9 @@
                     .from("bot_queue")
                     .select("id")
                     .eq("user_id", currentUserId)
+           
                     .eq("match_id", targetMatchId)
                     .eq("status", "waiting");
-
                 if (checkJobs && checkJobs.length > 0) {
                     alert("⚠️ Halt! Du hast für dieses Match im Hintergrund bereits einen aktiven Bot. Bitte lade die Seite neu, um ihn zu editieren.");
                     submitBtn.innerText = "Bot jetzt programmieren";
@@ -698,6 +711,7 @@
                     .from("bot_queue")
                     .insert([{
                         user_id: currentUserId,
+    
                         match_id: targetMatchId,
                         form_data: formData,
                         status: 'waiting'
@@ -716,7 +730,8 @@
             submitBtn.disabled = false;
         });
         
-        function escapeHtml(text) { if (!text) return ""; const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
+        function escapeHtml(text) { if (!text) return ""; const div = document.createElement("div"); div.textContent = text; return div.innerHTML;
+        }
         window.escapeHtml = escapeHtml;
     </script>
 </body>
