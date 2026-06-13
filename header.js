@@ -12,8 +12,8 @@
         // 🌟 Prüfen, ob wir auf einer der beiden VIP-Seiten sind
         const isVipPage = (page === "doppel-aa.html" || page === "performance.html");
 
-        // 🌟 Dynamische Texte für den Header
-        const headerTitle = isVipPage ? "Double Alpha" : "IPSC STARTPLATZ-BÖRSE";
+        // 🌟 Dynamische Texte für den Header (Mit Style-Klasse für das Wort BÖRSE)
+        const headerTitle = isVipPage ? "Double Alpha" : "IPSC STARTPLATZ-<span class='logo-accent'>BÖRSE</span>";
         const headerSub = isVipPage ? "Vereins-Bereich 🔒" : "Von Schützen für Schützen";
 
         const links = [
