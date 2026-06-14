@@ -36,9 +36,10 @@
             navHtml += `<a href="${link.href}" class="${className}" data-txt="${link.key}">${link.text}</a>`;
         });
 
+        // 🌟 Aufbau des HTML - BILD WURDE REPARIERT (nutzt jetzt icon-192.png)
         header.innerHTML = `
             <a href="index.html" class="header-logo-link" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 14px; cursor: pointer; transition: opacity 0.2s; text-align: left;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Zur Startseite">
-                <img src="/image_11.png" width="38" height="44" alt="IPSC Logo" style="height: 44px; width: auto; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); border-radius: 4px;" />
+                <img src="icon-192.png" width="38" height="44" alt="IPSC Logo" style="height: 44px; width: auto; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); border-radius: 4px;" />
                 <div class="logo-text-group">
                     <h1 ${isVipPage ? '' : 'data-txt="main-title"'} class="${isVipPage ? 'vip-title' : ''}" style="margin: 0; line-height: 1.1;">${headerTitle}</h1>
                     <p style="color: ${isVipPage ? 'var(--accent-color)' : 'var(--text-muted)'}; margin: 3px 0 0 0; font-size: 12px;" ${isVipPage ? '' : 'data-txt="sub-title"'}>${headerSub}</p>
@@ -88,6 +89,7 @@
 
         const style = document.createElement('style');
         style.innerHTML = `
+            /* Desktop/Standard Navigation */
             header { position: sticky !important; top: 0 !important; z-index: 100 !important; display: flex; flex-direction: column; align-items: center; }
             header .header-controls { position: absolute !important; top: calc(env(safe-area-inset-top) + 24px) !important; right: 20px !important; transform: none !important; display: flex !important; align-items: center !important; gap: 10px !important; flex-direction: row !important; }
             header .theme-toggle-btn { width: 38px !important; height: 38px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; padding: 0 !important; background: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: var(--shadow-sm) !important; font-size: 16px !important; }
@@ -100,7 +102,6 @@
             header #btn-logout:hover { background-color: var(--danger-color) !important; color: #ffffff !important; }
             header #btn-open-settings img { width: 38px !important; height: 38px !important; border-radius: 50% !important; object-fit: cover !important; border: 2px solid var(--accent-color) !important; box-shadow: var(--shadow-sm) !important; display: block !important; }
             
-            /* Desktop/Standard Navigation */
             header .main-nav { width: 100% !important; margin-top: 20px !important; display: flex !important; justify-content: center !important; gap: 8px !important; border-top: 1px solid var(--border-color) !important; padding-top: 15px !important; flex-wrap: wrap !important; }
             header .main-nav a { text-decoration: none !important; font-weight: 600 !important; font-size: 12px !important; text-transform: uppercase !important; letter-spacing: 0.3px !important; padding: 8px 16px !important; border-radius: 20px !important; transition: all 0.2s ease !important; white-space: nowrap !important; flex-shrink: 0 !important; display: inline-block !important; line-height: 1.4 !important; box-sizing: border-box !important; border: 1px solid transparent !important; }
             header .main-nav a.active { color: #ffffff !important; background-color: var(--accent-color) !important; box-shadow: var(--shadow-sm) !important; border-color: var(--accent-color) !important; }
@@ -118,14 +119,16 @@
                 header .main-nav a { padding: 8px 14px !important; font-size: 11px !important; border-radius: 20px !important; scroll-snap-align: start !important; }
             }
 
-            /* 🔥 MOBILE DAUMEN-LEISTE (Für alle Handys, App & Browser) 🔥 */
+            /* 🔥 MOBILE DAUMEN-LEISTE (Der Safari-Bugfix) 🔥 */
             @media (max-width: 768px) {
-                /* Header unten abschneiden, da die Nav verschwindet */
                 header { 
                     padding-bottom: 12px !important;
+                    /* SAFARI BUGFIX: Blur zerstört fixed Positionierung! Muss aus! */
+                    backdrop-filter: none !important;
+                    -webkit-backdrop-filter: none !important;
+                    background-color: var(--card-bg) !important;
                 }
 
-                /* Nav-Leiste aus dem Header reißen und unten anheften */
                 header .main-nav {
                     position: fixed !important;
                     top: auto !important;
@@ -139,8 +142,6 @@
                     /* Padding für den iPhone Home-Balken */
                     padding: 10px 10px calc(10px + env(safe-area-inset-bottom)) !important;
                     box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08) !important;
-                    display: flex !important;
-                    justify-content: flex-start !important;
                 }
 
                 /* Content-Abstand erhöhen, damit die Leiste keinen Text verdeckt */
@@ -148,7 +149,7 @@
                     padding-bottom: 90px !important; 
                 }
                 
-                /* Schwebende Buttons in der App anheben */
+                /* Schwebende Buttons anheben */
                 .floating-action-bar { 
                     bottom: calc(90px + env(safe-area-inset-bottom)) !important; 
                 }
