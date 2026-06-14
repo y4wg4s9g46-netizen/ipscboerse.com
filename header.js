@@ -17,17 +17,18 @@
         const headerSub = isVipPage ? "Vereins-Bereich 🔒" : "Von Schützen für Schützen";
 
         const links = [
-            { href: "index.html", text: "Startseite", key: "nav-startseite" },
-            { href: "marktplatz.html", text: "Marktplatz", key: "card-title-market" },
-            { href: "freie-matches.html", text: "Freie Match-Plätze", key: "card-title-free" },
-            { href: "mein-planer.html", text: "Mein Planer", key: "card-title-planer" },
-            { href: "community.html", text: "Community", key: "card-title-comm" },
-            { href: "sg-timer-live.html", text: "⏱️ SG-Timer Live", key: "nav-sgtimer" }, // 🔥 
-            { href: "tools.html", text: "Tools & Training", key: "card-title-tools" },
-            { href: "ipsc-hub.html", text: "IPSC Hub", key: "card-title-hub" },
-            { href: "analytics.html", text: "Statistiken", key: "nav-analytics" },
-            { href: "wiederladen.html", text: "Wiederladen", key: "nav-wiederladen" }
-        ];
+    { href: "index.html", text: "Startseite", key: "nav-startseite" },
+    { href: "marktplatz.html", text: "Marktplatz", key: "card-title-market" },
+    { href: "freie-matches.html", text: "Freie Match-Plätze", key: "card-title-free" },
+    { href: "mein-planer.html", text: "Mein Planer", key: "card-title-planer" },
+    { href: "community.html", text: "Community", key: "card-title-comm" },
+    { href: "sg-timer-live.html", text: "⏱️ SG-Timer Live", key: "nav-sgtimer" }, 
+    { href: "tools.html", text: "Tools & Training", key: "card-title-tools" },
+    { href: "analytics.html", text: "Statistiken", key: "nav-analytics" },
+    { href: "wiederladen.html", text: "Wiederladen", key: "nav-wiederladen" },
+    { href: "ipsc-hub.html", text: "IPSC Hub", key: "card-title-hub" } // 🔥 Jetzt an der allerletzten Stelle!
+];
+
 
         let navHtml = "";
         links.forEach(link => {
