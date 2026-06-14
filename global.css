@@ -667,31 +667,31 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
 }
 
 /* ==========================================================================
-   📱 ECHTES APP-LAYOUT (Greift in PWA & Xcode/Capacitor)
+   📱 MOBILES LAYOUT (Immer Bottom-Nav für Handys, Browser & App)
    ========================================================================== */
 @media (max-width: 768px) {
     
     /* 1. HEADER VERKLEINERN */
-    html.is-app-mode header {
-        padding: calc(env(safe-area-inset-top) + 10px) 15px 0px 15px !important; /* Unten padding auf 0 reduziert */
-        border-bottom: none !important; /* Trennlinie weg, da Nav jetzt unten ist */
+    header {
+        padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px !important; 
+        border-bottom: none !important; /* Trennlinie weg, da Nav unten ist */
     }
     
-    html.is-app-mode header .header-logo-link img { 
-        height: 28px !important; /* Noch etwas kompakter */
+    header .header-logo-link img { 
+        height: 32px !important; 
     }
     
-    html.is-app-mode header h1 {
-        font-size: 15px !important; 
-        margin-bottom: 0px !important;
+    header h1 {
+        font-size: 17px !important; 
+        margin-bottom: 2px !important;
     }
 
-    html.is-app-mode header p[data-txt="sub-title"] {
-        display: none !important; /* Subtitel ausblenden für mehr Platz */
+    header p[data-txt="sub-title"] {
+        display: none !important; /* Untertitel weg für mehr Platz oben */
     }
 
-    /* 2. NAVIGATION ZUM DAUMEN (Bottom Nav) - NUR IN DER APP */
-    html.is-app-mode header .main-nav { 
+    /* 2. NAVIGATION ZUM DAUMEN (Bottom Nav) */
+    header .main-nav { 
         position: fixed !important;
         bottom: 0 !important;
         left: 0 !important;
@@ -701,21 +701,21 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
         z-index: 9999 !important;
         margin-top: 0 !important;
         
-        padding: 8px 10px calc(8px + env(safe-area-inset-bottom)) !important; /* Kompakteres Padding */
+        padding: 8px 10px calc(8px + env(safe-area-inset-bottom)) !important;
         box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08) !important;
     }
 
-    html.is-app-mode header .main-nav a {
-        padding: 6px 12px !important; /* Buttons in der Leiste schmaler */
-        font-size: 10px !important; /* Schrift minimal kleiner */
+    header .main-nav a {
+        padding: 8px 12px !important; 
+        font-size: 10px !important; 
     }
 
     /* 3. PLATZ FÜR DEN CONTENT SCHAFFEN */
-    html.is-app-mode body {
+    body {
         padding-bottom: 75px !important; 
     }
     
-    html.is-app-mode .floating-action-bar {
+    .floating-action-bar {
         bottom: calc(75px + env(safe-area-inset-bottom)) !important;
     }
 }
