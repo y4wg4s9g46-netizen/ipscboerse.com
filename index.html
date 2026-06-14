@@ -203,6 +203,13 @@
             .news-section { padding: 24px 16px; margin-bottom: 30px; border-radius: 20px; }
             .dashboard-grid { grid-template-columns: 1fr; gap: 16px; margin-bottom: 40px; }
         }
+
+        /* LIVE-PULS EFFEKT FÜR SG-TIMER HIGHLIGHT */
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
     </style>
 </head>
 <body>
@@ -248,6 +255,28 @@
                     <p class="news-item-body" data-txt="news-body-3">Um die Sicherheit auf dem Marktplatz zu maximieren, wurde ein Reputationssystem eingeführt. Durch Hinterlegen deines IPSC-Alias erhältst du ein verifiziertes Abzeichen, zudem können erfolgreiche Vermittlungen gegenseitig bewertet werden.</p>
                 </div>
             </div>
+        </div>
+
+        <!-- KARTEN-HIGHLIGHT FÜR DIE INDEX.HTML (SG-TIMER LIVE) -->
+        <div class="card feature-card sg-timer-highlight" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid #007AFF; border-radius: 12px; padding: 22px; box-shadow: 0 4px 20px rgba(0, 122, 255, 0.15); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; margin-bottom: 24px;">
+            
+            <!-- Kleiner "LIVE" Puls-Badge -->
+            <span style="position: absolute; top: 12px; right: 12px; background: rgba(0, 122, 255, 0.1); color: #007AFF; font-size: 10px; font-weight: bold; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid rgba(0, 122, 255, 0.3); display: inline-flex; align-items: center; gap: 6px;">
+                <span style="width: 6px; height: 6px; background: #007AFF; border-radius: 50%; animation: pulse 1.5s infinite;"></span> Hardware Sync
+            </span>
+            
+            <div>
+                <h3 style="margin: 0 0 10px 0; font-size: 19px; color: #fff; display: flex; align-items: center; gap: 8px;">
+                    ⏱️ SG-Timer Live Cockpit
+                </h3>
+                <p style="margin: 0 0 20px 0; font-size: 13px; color: #94a3b8; line-height: 1.4;">
+                    Kopple deinen Shooters Global Timer kabellos per Bluetooth direkt mit dem Browser. Werte Splits in Echtzeit aus, nutze die RO-Fernbedienung oder trage dich in die manipulationssicheren Bestenlisten ein!
+                </p>
+            </div>
+            
+            <a href="sg-timer-live.html" style="text-decoration: none; text-align: center; background: #007AFF; color: #fff; font-weight: bold; font-size: 14px; padding: 11px; border-radius: 8px; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);" onmouseover="this.style.background='#0062cc'; this.style.transform='translateY(-1px)';" onmouseout="this.style.background='#007AFF'; this.style.transform='none';">
+                Jetzt verbinden →
+            </a>
         </div>
 
         <div class="dashboard-grid">
