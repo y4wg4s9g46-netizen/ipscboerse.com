@@ -2,12 +2,13 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ✨ FIX 1: Der perfekte Apple Viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <title>Impressum, AGB & Datenschutz | IPSC Börse</title>
 
     <!-- PWA & App-Icons -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1e293b">
+    <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="IPSC Börse">
@@ -15,145 +16,94 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- ✨ FIX 2: Die neue zentrale CSS-Datei eingebunden -->
+    <link rel="stylesheet" href="global.css">
+
     <style>
-        /* Modernes Variablen-System für Hell- und Dunkelmodus */
-        :root, html[data-theme="light"] {
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-color: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --input-bg: #ffffff;
-            
-            --accent-color: #ff9f43; /* IPSC Orange */
-            --danger-color: #ef4444;
-            --success-color: #10b981;
-            --info-color: #3b82f6;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            --radius: 8px;
-        }
-
-        /* Dunkler Modus */
-        html[data-theme="dark"] {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --input-bg: #0f172a;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-        }
-
-        @media (prefers-color-scheme: dark) {
-            html:not([data-theme="light"]) {
-                --bg-color: #0f172a;
-                --card-bg: #1e293b;
-                --text-color: #f8fafc;
-                --text-muted: #94a3b8;
-                --border-color: #334155;
-                --input-bg: #0f172a;
-            }
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-            line-height: 1.6;
-        }
-
-        .container { 
-            max-width: 800px; 
-            margin: 30px auto; 
-            padding: 30px; 
+        /* ==========================================================================
+           IMPRESSUM - SPEZIFISCHES LAYOUT (Nutzt global.css Variablen)
+           ========================================================================== */
+        
+        .impressum-content {
             background-color: var(--card-bg); 
             border: 1px solid var(--border-color);
-            border-radius: var(--radius);
+            border-radius: var(--radius-lg);
+            padding: 32px;
             box-shadow: var(--shadow-sm);
-            box-sizing: border-box;
-            width: calc(100% - 40px);
+            margin-bottom: 40px;
         }
 
-        h2 { 
+        .impressum-content h2 { 
             color: var(--text-color); 
             margin-top: 40px; 
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 12px;
             font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.3px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
 
-        h3 { 
+        .impressum-content h2:first-of-type {
+            margin-top: 0;
+        }
+
+        .impressum-content h3 { 
             color: var(--text-color); 
-            margin-top: 25px; 
-            font-size: 15px;
-            font-weight: 600;
+            margin-top: 32px; 
+            font-size: 16px;
+            font-weight: 700;
         }
 
-        p, li { font-size: 14px; color: var(--text-color); }
-        a { color: var(--info-color); text-decoration: none; font-weight: 500; }
-        a:hover { text-decoration: underline; }
+        .impressum-content p, .impressum-content li { 
+            font-size: 14px; 
+            color: var(--text-muted); 
+            line-height: 1.6;
+        }
+        
+        .impressum-content a { color: var(--info-color); text-decoration: none; font-weight: 600; }
+        .impressum-content a:hover { text-decoration: underline; }
 
         .back-btn { 
-            display: inline-flex; align-items: center; margin-bottom: 25px; background-color: var(--bg-color); color: var(--text-color); padding: 8px 16px; border: 1px solid var(--border-color); border-radius: var(--radius); text-decoration: none; font-weight: 600; font-size: 13px; box-shadow: var(--shadow-sm); transition: all 0.2s; 
+            display: inline-flex; 
+            align-items: center; 
+            margin-bottom: 24px; 
+            background-color: var(--card-bg); 
+            color: var(--text-color); 
+            padding: 10px 18px; 
+            border: 1px solid var(--border-color); 
+            border-radius: var(--radius); 
+            text-decoration: none; 
+            font-weight: 700; 
+            font-size: 13px; 
+            box-shadow: var(--shadow-sm); 
+            transition: var(--transition); 
         }
-        .back-btn:hover { background-color: var(--border-color); border-color: var(--text-muted); }
-        html[data-theme="dark"] .back-btn:hover { background-color: var(--border-color); }
+        .back-btn:hover { 
+            background-color: var(--bg-color); 
+            border-color: #cbd5e1; 
+            transform: translateY(-2px);
+        }
+        html[data-theme="dark"] .back-btn:hover { border-color: var(--text-muted); }
 
-        hr { border: 0; border-top: 1px solid var(--border-color); margin: 40px 0; }
-        ul { padding-left: 20px; }
-        li { margin-bottom: 8px; }
+        .impressum-content hr { border: 0; border-top: 1px solid var(--border-color); margin: 40px 0; }
+        .impressum-content ul { padding-left: 20px; }
+        .impressum-content li { margin-bottom: 8px; }
 
-        .alert-box { background-color: rgba(255, 159, 67, 0.08); border-left: 4px solid var(--accent-color); padding: 15px; margin: 25px 0; border-radius: var(--radius); border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
-        .highlight { color: var(--danger-color); font-weight: 600; }
-
-        /* --- Modals CSS --- */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease-out; padding: 20px; box-sizing: border-box; }
-        .modal-content { background-color: var(--card-bg); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative; margin: auto; }
-        .modal-content h3 { color: var(--text-color); margin-top: 0; margin-bottom: 24px; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; padding-right: 30px; }
-        .modal-close-container { position: absolute; top: 20px; right: 20px; z-index: 1010; }
-        .modal-close-trigger { background: transparent; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; padding: 4px; line-height: 1; transition: color 0.15s; }
-        .modal-close-trigger:hover { color: var(--text-color); }
-        .modal-content .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
-        .modal-content label { font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .modal-content input { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px 14px; border-radius: var(--radius); font-size: 14px; transition: all 0.15s ease; box-shadow: var(--shadow-sm); }
-        .modal-content input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); }
-        .modal-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 24px 0; text-transform: uppercase; letter-spacing: 0.5px; }
-        .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
-        .modal-divider:not(:empty)::before { margin-right: .75em; }
-        .modal-divider:not(:empty)::after { margin-left: .75em; }
-        .btn-primary-auth { background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm); transition: opacity 0.15s; }
-        .btn-primary-auth:hover { opacity: 0.9; }
-        .btn-secondary-auth { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background 0.15s; }
-        .btn-secondary-auth:hover { background-color: var(--border-color); }
-        .btn-submit { background-color: var(--accent-color); color: #fff; border: none; padding: 12px 30px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 10px; box-shadow: var(--shadow-sm); }
-        .btn-danger-block { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; width: 100%; font-weight: 600; border-radius: var(--radius); cursor: pointer; margin-top: 15px; transition: all 0.2s; }
-        .btn-danger-block:hover { background-color: var(--danger-color); color: #fff; }
-
-        .chat-history-area { height: 300px; overflow-y: auto; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: var(--radius); padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .alert-box { 
+            background-color: rgba(255, 159, 67, 0.08); 
+            border-left: 4px solid var(--accent-color); 
+            padding: 16px; 
+            margin: 32px 0; 
+            border-radius: var(--radius); 
+            border: 1px solid var(--border-color); 
+            border-left-width: 4px;
+        }
         
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-
-        footer { background-color: var(--card-bg); border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: auto; font-size: 13px; color: var(--text-muted); text-align: center; }
+        .highlight { color: var(--danger-color); font-weight: 700; }
 
         @media (max-width: 768px) {
-            html, body { overflow-x: hidden !important; width: 100% !important; }
-            .container { padding: 20px; margin: 15px auto; width: calc(100% - 20px); }
-            h2 { font-size: 18px; }
+            .impressum-content { padding: 24px 20px; }
             .back-btn { width: 100%; box-sizing: border-box; justify-content: center; }
-            .modal { padding: 10px !important; }
-            .modal-content { padding: 24px 16px !important; max-height: 95vh !important; }
-            .modal-close-container { top: 12px !important; right: 12px !important; }
-            .modal-close-trigger { font-size: 28px !important; }
         }
     </style>
 </head>
@@ -165,100 +115,102 @@
     <div class="container">
         <a href="index.html" class="back-btn" data-txt="imp-back">← Zurück zur Startseite</a>
 
-        <!-- 1. IMPRESSUM -->
-        <h2 data-txt="imp-h2-1">1. Impressum</h2>
-        <p data-txt="imp-p-1"><strong>Angaben gemäß § 5 TMG:</strong><br>
-        Fabian Schöps<br>
-        Weserblick 9<br>
-        34399 Wesertal</p>
-        
-        <p data-txt="imp-p-contact"><strong>Kontakt:</strong><br>
-        E-Mail: <a href="mailto:info@ipscboerse.com">info@ipscboerse.com</a></p>
+        <div class="impressum-content">
+            <!-- 1. IMPRESSUM -->
+            <h2 data-txt="imp-h2-1">1. Impressum</h2>
+            <p data-txt="imp-p-1"><strong>Angaben gemäß § 5 TMG:</strong><br>
+            Fabian Schöps<br>
+            Weserblick 9<br>
+            34399 Wesertal</p>
+            
+            <p data-txt="imp-p-contact"><strong>Kontakt:</strong><br>
+            E-Mail: <a href="mailto:info@ipscboerse.com">info@ipscboerse.com</a></p>
 
-        <hr>
+            <hr>
 
-        <!-- 2. AGB & NUTZUNGSBEDINGUNGEN -->
-        <h2 data-txt="imp-h2-2">2. Allgemeine Geschäftsbedingungen (AGB) &amp; Nutzungsbedingungen</h2>
-        
-        <h3 data-txt="imp-h3-1">§ 1 Geltungsbereich und Zweck der Plattform</h3>
-        <p data-txt="imp-p-2">Die Plattform (ipscboerse.com) stellt ausschließlich eine technische Infrastruktur zur Verfügung ("Schwarzes Brett"), um Sportschützen untereinander zur Vermittlung von Startplätzen zu vernetzen. Der Betreiber dieser Webseite tritt <strong>nicht</strong> als Veranstalter, Käufer, Verkäufer oder offizieller Vermittler von Startplätzen auf. Verträge über den Startplatztausch kommen ausschließlich zwischen den beteiligten Nutzern zustande.</p>
-        
-        <h3 data-txt="imp-h3-2">§ 2 Pflichten der Nutzer &amp; Verhaltensregeln</h3>
-        <p data-txt="imp-p-3">Nutzer verpflichten sich, die Plattform ausschließlich für den vorgesehenen legalen Zweck zu nutzen. Es ist strengstens untersagt, Inhalte (Beiträge, Chat-Nachrichten, Kommentare oder Bilder) zu veröffentlichen, die:</p>
-        <ul>
-            <li data-txt="imp-li-1">Beleidigungen, Verleumdungen, Bedrohungen, Hate Speech, Rassismus oder Diskriminierungen enthalten.</li>
-            <li data-txt="imp-li-2">Pornografische, sexuell anstößige (einschließlich kommerzieller Bademode/Unterwäsche) oder jugendgefährdende Motive zeigen.</li>
-            <li data-txt="imp-li-3">Gewaltverherrlichendes, extremistisches oder verfassungsfeindliches Material darstellen.</li>
-            <li data-txt="imp-li-4">Gegen geltendes Recht (z.B. Urheberrecht, Strafrecht) verstoßen oder Spam bzw. betrügerische Absichten verfolgen.</li>
-            <li data-txt="imp-li-5">Dem gewerblichen oder gewinnorientierten Ticket-Weiterverkauf (Reselling/Scalping) dienen. Startplätze dürfen maximal zum offiziellen Originalpreis des Veranstalters angeboten werden.</li>
-        </ul>
+            <!-- 2. AGB & NUTZUNGSBEDINGUNGEN -->
+            <h2 data-txt="imp-h2-2">2. Allgemeine Geschäftsbedingungen (AGB) &amp; Nutzungsbedingungen</h2>
+            
+            <h3 data-txt="imp-h3-1">§ 1 Geltungsbereich und Zweck der Plattform</h3>
+            <p data-txt="imp-p-2">Die Plattform (ipscboerse.com) stellt ausschließlich eine technische Infrastruktur zur Verfügung ("Schwarzes Brett"), um Sportschützen untereinander zur Vermittlung von Startplätzen zu vernetzen. Der Betreiber dieser Webseite tritt <strong>nicht</strong> als Veranstalter, Käufer, Verkäufer oder offizieller Vermittler von Startplätzen auf. Verträge über den Startplatztausch kommen ausschließlich zwischen den beteiligten Nutzern zustande.</p>
+            
+            <h3 data-txt="imp-h3-2">§ 2 Pflichten der Nutzer &amp; Verhaltensregeln</h3>
+            <p data-txt="imp-p-3">Nutzer verpflichten sich, die Plattform ausschließlich für den vorgesehenen legalen Zweck zu nutzen. Es ist strengstens untersagt, Inhalte (Beiträge, Chat-Nachrichten, Kommentare oder Bilder) zu veröffentlichen, die:</p>
+            <ul>
+                <li data-txt="imp-li-1">Beleidigungen, Verleumdungen, Bedrohungen, Hate Speech, Rassismus oder Diskriminierungen enthalten.</li>
+                <li data-txt="imp-li-2">Pornografische, sexuell anstößige (einschließlich kommerzieller Bademode/Unterwäsche) oder jugendgefährdende Motive zeigen.</li>
+                <li data-txt="imp-li-3">Gewaltverherrlichendes, extremistisches oder verfassungsfeindliches Material darstellen.</li>
+                <li data-txt="imp-li-4">Gegen geltendes Recht (z.B. Urheberrecht, Strafrecht) verstoßen oder Spam bzw. betrügerische Absichten verfolgen.</li>
+                <li data-txt="imp-li-5">Dem gewerblichen oder gewinnorientierten Ticket-Weiterverkauf (Reselling/Scalping) dienen. Startplätze dürfen maximal zum offiziellen Originalpreis des Veranstalters angeboten werden.</li>
+            </ul>
 
-        <h3 data-txt="imp-h3-3">§ 3 Automatisierte Moderation &amp; Hausrecht</h3>
-        <p data-txt="imp-p-4">Um die Sicherheit, Jugendfreiheit und Qualität des Marktplatzes zu gewährleisten, setzt der Betreiber automatisierte Filter- und KI-Systeme zur Echtzeit-Moderation ein:</p>
-        <ul>
-            <li data-txt="imp-li-6"><strong>Text-Filter:</strong> Alle eingestellten Beiträge und Kommentare werden vollautomatisch auf eine integrierte Liste unzulässiger Begriffe und Schimpwörter geprüft.</li>
-            <li data-txt="imp-li-7"><strong>Bild-KI:</strong> Hochgeladene Bilddateien werden softwareseitig mittels künstlicher Intelligenz auf visuelle Richtlinienverstöße (wie z.B. Nacktheit oder Teilnacktheit) gescannt.</li>
-        </ul>
-        <p data-txt="imp-p-5">Verstößt ein Beitrag oder Kommentar gegen diese Richtlinien, wird der Eintrag durch das System <span class="highlight">sofort, vollautomatisch und ohne Vorwarnung unwiderruflich gelöscht</span>. Der Betreiber behält sich im Rahmen seines Hausrechts das Recht vor, Nutzerkonten bei Verstößen temporär oder dauerhaft zu sperren.</p>
+            <h3 data-txt="imp-h3-3">§ 3 Automatisierte Moderation &amp; Hausrecht</h3>
+            <p data-txt="imp-p-4">Um die Sicherheit, Jugendfreiheit und Qualität des Marktplatzes zu gewährleisten, setzt der Betreiber automatisierte Filter- und KI-Systeme zur Echtzeit-Moderation ein:</p>
+            <ul>
+                <li data-txt="imp-li-6"><strong>Text-Filter:</strong> Alle eingestellten Beiträge und Kommentare werden vollautomatisch auf eine integrierte Liste unzulässiger Begriffe und Schimpwörter geprüft.</li>
+                <li data-txt="imp-li-7"><strong>Bild-KI:</strong> Hochgeladene Bilddateien werden softwareseitig mittels künstlicher Intelligenz auf visuelle Richtlinienverstöße (wie z.B. Nacktheit oder Teilnacktheit) gescannt.</li>
+            </ul>
+            <p data-txt="imp-p-5">Verstößt ein Beitrag oder Kommentar gegen diese Richtlinien, wird der Eintrag durch das System <span class="highlight">sofort, vollautomatisch und ohne Vorwarnung unwiderruflich gelöscht</span>. Der Betreiber behält sich im Rahmen seines Hausrechts das Recht vor, Nutzerkonten bei Verstößen temporär oder dauerhaft zu sperren.</p>
 
-        <h3 data-txt="imp-h3-4">§ 4 Haftungsausschluss (Disclaimer)</h3>
-        <p data-txt="imp-p-6">Wir übernehmen ausdrücklich keine Haftung für:</p>
-        <ul>
-            <li data-txt="imp-li-8">Das tatsächliche Zustandekommen von Startplatz-Übertragungen.</li>
-            <li data-txt="imp-li-9">Die Richtigkeit der von Nutzern im Chat oder in Inseraten eingestellten Match-Daten, Fristen oder Preise.</li>
-            <li data-txt="imp-li-10">Finanzielle Verluste oder Schäden durch Betrug oder Unstimmigkeiten zwischen Nutzern.</li>
-            <li data-txt="imp-li-11">Die finale Entscheidung des jeweiligen Match Directors (Veranstalters), ob eine Umschreibung akzeptiert wird.</li>
-        </ul>
-        
-        <div class="alert-box">
-            <p style="color: var(--danger-color); font-weight: bold; margin: 0; font-size: 14px;" data-txt="imp-alert-title">WICHTIGER HINWEIS ZUR ABWICKLUNG:</p>
-            <p style="margin: 5px 0 0 0; font-size: 13px; line-height: 1.5; color: var(--text-color);" data-txt="imp-alert-desc">Die finanzielle Abwicklung und die finale Umschreibung beim Match Director obliegen zu 100 % der Verantwortung der jeweiligen Nutzer. Wir raten dringend dazu, Zahlungen ausschließlich über sichere Methoden (z. B. PayPal mit Käuferschutz) abzuwickeln und VOR einer Zahlung die ausdrückliche Zustimmung des Veranstalters einzuholen.</p>
+            <h3 data-txt="imp-h3-4">§ 4 Haftungsausschluss (Disclaimer)</h3>
+            <p data-txt="imp-p-6">Wir übernehmen ausdrücklich keine Haftung für:</p>
+            <ul>
+                <li data-txt="imp-li-8">Das tatsächliche Zustandekommen von Startplatz-Übertragungen.</li>
+                <li data-txt="imp-li-9">Die Richtigkeit der von Nutzern im Chat oder in Inseraten eingestellten Match-Daten, Fristen oder Preise.</li>
+                <li data-txt="imp-li-10">Finanzielle Verluste oder Schäden durch Betrug oder Unstimmigkeiten zwischen Nutzern.</li>
+                <li data-txt="imp-li-11">Die finale Entscheidung des jeweiligen Match Directors (Veranstalters), ob eine Umschreibung akzeptiert wird.</li>
+            </ul>
+            
+            <div class="alert-box">
+                <p style="color: var(--danger-color); font-weight: 800; margin: 0; font-size: 14px;" data-txt="imp-alert-title">WICHTIGER HINWEIS ZUR ABWICKLUNG:</p>
+                <p style="margin: 5px 0 0 0; font-size: 13px; line-height: 1.5; color: var(--text-color);" data-txt="imp-alert-desc">Die finanzielle Abwicklung und die finale Umschreibung beim Match Director obliegen zu 100 % der Verantwortung der jeweiligen Nutzer. Wir raten dringend dazu, Zahlungen ausschließlich über sichere Methoden (z. B. PayPal mit Käuferschutz) abzuwickeln und VOR einer Zahlung die ausdrückliche Zustimmung des Veranstalters einzuholen.</p>
+            </div>
+
+            <hr>
+
+            <!-- 3. DATENSCHUTZERKLÄRUNG -->
+            <h2 data-txt="imp-h2-3">3. Datenschutzerklärung</h2>
+            <p data-txt="imp-p-7">Wir nehmen den Schutz deiner persönlichen Daten sehr ernst. Diese Datenschutzerklärung klärt dich über die Art, den Umfang und Zweck der Verarbeitung von personenbezogenen Daten auf unserer Plattform auf.</p>
+
+            <h3 data-txt="imp-h3-5">1. Verantwortlicher für die Datenverarbeitung</h3>
+            <p data-txt="imp-p-8">Verantwortlich für die Datenverarbeitung ist der oben im Impressum genannte Betreiber dieser Webseite.</p>
+
+            <h3 data-txt="imp-h3-6">2. Erfassung und Verarbeitung von Nutzerdaten</h3>
+            <p data-txt="imp-p-9">Um Inserate zu erstellen, den Live-Chat zu nutzen oder Anbieter zu kontaktieren, musst du ein Benutzerkonto anlegen. Dabei erfassen wir folgende Daten:</p>
+            <ul>
+                <li data-txt="imp-li-12"><strong>E-Mail-Adresse:</strong> Notwendig für den Login, die Verifizierung, Systembenachrichtigungen, die Zuordnung von Chat-Nachrichten und die Kontaktaufnahme.</li>
+                <li data-txt="imp-li-13"><strong>Passwort:</strong> Wird kryptografisch verschlüsselt gespeichert (kein Klartextzugriff für den Betreiber).</li>
+                <li data-txt="imp-li-14"><strong>Benutzername (Optional):</strong> Zur Darstellung auf der Plattform innerhalb deiner Beiträge.</li>
+                <li data-txt="imp-li-15"><strong>Chat-Nachrichten:</strong> Im Rahmen des integrierten Live-Chats ausgetauschte Nachrichtenverläufe werden zur Bereitstellung der Chat-Funktion in der Datenbank gespeichert.</li>
+                <li data-txt="imp-li-16"><strong>Nutzergenerierte Inhalte:</strong> Eingestellte Match-Daten, Beschreibungen, Preise, Kommentare sowie hochgeladene Bilder.</li>
+            </ul>
+
+            <h3 data-txt="imp-h3-7">3. Sichtbarkeit deiner Daten &amp; Funktionsweise des Live-Chats</h3>
+            <p data-txt="imp-p-10">Das Kernprinzip dieser Börse ist die Vermittlung von Startplätzen. <strong>Wenn du ein Inserat erstellst oder den Live-Chat nutzt, sind die beteiligten Daten für die jeweiligen Chat-Partner einsehbar.</strong> Innerhalb der Marktplatz-Inserate ist deine E-Mail-Adresse für andere eingeloggte Nutzer abrufbar, um die Kontaktaufnahme zu ermöglichen (Art. 6 Abs. 1 lit. a und lit. b DSGVO).</p>
+            <p data-txt="imp-p-11">Zusätzlich steht im Live-Chat eine manuelle Funktion zur Verfügung, mit der Nutzer ihren Chat-Partner per E-Mail anstupsen können. Hierbei öffnet sich das lokale E-Mail-Programm des Nutzers via Mailto-Link autark; es findet über diese Schnittstelle keine automatisierte Datenweiterleitung im Hintergrund an Drittanbieter statt.</p>
+
+            <h3 data-txt="imp-h3-8">4. Automatisierte Inhaltsprüfung &amp; Datenübermittlung</h3>
+            <p data-txt="imp-p-12">Zur Wahrung unseres berechtigten Interesses an einer sicheren, gesetzeskonformen und störungsfreien Plattform (Art. 6 Abs. 1 lit. f DSGVO) werden Inhalte wie folgt verarbeitet:</p>
+            <ul>
+                <li data-txt="imp-li-17"><strong>Bild-Scans (Sightengine):</strong> Beim Hochladen eines Bildes wird dessen URL automatisiert an die Programmierschnittstelle des Prüfdienstes Sightengine (Sightengine SAS, Frankreich/EU) übermittelt. Das Bild wird dort rein maschinell auf Verstöße (z.B. Filter für Nacktheit) analysiert. Es findet keine dauerhafte Speicherung oder Nutzung der Bilder für Drittzwecke oder KI-Training durch den Dienstleister statt.</li>
+            </ul>
+
+            <h3 data-txt="imp-h3-9">5. Nutzung von Supabase (Hosting, Datenspeicherung &amp; Live-Chat)</h3>
+            <p data-txt="imp-p-13">Diese Webseite nutzt für die zentrale Datenbank, das Speichern von Chat-Verläufen (Live-Chat), die Datei-Speicherung (Storage) und die Nutzer-Authentifizierung den Backend-Dienst „Supabase“ (Supabase Inc., San Francisco, USA). Deine Daten werden auf den von Supabase bereitgestellten Infrastrukturen innerhalb der EU (Region: Frankfurt am Main, Deutschland) gehostet und verarbeitet. Wir haben mit dem Anbieter einen rechtskräftigen Vertrag zur Auftragsverarbeitung (Data Processing Addendum, DPA) gemäß Art. 28 DSGVO abgeschlossen. Weitere Infos: <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Supabase Privacy</a>.</p>
+
+            <!-- NEUER DSGVO BEREICH FÜR DEN SCRAPER BOT -->
+            <h3 data-txt="imp-h3-10">6. Match-Analytics & Ergebnis-Scraper</h3>
+            <p data-txt="imp-p-14">Wenn du auf unserer Plattform deinen echten Namen in den Profileinstellungen hinterlegst, nutzen wir auf deine ausdrückliche Anforderung hin automatisierte Systeme, um öffentlich zugängliche Ergebnislisten von IPSC-Turnieren im Internet nach diesem Namen zu durchsuchen. Die gefundenen, dich betreffenden Trefferdaten (wie Matchname, Stage, Faktoren) werden in unsere Datenbank importiert, um dir deine Statistiken anzeigen zu können (Art. 6 Abs. 1 lit. b DSGVO). <strong>Wichtig:</strong> Daten dritter Personen, die sich ebenfalls auf diesen Listen befinden, werden von unseren Systemen lediglich flüchtig im Arbeitsspeicher verarbeitet und sofort verworfen. Es findet keinerlei Speicherung oder Profilbildung fremder Personendaten statt.</p>
+
+            <h3 data-txt="imp-h3-11">7. Cookies &amp; Local Storage</h3>
+            <p data-txt="imp-p-15">Um deinen Login-Status über Browsersitzungen hinweg aufrechtzuerhalten, speichert Supabase ein Authentifizierungs-Token im "Local Storage" deines Endgeräts. Dies ist ein technisch zwingend notwendiger Vorgang (Art. 6 Abs. 1 lit. f DSGVO). Es werden keine Marketing-, Tracking- oder Werbe-Cookies eingesetzt.</p>
+
+            <h3 data-txt="imp-h3-12">8. Ergebnisbezogene Löschung von Daten</h3>
+            <p data-txt="imp-p-16">Du kannst in deinen Konto-Einstellungen mit einem Klick auf "Konto &amp; alle Einträge unwiderruflich löschen" dein gesamtes Profil, all deine Inserate, verfassten Kommentare sowie deine gesamten persönlichen Chat-Verläufe sofort, dauerhaft und unwiderruflich aus unserer Live-Datenbank entfernen.</p>
+
+            <h3 data-txt="imp-h3-13">9. Deine Rechte</h3>
+            <p data-txt="imp-p-17">Nach der DSGVO hast du das Recht auf unentgeltliche Auskunft über deine gespeicherten Daten, Berichtigung, Sperrung oder Löschung dieser Daten sowie das Recht auf Datenübertragbarkeit. Wende dich hierfür jederzeit an die im Impressum angegebene E-Mail-Adresse.</p>
         </div>
-
-        <hr>
-
-        <!-- 3. DATENSCHUTZERKLÄRUNG -->
-        <h2 data-txt="imp-h2-3">3. Datenschutzerklärung</h2>
-        <p data-txt="imp-p-7">Wir nehmen den Schutz deiner persönlichen Daten sehr ernst. Diese Datenschutzerklärung klärt dich über die Art, den Umfang und Zweck der Verarbeitung von personenbezogenen Daten auf unserer Plattform auf.</p>
-
-        <h3 data-txt="imp-h3-5">1. Verantwortlicher für die Datenverarbeitung</h3>
-        <p data-txt="imp-p-8">Verantwortlich für die Datenverarbeitung ist der oben im Impressum genannte Betreiber dieser Webseite.</p>
-
-        <h3 data-txt="imp-h3-6">2. Erfassung und Verarbeitung von Nutzerdaten</h3>
-        <p data-txt="imp-p-9">Um Inserate zu erstellen, den Live-Chat zu nutzen oder Anbieter zu kontaktieren, musst du ein Benutzerkonto anlegen. Dabei erfassen wir folgende Daten:</p>
-        <ul>
-            <li data-txt="imp-li-12"><strong>E-Mail-Adresse:</strong> Notwendig für den Login, die Verifizierung, Systembenachrichtigungen, die Zuordnung von Chat-Nachrichten und die Kontaktaufnahme.</li>
-            <li data-txt="imp-li-13"><strong>Passwort:</strong> Wird kryptografisch verschlüsselt gespeichert (kein Klartextzugriff für den Betreiber).</li>
-            <li data-txt="imp-li-14"><strong>Benutzername (Optional):</strong> Zur Darstellung auf der Plattform innerhalb deiner Beiträge.</li>
-            <li data-txt="imp-li-15"><strong>Chat-Nachrichten:</strong> Im Rahmen des integrierten Live-Chats ausgetauschte Nachrichtenverläufe werden zur Bereitstellung der Chat-Funktion in der Datenbank gespeichert.</li>
-            <li data-txt="imp-li-16"><strong>Nutzergenerierte Inhalte:</strong> Eingestellte Match-Daten, Beschreibungen, Preise, Kommentare sowie hochgeladene Bilder.</li>
-        </ul>
-
-        <h3 data-txt="imp-h3-7">3. Sichtbarkeit deiner Daten &amp; Funktionsweise des Live-Chats</h3>
-        <p data-txt="imp-p-10">Das Kernprinzip dieser Börse ist die Vermittlung von Startplätzen. <strong>Wenn du ein Inserat erstellst oder den Live-Chat nutzt, sind die beteiligten Daten für die jeweiligen Chat-Partner einsehbar.</strong> Innerhalb der Marktplatz-Inserate ist deine E-Mail-Adresse für andere eingeloggte Nutzer abrufbar, um die Kontaktaufnahme zu ermöglichen (Art. 6 Abs. 1 lit. a und lit. b DSGVO).</p>
-        <p data-txt="imp-p-11">Zusätzlich steht im Live-Chat eine manuelle Funktion zur Verfügung, mit der Nutzer ihren Chat-Partner per E-Mail anstupsen können. Hierbei öffnet sich das lokale E-Mail-Programm des Nutzers via Mailto-Link autark; es findet über diese Schnittstelle keine automatisierte Datenweiterleitung im Hintergrund an Drittanbieter statt.</p>
-
-        <h3 data-txt="imp-h3-8">4. Automatisierte Inhaltsprüfung &amp; Datenübermittlung</h3>
-        <p data-txt="imp-p-12">Zur Wahrung unseres berechtigten Interesses an einer sicheren, gesetzeskonformen und störungsfreien Plattform (Art. 6 Abs. 1 lit. f DSGVO) werden Inhalte wie folgt verarbeitet:</p>
-        <ul>
-            <li data-txt="imp-li-17"><strong>Bild-Scans (Sightengine):</strong> Beim Hochladen eines Bildes wird dessen URL automatisiert an die Programmierschnittstelle des Prüfdienstes Sightengine (Sightengine SAS, Frankreich/EU) übermittelt. Das Bild wird dort rein maschinell auf Verstöße (z.B. Filter für Nacktheit) analysiert. Es findet keine dauerhafte Speicherung oder Nutzung der Bilder für Drittzwecke oder KI-Training durch den Dienstleister statt.</li>
-        </ul>
-
-        <h3 data-txt="imp-h3-9">5. Nutzung von Supabase (Hosting, Datenspeicherung &amp; Live-Chat)</h3>
-        <p data-txt="imp-p-13">Diese Webseite nutzt für die zentrale Datenbank, das Speichern von Chat-Verläufen (Live-Chat), die Datei-Speicherung (Storage) und die Nutzer-Authentifizierung den Backend-Dienst „Supabase“ (Supabase Inc., San Francisco, USA). Deine Daten werden auf den von Supabase bereitgestellten Infrastrukturen innerhalb der EU (Region: Frankfurt am Main, Deutschland) gehostet und verarbeitet. Wir haben mit dem Anbieter einen rechtskräftigen Vertrag zur Auftragsverarbeitung (Data Processing Addendum, DPA) gemäß Art. 28 DSGVO abgeschlossen. Weitere Infos: <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Supabase Privacy</a>.</p>
-
-        <!-- NEUER DSGVO BEREICH FÜR DEN SCRAPER BOT -->
-        <h3 data-txt="imp-h3-10">6. Match-Analytics & Ergebnis-Scraper</h3>
-        <p data-txt="imp-p-14">Wenn du auf unserer Plattform deinen echten Namen in den Profileinstellungen hinterlegst, nutzen wir auf deine ausdrückliche Anforderung hin automatisierte Systeme, um öffentlich zugängliche Ergebnislisten von IPSC-Turnieren im Internet nach diesem Namen zu durchsuchen. Die gefundenen, dich betreffenden Trefferdaten (wie Matchname, Stage, Faktoren) werden in unsere Datenbank importiert, um dir deine Statistiken anzuzeigen (Art. 6 Abs. 1 lit. b DSGVO). <strong>Wichtig:</strong> Daten dritter Personen, die sich ebenfalls auf diesen Listen befinden, werden von unseren Systemen lediglich flüchtig im Arbeitsspeicher verarbeitet und sofort verworfen. Es findet keinerlei Speicherung oder Profilbildung fremder Personendaten statt.</p>
-
-        <h3 data-txt="imp-h3-11">7. Cookies &amp; Local Storage</h3>
-        <p data-txt="imp-p-15">Um deinen Login-Status über Browsersitzungen hinweg aufrechtzuerhalten, speichert Supabase ein Authentifizierungs-Token im "Local Storage" deines Endgeräts. Dies ist ein technisch zwingend notwendiger Vorgang (Art. 6 Abs. 1 lit. f DSGVO). Es werden keine Marketing-, Tracking- oder Werbe-Cookies eingesetzt.</p>
-
-        <h3 data-txt="imp-h3-12">8. Ergebnisbezogene Löschung von Daten</h3>
-        <p data-txt="imp-p-16">Du kannst in deinen Konto-Einstellungen mit einem Klick auf "Konto &amp; alle Einträge unwiderruflich löschen" dein gesamtes Profil, all deine Inserate, verfassten Kommentare sowie deine gesamten persönlichen Chat-Verläufe sofort, dauerhaft und unwiderruflich aus unserer Live-Datenbank entfernen.</p>
-
-        <h3 data-txt="imp-h3-13">9. Deine Rechte</h3>
-        <p data-txt="imp-p-17">Nach der DSGVO hast du das Recht auf unentgeltliche Auskunft über deine gespeicherten Daten, Berichtigung, Sperrung oder Löschung dieser Daten sowie das Recht auf Datenübertragbarkeit. Wende dich hierfür jederzeit an die im Impressum angegebene E-Mail-Adresse.</p>
     </div>
 
     <!-- LOGINS & KONTO-EINSTELLUNGEN MODAL -->
@@ -270,16 +222,18 @@
             
             <div id="modal-login-view">
                 <h3 data-txt="modal-login-title">Anmelden</h3>
-                <button type="button" class="btn-submit" style="width:100%; background-color: var(--accent-color); color: #1a1a1a; margin-bottom: 20px; font-size: 16px;" onclick="loginWithPasskey()">📱 Login mit FaceID / Fingerabdruck</button>
+                <button type="button" class="btn-secondary-auth" style="width:100%; margin-bottom: 20px;" onclick="loginWithPasskey()">📱 Login mit FaceID / Fingerabdruck</button>
                 <div class="modal-divider">oder klassisch mit E-Mail</div>
                 <form id="login-form">
                     <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="login-email" required placeholder="name@beispiel.de"></div>
                     <div class="form-group">
-                        <label style="margin-bottom: 6px;">Passwort *</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="margin-bottom: 0;">Passwort *</label>
+                            <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 500;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
+                        </div>
                         <input type="password" id="login-password" required placeholder="••••••••">
-                        <a onclick="toggleAuthView('forgot')" style="color: var(--accent-color); text-decoration: none; font-size: 13px; margin-top: 6px; cursor: pointer; text-align: right;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
                     </div>
-                    <button type="submit" class="btn-submit" style="width:100%; background-color: #555; color: white;" data-txt="modal-btn-login">Mit Passwort einloggen</button>
+                    <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="modal-btn-login">Mit Passwort einloggen</button>
                 </form>
                 <div class="modal-footer"><span data-txt="modal-no-acc">Noch kein Konto?</span><a onclick="toggleAuthView('register')" data-txt="modal-link-reg">Registrieren</a></div>
             </div>
@@ -288,8 +242,8 @@
                 <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                 <form id="register-form">
                     <div class="form-group"><label data-txt="lbl-email">E-Mail *</label><input type="email" id="register-email" required placeholder="name@beispiel.de"></div>
-                    <div class="form-group"><label style="margin-bottom: 6px;">Passwort *</label><input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen"></div>
-                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-reg">Konto erstellen</button>
+                    <div class="form-group"><label>Passwort *</label><input type="password" id="register-password" required minlength="6" placeholder="Mindestens 6 Zeichen"></div>
+                    <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="modal-btn-reg">Konto erstellen</button>
                 </form>
                 <div class="modal-footer"><span data-txt="modal-has-acc">Bereits registriert?</span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zum Login</a></div>
             </div>
@@ -298,31 +252,31 @@
                 <h3 data-txt="modal-forgot-title">Passwort vergessen</h3>
                 <form id="forgot-form">
                     <div class="form-group"><label data-txt="lbl-email">Deine E-Mail-Adresse *</label><input type="email" id="forgot-email" required placeholder="name@beispiel.de"></div>
-                    <button type="submit" class="btn-submit" style="width:100%;" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
+                    <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
                 </form>
-                <div class="modal-footer"><span></span><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a></div>
+                <div class="modal-footer"><a onclick="toggleAuthView('login')" data-txt="modal-link-login">Zurück zum Login</a></div>
             </div>
 
             <div id="modal-reset-view" style="display: none;">
                 <h3 data-txt="modal-reset-title">Neues Passwort vergeben</h3>
                 <form id="reset-password-form">
-                    <div class="form-group"><label data-txt="lbl-new-password">Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6"></div>
+                    <div class="form-group"><label data-txt="lbl-new-password">Neues Passwort *</label><input type="password" id="reset-password-input" required minlength="6" placeholder="Mindestens 6 Zeichen"></div>
                     <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Speichern</button>
                 </form>
             </div>
 
-            <!-- EINSTELLUNGS-MODAL (100% ÜBERSETZBAR & RICHTIG VERANKERT) -->
+            <!-- EINSTELLUNGS-MODAL -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
                 <div class="form-group" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
                     <label style="color: var(--success-color); font-weight: 700;" data-txt="modal-settings-deals">📈 Erfolgreiche Vermittlungen</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                        <div style="background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
                             <span style="font-size: 20px; font-weight: bold; color: var(--accent-color);" id="profile-sales-count">0</span>
                             <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-seller">Als Verkäufer</p>
                         </div>
-                        <div style="background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                        <div style="background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
                             <span style="font-size: 20px; font-weight: bold; color: var(--success-color);" id="profile-purchases-count">0</span>
                             <p style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-buyer">Als Käufer</p>
                         </div>
@@ -337,7 +291,7 @@
                 <div class="form-group" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid #3498db; margin-bottom: 20px;">
                     <label style="color: #3498db;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</label>
                     <p style="font-size: 12px; margin-top: 0; color: var(--text-muted);" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                    <button type="button" class="btn-submit" style="width:100%; background-color: #3498db; color: white; margin-top: 5px;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
+                    <button type="button" class="btn-primary-auth" style="width:100%; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; margin-top: 8px; border: none;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
                 </div>
 
                 <form id="settings-form">
@@ -378,9 +332,9 @@
             <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
             <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
             <div class="chat-history-area" id="chat-box-messages"></div>
-            <form id="chat-send-form" style="display: flex; gap: 8px;">
-                <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
-                <button type="submit" id="btn-chat-send" class="btn-submit" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
+            <form id="chat-send-form">
+                <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben...">
+                <button type="submit" id="btn-chat-send">Senden</button>
             </form>
         </div>
     </div>
