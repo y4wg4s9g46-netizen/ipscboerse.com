@@ -137,12 +137,12 @@
 
         const style = document.createElement('style');
         style.innerHTML = `
-            header { position: relative; display: flex; flex-direction: column; align-items: center; }
+            header { position: sticky !important; top: 0 !important; z-index: 100 !important; display: flex; flex-direction: column; align-items: center; }
 header .header-controls {
     position: absolute !important;
-    top: 24px !important; /* Fest oben auf Höhe des Logos fixiert */
+    top: calc(env(safe-area-inset-top) + 24px) !important; /* Passt die Icons an die Notch an */
     right: 20px !important;
-    transform: none !important; /* Die fehlerhafte vertikale Verschiebung entfernt */
+    transform: none !important;
     display: flex !important;
     align-items: center !important;
     gap: 10px !important;
@@ -167,7 +167,8 @@ header .header-controls {
             .modal-content { max-height: 85vh !important; overflow-y: auto !important; display: block !important; -webkit-overflow-scrolling: touch !important; }
 
             @media (max-width: 768px) {
-                header { padding: 16px 12px 8px 12px !important; display: flex; flex-direction: column; align-items: center; }
+                /* 🔥 HIER IST DER FIX: Die Apple-Notch-Berechnung wird hier sichergestellt! */
+                header { padding: calc(env(safe-area-inset-top) + 20px) 12px 8px 12px !important; display: flex; flex-direction: column; align-items: center; }
                 header .header-logo-link { justify-content: center !important; width: 100% !important; margin: 0 auto !important; }
                 header .header-controls { position: static !important; display: flex !important; flex-direction: row !important; justify-content: center !important; align-items: center !important; gap: 8px !important; margin-top: 14px !important; width: 100% !important; transform: none !important; flex-wrap: wrap !important; }
                 header .main-nav { margin-top: 15px !important; padding: 10px 4px 4px 4px !important; justify-content: flex-start !important; gap: 8px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; scroll-snap-type: x mandatory !important; flex-wrap: nowrap !important; overflow-x: auto !important; white-space: nowrap !important; }
