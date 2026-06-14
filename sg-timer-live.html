@@ -117,35 +117,28 @@
 </head>
 <body>
 
-    <!-- 🌟 Header-Injection -->
     <header></header>
     <script src="header.js"></script>
 
     <div class="main-container">
         
-        <!-- 🌟 OBERE REITER STEUERUNG -->
         <div class="tab-navigation">
             <button class="tab-btn active" onclick="switchTab('live-console')">🕹️ Live-Konsole</button>
-            <button class="tab-btn" onclick="switchTab('highscores')">🏆 Global Highscores</button>
+            <button class="tab-btn" onclick="switchTab('highscores')" data-txt="tools-db-saved-title">🏆 Global Highscores</button>
         </div>
 
-        <!-- ========================================== -->
-        <!-- REITER 1: LIVE KONSOLE -->
-        <!-- ========================================== -->
         <div id="live-console" class="tab-content active">
             <div class="grid-layout">
                 <div style="display: flex; flex-direction: column;">
                     
-                    <!-- Verbindung & Auto-Erkennung -->
                     <div class="panel-card">
-                        <h2>Verbindung</h2>
+                        <h2 data-txt="modal-settings-comm">Verbindung</h2>
                         <div id="bt-status-badge" class="status-badge">
-                            <span style="width: 8px; height: 8px; background: var(--danger-color); border-radius: 50%;"></span> Getrennt
+                            <span style="width: 8px; height: 8px; background: var(--danger-color); border-radius: 50%;"></span> <span id="js-txt-bt-status">Getrennt</span>
                         </div>
                         <button id="btn-connect" class="btn-tactic btn-blue" onclick="connectSGTimer()">Gerät scannen & koppeln</button>
                     </div>
 
-                    <!-- RO Fernsteuerung -->
                     <div class="panel-card">
                         <h2>RO Fernsteuerung</h2>
                         <div style="display: flex; gap: 12px; margin-top: 10px;">
@@ -154,7 +147,6 @@
                         </div>
                     </div>
 
-                    <!-- Taktische Drill Presets -->
                     <div class="panel-card">
                         <h2>IPSC Drill Presets</h2>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
@@ -162,7 +154,7 @@
                             <button class="btn-tactic btn-outline" style="font-size:12px; padding:8px;" onclick="setDrillPreset(999, 5.0, 12)">🇲🇽 El Pres (12)</button>
                         </div>
                         <div class="form-group">
-                            <label>Start-Verzögerung</label>
+                            <label data-txt="tools-df-par">Start-Verzögerung</label>
                             <select id="par-delay">
                                 <option value="999">Zufällig (1.0s - 4.0s) 🎲</option>
                                 <option value="10">Fest 1.0 Sekunde</option>
@@ -170,15 +162,14 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Zeit-Limit (Par-Time in Sek.)</label>
+                            <label data-txt="tools-df-par">Zeit-Limit (Par-Time in Sek.)</label>
                             <input type="number" id="par-time" value="0.0" step="0.1">
                         </div>
-                        <button class="btn-tactic btn-blue" style="background: var(--accent-color);" onclick="sendParSetup()">Konfig an Hardware senden</button>
+                        <button class="btn-tactic btn-blue" style="background: var(--accent-color);" onclick="sendParSetup()" data-txt="btn-save">Konfig an Hardware senden</button>
                     </div>
 
-                    <!-- Speicher-Browser (Archiv-Importer mit Cloud Save) -->
                     <div class="panel-card">
-                        <h2>Geräte-Speicherarchiv</h2>
+                        <h2 data-txt="tools-db-saved-title">Geräte-Speicherarchiv</h2>
                         <p style="font-size:12px; color:var(--text-muted); margin-top:0;">Durchsuche den internen Speicher des Timers und sichere alte Durchgänge in deinem Trainings-Tagebuch.</p>
                         
                         <button class="btn-tactic btn-outline" id="btn-fetch-archive" style="border-color:#007AFF; color:#007AFF; margin-bottom: 15px;" onclick="fetchSessionArchive()">
@@ -190,25 +181,24 @@
                                 <label>Gefundene Durchgänge</label>
                                 <select id="archive-select"></select>
                             </div>
-                            <button class="btn-tactic btn-blue" onclick="loadAndSaveSession()">📥 Laden & in Cloud speichern</button>
+                            <button class="btn-tactic btn-blue" onclick="loadAndSaveSession()" data-txt="tools-db-btn-save">📥 Laden & in Cloud speichern</button>
                         </div>
                     </div>
 
                 </div>
 
-                <!-- Rechte Spalte: Live-Tabelle -->
                 <div class="panel-card" style="display: flex; flex-direction: column;">
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
                         <h2 id="stage-card-title" style="margin: 0;">🎯 Aktueller Durchgang</h2>
-                        <span id="total-shots-counter" style="font-size: 14px; background: rgba(255,159,67,0.1); color: var(--accent-color); padding: 4px 10px; border-radius: 6px; font-weight: bold;">0 Schüsse</span>
+                        <span id="total-shots-counter" style="font-size: 14px; background: rgba(255,159,67,0.1); color: var(--accent-color); padding: 4px 10px; border-radius: 6px; font-weight: bold;"><span id="js-var-shot-count">0</span> Schüsse</span>
                     </div>
                     <div style="flex: 1; overflow-y: auto; max-height: 560px; margin-top: 15px;">
                         <table class="shot-table">
                             <thead>
-                                <tr><th>Schuss-Nr.</th><th>Gesamtzeit</th><th>Splitzeit</th></tr>
+                                <tr><th data-txt="tools-th-name">Schuss-Nr.</th><th data-txt="tools-th-time">Gesamtzeit</th><th>Splitzeit</th></tr>
                             </thead>
                             <tbody id="shot-table-body">
-                                <tr><td colspan="3" style="color: var(--text-muted); padding: 40px 0;">Keine Schussdaten aktiv. Warte auf Signal...</td></tr>
+                                <tr><td colspan="3" style="color: var(--text-muted); padding: 40px 0;" id="js-txt-table-placeholder">Keine Schussdaten active. Warte auf Signal...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -217,12 +207,9 @@
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- REITER 2: GLOBAL HIGHSCORES -->
-        <!-- ========================================== -->
         <div id="highscores" class="tab-content">
             <div class="panel-card" style="max-width: 700px; margin: 0 auto;">
-                <h2>🏆 Globale Drill-Bestenlisten</h2>
+                <h2 data-txt="tools-db-saved-title">🏆 Globale Drill-Bestenlisten</h2>
                 <p style="color:var(--text-muted); font-size:13px; margin-top:0;">Manipulationssichere Zeiten – direkt verifiziert durch verknüpfte Shooters Global Hardware.</p>
                 
                 <div class="form-group" style="margin: 20px 0;">
@@ -235,20 +222,23 @@
 
                 <table class="shot-table" style="margin-top: 20px;">
                     <thead>
-                        <tr><th>Platz</th><th>Schütze</th><th>Faktor</th><th>Verifizierte Zeit</th></tr>
+                        <tr><th>Platz</th><th data-txt="tools-hf-name">Schütze</th><th data-txt="tools-hf-pf">Faktor</th><th>Verifizierte Zeit</th></tr>
                     </thead>
                     <tbody id="leaderboard-body">
-                        <!-- Wird dynamisch befüllt -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </div>
 
     </div>
 
-    <!-- ======================================================= -->
-    <!-- 🦾 BLUETOOTH & APP SCRIPTS -->
-    <!-- ======================================================= -->
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center; padding: 20px 0;">
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+        </div>
+    </footer>
+
     <script>
         const SG_SERVICE_UUID     = '7520ffff-14d2-4cda-8b6b-697c554c9311'; 
         const SG_CHAR_COMMAND     = '75200000-14d2-4cda-8b6b-697c554c9311'; 
@@ -261,7 +251,7 @@
         let bluetoothDevice = null;
         let commandCharacteristic = null;
         let parCharacteristic = null;
-        let nativeDeviceId = null; // Für iOS Capacitor Verbindung
+        let nativeDeviceId = null; 
         let isNativeBLE = false;
         let loggedShots = [];
         let activeDrillName = "Freies Training";
@@ -275,20 +265,41 @@
             if(tabId === 'highscores') loadLeaderboard();
         }
 
+        // --- TRANSLATION HOOKS FÜR TRANSLATED SYSTEM ---
+        window.onLanguageChanged = () => {
+            const isEn = (window.currentLang === 'en');
+            
+            // Text-Inhalte dynamisch anpassen
+            const btStatusEl = document.getElementById('js-txt-bt-status');
+            if (btStatusEl && btStatusEl.innerText !== '⏳ Scan läuft...' && !btStatusEl.innerText.includes('verknüpft')) {
+                btStatusEl.innerText = isEn ? 'Disconnected' : 'Getrennt';
+            }
+            
+            const placeholderEl = document.getElementById('js-txt-table-placeholder');
+            if (placeholderEl) {
+                placeholderEl.innerText = isEn ? 'No shot data active. Waiting for signal...' : 'Keine Schussdaten aktiv. Warte auf Signal...';
+            }
+            
+            const shotVarEl = document.getElementById('js-var-shot-count');
+            const counterEl = document.getElementById('total-shots-counter');
+            if (counterEl && shotVarEl) {
+                counterEl.innerHTML = `${shotVarEl.innerText} ${isEn ? 'Shots' : 'Schüsse'}`;
+            }
+        };
+
         // 1. ANKOPPELN & AUTOMATISCHE HARDWARE-ERKENNUNG (HYBRID FÜR PC & IOS-APP)
         async function connectSGTimer() {
             const badge = document.getElementById('bt-status-badge');
+            const isEn = (window.currentLang === 'en');
             try {
-                badge.innerHTML = `<span>⏳ Scan läuft...</span>`;
+                badge.innerHTML = `<span>⏳ ${isEn ? 'Scanning...' : 'Scan läuft...'}</span>`;
 
-                // Checken, ob das native Capacitor-Plugin geladen ist (iOS-Hülle)
                 const ble = window.CapacitorBluetoothLE || (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.BluetoothLe);
                 
                 if (!ble) {
-                    // FALLBACK: Wenn wir im normalen Desktop-Browser testen (Mac/Windows Chrome)
                     isNativeBLE = false;
                     if (!navigator.bluetooth) {
-                        alert("Dein aktueller Browser blockiert Web-Bluetooth oder unterstützt es nicht.");
+                        alert(isEn ? "Your current browser blocks Web-Bluetooth or does not support it." : "Dein aktueller Browser blockiert Web-Bluetooth oder unterstützt es nicht.");
                         return;
                     }
                     bluetoothDevice = await navigator.bluetooth.requestDevice({
@@ -317,7 +328,6 @@
                     return;
                 }
 
-                // --- NATIVE IPHONE-ANTENNE ÜBER CAPACITOR ---
                 isNativeBLE = true;
                 await ble.initialize();
 
@@ -338,14 +348,12 @@
 
                 ble.addListener('characteristicvaluechanged', (result) => {
                     if (result.characteristic === SG_CHAR_EVENT) {
-                        // Datenstruktur an das Event-Format anpassen
                         const uint8 = new Uint8Array(result.value);
                         const view = new DataView(uint8.buffer);
                         handleIncomingTimerEvent({ target: { value: view } });
                     }
                 });
 
-                // Brücke bauen für Befehle (Command)
                 commandCharacteristic = {
                     writeValue: async (bytes) => {
                         let binary = '';
@@ -360,7 +368,6 @@
                     }
                 };
 
-                // Brücke bauen für Presets (Par)
                 parCharacteristic = {
                     writeValue: async (bytes) => {
                         const arr = new Uint8Array(bytes);
@@ -378,23 +385,24 @@
                 updateUIConnected(device.name || "SG Timer");
 
             } catch (error) {
-                badge.innerHTML = `<span style="width:8px; height:8px; background:var(--danger-color); border-radius:50%;"></span> Getrennt`;
+                badge.innerHTML = `<span style="width:8px; height:8px; background:var(--danger-color); border-radius:50%;"></span> ${isEn ? 'Disconnected' : 'Getrennt'}`;
                 console.error(error);
-                alert("Verbindungsfehler: " + error.message);
+                alert((isEn ? "Connection error: " : "Verbindungsfehler: ") + error.message);
             }
         }
 
         function updateUIConnected(devName) {
             const badge = document.getElementById('bt-status-badge');
+            const isEn = (window.currentLang === 'en');
             let modelName = "SG Timer";
             if (devName && devName.startsWith("SG-SST4")) {
                 const identifier = devName.charAt(7); 
                 if (identifier === 'A') modelName = "👑 SG Timer Sport";
                 if (identifier === 'B') modelName = "⚡ SG Timer GO";
             }
-            badge.innerHTML = `<span style="width:8px; height:8px; background:var(--success-color); border-radius:50%;"></span> ${modelName} verknüpft`;
+            badge.innerHTML = `<span style="width:8px; height:8px; background:var(--success-color); border-radius:50%;"></span> ${modelName} ${isEn ? 'linked' : 'verknüpft'}`;
             badge.style.background = "rgba(76, 217, 100, 0.1)";
-            document.getElementById('btn-connect').innerText = "Trennen";
+            document.getElementById('btn-connect').innerText = isEn ? "Disconnect" : "Trennen";
             document.getElementById('btn-connect').onclick = () => location.reload();
         }
 
@@ -437,12 +445,13 @@
 
         function renderNewShotRow(number, total, split) {
             const tbody = document.getElementById('shot-table-body');
+            const isEn = (window.currentLang === 'en');
             if (number === 1) tbody.innerHTML = '';
             const row = document.createElement('tr');
             row.className = "shot-row-new";
             row.innerHTML = `<td>#${number}</td><td style="font-weight:bold; color:var(--text-color);">${total.toFixed(2)}s</td><td style="color:var(--accent-color);">+${split.toFixed(2)}s</td>`;
             tbody.insertBefore(row, tbody.firstChild);
-            document.getElementById('total-shots-counter').innerText = `${number} Schüsse`;
+            document.getElementById('total-shots-counter').innerHTML = `<span id="js-var-shot-count">${number}</span> ${isEn ? 'Shots' : 'Schüsse'}`;
         }
 
         // 3. REMOTECONTROL & PRESETS SENDEN
@@ -454,12 +463,13 @@
         function remoteStopSession() { sendCommand(0x03); } 
 
         async function setDrillPreset(delay, parTime, shotLimit) {
+            const isEn = (window.currentLang === 'en');
             activeDrillName = shotLimit === 6 ? "Bill Drill" : "El Presidente";
-            document.getElementById('stage-card-title').innerText = `🎯 Durchgang: ${activeDrillName}`;
+            document.getElementById('stage-card-title').innerText = isEn ? `🎯 Run: ${activeDrillName}` : `🎯 Durchgang: ${activeDrillName}`;
             document.getElementById('par-delay').value = delay;
             document.getElementById('par-time').value = parTime.toFixed(1);
 
-            if (!parCharacteristic) return alert("Timer per Funk verbunden, Preset lokal vermerkt!");
+            if (!parCharacteristic) return alert(isEn ? "Timer connected via radio, preset recorded locally!" : "Timer per Funk verbunden, Preset lokal vermerkt!");
 
             const buffer = new ArrayBuffer(6); 
             const view = new DataView(buffer);
@@ -472,24 +482,26 @@
         async function sendParSetup() {
             const delay = parseInt(document.getElementById('par-delay').value);
             const parTime = parseFloat(document.getElementById('par-time').value) || 0;
+            const isEn = (window.currentLang === 'en');
             const buffer = new ArrayBuffer(6); 
             const view = new DataView(buffer);
             view.setUint16(0, delay === 999 ? 0xFFFF : delay, false); 
             view.setUint16(2, parTime * 10, false); 
             view.setUint16(4, 0, false); 
             await parCharacteristic.writeValue(buffer);
-            alert("Erfolgreich konfiguriert! 🎯");
+            alert(isEn ? "Successfully configured! 🎯" : "Erfolgreich konfiguriert! 🎯");
         }
 
-        // 4. ARCHIV DURCHSUCHEN (FALLBACK HINZUGEFÜGT FÜR NATIVEN BETRIEB)
+        // 4. ARCHIV DURCHSUCHEN
         async function fetchSessionArchive() {
+            const isEn = (window.currentLang === 'en');
             if (isNativeBLE) {
-                alert("Die Speicherarchiv-Funktion wird aktuell nur im Desktop-Webmodus unterstützt.");
+                alert(isEn ? "The memory archive feature is currently only supported in desktop web mode." : "Die Speicherarchiv-Funktion wird aktuell nur im Desktop-Webmodus unterstützt.");
                 return;
             }
-            if (!bluetoothDevice) return alert("Bitte zuerst den Timer verbinden!");
+            if (!bluetoothDevice) return alert(isEn ? "Please connect the timer first!" : "Bitte zuerst den Timer verbinden!");
             try {
-                document.getElementById('btn-fetch-archive').innerText = "⏳ Lese Speicher aus...";
+                document.getElementById('btn-fetch-archive').innerText = isEn ? "⏳ Reading memory..." : "⏳ Lese Speicher aus...";
                 
                 const service = await bluetoothDevice.gatt.getPrimaryService(SG_SERVICE_UUID);
                 const sessionListChar = await service.getCharacteristic(SG_CHAR_SESSION_LIST);
@@ -516,12 +528,12 @@
                 document.getElementById('btn-fetch-archive').innerText = "🔍 Timer-Archiv abrufen";
 
                 if (foundCount === 0) {
-                    alert("Keine gespeicherten Durchgänge auf dem Timer gefunden.");
+                    alert(isEn ? "No stored sessions found on the timer." : "Keine gespeicherten Durchgänge auf dem Timer gefunden.");
                 } else {
                     document.getElementById('archive-controls').style.display = 'block';
                 }
             } catch (e) {
-                alert("Fehler beim Lesen des Archivs: " + e.message);
+                alert((isEn ? "Error reading archive: " : "Fehler beim Lesen des Archivs: ") + e.message);
                 document.getElementById('btn-fetch-archive').innerText = "🔍 Timer-Archiv abrufen";
             }
         }
@@ -529,6 +541,7 @@
         async function loadAndSaveSession() {
             if (!bluetoothDevice) return;
             const selectedSessionId = parseInt(document.getElementById('archive-select').value);
+            const isEn = (window.currentLang === 'en');
             
             try {
                 const service = await bluetoothDevice.gatt.getPrimaryService(SG_SERVICE_UUID);
@@ -568,16 +581,16 @@
                             final_time: loggedShots[loggedShots.length - 1],
                             shot_data: loggedShots 
                         });
-                        alert("✅ Durchgang erfolgreich geladen UND in deiner Cloud gespeichert!");
+                        alert(isEn ? "✅ Session successfully loaded AND saved to your cloud!" : "✅ Durchgang erfolgreich geladen UND in deiner Cloud gespeichert!");
                     } else {
-                        alert("📥 Durchgang geladen! (Du bist nicht eingeloggt, daher wurde es nicht in die Cloud synchronisiert).");
+                        alert(isEn ? "📥 Session loaded! (You are not logged in, so it was not synced to the cloud)." : "📥 Durchgang geladen! (Du bist nicht eingeloggt, daher wurde es nicht in die Cloud synchronisiert).");
                     }
                 } else {
-                    alert("📥 Durchgang lokal geladen!");
+                    alert(isEn ? "📥 Session loaded locally!" : "📥 Durchgang lokal geladen!");
                 }
 
             } catch (e) { 
-                alert("Fehler beim Laden der Schüsse: " + e.message); 
+                alert((isEn ? "Error loading shots: " : "Fehler beim Laden der Schüsse: ") + e.message); 
             }
         }
 
@@ -610,23 +623,23 @@
         function submitCurrentScoreToHighscore() {
             if (loggedShots.length === 0) return;
             const finalTime = loggedShots[loggedShots.length - 1];
+            const isEn = (window.currentLang === 'en');
             
             const drillKey = activeDrillName === "Freies Training" ? "Bill Drill" : activeDrillName;
             
             dummyHighscores[drillKey].push({
-                name: "Dein Profil (Du)",
+                name: isEn ? "Your Profile (You)" : "Dein Profil (Du)",
                 factor: "Minor",
                 time: finalTime
             });
 
-            alert(`🔥 Verifizierte Zeit von ${finalTime.toFixed(2)}s eingereicht!`);
+            alert(isEn ? `🔥 Verified time of ${finalTime.toFixed(2)}s submitted!` : `🔥 Verifizierte Zeit von ${finalTime.toFixed(2)}s eingereicht!`);
             switchTab('highscores');
             document.getElementById('leaderboard-filter').value = drillKey;
             loadLeaderboard();
         }
     </script>
 
-    <!-- 🌟 GLOBALS FÜR LOGIN & CO. -->
     <script src="auth.js"></script>
     <script src="lang.js"></script>
     <script src="app.js"></script>
