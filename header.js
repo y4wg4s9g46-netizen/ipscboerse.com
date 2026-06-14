@@ -71,7 +71,6 @@
                 </div>
             </div>
 
-            <!-- DESKTOP NAVIGATION -->
             <nav class="main-nav desktop-only">
                 ${navHtml}
             </nav>
@@ -83,7 +82,7 @@
         if (!document.getElementById('bottom-tab-bar')) {
             const bottomBar = document.createElement('nav');
             bottomBar.id = 'bottom-tab-bar';
-            bottomBar.className = 'mobile-only'; // Hilfsklasse für CSS
+            bottomBar.className = 'mobile-only'; 
             
             bottomBar.innerHTML = `
                 <a href="index.html" class="tab-item ${page === 'index.html' ? 'active' : ''}">
@@ -111,7 +110,7 @@
 
             const moreMenu = document.createElement('div');
             moreMenu.id = 'more-menu-overlay';
-            moreMenu.className = 'mobile-only'; // Hilfsklasse für CSS
+            moreMenu.className = 'mobile-only'; 
             moreMenu.innerHTML = `
                 <div class="more-menu-content" id="more-menu-list">
                     <a href="freie-matches.html" class="${page === 'freie-matches.html' ? 'active' : ''}">Freie Match-Plätze</a>
@@ -149,7 +148,7 @@
             header .btn-auth { height: 38px !important; padding: 0 16px !important; font-weight: 600; font-size: 13px; border-radius: 8px; cursor: pointer; background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); }
 
             /* --- DESKTOP STANDARD (PC) --- */
-            .mobile-only { display: none !important; } /* Versteckt Handy-Elemente auf PC */
+            .mobile-only { display: none !important; } 
             
             header .main-nav { width: 100% !important; margin-top: 20px !important; display: flex !important; justify-content: center !important; gap: 8px !important; border-top: 1px solid var(--border-color) !important; padding-top: 15px !important; padding-bottom: 15px !important; flex-wrap: wrap !important; }
             header .main-nav a { text-decoration: none !important; font-weight: 600 !important; font-size: 12px !important; text-transform: uppercase !important; letter-spacing: 0.3px !important; padding: 8px 16px !important; border-radius: 20px !important; transition: all 0.2s ease !important; white-space: nowrap !important; }
@@ -158,8 +157,10 @@
 
             /* --- MOBILE & APP (Handy) --- */
             @media (max-width: 768px) {
-                .desktop-only { display: none !important; } /* Versteckt PC-Menü auf Handy */
-                .mobile-only { display: flex !important; }  /* Zeigt Bottom-Bar auf Handy */
+                /* 🔥 DER FIX: Spezifischer Selektor, damit das Desktop-Menü WIRKLICH verschwindet 🔥 */
+                header .main-nav.desktop-only { display: none !important; } 
+                
+                .mobile-only { display: flex !important; }  
                 
                 header { padding-bottom: 12px !important; }
                 header .header-controls { position: static !important; justify-content: center !important; margin-top: 14px !important; width: 100% !important; }
@@ -190,7 +191,7 @@
                     box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
                     transform: translateY(120%); transition: transform 0.3s ease-in-out;
                     z-index: 99998; max-height: 70vh; overflow-y: auto; padding: 20px; box-sizing: border-box;
-                    display: block !important; /* Block statt Flex für das Overlay */
+                    display: block !important;
                 }
                 #more-menu-overlay.show { transform: translateY(0); }
                 #more-menu-list { display: flex; flex-direction: column; gap: 10px; }
