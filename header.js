@@ -1,4 +1,9 @@
 (function() {
+    // 🔥 NEU: App-Erkennung für Xcode (Capacitor) & PWA
+    if (window.matchMedia('(display-mode: standalone)').matches || window.Capacitor || window.navigator.standalone) {
+        document.documentElement.classList.add('is-app-mode');
+    }
+
     const injectHeader = () => {
         const header = document.querySelector('header');
         if (!header) return false;
@@ -72,7 +77,7 @@
                 `}
                 
                 <div id="auth-status-container">
-                    <button class="btn-auth" id="btn-open-login" ${isVipPage ? 'onclick="window.location.href=\'index.html\'"' : 'data-txt="btn-login-reg"'}>Login / Registrieren</button>
+                    <button class="btn-auth" id="btn-open-login" ${isVipPage ? 'onclick="window.location.href='index.html'"' : 'data-txt="btn-login-reg"'}>Login / Registrieren</button>
                 </div>
             </div>
 
