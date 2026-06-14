@@ -256,13 +256,15 @@
 </head>
 <body>
 
+    <!-- 🌟 Header-Injection -->
     <header></header>
     <script src="header.js"></script>
 
     <div class="container">
-        <div id="access-denied" class="danger-box" style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
-            <span>Prüfe Berechtigungen... (Bitte einloggen)</span>
-            <button class="btn-primary-auth" style="width: auto; padding: 10px 20px;" onclick="document.getElementById('auth-modal').style.display='flex'; if(typeof toggleAuthView === 'function') toggleAuthView('login');">Jetzt einloggen</button>
+        <!-- Dashboard Login-Aufforderung -->
+        <div id="access-denied" class="danger-box" style="display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 40px 20px;">
+            <span data-txt="planner-logged-out-title">Prüfe Berechtigungen... (Bitte einloggen)</span>
+            <button class="btn-primary-auth" style="width: auto; padding: 10px 20px;" onclick="document.getElementById('auth-modal').style.display='flex'; if(typeof toggleAuthView === 'function') toggleAuthView('login');" data-txt="planner-logged-out-btn">Jetzt einloggen</button>
         </div>
 
         <div id="dashboard-content" style="display: none;">
@@ -397,6 +399,14 @@
             </div>
         </div>
     </div>
+
+    <!-- 🌟 REPARIERTER FOOTER MIT IMPRESSUM & RECHTLICHEN LINK-ATTRIBUTEN -->
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center; padding: 20px 0;">
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -1556,7 +1566,7 @@
                 }
             }
 
-            const tokenEntry = extractOwnEntryFromTokenStream(doc, myName, expectedSquad);
+            const tokenEntry = extractOwnEntryFromDoc(doc, myName, expectedSquad);
             if (tokenEntry && tokenEntry.division) return tokenEntry;
 
             return null;
@@ -1626,7 +1636,6 @@
         }
 
         function buildIpscComplistUrl(matchId, division = null) {
-            // Neuer Aufbau exakt nach deinen Vorgaben (inklusive lang=de)
             let href = `https://ipscmatch.de/index.pl?lang=de&match=${encodeURIComponent(matchId)}&complist`;
             
             if (division && division !== "Unknown") {
@@ -1639,7 +1648,7 @@
             const urls = [normalizedUrl];
             if (matchId) {
                 urls.push(
-                    buildIpscComplistUrl(matchId),
+                    buildIpscComcomplUrl(matchId),
                     `https://ipscmatch.de/index.pl?match=${encodeURIComponent(matchId)}&squads`,
                     `https://ipscmatch.de/index.pl?match=${encodeURIComponent(matchId)}&list=squads`,
                     `https://ipscmatch.de/index.pl?match=${encodeURIComponent(matchId)}&list=starter`,
@@ -1820,7 +1829,7 @@
             const rawUrl = plannedMatch && plannedMatch.match_url ? plannedMatch.match_url : "";
 
             if (!cleanText(rawUrl)) {
-                alert("F\u00FCr dieses Match fehlt der IPSCMatch-Link in der Datenbank.");
+                alert("F\u00FCr dieses Match fehlt der IPSCMatch-Link in der... ");
                 return;
             }
 
@@ -1829,11 +1838,9 @@
             setImportButtonLoading(true);
 
             try {
-                // 1. Match ID extrahieren
                 const matchId = getMatchIdFromUrl(rawUrl);
                 if (!matchId) throw new Error("Konnte die match= ID aus dem Planer-Link nicht lesen.");
 
-                // 2. Daten direkt aus "Mein Planer" (Datenbank) auslesen
                 const expectedSquad = plannedMatch.squad || null;
                 const dbDivision = plannedMatch.ipsc_division; 
                 
@@ -1842,15 +1849,12 @@
                     knownDivision = normalizeDivisionName(dbDivision);
                 }
 
-                // 3. Generiere exakt den direkten Link, der importiert werden soll
                 const targetUrl = buildIpscComplistUrl(matchId, knownDivision);
 
-                // 4. Setze den generierten Link sichtbar in das Input-Feld
                 if (urlInputEl) {
                     urlInputEl.value = targetUrl;
                 }
                 
-                // 5. \u00DCbergabe an den Scraper
                 window.pendingPlannedMatchHint = {
                     matchId: matchId,
                     division: knownDivision,
@@ -1860,8 +1864,6 @@
                 };
 
                 console.log("\u{1F3AF} Daten aus 'Mein Planer' gezogen. Generierter Link:", targetUrl);
-                
-                // Import direkt starten
                 await importMatchFromUrl();
 
             } catch (err) {
@@ -1989,7 +1991,6 @@
             }
         }
         
-        // 2. DRAG & DROP EVENTS
         const dropZone = document.getElementById('drop-zone');
         dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--info-color)"; });
         dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--accent-color)"; });
@@ -1999,9 +2000,6 @@
             if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files);
         });
 
-        // ==========================================
-        // \u{1F3C6} SUPABASE MATCH ARCHIV LOGIK
-        // ==========================================
         async function loadMatchesFromSupabase() {
             if (!window.currentUserId) return [];
             
@@ -2017,7 +2015,6 @@
             }
             return data || [];
         }
-
 
         function normalizeMatchKey(value) {
             return cleanText(value)
@@ -2070,7 +2067,6 @@
                 const divisions = item.divisions && item.divisions.length ? item.divisions.join(", ") : "Keine Division";
                 let shootersList = typeof item.shooters === 'string' ? JSON.parse(item.shooters) : (item.shooters || []);
                 
-                // \u{1F6D1} FILTER: Auch im Archiv-Vorschauteil Wartelisten rauswerfen
                 shootersList = shootersList.filter(s => {
                     const checkStr = ((s.name || "") + " " + (s.division || "")).toLowerCase();
                     return !(checkStr.includes("warteliste") || checkStr.includes("sq99") || checkStr.includes("sq 99") || checkStr.includes("squad 99") || checkStr.includes("squad99"));
@@ -2219,7 +2215,6 @@
 
             const parsedShooters = typeof item.shooters === 'string' ? JSON.parse(item.shooters) : (item.shooters || []);
             
-            // \u{1F6D1} FILTER: Wartelisten beim Laden aus dem Archiv herausfiltern
             const filteredShooters = parsedShooters.filter(s => {
                 const checkStr = ((s.name || "") + " " + (s.division || "")).toLowerCase();
                 return !(checkStr.includes("warteliste") || checkStr.includes("sq99") || checkStr.includes("sq 99") || checkStr.includes("squad 99") || checkStr.includes("squad99"));
@@ -2273,7 +2268,6 @@
             for (const originalLine of lines) {
                 let line = originalLine;
 
-                // \u{1F6D1} FILTER: Warteliste / SQ99 in OCR-Screenshots ignorieren
                 const lineTextLower = line.toLowerCase();
                 if (lineTextLower.includes("warteliste") || lineTextLower.includes("sq99") || lineTextLower.includes("sq 99") || lineTextLower.includes("squad 99") || lineTextLower.includes("squad99")) {
                     continue;
