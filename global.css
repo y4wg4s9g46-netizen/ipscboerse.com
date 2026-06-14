@@ -665,3 +665,52 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
     transform: none !important;
     filter: brightness(1.2);
 }
+
+/* ==========================================================================
+   📱 ECHTES APP-LAYOUT (Greift NUR in der installierten PWA)
+   ========================================================================== */
+@media (max-width: 768px) and (display-mode: standalone) {
+    
+    /* 1. HEADER VERKLEINERN */
+    header {
+        padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px !important; 
+    }
+    
+    header .header-logo-link img { 
+        height: 32px !important; 
+    }
+    
+    header h1 {
+        font-size: 17px !important; 
+        margin-bottom: 2px !important;
+    }
+
+    header p[data-txt="sub-title"] {
+        font-size: 9px !important; 
+        margin-top: 2px !important;
+    }
+
+    /* 2. NAVIGATION ZUM DAUMEN (Bottom Nav) - NUR IN DER APP */
+    header .main-nav { 
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        background-color: var(--card-bg) !important; 
+        border-top: 1px solid var(--border-color) !important;
+        z-index: 9999 !important;
+        margin-top: 0 !important;
+        
+        padding: 12px 15px calc(12px + env(safe-area-inset-bottom)) !important;
+        box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    /* 3. PLATZ FÜR DEN CONTENT SCHAFFEN */
+    body {
+        padding-bottom: 85px !important; 
+    }
+    
+    .floating-action-bar {
+        bottom: calc(85px + env(safe-area-inset-bottom)) !important;
+    }
+}
