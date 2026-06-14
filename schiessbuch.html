@@ -268,7 +268,6 @@
             return div.innerHTML; 
         }
 
-        // --- 📄 REPARIERTE SERVER-PDF EXTRAKTION (IOS COMPATIBLE) ---
         async function exportToPDF() {
             const verifiedLogs = logs.filter(log => log.is_verified);
             const isEn = (window.currentLang === 'en');
@@ -295,7 +294,11 @@
                 if (!response.ok) throw new Error("Server communication broken.");
 
                 const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
+                
+                // SAFARI-DOWNLOAD-TRICK: Typ "octet-stream" öffnet das offizielle Download-Fenster auf dem iPhone
+                const downloadBlob = new Blob([blob], { type: 'application/octet-stream' });
+                const url = window.URL.createObjectURL(downloadBlob);
+                
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = `Schiessnachweis_${(window.userProfileData?.real_name || 'Export').replace(/\s+/g, '_')}.pdf`;
@@ -310,8 +313,6 @@
                 alert("Error calling server PDF: " + err.message);
             }
         }
-
-        // --- UNTERSCHRIFTEN LOGIK (CANVAS) ---
 
         function initCanvas() {
             canvas = document.getElementById('signature-pad');
