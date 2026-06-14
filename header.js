@@ -22,6 +22,7 @@
             { href: "freie-matches.html", text: "Freie Match-Plätze", key: "card-title-free" },
             { href: "mein-planer.html", text: "Mein Planer", key: "card-title-planer" },
             { href: "community.html", text: "Community", key: "card-title-comm" },
+            { href: "schiessbuch.html", text: "Schießbuch", key: "card-title-schiessbuch" },
             { href: "sg-timer-live.html", text: "⏱️ SG-Timer Live", key: "nav-sgtimer" }, 
             { href: "tools.html", text: "Tools & Training", key: "card-title-tools" },
             { href: "analytics.html", text: "Statistiken", key: "nav-analytics" },
