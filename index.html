@@ -2,8 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <title>Startseite | IPSC Startplatz-Börse</title>
     
     <link rel="manifest" href="manifest.json">
@@ -30,7 +29,7 @@
             padding: 48px 24px; 
             text-align: center; 
             margin-bottom: 40px; 
-            box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.5); /* Leichter innerer Glanz */
+            box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.5);
         }
         html[data-theme="dark"] .hero-section {
             background: linear-gradient(135deg, rgba(255, 159, 67, 0.08) 0%, rgba(255, 128, 8, 0.02) 100%);
@@ -104,7 +103,7 @@
             line-height: 1.6; 
         }
 
-        /* --- DASHBOARD GRID (Die schicken neuen Karten) --- */
+        /* --- DASHBOARD GRID --- */
         .dashboard-grid { 
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
@@ -173,29 +172,8 @@
             transition: var(--transition);
         }
         .dash-card:hover .dash-action {
-            gap: 10px; /* Pfeil bewegt sich leicht nach rechts beim Hovern */
+            gap: 10px; 
         }
-
-        /* --- Settings CSS Classes --- */
-        .settings-stats-card { background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px; }
-        .settings-stats-title { color: var(--success-color); font-weight: 700; margin-bottom: 8px; display: block; }
-        .settings-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center; }
-        .settings-stat-item { background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
-        .settings-stat-val { font-size: 20px; font-weight: bold; }
-        .settings-stat-lbl { font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted); }
-        .settings-ratings { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left; }
-        
-        .settings-passkey-card { background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid rgba(52, 152, 219, 0.3); margin-bottom: 20px; }
-        .settings-passkey-title { color: #3498db; font-weight: 600; display: block; margin-bottom: 4px; }
-        .btn-passkey { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; width: 100%; margin-top: 8px; border: none;}
-        
-        .settings-alias-card { background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: 6px; border-left: 4px solid var(--success-color); margin-bottom: 20px; display: flex; flex-direction: column; }
-        .settings-alias-title { color: var(--success-color); font-weight: 700; margin-bottom: 4px; }
-        
-        .settings-realname-card { background-color: rgba(59, 130, 246, 0.04); padding: 16px; border-radius: 6px; border-left: 4px solid var(--info-color); margin-bottom: 20px; display: flex; flex-direction: column; }
-        .settings-realname-title { color: var(--info-color); font-weight: 700; margin-bottom: 4px; }
-        
-        .help-text { font-size: 12px; margin-top: 0; margin-bottom: 12px; color: var(--text-muted); line-height: 1.5; }
 
         @media (max-width: 768px) {
             .hero-section { padding: 30px 16px; margin-bottom: 24px; border-radius: 20px; }
@@ -203,13 +181,6 @@
             .hero-section p { font-size: 14px; }
             .news-section { padding: 24px 16px; margin-bottom: 30px; border-radius: 20px; }
             .dashboard-grid { grid-template-columns: 1fr; gap: 16px; margin-bottom: 40px; }
-        }
-
-        /* LIVE-PULS EFFEKT FÜR SG-TIMER HIGHLIGHT */
-        @keyframes pulse {
-            0% { opacity: 0.4; }
-            50% { opacity: 1; }
-            100% { opacity: 0.4; }
         }
     </style>
 </head>
@@ -258,28 +229,6 @@
             </div>
         </div>
 
-        <!-- KARTEN-HIGHLIGHT FÜR DIE INDEX.HTML (SG-TIMER LIVE) -->
-        <div class="card feature-card sg-timer-highlight" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid #007AFF; border-radius: 12px; padding: 22px; box-shadow: 0 4px 20px rgba(0, 122, 255, 0.15); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; margin-bottom: 24px;">
-            
-            <!-- Kleiner "LIVE" Puls-Badge -->
-            <span style="position: absolute; top: 12px; right: 12px; background: rgba(0, 122, 255, 0.1); color: #007AFF; font-size: 10px; font-weight: bold; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid rgba(0, 122, 255, 0.3); display: inline-flex; align-items: center; gap: 6px;">
-                <span style="width: 6px; height: 6px; background: #007AFF; border-radius: 50%; animation: pulse 1.5s infinite;"></span> Hardware Sync
-            </span>
-            
-            <div>
-                <h3 style="margin: 0 0 10px 0; font-size: 19px; color: #fff; display: flex; align-items: center; gap: 8px;">
-                    ⏱️ SG-Timer Live Cockpit
-                </h3>
-                <p style="margin: 0 0 20px 0; font-size: 13px; color: #94a3b8; line-height: 1.4;">
-                    Kopple deinen Shooters Global Timer kabellos per Bluetooth direkt mit dem Browser. Werte Splits in Echtzeit aus, nutze die RO-Fernbedienung oder trage dich in die manipulationssicheren Bestenlisten ein!
-                </p>
-            </div>
-            
-            <a href="sg-timer-live.html" style="text-decoration: none; text-align: center; background: #007AFF; color: #fff; font-weight: bold; font-size: 14px; padding: 11px; border-radius: 8px; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);" onmouseover="this.style.background='#0062cc'; this.style.transform='translateY(-1px)';" onmouseout="this.style.background='#007AFF'; this.style.transform='none';">
-                Jetzt verbinden →
-            </a>
-        </div>
-
         <div class="dashboard-grid">
             <a href="marktplatz.html" class="dash-card">
                 <div class="dash-card-header">
@@ -297,6 +246,26 @@
                 </div>
                 <p class="dash-desc" data-txt="card-desc-free">Live-Auslastungs-Tracker für MatchSign. Finde sofort Turniere, die aktuell noch freie Plätze aufweisen.</p>
                 <div class="dash-action" data-txt="card-action-free">Freie Plätze prüfen &rarr;</div>
+            </a>
+
+            <!-- ⏱️ NEUE INTEGRATION: SG-TIMER LIVE -->
+            <a href="sg-timer-live.html" class="dash-card">
+                <div class="dash-card-header">
+                    <div class="dash-icon">⏱️</div>
+                    <h3 class="dash-title" data-txt="nav-sgtimer">SG-Timer Integration</h3>
+                </div>
+                <p class="dash-desc">Kopple deinen Shooters Global Hardware Timer live via Bluetooth. Erfasse Splits, nutze Funk-Presets und vergleiche deine Drill-Zeiten.</p>
+                <div class="dash-action">&rarr;</div>
+            </a>
+
+            <!-- 📋 NEUE INTEGRATION: DIGITALES SCHIESSBUCH -->
+            <a href="schiessbuch.html" class="dash-card">
+                <div class="dash-card-header">
+                    <div class="dash-icon">📋</div>
+                    <h3 class="dash-title" data-txt="card-title-schiessbuch">Schießbuch</h3>
+                </div>
+                <p class="dash-desc">Führe dein Schießbuch manipulationssicher digital. Lass Trainingseinheiten direkt von der Standaufsicht signieren und generiere dein PDF fürs Amt.</p>
+                <div class="dash-action">&rarr;</div>
             </a>
 
             <a href="mein-planer.html" class="dash-card">
@@ -328,11 +297,21 @@
 
             <a href="tools.html" class="dash-card">
                 <div class="dash-card-header">
-                    <div class="dash-icon">⏱️</div>
+                    <div class="dash-icon">🛠️</div>
                     <h3 class="dash-title" data-txt="card-title-tools">Tools &amp; Training</h3>
                 </div>
                 <p class="dash-desc" data-txt="card-desc-tools">Interaktiver Hit-Factor-Rechner, Stage-Planungs-Assistent und ein konfigurierbarer Dry-Fire-Timer für dein Training.</p>
                 <div class="dash-action" data-txt="card-action-tools">Zu den Tools &rarr;</div>
+            </a>
+
+            <!-- 📱 NEUE INTEGRATION: APPSTORE BETA PWA -->
+            <a href="beta.html" class="dash-card">
+                <div class="dash-card-header">
+                    <div class="dash-icon">📱</div>
+                    <h3 class="dash-title">AppStore Beta</h3>
+                </div>
+                <p class="dash-desc">Teste Vorab-Versionen unserer mobilen App direkt auf deinem Endgerät. Erhalte exklusiven Zugriff auf native Hardware-Features.</p>
+                <div class="dash-action">&rarr;</div>
             </a>
         </div>
 
