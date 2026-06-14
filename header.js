@@ -8,38 +8,16 @@
         if (page === "") page = "index.html";
 
         const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
-
-        // 🌟 Prüfen, ob wir auf einer der beiden VIP-Seiten sind
         const isVipPage = (page === "doppel-aa.html" || page === "performance.html");
 
-        // 🌟 Dynamische Texte für den Header mit dem neuen BÖRSE-Highlight
         const headerTitle = isVipPage ? "Double Alpha" : "IPSC STARTPLATZ-<span class='logo-accent'>BÖRSE</span>";
         const headerSub = isVipPage ? "Vereins-Bereich 🔒" : "Von Schützen für Schützen";
 
-        const links = [
-            { href: "index.html", text: "Startseite", key: "nav-startseite" },
-            { href: "marktplatz.html", text: "Marktplatz", key: "card-title-market" },
-            { href: "freie-matches.html", text: "Freie Match-Plätze", key: "card-title-free" },
-            { href: "mein-planer.html", text: "Mein Planer", key: "card-title-planer" },
-            { href: "community.html", text: "Community", key: "card-title-comm" },
-            { href: "schiessbuch.html", text: "Schießbuch", key: "card-title-schießbuch" },
-            { href: "sg-timer-live.html", text: "⏱️ SG-Timer Live", key: "nav-sgtimer" }, 
-            { href: "tools.html", text: "Tools & Training", key: "card-title-tools" },
-            { href: "analytics.html", text: "Statistiken", key: "nav-analytics" },
-            { href: "wiederladen.html", text: "Wiederladen", key: "nav-wiederladen" },
-            { href: "ipsc-hub.html", text: "IPSC Hub", key: "card-title-hub" }
-        ];
-
-        let navHtml = "";
-        links.forEach(link => {
-            const isActive = (page === link.href);
-            const className = isActive ? "active" : "inactive";
-            navHtml += `<a href="${link.href}" class="${className}" data-txt="${link.key}">${link.text}</a>`;
-        });
-
-        // 🌟 Aufbau des HTML - BILD WURDE REPARIERT (nutzt jetzt icon-192.png)
+        // ==========================================
+        // 1. HEADER (Nur Logo, Theme & Login)
+        // ==========================================
         header.innerHTML = `
-            <a href="index.html" class="header-logo-link" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 14px; cursor: pointer; transition: opacity 0.2s; text-align: left;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Zur Startseite">
+            <a href="index.html" class="header-logo-link" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 14px; cursor: pointer; transition: opacity 0.2s; text-align: left;" title="Zur Startseite">
                 <img src="icon-192.png" width="38" height="44" alt="IPSC Logo" style="height: 44px; width: auto; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); border-radius: 4px;" />
                 <div class="logo-text-group">
                     <h1 ${isVipPage ? '' : 'data-txt="main-title"'} class="${isVipPage ? 'vip-title' : ''}" style="margin: 0; line-height: 1.1;">${headerTitle}</h1>
@@ -49,16 +27,12 @@
             
             <div class="header-controls">
                 <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()" title="Design umschalten">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
                 </button>
 
                 ${isVipPage ? '' : `
                 <button id="header-chat-btn" class="theme-toggle-btn" onclick="toggleGlobalInbox()" style="position: relative;" title="Nachrichten">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                    </svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                     <span id="chat-badge-count" style="display: none; position: absolute; top: -4px; right: -4px; background: var(--danger-color); color: white; font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold;">0</span>
                 </button>
 
@@ -69,101 +43,144 @@
                 `}
                 
                 <div id="auth-status-container">
-                    <button class="btn-auth" id="btn-open-login" ${isVipPage ? 'onclick="window.location.href=\'index.html\'"' : 'data-txt="btn-login-reg"'}>Login / Registrieren</button>
+                    <button class="btn-auth" id="btn-open-login" ${isVipPage ? 'onclick="window.location.href=\'index.html\'"' : 'data-txt="btn-login-reg"'}>Login</button>
                 </div>
             </div>
-
-            <nav class="main-nav">
-                ${navHtml}
-            </nav>
         `;
 
+        // ==========================================
+        // 2. BOTTOM TAB BAR & MEHR-MENÜ ERSTELLEN
+        // ==========================================
+        if (!document.getElementById('bottom-tab-bar')) {
+            const bottomBar = document.createElement('nav');
+            bottomBar.id = 'bottom-tab-bar';
+            
+            // Die 4 Haupt-Links + Mehr Button
+            bottomBar.innerHTML = `
+                <a href="index.html" class="tab-item ${page === 'index.html' ? 'active' : ''}">
+                    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    <span>Start</span>
+                </a>
+                <a href="marktplatz.html" class="tab-item ${page === 'marktplatz.html' ? 'active' : ''}">
+                    <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                    <span>Markt</span>
+                </a>
+                <a href="mein-planer.html" class="tab-item ${page === 'mein-planer.html' ? 'active' : ''}">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span>Planer</span>
+                </a>
+                <a href="community.html" class="tab-item ${page === 'community.html' ? 'active' : ''}">
+                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    <span>Comm</span>
+                </a>
+                <div class="tab-item" id="btn-more-menu" onclick="toggleMoreMenu()">
+                    <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    <span>Mehr</span>
+                </div>
+            `;
+            document.body.appendChild(bottomBar);
+
+            // Das aufklappbare Menü für die restlichen Links
+            const moreMenu = document.createElement('div');
+            moreMenu.id = 'more-menu-overlay';
+            moreMenu.innerHTML = `
+                <div class="more-menu-content" id="more-menu-list">
+                    <!-- VIP Links werden hier via JS injiziert -->
+                    <a href="freie-matches.html" class="${page === 'freie-matches.html' ? 'active' : ''}">Freie Match-Plätze</a>
+                    <a href="schiessbuch.html" class="${page === 'schiessbuch.html' ? 'active' : ''}">Schießbuch</a>
+                    <a href="sg-timer-live.html" class="${page === 'sg-timer-live.html' ? 'active' : ''}">⏱️ SG-Timer Live</a>
+                    <a href="tools.html" class="${page === 'tools.html' ? 'active' : ''}">Tools & Training</a>
+                    <a href="analytics.html" class="${page === 'analytics.html' ? 'active' : ''}">Statistiken</a>
+                    <a href="wiederladen.html" class="${page === 'wiederladen.html' ? 'active' : ''}">Wiederladen</a>
+                    <a href="ipsc-hub.html" class="${page === 'ipsc-hub.html' ? 'active' : ''}">IPSC Hub</a>
+                </div>
+            `;
+            document.body.appendChild(moreMenu);
+        }
+
+        // ==========================================
+        // 3. CSS STYLING
+        // ==========================================
         if (isVipPage) {
             const vipStyle = document.createElement('style');
             vipStyle.innerHTML = `
                 header { background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%) !important; border-bottom: 2px solid var(--accent-color) !important; border-radius: 0 0 15px 15px; padding-bottom: 20px !important; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(255, 159, 67, 0.15) !important; }
                 header .vip-title { background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 26px !important; letter-spacing: 1.5px; text-shadow: 0px 2px 4px rgba(0,0,0,0.4); }
-                header .theme-toggle-btn, header .btn-auth, header .main-nav a.inactive { background: rgba(255, 255, 255, 0.1) !important; color: #ffffff !important; border-color: rgba(255, 255, 255, 0.2) !important; }
+                header .theme-toggle-btn, header .btn-auth { background: rgba(255, 255, 255, 0.1) !important; color: #ffffff !important; border-color: rgba(255, 255, 255, 0.2) !important; }
             `;
             document.head.appendChild(vipStyle);
         }
 
         const style = document.createElement('style');
         style.innerHTML = `
-            /* Desktop/Standard Navigation */
-            header { position: sticky !important; top: 0 !important; z-index: 100 !important; display: flex; flex-direction: column; align-items: center; }
-            header .header-controls { position: absolute !important; top: calc(env(safe-area-inset-top) + 24px) !important; right: 20px !important; transform: none !important; display: flex !important; align-items: center !important; gap: 10px !important; flex-direction: row !important; }
-            header .theme-toggle-btn { width: 38px !important; height: 38px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; padding: 0 !important; background: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: var(--shadow-sm) !important; font-size: 16px !important; }
-            header .theme-toggle-btn:hover { border-color: var(--text-muted) !important; background-color: var(--bg-color) !important; }
-            header .lang-select { width: auto !important; height: 38px !important; padding: 0 10px !important; box-sizing: border-box !important; flex-shrink: 0 !important; background: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; font-weight: 600 !important; font-size: 13px !important; box-shadow: var(--shadow-sm) !important; cursor: pointer !important; }
-            header #auth-status-container { width: auto !important; display: flex !important; align-items: center !important; gap: 8px !important; }
-            header .btn-auth { width: auto !important; height: 38px !important; padding: 0 16px !important; font-weight: 600 !important; font-size: 13px !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: var(--shadow-sm) !important; transition: all 0.2s !important; background-color: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; box-sizing: border-box !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; }
-            header .btn-auth:hover { background-color: var(--bg-color) !important; border-color: var(--text-muted) !important; }
-            header #btn-logout { border: 1px solid var(--danger-color) !important; color: var(--danger-color) !important; background: transparent !important; }
-            header #btn-logout:hover { background-color: var(--danger-color) !important; color: #ffffff !important; }
-            header #btn-open-settings img { width: 38px !important; height: 38px !important; border-radius: 50% !important; object-fit: cover !important; border: 2px solid var(--accent-color) !important; box-shadow: var(--shadow-sm) !important; display: block !important; }
-            
-            header .main-nav { width: 100% !important; margin-top: 20px !important; display: flex !important; justify-content: center !important; gap: 8px !important; border-top: 1px solid var(--border-color) !important; padding-top: 15px !important; flex-wrap: wrap !important; }
-            header .main-nav a { text-decoration: none !important; font-weight: 600 !important; font-size: 12px !important; text-transform: uppercase !important; letter-spacing: 0.3px !important; padding: 8px 16px !important; border-radius: 20px !important; transition: all 0.2s ease !important; white-space: nowrap !important; flex-shrink: 0 !important; display: inline-block !important; line-height: 1.4 !important; box-sizing: border-box !important; border: 1px solid transparent !important; }
-            header .main-nav a.active { color: #ffffff !important; background-color: var(--accent-color) !important; box-shadow: var(--shadow-sm) !important; border-color: var(--accent-color) !important; }
-            header .main-nav a.inactive { color: var(--text-muted) !important; background-color: rgba(0, 0, 0, 0.03) !important; }
-            html[data-theme="dark"] header .main-nav a.inactive { background-color: rgba(255, 255, 255, 0.04) !important; color: var(--text-muted) !important; }
-            header .main-nav a.inactive:hover { color: var(--text-color) !important; background-color: rgba(0, 0, 0, 0.06) !important; }
+            /* Header Basis */
+            header { position: sticky !important; top: 0 !important; z-index: 100 !important; display: flex; flex-direction: column; align-items: center; padding: 15px; background: var(--card-bg); }
+            header .header-controls { position: absolute !important; top: calc(env(safe-area-inset-top) + 24px) !important; right: 20px !important; display: flex !important; align-items: center !important; gap: 10px !important; flex-direction: row !important; }
+            header .theme-toggle-btn { width: 38px !important; height: 38px !important; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; box-shadow: var(--shadow-sm); }
+            header .lang-select { height: 38px !important; padding: 0 10px !important; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; font-weight: 600; font-size: 13px; }
+            header .btn-auth { height: 38px !important; padding: 0 16px !important; font-weight: 600; font-size: 13px; border-radius: 8px; cursor: pointer; background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); }
 
-            /* Tablet Anpassung */
-            @media (max-width: 1024px) {
-                header { padding: calc(env(safe-area-inset-top) + 20px) 12px 8px 12px !important; display: flex; flex-direction: column; align-items: center; }
-                header .header-logo-link { justify-content: center !important; width: 100% !important; margin: 0 auto !important; }
-                header .header-controls { position: static !important; display: flex !important; flex-direction: row !important; justify-content: center !important; align-items: center !important; gap: 8px !important; margin-top: 14px !important; width: 100% !important; transform: none !important; flex-wrap: wrap !important; }
-                header .main-nav { margin-top: 15px !important; padding: 10px 4px 4px 4px !important; justify-content: flex-start !important; gap: 8px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; scroll-snap-type: x mandatory !important; flex-wrap: nowrap !important; overflow-x: auto !important; white-space: nowrap !important; }
-                header .main-nav::-webkit-scrollbar { display: none !important; }
-                header .main-nav a { padding: 8px 14px !important; font-size: 11px !important; border-radius: 20px !important; scroll-snap-align: start !important; }
+            /* Platzhalter für die Bottom-Bar */
+            body { padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
+
+            /* 🔥 DIE NEUE BOTTOM TAB BAR 🔥 */
+            #bottom-tab-bar {
+                position: fixed; bottom: 0; left: 0; width: 100%;
+                background: var(--card-bg); border-top: 1px solid var(--border-color);
+                display: flex; justify-content: space-around; align-items: center;
+                padding-bottom: env(safe-area-inset-bottom); /* Wichtig für iPhone Balken */
+                height: 65px; z-index: 99999;
+                box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08);
+                /* iOS Hardware Acceleration Fix */
+                -webkit-transform: translateZ(0); transform: translateZ(0);
             }
+            #bottom-tab-bar .tab-item {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                text-decoration: none; color: var(--text-muted); width: 20%; height: 100%; cursor: pointer;
+            }
+            #bottom-tab-bar .tab-item svg { width: 22px; height: 22px; margin-bottom: 4px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+            #bottom-tab-bar .tab-item span { font-size: 10px; font-weight: 600; }
+            #bottom-tab-bar .tab-item.active { color: var(--accent-color); }
+            
+            /* Das versteckte "Mehr" Menü */
+            #more-menu-overlay {
+                position: fixed; bottom: calc(65px + env(safe-area-inset-bottom)); left: 0; width: 100%;
+                background: var(--bg-color);
+                border-radius: 20px 20px 0 0;
+                box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
+                transform: translateY(120%); transition: transform 0.3s ease-in-out;
+                z-index: 99998; max-height: 70vh; overflow-y: auto; padding: 20px; box-sizing: border-box;
+                display: block;
+            }
+            #more-menu-overlay.show { transform: translateY(0); }
+            #more-menu-list { display: flex; flex-direction: column; gap: 10px; }
+            #more-menu-list a {
+                padding: 15px; text-decoration: none; color: var(--text-color); font-weight: 600;
+                background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color);
+                text-align: center;
+            }
+            #more-menu-list a.active { background: var(--accent-color); color: #fff; border-color: var(--accent-color); }
+            #more-menu-list a.vip-link { color: #ff9f43; border-color: rgba(255, 159, 67, 0.3); background: rgba(255, 159, 67, 0.05); }
 
-            /* 🔥 MOBILE DAUMEN-LEISTE (Der Safari-Bugfix) 🔥 */
-            @media (max-width: 768px) {
-                header { 
-                    padding-bottom: 12px !important;
-                    /* SAFARI BUGFIX: Blur zerstört fixed Positionierung! Muss aus! */
-                    backdrop-filter: none !important;
-                    -webkit-backdrop-filter: none !important;
-                    background-color: var(--card-bg) !important;
-                }
-
-                header .main-nav {
-                    position: fixed !important;
-                    top: auto !important;
-                    bottom: 0 !important;
-                    left: 0 !important;
-                    width: 100vw !important;
-                    background-color: var(--card-bg) !important;
-                    border-top: 1px solid var(--border-color) !important;
-                    z-index: 99999 !important;
-                    margin: 0 !important;
-                    /* Padding für den iPhone Home-Balken */
-                    padding: 10px 10px calc(10px + env(safe-area-inset-bottom)) !important;
-                    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08) !important;
-                }
-
-                /* Content-Abstand erhöhen, damit die Leiste keinen Text verdeckt */
-                body { 
-                    padding-bottom: 90px !important; 
-                }
-                
-                /* Schwebende Buttons anheben */
-                .floating-action-bar { 
-                    bottom: calc(90px + env(safe-area-inset-bottom)) !important; 
-                }
+            @media (max-width: 1024px) {
+                header { padding: calc(env(safe-area-inset-top) + 20px) 12px 8px 12px !important; }
+                header .header-controls { position: static !important; justify-content: center !important; margin-top: 14px !important; width: 100% !important; }
             }
         `;
         document.head.appendChild(style);
 
-        const activeLink = header.querySelector('.main-nav a.active');
-        if (activeLink) {
-            setTimeout(() => {
-                activeLink.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
-            }, 150);
-        }
+        // Globaler Toggle für das Mehr-Menü
+        window.toggleMoreMenu = function() {
+            const menu = document.getElementById('more-menu-overlay');
+            const btn = document.getElementById('btn-more-menu');
+            if (menu.classList.contains('show')) {
+                menu.classList.remove('show');
+                btn.style.color = "var(--text-muted)";
+            } else {
+                menu.classList.add('show');
+                btn.style.color = "var(--accent-color)";
+            }
+        };
 
         return true;
     };
@@ -173,7 +190,7 @@
     }
 
     // ==========================================
-    // 🎯 VIP-ZUGANG: PRÜFUNG & GENERIERUNG DER LINKS
+    // 🎯 VIP-ZUGANG: IN DAS "MEHR" MENÜ INJIZIEREN
     // ==========================================
     const checkVipStatus = () => {
         setTimeout(async () => {
@@ -189,43 +206,27 @@
                 .single();
 
             if (profile && profile.is_doppel_aa === true) {
-                const navContainer = document.querySelector('header .main-nav'); 
+                // NEU: VIP-Links landen jetzt im aufklappbaren Menü
+                const moreMenuList = document.getElementById('more-menu-list'); 
                 
-                if (navContainer) {
+                if (moreMenuList) {
                     const path = window.location.pathname;
                     const page = path.split("/").pop() || "index.html";
                     
-                    const isSniperActive = (page === "doppel-aa.html");
-                    if (!navContainer.querySelector('a[href="doppel-aa.html"]')) {
-                        const sniperLink = document.createElement('a');
-                        sniperLink.href = 'doppel-aa.html'; 
-                        sniperLink.innerText = '🎯 Double Alpha';
-                        sniperLink.className = isSniperActive ? "active" : "inactive";
-                        if (!isSniperActive) {
-                            sniperLink.style.color = '#ff9f43'; 
-                            sniperLink.style.border = '1px solid rgba(255, 159, 67, 0.3)';
-                        }
-                        navContainer.appendChild(sniperLink);
-                    }
-
-                    const isPerformanceActive = (page === "performance.html");
-                    if (!navContainer.querySelector('a[href="performance.html"]')) {
+                    if (!moreMenuList.querySelector('a[href="performance.html"]')) {
                         const performanceLink = document.createElement('a');
                         performanceLink.href = 'performance.html'; 
                         performanceLink.innerText = '📊 Performance-Check';
-                        performanceLink.className = isPerformanceActive ? "active" : "inactive";
-                        if (!isPerformanceActive) {
-                            performanceLink.style.color = '#ff9f43'; 
-                            performanceLink.style.border = '1px solid rgba(255, 159, 67, 0.3)';
-                        }
-                        navContainer.appendChild(performanceLink);
+                        performanceLink.className = (page === "performance.html") ? "active" : "vip-link";
+                        moreMenuList.prepend(performanceLink); // Oben anfügen
                     }
 
-                    const newActiveLink = navContainer.querySelector('a.active');
-                    if (newActiveLink) {
-                        setTimeout(() => {
-                            newActiveLink.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
-                        }, 50);
+                    if (!moreMenuList.querySelector('a[href="doppel-aa.html"]')) {
+                        const sniperLink = document.createElement('a');
+                        sniperLink.href = 'doppel-aa.html'; 
+                        sniperLink.innerText = '🎯 Double Alpha';
+                        sniperLink.className = (page === "doppel-aa.html") ? "active" : "vip-link";
+                        moreMenuList.prepend(sniperLink); // Oben anfügen
                     }
                 }
             }
