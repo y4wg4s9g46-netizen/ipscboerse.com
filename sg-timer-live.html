@@ -5,27 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SG-Timer Live Cockpit - IPSC Startplatz-Börse</title>
     
+    <!-- 🌟 DIE WICHTIGEN GLOBALS FEHLTEN HIER! -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="global.css?v=14">
+
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-color: #ff9f43;
-            --text-color: #ffffff;
-            --text-muted: #94a3b8;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --success-color: #4cd964;
-            --danger-color: #ff3b30;
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
-        }
-
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding-bottom: 50px;
-        }
-
+        /* Nur noch Timer-spezifisches Layout, da der Rest aus der global.css kommt */
         .main-container {
             max-width: 1100px;
             margin: 30px auto;
@@ -120,19 +107,26 @@
 </head>
 <body>
 
+    <!-- 🌟 Header-Injection -->
     <header></header>
+    <script src="header.js"></script>
 
     <div class="main-container">
         
+        <!-- 🌟 OBERE REITER STEUERUNG -->
         <div class="tab-navigation">
             <button class="tab-btn active" onclick="switchTab('live-console')">🕹️ Live-Konsole</button>
             <button class="tab-btn" onclick="switchTab('highscores')">🏆 Global Highscores</button>
         </div>
 
+        <!-- ========================================== -->
+        <!-- REITER 1: LIVE KONSOLE -->
+        <!-- ========================================== -->
         <div id="live-console" class="tab-content active">
             <div class="grid-layout">
                 <div style="display: flex; flex-direction: column;">
                     
+                    <!-- Verbindung & Auto-Erkennung -->
                     <div class="panel-card">
                         <h2>Verbindung</h2>
                         <div id="bt-status-badge" class="status-badge">
@@ -141,6 +135,7 @@
                         <button id="btn-connect" class="btn-tactic btn-blue" onclick="connectSGTimer()">Gerät scannen & koppeln</button>
                     </div>
 
+                    <!-- RO Fernsteuerung -->
                     <div class="panel-card">
                         <h2>RO Fernsteuerung</h2>
                         <div style="display: flex; gap: 12px; margin-top: 10px;">
@@ -149,11 +144,12 @@
                         </div>
                     </div>
 
+                    <!-- Taktische Drill Presets -->
                     <div class="panel-card">
                         <h2>IPSC Drill Presets</h2>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
-                            <button class="btn-tactic btn-outline" style="font-size:12px; padding:8px;" onclick="setDrillPreset(999, 0, 6)">🤠 Bill Drill (6 Schuss)</button>
-                            <button class="btn-tactic btn-outline" style="font-size:12px; padding:8px;" onclick="setDrillPreset(999, 5.0, 12)">🇲🇽 El Pres (12 Schuss)</button>
+                            <button class="btn-tactic btn-outline" style="font-size:12px; padding:8px;" onclick="setDrillPreset(999, 0, 6)">🤠 Bill Drill (6)</button>
+                            <button class="btn-tactic btn-outline" style="font-size:12px; padding:8px;" onclick="setDrillPreset(999, 5.0, 12)">🇲🇽 El Pres (12)</button>
                         </div>
                         <div class="form-group">
                             <label>Start-Verzögerung</label>
@@ -170,6 +166,7 @@
                         <button class="btn-tactic btn-blue" style="background: var(--accent-color);" onclick="sendParSetup()">Konfig an Hardware senden</button>
                     </div>
 
+                    <!-- Speicher-Browser (Archiv-Importer) -->
                     <div class="panel-card">
                         <h2>Geräte-Speicherarchiv</h2>
                         <p style="font-size:12px; color:var(--text-muted); margin-top:0;">Lese den letzten Durchgang nachträglich kabellos aus dem Timer-Speicher aus.</p>
@@ -178,6 +175,7 @@
 
                 </div>
 
+                <!-- Rechte Spalte: Live-Tabelle -->
                 <div class="panel-card" style="display: flex; flex-direction: column;">
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
                         <h2 id="stage-card-title" style="margin: 0;">🎯 Aktueller Durchgang</h2>
@@ -191,14 +189,17 @@
                             <tbody id="shot-table-body">
                                 <tr><td colspan="3" style="color: var(--text-muted); padding: 40px 0;">Keine Schussdaten aktiv. Warte auf Signal...</td></tr>
                             </tbody>
-                        </tbody>
                         </table>
                     </div>
+                    <!-- Score verifizieren & an Highscore senden -->
                     <button id="btn-submit-score" class="btn-tactic btn-green" style="margin-top: 15px; display: none;" onclick="submitCurrentScoreToHighscore()">⭐ Diese Zeit als Highscore eintragen</button>
                 </div>
             </div>
         </div>
 
+        <!-- ========================================== -->
+        <!-- REITER 2: GLOBAL HIGHSCORES -->
+        <!-- ========================================== -->
         <div id="highscores" class="tab-content">
             <div class="panel-card" style="max-width: 700px; margin: 0 auto;">
                 <h2>🏆 Globale Drill-Bestenlisten</h2>
@@ -217,24 +218,26 @@
                         <tr><th>Platz</th><th>Schütze</th><th>Faktor</th><th>Verifizierte Zeit</th></tr>
                     </thead>
                     <tbody id="leaderboard-body">
-                        </tbody>
+                        <!-- Wird dynamisch befüllt -->
+                    </tbody>
                 </table>
             </div>
         </div>
 
     </div>
 
-    <script src="header.js"></script>
-
+    <!-- ======================================================= -->
+    <!-- 🦾 BLUETOOTH & APP SCRIPTS -->
+    <!-- ======================================================= -->
     <script>
-        [span_1](start_span)// Offizielle UUIDs der Shooters Global BLE Spezifikation[span_1](end_span)
-        const SG_SERVICE_UUID     = '7520ffff-14d2-4cda-8b6b-697c554c9311'; [span_2](start_span)// Main Service[span_2](end_span)
-        const SG_CHAR_COMMAND     = '75200000-14d2-4cda-8b6b-697c554c9311'; [span_3](start_span)// Command Eigenschaft[span_3](end_span)
-        const SG_CHAR_EVENT       = '75200001-14d2-4cda-8b6b-697c554c9311'; [span_4](start_span)// Event Notify[span_4](end_span)
-        const SG_CHAR_SESSION_LIST= '75200002-14d2-4cda-8b6b-697c554c9311'; [span_5](start_span)// Saved Session ID List[span_5](end_span)
-        const SG_CHAR_SHOT_LIST    = '75200004-14d2-4cda-8b6b-697c554c9311'; [span_6](start_span)// Shot List[span_6](end_span)
-        const SG_CHAR_PAR         = '75200005-14d2-4cda-8b6b-697c554c9311'; [span_7](start_span)// Par Setup[span_7](end_span)
-        const SG_CHAR_UNIX_TIME   = '75200006-14d2-4cda-8b6b-697c554c9311'; [span_8](start_span)// Unix Time[span_8](end_span)
+        // Offizielle UUIDs der Shooters Global BLE Spezifikation
+        const SG_SERVICE_UUID     = '7520ffff-14d2-4cda-8b6b-697c554c9311'; 
+        const SG_CHAR_COMMAND     = '75200000-14d2-4cda-8b6b-697c554c9311'; 
+        const SG_CHAR_EVENT       = '75200001-14d2-4cda-8b6b-697c554c9311'; 
+        const SG_CHAR_SESSION_LIST= '75200002-14d2-4cda-8b6b-697c554c9311'; 
+        const SG_CHAR_SHOT_LIST    = '75200004-14d2-4cda-8b6b-697c554c9311'; 
+        const SG_CHAR_PAR         = '75200005-14d2-4cda-8b6b-697c554c9311'; 
+        const SG_CHAR_UNIX_TIME   = '75200006-14d2-4cda-8b6b-697c554c9311'; 
 
         let bluetoothDevice = null;
         let commandCharacteristic = null;
@@ -242,7 +245,7 @@
         let loggedShots = [];
         let activeDrillName = "Freies Training";
 
-        // TAB-UMSCHALTUNG (Vanilla JS)
+        // TAB-UMSCHALTUNG 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -268,17 +271,15 @@
                 parCharacteristic = await service.getCharacteristic(SG_CHAR_PAR);
                 const eventCharacteristic = await service.getCharacteristic(SG_CHAR_EVENT);
 
-                [span_9](start_span)// Notifications aktivieren[span_9](end_span)
                 await eventCharacteristic.startNotifications();
                 eventCharacteristic.addEventListener('characteristicvaluechanged', handleIncomingTimerEvent);
 
-                [span_10](start_span)// 🌟 Auto-Modell-Erkennung anhand des Namens-Präfixes[span_10](end_span)
                 let modelName = "SG Timer";
-                const devName = bluetoothDevice.name; // z.B. [span_11](start_span)SG-SST4A00000[span_11](end_span)
+                const devName = bluetoothDevice.name; 
                 if (devName && devName.startsWith("SG-SST4")) {
-                    const identifier = devName.charAt(7); [span_12](start_span)// Filtert die Kennung[span_12](end_span)
-                    [span_13](start_span)if (identifier === 'A') modelName = "👑 SG Timer Sport[span_13](end_span)";
-                    [span_14](start_span)if (identifier === 'B') modelName = "⚡ SG Timer GO[span_14](end_span)";
+                    const identifier = devName.charAt(7); 
+                    if (identifier === 'A') modelName = "👑 SG Timer Sport";
+                    if (identifier === 'B') modelName = "⚡ SG Timer GO";
                 }
 
                 badge.innerHTML = `<span style="width:8px; height:8px; background:var(--success-color); border-radius:50%;"></span> ${modelName} verknüpft`;
@@ -286,11 +287,10 @@
                 document.getElementById('btn-connect').innerText = "Trennen";
                 document.getElementById('btn-connect').onclick = () => location.reload();
 
-                [span_15](start_span)// ⏰ AUTOMATISCHER UHRZEIT-ABGLEICH (UNIX TIME SYNC)[span_15](end_span)
                 const unixChar = await service.getCharacteristic(SG_CHAR_UNIX_TIME);
                 const secondsNow = Math.floor(Date.now() / 1000);
                 const timeBuf = new ArrayBuffer(4);
-                new DataView(timeBuf).setUint32(0, secondsNow, false); [span_16](start_span)[span_17](start_span)// Big Endian[span_16](end_span)[span_17](end_span)
+                new DataView(timeBuf).setUint32(0, secondsNow, false); 
                 await unixChar.writeValue(timeBuf);
 
             } catch (error) {
@@ -299,21 +299,19 @@
             }
         }
 
-        [span_18](start_span)// 2. LIVE-EVENTS & VISUELLER GREEN-FLASH[span_18](end_span)
+        // 2. LIVE-EVENTS & VISUELLER GREEN-FLASH
         function handleIncomingTimerEvent(event) {
             const value = event.target.value;
             if (value.byteLength < 2) return;
 
-            const eventId = value.getUint8(1); [span_19](start_span)//[span_19](end_span)
+            const eventId = value.getUint8(1); 
 
-            [span_20](start_span)// Event 0x00: Session startet -> Reset[span_20](end_span)
             if (eventId === 0x00) {
                 loggedShots = [];
                 document.getElementById('shot-table-body').innerHTML = '';
                 document.getElementById('btn-submit-score').style.display = 'none';
             }
 
-            [span_21](start_span)[span_22](start_span)// 🌟 Event 0x05: SESSION_SET_BEGIN -> Grüner Bildschirm-Flash beim Signalton[span_21](end_span)[span_22](end_span)!
             if (eventId === 0x05) {
                 document.body.style.transition = "none";
                 document.body.style.backgroundColor = "var(--success-color)";
@@ -323,10 +321,9 @@
                 }, 350);
             }
 
-            [span_23](start_span)[span_24](start_span)// Event 0x04: SHOT_DETECTED[span_23](end_span)[span_24](end_span)
             if (eventId === 0x04) {
-                const shotNum = value.getUint16(6, false); [span_25](start_span)[span_26](start_span)// Big Endian[span_25](end_span)[span_26](end_span)
-                const shotTimeMs = value.getUint32(8, false); [span_27](start_span)[span_28](start_span)//[span_27](end_span)[span_28](end_span)
+                const shotNum = value.getUint16(6, false); 
+                const shotTimeMs = value.getUint32(8, false); 
                 const currentSec = shotTimeMs / 1000;
 
                 let split = currentSec;
@@ -335,7 +332,6 @@
                 loggedShots.push(currentSec);
                 renderNewShotRow(shotNum + 1, currentSec, split);
                 
-                // Button zum Einreichen freischalten, sobald Durchgang stoppt
                 document.getElementById('btn-submit-score').style.display = 'block';
             }
         }
@@ -350,13 +346,13 @@
             document.getElementById('total-shots-counter').innerText = `${number} Schüsse`;
         }
 
-        [span_29](start_span)// 3. REMOTECONTROL & PRESETS SENDEN[span_29](end_span)
+        // 3. REMOTECONTROL & PRESETS SENDEN
         async function sendCommand(id) {
             if (!commandCharacteristic) return alert("Kein Timer gekoppelt!");
-            await commandCharacteristic.writeValue(new Uint8Array([0x01, id])); [span_30](start_span)//[span_30](end_span)
+            await commandCharacteristic.writeValue(new Uint8Array([0x01, id])); 
         }
-        function remoteStartSession() { sendCommand(0x00); [span_31](start_span)} //[span_31](end_span)
-        function remoteStopSession() { sendCommand(0x03); [span_32](start_span)} //[span_32](end_span)
+        function remoteStartSession() { sendCommand(0x00); } 
+        function remoteStopSession() { sendCommand(0x03); } 
 
         async function setDrillPreset(delay, parTime, shotLimit) {
             activeDrillName = shotLimit === 6 ? "Bill Drill" : "El Presidente";
@@ -366,56 +362,53 @@
 
             if (!parCharacteristic) return alert("Timer per Funk verbunden, Preset im Browser vermerkt!");
 
-            const buffer = new ArrayBuffer(6); [span_33](start_span)//[span_33](end_span)
+            const buffer = new ArrayBuffer(6); 
             const view = new DataView(buffer);
-            view.setUint16(0, delay === 999 ? 0xFFFF : delay, false); [span_34](start_span)[span_35](start_span)[span_36](start_span)//[span_34](end_span)[span_35](end_span)[span_36](end_span)
-            view.setUint16(2, parTime * 10, false); [span_37](start_span)[span_38](start_span)//[span_37](end_span)[span_38](end_span)
-            view.setUint16(4, shotLimit, false); [span_39](start_span)[span_40](start_span)//[span_39](end_span)[span_40](end_span)
+            view.setUint16(0, delay === 999 ? 0xFFFF : delay, false); 
+            view.setUint16(2, parTime * 10, false); 
+            view.setUint16(4, shotLimit, false); 
             await parCharacteristic.writeValue(buffer);
         }
 
         async function sendParSetup() {
             const delay = parseInt(document.getElementById('par-delay').value);
             const parTime = parseFloat(document.getElementById('par-time').value) || 0;
-            const buffer = new ArrayBuffer(6); [span_41](start_span)//[span_41](end_span)
+            const buffer = new ArrayBuffer(6); 
             const view = new DataView(buffer);
-            view.setUint16(0, delay === 999 ? 0xFFFF : delay, false); [span_42](start_span)[span_43](start_span)[span_44](start_span)//[span_42](end_span)[span_43](end_span)[span_44](end_span)
-            view.setUint16(2, parTime * 10, false); [span_45](start_span)[span_46](start_span)//[span_45](end_span)[span_46](end_span)
-            view.setUint16(4, 0, false); [span_47](start_span)[span_48](start_span)//[span_47](end_span)[span_48](end_span)
+            view.setUint16(0, delay === 999 ? 0xFFFF : delay, false); 
+            view.setUint16(2, parTime * 10, false); 
+            view.setUint16(4, 0, false); 
             await parCharacteristic.writeValue(buffer);
             alert("Erfolgreich konfiguriert! 🎯");
         }
 
-        [span_49](start_span)[span_50](start_span)// 4. ARCHIV-SPEICHER IMPORTER (Nachträgliches Auslesen)[span_49](end_span)[span_50](end_span)
+        // 4. ARCHIV-SPEICHER IMPORTER
         async function importLastSession() {
             if (!bluetoothDevice) return alert("Bitte zuerst verbinden!");
             try {
                 const service = await bluetoothDevice.gatt.getPrimaryService(SG_SERVICE_UUID);
-                const sessionListChar = await service.getPrimaryServiceChar ? null : await service.getCharacteristic(SG_CHAR_SESSION_LIST);
+                const sessionListChar = await service.getCharacteristic(SG_CHAR_SESSION_LIST);
                 const shotListChar = await service.getCharacteristic(SG_CHAR_SHOT_LIST);
 
-                [span_51](start_span)// Pointer auf die neueste Session setzen[span_51](end_span)
-                await sessionListChar.writeValue(new Uint8Array([0xFF, 0xFF, 0xFF, 0xFF])); [span_52](start_span)//[span_52](end_span)
+                await sessionListChar.writeValue(new Uint8Array([0xFF, 0xFF, 0xFF, 0xFF])); 
                 const sessionData = await sessionListChar.readValue();
-                const newestSessionId = sessionData.getUint32(0, false); [span_53](start_span)[span_54](start_span)//[span_53](end_span)[span_54](end_span)
+                const newestSessionId = sessionData.getUint32(0, false); 
 
-                if (newestSessionId === 0xFFFFFFFF) return alert("Archiv leer."); [span_55](start_span)//[span_55](end_span)
+                if (newestSessionId === 0xFFFFFFFF) return alert("Archiv leer."); 
 
-                [span_56](start_span)[span_57](start_span)// Reset Shotpointer[span_56](end_span)[span_57](end_span)
                 const idBuf = new ArrayBuffer(4);
-                new DataView(idBuf).setUint32(0, newestSessionId, false); [span_58](start_span)[span_59](start_span)//[span_58](end_span)[span_59](end_span)
+                new DataView(idBuf).setUint32(0, newestSessionId, false); 
                 await shotListChar.writeValue(idBuf);
 
                 loggedShots = [];
                 document.getElementById('shot-table-body').innerHTML = '';
 
-                [span_60](start_span)// Schleife: Alle Schüsse laden[span_60](end_span)
                 while (true) {
                     const data = await shotListChar.readValue();
-                    const num = data.getUint16(0, false); [span_61](start_span)[span_62](start_span)//[span_61](end_span)[span_62](end_span)
-                    const timeMs = data.getUint32(2, false); [span_63](start_span)[span_64](start_span)//[span_63](end_span)[span_64](end_span)
+                    const num = data.getUint16(0, false); 
+                    const timeMs = data.getUint32(2, false); 
 
-                    if (timeMs === 0xFFFFFFFF) break; [span_65](start_span)// Ende der Kette erreicht[span_65](end_span)
+                    if (timeMs === 0xFFFFFFFF) break; 
 
                     const currentSec = timeMs / 1000;
                     let split = currentSec;
@@ -429,7 +422,7 @@
             } catch (e) { alert("Fehler: " + e.message); }
         }
 
-        // 5. HIGHSCORE SIMULATION (BEREIT FÜR SUPABASE)
+        // 5. HIGHSCORE SIMULATION
         let dummyHighscores = {
             "Bill Drill": [
                 { name: "DoubleAlpha_Tom", factor: "Major", time: 1.15 },
@@ -459,10 +452,8 @@
             if (loggedShots.length === 0) return;
             const finalTime = loggedShots[loggedShots.length - 1];
             
-            // Wenn es eine bekannte Übung ist, pushen wir sie in die Liste
             const drillKey = activeDrillName === "Freies Training" ? "Bill Drill" : activeDrillName;
             
-            // Hier klinkst du später dein "window.supabaseClient.from('highscores').insert(...)" ein!
             dummyHighscores[drillKey].push({
                 name: "Dein Profil (Du)",
                 factor: "Minor",
@@ -474,6 +465,19 @@
             document.getElementById('leaderboard-filter').value = drillKey;
             loadLeaderboard();
         }
+    </script>
+
+    <!-- 🌟 HIER SIND JETZT DEINE GLOBALS FÜR LOGIN & CO. -->
+    <script src="auth.js"></script>
+    <script src="lang.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Initiiert Chat-Badge, falls eingeloggt
+        window.onAuthChange = () => { 
+            if(typeof updateHeaderChatBadge === 'function') {
+                updateHeaderChatBadge(); 
+            }
+        };
     </script>
 </body>
 </html>
