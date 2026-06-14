@@ -34,18 +34,18 @@
             navHtml += `<a href="${link.href}" class="${className}" data-txt="${link.key}">${link.text}</a>`;
         });
 
-        // ✨ FIX: Kompaktes Layout, keine Navigation mehr im Header-Block!
+        // 🎯 OBERER HEADER: Kompakt & sauber strukturiert wie im Video, aber flacher
         header.innerHTML = `
-            <div class="header-container" style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1000px; margin: 0 auto; flex-wrap: wrap; gap: 10px;">
-                <a href="index.html" class="header-logo-link" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; transition: opacity 0.2s;">
-                    <img src="/image_11.png" alt="IPSC Logo" class="header-img-logo" style="height: 38px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); border-radius: 4px;" />
+            <div class="header-container" style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1000px; margin: 0 auto;">
+                <a href="index.html" class="header-logo-link" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 12px; cursor: pointer; transition: opacity 0.2s; text-align: left;">
+                    <img src="/image_11.png" alt="IPSC Logo" class="header-img-logo" style="height: 44px; width: auto; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); border-radius: 4px;" />
                     <div class="logo-text-group">
                         <h1 ${isVipPage ? '' : 'data-txt="main-title"'} class="header-h1-title ${isVipPage ? 'vip-title' : ''}" style="margin: 0; line-height: 1.1;">${headerTitle}</h1>
-                        <p class="header-sub-title" style="margin: 2px 0 0 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;" ${isVipPage ? '' : 'data-txt="sub-title"'}>${headerSub}</p>
+                        <p class="header-sub-title" style="margin: 3px 0 0 0; font-size: 12px;" ${isVipPage ? '' : 'data-txt="sub-title"'}>${headerSub}</p>
                     </div>
                 </a>
                 
-                <div class="header-controls" style="display: flex; align-items: center; gap: 8px;">
+                <div class="header-controls" style="display: flex; align-items: center; gap: 10px;">
                     <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()" title="Design umschalten">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -73,8 +73,7 @@
             </div>
         `;
 
-        // ✨ FIX: Navigation wird DIREKT UNTER den Header gesetzt, nicht HINEIN! 
-        // Das löst das Button-Klick-Problem auf dem iPhone sofort.
+        // 🎯 NAVIGATION: Wird eigenständig nachgeschoben (Löst den Klick-Fehler auf iOS)
         let nav = document.querySelector('.main-nav');
         if (!nav) {
             nav = document.createElement('nav');
@@ -95,48 +94,49 @@
 
         const style = document.createElement('style');
         style.innerHTML = `
-            header { position: sticky !important; top: 0 !important; z-index: 100 !important; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 15px 20px !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; box-shadow: var(--shadow-sm); }
+            header { position: sticky !important; top: 0 !important; z-index: 100 !important; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: calc(env(safe-area-inset-top) + 16px) 20px 14px !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; box-shadow: var(--shadow-sm); }
             html[data-theme="dark"] header { background-color: rgba(30, 41, 59, 0.95); border-bottom: 1px solid rgba(255,255,255,0.05) !important; }
             
-            header .header-h1-title { font-size: 20px !important; font-weight: 900 !important; letter-spacing: -0.5px !important; color: var(--text-color); }
-            header .header-sub-title { color: var(--accent-color) !important; font-weight: 700 !important; }
+            header .header-h1-title { font-family: 'Inter', -apple-system, sans-serif; font-size: 22px !important; font-weight: 900 !important; letter-spacing: 1px !important; text-transform: uppercase; color: var(--text-color); }
+            header .header-sub-title { text-transform: uppercase; font-size: 11px !important; letter-spacing: 2px !important; font-weight: 700 !important; color: var(--text-muted); }
+            html[data-theme="light"] header .header-sub-title { color: var(--text-muted) !important; }
             
-            header .theme-toggle-btn { width: 36px !important; height: 36px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; padding: 0 !important; background: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: var(--shadow-sm) !important; }
-            header .theme-toggle-btn:hover { border-color: var(--text-muted) !important; background-color: var(--bg-color) !important; }
-            header .lang-select { width: auto !important; height: 36px !important; padding: 0 10px !important; flex-shrink: 0 !important; background: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; font-weight: 600 !important; font-size: 13px !important; box-shadow: var(--shadow-sm) !important; cursor: pointer !important; }
-            header .btn-auth { height: 36px !important; padding: 0 16px !important; font-weight: 600 !important; font-size: 13px !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: var(--shadow-sm) !important; transition: all 0.2s !important; background-color: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+            header .theme-toggle-btn { width: 38px !important; height: 38px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; padding: 0 !important; background: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: var(--shadow-sm) !important; }
+            header .theme-toggle-btn:hover { border-color: var(--accent-color) !important; }
+            header .theme-toggle-btn svg { display: block; stroke: var(--text-color); }
+            header .theme-toggle-btn:hover svg { stroke: var(--accent-color); }
+            
+            header .lang-select { width: auto !important; height: 38px !important; padding: 0 10px !important; flex-shrink: 0 !important; background: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; font-weight: 600 !important; font-size: 13px !important; box-shadow: var(--shadow-sm) !important; cursor: pointer !important; }
+            header .btn-auth { height: 38px !important; padding: 0 16px !important; font-weight: 600 !important; font-size: 13px !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: var(--shadow-sm) !important; transition: all 0.2s !important; background-color: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; }
             header .btn-auth:hover { background-color: var(--bg-color) !important; border-color: var(--text-muted) !important; }
-            header #btn-logout { border: 1px solid var(--danger-color) !important; color: var(--danger-color) !important; background: transparent !important; }
-            header #btn-logout:hover { background-color: var(--danger-color) !important; color: #ffffff !important; }
-            header #btn-open-settings img { width: 36px !important; height: 36px !important; border-radius: 50% !important; object-fit: cover !important; border: 2px solid var(--accent-color) !important; box-shadow: var(--shadow-sm) !important; display: block !important; }
+            header #btn-logout { background: rgba(239, 68, 68, 0.05) !important; border: 1px solid rgba(239, 68, 68, 0.2) !important; color: var(--danger-color) !important; border-radius: 20px !important; padding: 0 20px !important; font-weight: 700 !important; text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px !important; }
+            header #btn-logout:hover { background: var(--danger-color) !important; color: #ffffff !important; border-color: var(--danger-color) !important; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important; }
+            header #btn-open-settings img { width: 38px !important; height: 38px !important; border-radius: 50% !important; object-fit: cover !important; border: 2px solid var(--accent-color) !important; padding: 2px; background: var(--card-bg); box-shadow: 0 4px 12px rgba(255, 159, 67, 0.2) !important; }
             
-            /* --- DESKTOP NAV --- */
-            .main-nav { width: 100%; display: flex; justify-content: center; gap: 8px; border-bottom: 1px solid var(--border-color); padding: 15px 20px; flex-wrap: wrap; background: var(--bg-color); }
-            .main-nav a { text-decoration: none; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.3px; padding: 10px 18px; border-radius: 20px; transition: all 0.2s ease; white-space: nowrap; flex-shrink: 0; display: inline-block; line-height: 1.4; border: 1px solid transparent; }
+            /* DESKTOP-LEISTE (Unter dem Header) */
+            .main-nav { width: 100%; display: flex; justify-content: center; gap: 8px; border-bottom: 1px solid var(--border-color); padding: 15px 24px; flex-wrap: wrap; background: var(--bg-color); }
+            .main-nav a { font-family: 'Inter', -apple-system, sans-serif; text-decoration: none; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; padding: 8px 16px; border-radius: 20px; transition: all 0.2s ease; white-space: nowrap; flex-shrink: 0; display: inline-block; line-height: 1.4; border: 1px solid transparent; }
             .main-nav a.active { color: #ffffff; background-color: var(--accent-color); box-shadow: var(--shadow-sm); }
-            .main-nav a.inactive { color: var(--text-muted); background-color: rgba(0, 0, 0, 0.04); }
+            .main-nav a.inactive { color: var(--text-muted); background-color: rgba(0, 0, 0, 0.03); }
             html[data-theme="dark"] .main-nav a.inactive { background-color: rgba(255, 255, 255, 0.04); color: var(--text-muted); }
-            .main-nav a.inactive:hover { color: var(--text-color); background-color: rgba(0, 0, 0, 0.08); }
 
-            /* --- MOBILE / TABLET NAV & HEADER FIX --- */
+            /* ==========================================================================
+               📱 SMARTPHONE & TABLET (Responsive Overrides)
+               ========================================================================== */
             @media (max-width: 1024px) {
-                /* Header schlanker und zentriert */
-                header { padding: calc(env(safe-area-inset-top) + 12px) 12px 12px 12px !important; }
-                .header-container { justify-content: center !important; }
+                /* 1. Header oben massiv einkürzen & verkleinern */
+                header { padding: calc(env(safe-area-inset-top) + 12px) 16px 12px 16px !important; }
+                .header-container { width: 100% !important; }
+                .header-img-logo { height: 34px !important; }
+                header .header-h1-title { font-size: 15px !important; letter-spacing: 0.5px !important; }
+                header .header-sub-title { font-size: 9px !important; letter-spacing: 1px !important; margin-top: 1px !important; }
                 
-                /* Logo & Text drastisch verkleinert für perfekte Optik */
-                .header-img-logo { height: 32px !important; }
-                header .header-h1-title { font-size: 17px !important; }
-                header .header-sub-title { font-size: 9px !important; }
-                
-                /* Controls kompakter nebeneinander */
-                header .header-controls { justify-content: center; width: 100%; gap: 8px !important; margin-top: 4px; }
                 header .theme-toggle-btn { width: 34px !important; height: 34px !important; }
-                header .lang-select { height: 34px !important; font-size: 12px !important; padding: 0 8px !important; }
+                header .lang-select { height: 34px !important; font-size: 12px !important; padding: 0 6px !important; }
                 header .btn-auth { height: 34px !important; font-size: 12px !important; padding: 0 12px !important; }
                 header #btn-open-settings img { width: 34px !important; height: 34px !important; }
 
-                /* NATIVE BOTTOM BAR (Fixed am Bildschirmrand) */
+                /* 2. Scroll-Menü nach ganz UNTEN fixieren (Natives App-Feeling) */
                 .main-nav {
                     position: fixed !important;
                     top: auto !important;
@@ -162,9 +162,9 @@
                 }
                 html[data-theme="dark"] .main-nav { background: rgba(15, 23, 42, 0.95) !important; border-top: 1px solid rgba(255,255,255,0.05) !important; }
                 .main-nav::-webkit-scrollbar { display: none !important; }
-                .main-nav a { padding: 12px 20px !important; font-size: 14px !important; border-radius: 24px !important; scroll-snap-align: start !important; }
+                .main-nav a { padding: 10px 16px !important; font-size: 13px !important; border-radius: 24px !important; scroll-snap-align: start !important; }
                 
-                /* Platz machen, damit kein Text hinter der Leiste verschwindet */
+                /* Verhindert, dass Inhalt hinter der unteren Leiste verschwindet */
                 body { padding-bottom: calc(env(safe-area-inset-bottom) + 80px) !important; }
             }
         `;
@@ -172,9 +172,7 @@
 
         const activeLink = document.querySelector('.main-nav a.active');
         if (activeLink) {
-            setTimeout(() => {
-                activeLink.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
-            }, 150);
+            setTimeout(() => { activeLink.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); }, 150);
         }
 
         return true;
@@ -187,19 +185,12 @@
     const checkVipStatus = () => {
         setTimeout(async () => {
             if (!window.supabaseClient) return;
-
             const { data: { session } } = await window.supabaseClient.auth.getSession();
             if (!session) return;
-
-            const { data: profile } = await window.supabaseClient
-                .from("profiles")
-                .select("is_doppel_aa")
-                .eq("id", session.user.id)
-                .single();
+            const { data: profile } = await window.supabaseClient.from("profiles").select("is_doppel_aa").eq("id", session.user.id).single();
 
             if (profile && profile.is_doppel_aa === true) {
                 const navContainer = document.querySelector('.main-nav'); 
-                
                 if (navContainer) {
                     const path = window.location.pathname;
                     const page = path.split("/").pop() || "index.html";
@@ -229,12 +220,9 @@
                         }
                         navContainer.appendChild(performanceLink);
                     }
-
                     const newActiveLink = navContainer.querySelector('a.active');
                     if (newActiveLink) {
-                        setTimeout(() => {
-                            newActiveLink.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
-                        }, 50);
+                        setTimeout(() => { newActiveLink.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); }, 50);
                     }
                 }
             }
