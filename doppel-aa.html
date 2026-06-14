@@ -195,7 +195,11 @@
     <script src="header.js"></script>
 
     <div class="container">
-        <div id="access-denied" class="danger-box">Prüfe Berechtigungen... (Bitte einloggen)</div>
+        <!-- 🌟 ÜBERSETZUNG IM GUARD 🌟 -->
+        <div id="access-denied" class="danger-box" style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
+            <span data-txt="planner-logged-out-title">Prüfe Berechtigungen... (Bitte einloggen)</span>
+            <button class="btn-primary-auth" style="width: auto; padding: 10px 20px;" onclick="document.getElementById('auth-modal').style.display='flex'; if(typeof toggleAuthView === 'function') toggleAuthView('login');" data-txt="planner-logged-out-btn">Jetzt einloggen</button>
+        </div>
 
         <div id="dashboard-content" style="display: none;">
             <div class="info-box">
@@ -210,11 +214,12 @@
 
             <h2 style="margin-bottom: 24px; font-weight: 800; letter-spacing: -0.5px;">Geplante Bot-Aktivierungen</h2>
             <div class="match-list" id="js-match-container">
-                <p style="color: var(--text-muted); font-style: italic; font-weight: 600;">Lade kommende Matches aus der Datenbank...</p>
+                <p style="color: var(--text-muted); font-style: italic; font-weight: 600;" data-txt="planner-loading">Lade kommende Matches aus der Datenbank...</p>
             </div>
         </div>
     </div>
 
+    <!-- 🌟 ÜBERSETZUNG IM MODAL 🌟 -->
     <div class="modal" id="bot-config-modal">
         <div class="modal-content">
             <button class="modal-close-trigger" onclick="closeBotModal()">&times;</button>
@@ -232,7 +237,7 @@
 
                 <div class="form-row">
                     <div class="form-group"><label>E-Mail</label><input type="email" id="bot-email" required></div>
-                    <div class="form-group"><label>IPSC Lizenznummer / Alias</label><input type="text" id="bot-lizenz" required></div>
+                    <div class="form-group"><label data-txt="lbl-ipsc-alias">IPSC Lizenznummer / Alias</label><input type="text" id="bot-lizenz" required></div>
                 </div>
 
                 <div class="form-row">
@@ -322,10 +327,18 @@
                     <label for="bot-agb"><strong>Ich bin einverstanden</strong> (Pflichtfeld).</label>
                 </div>
 
-                <button type="submit" class="btn-primary-auth" id="bot-submit-btn">Bot jetzt programmieren</button>
+                <button type="submit" class="btn-primary-auth" id="bot-submit-btn" data-txt="btn-save">Bot jetzt programmieren</button>
             </form>
         </div>
     </div>
+
+    <!-- 🌟 REPARIERTER FOOTER MIT IMPRESSUM 🌟 -->
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center; padding: 20px 0;">
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="auth.js"></script>
