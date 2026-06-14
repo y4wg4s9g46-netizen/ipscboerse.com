@@ -62,6 +62,13 @@ body {
     color: var(--text-color); 
     margin: 0; 
     padding: 0; 
+    
+    /* 📱 APPLE SAFE AREA FIX: Schiebt den gesamten App-Inhalt unter der Notch/Dynamic Island hervor */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+
     display: flex; 
     flex-direction: column; 
     min-height: 100vh; 
@@ -72,7 +79,7 @@ body {
 header { 
     background-color: rgba(255, 255, 255, 0.95); 
     backdrop-filter: blur(10px);
-    padding: max(20px, env(safe-area-inset-top)) 20px 16px; 
+    padding: 20px 20px 16px; 
     text-align: center; 
     border-bottom: 1px solid rgba(0,0,0,0.05); 
     position: sticky; 
@@ -107,6 +114,22 @@ header h1 {
 @media (max-width: 768px) {
     html, body { overflow-x: hidden; width: 100%; }
     .container { padding: 0 16px; margin-top: 20px; width: 100%; box-sizing: border-box; }
+    
+    /* 📱 SMARTPHONE HEADER FIX: Entzerrt das Layout und sortiert Logo/Buttons ordentlich untereinander */
+    header {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 12px !important;
+        padding-top: 15px !important;
+        padding-bottom: 15px !important;
+    }
+
+    header h1 {
+        font-size: 20px !important;
+        line-height: 1.2 !important;
+    }
 }
 
 footer { 
