@@ -93,7 +93,7 @@
             background: var(--card-bg); 
             border: 1px solid var(--border-color); 
             border-radius: 8px; 
-            color: var(--text-color); /* 🔥 Fix für den Lightmode */
+            color: var(--text-color); 
             font-family: inherit;
             font-size: 14px;
             font-weight: 600; 
@@ -261,6 +261,8 @@
         let bluetoothDevice = null;
         let commandCharacteristic = null;
         let parCharacteristic = null;
+        let nativeDeviceId = null; // Für iOS Capacitor Verbindung
+        let isNativeBLE = false;
         let loggedShots = [];
         let activeDrillName = "Freies Training";
 
@@ -269,59 +271,131 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            event.target.classList.add('active');
+            if(event && event.target) event.target.classList.add('active');
             if(tabId === 'highscores') loadLeaderboard();
         }
 
-        // 1. ANKOPPELN & AUTOMATISCHE HARDWARE-ERKENNUNG
+        // 1. ANKOPPELN & AUTOMATISCHE HARDWARE-ERKENNUNG (HYBRID FÜR PC & IOS-APP)
         async function connectSGTimer() {
-            // 🌟 IPHONE CHECK: Prüft, ob der Browser Bluetooth erlaubt
-            if (!navigator.bluetooth) {
-                alert("Dein aktueller Browser (wie Safari auf dem iPhone) blockiert Web-Bluetooth.\n\n💡 Tipp für iOS: Lade dir die kostenlose App 'Bluefy' herunter und öffne die Seite dort, oder nutze Chrome am PC/Android!");
-                return;
-            }
-
             const badge = document.getElementById('bt-status-badge');
             try {
                 badge.innerHTML = `<span>⏳ Scan läuft...</span>`;
-                bluetoothDevice = await navigator.bluetooth.requestDevice({
-                    filters: [{ services: [SG_SERVICE_UUID] }],
-                    optionalServices: [SG_SERVICE_UUID]
-                });
 
-                const server = await bluetoothDevice.gatt.connect();
-                const service = await server.getPrimaryService(SG_SERVICE_UUID);
+                // Checken, ob das native Capacitor-Plugin geladen ist (iOS-Hülle)
+                const ble = window.CapacitorBluetoothLE || (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.BluetoothLe);
+                
+                if (!ble) {
+                    // FALLBACK: Wenn wir im normalen Desktop-Browser testen (Mac/Windows Chrome)
+                    isNativeBLE = false;
+                    if (!navigator.bluetooth) {
+                        alert("Dein aktueller Browser blockiert Web-Bluetooth oder unterstützt es nicht.");
+                        return;
+                    }
+                    bluetoothDevice = await navigator.bluetooth.requestDevice({
+                        filters: [{ services: [SG_SERVICE_UUID] }],
+                        optionalServices: [SG_SERVICE_UUID]
+                    });
 
-                commandCharacteristic = await service.getCharacteristic(SG_CHAR_COMMAND);
-                parCharacteristic = await service.getCharacteristic(SG_CHAR_PAR);
-                const eventCharacteristic = await service.getCharacteristic(SG_CHAR_EVENT);
+                    const server = await bluetoothDevice.gatt.connect();
+                    const service = await server.getPrimaryService(SG_SERVICE_UUID);
 
-                await eventCharacteristic.startNotifications();
-                eventCharacteristic.addEventListener('characteristicvaluechanged', handleIncomingTimerEvent);
+                    commandCharacteristic = await service.getCharacteristic(SG_CHAR_COMMAND);
+                    parCharacteristic = await service.getCharacteristic(SG_CHAR_PAR);
+                    const eventCharacteristic = await service.getCharacteristic(SG_CHAR_EVENT);
 
-                let modelName = "SG Timer";
-                const devName = bluetoothDevice.name; 
-                if (devName && devName.startsWith("SG-SST4")) {
-                    const identifier = devName.charAt(7); 
-                    if (identifier === 'A') modelName = "👑 SG Timer Sport";
-                    if (identifier === 'B') modelName = "⚡ SG Timer GO";
+                    await eventCharacteristic.startNotifications();
+                    eventCharacteristic.addEventListener('characteristicvaluechanged', handleIncomingTimerEvent);
+
+                    let modelName = bluetoothDevice.name || "SG Timer";
+                    updateUIConnected(modelName);
+
+                    const unixChar = await service.getCharacteristic(SG_CHAR_UNIX_TIME);
+                    const secondsNow = Math.floor(Date.now() / 1000);
+                    const timeBuf = new ArrayBuffer(4);
+                    new DataView(timeBuf).setUint32(0, secondsNow, false); 
+                    await unixChar.writeValue(timeBuf);
+                    return;
                 }
 
-                badge.innerHTML = `<span style="width:8px; height:8px; background:var(--success-color); border-radius:50%;"></span> ${modelName} verknüpft`;
-                badge.style.background = "rgba(76, 217, 100, 0.1)";
-                document.getElementById('btn-connect').innerText = "Trennen";
-                document.getElementById('btn-connect').onclick = () => location.reload();
+                // --- NATIVE IPHONE-ANTENNE ÜBER CAPACITOR ---
+                isNativeBLE = true;
+                await ble.initialize();
 
-                const unixChar = await service.getCharacteristic(SG_CHAR_UNIX_TIME);
-                const secondsNow = Math.floor(Date.now() / 1000);
-                const timeBuf = new ArrayBuffer(4);
-                new DataView(timeBuf).setUint32(0, secondsNow, false); 
-                await unixChar.writeValue(timeBuf);
+                const device = await ble.requestDevice({
+                    services: [SG_SERVICE_UUID]
+                });
+
+                if (!device) throw new Error("Kein Gerät ausgewählt");
+                nativeDeviceId = device.deviceId;
+
+                await ble.connect({ deviceId: nativeDeviceId });
+                
+                await ble.startNotifications({
+                    deviceId: nativeDeviceId,
+                    service: SG_SERVICE_UUID,
+                    characteristic: SG_CHAR_EVENT
+                });
+
+                ble.addListener('characteristicvaluechanged', (result) => {
+                    if (result.characteristic === SG_CHAR_EVENT) {
+                        // Datenstruktur an das Event-Format anpassen
+                        const uint8 = new Uint8Array(result.value);
+                        const view = new DataView(uint8.buffer);
+                        handleIncomingTimerEvent({ target: { value: view } });
+                    }
+                });
+
+                // Brücke bauen für Befehle (Command)
+                commandCharacteristic = {
+                    writeValue: async (bytes) => {
+                        let binary = '';
+                        const len = bytes.byteLength;
+                        for (let i = 0; i < len; i++) { binary += String.fromCharCode(bytes[i]); }
+                        await ble.write({
+                            deviceId: nativeDeviceId,
+                            service: SG_SERVICE_UUID,
+                            characteristic: SG_CHAR_COMMAND,
+                            value: btoa(binary)
+                        });
+                    }
+                };
+
+                // Brücke bauen für Presets (Par)
+                parCharacteristic = {
+                    writeValue: async (bytes) => {
+                        const arr = new Uint8Array(bytes);
+                        let binary = '';
+                        for (let i = 0; i < arr.length; i++) { binary += String.fromCharCode(arr[i]); }
+                        await ble.write({
+                            deviceId: nativeDeviceId,
+                            service: SG_SERVICE_UUID,
+                            characteristic: SG_CHAR_PAR,
+                            value: btoa(binary)
+                        });
+                    }
+                };
+
+                updateUIConnected(device.name || "SG Timer");
 
             } catch (error) {
                 badge.innerHTML = `<span style="width:8px; height:8px; background:var(--danger-color); border-radius:50%;"></span> Getrennt`;
                 console.error(error);
+                alert("Verbindungsfehler: " + error.message);
             }
+        }
+
+        function updateUIConnected(devName) {
+            const badge = document.getElementById('bt-status-badge');
+            let modelName = "SG Timer";
+            if (devName && devName.startsWith("SG-SST4")) {
+                const identifier = devName.charAt(7); 
+                if (identifier === 'A') modelName = "👑 SG Timer Sport";
+                if (identifier === 'B') modelName = "⚡ SG Timer GO";
+            }
+            badge.innerHTML = `<span style="width:8px; height:8px; background:var(--success-color); border-radius:50%;"></span> ${modelName} verknüpft`;
+            badge.style.background = "rgba(76, 217, 100, 0.1)";
+            document.getElementById('btn-connect').innerText = "Trennen";
+            document.getElementById('btn-connect').onclick = () => location.reload();
         }
 
         // 2. LIVE-EVENTS & VISUELLER GREEN-FLASH
@@ -385,7 +459,7 @@
             document.getElementById('par-delay').value = delay;
             document.getElementById('par-time').value = parTime.toFixed(1);
 
-            if (!parCharacteristic) return alert("Timer per Funk verbunden, Preset im Browser vermerkt!");
+            if (!parCharacteristic) return alert("Timer per Funk verbunden, Preset lokal vermerkt!");
 
             const buffer = new ArrayBuffer(6); 
             const view = new DataView(buffer);
@@ -407,8 +481,12 @@
             alert("Erfolgreich konfiguriert! 🎯");
         }
 
-        // 4. ARCHIV DURCHSUCHEN & IN CLOUD SPEICHERN
+        // 4. ARCHIV DURCHSUCHEN (FALLBACK HINZUGEFÜGT FÜR NATIVEN BETRIEB)
         async function fetchSessionArchive() {
+            if (isNativeBLE) {
+                alert("Die Speicherarchiv-Funktion wird aktuell nur im Desktop-Webmodus unterstützt.");
+                return;
+            }
             if (!bluetoothDevice) return alert("Bitte zuerst den Timer verbinden!");
             try {
                 document.getElementById('btn-fetch-archive').innerText = "⏳ Lese Speicher aus...";
@@ -450,7 +528,6 @@
 
         async function loadAndSaveSession() {
             if (!bluetoothDevice) return;
-            
             const selectedSessionId = parseInt(document.getElementById('archive-select').value);
             
             try {
@@ -549,7 +626,7 @@
         }
     </script>
 
-    <!-- 🌟 HIER SIND DEINE GLOBALS FÜR LOGIN & CO. -->
+    <!-- 🌟 GLOBALS FÜR LOGIN & CO. -->
     <script src="auth.js"></script>
     <script src="lang.js"></script>
     <script src="app.js"></script>
