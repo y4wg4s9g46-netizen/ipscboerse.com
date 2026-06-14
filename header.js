@@ -39,9 +39,7 @@
         // 🌟 Aufbau des HTML mit absolutem Pfad /image_11.png
         header.innerHTML = `
             <a href="index.html" class="header-logo-link" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 14px; cursor: pointer; transition: opacity 0.2s; text-align: left;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Zur Startseite">
-                
-<img src="/image_11.png" width="38" height="44" alt="IPSC Logo" style="height: 44px; width: auto; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); border-radius: 4px;" />
-
+                <img src="/image_11.png" width="38" height="44" alt="IPSC Logo" style="height: 44px; width: auto; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); border-radius: 4px;" />
                 <div class="logo-text-group">
                     <h1 ${isVipPage ? '' : 'data-txt="main-title"'} class="${isVipPage ? 'vip-title' : ''}" style="margin: 0; line-height: 1.1;">${headerTitle}</h1>
                     <p style="color: ${isVipPage ? 'var(--accent-color)' : 'var(--text-muted)'}; margin: 3px 0 0 0; font-size: 12px;" ${isVipPage ? '' : 'data-txt="sub-title"'}>${headerSub}</p>
@@ -82,52 +80,15 @@
         if (isVipPage) {
             const vipStyle = document.createElement('style');
             vipStyle.innerHTML = `
-                header {
-                    background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%) !important;
-                    border-bottom: 2px solid var(--accent-color) !important;
-                    border-radius: 0 0 15px 15px;
-                    padding-bottom: 20px !important;
-                    margin-bottom: 20px;
-                    box-shadow: 0 10px 20px rgba(255, 159, 67, 0.15) !important;
-                }
-                header .vip-title {
-                    background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    font-size: 26px !important;
-                    letter-spacing: 1.5px;
-                    text-shadow: 0px 2px 4px rgba(0,0,0,0.4);
-                }
-                header .theme-toggle-btn, header .btn-auth, header .main-nav a.inactive {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    color: #ffffff !important;
-                    border-color: rgba(255, 255, 255, 0.2) !important;
-                }
-                .info-box {
-                    background-color: rgba(255, 159, 67, 0.08) !important;
-                    border: 1px solid rgba(255, 159, 67, 0.4) !important;
-                    border-left: 4px solid var(--accent-color) !important;
-                    color: var(--text-color) !important;
-                }
-                .match-card, .elo-stat-card, .filter-bar, .legend-box, .upload-zone {
-                    border: 1px solid rgba(255, 159, 67, 0.3) !important;
-                }
-                #quick-analyze-section {
-                    background: rgba(255, 159, 67, 0.05) !important;
-                    border: 1px solid rgba(255, 159, 67, 0.4) !important;
-                }
+                header { background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%) !important; border-bottom: 2px solid var(--accent-color) !important; border-radius: 0 0 15px 15px; padding-bottom: 20px !important; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(255, 159, 67, 0.15) !important; }
+                header .vip-title { background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 26px !important; letter-spacing: 1.5px; text-shadow: 0px 2px 4px rgba(0,0,0,0.4); }
+                header .theme-toggle-btn, header .btn-auth, header .main-nav a.inactive { background: rgba(255, 255, 255, 0.1) !important; color: #ffffff !important; border-color: rgba(255, 255, 255, 0.2) !important; }
+                .info-box { background-color: rgba(255, 159, 67, 0.08) !important; border: 1px solid rgba(255, 159, 67, 0.4) !important; border-left: 4px solid var(--accent-color) !important; color: var(--text-color) !important; }
+                .match-card, .elo-stat-card, .filter-bar, .legend-box, .upload-zone { border: 1px solid rgba(255, 159, 67, 0.3) !important; }
+                #quick-analyze-section { background: rgba(255, 159, 67, 0.05) !important; border: 1px solid rgba(255, 159, 67, 0.4) !important; }
                 #quick-analyze-section h4 { color: var(--accent-color) !important; }
-                #quick-analyze-buttons .archive-btn {
-                    color: var(--accent-color) !important;
-                    border-color: var(--accent-color) !important;
-                    background-color: rgba(255, 159, 67, 0.05) !important;
-                }
-                .primary-btn {
-                    background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%) !important;
-                    border: 1px solid var(--accent-color) !important;
-                    color: #ff9f43 !important;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important;
-                }
+                #quick-analyze-buttons .archive-btn { color: var(--accent-color) !important; border-color: var(--accent-color) !important; background-color: rgba(255, 159, 67, 0.05) !important; }
+                .primary-btn { background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%) !important; border: 1px solid var(--accent-color) !important; color: #ff9f43 !important; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important; }
                 .primary-btn:hover { filter: brightness(1.2) !important; }
             `;
             document.head.appendChild(vipStyle);
@@ -135,18 +96,9 @@
 
         const style = document.createElement('style');
         style.innerHTML = `
+            /* --- DESKTOP STYLES (Exakt wie Backup) --- */
             header { position: sticky !important; top: 0 !important; z-index: 100 !important; display: flex; flex-direction: column; align-items: center; }
-header .header-controls {
-    position: absolute !important;
-    top: calc(env(safe-area-inset-top) + 24px) !important; /* Passt die Icons an die Notch an */
-    right: 20px !important;
-    transform: none !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    flex-direction: row !important;
-}
-
+            header .header-controls { position: absolute !important; top: calc(env(safe-area-inset-top) + 24px) !important; right: 20px !important; transform: none !important; display: flex !important; align-items: center !important; gap: 10px !important; flex-direction: row !important; }
             header .theme-toggle-btn { width: 38px !important; height: 38px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; padding: 0 !important; background: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: var(--shadow-sm) !important; font-size: 16px !important; }
             header .theme-toggle-btn:hover { border-color: var(--text-muted) !important; background-color: var(--bg-color) !important; }
             header .lang-select { width: auto !important; height: 38px !important; padding: 0 10px !important; box-sizing: border-box !important; flex-shrink: 0 !important; background: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; font-weight: 600 !important; font-size: 13px !important; box-shadow: var(--shadow-sm) !important; cursor: pointer !important; }
@@ -156,43 +108,67 @@ header .header-controls {
             header #btn-logout { border: 1px solid var(--danger-color) !important; color: var(--danger-color) !important; background: transparent !important; }
             header #btn-logout:hover { background-color: var(--danger-color) !important; color: #ffffff !important; }
             header #btn-open-settings img { width: 38px !important; height: 38px !important; border-radius: 50% !important; object-fit: cover !important; border: 2px solid var(--accent-color) !important; box-shadow: var(--shadow-sm) !important; display: block !important; }
+            
             header .main-nav { width: 100% !important; margin-top: 20px !important; display: flex !important; justify-content: center !important; gap: 8px !important; border-top: 1px solid var(--border-color) !important; padding-top: 15px !important; flex-wrap: wrap !important; }
             header .main-nav a { text-decoration: none !important; font-weight: 600 !important; font-size: 12px !important; text-transform: uppercase !important; letter-spacing: 0.3px !important; padding: 8px 16px !important; border-radius: 20px !important; transition: all 0.2s ease !important; white-space: nowrap !important; flex-shrink: 0 !important; display: inline-block !important; line-height: 1.4 !important; box-sizing: border-box !important; border: 1px solid transparent !important; }
             header .main-nav a.active { color: #ffffff !important; background-color: var(--accent-color) !important; box-shadow: var(--shadow-sm) !important; border-color: var(--accent-color) !important; }
             header .main-nav a.inactive { color: var(--text-muted) !important; background-color: rgba(0, 0, 0, 0.03) !important; }
             html[data-theme="dark"] header .main-nav a.inactive { background-color: rgba(255, 255, 255, 0.04) !important; color: var(--text-muted) !important; }
             header .main-nav a.inactive:hover { color: var(--text-color) !important; background-color: rgba(0, 0, 0, 0.06) !important; }
+            
             .modal-content { max-height: 85vh !important; overflow-y: auto !important; display: block !important; -webkit-overflow-scrolling: touch !important; }
 
+            /* --- TABLET STYLES (Exakt wie Backup) --- */
             @media (max-width: 1024px) {
                 header { padding: calc(env(safe-area-inset-top) + 20px) 12px 8px 12px !important; display: flex; flex-direction: column; align-items: center; }
                 header .header-logo-link { justify-content: center !important; width: 100% !important; margin: 0 auto !important; }
                 header .header-controls { position: static !important; display: flex !important; flex-direction: row !important; justify-content: center !important; align-items: center !important; gap: 8px !important; margin-top: 14px !important; width: 100% !important; transform: none !important; flex-wrap: wrap !important; }
+                
                 header .main-nav { margin-top: 15px !important; padding: 10px 4px 4px 4px !important; justify-content: flex-start !important; gap: 8px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; scroll-snap-type: x mandatory !important; flex-wrap: nowrap !important; overflow-x: auto !important; white-space: nowrap !important; }
                 header .main-nav::-webkit-scrollbar { display: none !important; }
                 header .main-nav a { padding: 8px 14px !important; font-size: 11px !important; border-radius: 20px !important; scroll-snap-align: start !important; }
                 .modal-content { padding: 24px 16px !important; }
             }
 
+            /* --- MOBILE STYLES: DAUMEN NAVIGATION FÜR ALLE HANDYS (App & Browser) --- */
             @media (max-width: 768px) {
-                header .main-nav {
+                /* Header massiv verkleinern */
+                header { 
+                    padding: calc(env(safe-area-inset-top) + 12px) 12px 12px 12px !important; 
+                }
+                header .header-logo-link img { height: 32px !important; }
+                header h1 { font-size: 16px !important; margin-bottom: 2px !important; }
+                header p[data-txt="sub-title"] { display: none !important; } /* Untertitel weg für Platz */
+
+                /* Buttons sauber zentrieren */
+                header .header-controls { 
+                    margin-top: 10px !important; 
+                    margin-bottom: 0 !important; 
+                }
+
+                /* 🚀 DIE DAUMEN NAVIGATION FIXIERT AM BODEN */
+                header .main-nav { 
                     position: fixed !important;
                     bottom: 0 !important;
                     left: 0 !important;
-                    width: 100% !important;
-                    background-color: var(--card-bg) !important;
+                    width: 100vw !important; /* Volle Bildschirmbreite */
+                    background-color: var(--card-bg) !important; 
                     border-top: 1px solid var(--border-color) !important;
-                    z-index: 9999 !important;
-                    margin-top: 0 !important;
-                    padding: 8px 8px calc(8px + env(safe-area-inset-bottom)) !important;
+                    z-index: 99999 !important;
+                    margin: 0 !important;
+                    padding: 10px 10px calc(10px + env(safe-area-inset-bottom)) !important;
                     box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08) !important;
+                    border-radius: 0 !important; /* Ecken glätten */
                 }
-                body {
-                    padding-bottom: 85px !important;
+
+                header .main-nav a {
+                    padding: 10px 14px !important; 
+                    font-size: 12px !important; 
                 }
-                .floating-action-bar {
-                    bottom: calc(85px + env(safe-area-inset-bottom)) !important;
-                }
+
+                /* Content Padding anpassen, damit nichts verdeckt wird */
+                body { padding-bottom: 90px !important; }
+                .floating-action-bar { bottom: calc(90px + env(safe-area-inset-bottom)) !important; }
             }
         `;
         document.head.appendChild(style);
@@ -234,7 +210,6 @@ header .header-controls {
                     const path = window.location.pathname;
                     const page = path.split("/").pop() || "index.html";
                     
-                    // 1. Link für den Bot-Sniper
                     const isSniperActive = (page === "doppel-aa.html");
                     if (!navContainer.querySelector('a[href="doppel-aa.html"]')) {
                         const sniperLink = document.createElement('a');
@@ -248,7 +223,6 @@ header .header-controls {
                         navContainer.appendChild(sniperLink);
                     }
 
-                    // 2. Link für die Starterlisten-Analyse
                     const isPerformanceActive = (page === "performance.html");
                     if (!navContainer.querySelector('a[href="performance.html"]')) {
                         const performanceLink = document.createElement('a');
@@ -273,7 +247,6 @@ header .header-controls {
         }, 600);
     };
 
-    // Führt den VIP-Check krisensicher aus (Egal wann das Skript lädt)
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", checkVipStatus);
     } else {
