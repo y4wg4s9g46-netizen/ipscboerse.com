@@ -4,13 +4,13 @@
 
 /* Modernes Variablen-System für Hell- und Dunkelmodus */
 :root, html[data-theme="light"] {
-    --bg-color: #f8fafc; /* Etwas kühleres, moderneres Hellgrau */
+    --bg-color: #f8fafc;
+    /* Etwas kühleres, moderneres Hellgrau */
     --card-bg: #ffffff;
     --text-color: #0f172a;
     --text-muted: #64748b;
     --border-color: #e2e8f0;
     --input-bg: #f8fafc;
-    
     --accent-color: #ff9f43; /* IPSC Orange */
     --accent-gradient: linear-gradient(135deg, #ff9f43 0%, #ff8008 100%);
     --danger-color: #ef4444;
@@ -22,7 +22,8 @@
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.05);
     --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
     
-    --radius: 12px; /* Größerer Radius für ein weicheres App-Gefühl */
+    --radius: 12px;
+    /* Größerer Radius für ein weicheres App-Gefühl */
     --radius-lg: 20px;
     --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -57,7 +58,7 @@ html[data-theme="dark"] {
    ========================================================================== */
 
 body { 
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--bg-color); 
     color: var(--text-color); 
     margin: 0; 
@@ -80,7 +81,7 @@ header {
     background-color: rgba(255, 255, 255, 0.95); 
     backdrop-filter: blur(10px);
     padding: 20px 20px 16px; 
-    text-align: center; 
+    text-align: center;
     border-bottom: 1px solid rgba(0,0,0,0.05); 
     position: sticky; 
     top: 0;
@@ -98,7 +99,7 @@ header h1 {
     font-size: clamp(18px, 5vw, 22px); 
     font-weight: 800; 
     letter-spacing: -0.5px; 
-    color: var(--text-color); 
+    color: var(--text-color);
     margin-bottom: 4px;
 }
 
@@ -107,7 +108,7 @@ header h1 {
     margin: 40px auto; 
     padding: 0 24px; 
     flex: 1; 
-    width: 100%; 
+    width: 100%;
     box-sizing: border-box; 
 }
 
@@ -137,7 +138,7 @@ footer {
     border-top: 1px solid var(--border-color); 
     padding: 40px 20px; 
     margin-top: 60px; 
-    font-size: 14px; 
+    font-size: 14px;
     color: var(--text-muted); 
     text-align: center; 
     padding-bottom: max(40px, env(safe-area-inset-bottom));
@@ -202,11 +203,13 @@ footer {
    ========================================================================== */
 
 .modal, .modal-overlay { 
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    display: none;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
     background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); 
-    justify-content: center; align-items: center; z-index: 1000; 
+    justify-content: center;
+    align-items: center; z-index: 1000; 
     animation: fadeInModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
-    padding: 20px; box-sizing: border-box; 
+    padding: 20px; box-sizing: border-box;
 }
 
 .modal-content { 
@@ -214,7 +217,7 @@ footer {
     padding: 36px; 
     border-radius: var(--radius-lg); 
     border: 1px solid var(--border-color); 
-    width: 100%; max-width: 460px; 
+    width: 100%; max-width: 460px;
     max-height: 90vh; overflow-y: auto; box-sizing: border-box; 
     box-shadow: var(--shadow-lg); 
     position: relative; margin: auto; 
@@ -224,7 +227,8 @@ footer {
 
 .modal-content h3 { 
     color: var(--text-color); 
-    margin-top: 0; margin-bottom: 24px; 
+    margin-top: 0;
+    margin-bottom: 24px; 
     font-size: 24px; font-weight: 800; 
     letter-spacing: -0.5px; padding-right: 40px; 
 }
@@ -235,19 +239,21 @@ footer {
     border: none; border-radius: 50%;
     color: var(--text-muted); 
     width: 36px; height: 36px;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center; justify-content: center;
     font-size: 24px; cursor: pointer; line-height: 1; 
     transition: var(--transition); 
 }
 .modal-close-trigger:hover { 
-    color: var(--text-color); 
+    color: var(--text-color);
     background: var(--border-color);
     transform: rotate(90deg); 
 }
 
 .modal-divider { 
     display: flex; align-items: center; text-align: center; 
-    color: var(--text-muted); font-size: 13px; font-weight: 600; 
+    color: var(--text-muted); font-size: 13px;
+    font-weight: 600; 
     margin: 28px 0; text-transform: uppercase; letter-spacing: 1px; 
 }
 .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
@@ -255,10 +261,12 @@ footer {
 .modal-divider:not(:empty)::after { margin-left: 1em; }
 
 .modal-footer { 
-    margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border-color); 
+    margin-top: 28px; padding-top: 20px;
+    border-top: 1px solid var(--border-color); 
     display: flex; justify-content: center; gap: 8px; font-size: 14px; color: var(--text-muted); 
 }
-.modal-footer a { color: var(--accent-color); text-decoration: none; cursor: pointer; font-weight: 700; transition: var(--transition); }
+.modal-footer a { color: var(--accent-color);
+    text-decoration: none; cursor: pointer; font-weight: 700; transition: var(--transition); }
 .modal-footer a:hover { opacity: 0.8; }
 
 @media (max-width: 768px) {
@@ -273,17 +281,20 @@ footer {
 .form-group, .hit-input-group { margin-bottom: 24px; display: flex; flex-direction: column; }
 .form-group label, .hit-input-group label { 
     font-size: 13px; font-weight: 700; color: var(--text-muted); 
-    margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; 
+    margin-bottom: 8px; text-transform: uppercase;
+    letter-spacing: 0.5px; 
 }
 
 .form-group input, .hit-input-group input, .modal-content input, .modal-content textarea { 
-    background-color: var(--input-bg); border: 2px solid var(--border-color); 
+    background-color: var(--input-bg);
+    border: 2px solid var(--border-color); 
     color: var(--text-color); padding: 14px 16px; border-radius: var(--radius); 
-    font-size: 15px; transition: var(--transition); font-family: inherit; 
+    font-size: 15px; transition: var(--transition); font-family: inherit;
 }
 .form-group input:hover, .hit-input-group input:hover { border-color: #cbd5e1; }
 .form-group input:focus, .hit-input-group input:focus, .modal-content input:focus, .modal-content textarea:focus { 
-    outline: none; border-color: var(--accent-color); 
+    outline: none;
+    border-color: var(--accent-color); 
     box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); 
     background-color: var(--card-bg);
 }
@@ -293,24 +304,24 @@ footer {
    ========================================================================== */
 
 .btn-primary-auth, .btn-post, .btn-submit { 
-    background: var(--accent-gradient); 
+    background: var(--accent-gradient);
     color: #ffffff; border: none; 
     padding: 14px 28px; font-size: 15px; font-weight: 700; 
-    border-radius: var(--radius); cursor: pointer; width: 100%; 
+    border-radius: var(--radius); cursor: pointer; width: 100%;
     box-shadow: 0 4px 14px 0 rgba(255, 159, 67, 0.3); 
     transition: var(--transition); 
 }
 .btn-submit { padding: 14px 32px; margin-top: 10px; width: auto;}
 .btn-primary-auth:hover, .btn-post:hover, .btn-submit:hover { 
     box-shadow: 0 6px 20px rgba(255, 159, 67, 0.4);
-    transform: translateY(-2px); 
+    transform: translateY(-2px);
 }
 .btn-primary-auth:active, .btn-post:active, .btn-submit:active { transform: translateY(0); }
 
 .btn-secondary-auth { 
-    background-color: var(--card-bg); color: var(--text-color); border: 2px solid var(--border-color); 
+    background-color: var(--card-bg); color: var(--text-color); border: 2px solid var(--border-color);
     padding: 14px 28px; font-size: 15px; font-weight: 700; border-radius: var(--radius); 
-    cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; 
+    cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center;
     gap: 10px; transition: var(--transition); 
 }
 .btn-secondary-auth:hover { 
@@ -320,11 +331,13 @@ footer {
 
 .btn-danger-block { 
     background-color: transparent; color: var(--danger-color); border: 2px solid rgba(239, 68, 68, 0.3); 
-    padding: 12px; width: 100%; font-weight: 700; border-radius: var(--radius); 
+    padding: 12px;
+    width: 100%; font-weight: 700; border-radius: var(--radius); 
     cursor: pointer; margin-top: 20px; transition: var(--transition); 
 }
 .btn-danger-block:hover { 
-    background-color: var(--danger-color); color: #fff; border-color: var(--danger-color); 
+    background-color: var(--danger-color);
+    color: #fff; border-color: var(--danger-color); 
     box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
 }
 
@@ -509,7 +522,8 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
     background: var(--card-bg) !important;
     border: 1px solid var(--border-color) !important;
     padding: 6px 12px !important;
-    border-radius: 30px !important; /* Schickes, rundes Aktions-Chip */
+    border-radius: 30px !important;
+    /* Schickes, rundes Aktions-Chip */
     box-shadow: var(--shadow-md) !important;
     z-index: 10 !important;
     font-size: 10px !important;
@@ -596,7 +610,8 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
     margin-top: 12px !important;
     background: var(--input-bg) !important;
     padding: 4px 4px 4px 14px !important;
-    border-radius: 24px !important; /* Komplett rundes Instagram-Input */
+    border-radius: 24px !important;
+    /* Komplett rundes Instagram-Input */
     border: 1px solid var(--border-color) !important;
     box-shadow: none !important;
     align-items: center !important;
@@ -614,7 +629,8 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
 }
 
 #btn-chat-send {
-    background: transparent !important; /* Transparenter Text-Button wie bei IG */
+    background: transparent !important;
+    /* Transparenter Text-Button wie bei IG */
     color: var(--accent-color) !important;
     box-shadow: none !important;
     padding: 8px 16px !important;
