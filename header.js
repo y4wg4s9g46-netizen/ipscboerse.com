@@ -26,9 +26,8 @@
     { href: "tools.html", text: "Tools & Training", key: "card-title-tools" },
     { href: "analytics.html", text: "Statistiken", key: "nav-analytics" },
     { href: "wiederladen.html", text: "Wiederladen", key: "nav-wiederladen" },
-    { href: "ipsc-hub.html", text: "IPSC Hub", key: "card-title-hub" } // 🔥 Jetzt an der allerletzten Stelle!
+    { href: "ipsc-hub.html", text: "IPSC Hub", key: "card-title-hub" }
 ];
-
 
         let navHtml = "";
         links.forEach(link => {
@@ -42,7 +41,6 @@
             <a href="index.html" class="header-logo-link" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 14px; cursor: pointer; transition: opacity 0.2s; text-align: left;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Zur Startseite">
                 
 <img src="/image_11.png" width="38" height="44" alt="IPSC Logo" style="height: 44px; width: auto; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); border-radius: 4px;" />
-
 
                 <div class="logo-text-group">
                     <h1 ${isVipPage ? '' : 'data-txt="main-title"'} class="${isVipPage ? 'vip-title' : ''}" style="margin: 0; line-height: 1.1;">${headerTitle}</h1>
@@ -138,17 +136,7 @@
         const style = document.createElement('style');
         style.innerHTML = `
             header { position: sticky !important; top: 0 !important; z-index: 100 !important; display: flex; flex-direction: column; align-items: center; }
-header .header-controls {
-    position: absolute !important;
-    top: calc(env(safe-area-inset-top) + 24px) !important; /* Passt die Icons an die Notch an */
-    right: 20px !important;
-    transform: none !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    flex-direction: row !important;
-}
-
+            header .header-controls { position: absolute !important; top: calc(env(safe-area-inset-top) + 24px) !important; right: 20px !important; transform: none !important; display: flex !important; align-items: center !important; gap: 10px !important; flex-direction: row !important; }
             header .theme-toggle-btn { width: 38px !important; height: 38px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; padding: 0 !important; background: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: var(--shadow-sm) !important; font-size: 16px !important; }
             header .theme-toggle-btn:hover { border-color: var(--text-muted) !important; background-color: var(--bg-color) !important; }
             header .lang-select { width: auto !important; height: 38px !important; padding: 0 10px !important; box-sizing: border-box !important; flex-shrink: 0 !important; background: var(--card-bg) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; font-weight: 600 !important; font-size: 13px !important; box-shadow: var(--shadow-sm) !important; cursor: pointer !important; }
@@ -158,23 +146,56 @@ header .header-controls {
             header #btn-logout { border: 1px solid var(--danger-color) !important; color: var(--danger-color) !important; background: transparent !important; }
             header #btn-logout:hover { background-color: var(--danger-color) !important; color: #ffffff !important; }
             header #btn-open-settings img { width: 38px !important; height: 38px !important; border-radius: 50% !important; object-fit: cover !important; border: 2px solid var(--accent-color) !important; box-shadow: var(--shadow-sm) !important; display: block !important; }
+            
+            /* --- DESKTOP NAVIGATION --- */
             header .main-nav { width: 100% !important; margin-top: 20px !important; display: flex !important; justify-content: center !important; gap: 8px !important; border-top: 1px solid var(--border-color) !important; padding-top: 15px !important; flex-wrap: wrap !important; }
             header .main-nav a { text-decoration: none !important; font-weight: 600 !important; font-size: 12px !important; text-transform: uppercase !important; letter-spacing: 0.3px !important; padding: 8px 16px !important; border-radius: 20px !important; transition: all 0.2s ease !important; white-space: nowrap !important; flex-shrink: 0 !important; display: inline-block !important; line-height: 1.4 !important; box-sizing: border-box !important; border: 1px solid transparent !important; }
             header .main-nav a.active { color: #ffffff !important; background-color: var(--accent-color) !important; box-shadow: var(--shadow-sm) !important; border-color: var(--accent-color) !important; }
             header .main-nav a.inactive { color: var(--text-muted) !important; background-color: rgba(0, 0, 0, 0.03) !important; }
             html[data-theme="dark"] header .main-nav a.inactive { background-color: rgba(255, 255, 255, 0.04) !important; color: var(--text-muted) !important; }
             header .main-nav a.inactive:hover { color: var(--text-color) !important; background-color: rgba(0, 0, 0, 0.06) !important; }
-            .modal-content { max-height: 85vh !important; overflow-y: auto !important; display: block !important; -webkit-overflow-scrolling: touch !important; }
 
+            /* ==========================================================================
+               📱 MOBILE & TABLET: DIE NATIVE BOTTOM TAB BAR
+               ========================================================================== */
             @media (max-width: 1024px) {
-                /* 🔥 HIER IST DER FIX: Die Apple-Notch-Berechnung wird hier sichergestellt! */
-                header { padding: calc(env(safe-area-inset-top) + 20px) 12px 8px 12px !important; display: flex; flex-direction: column; align-items: center; }
+                /* Header oben stark verschlankt */
+                header { padding: calc(env(safe-area-inset-top) + 12px) 12px 10px 12px !important; }
                 header .header-logo-link { justify-content: center !important; width: 100% !important; margin: 0 auto !important; }
-                header .header-controls { position: static !important; display: flex !important; flex-direction: row !important; justify-content: center !important; align-items: center !important; gap: 8px !important; margin-top: 14px !important; width: 100% !important; transform: none !important; flex-wrap: wrap !important; }
-                header .main-nav { margin-top: 15px !important; padding: 10px 4px 4px 4px !important; justify-content: flex-start !important; gap: 8px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; scroll-snap-type: x mandatory !important; flex-wrap: nowrap !important; overflow-x: auto !important; white-space: nowrap !important; }
+                header .header-controls { position: static !important; display: flex !important; flex-direction: row !important; justify-content: center !important; align-items: center !important; gap: 8px !important; margin-top: 10px !important; width: 100% !important; transform: none !important; flex-wrap: wrap !important; }
+                
+                /* Navigation wird zur Bottom Bar gezwungen */
+                header .main-nav { 
+                    position: fixed !important; 
+                    bottom: 0 !important; 
+                    left: 0 !important; 
+                    right: 0 !important; 
+                    margin: 0 !important; 
+                    background: rgba(255, 255, 255, 0.92) !important; 
+                    backdrop-filter: blur(15px) !important; 
+                    border-top: 1px solid rgba(0,0,0,0.1) !important; 
+                    /* Wichtig: Nutzt die Apple Home-Bar perfekt aus! */
+                    padding: 12px 10px calc(env(safe-area-inset-bottom) + 12px) 10px !important; 
+                    justify-content: flex-start !important; 
+                    gap: 10px !important; 
+                    -webkit-overflow-scrolling: touch !important; 
+                    scrollbar-width: none !important; 
+                    scroll-snap-type: x mandatory !important; 
+                    flex-wrap: nowrap !important; 
+                    overflow-x: auto !important; 
+                    white-space: nowrap !important; 
+                    z-index: 9999 !important; 
+                    box-shadow: 0 -4px 20px rgba(0,0,0,0.06) !important;
+                }
+                html[data-theme="dark"] header .main-nav { 
+                    background: rgba(15, 23, 42, 0.92) !important; 
+                    border-top: 1px solid rgba(255,255,255,0.05) !important; 
+                }
                 header .main-nav::-webkit-scrollbar { display: none !important; }
-                header .main-nav a { padding: 8px 14px !important; font-size: 11px !important; border-radius: 20px !important; scroll-snap-align: start !important; }
-                .modal-content { padding: 24px 16px !important; }
+                header .main-nav a { padding: 10px 18px !important; font-size: 13px !important; border-radius: 20px !important; scroll-snap-align: start !important; }
+                
+                /* Platz für die Bottom Bar machen, damit kein Text dahinter verschwindet */
+                body { padding-bottom: calc(env(safe-area-inset-bottom) + 70px) !important; }
             }
         `;
         document.head.appendChild(style);
@@ -255,7 +276,6 @@ header .header-controls {
         }, 600);
     };
 
-    // Führt den VIP-Check krisensicher aus (Egal wann das Skript lädt)
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", checkVipStatus);
     } else {
