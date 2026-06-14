@@ -166,7 +166,7 @@ header .header-controls {
             header .main-nav a.inactive:hover { color: var(--text-color) !important; background-color: rgba(0, 0, 0, 0.06) !important; }
             .modal-content { max-height: 85vh !important; overflow-y: auto !important; display: block !important; -webkit-overflow-scrolling: touch !important; }
 
-            @media (max-width: 768px) {
+            @media (max-width: 1024px) {
                 /* 🔥 HIER IST DER FIX: Die Apple-Notch-Berechnung wird hier sichergestellt! */
                 header { padding: calc(env(safe-area-inset-top) + 20px) 12px 8px 12px !important; display: flex; flex-direction: column; align-items: center; }
                 header .header-logo-link { justify-content: center !important; width: 100% !important; margin: 0 auto !important; }
