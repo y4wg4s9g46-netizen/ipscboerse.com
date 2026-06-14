@@ -157,13 +157,42 @@
 
             /* --- MOBILE & APP (Handy) --- */
             @media (max-width: 768px) {
-                /* 🔥 DER FIX: Spezifischer Selektor, damit das Desktop-Menü WIRKLICH verschwindet 🔥 */
                 header .main-nav.desktop-only { display: none !important; } 
-                
                 .mobile-only { display: flex !important; }  
                 
-                header { padding-bottom: 12px !important; }
-                header .header-controls { position: static !important; justify-content: center !important; margin-top: 14px !important; width: 100% !important; }
+                /* 🔥 HEADER LAYOUT FIX FÜR HANDYS 🔥 */
+                header { padding: calc(env(safe-area-inset-top) + 12px) 10px 12px 10px !important; align-items: center !important; }
+                header .header-logo-link { justify-content: center !important; width: 100% !important; }
+                
+                /* Flex-Wrap erlaubt einen sauberen Umbruch in die zweite Zeile */
+                header .header-controls { 
+                    position: relative !important; 
+                    top: auto !important; right: auto !important;
+                    display: flex !important; 
+                    flex-direction: row !important;
+                    flex-wrap: wrap !important; 
+                    justify-content: center !important; 
+                    align-items: center !important; 
+                    gap: 8px !important; 
+                    margin-top: 15px !important; 
+                    width: 100% !important; 
+                }
+
+                /* Container für Profilbild + Abmelden waagerecht fixieren */
+                #auth-status-container {
+                    display: flex !important;
+                    flex-direction: row !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    gap: 8px !important;
+                }
+
+                /* Mobile Größenanpassung der Buttons, damit alles besser passt */
+                header .btn-auth { height: 34px !important; padding: 0 12px !important; font-size: 11px !important; }
+                header .lang-select { height: 34px !important; font-size: 11px !important; }
+                header .theme-toggle-btn { width: 34px !important; height: 34px !important; }
+                #auth-status-container img { width: 34px !important; height: 34px !important; }
+
                 body { padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
 
                 /* Styling für Bottom Tab Bar */
