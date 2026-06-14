@@ -36,6 +36,15 @@
         "url": "https://www.ipscmatch.de/index.pl?match=2026_Guga_Ribas_Cup"
     },
     {
+        "name": "Summer Breeze 2026",
+        "datum": "25.07.2026",
+        "auslastung": "94%",
+        "region": "GER",
+        "level": "2",
+        "disziplin": "HG",
+        "url": "https://www.ipscmatch.de/index.pl?match=SummerBreeze2026"
+    },
+    {
         "name": "RLP Shotgun Cup 2026",
         "datum": "26.07.2026",
         "auslastung": "77%",
@@ -124,6 +133,15 @@
         "level": "3",
         "disziplin": "PCC",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_360_PCC_by_3G"
+    },
+    {
+        "name": "11. Karlstadt Cup powered by Frankonia",
+        "datum": "01.11.2026",
+        "auslastung": "85%",
+        "region": "GER",
+        "level": "3",
+        "disziplin": "HG",
+        "url": "https://www.ipscmatch.de/index.pl?match=11._Karlstadt-Cup_2026"
     },
     {
         "name": "Tenerife Open 2026",
