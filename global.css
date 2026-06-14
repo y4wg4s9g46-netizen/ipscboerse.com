@@ -286,8 +286,43 @@ footer {
 .modal-footer a:hover { opacity: 0.8; }
 
 @media (max-width: 1024px) {
-    .modal, .modal-overlay { padding: 16px; }
-    .modal-content { padding: 28px 20px; border-radius: 24px; }
+    /* ✨ NATIVE APP FEELING: Bottom Sheet statt mittigem Popup */
+    .modal, .modal-overlay { 
+        padding: 0 !important; 
+        align-items: flex-end !important; 
+    }
+    
+    .modal-content { 
+        padding: 32px 20px calc(env(safe-area-inset-bottom) + 20px) !important; 
+        border-radius: 28px 28px 0 0 !important; 
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-bottom: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        animation: slideUpSheet 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    }
+    
+    @keyframes slideUpSheet {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+    
+    /* Der kleine, typische iOS-Griffbalken oben am Modal */
+    .modal-content::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 5px;
+        background-color: var(--border-color);
+        border-radius: 10px;
+    }
+
+    .modal-close-container { top: 16px !important; right: 16px !important; }
 }
 
 /* ==========================================================================
