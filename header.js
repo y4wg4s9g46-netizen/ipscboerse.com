@@ -22,8 +22,9 @@
             { href: "freie-matches.html", text: "Freie Match-Plätze", key: "card-title-free" },
             { href: "mein-planer.html", text: "Mein Planer", key: "card-title-planer" },
             { href: "community.html", text: "Community", key: "card-title-comm" },
-            { href: "ipsc-hub.html", text: "IPSC Hub", key: "card-title-hub" },
+            { href: "sg-timer-live.html", text: "⏱️ SG-Timer Live", key: "nav-sgtimer" }, // 🔥 
             { href: "tools.html", text: "Tools & Training", key: "card-title-tools" },
+            { href: "ipsc-hub.html", text: "IPSC Hub", key: "card-title-hub" },
             { href: "analytics.html", text: "Statistiken", key: "nav-analytics" },
             { href: "wiederladen.html", text: "Wiederladen", key: "nav-wiederladen" }
         ];
