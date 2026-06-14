@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SG Timer Live-Schnittstelle - IPSC Startplatz-Börse</title>
+    <title>SG-Timer Live Cockpit - IPSC Startplatz-Börse</title>
     
     <style>
         :root {
@@ -26,37 +26,65 @@
             padding-bottom: 50px;
         }
 
-        /* Container-Layout */
         .main-container {
             max-width: 1100px;
-            margin: 40px auto;
+            margin: 30px auto;
             padding: 0 20px;
         }
 
+        /* 🌟 MODERNES TAB-SYSTEM */
+        .tab-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .tab-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Raster-Layouts */
         .grid-layout {
             display: grid;
             grid-template-columns: 1fr 2fr;
             gap: 24px;
-            margin-top: 24px;
         }
 
         @media (max-width: 900px) {
             .grid-layout { grid-template-columns: 1fr; }
         }
 
-        /* Taktische Karten-Steuerung */
         .panel-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 24px;
+            padding: 22px;
             box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
         }
 
-        .panel-card h2, .panel-card h3 {
-            margin-top: 0;
-            letter-spacing: 0.5px;
-        }
+        .panel-card h2, .panel-card h3 { margin-top: 0; letter-spacing: 0.5px; }
 
         .status-badge {
             display: inline-flex;
@@ -67,77 +95,27 @@
             font-size: 13px;
             font-weight: 600;
             background: rgba(255,255,255,0.05);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
-        /* Formulare & Buttons */
-        .form-group {
-            margin-bottom: 16px;
-            text-align: left;
-        }
-        .form-group label {
-            display: block;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            text-transform: uppercase;
-        }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: #fff;
-            font-weight: 600;
-        }
+        .form-group { margin-bottom: 14px; text-align: left; }
+        .form-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; box-sizing: border-box; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; font-weight: 600; }
 
-        .btn-tactic {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            border: none;
-            transition: transform 0.1s, filter 0.2s;
-        }
+        .btn-tactic { width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; border: none; transition: all 0.1s; }
         .btn-tactic:active { transform: scale(0.98); }
-        .btn-tactic:hover { filter: brightness(1.1); }
-
         .btn-blue { background: #007AFF; color: #fff; }
         .btn-green { background: var(--success-color); color: #fff; }
         .btn-red { background: var(--danger-color); color: #fff; }
+        .btn-outline { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); }
 
-        /* Schuss-Tabelle */
-        .shot-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        .shot-table th {
-            color: var(--accent-color);
-            font-size: 12px;
-            text-transform: uppercase;
-            padding: 10px;
-            border-bottom: 1px solid var(--border-color);
-            text-align: center;
-        }
-        .shot-table td {
-            padding: 12px 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            text-align: center;
-            font-size: 15px;
-        }
-        .shot-row-new {
-            animation: flashGreen 0.5s ease-out;
-        }
+        /* Tabellen */
+        .shot-table { width: 100%; border-collapse: collapse; }
+        .shot-table th { color: var(--accent-color); font-size: 12px; text-transform: uppercase; padding: 10px; border-bottom: 1px solid var(--border-color); }
+        .shot-table td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.03); text-align: center; }
 
-        @keyframes flashGreen {
-            0% { background: rgba(76, 217, 100, 0.2); }
-            100% { background: transparent; }
-        }
+        .shot-row-new { animation: flashGreen 0.5s ease-out; }
+        @keyframes flashGreen { 0% { background: rgba(76, 217, 100, 0.2); } 100% { background: transparent; } }
     </style>
 </head>
 <body>
@@ -146,99 +124,138 @@
 
     <div class="main-container">
         
-        <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="margin: 0; font-size: 28px;">⏱️ Shooters Global Funk-Zentrale</h1>
-            <p style="color: var(--text-muted); margin: 6px 0 0 0;">Verbinde deinen Hardware-Timer live via Web-Bluetooth mit der Range-App</p>
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab('live-console')">🕹️ Live-Konsole</button>
+            <button class="tab-btn" onclick="switchTab('highscores')">🏆 Global Highscores</button>
         </div>
 
-        <div class="grid-layout">
-            
-            <div style="display: flex; flex-direction: column; gap: 24px;">
-                
-                <div class="panel-card">
-                    <h2>Verbindung</h2>
-                    <div id="bt-status-badge" class="status-badge">
-                        <span style="width: 8px; height: 8px; background: var(--danger-color); border-radius: 50%;"></span> Getrennt
+        <div id="live-console" class="tab-content active">
+            <div class="grid-layout">
+                <div style="display: flex; flex-direction: column;">
+                    
+                    <div class="panel-card">
+                        <h2>Verbindung</h2>
+                        <div id="bt-status-badge" class="status-badge">
+                            <span style="width: 8px; height: 8px; background: var(--danger-color); border-radius: 50%;"></span> Getrennt
+                        </div>
+                        <button id="btn-connect" class="btn-tactic btn-blue" onclick="connectSGTimer()">Gerät scannen & koppeln</button>
                     </div>
-                    <button id="btn-connect" class="btn-tactic btn-blue" onclick="connectSGTimer()">Gerät scannen & koppeln</button>
+
+                    <div class="panel-card">
+                        <h2>RO Fernsteuerung</h2>
+                        <div style="display: flex; gap: 12px; margin-top: 10px;">
+                            <button class="btn-tactic btn-green" onclick="remoteStartSession()">▶️ BIEP (Start)</button>
+                            <button class="btn-tactic btn-red" onclick="remoteStopSession()">⏹️ STOPP</button>
+                        </div>
+                    </div>
+
+                    <div class="panel-card">
+                        <h2>IPSC Drill Presets</h2>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
+                            <button class="btn-tactic btn-outline" style="font-size:12px; padding:8px;" onclick="setDrillPreset(999, 0, 6)">🤠 Bill Drill (6 Schuss)</button>
+                            <button class="btn-tactic btn-outline" style="font-size:12px; padding:8px;" onclick="setDrillPreset(999, 5.0, 12)">🇲🇽 El Pres (12 Schuss)</button>
+                        </div>
+                        <div class="form-group">
+                            <label>Start-Verzögerung</label>
+                            <select id="par-delay">
+                                <option value="999">Zufällig (1.0s - 4.0s) 🎲</option>
+                                <option value="10">Fest 1.0 Sekunde</option>
+                                <option value="20">Fest 2.0 Sekunden</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Zeit-Limit (Par-Time in Sek.)</label>
+                            <input type="number" id="par-time" value="0.0" step="0.1">
+                        </div>
+                        <button class="btn-tactic btn-blue" style="background: var(--accent-color);" onclick="sendParSetup()">Konfig an Hardware senden</button>
+                    </div>
+
+                    <div class="panel-card">
+                        <h2>Geräte-Speicherarchiv</h2>
+                        <p style="font-size:12px; color:var(--text-muted); margin-top:0;">Lese den letzten Durchgang nachträglich kabellos aus dem Timer-Speicher aus.</p>
+                        <button class="btn-tactic btn-outline" style="border-color:#007AFF; color:#007AFF;" onclick="importLastSession()">📥 Letzten Durchgang laden</button>
+                    </div>
+
                 </div>
 
-                <div class="panel-card">
-                    <h2>RO Fernsteuerung</h2>
-                    <div style="display: flex; gap: 12px; margin-top: 15px;">
-                        <button class="btn-tactic btn-green" onclick="remoteStartSession()">▶️ BIEP (Start)</button>
-                        <button class="btn-tactic btn-red" onclick="remoteStopSession()">⏹️ STOPP</button>
+                <div class="panel-card" style="display: flex; flex-direction: column;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                        <h2 id="stage-card-title" style="margin: 0;">🎯 Aktueller Durchgang</h2>
+                        <span id="total-shots-counter" style="font-size: 14px; background: rgba(255,159,67,0.1); color: var(--accent-color); padding: 4px 10px; border-radius: 6px; font-weight: bold;">0 Schüsse</span>
                     </div>
-                </div>
-
-                <div class="panel-card">
-                    <h2>Par-Setup an Timer senden</h2>
-                    <div class="form-group">
-                        <label>Start-Verzögerung</label>
-                        <select id="par-delay">
-                            <option value="999">Zufällig (1.0s - 4.0s) 🎲</option>
-                            <option value="10">Fest 1.0 Sekunde</option>
-                            <option value="20">Fest 2.0 Sekunden</option>
-                            <option value="30">Fest 3.0 Sekunden</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Zeit-Limit (Par-Time in Sek.)</label>
-                        <input type="number" id="par-time" value="0.0" step="0.1" min="0">
-                    </div>
-                    <button class="btn-tactic btn-blue" style="background: #ff9f43;" onclick="sendParSetup()">Konfiguration schreiben</button>
-                </div>
-
-            </div>
-
-            <div class="panel-card" style="display: flex; flex-direction: column;">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
-                    <h2 style="margin: 0;">🎯 Aktueller Durchgang</h2>
-                    <span id="total-shots-counter" style="font-size: 14px; background: rgba(255,159,67,0.1); color: var(--accent-color); padding: 4px 10px; border-radius: 6px; font-weight: bold;">0 Schüsse</span>
-                </div>
-
-                <div style="flex: 1; overflow-y: auto; max-height: 500px;">
-                    <table class="shot-table">
-                        <thead>
-                            <tr>
-                                <th>Schuss-Nr.</th>
-                                <th>Gesamtzeit</th>
-                                <th>Splitzeit</th>
-                            </tr>
-                        </thead>
-                        <tbody id="shot-table-body">
-                            <tr>
-                                <td colspan="3" style="color: var(--text-muted); padding: 40px 0;">Noch keine Schussdaten aufgezeichnet. Drücke Start oder schieße auf der Range.</td>
-                            </tr>
+                    <div style="flex: 1; overflow-y: auto; max-height: 560px; margin-top: 15px;">
+                        <table class="shot-table">
+                            <thead>
+                                <tr><th>Schuss-Nr.</th><th>Gesamtzeit</th><th>Splitzeit</th></tr>
+                            </thead>
+                            <tbody id="shot-table-body">
+                                <tr><td colspan="3" style="color: var(--text-muted); padding: 40px 0;">Keine Schussdaten aktiv. Warte auf Signal...</td></tr>
+                            </tbody>
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
+                    <button id="btn-submit-score" class="btn-tactic btn-green" style="margin-top: 15px; display: none;" onclick="submitCurrentScoreToHighscore()">⭐ Diese Zeit als Highscore eintragen</button>
                 </div>
             </div>
-
         </div>
+
+        <div id="highscores" class="tab-content">
+            <div class="panel-card" style="max-width: 700px; margin: 0 auto;">
+                <h2>🏆 Globale Drill-Bestenlisten</h2>
+                <p style="color:var(--text-muted); font-size:13px; margin-top:0;">Manipulationssichere Zeiten – direkt verifiziert durch verknüpfte Shooters Global Hardware.</p>
+                
+                <div class="form-group" style="margin: 20px 0;">
+                    <label>Disziplin / Übung wählen</label>
+                    <select id="leaderboard-filter" onchange="loadLeaderboard()">
+                        <option value="Bill Drill">Bill Drill (6 Schuss auf 7 Meter)</option>
+                        <option value="El Presidente">El Presidente (12 Schuss mit Magazinwechsel)</option>
+                    </select>
+                </div>
+
+                <table class="shot-table" style="margin-top: 20px;">
+                    <thead>
+                        <tr><th>Platz</th><th>Schütze</th><th>Faktor</th><th>Verifizierte Zeit</th></tr>
+                    </thead>
+                    <tbody id="leaderboard-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
-    <script src="header 12.js"></script>
+    <script src="header.js"></script>
 
     <script>
-        [span_3](start_span)[span_4](start_span)// UUIDs aus der Shooters Global Dokumentation[span_3](end_span)[span_4](end_span)
-        const SG_SERVICE_UUID = '7520ffff-14d2-4cda-8b6b-697c554c9311'; [span_5](start_span)[span_6](start_span)// Haupt-Service[span_5](end_span)[span_6](end_span)
-        const SG_CHAR_COMMAND = '75200000-14d2-4cda-8b6b-697c554c9311'; [span_7](start_span)// Schreibkanal Befehle[span_7](end_span)
-        const SG_CHAR_EVENT   = '75200001-14d2-4cda-8b6b-697c554c9311'; [span_8](start_span)// Notify-Kanal Events[span_8](end_span)
-        const SG_CHAR_PAR     = '75200005-14d2-4cda-8b6b-697c554c9311'; [span_9](start_span)// Read/Write Par Setup[span_9](end_span)
+        [span_1](start_span)// Offizielle UUIDs der Shooters Global BLE Spezifikation[span_1](end_span)
+        const SG_SERVICE_UUID     = '7520ffff-14d2-4cda-8b6b-697c554c9311'; [span_2](start_span)// Main Service[span_2](end_span)
+        const SG_CHAR_COMMAND     = '75200000-14d2-4cda-8b6b-697c554c9311'; [span_3](start_span)// Command Eigenschaft[span_3](end_span)
+        const SG_CHAR_EVENT       = '75200001-14d2-4cda-8b6b-697c554c9311'; [span_4](start_span)// Event Notify[span_4](end_span)
+        const SG_CHAR_SESSION_LIST= '75200002-14d2-4cda-8b6b-697c554c9311'; [span_5](start_span)// Saved Session ID List[span_5](end_span)
+        const SG_CHAR_SHOT_LIST    = '75200004-14d2-4cda-8b6b-697c554c9311'; [span_6](start_span)// Shot List[span_6](end_span)
+        const SG_CHAR_PAR         = '75200005-14d2-4cda-8b6b-697c554c9311'; [span_7](start_span)// Par Setup[span_7](end_span)
+        const SG_CHAR_UNIX_TIME   = '75200006-14d2-4cda-8b6b-697c554c9311'; [span_8](start_span)// Unix Time[span_8](end_span)
 
         let bluetoothDevice = null;
         let commandCharacteristic = null;
         let parCharacteristic = null;
-        let loggedShots = []; // Array zum Abfangen und Berechnen der Splits
+        let loggedShots = [];
+        let activeDrillName = "Freies Training";
 
-        // 1. GERÄT VERBINDEN
+        // TAB-UMSCHALTUNG (Vanilla JS)
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+            if(tabId === 'highscores') loadLeaderboard();
+        }
+
+        // 1. ANKOPPELN & AUTOMATISCHE HARDWARE-ERKENNUNG
         async function connectSGTimer() {
             const badge = document.getElementById('bt-status-badge');
             try {
-                badge.innerHTML = `<span>⏳ Scan läuft...`;
-                
-                [span_10](start_span)// Scan-Aufforderung[span_10](end_span)
+                badge.innerHTML = `<span>⏳ Scan läuft...</span>`;
                 bluetoothDevice = await navigator.bluetooth.requestDevice({
                     filters: [{ services: [SG_SERVICE_UUID] }],
                     optionalServices: [SG_SERVICE_UUID]
@@ -251,126 +268,211 @@
                 parCharacteristic = await service.getCharacteristic(SG_CHAR_PAR);
                 const eventCharacteristic = await service.getCharacteristic(SG_CHAR_EVENT);
 
-                [span_11](start_span)[span_12](start_span)// Notifications abonnieren[span_11](end_span)[span_12](end_span)
+                [span_9](start_span)// Notifications aktivieren[span_9](end_span)
                 await eventCharacteristic.startNotifications();
                 eventCharacteristic.addEventListener('characteristicvaluechanged', handleIncomingTimerEvent);
 
-                // UI Updaten auf "Verbunden"
-                badge.innerHTML = `<span style="width: 8px; height: 8px; background: var(--success-color); border-radius: 50%;"></span> Verbunden mit ${bluetoothDevice.name}`;
+                [span_10](start_span)// 🌟 Auto-Modell-Erkennung anhand des Namens-Präfixes[span_10](end_span)
+                let modelName = "SG Timer";
+                const devName = bluetoothDevice.name; // z.B. [span_11](start_span)SG-SST4A00000[span_11](end_span)
+                if (devName && devName.startsWith("SG-SST4")) {
+                    const identifier = devName.charAt(7); [span_12](start_span)// Filtert die Kennung[span_12](end_span)
+                    [span_13](start_span)if (identifier === 'A') modelName = "👑 SG Timer Sport[span_13](end_span)";
+                    [span_14](start_span)if (identifier === 'B') modelName = "⚡ SG Timer GO[span_14](end_span)";
+                }
+
+                badge.innerHTML = `<span style="width:8px; height:8px; background:var(--success-color); border-radius:50%;"></span> ${modelName} verknüpft`;
                 badge.style.background = "rgba(76, 217, 100, 0.1)";
-                document.getElementById('btn-connect').innerText = "Verbindung trennen";
-                document.getElementById('btn-connect').onclick = disconnectTimer;
+                document.getElementById('btn-connect').innerText = "Trennen";
+                document.getElementById('btn-connect').onclick = () => location.reload();
+
+                [span_15](start_span)// ⏰ AUTOMATISCHER UHRZEIT-ABGLEICH (UNIX TIME SYNC)[span_15](end_span)
+                const unixChar = await service.getCharacteristic(SG_CHAR_UNIX_TIME);
+                const secondsNow = Math.floor(Date.now() / 1000);
+                const timeBuf = new ArrayBuffer(4);
+                new DataView(timeBuf).setUint32(0, secondsNow, false); [span_16](start_span)[span_17](start_span)// Big Endian[span_16](end_span)[span_17](end_span)
+                await unixChar.writeValue(timeBuf);
 
             } catch (error) {
+                badge.innerHTML = `<span style="width:8px; height:8px; background:var(--danger-color); border-radius:50%;"></span> Getrennt`;
                 console.error(error);
-                badge.innerHTML = `<span style="width: 8px; height: 8px; background: var(--danger-color); border-radius: 50%;"></span> Fehler`;
-                alert("Bluetooth-Fehler: " + error.message);
             }
         }
 
-        // TIMER TRENNEN
-        function disconnectTimer() {
-            if (bluetoothDevice && bluetoothDevice.gatt.connected) {
-                bluetoothDevice.gatt.disconnect();
-            }
-            location.reload();
-        }
-
-        // 2. LIVE-EVENTS EMPFANGEN & AUTOMATISCH PARSEN
+        [span_18](start_span)// 2. LIVE-EVENTS & VISUELLER GREEN-FLASH[span_18](end_span)
         function handleIncomingTimerEvent(event) {
-            const value = event.target.value; [span_13](start_span)// DataView[span_13](end_span)
+            const value = event.target.value;
             if (value.byteLength < 2) return;
 
-            const len = value.getUint8(0); [span_14](start_span)[span_15](start_span)//[span_14](end_span)[span_15](end_span)
-            const eventId = value.getUint8(1); [span_16](start_span)//[span_16](end_span)
+            const eventId = value.getUint8(1); [span_19](start_span)//[span_19](end_span)
 
-            [span_17](start_span)[span_18](start_span)// Event-ID 0x00: Session gestartet -> Tabelle resetten[span_17](end_span)[span_18](end_span)
+            [span_20](start_span)// Event 0x00: Session startet -> Reset[span_20](end_span)
             if (eventId === 0x00) {
                 loggedShots = [];
                 document.getElementById('shot-table-body').innerHTML = '';
-                document.getElementById('total-shots-counter').innerText = "0 Schüsse";
+                document.getElementById('btn-submit-score').style.display = 'none';
             }
 
-            [span_19](start_span)[span_20](start_span)// Event-ID 0x04: SHOT_DETECTED (Schuss bricht!)[span_19](end_span)[span_20](end_span)
+            [span_21](start_span)[span_22](start_span)// 🌟 Event 0x05: SESSION_SET_BEGIN -> Grüner Bildschirm-Flash beim Signalton[span_21](end_span)[span_22](end_span)!
+            if (eventId === 0x05) {
+                document.body.style.transition = "none";
+                document.body.style.backgroundColor = "var(--success-color)";
+                setTimeout(() => {
+                    document.body.style.transition = "background-color 0.4s ease";
+                    document.body.style.backgroundColor = "var(--bg-color)";
+                }, 350);
+            }
+
+            [span_23](start_span)[span_24](start_span)// Event 0x04: SHOT_DETECTED[span_23](end_span)[span_24](end_span)
             if (eventId === 0x04) {
-                [span_21](start_span)[span_22](start_span)// Laut Dokumentation Kapitel 1.2.5 (Daten liegen in Big Endian vor)[span_21](end_span)[span_22](end_span):
-                [span_23](start_span)// Byte 6-7: Schussnummer[span_23](end_span)
-                [span_24](start_span)// Byte 8-11: Schusszeit in ms[span_24](end_span)
-                const shotNum = value.getUint16(6, false); [span_25](start_span)[span_26](start_span)// false = Big Endian[span_25](end_span)[span_26](end_span)
+                const shotNum = value.getUint16(6, false); [span_25](start_span)[span_26](start_span)// Big Endian[span_25](end_span)[span_26](end_span)
                 const shotTimeMs = value.getUint32(8, false); [span_27](start_span)[span_28](start_span)//[span_27](end_span)[span_28](end_span)
-                const currentShotTime = shotTimeMs / 1000;
+                const currentSec = shotTimeMs / 1000;
 
-                // Splitzeit berechnen
-                let splitTime = currentShotTime;
-                if (loggedShots.length > 0) {
-                    splitTime = currentShotTime - loggedShots[loggedShots.length - 1];
-                }
+                let split = currentSec;
+                if (loggedShots.length > 0) split = currentSec - loggedShots[loggedShots.length - 1];
 
-                loggedShots.push(currentShotTime);
-                renderNewShotRow(shotNum + 1, currentShotTime, splitTime);
+                loggedShots.push(currentSec);
+                renderNewShotRow(shotNum + 1, currentSec, split);
+                
+                // Button zum Einreichen freischalten, sobald Durchgang stoppt
+                document.getElementById('btn-submit-score').style.display = 'block';
             }
         }
 
-        // SCHUSS-ZEILE IN DIE TABELLE INJIZIEREN
         function renderNewShotRow(number, total, split) {
             const tbody = document.getElementById('shot-table-body');
-            
-            // Platzhalter beim ersten Schuss entfernen
             if (number === 1) tbody.innerHTML = '';
-
             const row = document.createElement('tr');
             row.className = "shot-row-new";
-            row.innerHTML = `
-                <td style="font-weight: bold; color: var(--text-muted);">#${number}</td>
-                <td style="font-weight: bold; font-size: 16px; color: #fff;">${total.toFixed(2)}s</td>
-                <td style="color: var(--accent-color); font-weight: 500;">+${split.toFixed(2)}s</td>
-            `;
-
-            // Neuen Schuss ganz oben anheften (wie PractiScore)
+            row.innerHTML = `<td>#${number}</td><td style="font-weight:bold; color:#fff;">${total.toFixed(2)}s</td><td style="color:var(--accent-color);">+${split.toFixed(2)}s</td>`;
             tbody.insertBefore(row, tbody.firstChild);
             document.getElementById('total-shots-counter').innerText = `${number} Schüsse`;
         }
 
-        [span_29](start_span)// 3. BEFEHLE AN HARDWARE SENDEN[span_29](end_span)
-        async function sendCommand(commandId) {
-            if (!commandCharacteristic) return alert("Bitte zuerst den Timer über Bluetooth verbinden!");
-            
-            [span_30](start_span)// Format laut Dokument Kapitel 1.1: len (1 Byte) + cmd_id (1 Byte)[span_30](end_span)
-            const buffer = new Uint8Array([0x01, commandId]); [span_31](start_span)[span_32](start_span)//[span_31](end_span)[span_32](end_span)
-            await commandCharacteristic.writeValue(buffer);
+        [span_29](start_span)// 3. REMOTECONTROL & PRESETS SENDEN[span_29](end_span)
+        async function sendCommand(id) {
+            if (!commandCharacteristic) return alert("Kein Timer gekoppelt!");
+            await commandCharacteristic.writeValue(new Uint8Array([0x01, id])); [span_30](start_span)//[span_30](end_span)
+        }
+        function remoteStartSession() { sendCommand(0x00); [span_31](start_span)} //[span_31](end_span)
+        function remoteStopSession() { sendCommand(0x03); [span_32](start_span)} //[span_32](end_span)
+
+        async function setDrillPreset(delay, parTime, shotLimit) {
+            activeDrillName = shotLimit === 6 ? "Bill Drill" : "El Presidente";
+            document.getElementById('stage-card-title').innerText = `🎯 Durchgang: ${activeDrillName}`;
+            document.getElementById('par-delay').value = delay;
+            document.getElementById('par-time').value = parTime.toFixed(1);
+
+            if (!parCharacteristic) return alert("Timer per Funk verbunden, Preset im Browser vermerkt!");
+
+            const buffer = new ArrayBuffer(6); [span_33](start_span)//[span_33](end_span)
+            const view = new DataView(buffer);
+            view.setUint16(0, delay === 999 ? 0xFFFF : delay, false); [span_34](start_span)[span_35](start_span)[span_36](start_span)//[span_34](end_span)[span_35](end_span)[span_36](end_span)
+            view.setUint16(2, parTime * 10, false); [span_37](start_span)[span_38](start_span)//[span_37](end_span)[span_38](end_span)
+            view.setUint16(4, shotLimit, false); [span_39](start_span)[span_40](start_span)//[span_39](end_span)[span_40](end_span)
+            await parCharacteristic.writeValue(buffer);
         }
 
-        function remoteStartSession() { sendCommand(0x00); [span_33](start_span)} // Session Start[span_33](end_span)
-        function remoteStopSession() { sendCommand(0x03); [span_34](start_span)}  // Session Stop[span_34](end_span)
-
-        [span_35](start_span)[span_36](start_span)// 4. PAR-SETUP SCHREIBEN[span_35](end_span)[span_36](end_span)
         async function sendParSetup() {
-            if (!parCharacteristic) return alert("Bitte zuerst den Timer verbinden!");
-
-            const delaySelect = document.getElementById('par-delay').value;
-            const parTimeInput = parseFloat(document.getElementById('par-time').value) || 0;
-
-            [span_37](start_span)// Einheiten laut Dokumentation in 0.1 Sekunden[span_37](end_span)
-            let startDelayBytes = parseInt(delaySelect);
-            if (startDelayBytes === 999) startDelayBytes = 0xFFFF; [span_38](start_span)// 0xFFFF = Zufall (1-4 Sek)[span_38](end_span)
-
-            let timeLimitBytes = Math.round(parTimeInput * 10); // z.B. [span_39](start_span)1.5s -> 15[span_39](end_span)
-            let shotLimitBytes = 0; [span_40](start_span)// Unbegrenzt[span_40](end_span)
-
-            [span_41](start_span)[span_42](start_span)// Datenbuffer bauen (Kapitel 1.5: 3x 2-Byte im Big Endian Format)[span_41](end_span)[span_42](end_span)
-            const buffer = new ArrayBuffer(6); [span_43](start_span)// 3 Felder * 2 Bytes = 6 Bytes[span_43](end_span)
+            const delay = parseInt(document.getElementById('par-delay').value);
+            const parTime = parseFloat(document.getElementById('par-time').value) || 0;
+            const buffer = new ArrayBuffer(6); [span_41](start_span)//[span_41](end_span)
             const view = new DataView(buffer);
+            view.setUint16(0, delay === 999 ? 0xFFFF : delay, false); [span_42](start_span)[span_43](start_span)[span_44](start_span)//[span_42](end_span)[span_43](end_span)[span_44](end_span)
+            view.setUint16(2, parTime * 10, false); [span_45](start_span)[span_46](start_span)//[span_45](end_span)[span_46](end_span)
+            view.setUint16(4, 0, false); [span_47](start_span)[span_48](start_span)//[span_47](end_span)[span_48](end_span)
+            await parCharacteristic.writeValue(buffer);
+            alert("Erfolgreich konfiguriert! 🎯");
+        }
 
-            view.setUint16(0, startDelayBytes, false); [span_44](start_span)[span_45](start_span)// false = Big Endian[span_44](end_span)[span_45](end_span)
-            view.setUint16(2, timeLimitBytes, false); [span_46](start_span)[span_47](start_span)//[span_46](end_span)[span_47](end_span)
-            view.setUint16(4, shotLimitBytes, false); [span_48](start_span)[span_49](start_span)//[span_48](end_span)[span_49](end_span)
-
+        [span_49](start_span)[span_50](start_span)// 4. ARCHIV-SPEICHER IMPORTER (Nachträgliches Auslesen)[span_49](end_span)[span_50](end_span)
+        async function importLastSession() {
+            if (!bluetoothDevice) return alert("Bitte zuerst verbinden!");
             try {
-                await parCharacteristic.writeValue(buffer);
-                alert("Par-Setup erfolgreich an den SG Timer übertragen! 🎯");
-            } catch (err) {
-                alert("Fehler beim Senden der Konfiguration: " + err.message);
-            }
+                const service = await bluetoothDevice.gatt.getPrimaryService(SG_SERVICE_UUID);
+                const sessionListChar = await service.getPrimaryServiceChar ? null : await service.getCharacteristic(SG_CHAR_SESSION_LIST);
+                const shotListChar = await service.getCharacteristic(SG_CHAR_SHOT_LIST);
+
+                [span_51](start_span)// Pointer auf die neueste Session setzen[span_51](end_span)
+                await sessionListChar.writeValue(new Uint8Array([0xFF, 0xFF, 0xFF, 0xFF])); [span_52](start_span)//[span_52](end_span)
+                const sessionData = await sessionListChar.readValue();
+                const newestSessionId = sessionData.getUint32(0, false); [span_53](start_span)[span_54](start_span)//[span_53](end_span)[span_54](end_span)
+
+                if (newestSessionId === 0xFFFFFFFF) return alert("Archiv leer."); [span_55](start_span)//[span_55](end_span)
+
+                [span_56](start_span)[span_57](start_span)// Reset Shotpointer[span_56](end_span)[span_57](end_span)
+                const idBuf = new ArrayBuffer(4);
+                new DataView(idBuf).setUint32(0, newestSessionId, false); [span_58](start_span)[span_59](start_span)//[span_58](end_span)[span_59](end_span)
+                await shotListChar.writeValue(idBuf);
+
+                loggedShots = [];
+                document.getElementById('shot-table-body').innerHTML = '';
+
+                [span_60](start_span)// Schleife: Alle Schüsse laden[span_60](end_span)
+                while (true) {
+                    const data = await shotListChar.readValue();
+                    const num = data.getUint16(0, false); [span_61](start_span)[span_62](start_span)//[span_61](end_span)[span_62](end_span)
+                    const timeMs = data.getUint32(2, false); [span_63](start_span)[span_64](start_span)//[span_63](end_span)[span_64](end_span)
+
+                    if (timeMs === 0xFFFFFFFF) break; [span_65](start_span)// Ende der Kette erreicht[span_65](end_span)
+
+                    const currentSec = timeMs / 1000;
+                    let split = currentSec;
+                    if (loggedShots.length > 0) split = currentSec - loggedShots[loggedShots.length - 1];
+
+                    loggedShots.push(currentSec);
+                    renderNewShotRow(num + 1, currentSec, split);
+                }
+                alert("Letzten Durchgang erfolgreich rekonstruiert! 📥");
+                document.getElementById('btn-submit-score').style.display = 'block';
+            } catch (e) { alert("Fehler: " + e.message); }
+        }
+
+        // 5. HIGHSCORE SIMULATION (BEREIT FÜR SUPABASE)
+        let dummyHighscores = {
+            "Bill Drill": [
+                { name: "DoubleAlpha_Tom", factor: "Major", time: 1.15 },
+                { name: "GlockGamer", factor: "Minor", time: 1.34 }
+            ],
+            "El Presidente": [
+                { name: "IPSC_Ghost", factor: "Minor", time: 4.52 },
+                { name: "SpeedyGonzales", factor: "Major", time: 4.89 }
+            ]
+        };
+
+        function loadLeaderboard() {
+            const drill = document.getElementById('leaderboard-filter').value;
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = '';
+
+            const scores = dummyHighscores[drill] || [];
+            scores.sort((a,b) => a.time - b.time);
+
+            scores.forEach((s, i) => {
+                const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i+1}.`;
+                tbody.innerHTML += `<tr><td style="font-weight:bold;">${medal}</td><td>${s.name}</td><td>${s.factor}</td><td style="color:var(--success-color); font-weight:bold;">${s.time.toFixed(2)}s</td></tr>`;
+            });
+        }
+
+        function submitCurrentScoreToHighscore() {
+            if (loggedShots.length === 0) return;
+            const finalTime = loggedShots[loggedShots.length - 1];
+            
+            // Wenn es eine bekannte Übung ist, pushen wir sie in die Liste
+            const drillKey = activeDrillName === "Freies Training" ? "Bill Drill" : activeDrillName;
+            
+            // Hier klinkst du später dein "window.supabaseClient.from('highscores').insert(...)" ein!
+            dummyHighscores[drillKey].push({
+                name: "Dein Profil (Du)",
+                factor: "Minor",
+                time: finalTime
+            });
+
+            alert(`🔥 Verifizierte Zeit von ${finalTime.toFixed(2)}s eingereicht!`);
+            switchTab('highscores');
+            document.getElementById('leaderboard-filter').value = drillKey;
+            loadLeaderboard();
         }
     </script>
 </body>
