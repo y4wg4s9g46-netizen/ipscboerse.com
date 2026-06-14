@@ -107,7 +107,8 @@ header h1 {
 }
 
 @media (max-width: 768px) {
-    html, body { overflow-x: hidden; width: 100%; }
+    /* ✨ FIX 3: overflow-x: hidden entfernt, damit der Header sticky bleiben darf! */
+    html, body { width: 100%; }
     .container { padding: 0 16px; margin-top: 20px; width: 100%; box-sizing: border-box; }
     
     /* 📱 SMARTPHONE HEADER FIX */
