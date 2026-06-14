@@ -5,32 +5,29 @@
 /* Modernes Variablen-System für Hell- und Dunkelmodus */
 :root, html[data-theme="light"] {
     --bg-color: #f8fafc;
-    /* Etwas kühleres, moderneres Hellgrau */
     --card-bg: #ffffff;
     --text-color: #0f172a;
     --text-muted: #64748b;
     --border-color: #e2e8f0;
     --input-bg: #f8fafc;
-    --accent-color: #ff9f43; /* IPSC Orange */
+    --accent-color: #ff9f43; 
     --accent-gradient: linear-gradient(135deg, #ff9f43 0%, #ff8008 100%);
     --danger-color: #ef4444;
     --success-color: #10b981;
     --info-color: #3b82f6;
     
-    /* Moderne, mehrschichtige Schatten für mehr Tiefe */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.04);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.05);
     --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
     
     --radius: 12px;
-    /* Größerer Radius für ein weicheres App-Gefühl */
     --radius-lg: 20px;
     --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Dunkler Modus */
 html[data-theme="dark"] {
-    --bg-color: #0b1121; /* Etwas tieferes Dunkelblau */
+    --bg-color: #0b1121; 
     --card-bg: #1e293b;
     --text-color: #f8fafc;
     --text-muted: #94a3b8;
@@ -54,6 +51,33 @@ html[data-theme="dark"] {
 }
 
 /* ==========================================================================
+   📱 NATIVE APP FEELING (Anti-Browser-Verhalten)
+   ========================================================================== */
+
+/* Verhindert das graue Aufblinken beim Antippen auf dem iPhone */
+* {
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Verhindert versehentliches Text-Markieren und das "Kopieren"-Popup */
+body {
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+}
+
+/* Ausnahmen: In Eingabefeldern und im Chat MUSS man markieren dürfen! */
+input, textarea, select, .chat-bubble {
+    -webkit-user-select: auto !important;
+    user-select: auto !important;
+}
+
+/* Kein "Bild speichern" Menü auf dem Logo und den Avataren */
+img {
+    pointer-events: none !important; 
+}
+
+/* ==========================================================================
    BASE LAYOUT & HEADER
    ========================================================================== */
 
@@ -73,7 +97,6 @@ body {
 header { 
     background-color: rgba(255, 255, 255, 0.95); 
     backdrop-filter: blur(10px);
-    /* ✨ FIX 1: Zwingt den Inhalt des Headers unter die Apple-Uhrzeit */
     padding: calc(env(safe-area-inset-top) + 20px) 20px 16px; 
     text-align: center;
     border-bottom: 1px solid rgba(0,0,0,0.05); 
@@ -107,18 +130,15 @@ header h1 {
 }
 
 @media (max-width: 1024px) {
-    /* ✨ FIX 3: overflow-x: hidden entfernt, damit der Header sticky bleiben darf! */
     html, body { width: 100%; }
     .container { padding: 0 16px; margin-top: 20px; width: 100%; box-sizing: border-box; }
     
-    /* 📱 SMARTPHONE HEADER FIX */
     header {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         text-align: center !important;
         gap: 12px !important;
-        /* ✨ FIX 2: Die Apple-Notch-Berechnung auch für Smartphones erzwingen */
         padding-top: calc(env(safe-area-inset-top) + 20px) !important;
         padding-bottom: 15px !important;
     }
@@ -312,7 +332,13 @@ footer {
     box-shadow: 0 6px 20px rgba(255, 159, 67, 0.4);
     transform: translateY(-2px);
 }
-.btn-primary-auth:active, .btn-post:active, .btn-submit:active { transform: translateY(0); }
+
+/* ✨ NATIVE APP FEELING: Taktiles Button-Feedback */
+.btn-primary-auth:active, .btn-post:active, .btn-submit:active, .btn-secondary-auth:active, .btn-danger-block:active { 
+    transform: scale(0.96) !important; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+    transition: transform 0.1s !important;
+}
 
 .btn-secondary-auth { 
     background-color: var(--card-bg); color: var(--text-color); border: 2px solid var(--border-color);
