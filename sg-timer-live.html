@@ -5,14 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SG-Timer Live Cockpit - IPSC Startplatz-Börse</title>
     
-    <!-- 🌟 DIE WICHTIGEN GLOBALS FEHLTEN HIER! -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="global.css?v=14">
 
     <style>
-        /* Nur noch Timer-spezifisches Layout, da der Rest aus der global.css kommt */
         .main-container {
             max-width: 1100px;
             margin: 30px auto;
@@ -85,9 +83,21 @@
             margin-bottom: 15px;
         }
 
+        /* Formulare & Select-Boxen repariert für Light-Mode */
         .form-group { margin-bottom: 14px; text-align: left; }
         .form-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; box-sizing: border-box; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; font-weight: 600; }
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 10px; 
+            box-sizing: border-box; 
+            background: var(--card-bg); 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            color: var(--text-color); /* 🔥 Fix für den Lightmode */
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600; 
+        }
 
         .btn-tactic { width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; border: none; transition: all 0.1s; }
         .btn-tactic:active { transform: scale(0.98); }
@@ -166,11 +176,22 @@
                         <button class="btn-tactic btn-blue" style="background: var(--accent-color);" onclick="sendParSetup()">Konfig an Hardware senden</button>
                     </div>
 
-                    <!-- Speicher-Browser (Archiv-Importer) -->
+                    <!-- Speicher-Browser (Archiv-Importer mit Cloud Save) -->
                     <div class="panel-card">
                         <h2>Geräte-Speicherarchiv</h2>
-                        <p style="font-size:12px; color:var(--text-muted); margin-top:0;">Lese den letzten Durchgang nachträglich kabellos aus dem Timer-Speicher aus.</p>
-                        <button class="btn-tactic btn-outline" style="border-color:#007AFF; color:#007AFF;" onclick="importLastSession()">📥 Letzten Durchgang laden</button>
+                        <p style="font-size:12px; color:var(--text-muted); margin-top:0;">Durchsuche den internen Speicher des Timers und sichere alte Durchgänge in deinem Trainings-Tagebuch.</p>
+                        
+                        <button class="btn-tactic btn-outline" id="btn-fetch-archive" style="border-color:#007AFF; color:#007AFF; margin-bottom: 15px;" onclick="fetchSessionArchive()">
+                            🔍 Timer-Archiv abrufen
+                        </button>
+
+                        <div id="archive-controls" style="display: none; background: rgba(0,0,0,0.05); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <div class="form-group" style="margin-bottom: 10px;">
+                                <label>Gefundene Durchgänge</label>
+                                <select id="archive-select"></select>
+                            </div>
+                            <button class="btn-tactic btn-blue" onclick="loadAndSaveSession()">📥 Laden & in Cloud speichern</button>
+                        </div>
                     </div>
 
                 </div>
@@ -191,7 +212,6 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- Score verifizieren & an Highscore senden -->
                     <button id="btn-submit-score" class="btn-tactic btn-green" style="margin-top: 15px; display: none;" onclick="submitCurrentScoreToHighscore()">⭐ Diese Zeit als Highscore eintragen</button>
                 </div>
             </div>
@@ -230,7 +250,6 @@
     <!-- 🦾 BLUETOOTH & APP SCRIPTS -->
     <!-- ======================================================= -->
     <script>
-        // Offizielle UUIDs der Shooters Global BLE Spezifikation
         const SG_SERVICE_UUID     = '7520ffff-14d2-4cda-8b6b-697c554c9311'; 
         const SG_CHAR_COMMAND     = '75200000-14d2-4cda-8b6b-697c554c9311'; 
         const SG_CHAR_EVENT       = '75200001-14d2-4cda-8b6b-697c554c9311'; 
@@ -256,6 +275,12 @@
 
         // 1. ANKOPPELN & AUTOMATISCHE HARDWARE-ERKENNUNG
         async function connectSGTimer() {
+            // 🌟 IPHONE CHECK: Prüft, ob der Browser Bluetooth erlaubt
+            if (!navigator.bluetooth) {
+                alert("Dein aktueller Browser (wie Safari auf dem iPhone) blockiert Web-Bluetooth.\n\n💡 Tipp für iOS: Lade dir die kostenlose App 'Bluefy' herunter und öffne die Seite dort, oder nutze Chrome am PC/Android!");
+                return;
+            }
+
             const badge = document.getElementById('bt-status-badge');
             try {
                 badge.innerHTML = `<span>⏳ Scan läuft...</span>`;
@@ -341,7 +366,7 @@
             if (number === 1) tbody.innerHTML = '';
             const row = document.createElement('tr');
             row.className = "shot-row-new";
-            row.innerHTML = `<td>#${number}</td><td style="font-weight:bold; color:#fff;">${total.toFixed(2)}s</td><td style="color:var(--accent-color);">+${split.toFixed(2)}s</td>`;
+            row.innerHTML = `<td>#${number}</td><td style="font-weight:bold; color:var(--text-color);">${total.toFixed(2)}s</td><td style="color:var(--accent-color);">+${split.toFixed(2)}s</td>`;
             tbody.insertBefore(row, tbody.firstChild);
             document.getElementById('total-shots-counter').innerText = `${number} Schüsse`;
         }
@@ -382,29 +407,65 @@
             alert("Erfolgreich konfiguriert! 🎯");
         }
 
-        // 4. ARCHIV-SPEICHER IMPORTER
-        async function importLastSession() {
-            if (!bluetoothDevice) return alert("Bitte zuerst verbinden!");
+        // 4. ARCHIV DURCHSUCHEN & IN CLOUD SPEICHERN
+        async function fetchSessionArchive() {
+            if (!bluetoothDevice) return alert("Bitte zuerst den Timer verbinden!");
             try {
+                document.getElementById('btn-fetch-archive').innerText = "⏳ Lese Speicher aus...";
+                
                 const service = await bluetoothDevice.gatt.getPrimaryService(SG_SERVICE_UUID);
                 const sessionListChar = await service.getCharacteristic(SG_CHAR_SESSION_LIST);
-                const shotListChar = await service.getCharacteristic(SG_CHAR_SHOT_LIST);
 
                 await sessionListChar.writeValue(new Uint8Array([0xFF, 0xFF, 0xFF, 0xFF])); 
-                const sessionData = await sessionListChar.readValue();
-                const newestSessionId = sessionData.getUint32(0, false); 
 
-                if (newestSessionId === 0xFFFFFFFF) return alert("Archiv leer."); 
+                const selectEl = document.getElementById('archive-select');
+                selectEl.innerHTML = '';
+                let foundCount = 0;
+
+                for(let i = 0; i < 15; i++) {
+                    const data = await sessionListChar.readValue(); 
+                    const sessId = data.getUint32(0, false); 
+
+                    if (sessId === 0xFFFFFFFF) break; 
+
+                    const date = new Date(sessId * 1000);
+                    const label = date.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + " Uhr";
+                    
+                    selectEl.innerHTML += `<option value="${sessId}">🗓️ ${label}</option>`;
+                    foundCount++;
+                }
+
+                document.getElementById('btn-fetch-archive').innerText = "🔍 Timer-Archiv abrufen";
+
+                if (foundCount === 0) {
+                    alert("Keine gespeicherten Durchgänge auf dem Timer gefunden.");
+                } else {
+                    document.getElementById('archive-controls').style.display = 'block';
+                }
+            } catch (e) {
+                alert("Fehler beim Lesen des Archivs: " + e.message);
+                document.getElementById('btn-fetch-archive').innerText = "🔍 Timer-Archiv abrufen";
+            }
+        }
+
+        async function loadAndSaveSession() {
+            if (!bluetoothDevice) return;
+            
+            const selectedSessionId = parseInt(document.getElementById('archive-select').value);
+            
+            try {
+                const service = await bluetoothDevice.gatt.getPrimaryService(SG_SERVICE_UUID);
+                const shotListChar = await service.getCharacteristic(SG_CHAR_SHOT_LIST);
 
                 const idBuf = new ArrayBuffer(4);
-                new DataView(idBuf).setUint32(0, newestSessionId, false); 
-                await shotListChar.writeValue(idBuf);
+                new DataView(idBuf).setUint32(0, selectedSessionId, false); 
+                await shotListChar.writeValue(idBuf); 
 
                 loggedShots = [];
                 document.getElementById('shot-table-body').innerHTML = '';
 
                 while (true) {
-                    const data = await shotListChar.readValue();
+                    const data = await shotListChar.readValue(); 
                     const num = data.getUint16(0, false); 
                     const timeMs = data.getUint32(2, false); 
 
@@ -417,9 +478,30 @@
                     loggedShots.push(currentSec);
                     renderNewShotRow(num + 1, currentSec, split);
                 }
-                alert("Letzten Durchgang erfolgreich rekonstruiert! 📥");
+                
                 document.getElementById('btn-submit-score').style.display = 'block';
-            } catch (e) { alert("Fehler: " + e.message); }
+
+                if (window.supabaseClient && loggedShots.length > 0) {
+                    const { data: { session } } = await window.supabaseClient.auth.getSession();
+                    if (session) {
+                        await window.supabaseClient.from('training_sessions').insert({
+                            user_id: session.user.id,
+                            timer_timestamp: selectedSessionId,
+                            total_shots: loggedShots.length,
+                            final_time: loggedShots[loggedShots.length - 1],
+                            shot_data: loggedShots 
+                        });
+                        alert("✅ Durchgang erfolgreich geladen UND in deiner Cloud gespeichert!");
+                    } else {
+                        alert("📥 Durchgang geladen! (Du bist nicht eingeloggt, daher wurde es nicht in die Cloud synchronisiert).");
+                    }
+                } else {
+                    alert("📥 Durchgang lokal geladen!");
+                }
+
+            } catch (e) { 
+                alert("Fehler beim Laden der Schüsse: " + e.message); 
+            }
         }
 
         // 5. HIGHSCORE SIMULATION
@@ -444,7 +526,7 @@
 
             scores.forEach((s, i) => {
                 const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i+1}.`;
-                tbody.innerHTML += `<tr><td style="font-weight:bold;">${medal}</td><td>${s.name}</td><td>${s.factor}</td><td style="color:var(--success-color); font-weight:bold;">${s.time.toFixed(2)}s</td></tr>`;
+                tbody.innerHTML += `<tr><td style="font-weight:bold;">${medal}</td><td style="color:var(--text-color);">${s.name}</td><td>${s.factor}</td><td style="color:var(--success-color); font-weight:bold;">${s.time.toFixed(2)}s</td></tr>`;
             });
         }
 
@@ -467,12 +549,11 @@
         }
     </script>
 
-    <!-- 🌟 HIER SIND JETZT DEINE GLOBALS FÜR LOGIN & CO. -->
+    <!-- 🌟 HIER SIND DEINE GLOBALS FÜR LOGIN & CO. -->
     <script src="auth.js"></script>
     <script src="lang.js"></script>
     <script src="app.js"></script>
     <script>
-        // Initiiert Chat-Badge, falls eingeloggt
         window.onAuthChange = () => { 
             if(typeof updateHeaderChatBadge === 'function') {
                 updateHeaderChatBadge(); 
