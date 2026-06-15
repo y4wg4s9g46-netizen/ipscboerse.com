@@ -839,3 +839,4 @@ window.onAuthChange = (user) => {
 enforceFutureDates();
 checkPlannerImport();
 fetchMatches();
+}
