@@ -690,3 +690,21 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
     color: #ffffff;
     border: none;
 }
+.btn-social-passkey {
+    background-color: var(--info-color);
+    color: #ffffff;
+    border: none;
+    width: 100%;
+    padding: 12px;
+    border-radius: var(--radius);
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: var(--transition);
+}
+.btn-social-passkey:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+}
