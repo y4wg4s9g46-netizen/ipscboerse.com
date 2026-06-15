@@ -6,7 +6,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
     auth: {
         experimental: { passkey: true },
         persistSession: true,
-        detectSessionInUrl: false
+        detectSessionInUrl: true // JETZT AUF TRUE: Erlaubt Supabase, den Passwort-Code aus der URL zu lesen!
     }
 });
 
@@ -278,7 +278,7 @@ window.translations = {
     "email-body-want": "Hello,\n\nI saw your request on ipscboerse.com. I have an available slot to give away for the match: ",
     "email-body-footer": "\n\nIs this listing still available?\n\nBest regards",
     "security-notice": "⚠️ IMPORTANT SAFETY NOTICE:\n\n1. ALWAYS use PayPal with Buyer Protection for payments (never use 'Friends & Family').\n2. You MUST contact the Match Director BEFORE making any payment to confirm if a slot transfer is still permitted!\n\nDo you want to open the email client now?",
-    "spam-error": "Spam protection: You have already posted an entry for this match on this date!",
+    "grid-error": "Spam protection: You have already posted an entry for this match on this date!",
     
     "nav-marketplace": "Marketplace",
     "nav-free-slots": "Free Match Slots",
@@ -577,6 +577,16 @@ if (document.readyState === "loading") {
 }
 
 setTimeout(async () => {
+    // ABFANG-LOGIK FÜR ABGELAUFENE/FEHLERHAFTE LINKS:
+    // Falls der E-Mail-Provider den Link entwertet hat, zeigen wir sofort ein klares Alert
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    if (hashParams.has('error_code') && hashParams.get('error_code') === 'otp_expired') {
+        alert(window.currentLang === "en" 
+            ? "This reset link has expired or has already been used. Please request a new one." 
+            : "Dieser Link ist abgelaufen oder wurde bereits verwendet. Bitte fordere einen neuen Passwort-Link an.");
+        history.replaceState("", document.title, window.location.pathname + window.location.search);
+    }
+
     const { data: { session } } = await window.supabaseClient.auth.getSession();
     window.currentUser = session?.user || null;
     await checkUserStatus();
@@ -623,6 +633,7 @@ setTimeout(async () => {
     window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
         window.currentUser = session?.user || null;
         
+        // DIESER TRIGGER WIRD JETZT DURCH DETECTSESSIONINURL:TRUE KORREKT AUSGELÖST!
         if (event === "PASSWORD_RECOVERY") {
             const modal = document.getElementById("auth-modal");
             if (modal) modal.style.display = "flex";
