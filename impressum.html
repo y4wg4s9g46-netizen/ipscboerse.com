@@ -2,11 +2,9 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <!-- ✨ FIX 1: Der perfekte Apple Viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <title>Impressum, AGB & Datenschutz | IPSC Börse</title>
 
-    <!-- PWA & App-Icons -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,7 +14,6 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- ✨ FIX 2: Die neue zentrale CSS-Datei eingebunden -->
     <link rel="stylesheet" href="global.css">
 
     <style>
@@ -116,7 +113,6 @@
         <a href="index.html" class="back-btn" data-txt="imp-back">← Zurück zur Startseite</a>
 
         <div class="impressum-content">
-            <!-- 1. IMPRESSUM -->
             <h2 data-txt="imp-h2-1">1. Impressum</h2>
             <p data-txt="imp-p-1"><strong>Angaben gemäß § 5 TMG:</strong><br>
             Fabian Schöps<br>
@@ -128,7 +124,6 @@
 
             <hr>
 
-            <!-- 2. AGB & NUTZUNGSBEDINGUNGEN -->
             <h2 data-txt="imp-h2-2">2. Allgemeine Geschäftsbedingungen (AGB) &amp; Nutzungsbedingungen</h2>
             
             <h3 data-txt="imp-h3-1">§ 1 Geltungsbereich und Zweck der Plattform</h3>
@@ -168,7 +163,6 @@
 
             <hr>
 
-            <!-- 3. DATENSCHUTZERKLÄRUNG -->
             <h2 data-txt="imp-h2-3">3. Datenschutzerklärung</h2>
             <p data-txt="imp-p-7">Wir nehmen den Schutz deiner persönlichen Daten sehr ernst. Diese Datenschutzerklärung klärt dich über die Art, den Umfang und Zweck der Verarbeitung von personenbezogenen Daten auf unserer Plattform auf.</p>
 
@@ -198,22 +192,32 @@
             <h3 data-txt="imp-h3-9">5. Nutzung von Supabase (Hosting, Datenspeicherung &amp; Live-Chat)</h3>
             <p data-txt="imp-p-13">Diese Webseite nutzt für die zentrale Datenbank, das Speichern von Chat-Verläufen (Live-Chat), die Datei-Speicherung (Storage) und die Nutzer-Authentifizierung den Backend-Dienst „Supabase“ (Supabase Inc., San Francisco, USA). Deine Daten werden auf den von Supabase bereitgestellten Infrastrukturen innerhalb der EU (Region: Frankfurt am Main, Deutschland) gehostet und verarbeitet. Wir haben mit dem Anbieter einen rechtskräftigen Vertrag zur Auftragsverarbeitung (Data Processing Addendum, DPA) gemäß Art. 28 DSGVO abgeschlossen. Weitere Infos: <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Supabase Privacy</a>.</p>
 
-            <!-- NEUER DSGVO BEREICH FÜR DEN SCRAPER BOT -->
             <h3 data-txt="imp-h3-10">6. Match-Analytics & Ergebnis-Scraper</h3>
             <p data-txt="imp-p-14">Wenn du auf unserer Plattform deinen echten Namen in den Profileinstellungen hinterlegst, nutzen wir auf deine ausdrückliche Anforderung hin automatisierte Systeme, um öffentlich zugängliche Ergebnislisten von IPSC-Turnieren im Internet nach diesem Namen zu durchsuchen. Die gefundenen, dich betreffenden Trefferdaten (wie Matchname, Stage, Faktoren) werden in unsere Datenbank importiert, um dir deine Statistiken anzeigen zu können (Art. 6 Abs. 1 lit. b DSGVO). <strong>Wichtig:</strong> Daten dritter Personen, die sich ebenfalls auf diesen Listen befinden, werden von unseren Systemen lediglich flüchtig im Arbeitsspeicher verarbeitet und sofort verworfen. Es findet keinerlei Speicherung oder Profilbildung fremder Personendaten statt.</p>
 
-            <h3 data-txt="imp-h3-11">7. Cookies &amp; Local Storage</h3>
+            <h3 data-txt="imp-h3-sso">7. Single Sign-On (Apple & Google Login)</h3>
+            <p data-txt="imp-p-sso">Du hast die Möglichkeit, dich über dein bestehendes Apple- oder Google-Konto bei uns anzumelden (Single Sign-On). Bei der Nutzung dieser Dienste erhalten wir vom jeweiligen Anbieter (Apple Inc. bzw. Google Ireland Limited) die für die Kontoerstellung notwendigen Basisdaten (in der Regel deine E-Mail-Adresse und deinen Namen). Die Rechtsgrundlage hierfür ist Art. 6 Abs. 1 lit. a und b DSGVO. Weitere Informationen zur Datenverarbeitung durch diese Anbieter findest du in deren jeweiligen Datenschutzerklärungen.</p>
+
+            <h3 data-txt="imp-h3-passkey">8. Passkey & Biometrische Logins (FaceID / TouchID)</h3>
+            <p data-txt="imp-p-passkey">Wir bieten den modernen und sicheren Login via Passkey an. <strong>Wichtig:</strong> Deine biometrischen Daten (wie ein Gesichtsscan via FaceID oder dein Fingerabdruck) werden dabei <strong>ausschließlich lokal auf deinem eigenen Gerät</strong> verarbeitet und verlassen dieses niemals. Wir speichern auf unseren Servern (Supabase) lediglich einen anonymen, asymmetrischen kryptografischen Schlüssel (Token), der die erfolgreiche lokale Authentifizierung bestätigt.</p>
+
+            <h3 data-txt="imp-h3-schiessbuch">9. Digitale Schießkladde & Unterschriften</h3>
+            <p data-txt="imp-p-schiessbuch">Wenn du die Funktion „Digitale Schießkladde“ nutzt, speichern wir deine Trainingsdaten (Ort, Datum, Waffe, Schusszahl) in deiner persönlichen Cloud (Art. 6 Abs. 1 lit. b DSGVO). Holst du dir eine Bestätigung der Standaufsicht ein, wird deren Name sowie die auf dem Display getätigte Unterschrift als Bilddatei manipulationssicher archiviert. Als Nutzer bist du angehalten, die Aufsichtsperson vor der Unterschrift darüber zu informieren, dass diese Daten zweckgebunden als digitaler Trainingsnachweis dauerhaft gespeichert werden.</p>
+
+            <h3 data-txt="imp-h3-sgtimer">10. Bluetooth-Verbindung & SG-Timer Integration</h3>
+            <p data-txt="imp-p-sgtimer">Unsere Plattform kann sich per Bluetooth (Web Bluetooth API / Native BLE via App) lokal mit Hardware-Timern (z. B. Shooters Global) verbinden. Diese Verbindung findet ausschließlich lokal zwischen deinem Endgerät (Smartphone/Tablet/PC) und dem Timer statt. Es werden hierbei im Hintergrund keine Standortdaten (GPS) für Trackingzwecke verarbeitet oder an uns übermittelt. Schusszeiten und Splits werden erst dann in unserer Cloud gespeichert, wenn du diese ausdrücklich als Highscore einreichst oder in deinem digitalen Schießbuch sicherst.</p>
+
+            <h3 data-txt="imp-h3-11">11. Cookies &amp; Local Storage</h3>
             <p data-txt="imp-p-15">Um deinen Login-Status über Browsersitzungen hinweg aufrechtzuerhalten, speichert Supabase ein Authentifizierungs-Token im "Local Storage" deines Endgeräts. Dies ist ein technisch zwingend notwendiger Vorgang (Art. 6 Abs. 1 lit. f DSGVO). Es werden keine Marketing-, Tracking- oder Werbe-Cookies eingesetzt.</p>
 
-            <h3 data-txt="imp-h3-12">8. Ergebnisbezogene Löschung von Daten</h3>
+            <h3 data-txt="imp-h3-12">12. Ergebnisbezogene Löschung von Daten</h3>
             <p data-txt="imp-p-16">Du kannst in deinen Konto-Einstellungen mit einem Klick auf "Konto &amp; alle Einträge unwiderruflich löschen" dein gesamtes Profil, all deine Inserate, verfassten Kommentare sowie deine gesamten persönlichen Chat-Verläufe sofort, dauerhaft und unwiderruflich aus unserer Live-Datenbank entfernen.</p>
 
-            <h3 data-txt="imp-h3-13">9. Deine Rechte</h3>
+            <h3 data-txt="imp-h3-13">13. Deine Rechte</h3>
             <p data-txt="imp-p-17">Nach der DSGVO hast du das Recht auf unentgeltliche Auskunft über deine gespeicherten Daten, Berichtigung, Sperrung oder Löschung dieser Daten sowie das Recht auf Datenübertragbarkeit. Wende dich hierfür jederzeit an die im Impressum angegebene E-Mail-Adresse.</p>
         </div>
     </div>
 
-    <!-- LOGINS & KONTO-EINSTELLUNGEN MODAL -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -265,7 +269,6 @@
                 </form>
             </div>
 
-            <!-- EINSTELLUNGS-MODAL -->
             <div id="modal-settings-view" style="display: none;">
                 <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                 
@@ -323,7 +326,6 @@
         </div>
     </div>
 
-    <!-- CHAT MODAL -->
     <div class="modal" id="chat-modal">
         <div class="modal-content" style="max-width: 500px; padding: 25px;">
             <div class="modal-close-container">
@@ -339,7 +341,6 @@
         </div>
     </div>
 
-    <!-- GLOBAL INBOX -->
     <div class="modal" id="global-inbox-modal">
         <div class="modal-content" style="max-width: 450px; padding: 25px;">
             <div class="modal-close-container">
@@ -359,7 +360,6 @@
         </div>
     </footer>
 
-    <!-- SKRIPTE VERKNÜPFEN IN KORREKTER REIHENFOLGE -->
     <script src="auth.js"></script>
     <script src="lang.js"></script>
     <script src="app.js"></script>
