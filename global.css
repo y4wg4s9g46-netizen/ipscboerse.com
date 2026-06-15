@@ -665,3 +665,28 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
     transform: none !important;
     filter: brightness(1.2);
 }
+
+/* ==========================================================================
+   SOCIAL LOGIN BUTTONS
+   ========================================================================== */
+.btn-social-google, .btn-social-apple {
+    width: 100%;
+    padding: 12px;
+    border-radius: var(--radius);
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: var(--transition);
+}
+.btn-social-google {
+    background-color: #ffffff;
+    color: #333333;
+    border: 1px solid var(--border-color);
+}
+.btn-social-apple {
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
+}
