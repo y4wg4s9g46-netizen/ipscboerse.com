@@ -767,3 +767,17 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
     filter: brightness(1.1);
     transform: translateY(-2px);
 }
+
+/* ==========================================================================
+   FIX: Haupt-Logo zwingend randlos und transparent machen
+   ========================================================================== */
+header h1 img,
+header img.logo {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    outline: none !important;
+}
