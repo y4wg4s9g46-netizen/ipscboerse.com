@@ -6,7 +6,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
     auth: {
         experimental: { passkey: true },
         persistSession: true,
-        detectSessionInUrl: false
+        detectSessionInUrl: true // JETZT AUF TRUE: Erlaubt Supabase, den Passwort-Code aus der URL zu lesen!
     }
 });
 
@@ -32,36 +32,57 @@ window.uploadImage = async function(file, folder) {
 // --- PASSKEY FUNKTIONEN ---
 window.loginWithPasskey = async function() {
     const btn = document.querySelector('#modal-login-view button[onclick="loginWithPasskey()"]');
-    const oldText = btn ? btn.innerText : "";
-    if (btn) btn.innerText = "Warte auf Fingerabdruck/FaceID...";
+    const oldHtml = btn ? btn.innerHTML : "";
+    if (btn) btn.innerHTML = "⏳ Warte auf Sensor...";
 
     const { data, error } = await window.supabaseClient.auth.signInWithPasskey();
 
     if (error) {
-        if (btn) btn.innerText = oldText;
+        if (btn) btn.innerHTML = oldHtml;
         alert("Passkey-Login fehlgeschlagen oder abgebrochen: " + error.message);
     } else {
-        if (btn) btn.innerText = "Erfolgreich!";
+        if (btn) btn.innerHTML = "✅ Erfolgreich!";
         location.reload();
     }
 };
 
 window.registerPasskey = async function() {
     const btn = document.querySelector('#modal-settings-view button[onclick="registerPasskey()"]');
-    const oldText = btn ? btn.innerText : "";
-    if (btn) btn.innerText = "Bitte Sensor berÃ¼hren...";
+    const oldHtml = btn ? btn.innerHTML : "";
+    if (btn) btn.innerHTML = "⏳ Bitte Sensor berühren...";
 
     const { data, error = null } = await window.supabaseClient.auth.registerPasskey();
 
     if (error) {
-        if (btn) btn.innerText = oldText;
+        if (btn) btn.innerHTML = oldHtml;
         alert("Fehler bei der Passkey-Registrierung: " + error.message);
     } else {
         if (btn) {
-            btn.innerText = "â GerÃ¤t erfolgreich als Passkey hinterlegt!";
+            btn.innerHTML = "✅ Gerät erfolgreich als Passkey hinterlegt!";
             btn.style.backgroundColor = "#10b981"; 
         }
     }
+};
+
+// --- SOCIAL LOGIN FUNKTIONEN (GOOGLE & APPLE) ---
+window.loginWithGoogle = async function() {
+    const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: window.location.origin
+        }
+    });
+    if (error) alert("Google-Login fehlgeschlagen: " + error.message);
+};
+
+window.loginWithApple = async function() {
+    const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+            redirectTo: window.location.origin
+        }
+    });
+    if (error) alert("Apple-Login fehlgeschlagen: " + error.message);
 };
 
 // --- DESIGN SCHALTER LOGIK (LIGHT / DARK MODE) ---
@@ -69,12 +90,12 @@ function updateThemeToggleIcon(theme) {
     const btn = document.getElementById('theme-toggle');
     if (!btn) return;
     if (theme === 'dark') {
-        btn.innerText = 'âï¸'; 
+        btn.innerText = '☀️'; 
     } else if (theme === 'light') {
-        btn.innerText = 'ð'; 
+        btn.innerText = '🌙'; 
     } else {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        btn.innerText = prefersDark ? 'âï¸' : 'ð';
+        btn.innerText = prefersDark ? '☀️' : '🌙';
     }
 }
 
@@ -108,13 +129,13 @@ function initTheme() {
 
 window.translations = {
   de: {
-    "main-title": "IPSC STARTPLATZ-BÃRSE",
-    "sub-title": "Von SchÃ¼tzen fÃ¼r SchÃ¼tzen â Live Marktplatz",
+    "main-title": "IPSC STARTPLATZ-BÖRSE",
+    "sub-title": "Von Schützen für Schützen – Live Marktplatz",
     "btn-login-reg": "Login / Registrieren",
     "logout": "Abmelden",
-    "info-msg": "<strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgÃ¼ltige Umschreibung des Startplatzes muss zwingend Ã¼ber den jeweiligen Match Director durchgefÃ¼hrt werden!",
+    "info-msg": "<strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgültige Umschreibung des Startplatzes muss zwingend über den jeweiligen Match Director durchgeführt werden!",
     "form-title": "Eintrag erstellen",
-    "form-title-edit": "Eintrag bearbeiten âï¸",
+    "form-title-edit": "Eintrag bearbeiten ✏️",
     "opt-offer": "Ich BIETE einen Startplatz an",
     "opt-want": "Ich SUCHE einen Startplatz",
     "lbl-name": "Name des Matches *",
@@ -123,17 +144,17 @@ window.translations = {
     "lbl-location": "Austragungsort (Stand) *",
     "lbl-country": "Land *",
     "lbl-squad": "Squad Nummer (Optional)",
-    "lbl-price": "Abgabepreis (â¬) *",
+    "lbl-price": "Abgabepreis (€) *",
     "lbl-email": "Deine E-Mail-Adresse *",
-    "btn-insert": "Eintrag kostenlos verÃ¶ffentlichen",
-    "btn-save-edit": "Ãnderungen speichern",
+    "btn-insert": "Eintrag kostenlos veröffentlichen",
+    "btn-save-edit": "Änderungen speichern",
     "btn-cancel": "Abbrechen",
     "filter-type": "Anzeigentyp:",
     "filter-all": "Alle Anzeigen",
     "filter-offers": "Nur Angebote (Biete)",
     "filter-wants": "Nur Gesuche (Suche)",
-    "list-title": "Aktuelle Marktplatz-EintrÃ¤ge",
-    "loading": "Lade aktuelle StartplÃ¤tze...",
+    "list-title": "Aktuelle Marktplatz-Einträge",
+    "loading": "Lade aktuelle Startplätze...",
     "modal-login-title": "Anmelden",
     "modal-btn-login": "Einloggen",
     "modal-no-acc": "Noch kein Konto?",
@@ -143,38 +164,38 @@ window.translations = {
     "modal-has-acc": "Bereits registriert?",
     "modal-link-login": "Zum Login",
     "footer-impressum-link": "Impressum & Rechtliche Hinweise",
-    "no-slots": "Aktuell keine EintrÃ¤ge verfÃ¼gbar.",
+    "no-slots": "Aktuell keine Einträge verfügbar.",
     "btn-request": "Anbieter kontaktieren",
-    "btn-contact-want": "SchÃ¼tzen kontaktieren",
-    "btn-delete": "LÃ¶schen",
+    "btn-contact-want": "Schützen kontaktieren",
+    "btn-delete": "Löschen",
     "btn-edit": "Bearbeiten",
     "btn-export": "Export (.ics)",
     "report-btn": "Melden",
     "buy-coffee": "Kaffee spendieren",
-    "social-proof": "Erfolgreich vermittelte StartplÃ¤tze: ",
-    "login-required": "Nur eingeloggte Nutzer kÃ¶nnen kontaktieren",
-    "security-checklist": "\n\nSicherheits-Checkliste vor der E-Mail:\n- Match-Daten geprÃ¼ft?\n- Match Director kontaktiert?",
+    "social-proof": "Erfolgreich vermittelte Startplätze: ",
+    "login-required": "Nur eingeloggte Nutzer können kontaktieren",
+    "security-checklist": "\n\nSicherheits-Checkliste vor der E-Mail:\n- Match-Daten geprüft?\n- Match Director kontaktiert?",
     "tag-offer": "BIETE",
     "tag-want": "SUCHE",
     "link-forgot-pwd": "Passwort vergessen?",
     "modal-forgot-title": "Passwort vergessen",
-    "modal-btn-forgot": "ZurÃ¼cksetzungs-Link senden",
+    "modal-btn-forgot": "Zurücksetzungs-Link senden",
     "modal-reset-title": "Neues Passwort vergeben",
     "lbl-new-password": "Neues Passwort *",
-    "btn-save": "Ãnderungen speichern",
+    "btn-save": "Änderungen speichern",
     "modal-settings-title": "Konto-Einstellungen",
-    "lbl-username": "SchÃ¼tzenname / Anzeigename",
-    "btn-delete-acc": "Konto & alle EintrÃ¤ge unwiderruflich lÃ¶schen",
+    "lbl-username": "Schützenname / Anzeigename",
+    "btn-delete-acc": "Konto & alle Einträge unwiderruflich löschen",
     "email-subject-offer": "Interesse an deinem IPSC Startplatz: ",
-    "email-subject-want": "BezÃ¼glich deiner Suche nach einem IPSC Startplatz: ",
-    "email-body-offer": "Hallo,\n\nich habe dein Inserat auf ipscboerse.com gesehen und interessiere mich fÃ¼r den von dir angebotenen Startplatz fÃ¼r das Match: ",
-    "email-body-want": "Hallo,\n\nich habe dein Gesuch auf ipscboerse.com gesehen. Ich hÃ¤tte einen Startplatz abzugeben fÃ¼r das Match: ",
-    "email-body-footer": "\n\nIst das Inserat noch aktuell?\n\nViele GrÃ¼Ãe",
-    "security-notice": "â ï¸ WICHTIGER SICHERHEITSHINWEIS:\n\n1. Nutze fÃ¼r Zahlungen IMMER PayPal mit KÃ¤uferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prÃ¼fen, ob eine Umschreibung des Platzes Ã¼berhaupt noch mÃ¶glich ist!\n\nMÃ¶chtest du den E-Mail-Kontakt jetzt Ã¶ffnen?",
-    "spam-error": "Spam-Schutz: Du hast bereits einen Eintrag fÃ¼r dieses Match an diesem Datum erstellt!",
+    "email-subject-want": "Bezüglich deiner Suche nach einem IPSC Startplatz: ",
+    "email-body-offer": "Hallo,\n\nich habe dein Inserat auf ipscboerse.com gesehen und interessiere mich für den von dir angebotenen Startplatz für das Match: ",
+    "email-body-want": "Hallo,\n\nich habe dein Gesuch auf ipscboerse.com gesehen. Ich hätte einen Startplatz abzugeben für das Match: ",
+    "email-body-footer": "\n\nIst das Inserat noch aktuell?\n\nViele Grüße",
+    "security-notice": "⚠️ WICHTIGER SICHERHEITSHINWEIS:\n\n1. Nutze für Zahlungen IMMER PayPal mit Käuferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prüfen, ob eine Umschreibung des Platzes überhaupt noch möglich ist!\n\nMöchtest du den E-Mail-Kontakt jetzt öffnen?",
+    "spam-error": "Spam-Schutz: Du hast bereits einen Eintrag für dieses Match an diesem Datum erstellt!",
     
     "nav-marketplace": "Marktplatz",
-    "nav-free-slots": "Freie Match-PlÃ¤tze",
+    "nav-free-slots": "Freie Match-Plätze",
     "nav-my-planner": "Mein Planer",
     "nav-community": "Community",
     "planner-logged-out-title": "Nicht angemeldet",
@@ -188,40 +209,40 @@ window.translations = {
     "planner-btn-save": "Match in Cloud speichern",
     "planner-subtitle-planned": "Geplante Matches",
     "planner-loading": "Lade Daten aus Supabase...",
-    "planner-btn-export": "ð In Kalender exportieren (.ics)",
+    "planner-btn-export": "📅 In Kalender exportieren (.ics)",
     
-    "free-info-box": "<strong>Info:</strong> Die Matches werden automatisch im Hintergrund aktualisiert. Es werden nur Turniere angezeigt, die eine Auslastung von unter 100% aufweisen (freie StartplÃ¤tze).",
-    "free-list-title": "VerfÃ¼gbare Matches auf MatchSign (Auslastung < 100%)",
-    "free-all-countries": "Alle LÃ¤nder",
+    "free-info-box": "<strong>Info:</strong> Die Matches werden automatisch im Hintergrund aktualisiert. Es werden nur Turniere angezeigt, die eine Auslastung von unter 100% aufweisen (freie Startplätze).",
+    "free-list-title": "Verfügbare Matches auf MatchSign (Auslastung < 100%)",
+    "free-all-countries": "Alle Länder",
     "free-all-disciplines": "Alle Disziplinen",
     "free-all-levels": "Alle Level",
     "free-loading": "Lade aktuelle Matches...",
 
     "comm-title": "COMMUNITY FEED",
-    "tab-posts": "BeitrÃ¤ge",
+    "tab-posts": "Beiträge",
     "tab-groups": "Gruppen",
     "comm-logged-out-title": "Werde Teil der Community",
-    "comm-logged-out-desc": "Bitte logge dich ein, um BeitrÃ¤ge zu lesen und mit anderen SchÃ¼tzen zu diskutieren.",
+    "comm-logged-out-desc": "Bitte logge dich ein, um Beiträge zu lesen und mit anderen Schützen zu diskutieren.",
     "comm-logged-out-btn": "Jetzt einloggen",
-    "comm-setup-title": "WÃ¤hle deinen SchÃ¼tzennamen",
-    "comm-setup-desc": "Bevor du in der Community starten kannst, wÃ¤hle bitte einen SchÃ¼tzennamen / Anzeigenamen (z.B. IPSCShooter99).",
+    "comm-setup-title": "Wähle deinen Schützennamen",
+    "comm-setup-desc": "Bevor du in der Community starten kannst, wähle bitte einen Schützennamen / Anzeigenamen (z.B. IPSCShooter99).",
     "comm-setup-btn": "Namen speichern & starten",
-    "comm-loading": "Lade BeitrÃ¤ge...",
+    "comm-loading": "Lade Beiträge...",
     "fab-create-post": "+ Beitrag erstellen",
     "modal-new-post": "Neuer Beitrag",
-    "lbl-add-photo": "Foto hinzufÃ¼gen (Optional)",
+    "lbl-add-photo": "Foto hinzufügen (Optional)",
     "btn-share-post": "Teilen",
     "comm-groups-coming": "Gruppen-Funktion (Coming Soon)",
-    "comm-groups-desc": "Hier wirst du bald private Squad-Gruppen oder Vereins-KanÃ¤le erstellen kÃ¶nnen."
+    "comm-groups-desc": "Hier wirst du bald private Squad-Gruppen oder Vereins-Kanäle erstellen können."
   },
   en: {
     "main-title": "IPSC SLOT MARKETPLACE",
-    "sub-title": "By Shooters for Shooters â Live Marketplace",
+    "sub-title": "By Shooters for Shooters – Live Marketplace",
     "btn-login-reg": "Login / Register",
     "logout": "Logout",
     "info-msg": "<strong>Important Notice:</strong> This platform only serves as a mediator. The final transfer of the slot must be processed by the respective Match Director!",
     "form-title": "Create Entry",
-    "form-title-edit": "Edit Entry âï¸",
+    "form-title-edit": "Edit Entry ✏️",
     "opt-offer": "I OFFER a slot",
     "opt-want": "I AM LOOKING FOR a slot",
     "lbl-name": "Match Name *",
@@ -230,7 +251,7 @@ window.translations = {
     "lbl-location": "Location (Range) *",
     "lbl-country": "Country *",
     "lbl-squad": "Squad Number (Optional)",
-    "lbl-price": "Price (â¬) *",
+    "lbl-price": "Price (€) *",
     "lbl-email": "Your Email Address *",
     "btn-insert": "Publish Entry for Free",
     "btn-save-edit": "Save Changes",
@@ -277,8 +298,8 @@ window.translations = {
     "email-body-offer": "Hello,\n\nI saw your listing on ipscboerse.com and I am interested in the slot you offered for the match: ",
     "email-body-want": "Hello,\n\nI saw your request on ipscboerse.com. I have an available slot to give away for the match: ",
     "email-body-footer": "\n\nIs this listing still available?\n\nBest regards",
-    "security-notice": "â ï¸ IMPORTANT SAFETY NOTICE:\n\n1. ALWAYS use PayPal with Buyer Protection for payments (never use 'Friends & Family').\n2. You MUST contact the Match Director BEFORE making any payment to confirm if a slot transfer is still permitted!\n\nDo you want to open the email client now?",
-    "spam-error": "Spam protection: You have already posted an entry for this match on this date!",
+    "security-notice": "⚠️ IMPORTANT SAFETY NOTICE:\n\n1. ALWAYS use PayPal with Buyer Protection for payments (never use 'Friends & Family').\n2. You MUST contact the Match Director BEFORE making any payment to confirm if a slot transfer is still permitted!\n\nDo you want to open the email client now?",
+    "grid-error": "Spam protection: You have already posted an entry for this match on this date!",
     
     "nav-marketplace": "Marketplace",
     "nav-free-slots": "Free Match Slots",
@@ -295,7 +316,7 @@ window.translations = {
     "planner-btn-save": "Save Match to Cloud",
     "planner-subtitle-planned": "Planned Matches",
     "planner-loading": "Loading data from Supabase...",
-    "planner-btn-export": "ð Export to Calendar (.ics)",
+    "planner-btn-export": "📅 Export to Calendar (.ics)",
     
     "free-info-box": "<strong>Info:</strong> The matches are automatically updated in the background. Only tournaments with a capacity under 100% are displayed (available slots).",
     "free-list-title": "Available Matches on MatchSign (Capacity < 100%)",
@@ -345,7 +366,7 @@ function applyLanguage(lang) {
   const levelSelect = document.getElementById("match-level");
   if (levelSelect) {
     const currentVal = levelSelect.value;
-    const defaultText = lang === "en" ? "Please select..." : "Bitte wÃ¤hlen...";
+    const defaultText = lang === "en" ? "Please select..." : "Bitte wählen...";
     levelSelect.innerHTML = `<option value="">${defaultText}</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
     levelSelect.value = currentVal;
   }
@@ -418,9 +439,9 @@ document.addEventListener("click", async (e) => {
     }
     if (e.target.id === "btn-delete-account") {
         e.preventDefault();
-        if (!confirm("â ï¸ WARNUNG:\n\nMÃ¶chtest du dein Profil und all deine aktiven Marktplatz-Inserate wirklich unwiderruflich lÃ¶schen?")) return;
+        if (!confirm("⚠️ WARNUNG:\n\nMöchtest du dein Profil und all deine aktiven Marktplatz-Inserate wirklich unwiderruflich löschen?")) return;
         await window.supabaseClient.from("matches").delete().eq("seller_email", window.currentUser.email);
-        await window.supabaseClient.auth.updateUser({ data: { deleted: true, username: "GelÃ¶schter SchÃ¼tze" } });
+        await window.supabaseClient.auth.updateUser({ data: { deleted: true, username: "Gelöschter Schütze" } });
         await window.supabaseClient.auth.signOut();
         alert("Dein Konto und deine Inserate wurden erfolgreich entfernt.");
         location.reload();
@@ -483,7 +504,7 @@ document.addEventListener("submit", async (e) => {
             }
         });
         if (error) alert("Registrierung fehlgeschlagen: " + error.message);
-        else { alert("Konto erstellt! Bitte Ã¼berprÃ¼fe dein Postfach."); toggleAuthView("login"); }
+        else { alert("Konto erstellt! Bitte überprüfe dein Postfach."); toggleAuthView("login"); }
     }
     else if (e.target.id === "forgot-form") {
         e.preventDefault();
@@ -491,7 +512,7 @@ document.addEventListener("submit", async (e) => {
             redirectTo: window.location.origin + window.location.pathname,
         });
         if (error) alert("Fehler: " + error.message);
-        else { alert("Link zum ZurÃ¼cksetzen gesendet!"); toggleAuthView("login"); }
+        else { alert("Link zum Zurücksetzen gesendet!"); toggleAuthView("login"); }
     }
     else if (e.target.id === "reset-password-form") {
         e.preventDefault();
@@ -500,7 +521,7 @@ document.addEventListener("submit", async (e) => {
         });
         if (error) alert("Fehler: " + error.message);
         else { 
-            alert(window.currentLang === "en" ? "Password updated! Confirmation email has been sent." : "Passwort erfolgreich aktualisiert! Eine BestÃ¤tigungs-E-Mail wurde versendet."); 
+            alert(window.currentLang === "en" ? "Password updated! Confirmation email has been sent." : "Passwort erfolgreich aktualisiert! Eine Bestätigungs-E-Mail wurde versendet."); 
             location.reload(); 
         }
     }
@@ -508,7 +529,7 @@ document.addEventListener("submit", async (e) => {
         e.preventDefault();
         const btn = e.target.querySelector('button[type="submit"]');
         const oldText = btn ? btn.innerText : "";
-        if (btn) btn.innerText = "Speichere... (Bild lÃ¤dt hoch)";
+        if (btn) btn.innerText = "Speichere... (Bild lädt hoch)";
 
         try {
             const newPassword = document.getElementById("settings-password") ? document.getElementById("settings-password").value : "";
@@ -531,7 +552,7 @@ document.addEventListener("submit", async (e) => {
             const { error } = await window.supabaseClient.auth.updateUser(updates);
             if (error) throw error;
             
-            // Extra Profile Update fÃ¼r Konsistenz in der Supabase DB
+            // Extra Profile Update für Konsistenz in der Supabase DB
             await window.supabaseClient.from("profiles").update({
                 username: publicUsername,
                 ipsc_alias: newIpscAlias,
@@ -557,7 +578,7 @@ document.addEventListener("change", (e) => {
 function formatStars(value) {
     if (!value || isNaN(value) || value === 0) return "-";
     let fullStars = Math.round(value);
-    return "â".repeat(fullStars) + "â".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
+    return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
 }
 
 const initAppLanguage = () => {
@@ -577,6 +598,15 @@ if (document.readyState === "loading") {
 }
 
 setTimeout(async () => {
+    // ABFANG-LOGIK FÜR ABGELAUFENE/FEHLERHAFTE LINKS:
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    if (hashParams.has('error_code') && hashParams.get('error_code') === 'otp_expired') {
+        alert(window.currentLang === "en" 
+            ? "This reset link has expired or has already been used. Please request a new one." 
+            : "Dieser Link ist abgelaufen oder wurde bereits verwendet. Bitte fordere einen neuen Passwort-Link an.");
+        history.replaceState("", document.title, window.location.pathname + window.location.search);
+    }
+
     const { data: { session } } = await window.supabaseClient.auth.getSession();
     window.currentUser = session?.user || null;
     await checkUserStatus();
@@ -612,7 +642,7 @@ setTimeout(async () => {
             if (ratingCommEl) ratingCommEl.innerText = formatStars(countComm > 0 ? totalComm / countComm : 0);
             if (ratingPayEl) ratingPayEl.innerText = formatStars(countPay > 0 ? totalPay / countPay : 0);
         } catch(e) {
-            console.error("Fehler beim Laden der eigenen Profil-Statistiken:", e);
+            console.error("Fehler beim Laden der Profil-Statistiken:", e);
         }
     }
     
@@ -635,15 +665,4 @@ setTimeout(async () => {
             window.onAuthChange(window.currentUser); 
         }
     });
-
-    const sessionKey = "news_popup_shown_2026";
-    if (!sessionStorage.getItem(sessionKey)) {
-        setTimeout(() => {
-            const newsModal = document.getElementById("news-modal");
-            if (newsModal) {
-                newsModal.style.display = "flex";
-                sessionStorage.setItem(sessionKey, "true");
-            }
-        }, 1000);
-    }
 }, 150);
