@@ -6,7 +6,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
     auth: {
         experimental: { passkey: true },
         persistSession: true,
-        detectSessionInUrl: true // JETZT AUF TRUE: Erlaubt Supabase, den Passwort-Code aus der URL zu lesen!
+        detectSessionInUrl: true 
     }
 });
 
@@ -62,6 +62,27 @@ window.registerPasskey = async function() {
             btn.style.backgroundColor = "#10b981"; 
         }
     }
+};
+
+// --- SOCIAL LOGIN FUNKTIONEN (GOOGLE & APPLE) ---
+window.loginWithGoogle = async function() {
+    const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: window.location.origin // Leitet den Nutzer zurück auf https://ipscboerse.com
+        }
+    });
+    if (error) alert("Google-Login fehlgeschlagen: " + error.message);
+};
+
+window.loginWithApple = async function() {
+    const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+            redirectTo: window.location.origin // Leitet den Nutzer zurück auf https://ipscboerse.com
+        }
+    });
+    if (error) alert("Apple-Login fehlgeschlagen: " + error.message);
 };
 
 // --- DESIGN SCHALTER LOGIK (LIGHT / DARK MODE) ---
@@ -577,8 +598,6 @@ if (document.readyState === "loading") {
 }
 
 setTimeout(async () => {
-    // ABFANG-LOGIK FÜR ABGELAUFENE/FEHLERHAFTE LINKS:
-    // Falls der E-Mail-Provider den Link entwertet hat, zeigen wir sofort ein klares Alert
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     if (hashParams.has('error_code') && hashParams.get('error_code') === 'otp_expired') {
         alert(window.currentLang === "en" 
@@ -633,7 +652,6 @@ setTimeout(async () => {
     window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
         window.currentUser = session?.user || null;
         
-        // DIESER TRIGGER WIRD JETZT DURCH DETECTSESSIONINURL:TRUE KORREKT AUSGELÖST!
         if (event === "PASSWORD_RECOVERY") {
             const modal = document.getElementById("auth-modal");
             if (modal) modal.style.display = "flex";
