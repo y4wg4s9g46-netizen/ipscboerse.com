@@ -31,16 +31,11 @@ window.uploadImage = async function(file, folder) {
 
 // --- PASSKEY FUNKTIONEN ---
 window.loginWithPasskey = async function() {
-    // 1. APPLE/iOS FIX: Der Passkey-Aufruf MUSS zwingend als allererstes erfolgen!
-    const passkeyPromise = window.supabaseClient.auth.signInWithPasskey();
-
-    // 2. Jetzt erst passen wir gemütlich die UI an
     const btn = document.querySelector('#modal-login-view button[onclick="loginWithPasskey()"]');
     const oldText = btn ? btn.innerText : "";
     if (btn) btn.innerText = "Warte auf Fingerabdruck/FaceID...";
 
-    // 3. Warten auf das Ergebnis von FaceID/TouchID
-    const { data, error } = await passkeyPromise;
+    const { data, error } = await window.supabaseClient.auth.signInWithPasskey();
 
     if (error) {
         if (btn) btn.innerText = oldText;
@@ -52,16 +47,11 @@ window.loginWithPasskey = async function() {
 };
 
 window.registerPasskey = async function() {
-    // 1. APPLE/iOS FIX: Sofortiger API-Aufruf zur Wahrung des "User Gestures"
-    const passkeyPromise = window.supabaseClient.auth.registerPasskey();
-
-    // 2. UI anpassen
     const btn = document.querySelector('#modal-settings-view button[onclick="registerPasskey()"]');
     const oldText = btn ? btn.innerText : "";
     if (btn) btn.innerText = "Bitte Sensor berühren...";
 
-    // 3. Auf das Ergebnis warten
-    const { data, error = null } = await passkeyPromise;
+    const { data, error = null } = await window.supabaseClient.auth.registerPasskey();
 
     if (error) {
         if (btn) btn.innerText = oldText;
