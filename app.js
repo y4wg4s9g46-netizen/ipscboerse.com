@@ -187,7 +187,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                 <div class="modal-close-container">
                     <button class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</button>
                 </div>
-                <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
+                h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
                 <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
                 <div class="chat-history-area" id="chat-box-messages"></div>
                 <form id="chat-send-form" style="display: flex; gap: 8px;">
@@ -839,4 +839,3 @@ window.onAuthChange = (user) => {
 enforceFutureDates();
 checkPlannerImport();
 fetchMatches();
-}
