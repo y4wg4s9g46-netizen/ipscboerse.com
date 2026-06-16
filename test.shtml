@@ -1,1 +1,7 @@
-
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>SSI Test</h1>
+    <p>Aktuelles Datum und Uhrzeit vom Server: </p>
+</body>
+</html>
