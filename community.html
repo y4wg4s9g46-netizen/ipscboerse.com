@@ -16,38 +16,23 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/nsfwjs@2.4.0/dist/browser/nsfwjs.min.js"></script>
 
-    <link rel="stylesheet" href="global.css">
-
+    <script>
+        // Setzt das Theme SOFORT, bevor die Seite gerendert wird
+        (function() {
+            var theme = localStorage.getItem("selectedTheme") || "auto";
+            if (theme === "dark" || (theme === "auto" && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute("data-theme", "dark");
+            }
+        })();
+    </script>
     <style>
-        /* Spezifisches Community-Layout, das NICHT mit global.css kollidiert */
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; flex: 1; width: 100%; box-sizing: border-box; position: relative; }
-        
-        .post-header { display: flex; align-items: center; margin-bottom: 15px; gap: 15px; }
-        .avatar { width: 40px; height: 40px; background-color: var(--border-color); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 16px; color: var(--text-color); border: 1px solid var(--border-color); }
-        .post-meta h4 { margin: 0; font-size: 15px; color: var(--text-color); font-weight: 700; display: flex; align-items: center; gap: 8px;}
-        .post-meta span { font-size: 12px; color: var(--text-muted); }
-        .post-content { font-size: 15px; line-height: 1.6; color: var(--text-color); white-space: pre-wrap; }
-        
-        .post-card.admin-post { border: 2px solid rgba(255, 159, 67, 0.4); background-color: rgba(255, 159, 67, 0.03); }
-        .avatar.admin-avatar { background-color: var(--accent-color); color: #fff; border-color: var(--accent-color); }
-
-        .post-actions-bar { display: flex; gap: 20px; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 12px; font-size: 13px; font-weight: 600; }
-        .action-trigger { cursor: pointer; display: flex; align-items: center; gap: 5px; user-select: none; transition: opacity 0.15s; }
-        .action-trigger:hover { opacity: 0.7; }
-
-        .comments-wrapper { display: none; margin-top: 15px; background: var(--input-bg); padding: 15px; border-radius: var(--radius); border: 1px solid var(--border-color); }
-        .comment-item { border-bottom: 1px solid var(--border-color); padding: 10px 0; font-size: 13px; }
-        .comment-item:last-child { border-bottom: none; }
-        .comment-meta { font-weight: 700; color: var(--text-color); margin-bottom: 4px; display: flex; justify-content: space-between; font-size: 12px; }
-        .comment-meta span { color: var(--text-muted); font-weight: normal; }
-        .comment-input-box { display: flex; gap: 10px; margin-top: 15px; }
-        .comment-input-box input { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px 14px; border-radius: var(--radius); font-family: inherit; font-size: 13px; transition: var(--transition); }
-        .comment-input-box input:focus { outline: none; border-color: var(--accent-color); }
-        .comment-input-box button { background: var(--accent-color); color: #fff; padding: 10px 16px; font-weight: 700; border-radius: var(--radius); border: none; cursor: pointer; font-size: 13px; transition: var(--transition); }
-        .comment-input-box button:hover { opacity: 0.9; transform: translateY(-1px); }
-
-        #logged-out-msg, #username-setup-section { text-align: center; padding: 40px 20px; background: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-top: 20px; box-shadow: var(--shadow-sm); }
+        /* Exakte Farben aus der global.css für nahtlose Übergänge */
+        html, body { background-color: #f8fafc; }
+        html[data-theme="dark"], html[data-theme="dark"] body { background-color: #0b1121; }
+        body { visibility: visible !important; }
     </style>
+
+    <link rel="stylesheet" href="global.css?v=16">
 </head>
 <body>
 
@@ -55,45 +40,46 @@
     <script src="header.js"></script>
 
     <div class="container">
+        <div class="community-wrapper">
         
-        <div class="tabs-container">
-            <button id="tab-feed-btn" class="tab-button active" onclick="switchTab('feed')" data-txt="tab-posts">Beiträge</button>
-            <button id="tab-groups-btn" class="tab-button" onclick="switchTab('groups')" data-txt="tab-groups">Gruppen</button>
-        </div>
-
-        <div id="logged-out-msg">
-            <h2 data-txt="comm-logged-out-title">Werde Teil der Community</h2>
-            <p style="color: var(--text-muted); margin-bottom: 24px;" data-txt="comm-logged-out-desc">Bitte logge dich ein, um Beiträge zu lesen und mit anderen Schützen zu diskutieren.</p>
-            <button onclick="document.getElementById('auth-modal').style.display = 'flex'; if(typeof toggleAuthView === 'function') toggleAuthView('login');" class="btn-primary-auth" style="width: auto;" data-txt="comm-logged-out-btn">Jetzt einloggen</button>
-        </div>
-
-        <div id="username-setup-section" style="display: none; border-color: var(--accent-color);">
-            <h2 data-txt="comm-setup-title">Wähle deinen Schützennamen</h2>
-            <p style="color: var(--text-muted); margin-bottom: 20px;" data-txt="comm-setup-desc">Bevor du in der Community starten kannst, wähle bitte einen Schützennamen / Anzeigenamen (z.B. IPSCShooter99).</p>
-            <div style="max-width: 320px; margin: 0 auto 15px auto;" class="form-group">
-                <input type="text" id="initial-username" placeholder="z.B. AlphaShooter">
+            <div class="tabs-container">
+                <button id="tab-feed-btn" class="tab-button active" onclick="switchTab('feed')" data-txt="tab-posts">Beiträge</button>
+                <button id="tab-groups-btn" class="tab-button" onclick="switchTab('groups')" data-txt="tab-groups">Gruppen</button>
             </div>
-            <button onclick="saveInitialUsername()" class="btn-primary-auth" style="width: auto;" data-txt="comm-setup-btn">Namen speichern & starten</button>
-        </div>
 
-        <div id="feed-section" style="display: none;">
-            <div id="posts-container">
-                <p style="color: var(--text-muted); text-align: center;" data-txt="comm-loading">Lade Beiträge...</p>
+            <div id="logged-out-msg">
+                <h2 data-txt="comm-logged-out-title">Werde Teil der Community</h2>
+                <p style="color: var(--text-muted); margin-bottom: 24px;" data-txt="comm-logged-out-desc">Bitte logge dich ein, um Beiträge zu lesen und mit anderen Schützen zu diskutieren.</p>
+                <button onclick="document.getElementById('auth-modal').style.display = 'flex'; if(typeof toggleAuthView === 'function') toggleAuthView('login');" class="btn-primary-auth" style="width: auto;" data-txt="comm-logged-out-btn">Jetzt einloggen</button>
             </div>
-            
-            <div class="floating-action-bar">
-                <button class="btn-post" onclick="openPostModal()" data-txt="fab-create-post">
-                    <span style="font-size: 20px; margin-top: -2px;">+</span> Beitrag erstellen
-                </button>
+
+            <div id="username-setup-section" style="display: none; border-color: var(--accent-color);">
+                <h2 data-txt="comm-setup-title">Wähle deinen Schützennamen</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;" data-txt="comm-setup-desc">Bevor du in der Community starten kannst, wähle bitte einen Schützennamen / Anzeigenamen (z.B. IPSCShooter99).</p>
+                <div style="max-width: 320px; margin: 0 auto 15px auto;" class="form-group">
+                    <input type="text" id="initial-username" placeholder="z.B. AlphaShooter">
+                </div>
+                <button onclick="saveInitialUsername()" class="btn-primary-auth" style="width: auto;" data-txt="comm-setup-btn">Namen speichern & starten</button>
             </div>
-        </div>
 
-        <div id="groups-section" style="display: none; text-align: center; padding: 40px; color: var(--text-muted);">
-            <h3 data-txt="comm-groups-coming">Gruppen-Funktion (Coming Soon)</h3>
-            <p data-txt="comm-groups-desc">Hier wirst du bald private Squad-Gruppen oder Vereins-Kanäle erstellen können.</p>
-        </div>
+            <div id="feed-section" style="display: none;">
+                <div id="posts-container">
+                    <p style="color: var(--text-muted); text-align: center;" data-txt="comm-loading">Lade Beiträge...</p>
+                </div>
+                
+                <div class="floating-action-bar">
+                    <button class="btn-post" onclick="openPostModal()" data-txt="fab-create-post">
+                        <span style="font-size: 20px; margin-top: -2px;">+</span> Beitrag erstellen
+                    </button>
+                </div>
+            </div>
 
-    </div>
+            <div id="groups-section" style="display: none; text-align: center; padding: 40px; color: var(--text-muted);">
+                <h3 data-txt="comm-groups-coming">Gruppen-Funktion (Coming Soon)</h3>
+                <p data-txt="comm-groups-desc">Hier wirst du bald private Squad-Gruppen oder Vereins-Kanäle erstellen können.</p>
+            </div>
+
+        </div> </div>
 
     <div class="modal" id="post-modal">
         <div class="modal-content">
@@ -113,7 +99,6 @@
         </div>
     </div>
 
-    <!-- 🌟 REPARIERTER FOOTER MIT IMPRESSUM & RECHTLICHEN HINWEISEN 🌟 -->
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center; padding: 20px 0;">
             <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
@@ -124,6 +109,7 @@
     <script src="auth.js"></script>
     <script src="lang.js"></script>
     <script src="app.js"></script>
+    <script src="router.js"></script>
     <script>
         const ADMIN_EMAIL = 'fabian-schoeps@gmx.de';
 
