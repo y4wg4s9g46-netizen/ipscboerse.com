@@ -1007,76 +1007,83 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
     }
 }
 /* ==========================================================================
-   FINAL MOBILE SIZE OVERRIDE – erzwingt kleinere Seitenboxen
+   MOBILE FORM COMPACT FIX – Planer/Marktplatz kompakter ohne Layoutbruch
    ========================================================================== */
 
 @media (max-width: 768px) {
 
-    body .container {
-        margin-top: 18px !important;
-        margin-bottom: 18px !important;
-        padding-left: 14px !important;
-        padding-right: 14px !important;
+    .container {
+        margin: 24px auto !important;
+        padding: 0 18px !important;
     }
 
-    body .container > div,
-    body .container > section,
-    body .container > form,
-    body .container .card,
-    body .container .form-card,
-    body .container .tool-section,
-    body .container .news-section,
-    body .container .hero-section,
-    body .container .post-card,
-    body .container .dash-card,
-    body .container .modal-content {
-        padding: 16px 14px !important;
-        margin-bottom: 16px !important;
-        border-radius: 16px !important;
+    .planner-card,
+    .market-card,
+    .form-card,
+    .tool-section,
+    .news-section,
+    .hero-section,
+    .card {
+        padding: 20px 18px !important;
+        margin-bottom: 22px !important;
+        border-radius: 18px !important;
     }
 
-    body .container h1,
-    body .container h2,
-    body .container h3 {
-        font-size: 22px !important;
+    .planner-card h2,
+    .planner-card h3,
+    .market-card h2,
+    .market-card h3,
+    .form-card h2,
+    .form-card h3,
+    .tool-section h2,
+    .tool-section h3,
+    .card h2,
+    .card h3 {
+        font-size: 24px !important;
         line-height: 1.2 !important;
-        margin-top: 0 !important;
-        margin-bottom: 14px !important;
+        margin-bottom: 18px !important;
     }
 
-    body .container p {
-        font-size: 14px !important;
-        line-height: 1.4 !important;
+    .form-group,
+    .hit-input-group {
+        margin-bottom: 16px !important;
     }
 
-    body .container label {
-        font-size: 11px !important;
-        margin-bottom: 5px !important;
+    .form-group label,
+    .hit-input-group label {
+        font-size: 12px !important;
+        margin-bottom: 6px !important;
+        letter-spacing: 1px !important;
     }
 
-    body .container input,
-    body .container select,
-    body .container textarea {
-        min-height: 40px !important;
-        height: 40px !important;
-        padding: 7px 12px !important;
-        font-size: 14px !important;
-        border-radius: 10px !important;
-    }
-
-    body .container button,
-    body .container .btn-submit,
-    body .container .btn-primary-auth,
-    body .container .btn-secondary-auth,
-    body .container .btn-post {
-        min-height: 40px !important;
-        padding: 9px 14px !important;
-        font-size: 14px !important;
+    .form-group input,
+    .form-group select,
+    .form-group textarea,
+    .hit-input-group input,
+    .hit-input-group select,
+    .hit-input-group textarea {
+        min-height: 42px !important;
+        height: 42px !important;
+        padding: 8px 14px !important;
+        font-size: 15px !important;
         border-radius: 12px !important;
     }
 
-    body .form-group,
-    body .hit-input-group {
-        margin-bottom: 14px !important;
+    .btn-submit,
+    .btn-post,
+    .btn-primary-auth {
+        min-height: 42px !important;
+        padding: 10px 16px !important;
+        font-size: 15px !important;
+        border-radius: 14px !important;
+    }
+
+    .planned-match-card,
+    .match-card,
+    .listing-card,
+    .post-card {
+        padding: 18px 16px !important;
+        margin-bottom: 18px !important;
+        border-radius: 18px !important;
     }
 }
