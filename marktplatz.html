@@ -32,10 +32,10 @@
     </style>
 
     <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
-    <link rel="stylesheet" href="global.css">
+    <link rel="stylesheet" href="global.css?v21">
     
     <style>
-        /* ==========================================================================
+        /* =========================================================================
            MARKTPLATZ-SPEZIFISCHES LAYOUT (Nutzt nun global.css Variablen)
            ========================================================================== */
 
@@ -283,20 +283,166 @@
         .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .action-buttons-group { display: flex; gap: 10px; margin-top: 8px; }
 
-        @media (max-width: 768px) {
-            .form-grid { grid-template-columns: 1fr; gap: 16px; }
-            .toggle-selector { flex-direction: column; gap: 12px; align-items: flex-start; }
-            .match-card { flex-direction: column; align-items: stretch; gap: 16px; }
-            .card-actions { align-items: flex-start; width: 100%; border-top: 1px solid var(--border-color); padding-top: 16px; }
-            .action-buttons-group { width: 100%; display: flex; gap: 8px; }
-            .action-buttons-group button, .btn-contact { flex: 1; text-align: center; width: 100%; }
-            .btn-delete, .btn-edit { flex: 1; text-align: center; }
-        }
+      @media (max-width: 768px) {
+    .form-section {
+        padding: 18px 16px !important;
+        margin-bottom: 22px !important;
+        border-radius: 18px !important;
+    }
+
+    .form-section h2 {
+        font-size: 22px !important;
+        padding-bottom: 12px !important;
+        margin-bottom: 18px !important;
+    }
+
+    .info-box {
+        padding: 14px 12px !important;
+        margin-bottom: 20px !important;
+        font-size: 13px !important;
+        line-height: 1.4 !important;
+        border-radius: 14px !important;
+    }
+
+    .toggle-selector {
+        flex-direction: column !important;
+        gap: 10px !important;
+        align-items: flex-start !important;
+        padding: 12px !important;
+        margin-bottom: 18px !important;
+        border-radius: 14px !important;
+    }
+
+    .toggle-selector label {
+        font-size: 13px !important;
+    }
+
+    .toggle-selector input {
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .filter-bar {
+        padding: 14px 12px !important;
+        margin-bottom: 20px !important;
+        border-radius: 16px !important;
+    }
+
+    .filter-group {
+        width: 100% !important;
+    }
+
+    .filter-group select {
+        width: 100% !important;
+        height: 40px !important;
+        padding: 7px 12px !important;
+        font-size: 14px !important;
+        border-radius: 10px !important;
+    }
+
+    .match-list {
+        gap: 14px !important;
+    }
+
+    .match-card {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        padding: 16px 14px !important;
+        border-radius: 16px !important;
+    }
+
+    .match-details h3 {
+        font-size: 16px !important;
+        line-height: 1.25 !important;
+        margin-bottom: 6px !important;
+    }
+
+    .match-details p {
+        font-size: 13px !important;
+        line-height: 1.4 !important;
+        margin: 4px 0 !important;
+    }
+
+    .badge-container {
+        gap: 6px !important;
+        margin-top: 8px !important;
+    }
+
+    .badge {
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+        border-radius: 7px !important;
+    }
+
+    .card-avatar,
+    .avatar-placeholder-flex {
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+        min-height: 42px !important;
+        font-size: 16px !important;
+    }
+
+    .match-header-flex {
+        gap: 12px !important;
+    }
+
+    .card-actions {
+        align-items: stretch !important;
+        width: 100% !important;
+        border-top: 1px solid var(--border-color) !important;
+        padding-top: 12px !important;
+        gap: 8px !important;
+    }
+
+    .action-buttons-group {
+        width: 100% !important;
+        display: flex !important;
+        gap: 8px !important;
+    }
+
+    .action-buttons-group button,
+    .btn-contact,
+    .btn-delete,
+    .btn-edit,
+    .btn-export,
+    .btn-mediated {
+        flex: 1 !important;
+        text-align: center !important;
+        width: 100% !important;
+        min-height: 40px !important;
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+        border-radius: 12px !important;
+    }
+
+    #btn-cancel-edit {
+        padding: 9px 14px !important;
+        font-size: 14px !important;
+    }
+
+    #btn-submit-ad {
+        min-height: 40px !important;
+        padding: 9px 14px !important;
+        font-size: 14px !important;
+        border-radius: 12px !important;
+    }
+
+    h2[data-txt="list-title"] {
+        font-size: 22px !important;
+        margin-bottom: 16px !important;
+    }
+}
     </style>
 </head>
 <body>
 
-<body>
 
     <header id="main-header"></header>
 
@@ -451,9 +597,9 @@
         </div>
     </footer>
 
-    <script src="auth.js"></script>
-    <script src="lang.js"></script>
-    <script src="app.js"></script>
+<script src="auth.js?v=10"></script>
+<script src="lang.js?v=10"></script>
+<script src="app.js?v=10"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
