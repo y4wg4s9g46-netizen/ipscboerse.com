@@ -6,7 +6,8 @@
     <title>IPSC Match-Marktplatz | Startplatz Börse</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1a1c23" media="(prefers-color-scheme: dark)">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="IPSC Börse">
@@ -14,6 +15,22 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <script>
+        // Setzt das Theme SOFORT, bevor die Seite gerendert wird
+        (function() {
+            var theme = localStorage.getItem("selectedTheme") || "auto";
+            if (theme === "dark" || (theme === "auto" && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute("data-theme", "dark");
+            }
+        })();
+    </script>
+    <style>
+        /* Verhindert das weiße Aufblitzen des Hintergrunds */
+        html { background-color: #ffffff; }
+        html[data-theme="dark"] { background-color: #1a1c23; }
+        body { visibility: visible !important; }
+    </style>
+
     <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
     <link rel="stylesheet" href="global.css">
     
