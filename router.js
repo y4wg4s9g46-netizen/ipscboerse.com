@@ -2,11 +2,13 @@
 
 // 1. Klicks auf Links abfangen
 document.addEventListener("click", async (e) => {
-    // Schauen, ob auf einen Link (<a>) geklickt wurde
     const link = e.target.closest("a");
 
     // Nur eingreifen, wenn es ein Link zu deiner eigenen App ist und kein Anker (#)
     if (!link || !link.href.startsWith(window.location.origin) || link.hash) return;
+    
+    // Sonderfall für externe Links oder Downloads ignorieren
+    if (link.target === "_blank" || link.hasAttribute("download")) return;
 
     // Normalen, flackernden Seitenwechsel stoppen!
     e.preventDefault(); 
@@ -27,19 +29,15 @@ window.addEventListener("popstate", () => {
 // 3. Die Magie: Inhalt austauschen
 async function updateContent(url) {
     try {
-        // Zeige kurz einen Lade-Indikator, falls das Netz langsam ist (optional)
         const container = document.querySelector(".container");
         if(container) container.style.opacity = "0.5";
 
-        // Hole die HTML-Datei aus dem Speicher (oder dem Netzwerk)
         const response = await fetch(url);
         const html = await response.text();
 
-        // Verwandle den Text in echte HTML-Strukturen
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
 
-        // Finde den neuen Container
         const newContainer = doc.querySelector(".container");
 
         if (container && newContainer) {
@@ -53,14 +51,51 @@ async function updateContent(url) {
             // Scrolle wieder nach oben
             window.scrollTo(0, 0); 
             
-            // HIER triggern wir ein Event, damit deine app.js weiß, dass neue Inhalte da sind
+            // --- NEU: Navigationleiste unten/oben aktualisieren ---
+            updateActiveNav(url);
+            
+            // Trigger das Event für die app.js
             document.dispatchEvent(new Event("pageLoaded"));
         } else {
-            // Fallback, falls eine Seite mal keinen .container hat
             window.location.href = url; 
         }
     } catch (err) {
-        // Fallback bei schweren Netzwerkfehlern
         window.location.href = url; 
     }
 }
+
+// 4. NEU: Funktion zum Umschalten des aktiven Buttons
+function updateActiveNav(targetUrl) {
+    const urlObj = new URL(targetUrl, window.location.origin);
+    let targetPath = urlObj.pathname;
+    
+    // Falls der Pfad nur "/" ist, machen wir "index.html" daraus für den Vergleich
+    if (targetPath === "/") targetPath = "/index.html";
+
+    // Suche alle Links in deinem Header / in deiner unteren Navigationsleiste
+    const navLinks = document.querySelectorAll("header a, nav a");
+
+    navLinks.forEach(link => {
+        const linkObj = new URL(link.href, window.location.origin);
+        let linkPath = linkObj.pathname;
+        if (linkPath === "/") linkPath = "/index.html";
+
+        // Wir entfernen standardmäßig erst mal die aktive Farbe (auf Standardgrau setzen)
+        link.classList.remove("active");
+        link.style.color = "var(--text-muted)";
+        const icon = link.querySelector("svg, i, span"); // Falls Icons drin sind
+        if (icon) icon.style.color = "var(--text-muted)";
+
+        // Wenn der Link zur aktuellen Seite passt, färben wir ihn orange (aktiv)
+        if (linkPath === targetPath) {
+            link.classList.add("active");
+            link.style.color = "var(--accent-color)"; 
+            if (icon) icon.style.color = "var(--accent-color)";
+        }
+    });
+}
+
+// Setze den richtigen Button auch einmal direkt beim allerersten Laden der App
+document.addEventListener("DOMContentLoaded", () => {
+    updateActiveNav(window.location.href);
+});
