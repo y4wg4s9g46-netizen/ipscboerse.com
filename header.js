@@ -161,7 +161,7 @@
                         <img id="header-avatar" src="${cachedAvatarUrl}" width="34" height="34" alt="Profilbild">
                     </button>
 
-                    <button class="btn-auth" id="btn-logout" style="${hasCachedLogin ? "" : "display:none !important;"}" data-txt="btn-logout">Logout</button>
+                    <button class="btn-auth" id="btn-logout" style="${hasCachedLogin ? "" : "display:none !important;"}" data-txt="btn-logout">Abmelden</button>
                 </div>
             </div>
 
