@@ -783,3 +783,36 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
     filter: brightness(1.1);
     transform: translateY(-2px);
 }
+/* ==========================================================================
+   FIX: Header-Avatar darf beim Laden kein Layout-Zucken auslösen
+   ========================================================================== */
+
+header #btn-open-settings {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    flex: 0 0 38px !important;
+    overflow: hidden !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+header #btn-open-settings img {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
+    object-fit: cover !important;
+    border-radius: 50% !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    flex: 0 0 32px !important;
+}
