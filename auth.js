@@ -505,6 +505,11 @@ async function checkUserStatus() {
       emailField.readOnly = false;
     }
   }
+
+  const mainHeader = document.querySelector("header");
+  if (mainHeader) {
+    mainHeader.classList.add("auth-ready");
+  }
 }
 function toggleAuthView(view) {
   if(document.getElementById("modal-login-view")) document.getElementById("modal-login-view").style.display = view === "login" ? "block" : "none";
