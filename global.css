@@ -797,3 +797,16 @@ header {
 ::view-transition-group(app-header) {
     animation: none;
 }
+/* ==========================================================================
+   FIX: Bewertungs-Sterne im Modal auf Handys untereinander zwingen
+   ========================================================================== */
+@media (max-width: 600px) {
+    #mediated-modal div[style*="display: flex"] {
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+    
+    #mediated-modal div[style*="display: flex"] .form-group {
+        width: 100% !important;
+        margin-bottom: 0 !important;
+    }
