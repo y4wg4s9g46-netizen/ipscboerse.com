@@ -333,8 +333,16 @@ style.innerHTML = `
         display: none !important;
     }
 
-    header .header-controls { position: absolute !important; top: calc(env(safe-area-inset-top) + 24px) !important; right: 20px !important; display: flex !important; align-items: center !important; gap: 10px !important; flex-direction: row !important; min-height: 38px !important; }
-            header .header-controls { position: absolute !important; top: calc(env(safe-area-inset-top) + 24px) !important; right: 20px !important; display: flex !important; align-items: center !important; gap: 10px !important; flex-direction: row !important; min-height: 38px !important; }
+            header .header-controls {
+    position: absolute !important;
+    top: calc(env(safe-area-inset-top) + 24px) !important;
+    right: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-direction: row !important;
+    min-height: 38px !important;
+}
             header #auth-status-container { display: flex !important; align-items: center !important; justify-content: flex-end !important; flex-direction: row !important; gap: 8px !important; min-height: 38px !important; }
             header .theme-toggle-btn { width: 38px !important; height: 38px !important; min-width: 38px !important; min-height: 38px !important; max-width: 38px !important; max-height: 38px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; flex: 0 0 38px !important; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; box-shadow: var(--shadow-sm); box-sizing: border-box !important; }
             header .lang-select { width: auto !important; min-width: 54px !important; max-width: 64px !important; height: 38px !important; padding: 0 10px !important; flex: 0 0 auto !important; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; font-weight: 600; font-size: 13px; box-sizing: border-box !important; }
@@ -482,11 +490,11 @@ header #header-avatar {
 
         bindHeaderAuthButtons(isVipPage);
 
-if (hasCachedLogin) {
-    header.classList.add("auth-ready");
-} else {
-    header.classList.remove("auth-ready");
-}
+/*
+  Header-Controls bleiben unsichtbar, bis auth.js den echten Status geprüft hat.
+  Dadurch gibt es keinen sichtbaren Zwischenzustand.
+*/
+header.classList.remove("auth-ready");
 
 return true;
     };
