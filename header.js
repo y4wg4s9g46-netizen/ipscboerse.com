@@ -1,578 +1,901 @@
-(function() {
-    const HEADER_USER_CACHE_KEY = "headerUserCache";
-    const HEADER_AVATAR_CACHE_KEY = "headerAvatar";
-    const DEFAULT_HEADER_AVATAR = "icon-192.png";
+// === ZENTRALE SUPABASE KONFIGURATION ===
+const SUPABASE_URL = "https://huprxirlthkisjngwash.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_yModrA5JZTiN5Cw7MHQqLQ_Coc04WAS";
 
-    const escapeAttr = (value) => String(value || "")
-        .replace(/&/g, "&amp;")
-        .replace(/"/g, "&quot;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+        experimental: { passkey: true },
+        persistSession: true,
+        detectSessionInUrl: true
+    }
+});
 
-    const getCachedHeaderUser = () => {
-        try {
-            const raw = localStorage.getItem(HEADER_USER_CACHE_KEY);
-            if (!raw) return null;
+window.supabaseClient = supabaseClient;
+window.currentUser = null;
+window.currentLang = "de";
 
-            const cached = JSON.parse(raw);
-            const maxAgeMs = 7 * 24 * 60 * 60 * 1000;
+// Header-Cache gegen Zucken beim Seitenwechsel
+const HEADER_USER_CACHE_KEY = "headerUserCache";
+const HEADER_AVATAR_CACHE_KEY = "headerAvatar";
+const DEFAULT_HEADER_AVATAR = "icon-192.png";
 
-            if (!cached || !cached.updated_at || Date.now() - cached.updated_at > maxAgeMs) {
-                localStorage.removeItem(HEADER_USER_CACHE_KEY);
-                return null;
-            }
+function cacheHeaderUser(user) {
+    if (!user) return;
 
-            return cached;
-        } catch (err) {
-            localStorage.removeItem(HEADER_USER_CACHE_KEY);
-            return null;
-        }
-    };
+    const avatarUrl =
+        user.user_metadata?.avatar_url ||
+        user.user_metadata?.picture ||
+        user.user_metadata?.profile_picture ||
+        DEFAULT_HEADER_AVATAR;
 
-    const getAvatarFromUser = (user) => {
-        return user?.user_metadata?.avatar_url
-            || user?.user_metadata?.picture
-            || user?.user_metadata?.profile_picture
-            || localStorage.getItem(HEADER_AVATAR_CACHE_KEY)
-            || DEFAULT_HEADER_AVATAR;
-    };
-
-    const setHeaderAuthState = (isLoggedIn, user = null) => {
-        const container = document.getElementById("auth-status-container");
-        const loginBtn = document.getElementById("btn-open-login");
-        const profileBtn = document.getElementById("btn-open-settings");
-        const logoutBtn = document.getElementById("btn-logout");
-        const avatarImg = document.getElementById("header-avatar");
-
-        if (!container) return;
-
-        container.dataset.authState = isLoggedIn ? "in" : "out";
-
-        if (loginBtn) loginBtn.style.display = isLoggedIn ? "none" : "inline-flex";
-        if (profileBtn) profileBtn.style.display = isLoggedIn ? "inline-flex" : "none";
-        if (logoutBtn) logoutBtn.style.display = isLoggedIn ? "inline-flex" : "none";
-
-        if (isLoggedIn && user) {
-            const avatarUrl = getAvatarFromUser(user);
-
-            if (avatarImg && avatarUrl && avatarImg.getAttribute("src") !== avatarUrl) {
-                avatarImg.setAttribute("src", avatarUrl);
-            }
-
-            const cachedUser = {
+    try {
+        localStorage.setItem(HEADER_AVATAR_CACHE_KEY, avatarUrl);
+        localStorage.setItem(
+            HEADER_USER_CACHE_KEY,
+            JSON.stringify({
                 email: user.email || "",
                 avatar_url: avatarUrl,
                 updated_at: Date.now()
-            };
+            })
+        );
+    } catch (err) {}
+}
 
-            try {
-                localStorage.setItem(HEADER_USER_CACHE_KEY, JSON.stringify(cachedUser));
-                localStorage.setItem(HEADER_AVATAR_CACHE_KEY, avatarUrl);
-            } catch (err) {}
+function clearHeaderUserCache() {
+    try {
+        localStorage.removeItem(HEADER_USER_CACHE_KEY);
+        localStorage.removeItem(HEADER_AVATAR_CACHE_KEY);
+    } catch (err) {}
+}
+
+function markHeaderReady() {
+    const mainHeader = document.querySelector("header");
+    if (mainHeader) {
+        mainHeader.classList.add("auth-ready");
+    }
+}
+
+window.uploadImage = async function(file, folder) {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+    const filePath = `${folder}/${fileName}`;
+
+    const { error: uploadError } = await window.supabaseClient.storage
+        .from('images')
+        .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data } = window.supabaseClient.storage.from('images').getPublicUrl(filePath);
+    return data.publicUrl;
+};
+
+// --- PASSKEY FUNKTIONEN ---
+window.loginWithPasskey = async function() {
+    const btn = document.querySelector('#modal-login-view button[onclick="loginWithPasskey()"]');
+    const oldHtml = btn ? btn.innerHTML : "";
+    if (btn) btn.innerHTML = "⏳ Warte auf Sensor...";
+
+    const { data, error } = await window.supabaseClient.auth.signInWithPasskey();
+
+    if (error) {
+        if (btn) btn.innerHTML = oldHtml;
+        alert("Passkey-Login fehlgeschlagen oder abgebrochen: " + error.message);
+    } else {
+        if (data?.session?.user) cacheHeaderUser(data.session.user);
+        if (btn) btn.innerHTML = "✅ Erfolgreich!";
+        location.reload();
+    }
+};
+
+window.registerPasskey = async function() {
+    const btn = document.querySelector('#modal-settings-view button[onclick="registerPasskey()"]');
+    const oldHtml = btn ? btn.innerHTML : "";
+    if (btn) btn.innerHTML = "⏳ Bitte Sensor berühren...";
+
+    const { data, error = null } = await window.supabaseClient.auth.registerPasskey();
+
+    if (error) {
+        if (btn) btn.innerHTML = oldHtml;
+        alert("Fehler bei der Passkey-Registrierung: " + error.message);
+    } else {
+        if (btn) {
+            btn.innerHTML = "✅ Gerät erfolgreich als Passkey hinterlegt!";
+            btn.style.backgroundColor = "#10b981";
+        }
+    }
+};
+
+// --- SOCIAL LOGIN FUNKTIONEN (GOOGLE & APPLE) ---
+window.loginWithGoogle = async function() {
+    const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: window.location.origin
+        }
+    });
+    if (error) alert("Google-Login fehlgeschlagen: " + error.message);
+};
+
+window.loginWithApple = async function() {
+    const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+            redirectTo: window.location.origin
+        }
+    });
+    if (error) alert("Apple-Login fehlgeschlagen: " + error.message);
+};
+
+// --- DESIGN SCHALTER LOGIK (LIGHT / DARK MODE) ---
+function updateThemeToggleIcon(theme) {
+    const btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+
+    let effectiveTheme = theme;
+    if (!effectiveTheme || effectiveTheme === 'auto') {
+        effectiveTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    btn.dataset.themeState = effectiveTheme;
+    btn.setAttribute(
+        'aria-label',
+        effectiveTheme === 'dark' ? 'Helles Design aktivieren' : 'Dunkles Design aktivieren'
+    );
+    btn.title = effectiveTheme === 'dark' ? 'Helles Design aktivieren' : 'Dunkles Design aktivieren';
+
+    // Wichtig: Wenn header.js ein SVG eingefügt hat, wird es nicht mehr durch Text ersetzt.
+    // Dadurch zuckt der Theme-Button beim Seitenwechsel nicht.
+    if (!btn.querySelector('svg')) {
+        btn.innerText = effectiveTheme === 'dark' ? '☀️' : '🌙';
+    }
+}
+
+window.toggleTheme = function() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    let newTheme = 'light';
+
+    if (!currentTheme) {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        newTheme = prefersDark ? 'light' : 'dark';
+    } else {
+        newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    }
+
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('selectedTheme', newTheme);
+    updateThemeToggleIcon(newTheme);
+};
+
+function initTheme() {
+    const savedTheme = localStorage.getItem('selectedTheme');
+
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeToggleIcon(savedTheme);
+    } else {
+        updateThemeToggleIcon('auto');
+    }
+}
+
+// ==========================================
+
+window.translations = {
+  de: {
+    "main-title": "IPSC STARTPLATZ-BÖRSE",
+    "sub-title": "Von Schützen für Schützen – Live Marktplatz",
+    "btn-login-reg": "Login / Registrieren",
+    "logout": "Abmelden",
+    "btn-logout": "Abmelden",
+    "info-msg": "<strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgültige Umschreibung des Startplatzes muss zwingend über den jeweiligen Match Director durchgeführt werden!",
+    "form-title": "Eintrag erstellen",
+    "form-title-edit": "Eintrag bearbeiten ✏️",
+    "opt-offer": "Ich BIETE einen Startplatz an",
+    "opt-want": "Ich SUCHE einen Startplatz",
+    "lbl-name": "Name des Matches *",
+    "lbl-level": "Match Level *",
+    "lbl-date": "Datum des Matches *",
+    "lbl-location": "Austragungsort (Stand) *",
+    "lbl-country": "Land *",
+    "lbl-squad": "Squad Nummer (Optional)",
+    "lbl-price": "Abgabepreis (€) *",
+    "lbl-email": "Deine E-Mail-Adresse *",
+    "btn-insert": "Eintrag kostenlos veröffentlichen",
+    "btn-save-edit": "Änderungen speichern",
+    "btn-cancel": "Abbrechen",
+    "filter-type": "Anzeigentyp:",
+    "filter-all": "Alle Anzeigen",
+    "filter-offers": "Nur Angebote (Biete)",
+    "filter-wants": "Nur Gesuche (Suche)",
+    "list-title": "Aktuelle Marktplatz-Einträge",
+    "loading": "Lade aktuelle Startplätze...",
+    "modal-login-title": "Anmelden",
+    "modal-btn-login": "Einloggen",
+    "modal-no-acc": "Noch kein Konto?",
+    "modal-link-reg": "Registrieren",
+    "modal-reg-title": "Konto erstellen",
+    "modal-btn-reg": "Konto erstellen",
+    "modal-has-acc": "Bereits registriert?",
+    "modal-link-login": "Zum Login",
+    "footer-impressum-link": "Impressum & Rechtliche Hinweise",
+    "no-slots": "Aktuell keine Einträge verfügbar.",
+    "btn-request": "Anbieter kontaktieren",
+    "btn-contact-want": "Schützen kontaktieren",
+    "btn-delete": "Löschen",
+    "btn-edit": "Bearbeiten",
+    "btn-export": "Export (.ics)",
+    "report-btn": "Melden",
+    "buy-coffee": "Kaffee spendieren",
+    "social-proof": "Erfolgreich vermittelte Startplätze: ",
+    "login-required": "Nur eingeloggte Nutzer können kontaktieren",
+    "security-checklist": "\n\nSicherheits-Checkliste vor der E-Mail:\n- Match-Daten geprüft?\n- Match Director kontaktiert?",
+    "tag-offer": "BIETE",
+    "tag-want": "SUCHE",
+    "link-forgot-pwd": "Passwort vergessen?",
+    "modal-forgot-title": "Passwort vergessen",
+    "modal-btn-forgot": "Zurücksetzungs-Link senden",
+    "modal-reset-title": "Neues Passwort vergeben",
+    "lbl-new-password": "Neues Passwort *",
+    "btn-save": "Änderungen speichern",
+    "modal-settings-title": "Konto-Einstellungen",
+    "lbl-username": "Schützenname / Anzeigename",
+    "btn-delete-acc": "Konto & alle Einträge unwiderruflich löschen",
+    "email-subject-offer": "Interesse an deinem IPSC Startplatz: ",
+    "email-subject-want": "Bezüglich deiner Suche nach einem IPSC Startplatz: ",
+    "email-body-offer": "Hallo,\n\nich habe dein Inserat auf ipscboerse.com gesehen und interessiere mich für den von dir angebotenen Startplatz für das Match: ",
+    "email-body-want": "Hallo,\n\nich habe dein Gesuch auf ipscboerse.com gesehen. Ich hätte einen Startplatz abzugeben für das Match: ",
+    "email-body-footer": "\n\nIst das Inserat noch aktuell?\n\nViele Grüße",
+    "security-notice": "⚠️ WICHTIGER SICHERHEITSHINWEIS:\n\n1. Nutze für Zahlungen IMMER PayPal mit Käuferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prüfen, ob eine Umschreibung des Platzes überhaupt noch möglich ist!\n\nMöchtest du den E-Mail-Kontakt jetzt öffnen?",
+    "spam-error": "Spam-Schutz: Du hast bereits einen Eintrag für dieses Match an diesem Datum erstellt!",
+
+    "nav-marketplace": "Marktplatz",
+    "nav-free-slots": "Freie Match-Plätze",
+    "nav-my-planner": "Mein Planer",
+    "nav-community": "Community",
+    "planner-logged-out-title": "Nicht angemeldet",
+    "planner-logged-out-desc": "Logge dich ein, um deine Matches zu verwalten und in die Cloud zu synchronisieren.",
+    "planner-logged-out-btn": "Jetzt einloggen",
+    "planner-title-my-matches": "Meine Matches",
+    "planner-subtitle-new": "Neues Match eintragen",
+    "planner-lbl-match-name": "Match-Name",
+    "planner-lbl-match-date": "Datum",
+    "planner-lbl-match-location": "Ort / Land",
+    "planner-btn-save": "Match in Cloud speichern",
+    "planner-subtitle-planned": "Geplante Matches",
+    "planner-loading": "Lade Daten aus Supabase...",
+    "planner-btn-export": "📅 In Kalender exportieren (.ics)",
+
+    "free-info-box": "<strong>Info:</strong> Die Matches werden automatisch im Hintergrund aktualisiert. Es werden nur Turniere angezeigt, die eine Auslastung von unter 100% aufweisen (freie Startplätze).",
+    "free-list-title": "Verfügbare Matches auf MatchSign (Auslastung < 100%)",
+    "free-all-countries": "Alle Länder",
+    "free-all-disciplines": "Alle Disziplinen",
+    "free-all-levels": "Alle Level",
+    "free-loading": "Lade aktuelle Matches...",
+
+    "comm-title": "COMMUNITY FEED",
+    "tab-posts": "Beiträge",
+    "tab-groups": "Gruppen",
+    "comm-logged-out-title": "Werde Teil der Community",
+    "comm-logged-out-desc": "Bitte logge dich ein, um Beiträge zu lesen und mit anderen Schützen zu diskutieren.",
+    "comm-logged-out-btn": "Jetzt einloggen",
+    "comm-setup-title": "Wähle deinen Schützennamen",
+    "comm-setup-desc": "Bevor du in der Community starten kannst, wähle bitte einen Schützennamen / Anzeigenamen (z.B. IPSCShooter99).",
+    "comm-setup-btn": "Namen speichern & starten",
+    "comm-loading": "Lade Beiträge...",
+    "fab-create-post": "+ Beitrag erstellen",
+    "modal-new-post": "Neuer Beitrag",
+    "lbl-add-photo": "Foto hinzufügen (Optional)",
+    "btn-share-post": "Teilen",
+    "comm-groups-coming": "Gruppen-Funktion (Coming Soon)",
+    "comm-groups-desc": "Hier wirst du bald private Squad-Gruppen oder Vereins-Kanäle erstellen können."
+  },
+  en: {
+    "main-title": "IPSC SLOT MARKETPLACE",
+    "sub-title": "By Shooters for Shooters – Live Marketplace",
+    "btn-login-reg": "Login / Register",
+    "logout": "Logout",
+    "btn-logout": "Logout",
+    "info-msg": "<strong>Important Notice:</strong> This platform only serves as a mediator. The final transfer of the slot must be processed by the respective Match Director!",
+    "form-title": "Create Entry",
+    "form-title-edit": "Edit Entry ✏️",
+    "opt-offer": "I OFFER a slot",
+    "opt-want": "I AM LOOKING FOR a slot",
+    "lbl-name": "Match Name *",
+    "lbl-level": "Match Level *",
+    "lbl-date": "Match Date *",
+    "lbl-location": "Location (Range) *",
+    "lbl-country": "Country *",
+    "lbl-squad": "Squad Number (Optional)",
+    "lbl-price": "Price (€) *",
+    "lbl-email": "Your Email Address *",
+    "btn-insert": "Publish Entry for Free",
+    "btn-save-edit": "Save Changes",
+    "btn-cancel": "Cancel",
+    "filter-type": "Ad Type:",
+    "filter-all": "All Ads",
+    "filter-offers": "Offers Only",
+    "filter-wants": "Wants Only",
+    "list-title": "Current Marketplace Entries",
+    "loading": "Loading current slots...",
+    "modal-login-title": "Login",
+    "modal-btn-login": "Login",
+    "modal-no-acc": "Don't have an account?",
+    "modal-link-reg": "Register",
+    "modal-reg-title": "Create Account",
+    "modal-btn-reg": "Create Account",
+    "modal-has-acc": "Already registered?",
+    "modal-link-login": "Go to Login",
+    "footer-impressum-link": "Imprint & Legal Notices",
+    "no-slots": "No marketplace entries available.",
+    "btn-request": "Contact Seller",
+    "btn-contact-want": "Contact Shooter",
+    "btn-delete": "Delete",
+    "btn-edit": "Edit",
+    "btn-export": "Export (.ics)",
+    "report-btn": "Report",
+    "buy-coffee": "Buy me a coffee",
+    "social-proof": "Successfully mediated slots: ",
+    "login-required": "Only logged-in users can contact",
+    "security-checklist": "\n\nSecurity checklist before email:\n- Match details verified?\n- Match Director contacted?",
+    "tag-offer": "OFFER",
+    "tag-want": "WANTED",
+    "link-forgot-pwd": "Forgot password?",
+    "modal-forgot-title": "Reset Password",
+    "modal-btn-forgot": "Send Reset Link",
+    "modal-reset-title": "Set New Password",
+    "lbl-new-password": "New Password *",
+    "btn-save": "Save Changes",
+    "modal-settings-title": "Account Settings",
+    "lbl-username": "Shooter / Display Name",
+    "btn-delete-acc": "Permanently Delete Account & Postings",
+    "email-subject-offer": "Inquiry regarding your IPSC slot: ",
+    "email-subject-want": "Regarding your request for an IPSC slot: ",
+    "email-body-offer": "Hello,\n\nI saw your listing on ipscboerse.com and I am interested in the slot you offered for the match: ",
+    "email-body-want": "Hello,\n\nI saw your request on ipscboerse.com. I have an available slot to give away for the match: ",
+    "email-body-footer": "\n\nIs this listing still available?\n\nBest regards",
+    "security-notice": "⚠️ IMPORTANT SAFETY NOTICE:\n\n1. ALWAYS use PayPal with Buyer Protection for payments (never use 'Friends & Family').\n2. You MUST contact the Match Director BEFORE making any payment to confirm if a slot transfer is still permitted!\n\nDo you want to open the email client now?",
+    "grid-error": "Spam protection: You have already posted an entry for this match on this date!",
+
+    "nav-marketplace": "Marketplace",
+    "nav-free-slots": "Free Match Slots",
+    "nav-my-planner": "My Planner",
+    "nav-community": "Community",
+    "planner-logged-out-title": "Not logged in",
+    "planner-logged-out-desc": "Log in to manage your matches and sync them to the cloud.",
+    "planner-logged-out-btn": "Log in now",
+    "planner-title-my-matches": "Mine Matches",
+    "planner-subtitle-new": "Add New Match",
+    "planner-lbl-match-name": "Match Name",
+    "planner-lbl-match-date": "Date",
+    "planner-lbl-match-location": "Location / Country",
+    "planner-btn-save": "Save Match to Cloud",
+    "planner-subtitle-planned": "Planned Matches",
+    "planner-loading": "Loading data from Supabase...",
+    "planner-btn-export": "📅 Export to Calendar (.ics)",
+
+    "free-info-box": "<strong>Info:</strong> The matches are automatically updated in the background. Only tournaments with a capacity under 100% are displayed (available slots).",
+    "free-list-title": "Available Matches on MatchSign (Capacity < 100%)",
+    "free-all-countries": "All Countries",
+    "free-all-disciplines": "All Disciplines",
+    "free-all-levels": "All Levels",
+    "free-loading": "Loading current matches...",
+
+    "comm-title": "COMMUNITY FEED",
+    "tab-posts": "Posts",
+    "tab-groups": "Groups",
+    "comm-logged-out-title": "Join the Community",
+    "comm-logged-out-desc": "Please log in to read posts and discuss with other shooters.",
+    "comm-logged-out-btn": "Log in now",
+    "comm-setup-title": "Choose your Shooter Name",
+    "comm-setup-desc": "Before starting in the community, please choose a shooter name / display name (e.g., IPSCShooter99).",
+    "comm-setup-btn": "Save Name & Start",
+    "comm-loading": "Loading posts...",
+    "fab-create-post": "+ Create Post",
+    "modal-new-post": "New Post",
+    "lbl-add-photo": "Add Photo (Optional)",
+    "btn-share-post": "Share",
+    "comm-groups-coming": "Groups Feature (Coming Soon)",
+    "comm-groups-desc": "Here you will soon be able to create private squad groups or club channels."
+  }
+};
+
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+window.escapeHtml = escapeHtml;
+
+function applyLanguage(lang) {
+  window.currentLang = lang;
+  localStorage.setItem("selectedLanguage", lang);
+
+  document.querySelectorAll("[data-txt]").forEach(el => {
+    const key = el.getAttribute("data-txt");
+
+    if (window.translations[lang] && window.translations[lang][key]) {
+      if (key === "form-title" && window.editingMatchId !== undefined && window.editingMatchId !== null) return;
+      if (key === "btn-insert" && window.editingMatchId !== undefined && window.editingMatchId !== null) return;
+
+      el.innerHTML = window.translations[lang][key];
+    }
+  });
+
+  const levelSelect = document.getElementById("match-level");
+  if (levelSelect) {
+    const currentVal = levelSelect.value;
+    const defaultText = lang === "en" ? "Please select..." : "Bitte wählen...";
+    levelSelect.innerHTML = `<option value="">${defaultText}</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
+    levelSelect.value = currentVal;
+  }
+
+  if (typeof window.onLanguageChanged === "function") {
+    window.onLanguageChanged(lang);
+  }
+}
+
+function showHeaderElement(el, displayType = "inline-flex") {
+  if (!el) return;
+  el.style.setProperty("display", displayType, "important");
+}
+
+function hideHeaderElement(el) {
+  if (!el) return;
+  el.style.setProperty("display", "none", "important");
+}
+
+async function checkUserStatus() {
+  const container = document.getElementById("auth-status-container");
+  const emailField = document.getElementById("seller-email");
+  const user = window.currentUser;
+
+  const loginBtn = document.getElementById("btn-open-login");
+  const profileBtn = document.getElementById("btn-open-settings");
+  const logoutBtn = document.getElementById("btn-logout");
+  const avatarImg = document.getElementById("header-avatar");
+
+  if (user) {
+    const displayName = user.user_metadata?.username || user.email.split("@")[0];
+
+    const avatarUrl =
+      user.user_metadata?.avatar_url ||
+      user.user_metadata?.picture ||
+      user.user_metadata?.profile_picture ||
+      DEFAULT_HEADER_AVATAR;
+
+    if (container) {
+      container.dataset.authState = "in";
+    }
+
+    hideHeaderElement(loginBtn);
+    showHeaderElement(profileBtn);
+    showHeaderElement(logoutBtn);
+
+    if (profileBtn) {
+      profileBtn.title = displayName;
+      profileBtn.setAttribute("aria-label", "Profil öffnen");
+    }
+
+    if (logoutBtn) {
+      logoutBtn.innerHTML =
+        window.translations?.[window.currentLang]?.["logout"] ||
+        window.translations?.[window.currentLang]?.["btn-logout"] ||
+        "Abmelden";
+    }
+
+    if (avatarImg && avatarImg.getAttribute("src") !== avatarUrl) {
+      avatarImg.setAttribute("src", avatarUrl);
+    }
+
+    cacheHeaderUser(user);
+
+    if (emailField) {
+      emailField.value = user.email;
+      emailField.readOnly = true;
+    }
+
+  } else {
+    if (container) {
+      container.dataset.authState = "out";
+    }
+
+    showHeaderElement(loginBtn);
+    hideHeaderElement(profileBtn);
+    hideHeaderElement(logoutBtn);
+
+    if (loginBtn) {
+      loginBtn.innerHTML =
+        window.translations?.[window.currentLang]?.["btn-login-reg"] ||
+        "Login / Registrieren";
+    }
+
+    if (avatarImg) {
+      avatarImg.setAttribute("src", DEFAULT_HEADER_AVATAR);
+    }
+
+    clearHeaderUserCache();
+
+    if (emailField) {
+      emailField.value = "";
+      emailField.placeholder = "Logge dich ein, um zu inserieren";
+      emailField.readOnly = false;
+    }
+  }
+
+  markHeaderReady();
+}
+
+function toggleAuthView(view) {
+  if(document.getElementById("modal-login-view")) document.getElementById("modal-login-view").style.display = view === "login" ? "block" : "none";
+  if(document.getElementById("modal-register-view")) document.getElementById("modal-register-view").style.display = view === "register" ? "block" : "none";
+  if(document.getElementById("modal-forgot-view")) document.getElementById("modal-forgot-view").style.display = view === "forgot" ? "block" : "none";
+  if(document.getElementById("modal-reset-view")) document.getElementById("modal-reset-view").style.display = view === "reset-password" ? "block" : "none";
+  if(document.getElementById("modal-settings-view")) document.getElementById("modal-settings-view").style.display = view === "settings" ? "block" : "none";
+}
+window.toggleAuthView = toggleAuthView;
+
+document.addEventListener("click", async (e) => {
+    if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
+        const modal = document.getElementById("auth-modal");
+        if (modal) {
+            modal.style.display = "flex";
+            toggleAuthView("login");
+        }
+    }
+
+    if (e.target.id === "btn-close-modal" || e.target.closest("#btn-close-modal")) {
+        const modal = document.getElementById("auth-modal");
+        if (modal) modal.style.display = "none";
+    }
+
+    if (e.target.id === "btn-logout" || e.target.closest("#btn-logout")) {
+        clearHeaderUserCache();
+        await window.supabaseClient.auth.signOut();
+        location.reload();
+    }
+
+    if (e.target.id === "btn-open-settings" || e.target.closest("#btn-open-settings")) {
+        const modal = document.getElementById("auth-modal");
+        if (modal) {
+            modal.style.display = "flex";
+            toggleAuthView("settings");
         }
 
-        if (!isLoggedIn) {
-            try {
-                localStorage.removeItem(HEADER_USER_CACHE_KEY);
-                localStorage.removeItem(HEADER_AVATAR_CACHE_KEY);
-            } catch (err) {}
-
-            if (avatarImg) avatarImg.setAttribute("src", DEFAULT_HEADER_AVATAR);
-        }
-    };
-
-    const bindHeaderAuthButtons = (isVipPage) => {
-        const loginBtn = document.getElementById("btn-open-login");
-        const profileBtn = document.getElementById("btn-open-settings");
-        const logoutBtn = document.getElementById("btn-logout");
-
-        if (loginBtn && !loginBtn.dataset.headerBound) {
-            loginBtn.dataset.headerBound = "1";
-            loginBtn.addEventListener("click", () => {
-                if (isVipPage) {
-                    window.location.href = "index.html";
-                    return;
-                }
-
-                const modal = document.getElementById("auth-modal");
-                if (modal) {
-                    modal.style.display = "flex";
-                    if (typeof window.toggleAuthView === "function") {
-                        window.toggleAuthView("login");
-                    }
-                }
-            });
+        const settingsIpsc = document.getElementById("settings-ipsc-alias");
+        if (settingsIpsc && window.currentUser) {
+            settingsIpsc.value = window.currentUser.user_metadata?.ipsc_alias || "";
         }
 
-        if (profileBtn && !profileBtn.dataset.headerBound) {
-            profileBtn.dataset.headerBound = "1";
-            profileBtn.addEventListener("click", () => {
-                if (typeof window.openSettingsModal === "function") {
-                    window.openSettingsModal();
-                    return;
-                }
-
-                const modal = document.getElementById("auth-modal");
-                if (modal) modal.style.display = "flex";
-            });
+        const settingsRealName = document.getElementById("settings-real-name");
+        if (settingsRealName && window.currentUser) {
+            settingsRealName.value = window.currentUser.user_metadata?.real_name || "";
         }
 
-        if (logoutBtn && !logoutBtn.dataset.headerBound) {
-            logoutBtn.dataset.headerBound = "1";
-            logoutBtn.addEventListener("click", async () => {
-                try {
-                    const client = window.supabaseClient || window.supabase;
-                    if (client?.auth) await client.auth.signOut();
-                } catch (err) {
-                    console.error("Logout fehlgeschlagen:", err);
-                } finally {
-                    setHeaderAuthState(false);
-                    window.location.reload();
-                }
-            });
+        const previewImg = document.getElementById("settings-avatar-preview");
+        if (previewImg && window.currentUser?.user_metadata?.avatar_url) {
+            previewImg.src = window.currentUser.user_metadata.avatar_url;
+            previewImg.style.display = 'block';
         }
-    };
+    }
 
-    const syncHeaderAuthState = () => {
-        let attempts = 0;
+    if (e.target.id === "btn-delete-account") {
+        e.preventDefault();
 
-        const trySync = () => {
-            const client = window.supabaseClient || window.supabase;
+        if (!confirm("⚠️ WARNUNG:\n\nMöchtest du dein Profil und all deine aktiven Marktplatz-Inserate wirklich unwiderruflich löschen?")) return;
 
-            if (!client?.auth) {
-                attempts++;
-                if (attempts <= 30) setTimeout(trySync, 100);
-                return;
-            }
+        await window.supabaseClient.from("matches").delete().eq("seller_email", window.currentUser.email);
+        await window.supabaseClient.auth.updateUser({ data: { deleted: true, username: "Gelöschter Schütze" } });
+        clearHeaderUserCache();
+        await window.supabaseClient.auth.signOut();
 
-            client.auth.getSession()
-                .then(({ data }) => {
-                    const session = data?.session;
-                    setHeaderAuthState(!!session?.user, session?.user || null);
-                })
-                .catch(() => {
-                    setHeaderAuthState(false);
-                });
+        alert("Dein Konto und deine Inserate wurden erfolgreich entfernt.");
+        location.reload();
+    }
+});
 
-            if (typeof client.auth.onAuthStateChange === "function" && !window.__headerAuthListenerInstalled) {
-                window.__headerAuthListenerInstalled = true;
-                client.auth.onAuthStateChange((_event, session) => {
-                    setHeaderAuthState(!!session?.user, session?.user || null);
-                });
+window.previewSettingsAvatar = function(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const img = document.getElementById('settings-avatar-preview');
+
+            if (img) {
+                img.src = e.target.result;
+                img.style.display = 'block';
             }
         };
 
-        trySync();
-    };
+        reader.readAsDataURL(input.files[0]);
+    }
+};
 
-    const injectHeader = () => {
-        const header = document.querySelector('header');
-        if (!header) return false;
+document.addEventListener("submit", async (e) => {
+    if (e.target.id === "login-form") {
+        e.preventDefault();
 
-        const path = window.location.pathname;
-        let page = path.split("/").pop() || "index.html";
-        if (page === "") page = "index.html";
+        const btn = e.target.querySelector('button[type="submit"]');
+        if (btn) btn.innerText = "Lade...";
 
-        const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
-        const cachedHeaderUser = getCachedHeaderUser();
-        const cachedAvatarUrl = escapeAttr(cachedHeaderUser?.avatar_url || localStorage.getItem(HEADER_AVATAR_CACHE_KEY) || DEFAULT_HEADER_AVATAR);
-        const hasCachedLogin = !!cachedHeaderUser;
-        const isVipPage = (page === "doppel-aa.html" || page === "performance.html");
-
-        const headerTitle = isVipPage ? "Double Alpha" : "IPSC STARTPLATZ-<span class='logo-accent'>BÖRSE</span>";
-        const headerSub = isVipPage ? "Vereins-Bereich 🔒" : "Von Schützen für Schützen";
-
-        const links = [
-            { href: "index.html", text: "Startseite", key: "nav-startseite" },
-            { href: "marktplatz.html", text: "Marktplatz", key: "card-title-market" },
-            { href: "freie-matches.html", text: "Freie Match-Plätze", key: "card-title-free" },
-            { href: "mein-planer.html", text: "Mein Planer", key: "card-title-planer" },
-            { href: "community.html", text: "Community", key: "card-title-comm" },
-            { href: "schiessbuch.html", text: "Schießbuch", key: "card-title-schießbuch" },
-            { href: "sg-timer-live.html", text: "⏱️ SG-Timer Live", key: "nav-sgtimer" },
-            { href: "tools.html", text: "Tools & Training", key: "card-title-tools" },
-            { href: "analytics.html", text: "Statistiken", key: "nav-analytics" },
-            { href: "wiederladen.html", text: "Wiederladen", key: "nav-wiederladen" },
-            { href: "ipsc-hub.html", text: "IPSC Hub", key: "card-title-hub" }
-        ];
-
-        let navHtml = "";
-        links.forEach(link => {
-            const isActive = (page === link.href);
-            const className = isActive ? "active" : "inactive";
-            navHtml += `<a href="${link.href}" class="${className}" data-txt="${link.key}">${link.text}</a>`;
+        const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+            email: document.getElementById("login-email").value,
+            password: document.getElementById("login-password").value,
         });
 
-        header.innerHTML = `
-            <a href="index.html" class="header-logo-link" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 14px; cursor: pointer; transition: opacity 0.2s; text-align: left;" title="Zur Startseite">
-                <img src="icon-192.png" width="38" height="44" alt="IPSC Logo" style="height: 44px; width: auto; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); border-radius: 4px;" />
-                <div class="logo-text-group">
-                    <h1 ${isVipPage ? '' : 'data-txt="main-title"'} class="${isVipPage ? 'vip-title' : ''}" style="margin: 0; line-height: 1.1;">${headerTitle}</h1>
-                    <p style="color: ${isVipPage ? 'var(--accent-color)' : 'var(--text-muted)'}; margin: 3px 0 0 0; font-size: 12px;" ${isVipPage ? '' : 'data-txt="sub-title"'}>${headerSub}</p>
-                </div>
-            </a>
-            
-            <div class="header-controls">
-                <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()" title="Design umschalten">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                </button>
+        if (error) {
+            if (btn) btn.innerText = "Einloggen";
+            alert("Login fehlgeschlagen: " + error.message);
+        } else {
+            if (data?.session?.user) cacheHeaderUser(data.session.user);
+            location.reload();
+        }
+    }
 
-                ${isVipPage ? '' : `
-                <button id="header-chat-btn" class="theme-toggle-btn" onclick="toggleGlobalInbox()" style="position: relative;" title="Nachrichten">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                    <span id="chat-badge-count" style="display: none; position: absolute; top: -4px; right: -4px; background: var(--danger-color); color: white; font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold;">0</span>
-                </button>
+    else if (e.target.id === "register-form") {
+        e.preventDefault();
 
-                <select id="language-select" class="lang-select lang-switch">
-                    <option value="de" ${savedLanguageSetting === 'de' ? 'selected' : ''}>DE</option>
-                    <option value="en" ${savedLanguageSetting === 'en' ? 'selected' : ''}>EN</option>
-                </select>
-                `}
-                
-                <div id="auth-status-container" data-auth-state="${hasCachedLogin ? 'in' : 'out'}">
-                    <button class="btn-auth" id="btn-open-login" style="${hasCachedLogin ? 'display:none;' : ''}" ${isVipPage ? '' : 'data-txt="btn-login-reg"'}>Login</button>
-
-                    <button id="btn-open-settings" class="theme-toggle-btn header-avatar-btn" style="${hasCachedLogin ? '' : 'display:none;'}" title="Profil" aria-label="Profil öffnen">
-                        <img id="header-avatar" src="${cachedAvatarUrl}" width="32" height="32" alt="Profilbild">
-                    </button>
-
-                    <button class="btn-auth" id="btn-logout" style="${hasCachedLogin ? '' : 'display:none;'}" data-txt="btn-logout">Logout</button>
-                </div>
-            </div>
-
-            <nav class="main-nav desktop-only">
-                ${navHtml}
-            </nav>
-        `;
-
-        if (!document.getElementById('bottom-tab-bar')) {
-            const bottomBar = document.createElement('nav');
-            bottomBar.id = 'bottom-tab-bar';
-            bottomBar.className = 'mobile-only';
-
-            bottomBar.innerHTML = `
-                <a href="index.html" class="tab-item ${page === 'index.html' ? 'active' : ''}">
-                    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                    <span>Start</span>
-                </a>
-                <a href="marktplatz.html" class="tab-item ${page === 'marktplatz.html' ? 'active' : ''}">
-                    <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                    <span>Markt</span>
-                </a>
-                <a href="mein-planer.html" class="tab-item ${page === 'mein-planer.html' ? 'active' : ''}">
-                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                    <span>Planer</span>
-                </a>
-                <a href="community.html" class="tab-item ${page === 'community.html' ? 'active' : ''}">
-                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                    <span>Comm</span>
-                </a>
-                <div class="tab-item" id="btn-more-menu" onclick="toggleMoreMenu()">
-                    <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                    <span>Mehr</span>
-                </div>
-            `;
-            document.body.appendChild(bottomBar);
-
-            const moreMenu = document.createElement('div');
-            moreMenu.id = 'more-menu-overlay';
-            moreMenu.className = 'mobile-only';
-            moreMenu.innerHTML = `
-                <div class="more-menu-content" id="more-menu-list">
-                    <a href="freie-matches.html" class="${page === 'freie-matches.html' ? 'active' : ''}">Freie Match-Plätze</a>
-                    <a href="schiessbuch.html" class="${page === 'schiessbuch.html' ? 'active' : ''}">Schießbuch</a>
-                    <a href="sg-timer-live.html" class="${page === 'sg-timer-live.html' ? 'active' : ''}">⏱️ SG-Timer Live</a>
-                    <a href="tools.html" class="${page === 'tools.html' ? 'active' : ''}">Tools & Training</a>
-                    <a href="analytics.html" class="${page === 'analytics.html' ? 'active' : ''}">Statistiken</a>
-                    <a href="wiederladen.html" class="${page === 'wiederladen.html' ? 'active' : ''}">Wiederladen</a>
-                    <a href="ipsc-hub.html" class="${page === 'ipsc-hub.html' ? 'active' : ''}">IPSC Hub</a>
-                </div>
-            `;
-            document.body.appendChild(moreMenu);
+        const agbCheckbox = document.getElementById("register-agb");
+        if (agbCheckbox && !agbCheckbox.checked) {
+            alert(window.currentLang === "en" ? "Please accept the terms and conditions." : "Bitte akzeptiere die AGB und Nutzungsbedingungen, um fortzufahren.");
+            return;
         }
 
-        if (isVipPage) {
-            const vipStyle = document.createElement('style');
-            vipStyle.innerHTML = `
-                header { background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%) !important; border-bottom: 2px solid var(--accent-color) !important; border-radius: 0 0 15px 15px; padding-bottom: 20px !important; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(255, 159, 67, 0.15) !important; }
-                header .vip-title { background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 26px !important; letter-spacing: 1.5px; text-shadow: 0px 2px 4px rgba(0,0,0,0.4); }
-                header .theme-toggle-btn, header .btn-auth, header .main-nav a.inactive { background: rgba(255, 255, 255, 0.1) !important; color: #ffffff !important; border-color: rgba(255, 255, 255, 0.2) !important; }
-            `;
-            document.head.appendChild(vipStyle);
-        }
+        const realName = document.getElementById("register-real-name") ? document.getElementById("register-real-name").value.trim() : "";
+        const ipscAlias = document.getElementById("register-ipsc-alias") ? document.getElementById("register-ipsc-alias").value.trim() : "";
+        const emailValue = document.getElementById("register-email").value;
+        const passwordValue = document.getElementById("register-password").value;
 
-        const style = document.createElement('style');
-style.innerHTML = `
-    header { position: sticky !important; top: 0 !important; z-index: 100 !important; display: flex; flex-direction: column; align-items: center; padding-top: 15px; }
+        const publicUsername = ipscAlias !== "" ? ipscAlias : emailValue.split('@')[0];
 
-    /* AUTH READY: verhindert sichtbaren Zwischenzustand beim Seitenwechsel */
-    header:not(.auth-ready) .header-controls {
-        visibility: hidden !important;
-    }
-
-    header.auth-ready .header-controls {
-        visibility: visible !important;
-    }
-
-    /* AUTH-ZUSTAND: niemals Login und Logout gleichzeitig anzeigen */
-    header #auth-status-container[data-auth-state="in"] #btn-open-login {
-        display: none !important;
-    }
-
-    header #auth-status-container[data-auth-state="in"] #btn-open-settings,
-    header #auth-status-container[data-auth-state="in"] #btn-logout {
-        display: inline-flex !important;
-    }
-
-    header #auth-status-container[data-auth-state="out"] #btn-open-login {
-        display: inline-flex !important;
-    }
-
-    header #auth-status-container[data-auth-state="out"] #btn-open-settings,
-    header #auth-status-container[data-auth-state="out"] #btn-logout {
-        display: none !important;
-    }
-
-            header .header-controls {
-    position: absolute !important;
-    top: calc(env(safe-area-inset-top) + 24px) !important;
-    right: 20px !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    flex-direction: row !important;
-    min-height: 38px !important;
-}
-            header #auth-status-container { display: flex !important; align-items: center !important; justify-content: flex-end !important; flex-direction: row !important; gap: 8px !important; min-height: 38px !important; }
-            header .theme-toggle-btn { width: 38px !important; height: 38px !important; min-width: 38px !important; min-height: 38px !important; max-width: 38px !important; max-height: 38px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; flex: 0 0 38px !important; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; box-shadow: var(--shadow-sm); box-sizing: border-box !important; }
-            header .lang-select { width: auto !important; min-width: 54px !important; max-width: 64px !important; height: 38px !important; padding: 0 10px !important; flex: 0 0 auto !important; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; font-weight: 600; font-size: 13px; box-sizing: border-box !important; }
-            header .btn-auth { width: auto !important; height: 38px !important; padding: 0 16px !important; flex: 0 0 auto !important; white-space: nowrap !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; font-weight: 600; font-size: 13px; border-radius: 8px; cursor: pointer; background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); box-sizing: border-box !important; }
-            header #btn-open-settings.header-avatar-btn {
-    width: 42px !important;
-    height: 42px !important;
-    min-width: 42px !important;
-    min-height: 42px !important;
-    max-width: 42px !important;
-    max-height: 42px !important;
-    flex: 0 0 42px !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-    border-radius: 50% !important;
-    transition: none !important;
-}
-
-header #btn-open-settings.header-avatar-btn img,
-header #header-avatar {
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    min-height: 36px !important;
-    max-width: 36px !important;
-    max-height: 36px !important;
-    object-fit: cover !important;
-    border-radius: 50% !important;
-    display: block !important;
-    box-sizing: border-box !important;
-    transition: none !important;
-    flex: 0 0 36px !important;
-}
-            header #btn-logout { width: auto !important; min-width: auto !important; max-width: none !important; flex: 0 0 auto !important; white-space: nowrap !important; }
-
-            .mobile-only { display: none !important; } 
-            
-            header .main-nav { width: 100% !important; margin-top: 20px !important; display: flex !important; justify-content: center !important; gap: 8px !important; border-top: 1px solid var(--border-color) !important; padding-top: 15px !important; padding-bottom: 15px !important; flex-wrap: wrap !important; }
-            header .main-nav a { text-decoration: none !important; font-weight: 600 !important; font-size: 12px !important; text-transform: uppercase !important; letter-spacing: 0.3px !important; padding: 8px 16px !important; border-radius: 20px !important; transition: all 0.2s ease !important; white-space: nowrap !important; }
-            header .main-nav a.active { color: #ffffff !important; background-color: var(--accent-color) !important; box-shadow: var(--shadow-sm) !important; }
-            header .main-nav a.inactive { color: var(--text-muted) !important; background-color: rgba(0, 0, 0, 0.03) !important; }
-
-            @media (max-width: 768px) {
-                header .main-nav.desktop-only { display: none !important; } 
-                .mobile-only { display: flex !important; }  
-                
-                header { padding: calc(env(safe-area-inset-top) + 12px) 10px 12px 10px !important; align-items: center !important; }
-                header .header-logo-link { justify-content: center !important; width: 100% !important; }
-                
-                header .header-controls { 
-                    position: relative !important; 
-                    top: auto !important; right: auto !important;
-                    display: flex !important; 
-                    flex-direction: row !important;
-                    flex-wrap: wrap !important; 
-                    justify-content: center !important; 
-                    align-items: center !important; 
-                    gap: 8px !important; 
-                    margin-top: 15px !important; 
-                    width: 100% !important; 
+        const { error } = await window.supabaseClient.auth.signUp({
+            email: emailValue,
+            password: passwordValue,
+            options: {
+                data: {
+                    real_name: realName,
+                    ipsc_alias: ipscAlias,
+                    username: publicUsername
                 }
-
-                #auth-status-container {
-                    display: flex !important;
-                    flex-direction: row !important;
-                    align-items: center !important;
-                    justify-content: center !important;
-                    gap: 8px !important;
-                }
-
-                header .btn-auth { width: auto !important; height: 34px !important; padding: 0 12px !important; font-size: 11px !important; flex: 0 0 auto !important; }
-                header .lang-select { width: auto !important; min-width: 50px !important; max-width: 58px !important; height: 34px !important; font-size: 11px !important; flex: 0 0 auto !important; }
-                header .theme-toggle-btn { width: 34px !important; height: 34px !important; min-width: 34px !important; min-height: 34px !important; max-width: 34px !important; max-height: 34px !important; flex: 0 0 34px !important; }
-                header #auth-status-container { min-height: 34px !important; flex: 0 0 auto !important; }
-                header #btn-open-settings.header-avatar-btn {
-    width: 40px !important;
-    height: 40px !important;
-    min-width: 40px !important;
-    min-height: 40px !important;
-    max-width: 40px !important;
-    max-height: 40px !important;
-    flex: 0 0 40px !important;
-}
-
-header #btn-open-settings.header-avatar-btn img,
-header #header-avatar {
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
-    min-height: 34px !important;
-    max-width: 34px !important;
-    max-height: 34px !important;
-}
-
-                body { padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
-
-                #bottom-tab-bar {
-                    position: fixed; bottom: 0; left: 0; width: 100%;
-                    background: var(--card-bg); border-top: 1px solid var(--border-color);
-                    justify-content: space-around; align-items: center;
-                    padding-bottom: env(safe-area-inset-bottom);
-                    height: 65px; z-index: 99999;
-                    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08);
-                    -webkit-transform: translateZ(0); transform: translateZ(0);
-                }
-                #bottom-tab-bar .tab-item {
-                    display: flex; flex-direction: column; align-items: center; justify-content: center;
-                    text-decoration: none; color: var(--text-muted); width: 20%; height: 100%; cursor: pointer;
-                }
-                #bottom-tab-bar .tab-item svg { width: 22px; height: 22px; margin-bottom: 4px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-                #bottom-tab-bar .tab-item span { font-size: 10px; font-weight: 600; }
-                #bottom-tab-bar .tab-item.active { color: var(--accent-color); }
-                
-                #more-menu-overlay {
-                    position: fixed; bottom: calc(65px + env(safe-area-inset-bottom)); left: 0; width: 100%;
-                    background: var(--bg-color); border-radius: 20px 20px 0 0;
-                    box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
-                    transform: translateY(120%); transition: transform 0.3s ease-in-out;
-                    z-index: 99998; max-height: 70vh; overflow-y: auto; padding: 20px; box-sizing: border-box;
-                    display: block !important;
-                }
-                #more-menu-overlay.show { transform: translateY(0); }
-                #more-menu-list { display: flex; flex-direction: column; gap: 10px; }
-                #more-menu-list a {
-                    padding: 15px; text-decoration: none; color: var(--text-color); font-weight: 600;
-                    background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); text-align: center;
-                }
-                #more-menu-list a.active { background: var(--accent-color); color: #fff; border-color: var(--accent-color); }
-                #more-menu-list a.vip-link { color: #ff9f43; border-color: rgba(255, 159, 67, 0.3); background: rgba(255, 159, 67, 0.05); }
             }
-        `;
-        document.head.appendChild(style);
+        });
 
-        window.toggleMoreMenu = function() {
-            const menu = document.getElementById('more-menu-overlay');
-            const btn = document.getElementById('btn-more-menu');
-            if (menu.classList.contains('show')) {
-                menu.classList.remove('show');
-                btn.style.color = "var(--text-muted)";
+        if (error) alert("Registrierung fehlgeschlagen: " + error.message);
+        else {
+            alert("Konto erstellt! Bitte überprüfe dein Postfach.");
+            toggleAuthView("login");
+        }
+    }
+
+    else if (e.target.id === "forgot-form") {
+        e.preventDefault();
+
+        const { error } = await window.supabaseClient.auth.resetPasswordForEmail(document.getElementById("forgot-email").value, {
+            redirectTo: window.location.origin + window.location.pathname,
+        });
+
+        if (error) alert("Fehler: " + error.message);
+        else {
+            alert("Link zum Zurücksetzen gesendet!");
+            toggleAuthView("login");
+        }
+    }
+
+    else if (e.target.id === "reset-password-form") {
+        e.preventDefault();
+
+        const { error } = await window.supabaseClient.auth.updateUser({
+            password: document.getElementById("reset-password-input").value
+        });
+
+        if (error) alert("Fehler: " + error.message);
+        else {
+            alert(window.currentLang === "en" ? "Password updated! Confirmation email has been sent." : "Passwort erfolgreich aktualisiert! Eine Bestätigungs-E-Mail wurde versendet.");
+            location.reload();
+        }
+    }
+
+    else if (e.target.id === "settings-form") {
+        e.preventDefault();
+
+        const btn = e.target.querySelector('button[type="submit"]');
+        const oldText = btn ? btn.innerText : "";
+        if (btn) btn.innerText = "Speichere... (Bild lädt hoch)";
+
+        try {
+            const newPassword = document.getElementById("settings-password") ? document.getElementById("settings-password").value : "";
+            const newIpscAlias = document.getElementById("settings-ipsc-alias") ? document.getElementById("settings-ipsc-alias").value.trim() : "";
+            const newRealName = document.getElementById("settings-real-name") ? document.getElementById("settings-real-name").value.trim() : "";
+
+            const publicUsername = newIpscAlias !== "" ? newIpscAlias : window.currentUser.email.split('@')[0];
+
+            const avatarInput = document.getElementById("settings-avatar");
+            const avatarFile = avatarInput && avatarInput.files.length > 0 ? avatarInput.files[0] : null;
+
+            let updates = {
+                data: {
+                    username: publicUsername,
+                    ipsc_alias: newIpscAlias,
+                    real_name: newRealName
+                }
+            };
+
+            if (newPassword.trim().length >= 6) {
+                updates.password = newPassword;
+            }
+
+            if (avatarFile) {
+                const avatarUrl = await window.uploadImage(avatarFile, 'avatars');
+                updates.data.avatar_url = avatarUrl;
+
+                try {
+                    localStorage.setItem(HEADER_AVATAR_CACHE_KEY, avatarUrl);
+                    localStorage.setItem(
+                        HEADER_USER_CACHE_KEY,
+                        JSON.stringify({
+                            email: window.currentUser.email || "",
+                            avatar_url: avatarUrl,
+                            updated_at: Date.now()
+                        })
+                    );
+                } catch (err) {}
+            }
+
+            const { error } = await window.supabaseClient.auth.updateUser(updates);
+            if (error) throw error;
+
+            await window.supabaseClient.from("profiles").update({
+                username: publicUsername,
+                ipsc_alias: newIpscAlias,
+                real_name: newRealName
+            }).eq("id", window.currentUser.id);
+
+            alert(window.currentLang === "en" ? "Account updated!" : "Konto erfolgreich aktualisiert!");
+            location.reload();
+
+        } catch (err) {
+            if (btn) btn.innerText = oldText;
+            alert("Fehler beim Speichern: " + err.message);
+        }
+    }
+});
+
+document.addEventListener("change", (e) => {
+    if (e.target.id === "language-select") {
+        localStorage.setItem("selectedLanguage", e.target.value);
+        applyLanguage(e.target.value);
+    }
+});
+
+function formatStars(value) {
+    if (!value || isNaN(value) || value === 0) return "-";
+
+    let fullStars = Math.round(value);
+    return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
+}
+
+const initAppLanguage = () => {
+    initTheme();
+
+    const savedLang = localStorage.getItem("selectedLanguage") || "de";
+
+    const selector = document.getElementById("language-select");
+    if (selector) selector.value = savedLang;
+
+    applyLanguage(savedLang);
+};
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => setTimeout(initAppLanguage, 50));
+} else {
+    setTimeout(initAppLanguage, 50);
+}
+
+setTimeout(async () => {
+    try {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+
+        if (hashParams.has('error_code') && hashParams.get('error_code') === 'otp_expired') {
+            alert(window.currentLang === "en"
+                ? "This reset link has expired or has already been used. Please request a new one."
+                : "Dieser Link ist abgelaufen oder wurde bereits verwendet. Bitte fordere einen neuen Passwort-Link an.");
+
+            history.replaceState("", document.title, window.location.pathname + window.location.search);
+        }
+
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+
+        window.currentUser = session?.user || null;
+
+        if (window.currentUser) {
+            cacheHeaderUser(window.currentUser);
+        } else {
+            clearHeaderUserCache();
+        }
+
+        await checkUserStatus();
+
+        if (window.currentUser) {
+            try {
+                const salesRes = await window.supabaseClient.from('mediated_deals').select('*').eq('seller_email', window.currentUser.email);
+                const purchaseRes = await window.supabaseClient.from('mediated_deals').select('*').eq('buyer_email', window.currentUser.email);
+
+                const salesData = salesRes.data || [];
+                const purchaseData = purchaseRes.data || [];
+
+                const salesCountEl = document.getElementById("profile-sales-count");
+                const purchaseCountEl = document.getElementById("profile-purchases-count");
+
+                if (salesCountEl) salesCountEl.innerText = salesData.length;
+                if (purchaseCountEl) purchaseCountEl.innerText = purchaseData.length;
+
+                let totalComm = 0, totalPay = 0, countComm = 0, countPay = 0;
+
+                salesData.forEach(d => {
+                    if (d.rating_communication) {
+                        totalComm += d.rating_communication;
+                        countComm++;
+                    }
+
+                    if (d.rating_payment) {
+                        totalPay += d.rating_payment;
+                        countPay++;
+                    }
+                });
+
+                purchaseData.forEach(d => {
+                    if (d.rating_communication) {
+                        totalComm += d.rating_communication;
+                        countComm++;
+                    }
+
+                    if (d.rating_payment) {
+                        totalPay += d.rating_payment;
+                        countPay++;
+                    }
+                });
+
+                const ratingCommEl = document.getElementById("profile-rating-comm");
+                const ratingPayEl = document.getElementById("profile-rating-pay");
+
+                if (ratingCommEl) ratingCommEl.innerText = formatStars(countComm > 0 ? totalComm / countComm : 0);
+                if (ratingPayEl) ratingPayEl.innerText = formatStars(countPay > 0 ? totalPay / countPay : 0);
+
+            } catch(e) {
+                console.error("Fehler beim Laden der Profil-Statistiken:", e);
+            }
+        }
+
+        if (typeof window.onAuthChange === "function") {
+            window.onAuthChange(window.currentUser);
+        }
+
+        window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
+            window.currentUser = session?.user || null;
+
+            if (window.currentUser) {
+                cacheHeaderUser(window.currentUser);
             } else {
-                menu.classList.add('show');
-                btn.style.color = "var(--accent-color)";
+                clearHeaderUserCache();
             }
-        };
 
-        bindHeaderAuthButtons(isVipPage);
+            if (event === "PASSWORD_RECOVERY") {
+                const modal = document.getElementById("auth-modal");
 
-/*
-  Header-Controls bleiben unsichtbar, bis auth.js den echten Status geprüft hat.
-  Dadurch gibt es keinen sichtbaren Zwischenzustand.
-*/
-header.classList.remove("auth-ready");
+                if (modal) modal.style.display = "flex";
 
-return true;
-    };
-
-    if (!injectHeader()) {
-        document.addEventListener('DOMContentLoaded', injectHeader);
-    }
-
-    const checkVipStatus = () => {
-        setTimeout(async () => {
-            if (!window.supabaseClient) return;
-
-            const { data: { session } } = await window.supabaseClient.auth.getSession();
-            if (!session) return;
-
-            const { data: profile } = await window.supabaseClient
-                .from("profiles")
-                .select("is_doppel_aa")
-                .eq("id", session.user.id)
-                .single();
-
-            if (profile && profile.is_doppel_aa === true) {
-                const path = window.location.pathname;
-                const page = path.split("/").pop() || "index.html";
-
-                const desktopNav = document.querySelector('header .main-nav');
-                if (desktopNav) {
-                    if (!desktopNav.querySelector('a[href="doppel-aa.html"]')) {
-                        const sniperLink = document.createElement('a');
-                        sniperLink.href = 'doppel-aa.html';
-                        sniperLink.innerText = '🎯 Double Alpha';
-                        sniperLink.className = (page === "doppel-aa.html") ? "active" : "inactive";
-                        if (page !== "doppel-aa.html") {
-                            sniperLink.style.color = '#ff9f43';
-                            sniperLink.style.border = '1px solid rgba(255, 159, 67, 0.3)';
-                        }
-                        desktopNav.appendChild(sniperLink);
-                    }
-
-                    if (!desktopNav.querySelector('a[href="performance.html"]')) {
-                        const performanceLink = document.createElement('a');
-                        performanceLink.href = 'performance.html';
-                        performanceLink.innerText = '📊 Performance-Check';
-                        performanceLink.className = (page === "performance.html") ? "active" : "inactive";
-                        if (page !== "performance.html") {
-                            performanceLink.style.color = '#ff9f43';
-                            performanceLink.style.border = '1px solid rgba(255, 159, 67, 0.3)';
-                        }
-                        desktopNav.appendChild(performanceLink);
-                    }
-                }
-
-                const moreMenuList = document.getElementById('more-menu-list');
-                if (moreMenuList) {
-                    if (!moreMenuList.querySelector('a[href="performance.html"]')) {
-                        const performanceLink = document.createElement('a');
-                        performanceLink.href = 'performance.html';
-                        performanceLink.innerText = '📊 Performance-Check';
-                        performanceLink.className = (page === "performance.html") ? "active" : "vip-link";
-                        moreMenuList.prepend(performanceLink);
-                    }
-
-                    if (!moreMenuList.querySelector('a[href="doppel-aa.html"]')) {
-                        const sniperLink = document.createElement('a');
-                        sniperLink.href = 'doppel-aa.html';
-                        sniperLink.innerText = '🎯 Double Alpha';
-                        sniperLink.className = (page === "doppel-aa.html") ? "active" : "vip-link";
-                        moreMenuList.prepend(sniperLink);
-                    }
-                }
+                toggleAuthView("reset-password");
             }
-        }, 600);
-    };
 
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", checkVipStatus);
-    } else {
-        checkVipStatus();
+            await checkUserStatus();
+
+            if (typeof window.onAuthChange === "function") {
+                window.onAuthChange(window.currentUser);
+            }
+        });
+    } catch (err) {
+        console.error("Auth-Initialisierung fehlgeschlagen:", err);
+        window.currentUser = null;
+        clearHeaderUserCache();
+        await checkUserStatus();
     }
-
-})();
+}, 150);
