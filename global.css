@@ -1210,3 +1210,69 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
         line-height: 1.25 !important;
     }
 }
+/* ==========================================================================
+   PAGE SPECIFIC MOBILE COMPACT FIX – Index, Marktplatz, Community
+   ========================================================================== */
+
+@media (max-width: 768px) {
+
+    /* Startseite */
+    .hero-section,
+    .news-section,
+    .dash-card {
+        padding: 18px 16px !important;
+        margin-bottom: 18px !important;
+        border-radius: 16px !important;
+    }
+
+    .dashboard-grid {
+        gap: 14px !important;
+        margin-bottom: 28px !important;
+    }
+
+    /* Marktplatz */
+    .info-box,
+    .form-section,
+    .filter-bar,
+    .match-card {
+        padding: 16px 14px !important;
+        margin-bottom: 18px !important;
+        border-radius: 16px !important;
+    }
+
+    .toggle-selector {
+        padding: 12px !important;
+        margin-bottom: 16px !important;
+        gap: 10px !important;
+    }
+
+    .match-list {
+        gap: 14px !important;
+    }
+
+    /* Community */
+    #logged-out-msg,
+    #username-setup-section,
+    .post-card,
+    .comments-wrapper {
+        padding: 16px 14px !important;
+        margin-bottom: 16px !important;
+        border-radius: 16px !important;
+    }
+
+    .tabs-container {
+        margin-bottom: 16px !important;
+    }
+
+    /* Gemeinsame mobile Überschriften */
+    .hero-section h2,
+    .news-section-title,
+    .form-section h2,
+    #logged-out-msg h2,
+    #username-setup-section h2,
+    .dash-title,
+    .match-details h3,
+    .post-meta h4 {
+        line-height: 1.25 !important;
+    }
+}
