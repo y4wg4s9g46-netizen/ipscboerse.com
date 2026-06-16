@@ -406,9 +406,14 @@
         };
 
         bindHeaderAuthButtons(isVipPage);
-        syncHeaderAuthState();
 
-        return true;
+if (hasCachedLogin) {
+    header.classList.add("auth-ready");
+} else {
+    header.classList.remove("auth-ready");
+}
+
+return true;
     };
 
     if (!injectHeader()) {
