@@ -418,6 +418,15 @@ function applyLanguage(lang) {
     window.onLanguageChanged(lang);
   }
 }
+function showHeaderElement(el, displayType = "inline-flex") {
+  if (!el) return;
+  el.style.setProperty("display", displayType, "important");
+}
+
+function hideHeaderElement(el) {
+  if (!el) return;
+  el.style.setProperty("display", "none", "important");
+}
 
 async function checkUserStatus() {
   const container = document.getElementById("auth-status-container");
@@ -436,27 +445,22 @@ async function checkUserStatus() {
       user.user_metadata?.avatar_url ||
       user.user_metadata?.picture ||
       user.user_metadata?.profile_picture ||
-      localStorage.getItem(HEADER_AVATAR_CACHE_KEY) ||
       DEFAULT_HEADER_AVATAR;
 
     if (container) {
       container.dataset.authState = "in";
     }
 
-    // WICHTIG: Kein container.innerHTML mehr.
-    // Nur bestehende Header-Elemente ein-/ausblenden.
-    if (loginBtn) {
-      loginBtn.style.display = "none";
-    }
+    hideHeaderElement(loginBtn);
+    showHeaderElement(profileBtn);
+    showHeaderElement(logoutBtn);
 
     if (profileBtn) {
-      profileBtn.style.display = "inline-flex";
       profileBtn.title = displayName;
       profileBtn.setAttribute("aria-label", "Profil öffnen");
     }
 
     if (logoutBtn) {
-      logoutBtn.style.display = "inline-flex";
       logoutBtn.innerHTML =
         window.translations?.[window.currentLang]?.["logout"] ||
         window.translations?.[window.currentLang]?.["btn-logout"] ||
@@ -479,19 +483,14 @@ async function checkUserStatus() {
       container.dataset.authState = "out";
     }
 
+    showHeaderElement(loginBtn);
+    hideHeaderElement(profileBtn);
+    hideHeaderElement(logoutBtn);
+
     if (loginBtn) {
-      loginBtn.style.display = "inline-flex";
       loginBtn.innerHTML =
         window.translations?.[window.currentLang]?.["btn-login-reg"] ||
         "Login / Registrieren";
-    }
-
-    if (profileBtn) {
-      profileBtn.style.display = "none";
-    }
-
-    if (logoutBtn) {
-      logoutBtn.style.display = "none";
     }
 
     if (avatarImg) {
@@ -507,7 +506,6 @@ async function checkUserStatus() {
     }
   }
 }
-
 function toggleAuthView(view) {
   if(document.getElementById("modal-login-view")) document.getElementById("modal-login-view").style.display = view === "login" ? "block" : "none";
   if(document.getElementById("modal-register-view")) document.getElementById("modal-register-view").style.display = view === "register" ? "block" : "none";
