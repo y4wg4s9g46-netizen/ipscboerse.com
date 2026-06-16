@@ -14,7 +14,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/nsfwjs@2.4.0/dist/browser/nsfwjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nsfwjs@2.4.0/dist/browser/nsfwjs.min.js\"></script>
 
     <script>
         // Setzt das Theme SOFORT, bevor die Seite gerendert wird
@@ -28,79 +28,78 @@
     <style>
         /* Exakte Farben aus der global.css für nahtlose Übergänge */
         html, body { background-color: #f8fafc; }
-        html[data-theme="dark"], html[data-theme="dark"] body { background-color: #0b1121; }
-        body { visibility: visible !important; }
+        html[data-theme="dark"], html[data-theme="dark"] body { background-color: #0f172a; }
     </style>
-
-    <link rel="stylesheet" href="global.css?v=16">
+    <link rel="stylesheet" href="global.css">
 </head>
 <body>
 
     <header></header>
-    <script src="header.js"></script>
 
-    <div class="container">
-        <div class="community-wrapper">
-        
-            <div class="tabs-container">
-                <button id="tab-feed-btn" class="tab-button active" onclick="switchTab('feed')" data-txt="tab-posts">Beiträge</button>
-                <button id="tab-groups-btn" class="tab-button" onclick="switchTab('groups')" data-txt="tab-groups">Gruppen</button>
+    <div class="community-wrapper">
+        <div class="container">
+            
+            <div id="logged-out-msg" style="display: none;">
+                <h2 data-txt="community-login-required-title">Willkommen in der IPSC-Community!</h2>
+                <p data-txt="community-login-required-desc">Melde dich an, um Beiträge zu teilen, Fragen zu stellen und dich mit anderen Schützen auszutauschen.</p>
+                <button class="btn-primary" onclick="if(typeof openAuthModal==='function')openAuthModal()" style="margin-top: 15px;" data-txt="btn-login-now">Jetzt anmelden / Registrieren</button>
             </div>
 
-            <div id="logged-out-msg">
-                <h2 data-txt="comm-logged-out-title">Werde Teil der Community</h2>
-                <p style="color: var(--text-muted); margin-bottom: 24px;" data-txt="comm-logged-out-desc">Bitte logge dich ein, um Beiträge zu lesen und mit anderen Schützen zu diskutieren.</p>
-                <button onclick="document.getElementById('auth-modal').style.display = 'flex'; if(typeof toggleAuthView === 'function') toggleAuthView('login');" class="btn-primary-auth" style="width: auto;" data-txt="comm-logged-out-btn">Jetzt einloggen</button>
-            </div>
-
-            <div id="username-setup-section" style="display: none; border-color: var(--accent-color);">
-                <h2 data-txt="comm-setup-title">Wähle deinen Schützennamen</h2>
-                <p style="color: var(--text-muted); margin-bottom: 20px;" data-txt="comm-setup-desc">Bevor du in der Community starten kannst, wähle bitte einen Schützennamen / Anzeigenamen (z.B. IPSCShooter99).</p>
-                <div style="max-width: 320px; margin: 0 auto 15px auto;" class="form-group">
-                    <input type="text" id="initial-username" placeholder="z.B. AlphaShooter">
+            <div id="username-setup-section" style="display: none;">
+                <h2 data-txt="setup-username-title">Community-Profil vervollständigen</h2>
+                <p data-txt="setup-username-desc">Wähle einen Benutzernamen, um Beiträge in der Community posten zu können. Dieser Name wird öffentlich neben deinen Posts angezeigt.</p>
+                <div class="form-group" style="margin-top: 20px; text-align: left;">
+                    <label for="setup-username-input" style="font-weight:700;" data-txt="lbl-username">Benutzername (Öffentlich) *</label>
+                    <input type="text" id="setup-username-input" placeholder="z.B. TopShooter99" style="width:100%; box-sizing:border-color; margin-top:5px;">
                 </div>
-                <button onclick="saveInitialUsername()" class="btn-primary-auth" style="width: auto;" data-txt="comm-setup-btn">Namen speichern & starten</button>
+                <button class="btn-primary" onclick="saveCommunityUsername()" style="width:100%; margin-top:15px;" data-txt="btn-save-profile">Profil speichern & Freischalten</button>
             </div>
 
-            <div id="feed-section" style="display: none;">
-                <div id="posts-container">
-                    <p style="color: var(--text-muted); text-align: center;" data-txt="comm-loading">Lade Beiträge...</p>
-                </div>
+            <div id="community-content" style="display: none;">
                 
-                <div class="floating-action-bar">
-                    <button class="btn-post" onclick="openPostModal()" data-txt="fab-create-post">
-                        <span style="font-size: 20px; margin-top: -2px;">+</span> Beitrag erstellen
+                <div class="feed-actions-bar">
+                    <h2 data-txt="community-feed-title">Community Feed</h2>
+                    <button class="btn-create-post" onclick="openPostModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span data-txt="btn-new-post">Beitrag erstellen</span>
                     </button>
                 </div>
+
+                <div id="posts-feed">
+                    </div>
             </div>
 
-            <div id="groups-section" style="display: none; text-align: center; padding: 40px; color: var(--text-muted);">
-                <h3 data-txt="comm-groups-coming">Gruppen-Funktion (Coming Soon)</h3>
-                <p data-txt="comm-groups-desc">Hier wirst du bald private Squad-Gruppen oder Vereins-Kanäle erstellen können.</p>
-            </div>
+        </div>
+    </div>
 
-        </div> </div>
-
-    <div class="modal" id="post-modal">
-        <div class="modal-content">
+    <div id="post-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
             <div class="modal-close-container">
                 <button class="modal-close-trigger" onclick="closePostModal()">&times;</button>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="margin: 0; color: var(--accent-color);" data-txt="modal-new-post">Neuer Beitrag</h3>
+            <h3 data-txt="modal-create-post-title">Neuen Beitrag verfassen</h3>
+            <div class="form-group" style="margin-top: 15px;">
+                <textarea id="post-content" rows="4" placeholder="Was gibt es Neues in der IPSC-Welt?" style="width: 100%; resize: vertical; box-sizing: border-box; font-family: inherit;" data-txt-placeholder="placeholder-community-text"></textarea>
             </div>
-            <textarea id="post-content" placeholder="Was gibt's Neues rund um IPSC?" style="width: 100%; border-radius: var(--radius); border: 2px solid var(--border-color); padding: 14px; margin-bottom: 15px; font-family: inherit; font-size: 15px; background: var(--input-bg); color: var(--text-color); box-sizing: border-box; resize: vertical; min-height: 100px;"></textarea>
             
-            <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:8px; font-weight: 700;" data-txt="lbl-add-photo">Foto hinzufügen (Optional)</label>
-            <input type="file" id="post-image" accept="image/*" onchange="previewPostImage(this)" style="margin-bottom: 20px; color: var(--text-color); width:100%; font-size: 14px;">
-            <img id="post-image-preview" style="width: 100%; border-radius: var(--radius); margin-bottom: 20px; display: none; object-fit: cover; max-height: 300px; border: 1px solid var(--border-color);">
-            
-            <button class="btn-post" id="btn-submit-post" onclick="submitPost()" data-txt="btn-share-post">Teilen</button>
+            <div class="form-group" style="margin-top: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px;" data-txt="lbl-add-image">Bild hinzufügen (Optional)</label>
+                <input type="file" id="post-image-input" accept="image/*" style="font-size: 13px;">
+                <div id="image-preview-container" style="margin-top: 10px; display: none; position: relative;">
+                    <img id="image-upload-preview" src="" style="max-width: 100%; max-height: 200px; border-radius: var(--radius); object-fit: cover;">
+                    <button onclick="clearImageSelection()" style="position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;">&times;</button>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                <button class="btn-secondary" onclick="closePostModal()" data-txt="btn-cancel">Abbrechen</button>
+                <button id="btn-submit-post" class="btn-primary" onclick="submitPost()" data-txt="btn-share">Teilen</button>
+            </div>
         </div>
     </div>
 
     <footer>
-        <div style="max-width: 1000px; margin: 0 auto; text-align: center; padding: 20px 0;">
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
             <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
             <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
@@ -109,231 +108,235 @@
     <script src="auth.js"></script>
     <script src="lang.js"></script>
     <script src="app.js"></script>
-    <script src="router.js"></script>
+
     <script>
-        const ADMIN_EMAIL = 'fabian-schoeps@gmx.de';
-
-        function checkTextForBadWords(text) {
-            if (!text) return false;
-            let cleanText = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, "");
-            const blacklist = ["arsch", "arschloch", "arschkriecher", "asozial", "bastard", "depp", "ficker", "fotze", "hurensohn", "hure", "idiot", "miststueck", "miststück", "nutte", "schlampe", "schwachkopf", "wichser", "wixxer", "vollidiot", "spasti", "missgeburt", "pisser", "vogel", "hanswurst", "nazi", "hitler", "neger", "kanake", "schwuchtel", "fascho", "antifa", "terrorist", "juden", "zionist", "heil hitler", "jude", "casino", "slots", "poker", "bitcoin", "crypto", "kryptowaehrung", "kryptowährung", "geld verdienen", "schnelles geld", "reich werden", "investieren", "dividende", "aktien", "whatsapp", "telegram", "gewinnspiel", "jackpot", "bonuscode", "sex", "porn", "porno", "erotik", "cam", "webcam", "dating", "singles", "ficken", "milf", "geile", "nackt", "onlyfans", "sugar daddy", "escort", "xxx", "hentai", "hack", "warez", "crack", "phishing", "betrug", "scam", "gefaelscht", "gefälscht", "ausweis kaufen", "pass kaufen", "geldwaesche", "geldwäsche", "paypal betrug", "kredit ohne schufa"];
-            let hasMatch = blacklist.some(word => cleanText.includes(word));
-            if (hasMatch) return true;
-            let tightText = cleanText.replace(/\s+/g, "");
-            return blacklist.some(word => tightText.includes(word));
+        let nsfwModel = null;
+        
+        // NSFW AI Modell direkt im Hintergrund laden
+        if(typeof nsfwjs !== 'undefined') {
+            nsfwjs.load().then(model => { nsfwModel = model; console.log("✓ NSFW Filter aktiv."); });
         }
 
-        let currentActiveTabId = 'feed';
-        function switchTab(tab) {
-            if (window.currentUser && (!window.currentUser.user_metadata?.username || window.currentUser.user_metadata.username.trim() === "")) return;
-            currentActiveTabId = tab;
-            
-            document.querySelectorAll('.tab-button').forEach(t => t.classList.remove('active'));
-            document.getElementById('feed-section').style.display = 'none';
-            document.getElementById('groups-section').style.display = 'none';
-            
-            if(tab === 'feed') {
-                document.getElementById('tab-feed-btn').classList.add('active');
-                if (window.currentUser) document.getElementById('feed-section').style.display = 'block';
-            } else {
-                document.getElementById('tab-groups-btn').classList.add('active');
-                if (window.currentUser) document.getElementById('groups-section').style.display = 'block';
-            }
-        }
-
-        window.onAuthChange = (user) => {
-            document.getElementById('logged-out-msg').style.display = 'none';
-            document.getElementById('username-setup-section').style.display = 'none';
-            document.getElementById('feed-section').style.display = 'none';
-            document.getElementById('groups-section').style.display = 'none';
-
-            if (user) {
-                const hasUsername = user.user_metadata?.username && user.user_metadata.username.trim() !== "";
-                if (!hasUsername) {
-                    document.getElementById('username-setup-section').style.display = 'block';
-                } else {
-                    if (currentActiveTabId === 'feed') document.getElementById('feed-section').style.display = 'block';
-                    else document.getElementById('groups-section').style.display = 'block';
-                    loadPosts();
+        // Image-Preview Steuerung
+        const imgInput = document.getElementById('post-image-input');
+        if(imgInput) {
+            imgInput.addEventListener('change', function() {
+                if(this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('image-upload-preview').src = e.target.result;
+                        document.getElementById('image-preview-container').style.display = 'block';
+                    }
+                    reader.readAsDataURL(this.files[0]);
                 }
-            } else {
-                document.getElementById('logged-out-msg').style.display = 'block';
-            }
-        };
-
-        async function saveInitialUsername() {
-            const newUsername = document.getElementById('initial-username').value.trim();
-            if (!newUsername || newUsername.length < 3) { alert("Bitte gib einen Schützennamen ein (mindestens 3 Zeichen)."); return; }
-            const { error } = await window.supabaseClient.auth.updateUser({ data: { username: newUsername } });
-            if (error) alert("Fehler beim Speichern: " + error.message);
-            else { alert("Erfolgreich gespeichert! Willkommen in der Community."); location.reload(); }
-        }
-
-        async function loadPosts() {
-            if (!window.currentUser) return;
-            const container = document.getElementById('posts-container');
-            if (!container) return;
-            
-            const { data, error } = await window.supabaseClient.from('community_posts').select('*').order('created_at', { ascending: false }).limit(50);
-            if (error) { container.innerHTML = 'Fehler beim Laden.'; return; }
-            container.innerHTML = '';
-            if(data.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#888;">Noch keine Beiträge. Mach den Anfang!</p>';
-                return;
-            }
-
-            data.forEach(post => {
-                const dateObj = new Date(post.created_at);
-                const displayDate = dateObj.toLocaleDateString('de-DE') + ' ' + dateObj.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
-                
-                const isAdmin = post.author_email && post.author_email.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim();
-                const avatarClass = isAdmin ? 'avatar admin-avatar' : 'avatar';
-                const initial = post.author_name ? post.author_name.charAt(0).toUpperCase() : '?';
-                
-                const adminBadge = isAdmin ? '<span class="badge-admin">Admin News</span>' : '';
-
-                const avatarHtml = post.author_avatar
-                    ? `<img src="${post.author_avatar}" class="${avatarClass}" style="object-fit: cover; padding: 0; border: none;">`
-                    : `<div class="${avatarClass}">${initial}</div>`;
-                const postImageHtml = post.image_url
-                    ? `<img src="${post.image_url}" style="width: 100%; border-radius: 12px; margin-top: 15px; border: 1px solid var(--border-color);">`
-                    : '';
-                const isOwner = window.currentUser.email === post.author_email || window.currentUser.email === ADMIN_EMAIL;
-                const deleteBtn = isOwner ? `<button onclick="deletePost(${post.id})" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size:12px; float:right; padding:4px;">Löschen</button>` : '';
-                container.innerHTML += `
-                    <div class="post-card ${isAdmin ? 'admin-post' : ''}">
-                        ${deleteBtn}
-                        <div class="post-header">
-                            ${avatarHtml}
-                            <div class="post-meta">
-                                <h4>${escapeHtml(post.author_name)} ${adminBadge}</h4>
-                                <span>${displayDate}</span>
-                            </div>
-                        </div>
-                        <div class="post-content">${escapeHtml(post.content)}</div>
-                        ${postImageHtml}
-                        
-                        <div class="post-actions-bar">
-                            <div class="action-trigger" style="color: var(--success-color);" onclick="likePost(${post.id}, ${post.likes || 0})">
-                                👍 <span id="likes-count-${post.id}">${post.likes || 0}</span>
-                            </div>
-                            <div class="action-trigger" style="color: var(--danger-color);" onclick="dislikePost(${post.id}, ${post.dislikes || 0})">
-                                👎 <span id="dislikes-count-${post.id}">${post.dislikes || 0}</span>
-                            </div>
-                            <div class="action-trigger" style="color: var(--social-accent);" onclick="toggleCommentsSection(${post.id})">
-                                💬 Kommentieren
-                            </div>
-                            <div class="action-trigger" style="color: var(--text-muted); margin-left: auto; font-size: 12px;" onclick="reportPost(${post.id})">
-                                ⚠️ Melden
-                            </div>
-                        </div>
-
-                        <div class="comments-wrapper" id="comments-wrapper-${post.id}">
-                            <div id="comments-list-${post.id}"><p style="font-size:12px; color:var(--text-muted);">Lade Kommentare...</p></div>
-                            <div class="comment-input-box">
-                                <input type="text" id="comment-input-${post.id}" placeholder="Schreibe einen Kommentar...">
-                                <button onclick="submitComment(${post.id})">Senden</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
             });
         }
 
-        async function likePost(postId, currentLikes) {
-            const { error } = await window.supabaseClient.from('community_posts').update({ likes: currentLikes + 1 }).eq('id', postId);
-            if (!error) { const badge = document.getElementById(`likes-count-${postId}`); if (badge) badge.innerText = currentLikes + 1; }
-        }
-        window.likePost = likePost;
-        
-        async function dislikePost(postId, currentDislikes) {
-            const { error } = await window.supabaseClient.from('community_posts').update({ dislikes: currentDislikes + 1 }).eq('id', postId);
-            if (!error) { const badge = document.getElementById(`dislikes-count-${postId}`); if (badge) badge.innerText = currentDislikes + 1; }
-        }
-        window.dislikePost = dislikePost;
-        
-        function toggleCommentsSection(postId) {
-            const wrapper = document.getElementById(`comments-wrapper-${postId}`);
-            if (!wrapper) return;
-            if (wrapper.style.display === "block") { wrapper.style.display = "none"; } else { wrapper.style.display = "block"; loadComments(postId); }
-        }
-        window.toggleCommentsSection = toggleCommentsSection;
-        
-        async function loadComments(postId) {
-            const container = document.getElementById(`comments-list-${postId}`);
-            if (!container) return;
-            const { data, error } = await window.supabaseClient.from('community_comments').select('*').eq('post_id', postId).order('created_at', { ascending: true });
-            if (error || !data || data.length === 0) { container.innerHTML = '<p style="font-size:12px; color:var(--text-muted); font-style:italic; margin:0;">Noch keine Kommentare geschrieben.</p>'; return; }
-            container.innerHTML = data.map(c => {
-                const dObj = new Date(c.created_at);
-                const dStr = dObj.toLocaleDateString('de-DE') + ' ' + dObj.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
-                return `<div class="comment-item"><div class="comment-meta">${escapeHtml(c.author_name)} <span>${dStr}</span></div><div style="color: var(--text-color);">${escapeHtml(c.content)}</div></div>`;
-            }).join('');
+        function clearImageSelection() {
+            if(imgInput) imgInput.value = "";
+            document.getElementById('image-preview-container').style.display = 'none';
+            document.getElementById('image-upload-preview').src = "";
         }
 
-        async function submitComment(postId) {
-            const input = document.getElementById(`comment-input-${postId}`);
-            if (!input || !input.value.trim()) return;
-            const text = input.value.trim();
-            if (checkTextForBadWords(text)) { alert("Dein Kommentar enthält Begriffe, die gegen unsere Richtlinien verstoßen."); return; }
-            const displayName = window.currentUser.user_metadata?.username || "Schütze";
-            const { error } = await window.supabaseClient.from('community_comments').insert([{ post_id: postId, user_id: window.currentUser.id, author_name: displayName, content: text }]);
-            if (error) alert("Fehler beim Kommentieren: " + error.message); else { input.value = ''; loadComments(postId); }
-        }
-        window.submitComment = submitComment;
-        
-        function reportPost(postId) {
-            const subject = encodeURIComponent("Regelverstoß Community-Eintrag ID: " + postId);
-            const body = encodeURIComponent("Hallo Support-Team,\n\nich möchte den folgenden Beitrag zur Überprüfung melden:\nPlattform-ID: " + postId + "\n\nGrund der Meldung:\n");
-            window.location.href = `mailto:info@ipscboerse.com?subject=${subject}&body=${body}`;
-        }
-        window.reportPost = reportPost;
-        
-        window.previewPostImage = function(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) { const img = document.getElementById('post-image-preview'); if (img) { img.src = e.target.result; img.style.display = 'block'; } }
-                reader.readAsDataURL(input.files[0]);
+        // 1. Sichere die bestehende Auth-Funktion aus der app.js
+        const globalAuthChange = window.onAuthChange;
+
+        // 2. Erweitere die Funktion
+        window.onAuthChange = (user) => {
+            if (typeof globalAuthChange === "function") globalAuthChange(user);
+
+            if (user) {
+                const loggedOutMsg = document.getElementById('logged-out-msg');
+                if(loggedOutMsg) loggedOutMsg.style.display = 'none';
+                
+                if (typeof checkUsernameSetup === 'function') {
+                    checkUsernameSetup(); 
+                } else if (typeof loadPosts === 'function') {
+                    const commContent = document.getElementById('community-content');
+                    if(commContent) commContent.style.display = 'block';
+                    loadPosts();
+                }
+            } else {
+                const loggedOutMsg = document.getElementById('logged-out-msg');
+                const commContent = document.getElementById('community-content');
+                const userSetup = document.getElementById('username-setup-section');
+                
+                if(loggedOutMsg) loggedOutMsg.style.display = 'block';
+                if(commContent) commContent.style.display = 'none';
+                if(userSetup) userSetup.style.display = 'none';
+            }
+        };
+
+        // 3. Sofort-Fallprüfung bei Laden der Seite (Race-Condition-Schutz)
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.currentUser) {
+                window.onAuthChange(window.currentUser);
+            } else {
+                // Wenn ausgeloggt, lade den globalen Feed anonym
+                if(typeof loadPosts === 'function') loadPosts();
+            }
+            
+            // Dark Mode Toggle Check
+            const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
+            if (typeof updateThemeToggleIcon === "function") { 
+                updateThemeToggleIcon(savedThemeSetting); 
+            }
+        });
+
+        // PRÜFT OB NUTZERPROFIL VOLLSTÄNDIG IST
+        async function checkUsernameSetup() {
+            if(!window.currentUser) return;
+            try {
+                const { data, error } = await window.supabaseClient.from('profiles').select('username').eq('id', window.currentUser.id).single();
+                if(error && error.code !== 'PGRST116') throw error;
+                
+                if(data && data.username) {
+                    document.getElementById('username-setup-section').style.display = 'none';
+                    document.getElementById('community-content').style.display = 'block';
+                    loadPosts();
+                } else {
+                    document.getElementById('username-setup-section').style.display = 'block';
+                    document.getElementById('community-content').style.display = 'none';
+                }
+            } catch(e) {
+                document.getElementById('community-content').style.display = 'block';
+                loadPosts();
             }
         }
 
-        function openPostModal() { document.getElementById('post-modal').style.display = 'flex'; document.getElementById('post-content').focus(); }
-        
-        function closePostModal() { document.getElementById('post-modal').style.display = 'none'; document.getElementById('post-image').value = ''; document.getElementById('post-image-preview').style.display = 'none'; }
+        async function saveCommunityUsername() {
+            const input = document.getElementById('setup-username-input').value.trim();
+            if(!input || input.length < 3) { alert("Bitte wähle einen Namen mit mindestens 3 Zeichen."); return; }
+            try {
+                const { error } = await window.supabaseClient.from('profiles').upsert({ id: window.currentUser.id, username: input, updated_at: new Date() });
+                if(error) throw error;
+                alert("✓ Profil aktualisiert!");
+                checkUsernameSetup();
+            } catch(err) { alert("Fehler beim Speichern: " + err.message); }
+        }
 
+        // POSTS AUS DATENBANK LADEN (Für Scraper wichtig, Struktur bleibt stabil)
+        async function loadPosts() {
+            if(!window.supabaseClient) return;
+            try {
+                const { data: posts, error } = await window.supabaseClient.from('community_posts').select('*').order('created_at', { ascending: false });
+                if(error) throw error;
+                const feed = document.getElementById('posts-feed');
+                if(!feed) return;
+                feed.innerHTML = '';
+
+                if(!posts || posts.length === 0) {
+                    feed.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:30px;" data-txt="community-no-posts">Noch keine Beiträge vorhanden. Mach den Anfang!</p>';
+                    return;
+                }
+
+                posts.forEach(post => {
+                    const isOwner = window.currentUser && window.currentUser.email === post.author_email;
+                    const date = new Date(post.created_at).toLocaleString('de-DE', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+                    
+                    const isAdmin = post.author_email && (post.author_email.toLowerCase() === 'info@ipscboerse.com' || post.author_email.toLowerCase() === 'admin@ipscboerse.com');
+                    const adminCardClass = isAdmin ? 'admin-post' : '';
+                    const adminAvatarClass = isAdmin ? 'admin-avatar' : '';
+                    const adminBadge = isAdmin ? '<span class="admin-badge" style="background:var(--accent-color); color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; margin-left:6px;">Admin</span>' : '';
+
+                    let imageHtml = "";
+                    if(post.image_url) {
+                        imageHtml = `<div class="post-image-wrapper" style="margin-top:12px; border-radius:var(--radius); overflow:hidden; border:1px solid var(--border-color); max-height:350px;">
+                            <img src="${post.image_url}" style="width:100%; height:auto; display:block; object-fit:cover;" alt="Post Image">
+                        </div>`;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = `post-card ${adminCardClass}`;
+                    card.id = `post-${post.id}`;
+                    
+                    const firstChar = post.author_name ? post.author_name.charAt(0).toUpperCase() : '?';
+
+                    card.innerHTML = `
+                        <div class="post-header">
+                            <div class="avatar ${adminAvatarClass}">${firstChar}</div>
+                            <div class="post-meta">
+                                <h4>${escapeHtml(post.author_name || 'Anonym')}${adminBadge}</h4>
+                                <span>${date}</span>
+                            </div>
+                        </div>
+                        <div class="post-content">${escapeHtml(post.content)}</div>
+                        ${imageHtml}
+                        <div class="post-actions-bar">
+                            <div class="action-trigger" onclick="toggleCommentsView('${post.id}')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                <span id="comment-count-${post.id}">0</span> <span data-txt="action-comments">Kommentare</span>
+                            </div>
+                            ${isOwner ? `<div class="action-trigger" style="color:var(--danger-color); margin-left:auto;" onclick="deletePost('${post.id}')" data-txt="action-delete">Löschen</div>` : ''}
+                        </div>
+                        <div id="comments-wrapper-${post.id}" class="comments-wrapper">
+                            <div id="comments-list-${post.id}"></div>
+                            ${window.currentUser ? `
+                                <div class="comment-input-box">
+                                    <input type="text" id="comment-input-${post.id}" placeholder="Schreibe einen Kommentar..." data-txt-placeholder="placeholder-comment-text">
+                                    <button onclick="submitComment('${post.id}')" data-txt="btn-send">Senden</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    feed.appendChild(card);
+                    loadComments(post.id);
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        // POSTS ABSENDEN LOGIK MIT BILD-UPLOAD & AI DETEKTION
         async function submitPost() {
+            if(!window.currentUser) return;
             const content = document.getElementById('post-content').value.trim();
-            const imageFile = document.getElementById('post-image').files[0];
+            const imageFile = imgInput ? imgInput.files[0] : null;
+
+            if(!content && !imageFile) { alert("Dein Beitrag darf nicht leer sein."); return; }
+            
             const btn = document.getElementById('btn-submit-post');
-            if (!content && !imageFile) return;
-            if (checkTextForBadWords(content)) { alert("Dein Beitrag enthält Begriffe, die gegen unsere Community-Richtlinien verstoßen. Bitte passe deinen Text an."); return; }
-
-            if (imageFile) {
-                const originalText = btn.innerText;
-                btn.innerText = "Prüfe Bild auf zulässige Inhalte...";
-                btn.style.opacity = "0.7";
-                try {
-                    const imgElement = document.createElement('img');
-                    imgElement.src = URL.createObjectURL(imageFile);
-                    await new Promise((resolve) => { imgElement.onload = resolve; });
-                    const model = await nsfwjs.load();
-                    const predictions = await model.classify(imgElement);
-                    const unsafe = predictions.find(p => (p.className === 'Porn' || p.className === 'Hentai') && p.probability > 0.65);
-                    if (unsafe) { alert("Das hochgeladene Bild verstößt gegen unsere Richtlinien (unzulässiger Inhalt erkannt)."); btn.innerText = originalText; btn.style.opacity = "1"; return; }
-                } catch (kiError) { console.error("KI-Filter Fehler:", kiError); }
-            }
-
-            btn.innerText = "Wird hochgeladen...";
-            btn.style.opacity = "0.7";
+            btn.innerText = "Wird verarbeitet...";
+            btn.style.opacity = "0.6";
 
             try {
                 let imageUrl = null;
-                if (imageFile) { imageUrl = await window.uploadImage(imageFile, 'posts'); }
-                const displayName = window.currentUser.user_metadata?.username || "Schütze";
-                const avatarUrl = window.currentUser.user_metadata?.avatar_url || null;
-                const { error } = await window.supabaseClient.from('community_posts').insert([{ user_id: window.currentUser.id, author_name: displayName, author_email: window.currentUser.email, author_avatar: avatarUrl, content: content, image_url: imageUrl }]);
+
+                // 1. Wenn Bild vorhanden, jage es durch den AI-Filter
+                if(imageFile) {
+                    if(nsfwModel) {
+                        const previewImg = document.getElementById('image-upload-preview');
+                        const predictions = await nsfwModel.classify(previewImg);
+                        const unsafe = predictions.find(p => (p.className === 'Hentai' || p.className === 'Porn' || p.className === 'Sexy') && p.probability > 0.65);
+                        if(unsafe) {
+                            alert("⚠️ Das ausgewählte Bild verstößt gegen unsere Community-Richtlinien und wurde blockiert.");
+                            btn.innerText = "Teilen"; btn.style.opacity = "1";
+                            return;
+                        }
+                    }
+
+                    // Upload in Supabase-Bucket 'community-images'
+                    const fileExt = imageFile.name.split('.').pop();
+                    const fileName = `${window.currentUser.id}-${Date.now()}.${fileExt}`;
+                    const { error: uploadError } = await window.supabaseClient.from('community_posts').storage.from('community-images').upload(fileName, imageFile);
+                    
+                    if(uploadError) throw uploadError;
+
+                    const { data: urlData } = window.supabaseClient.storage.from('community-images').getPublicUrl(fileName);
+                    imageUrl = urlData.publicUrl;
+                }
+
+                // Namen ermitteln
+                const { data: prof } = await window.supabaseClient.from('profiles').select('username').eq('id', window.currentUser.id).single();
+                const displayName = prof && prof.username ? prof.username : "Anonym";
+
+                // Beitrag eintragen
+                const { error } = await window.supabaseClient.from('community_posts').insert([{ author_name: displayName, author_email: window.currentUser.email, content: content, image_url: imageUrl }]);
                 if (error) throw error;
-                document.getElementById('post-content').value = ''; closePostModal(); btn.innerText = "Teilen"; btn.style.opacity = "1"; loadPosts();
+                
+                document.getElementById('post-content').value = ''; 
+                clearImageSelection();
+                closePostModal(); 
+                btn.innerText = "Teilen"; btn.style.opacity = "1"; 
+                loadPosts();
             } catch (err) { btn.innerText = "Teilen"; btn.style.opacity = "1"; alert("Fehler beim Posten: " + err.message); }
         }
 
@@ -341,12 +344,38 @@
             const { error } = await window.supabaseClient.from('community_posts').delete().eq('id', id); if(!error) loadPosts();
         }
 
-        function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
+        // KOMMENTAR STEUERUNG & CO.
+        function toggleCommentsView(postId) { const w = document.getElementById(`comments-wrapper-${postId}`); w.style.display = w.style.display === 'block' ? 'none' : 'block'; }
         
-        document.addEventListener("DOMContentLoaded", () => {
-            const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
-            if (typeof updateThemeToggleIcon === "function") { updateThemeToggleIcon(savedThemeSetting); }
-        });
+        async function loadComments(postId) {
+            try {
+                const { data: comments, error } = await window.supabaseClient.from('community_comments').select('*').eq('post_id', postId).order('created_at', { ascending: true });
+                if(error) throw error;
+                document.getElementById(`comment-count-${postId}`).innerText = comments.length;
+                const list = document.getElementById(`comments-list-${postId}`);
+                list.innerHTML = '';
+                comments.forEach(c => {
+                    const date = new Date(c.created_at).toLocaleString('de-DE', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+                    const item = document.createElement('div'); item.className = 'comment-item';
+                    item.innerHTML = `<div class="comment-meta"><strong>${escapeHtml(c.author_name)}</strong> <span>${date}</span></div><div>${escapeHtml(c.content)}</div>`;
+                    list.appendChild(item);
+                });
+            } catch(e){}
+        }
+
+        async function submitComment(postId) {
+            const input = document.getElementById(`comment-input-${postId}`); const text = input.value.trim(); if(!text) return;
+            try {
+                const { data: prof } = await window.supabaseClient.from('profiles').select('username').eq('id', window.currentUser.id).single();
+                const name = prof && prof.username ? prof.username : "Anonym";
+                const { error } = await window.supabaseClient.from('community_comments').insert([{ post_id: postId, author_name: name, author_email: window.currentUser.email, content: text }]);
+                if(!error) { input.value = ''; loadComments(postId); }
+            } catch(e){}
+        }
+
+        function openPostModal() { document.getElementById('post-modal').style.display = 'flex'; }
+        function closePostModal() { document.getElementById('post-modal').style.display = 'none'; }
+        function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
     </script>
     
     <script>
