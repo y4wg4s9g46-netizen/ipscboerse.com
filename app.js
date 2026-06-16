@@ -981,3 +981,230 @@ window.deletePost = async function(id) {
     if(!confirm("Beitrag wirklich löschen?")) return;
     const { error } = await window.supabaseClient.from('community_posts').delete().eq('id', id); if(!error) window.loadPosts();
 };
+// ==========================================================================
+// FREIE MATCHES & BENUTZERPROFILE LOGIK
+// ==========================================================================
+
+let allMatches = [];
+
+// Initialisierung der Theme-Toggle-Icons (falls vorhanden)
+document.addEventListener("DOMContentLoaded", () => {
+    const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
+    if (typeof updateThemeToggleIcon === "function") {
+         updateThemeToggleIcon(savedThemeSetting);
+    }
+});
+
+function formatStars(value) {
+    if (!value || isNaN(value) || value === 0) return "-";
+    let fullStars = Math.round(value);
+    return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
+}
+
+// Wird auch für Community / Marktplatz genutzt
+window.openUserProfile = async function(sellerEmail, authorName, authorAvatar, authorIpscAlias) {
+    const modal = document.getElementById("auth-modal");
+    if (!modal) return;
+    modal.style.display = "flex";
+    window.toggleAuthView("settings");
+    const title = document.querySelector("#modal-settings-view h3");
+    if (title) title.innerText = "Schützen-Profil von " + authorName;
+    
+    const elementsToHide = [
+        document.querySelector("#modal-settings-view div[style*='3498db']"),
+        document.getElementById("settings-password")?.closest(".form-group"),
+        document.querySelector("#modal-settings-view button[type='submit']"),
+        document.getElementById("btn-delete-account"),
+        document.getElementById("settings-avatar")?.closest(".form-group")
+    ];
+    elementsToHide.forEach(el => { if(el) el.style.display = "none"; });
+
+    const usernameField = document.getElementById("settings-username");
+    if (usernameField) { usernameField.value = authorName; usernameField.readOnly = true; }
+
+    const aliasField = document.getElementById("settings-ipsc-alias");
+    if (aliasField) { aliasField.value = authorIpscAlias || "Kein Verband-Alias"; aliasField.readOnly = true; }
+
+    const previewImg = document.getElementById("settings-avatar-preview");
+    if (previewImg) {
+        if (authorAvatar) { previewImg.src = authorAvatar; previewImg.style.display = 'block'; }
+        else { previewImg.style.display = 'none'; }
+    }
+
+    try {
+        const salesRes = await window.supabaseClient.from('mediated_deals').select('*').eq('seller_email', sellerEmail);
+        const purchaseRes = await window.supabaseClient.from('mediated_deals').select('*').eq('buyer_email', sellerEmail);
+        
+        const salesData = salesRes.data || [];
+        const purchaseData = purchaseRes.data || [];
+        
+        const salesCountEl = document.getElementById("profile-sales-count");
+        const purchasesCountEl = document.getElementById("profile-purchases-count");
+        
+        if (salesCountEl) salesCountEl.innerText = salesData.length;
+        if (purchasesCountEl) purchasesCountEl.innerText = purchaseData.length;
+
+        let totalComm = 0, totalPay = 0, countComm = 0, countPay = 0;
+        salesData.forEach(d => {
+            if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
+            if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
+        });
+        purchaseData.forEach(d => {
+            if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
+            if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
+        });
+        
+        const ratingCommEl = document.getElementById("profile-rating-comm");
+        const ratingPayEl = document.getElementById("profile-rating-pay");
+        
+        if (ratingCommEl) ratingCommEl.innerText = formatStars(countComm > 0 ? totalComm / countComm : 0);
+        if (ratingPayEl) ratingPayEl.innerText = formatStars(countPay > 0 ? totalPay / countPay : 0);
+    } catch(e) {
+        console.error("Fehler beim Laden der Reputationswerte:", e);
+    }
+
+    const closeBtn = document.getElementById("btn-close-modal");
+    if (closeBtn) {
+        const originalClose = closeBtn.onclick;
+        closeBtn.onclick = function() {
+            if (title) title.innerText = "Konto-Einstellungen";
+            elementsToHide.forEach(el => { if(el) el.style.display = "block"; });
+            if (usernameField) usernameField.readOnly = false;
+            if (aliasField) aliasField.readOnly = false;
+            modal.style.display = "none";
+            if (originalClose) closeBtn.onclick = originalClose;
+        };
+    }
+};
+
+// NUR LADEN WENN WIR AUF DER "FREIE MATCHES" SEITE SIND
+if (document.getElementById('js-match-container')) {
+    fetch('matches.json?v=' + new Date().getTime())
+      .then(res => res.json())
+      .then(data => {
+          allMatches = data;
+          const container = document.getElementById('js-match-container');
+          
+          if (allMatches.length === 0) {
+              const noMatchesTxt = window.currentLang === "en" ? "Currently all matches are 100% booked." : "Aktuell sind alle Matches zu 100% belegt.";
+              container.innerHTML = `<p style="padding: 10px;">${noMatchesTxt}</p>`;
+              document.getElementById('match-filters').style.display = 'none';
+              return;
+          }
+
+          document.getElementById('match-filters').style.display = 'flex';
+          window.setupFreeFilters(allMatches);
+          window.renderFreeMatches(allMatches);
+      })
+      .catch(err => {
+          console.error("Fehler beim Laden:", err);
+          const errorTxt = window.currentLang === "en" ? "Error loading data. Please reload the page." : "Fehler beim Laden der Daten. Bitte lade die Seite neu.";
+          const container = document.getElementById('js-match-container');
+          if(container) container.innerHTML = `<p class='loading-msg'>${errorTxt}</p>`;
+      });
+}
+
+window.setupFreeFilters = function(matches) {
+    const regionSelect = document.getElementById('filter-region');
+    const disziplinSelect = document.getElementById('filter-disziplin');
+    const levelSelect = document.getElementById('filter-level');
+    
+    // Abbruch, wenn die Filter auf der aktuellen Seite gar nicht existieren
+    if (!regionSelect || !disziplinSelect || !levelSelect) return;
+
+    const currentRegionVal = regionSelect.value || 'all';
+    const currentDisziplinVal = disziplinSelect.value || 'all';
+    const currentLevelVal = levelSelect.value || 'all';
+    
+    const regions = [...new Set(matches.map(m => m.region))].filter(r => r && r !== "N/A" && r !== "-").sort();
+    const disziplinen = [...new Set(matches.map(m => m.disziplin))].filter(d => d && d !== "-").sort();
+    const levels = [...new Set(matches.map(m => m.level))].filter(l => l && l !== "-").sort();
+
+    const allCountriesTxt = window.currentLang === "en" ? "All Countries" : "Alle Länder";
+    const allDisciplinesTxt = window.currentLang === "en" ? "All Disciplines" : "Alle Disziplinen";
+    const allLevelsTxt = window.currentLang === "en" ? "All Levels" : "Alle Level";
+    
+    regionSelect.innerHTML = `<option value="all">${allCountriesTxt}</option>`;
+    disziplinSelect.innerHTML = `<option value="all">${allDisciplinesTxt}</option>`;
+    levelSelect.innerHTML = `<option value="all">${allLevelsTxt}</option>`;
+    
+    regions.forEach(r => regionSelect.innerHTML += `<option value="${r}">${r}</option>`);
+    disziplinen.forEach(d => disziplinSelect.innerHTML += `<option value="${d}">${d}</option>`);
+    levels.forEach(l => levelSelect.innerHTML += `<option value="${l}">Level ${l}</option>`);
+    
+    regionSelect.value = currentRegionVal;
+    disziplinSelect.value = currentDisziplinVal;
+    levelSelect.value = currentLevelVal;
+
+    regionSelect.removeEventListener('change', window.applyFreeFilters);
+    disziplinSelect.removeEventListener('change', window.applyFreeFilters);
+    levelSelect.removeEventListener('change', window.applyFreeFilters);
+
+    regionSelect.addEventListener('change', window.applyFreeFilters);
+    disziplinSelect.addEventListener('change', window.applyFreeFilters);
+    levelSelect.addEventListener('change', window.applyFreeFilters);
+};
+
+window.applyFreeFilters = function() {
+    const selectedRegion = document.getElementById('filter-region')?.value || 'all';
+    const selectedDisziplin = document.getElementById('filter-disziplin')?.value || 'all';
+    const selectedLevel = document.getElementById('filter-level')?.value || 'all';
+
+    const filteredMatches = allMatches.filter(match => {
+        const matchesRegion = selectedRegion === 'all' || match.region === selectedRegion;
+        const matchesDisziplin = selectedDisziplin === 'all' || match.disziplin === selectedDisziplin;
+        const matchesLevel = selectedLevel === 'all' || match.level === selectedLevel;
+        return matchesRegion && matchesDisziplin && matchesLevel;
+    });
+
+    window.renderFreeMatches(filteredMatches);
+};
+
+window.renderFreeMatches = function(matchesToDisplay) {
+    const container = document.getElementById('js-match-container');
+    if (!container) return;
+
+    if (matchesToDisplay.length === 0) {
+        const noComboTxt = window.currentLang === "en" ? "No matches found for this filter combination." : "Keine Matches für diese Filterkombination gefunden.";
+        container.innerHTML = `<p style="padding: 10px; font-weight: 600;">${noComboTxt}</p>`;
+        return;
+    }
+
+    const loadBadgeTxt = window.currentLang === "en" ? "Capacity:" : "Auslastung:";
+    const btnTxt = window.currentLang === "en" ? "Go to Match" : "Zum Match";
+    let html = matchesToDisplay.map(match => `
+        <a href="${match.url}" target="_blank" style="text-decoration: none; color: inherit; display: block;">
+            <div class="match-card">
+                <div class="match-details">
+                    <h3>${match.name}</h3>
+                    <div class="badge-container">
+                        <span class="badge-datum">📅 ${match.datum || 'N/A'}</span>
+                        <span class="badge">${loadBadgeTxt} ${match.auslastung}</span>
+                        <span class="badge-region">Reg: ${match.region || '-'}</span>
+                        <span class="badge-lvl">Level: ${match.level || '-'}</span>
+                        <span class="badge-disziplin">${match.disziplin || '-'}</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <span class="btn-contact">${btnTxt}</span>
+                </div>
+            </div>
+        </a>
+    `).join('');
+    container.innerHTML = html;
+};
+
+// Falls onLanguageChanged schon existiert (aus der app.js), erweitern wir sie nur
+const existingOnLanguageChanged = window.onLanguageChanged;
+window.onLanguageChanged = () => { 
+    if (typeof existingOnLanguageChanged === "function") {
+        existingOnLanguageChanged();
+    }
+    
+    const selector = document.getElementById("language-select");
+    if (selector) selector.value = window.currentLang;
+    if (allMatches.length > 0 && document.getElementById('js-match-container')) {
+        window.setupFreeFilters(allMatches);
+        window.applyFreeFilters();
+    }
+};
