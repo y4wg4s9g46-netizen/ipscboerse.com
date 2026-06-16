@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <title>IPSC Match-Marktplatz | Startplatz Börse</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="IPSC Börse">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
+    <link rel="stylesheet" href="global.css">
+    
+    <style>
+        /* ==========================================================================
+           MARKTPLATZ-SPEZIFISCHES LAYOUT (Nutzt nun global.css Variablen)
+           ========================================================================== */
+
+        .info-box {
+            background-color: rgba(255, 159, 67, 0.08);
+            border-left: 4px solid var(--accent-color);
+            color: var(--text-color); 
+            padding: 16px; 
+            margin-bottom: 30px; 
+            border-radius: var(--radius);
+            font-size: 14px; 
+            line-height: 1.5; 
+            border: 1px solid var(--border-color); 
+            border-left-width: 4px;
+        }
+
+        .form-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg); 
+            padding: 32px; 
+            margin-bottom: 40px; 
+            box-shadow: var(--shadow-sm);
+        }
+
+        .form-section h2 { 
+            margin-top: 0; 
+            font-size: 20px; 
+            font-weight: 800; 
+            color: var(--text-color); 
+            border-bottom: 2px solid var(--bg-color); 
+            padding-bottom: 16px; 
+            margin-bottom: 24px;
+        }
+
+        .toggle-selector {
+            display: flex;
+            gap: 20px; 
+            margin-bottom: 24px; 
+            background: var(--input-bg); 
+            padding: 16px; 
+            border-radius: var(--radius); 
+            border: 1px solid var(--border-color);
+        }
+
+        .toggle-selector label {
+            display: flex;
+            align-items: center; 
+            gap: 8px; 
+            color: var(--text-color); 
+            cursor: pointer; 
+            margin: 0; 
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .toggle-selector input { 
+            accent-color: var(--accent-color); 
+            cursor: pointer; 
+            width: 18px; 
+            height: 18px;
+        }
+
+        .filter-bar {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color); 
+            padding: 16px 20px; 
+            border-radius: var(--radius-lg);
+            margin-bottom: 24px; 
+            display: flex; 
+            gap: 15px; 
+            flex-wrap: wrap; 
+            align-items: center; 
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-bar.group { display: flex; align-items: center; gap: 10px; }
+        .filter-group label { margin: 0; color: var(--text-color); white-space: nowrap; font-size: 14px; font-weight: 700; }
+        
+        /* Select-Felder passend zu den neuen Inputs */
+        select { 
+            padding: 14px 16px; 
+            border-radius: var(--radius); 
+            background-color: var(--input-bg); 
+            color: var(--text-color); 
+            border: 2px solid var(--border-color); 
+            font-family: inherit; 
+            font-size: 15px; 
+            transition: var(--transition);
+        }
+        select:focus { border-color: var(--accent-color); outline: none; }
+        
+        .filter-group select { padding: 10px 14px; font-size: 14px; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        /* --- MATCH KARTEN --- */
+        .match-list { display: flex; flex-direction: column; gap: 20px; }
+
+        .match-card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg); 
+            padding: 24px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border: 1px solid var(--border-color);
+            position: relative; 
+            overflow: hidden; 
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+            transition: var(--transition);
+        }
+        .match-card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: var(--shadow-md); 
+            border-color: #cbd5e1; 
+        }
+        html[data-theme="dark"] .match-card:hover { border-color: var(--text-muted); }
+
+        .match-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 6px; }
+        .card-offer::before { background-color: var(--accent-color); }
+        .card-want::before { background-color: var(--success-color); }
+
+        .card-offer { background-color: rgba(255, 159, 67, 0.02); }
+        .card-want { background-color: rgba(16, 185, 129, 0.02); }
+
+        .match-details h3 { margin: 0 0 8px 0; color: var(--text-color); font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .match-details p { margin: 6px 0; font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+        
+        .badge-container { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+        .badge { background-color: var(--input-bg); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; color: var(--text-color); box-shadow: var(--shadow-sm); }
+
+        .card-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+
+        .btn-contact {
+            background: var(--accent-gradient);
+            color: #fff; border: none;
+            padding: 12px 24px; font-weight: 700; border-radius: var(--radius); text-decoration: none; text-align: center; cursor: pointer; font-size: 14px;
+            box-shadow: 0 4px 14px 0 rgba(255, 159, 67, 0.3); transition: var(--transition);
+        }
+        .btn-contact-want { background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.3); }
+        .btn-contact:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 159, 67, 0.4); }
+        .btn-contact-want:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); }
+
+        .btn-delete {
+            background-color: transparent;
+            color: var(--danger-color); border: 2px solid rgba(239, 68, 68, 0.3);
+            padding: 8px 16px; font-size: 13px; font-weight: 700; border-radius: var(--radius); cursor: pointer; transition: var(--transition);
+        }
+        .btn-delete:hover { background-color: var(--danger-color); color: #fff; border-color: var(--danger-color); }
+
+        .btn-edit {
+            background-color: transparent;
+            color: var(--info-color); border: 2px solid rgba(59, 130, 246, 0.3);
+            padding: 8px 16px; font-size: 13px; font-weight: 700; border-radius: var(--radius); cursor: pointer; transition: var(--transition);
+        }
+        .btn-edit:hover { background-color: var(--info-color); color: #fff; border-color: var(--info-color); }
+
+        .btn-export {
+            background: var(--bg-color);
+            color: var(--text-color); border: 2px solid var(--border-color); padding: 8px 16px; cursor: pointer; border-radius: var(--radius); font-size: 12px; font-weight: 700; transition: var(--transition);
+        }
+        .btn-export:hover { border-color: #cbd5e1; background: var(--card-bg); transform: translateY(-1px); }
+        
+        .btn-report {
+            background: rgba(239, 68, 68, 0.05);
+            color: var(--danger-color); border: 1px solid rgba(239, 68, 68, 0.2); padding: 6px 12px; cursor: pointer; border-radius: var(--radius); font-size: 11px; font-weight: 700; transition: var(--transition);
+        }
+        .btn-report:hover { background-color: var(--danger-color); color: #fff; }
+
+        /* --- PROFILBILDER & BEWERTUNGEN --- */
+        .match-header-flex { display: flex; align-items: center; gap: 16px; }
+        .card-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            background-color: var(--input-bg);
+            transition: var(--transition);
+        }
+        .card-avatar:hover { border-color: var(--accent-color); transform: scale(1.05); }
+        .avatar-placeholder-flex {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-gradient);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 18px;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .avatar-placeholder-flex:hover { transform: scale(1.05); }
+        
+        .btn-mediated {
+            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: var(--radius);
+            cursor: pointer;
+            margin-top: 5px;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+        }
+        .btn-mediated:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3); }
+        
+        .rating-badge {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 800;
+            margin-left: 8px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        /* Stern-Auswahl CSS */
+        .star-rating-select { display: inline-flex; flex-direction: row-reverse; gap: 6px; }
+        .star-rating-select input { display: none; }
+        .star-rating-select label {
+            font-size: 32px;
+            color: var(--border-color);
+            cursor: pointer;
+            transition: color 0.2s;
+            margin: 0;
+        }
+        .star-rating-select input:checked ~ label,
+        .star-rating-select label:hover,
+        .star-rating-select label:hover ~ label {
+            color: #ffca28;
+            text-shadow: 0 0 10px rgba(255, 202, 40, 0.3);
+        }
+
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .action-buttons-group { display: flex; gap: 10px; margin-top: 8px; }
+
+        @media (max-width: 768px) {
+            .form-grid { grid-template-columns: 1fr; gap: 16px; }
+            .toggle-selector { flex-direction: column; gap: 12px; align-items: flex-start; }
+            .match-card { flex-direction: column; align-items: stretch; gap: 16px; }
+            .card-actions { align-items: flex-start; width: 100%; border-top: 1px solid var(--border-color); padding-top: 16px; }
+            .action-buttons-group { width: 100%; display: flex; gap: 8px; }
+            .action-buttons-group button, .btn-contact { flex: 1; text-align: center; width: 100%; }
+            .btn-delete, .btn-edit { flex: 1; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <header></header>
+    <script src="header.js"></script>
+
+    <div class="container">
+        
+        <div class="info-box" id="info-text" data-txt="info-msg">
+            <strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgültige Umschreibung des Startplatzes muss zwingend über den jeweiligen Match Director durchgeführt werden!
+        </div>
+
+        <div class="form-section" id="form-anchor">
+            <h2 id="form-section-title" data-txt="form-title">Eintrag erstellen</h2>
+            
+            <div class="toggle-selector">
+                <label>
+                    <input type="radio" name="ad-type" id="type-offer" value="offer" checked>
+                    <span style="font-weight: bold; color: var(--accent-color);" data-txt="opt-offer">Ich BIETE einen Startplatz an</span>
+                </label>
+                <label>
+                    <input type="radio" name="ad-type" id="type-want" value="want">
+                    <span style="font-weight: bold; color: var(--success-color);" data-txt="opt-want">Ich SUCHE einen Startplatz</span>
+                </label>
+            </div>
+
+            <form id="match-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="match-name" data-txt="lbl-name">Name des Matches *</label>
+                        <input type="text" id="match-name" required placeholder="z.B. Infinity Open">
+                    </div>
+                    <div class="form-group">
+                        <label for="match-level" data-txt="lbl-level">Match Level *</label>
+                        <select id="match-level" required></select>
+                    </div>
+                    <div class="form-grid-item form-group">
+                        <label for="match-date" data-txt="lbl-date">Datum des Matches *</label>
+                        <input type="date" id="match-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="match-country" data-txt="lbl-country">Land *</label>
+                        <select id="match-country" required>
+                            <option value="DE">Deutschland</option>
+                            <option value="AT">Österreich</option>
+                            <option value="CH">Schweiz</option>
+                            <option value="IT">Italien</option>
+                            <option value="FR">Frankreich</option>
+                            <option value="OTHER">Andere</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="match-location" data-txt="lbl-location">Austragungsort (Stand) *</label>
+                        <input type="text" id="match-location" required placeholder="z.B. Philippsburg">
+                    </div>
+                    <div class="form-group">
+                        <label for="match-squad" data-txt="lbl-squad">Squad Nummer (Optional)</label>
+                        <input type="text" id="match-squad" inputmode="numeric" pattern="\d{1,4}" maxlength="4" placeholder="z.B. 0014">
+                    </div>
+                    <div class="form-group">
+                        <label for="match-price" id="lbl-dynamic-price" data-txt="lbl-price">Abgabepreis (€) *</label>
+                        <input type="number" id="match-price" min="0" step="0.01" required placeholder="85.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="seller-email" data-txt="lbl-email">Deine E-Mail-Adresse *</label>
+                        <input type="email" id="seller-email" required readonly placeholder="Logge dich ein, um zu inserieren">
+                    </div>
+                </div>
+                <div style="text-align: right; margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; align-items: center;">
+                    <button type="button" class="btn-delete" id="btn-cancel-edit" style="display: none; padding: 12px 20px; font-size: 16px;" data-txt="btn-cancel">Abbrechen</button>
+                    <button type="submit" class="btn-submit" id="btn-submit-ad" data-txt="btn-insert">Eintrag kostenlos veröffentlichen</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label data-txt="filter-type">Anzeigentyp:</label>
+                <select id="filter-type-select">
+                    <option value="all" data-txt="filter-all">Alle Anzeigen</option>
+                    <option value="offer" data-txt="filter-offers">Nur Angebote (Biete)</option>
+                    <option value="want" data-txt="filter-wants">Nur Gesuche (Suche)</option>
+                </select>
+            </div>
+        </div>
+
+        <h2 data-txt="list-title">Aktuelle Marktplatz-Einträge</h2>
+        <div class="match-list" id="match-container">
+            <p id="loading-text" data-txt="loading">Lade aktuelle Startplätze...</p>
+        </div>
+
+    </div>
+
+    <!-- MODAL BEREICH VERMITTELT -->
+    <div class="modal" id="mediated-modal">
+        <div class="modal-content">
+            <div class="modal-close-container">
+                <span class="modal-close-trigger" onclick="document.getElementById('mediated-modal').style.display = 'none';">&times;</span>
+            </div>
+            <h3 data-txt="mediated-title">Startplatz erfolgreich vermittelt</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;" data-txt="mediated-desc">
+                Trage hier die E-Mail-Adresse des Käufers ein und bewerte die Transaktion, um sie abzuschließen. Die erfolgreiche Vermittlung wird in euren Profilstatistiken hinterlegt.
+            </p>
+            <form id="mediated-form">
+                <input type="hidden" id="mediated-match-id">
+                <div class="form-group">
+                    <label data-txt="lbl-buyer-email">E-Mail-Adresse des Käufers *</label>
+                    <input type="email" id="buyer-email" required placeholder="kaeufer@beispiel.de">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="text-transform: none; font-size: 14px;" data-txt="lbl-rating-comm">💬 Kommunikation</label>
+                    <div class="star-rating-select">
+                        <input type="radio" id="star-comm-5" name="rating-comm" value="5" required><label for="star-comm-5">★</label>
+                        <input type="radio" id="star-comm-4" name="rating-comm" value="4"><label for="star-comm-4">★</label>
+                        <input type="radio" id="star-comm-3" name="rating-comm" value="3"><label for="star-comm-3">★</label>
+                        <input type="radio" id="star-comm-2" name="rating-comm" value="2"><label for="star-comm-2">★</label>
+                        <input type="radio" id="star-comm-1" name="rating-comm" value="1"><label for="star-comm-1">★</label>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="text-transform: none; font-size: 14px;" data-txt="lbl-rating-pay">💳 Bezahlung</label>
+                    <div class="star-rating-select">
+                        <input type="radio" id="star-pay-5" name="rating-pay" value="5" required><label for="star-pay-5">★</label>
+                        <input type="radio" id="star-pay-4" name="rating-pay" value="4"><label for="star-pay-4">★</label>
+                        <input type="radio" id="star-pay-3" name="rating-pay" value="3"><label for="star-pay-3">★</label>
+                        <input type="radio" id="star-pay-2" name="rating-pay" value="2"><label for="star-pay-2">★</label>
+                        <input type="radio" id="star-pay-1" name="rating-pay" value="1"><label for="star-pay-1">★</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" style="width: 100%; background-color: var(--success-color);" data-txt="btn-mediated-submit">Vermittlung bestätigen & Eintrag schließen</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            
+            <div style="margin-top: 20px;">
+                <a href="https://www.buymeacoffee.com/infojkw" target="_blank" style="background-color: #FFDD00; color: #000; padding: 10px 20px; border-radius: 5px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                    ☕ <span data-txt="buy-coffee">Kaffee spendieren</span>
+                </a>
+            </div>
+
+            <div style="margin-top: 15px; font-size: 11px;">
+                &copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.
+            </div>
+        </div>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="lang.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
+            const languageSelectorDropdown = document.getElementById("language-select");
+            if (languageSelectorDropdown) {
+                languageSelectorDropdown.value = savedLanguageSetting;
+            }
+            
+            const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
+            if (typeof updateThemeToggleIcon === "function") {
+                updateThemeToggleIcon(savedThemeSetting);
+            }
+        });
+
+        function formatStars(value) {
+            if (!value || isNaN(value) || value === 0) return "-";
+            let fullStars = Math.round(value);
+            return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
+        }
+
+        window.openUserProfile = async function(sellerEmail, authorName, authorAvatar, authorIpscAlias) {
+            const modal = document.getElementById("auth-modal");
+            if (!modal) return;
+            modal.style.display = "flex";
+            window.toggleAuthView("settings");
+
+            const title = document.querySelector("#modal-settings-view h3");
+            if (title) title.innerText = "Schützen-Profil von " + authorName;
+
+            const elementsToHide = [
+                document.querySelector("#modal-settings-view div[style*='3498db']"),
+                document.getElementById("settings-password")?.closest(".form-group"),
+                document.querySelector("#modal-settings-view button[type='submit']"),
+                document.getElementById("btn-delete-account"),
+                document.getElementById("settings-avatar")?.closest(".form-group")
+            ];
+            elementsToHide.forEach(el => { if(el) el.style.display = "none"; });
+
+            const usernameField = document.getElementById("settings-username");
+            if (usernameField) { usernameField.value = authorName; usernameField.readOnly = true; }
+
+            const aliasField = document.getElementById("settings-ipsc-alias");
+            if (aliasField) { aliasField.value = authorIpscAlias || "Kein Verband-Alias"; aliasField.readOnly = true; }
+
+            const previewImg = document.getElementById("settings-avatar-preview");
+            if (previewImg) {
+                if (authorAvatar) { previewImg.src = authorAvatar; previewImg.style.display = 'block'; }
+                else { previewImg.style.display = 'none'; }
+            }
+
+            try {
+                const salesRes = await window.supabaseClient.from('mediated_deals').select('*').eq('seller_email', sellerEmail);
+                const purchaseRes = await window.supabaseClient.from('mediated_deals').select('*').eq('buyer_email', sellerEmail);
+                
+                const salesData = salesRes.data || [];
+                const purchaseData = purchaseRes.data || [];
+                document.getElementById("profile-sales-count").innerText = salesData.length;
+                document.getElementById("profile-purchases-count").innerText = purchaseData.length;
+
+                let totalComm = 0, totalPay = 0, countComm = 0, countPay = 0;
+                salesData.forEach(d => {
+                    if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
+                    if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
+                });
+                purchaseData.forEach(d => {
+                    if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
+                    if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
+                });
+                document.getElementById("profile-rating-comm").innerText = formatStars(countComm > 0 ? totalComm / countComm : 0);
+                document.getElementById("profile-rating-pay").innerText = formatStars(countPay > 0 ? totalPay / countPay : 0);
+            } catch(e) {
+                console.error("Fehler beim Laden der Reputationswerte:", e);
+            }
+
+            const closeBtn = document.getElementById("btn-close-modal");
+            if (closeBtn) {
+                const originalClose = closeBtn.onclick;
+                closeBtn.onclick = function() {
+                    if (title) title.innerText = "Konto-Einstellungen";
+                    elementsToHide.forEach(el => { if(el) el.style.display = "block"; });
+                    if (usernameField) usernameField.readOnly = false;
+                    if (aliasField) aliasField.readOnly = false;
+                    modal.style.display = "none";
+                    if (originalClose) closeBtn.onclick = originalClose;
+                };
+            }
+        };
+
+        window.triggerMediatedModal = function(matchId) {
+            document.getElementById("mediated-match-id").value = matchId;
+            document.getElementById("mediated-form").reset();
+            document.getElementById("mediated-modal").style.display = "flex";
+        };
+
+        document.getElementById("mediated-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const matchId = document.getElementById("mediated-match-id").value;
+            const buyerEmailInput = document.getElementById("buyer-email").value.trim().toLowerCase();
+
+            if(!window.currentUser) { alert("Du musst eingeloggt sein."); return; }
+
+            if (buyerEmailInput === window.currentUser.email.toLowerCase()) {
+                alert(window.currentLang === "en" ? "Error: You cannot use your own email address as the buyer!" : "Fehler: Du kannst nicht deine eigene E-Mail-Adresse als Käufer angeben!");
+                return;
+            }
+
+            const ratingComm = document.querySelector('input[name="rating-comm"]:checked')?.value;
+            const ratingPay = document.querySelector('input[name="rating-pay"]:checked')?.value;
+            try {
+                const { data: matchData, error: matchErr = null } = await window.supabaseClient.from('matches').select('*').eq('id', matchId).single();
+                if(matchErr || !matchData) throw new Error("Match-Eintrag nicht gefunden.");
+
+                const { error: dealErr } = await window.supabaseClient.from('mediated_deals').insert([{
+                    match_id: matchId,
+                    match_name: matchData.name,
+                    seller_email: window.currentUser.email,
+                    buyer_email: buyerEmailInput,
+                    user_id: window.currentUser.id,
+                    rating_communication: parseInt(ratingComm),
+                    rating_payment: parseInt(ratingPay),
+                    created_at: new Date()
+                }]);
+                if(dealErr) throw dealErr;
+
+                await window.supabaseClient.from('matches').delete().eq('id', matchId);
+                alert("✓ Deal erfolgreich abgeschlossen! Die Transaktion und Bewertungen wurden in euren Profilstatistiken hinterlegt.");
+                document.getElementById('mediated-modal').style.display = 'none';
+                location.reload();
+            } catch(err) {
+                alert("Fehler beim Verarbeiten der Vermittlung: " + err.message);
+            }
+        });
+    </script>
+    
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('PWA Service Worker registriert!', reg.scope))
+                    .catch(err => console.error('PWA Fehler:', err));
+            });
+        }
+    </script>
+</body>
+</html>

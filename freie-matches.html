@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <title>Freie Match-Plätze | Startplatz Börse</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="IPSC Börse">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <link rel="stylesheet" href="global.css">
+
+    <style>
+        /* ==========================================================================
+           FREIE MATCHES - SPEZIFISCHES LAYOUT
+           ========================================================================== */
+
+        .info-box {
+            background-color: rgba(59, 130, 246, 0.08);
+            border-left: 4px solid var(--info-color);
+            color: var(--text-color);
+            padding: 16px; 
+            margin-bottom: 30px; 
+            border-radius: var(--radius);
+            font-size: 14px;
+            line-height: 1.5;
+            border: 1px solid var(--border-color);
+            border-left-width: 4px;
+        }
+
+        .filter-container {
+            display: flex;
+            gap: 15px; 
+            flex-wrap: wrap; 
+            margin-bottom: 30px;
+            background-color: var(--card-bg);
+            padding: 16px 20px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .filter-container select {
+            padding: 12px 16px;
+            border-radius: var(--radius); 
+            background-color: var(--input-bg); 
+            color: var(--text-color); 
+            border: 2px solid var(--border-color);
+            outline: none;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .filter-container select:focus, .filter-container select:hover {
+            border-color: var(--info-color);
+            background-color: var(--card-bg);
+        }
+
+        .match-list { display: flex; flex-direction: column; gap: 20px; }
+
+        .match-card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg); 
+            padding: 24px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border: 1px solid var(--border-color);
+            position: relative; 
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+            transition: var(--transition);
+        }
+        
+        .match-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--info-color);
+        }
+
+        .match-card::before { 
+            content: '';
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            bottom: 0; 
+            width: 6px; 
+            background-color: var(--success-color);
+        }
+
+        .match-details h3 { 
+            margin: 0 0 10px 0;
+            color: var(--text-color); 
+            font-size: 18px; 
+            font-weight: 800; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
+        }
+        
+        .badge-container { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+        
+        .badge-datum { background-color: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; box-shadow: var(--shadow-sm); }
+        .badge { background-color: rgba(16, 185, 129, 0.1); color: var(--success-color); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .badge-region { background-color: rgba(59, 130, 246, 0.1); color: var(--info-color); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .badge-lvl { background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; border: 1px solid rgba(139, 92, 246, 0.2); }
+        .badge-disziplin { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.2); }
+
+        .card-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+
+        .btn-contact {
+            background: linear-gradient(135deg, var(--info-color) 0%, #2563eb 100%);
+            color: #ffffff; 
+            border: none;
+            padding: 12px 24px; 
+            font-weight: 700; 
+            border-radius: var(--radius); 
+            text-decoration: none; 
+            text-align: center; 
+            cursor: pointer; 
+            font-size: 14px;
+            box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3);
+            transition: var(--transition);
+        }
+        .btn-contact:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); 
+        }
+
+        .loading-msg { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; font-weight: 600; }
+
+        @media (max-width: 768px) {
+            .info-box { padding: 16px; border-radius: 16px; }
+            .filter-container { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px; border-radius: 16px; }
+            .filter-container select { width: 100%; }
+            .match-card { flex-direction: column; align-items: stretch; gap: 16px; padding: 20px; }
+            .card-actions { align-items: flex-start; width: 100%; border-top: 1px solid var(--border-color); padding-top: 16px; }
+            .btn-contact { width: 100%; text-align: center; box-sizing: border-box; }
+        }
+    </style>
+</head>
+<body>
+
+    <header></header>
+    <script src="header.js"></script>
+    
+    <div class="container">
+        <div class="info-box" data-txt="free-info-box">
+            <strong>Info:</strong> Die Matches werden automatisch im Hintergrund aktualisiert. Es werden nur Turniere angezeigt, die eine Auslastung von unter 100% aufweisen (freie Startplätze).
+        </div>
+
+        <h2 style="margin-bottom: 24px; font-weight: 800; letter-spacing: -0.5px;" data-txt="free-list-title">Verfügbare Matches auf MatchSign (Auslastung &lt; 100%)</h2>
+
+        <div class="filter-container" id="match-filters" style="display: none;">
+            <select id="filter-region">
+                <option value="all">Alle Länder</option>
+            </select>
+            <select id="filter-disziplin">
+                <option value="all">Alle Disziplinen</option>
+            </select>
+            <select id="filter-level">
+                <option value="all">Alle Level</option>
+            </select>
+        </div>
+
+        <div class="match-list" id="js-match-container">
+            <p class="loading-msg" id="js-status-text" data-txt="free-loading">Lade aktuelle Matches...</p>
+        </div>
+    </div>
+
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+        </div>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="lang.js"></script>
+    <script src="app.js"></script>
+    
+    <script>
+    let allMatches = [];
+    window.activeChatRoom = null;
+    window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new Date().toISOString();
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
+        if (typeof updateThemeToggleIcon === "function") {
+             updateThemeToggleIcon(savedThemeSetting);
+        }
+    });
+
+    function formatStars(value) {
+        if (!value || isNaN(value) || value === 0) return "-";
+        let fullStars = Math.round(value);
+        return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
+    }
+
+    window.openUserProfile = async function(sellerEmail, authorName, authorAvatar, authorIpscAlias) {
+        const modal = document.getElementById("auth-modal");
+        if (!modal) return;
+        modal.style.display = "flex";
+        window.toggleAuthView("settings");
+        const title = document.querySelector("#modal-settings-view h3");
+        if (title) title.innerText = "Schützen-Profil von " + authorName;
+        const elementsToHide = [
+            document.querySelector("#modal-settings-view div[style*='3498db']"),
+            document.getElementById("settings-password")?.closest(".form-group"),
+            document.querySelector("#modal-settings-view button[type='submit']"),
+            document.getElementById("btn-delete-account"),
+            document.getElementById("settings-avatar")?.closest(".form-group")
+        ];
+        elementsToHide.forEach(el => { if(el) el.style.display = "none"; });
+
+        const usernameField = document.getElementById("settings-username");
+        if (usernameField) { usernameField.value = authorName;
+        usernameField.readOnly = true; }
+
+        const aliasField = document.getElementById("settings-ipsc-alias");
+        if (aliasField) { aliasField.value = authorIpscAlias || "Kein Verband-Alias"; aliasField.readOnly = true;
+        }
+
+        const previewImg = document.getElementById("settings-avatar-preview");
+        if (previewImg) {
+            if (authorAvatar) { previewImg.src = authorAvatar;
+            previewImg.style.display = 'block'; }
+            else { previewImg.style.display = 'none';
+            }
+        }
+
+        try {
+            const salesRes = await window.supabaseClient.from('mediated_deals').select('*').eq('seller_email', sellerEmail);
+            const purchaseRes = await window.supabaseClient.from('mediated_deals').select('*').eq('buyer_email', sellerEmail);
+            
+            const salesData = salesRes.data || [];
+            const purchaseData = purchaseRes.data || [];
+            document.getElementById("profile-sales-count").innerText = salesData.length;
+            document.getElementById("profile-purchases-count").innerText = purchaseData.length;
+
+            let totalComm = 0, totalPay = 0, countComm = 0, countPay = 0;
+            salesData.forEach(d => {
+                if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
+                if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
+            });
+            purchaseData.forEach(d => {
+                if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
+                if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
+            });
+            document.getElementById("profile-rating-comm").innerText = formatStars(countComm > 0 ? totalComm / countComm : 0);
+            document.getElementById("profile-rating-pay").innerText = formatStars(countPay > 0 ? totalPay / countPay : 0);
+        } catch(e) {
+            console.error("Fehler beim Laden der Reputationswerte:", e);
+        }
+
+        const closeBtn = document.getElementById("btn-close-modal");
+        if (closeBtn) {
+            const originalClose = closeBtn.onclick;
+            closeBtn.onclick = function() {
+                if (title) title.innerText = "Konto-Einstellungen";
+                elementsToHide.forEach(el => { if(el) el.style.display = "block"; });
+                if (usernameField) usernameField.readOnly = false;
+                if (aliasField) aliasField.readOnly = false;
+                modal.style.display = "none";
+                if (originalClose) closeBtn.onclick = originalClose;
+            };
+        }
+    };
+    
+    // HIER WIRD DIE JSON GELADEN (UNVERÄNDERT)
+    fetch('matches.json?v=' + new Date().getTime())
+      .then(res => res.json())
+      .then(data => {
+          allMatches = data;
+          const container = document.getElementById('js-match-container');
+          
+          if (allMatches.length === 0) {
+              const noMatchesTxt = window.currentLang === "en" ? "Currently all matches are 100% booked." : "Aktuell sind alle Matches zu 100% belegt.";
+              container.innerHTML = `<p style="padding: 10px;">${noMatchesTxt}</p>`;
+              document.getElementById('match-filters').style.display = 'none';
+              return;
+          }
+
+          document.getElementById('match-filters').style.display = 'flex';
+          setupFreeFilters(allMatches);
+        
+          renderFreeMatches(allMatches);
+      })
+      .catch(err => {
+          console.error("Fehler beim Laden:", err);
+          const errorTxt = window.currentLang === "en" ? "Error loading data. Please reload the page." : "Fehler beim Laden der Daten. Bitte lade die Seite neu.";
+          document.getElementById('js-match-container').innerHTML = `<p class='loading-msg'>${errorTxt}</p>`;
+      });
+
+    function setupFreeFilters(matches) {
+        const currentRegionVal = document.getElementById('filter-region').value || 'all';
+        const currentDisziplinVal = document.getElementById('filter-disziplin').value || 'all';
+        const currentLevelVal = document.getElementById('filter-level').value || 'all';
+        const regions = [...new Set(matches.map(m => m.region))].filter(r => r && r !== "N/A" && r !== "-").sort();
+        
+        const disziplinen = [...new Set(matches.map(m => m.disziplin))].filter(d => d && d !== "-").sort();
+        const levels = [...new Set(matches.map(m => m.level))].filter(l => l && l !== "-").sort();
+
+        const regionSelect = document.getElementById('filter-region');
+        const disziplinSelect = document.getElementById('filter-disziplin');
+        const levelSelect = document.getElementById('filter-level');
+        const allCountriesTxt = window.currentLang === "en" ? "All Countries" : "Alle Länder";
+        const allDisciplinesTxt = window.currentLang === "en" ? "All Disciplines" : "Alle Disziplinen";
+        const allLevelsTxt = window.currentLang === "en" ? "All Levels" : "Alle Level";
+        regionSelect.innerHTML = `<option value="all">${allCountriesTxt}</option>`;
+        disziplinSelect.innerHTML = `<option value="all">${allDisciplinesTxt}</option>`;
+        levelSelect.innerHTML = `<option value="all">${allLevelsTxt}</option>`;
+        regions.forEach(r => regionSelect.innerHTML += `<option value="${r}">${r}</option>`);
+        disziplinen.forEach(d => disziplinSelect.innerHTML += `<option value="${d}">${d}</option>`);
+        levels.forEach(l => levelSelect.innerHTML += `<option value="${l}">Level ${l}</option>`);
+        regionSelect.value = currentRegionVal;
+        disziplinSelect.value = currentDisziplinVal;
+        levelSelect.value = currentLevelVal;
+
+        regionSelect.removeEventListener('change', applyFreeFilters);
+        disziplinSelect.removeEventListener('change', applyFreeFilters);
+        levelSelect.removeEventListener('change', applyFreeFilters);
+
+        regionSelect.addEventListener('change', applyFreeFilters);
+        disziplinSelect.addEventListener('change', applyFreeFilters);
+        levelSelect.addEventListener('change', applyFreeFilters);
+    }
+
+    function applyFreeFilters() {
+        const selectedRegion = document.getElementById('filter-region').value;
+        const selectedDisziplin = document.getElementById('filter-disziplin').value;
+        const selectedLevel = document.getElementById('filter-level').value;
+
+        const filteredMatches = allMatches.filter(match => {
+            const matchesRegion = selectedRegion === 'all' || match.region === selectedRegion;
+            const matchesDisziplin = selectedDisziplin === 'all' || match.disziplin === selectedDisziplin;
+            const matchesLevel = selectedLevel === 'all' || match.level === selectedLevel;
+            return matchesRegion && matchesDisziplin && matchesLevel;
+       
+        });
+
+        renderFreeMatches(filteredMatches);
+    }
+
+    function renderFreeMatches(matchesToDisplay) {
+        const container = document.getElementById('js-match-container');
+        if (matchesToDisplay.length === 0) {
+            const noComboTxt = window.currentLang === "en" ? "No matches found for this filter combination." : "Keine Matches für diese Filterkombination gefunden.";
+            container.innerHTML = `<p style="padding: 10px; font-weight: 600;">${noComboTxt}</p>`;
+            return;
+        }
+
+        const loadBadgeTxt = window.currentLang === "en" ? "Capacity:" : "Auslastung:";
+        const btnTxt = window.currentLang === "en" ? "Go to Match" : "Zum Match";
+        let html = matchesToDisplay.map(match => `
+            <a href="${match.url}" target="_blank" style="text-decoration: none; color: inherit; display: block;">
+                <div class="match-card">
+                    <div class="match-details">
+                        <h3>${match.name}</h3>
+             
+                        <div class="badge-container">
+                            <span class="badge-datum">📅 ${match.datum || 'N/A'}</span>
+                            <span class="badge">${loadBadgeTxt} ${match.auslastung}</span>
+                          
+                            <span class="badge-region">Reg: ${match.region || '-'}</span>
+                            <span class="badge-lvl">Level: ${match.level || '-'}</span>
+                            <span class="badge-disziplin">${match.disziplin || '-'}</span>
+                        </div>
+       
+                    </div>
+                    <div class="card-actions">
+                        <span class="btn-contact">${btnTxt}</span>
+                    </div>
+                </div>
+     
+            </a>
+        `).join('');
+        container.innerHTML = html;
+    }
+
+    window.onLanguageChanged = () => { 
+        const selector = document.getElementById("language-select");
+        if (selector) selector.value = window.currentLang;
+        if (allMatches.length > 0) {
+            setupFreeFilters(allMatches);
+            applyFreeFilters();
+        }
+    };
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('PWA Service Worker registriert!', reg.scope))
+                    .catch(err => console.error('PWA Fehler:', err));
+            });
+        }
+    </script>
+</body>
+</html>
