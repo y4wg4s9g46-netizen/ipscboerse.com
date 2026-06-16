@@ -783,39 +783,3 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
     filter: brightness(1.1);
     transform: translateY(-2px);
 }
-
-/* ==========================================================================
-   VIEW TRANSITIONS (Gegen das weiße Blitzen & für App-Speed)
-   ========================================================================== */
-@view-transition {
-    navigation: auto;
-}
-
-/* 1. Animation extrem beschleunigen (Snappy wie eine native App) */
-::view-transition-old(root),
-::view-transition-new(root) {
-    animation-duration: 0.15s;
-}
-
-/* 2. Header & Logo vom Blitzen/Faden ausschließen (bleibt starr stehen) */
-header {
-    view-transition-name: app-header;
-}
-
-/* FIX: Verbietet dem Header das "Wackeln" falls sich Scrollbars ändern */
-::view-transition-group(app-header) {
-    animation: none;
-}
-/* ==========================================================================
-   FIX: Bewertungs-Sterne im Modal auf Handys untereinander zwingen
-   ========================================================================== */
-@media (max-width: 600px) {
-    #mediated-modal div[style*="display: flex"] {
-        flex-direction: column !important;
-        gap: 16px !important;
-    }
-    
-    #mediated-modal div[style*="display: flex"] .form-group {
-        width: 100% !important;
-        margin-bottom: 0 !important;
-    }
