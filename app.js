@@ -5,7 +5,7 @@ window.activeChatRoom = null;
 window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new Date().toISOString();
 
 // ==========================================================================
-// GLOBALE INJEKTION FÃœR KONTO-EINSTELLUNGEN, AUTH, CHAT & INBOX
+// GLOBALE INJEKTION FÜR KONTO-EINSTELLUNGEN, AUTH, CHAT & INBOX
 // ==========================================================================
 // WICHTIG: Sofortige Injektion, um Race-Conditions mit Supabase zu verhindern!
 (function injectGlobalModals() {
@@ -30,7 +30,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                                 <label for="login-password" style="margin-bottom: 0;">Passwort *</label>
                                 <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 600;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
                             </div>
-                            <input type="password" id="login-password" required placeholder="⁠********⁠">
+                            <input type="password" id="login-password" required placeholder="••••••••">
                         </div>
                         <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit E-Mail einloggen</button>
                     </form>
@@ -62,11 +62,11 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     <h3 data-txt="modal-reg-title">Konto erstellen</h3>
                     <form id="register-form">
                         <div class="form-group">
-                            <label for="register-real-name" style="color: var(--info-color);">ðŸ”’ Echter Name * (FÃ¼r Analysen)</label>
+                            <label for="register-real-name" style="color: var(--info-color);">🔒 Echter Name * (Für Analysen)</label>
                             <input type="text" id="register-real-name" required placeholder="z.B. Max Mustermann">
                         </div>
                         <div class="form-group">
-                            <label for="register-ipsc-alias" style="color: var(--success-color);">ðŸ›¡ï¸ IPSC Alias / SchÃ¼tzenname *</label>
+                            <label for="register-ipsc-alias" style="color: var(--success-color);">🛡️ IPSC Alias / Schützenname *</label>
                             <input type="text" id="register-ipsc-alias" required placeholder="z.B. GER1234 oder AlphaShooter">
                         </div>
                         <div class="form-group">
@@ -98,10 +98,10 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                             <label for="forgot-email" data-txt="lbl-email">Deine E-Mail-Adresse *</label>
                             <input type="email" id="forgot-email" required placeholder="name@beispiel.de">
                         </div>
-                        <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">ZurÃ¼cksetzungs-Link senden</button>
+                        <button type="submit" class="btn-primary-auth" data-txt="modal-btn-forgot">Zurücksetzungs-Link senden</button>
                     </form>
                     <div class="modal-footer" style="margin-top: 15px; text-align: center; font-size: 13px;">
-                        <a onclick="toggleAuthView('login')" data-txt="modal-link-login" style="color: var(--accent-color); cursor: pointer; font-weight: 700;">ZurÃ¼ck zum Login</a>
+                        <a onclick="toggleAuthView('login')" data-txt="modal-link-login" style="color: var(--accent-color); cursor: pointer; font-weight: 700;">Zurück zum Login</a>
                     </div>
                 </div>
 
@@ -120,41 +120,41 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
                     
                     <div class="settings-stats-card" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
-                        <span class="settings-stats-title" style="color: var(--success-color); font-weight: 700; margin-bottom: 8px; display: block;" data-txt="modal-settings-deals">ðŸ“ˆ Erfolgreiche Vermittlungen</span>
+                        <span class="settings-stats-title" style="color: var(--success-color); font-weight: 700; margin-bottom: 8px; display: block;" data-txt="modal-settings-deals">📈 Erfolgreiche Vermittlungen</span>
                         <div class="settings-stats-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; text-align: center;">
                             <div class="settings-stat-item" style="background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
                                 <span class="settings-stat-val" style="color: var(--accent-color); font-size: 20px; font-weight: bold;" id="profile-sales-count">0</span>
-                                <p class="settings-stat-lbl" style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-seller">Als VerkÃ¤ufer</p>
+                                <p class="settings-stat-lbl" style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-seller">Als Verkäufer</p>
                             </div>
                             <div class="settings-stat-item" style="background: var(--card-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
                                 <span class="settings-stat-val" style="color: var(--success-color); font-size: 20px; font-weight: bold;" id="profile-purchases-count">0</span>
-                                <p class="settings-stat-lbl" style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-buyer">Als KÃ¤ufer</p>
+                                <p class="settings-stat-lbl" style="font-size: 11px; margin: 4px 0 0 0; color: var(--text-muted);" data-txt="modal-settings-buyer">Als Käufer</p>
                             </div>
                         </div>
                         
                         <div class="settings-ratings" style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
                             <div><span data-txt="modal-settings-comm">💬 Kommunikation:</span> <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
-                            <div><span data-txt="modal-settings-pay">ðŸ’³ Bezahlung:</span> <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
+                            <div><span data-txt="modal-settings-pay">💳 Bezahlung:</span> <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
                         </div>
                     </div>
 
                     <div class="settings-passkey-card" style="background-color: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 6px; border: 1px solid rgba(52, 152, 219, 0.3); margin-bottom: 20px;">
-                        <span class="settings-passkey-title" style="color: #3498db; font-weight: 600; display: block; margin-bottom: 4px;" data-txt="modal-settings-passkey-title">ðŸ”’ Passkey (Schnell-Login)</span>
-                        <p class="help-text" style="font-size: 12px; margin-top: 0; color: var(--text-muted); line-height: 1.4;" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles GerÃ¤t, um dich kÃ¼nftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
-                        <button type="button" class="btn-primary-auth" style="width:100%; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; margin-top: 8px; border: none;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">GerÃ¤t als Passkey registrieren</button>
+                        <span class="settings-passkey-title" style="color: #3498db; font-weight: 600; display: block; margin-bottom: 4px;" data-txt="modal-settings-passkey-title">🔒 Passkey (Schnell-Login)</span>
+                        <p class="help-text" style="font-size: 12px; margin-top: 0; color: var(--text-muted); line-height: 1.4;" data-txt="modal-settings-passkey-desc">Hinterlege dein aktuelles Gerät, um dich künftig ohne Passwort per FaceID, Fingerabdruck oder PIN einzuloggen.</p>
+                        <button type="button" class="btn-primary-auth" style="width:100%; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; margin-top: 8px; border: none;" onclick="registerPasskey()" data-txt="modal-settings-passkey-btn">Gerät als Passkey registrieren</button>
                     </div>
 
                     <form id="settings-form">
                         
                         <div class="settings-realname-card" style="background-color: rgba(59, 130, 246, 0.04); padding: 16px; border-radius: 6px; border-left: 4px solid var(--info-color); margin-bottom: 20px; display: flex; flex-direction: column;">
-                            <label for="settings-real-name" class="settings-realname-title" style="color: var(--info-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-real-name">ðŸ”’ Echter Name (FÃ¼r Analysen & Bot)</label>
-                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-real-name-desc">Trage hier deinen Klarnamen ein. Dieser Name wird niemals Ã¶ffentlich auf der Seite gezeigt, sondern arbeitet nur im Hintergrund.</p>
+                            <label for="settings-real-name" class="settings-realname-title" style="color: var(--info-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-real-name">🔒 Echter Name (Für Analysen & Bot)</label>
+                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-real-name-desc">Trage hier deinen Klarnamen ein. Dieser Name wird niemals öffentlich auf der Seite gezeigt, sondern arbeitet nur im Hintergrund.</p>
                             <input type="text" id="settings-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann">
                         </div>
 
                         <div class="settings-alias-card" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: 6px; border-left: 4px solid var(--success-color); margin-bottom: 20px; display: flex; flex-direction: column;">
-                            <label for="settings-ipsc-alias" class="settings-alias-title" style="color: var(--success-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-ipsc-alias">ðŸ›¡ï¸ IPSC Alias / SchÃ¼tzenname</label>
-                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-ipsc-alias-desc">Dies ist dein Ã¶ffentlicher Anzeigename in der Community! FÃ¼llst du hier deine IPSC-Nummer ein, erhÃ¤ltst du zusÃ¤tzlich das "Trusted Shooter" Badge.</p>
+                            <label for="settings-ipsc-alias" class="settings-alias-title" style="color: var(--success-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Schützenname</label>
+                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-ipsc-alias-desc">Dies ist dein öffentlicher Anzeigename in der Community! Füllst du hier deine IPSC-Nummer ein, erhältst du zusätzlich das "Trusted Shooter" Badge.</p>
                             <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 oder AlphaShooter">
                         </div>
 
@@ -165,15 +165,15 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                         </div>
                         
                         <div class="form-group">
-                            <label for="settings-password" data-txt="lbl-change-password">Neues Passwort Ã¤ndern (Optional)</label>
+                            <label for="settings-password" data-txt="lbl-change-password">Neues Passwort ändern (Optional)</label>
                             <input type="password" id="settings-password" minlength="6" data-txt-ph="ph-password" placeholder="Mindestens 6 Zeichen">
                         </div>
                         
-                        <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Ã„nderungen speichern</button>
+                        <button type="submit" class="btn-primary-auth" style="width:100%;" data-txt="btn-save">Änderungen speichern</button>
                     </form>
                     
                     <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
-                    <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle EintrÃ¤ge unwiderruflich lÃ¶schen</button>
+                    <button class="btn-danger-block" id="btn-delete-account" data-txt="btn-delete-acc">Konto & alle Einträge unwiderruflich löschen</button>
                 </div>
             </div>
         </div>`;
@@ -188,7 +188,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     <button class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</button>
                 </div>
                 <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
-                <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">GesprÃ¤chspartner: -</p>
+                <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
                 <div class="chat-history-area" id="chat-box-messages"></div>
                 <form id="chat-send-form" style="display: flex; gap: 8px;">
                     <input type="hidden" id="chat-edit-id" value="">
@@ -208,7 +208,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                     <button class="modal-close-trigger" onclick="document.getElementById('global-inbox-modal').style.display = 'none';">&times;</button>
                 </div>
                 <h3>Meine Nachrichten</h3>
-                <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven GesprÃ¤che.</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Hier findest du alle deine aktiven Gespräche.</p>
                 <div id="global-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;">
                     <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>
                 </div>
@@ -216,10 +216,10 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
         </div>`;
         document.body.insertAdjacentHTML("beforeend", inboxModalHtml);
     }
-})(); // Injektion lÃ¤uft
+})(); // Injektion läuft
 
 document.addEventListener("DOMContentLoaded", () => {
-    // SchlieÃŸen-Trigger fÃ¼r das Konto-Modal binden
+    // Schließen-Trigger für das Konto-Modal binden
     const closeBtn = document.getElementById("btn-close-modal");
     if (closeBtn) {
         closeBtn.addEventListener("click", () => {
@@ -359,8 +359,8 @@ function renderMatches(matches) {
             <p>${parseFloat(m.match_price).toFixed(2)} €</p>
             
             <div style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
-                <button class="${contactBtnClass}" onclick="openChatSystem(${m.id}, '${m.seller_email}', '${cleanMatchName}')">ðŸ’¬ Live-Chat</button>
-                <button class="${contactBtnClass}" style="background-color: #555;" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">📧 ${contactText}</button>
+                <button class="${contactBtnClass}" onclick="openChatSystem(${m.id}, '${m.seller_email}', '${cleanMatchName}')">💬 Live-Chat</button>
+                <button class="${contactBtnClass}" style="background-color: #555;" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">✉️ ${contactText}</button>
             </div>
 
             <div class="action-buttons-group">
@@ -385,7 +385,7 @@ function renderMatches(matches) {
         const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
         return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
           <div class="match-details"><h3>${window.escapeHtml(m.match_name)}</h3><p>${m.match_date} | ${window.escapeHtml(m.match_location)}</p></div>
-          <div class="card-actions"><p>${parseFloat(m.match_price).toFixed(2)} â‚¬</p><button class="btn-contact" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">Kontakt</button></div>
+          <div class="card-actions"><p>${parseFloat(m.match_price).toFixed(2)} €</p><button class="btn-contact" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">Kontakt</button></div>
         </div>`;
       }).join("");
   });
@@ -425,7 +425,7 @@ async function openChatSystem(matchId, receiverEmail, matchName) {
   if (chatModal) chatModal.style.display = "flex";
 
   document.getElementById("chat-title-match").innerText = "Match: " + matchName;
-  document.getElementById("chat-title-partner").innerText = (window.currentLang === "en" ? "Chat partner: " : "GesprÃ¤chspartner: ") + receiverEmail;
+  document.getElementById("chat-title-partner").innerText = (window.currentLang === "en" ? "Chat partner: " : "Gesprächspartner: ") + receiverEmail;
   
   const box = document.getElementById("chat-box-messages");
   if (box) box.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">${window.currentLang === "en" ? "Loading messages..." : "Lade Chat-Verlauf..."}</p>`;
@@ -468,13 +468,13 @@ async function loadChatMessages() {
       if (isMe) {
          metaHtml = `
            <div class="chat-bubble-meta" style="justify-content: flex-end;">
-             <span class="chat-action-link" onclick="editChatMessage(${msg.id}, '${msg.message.replace(/'/g, "\\'")}')">âœï¸ ${window.currentLang === 'en' ? 'Edit' : 'Bearbeiten'}</span>
-             <span class="chat-action-link delete" onclick="deleteChatMessage(${msg.id})">ðŸ—‘ï¸ ${window.currentLang === 'en' ? 'Delete' : 'LÃ¶schen'}</span>
+             <span class="chat-action-link" onclick="editChatMessage(${msg.id}, '${msg.message.replace(/'/g, "\\'")}')">✏️ ${window.currentLang === 'en' ? 'Edit' : 'Bearbeiten'}</span>
+             <span class="chat-action-link delete" onclick="deleteChatMessage(${msg.id})">🗑️ ${window.currentLang === 'en' ? 'Delete' : 'Löschen'}</span>
            </div>`;
       } else {
          metaHtml = `
            <div class="chat-bubble-meta">
-             <span class="chat-action-link" style="color: var(--danger-color);" onclick="reportChatMessage(${msg.id})">âš ï¸ ${window.currentLang === 'en' ? 'Report' : 'Melden'}</span>
+             <span class="chat-action-link" style="color: var(--danger-color);" onclick="reportChatMessage(${msg.id})">⚠️ ${window.currentLang === 'en' ? 'Report' : 'Melden'}</span>
            </div>`;
       }
 
@@ -499,7 +499,7 @@ window.editChatMessage = function(id, text) {
 };
 
 window.deleteChatMessage = async function(id) {
-  if (!confirm(window.currentLang === "en" ? "Delete this message?" : "MÃ¶chtest du diese Nachricht wirklich lÃ¶schen?")) return;
+  if (!confirm(window.currentLang === "en" ? "Delete this message?" : "Möchtest du diese Nachricht wirklich löschen?")) return;
   const { error } = await window.supabaseClient.from("chat_messages").delete().eq("id", id);
   if (error) alert("Fehler: " + error.message);
   else await loadChatMessages();
@@ -507,7 +507,7 @@ window.deleteChatMessage = async function(id) {
 
 window.reportChatMessage = function(id) {
   const subject = encodeURIComponent("Chat-Meldung: Nachricht ID " + id);
-  const body = encodeURIComponent("Hallo Support,\n\nich mÃ¶chte die Chat-Nachricht mit der ID " + id + " wegen eines RichtlinienverstoÃŸes melden.\n\nGrund:\n");
+  const body = encodeURIComponent("Hallo Support,\n\nich möchte die Chat-Nachricht mit der ID " + id + " wegen eines Richtlinienverstoßes melden.\n\nGrund:\n");
   window.location.href = `mailto:info@ipscboerse.com?subject=${subject}&body=${body}`;
 };
 
@@ -525,7 +525,7 @@ function triggerChatEmailReminder() {
 
   const subject = encodeURIComponent("Ungelesene Chat-Nachricht auf ipscboerse.com");
   const body = encodeURIComponent(
-    `Hallo,\n\nich habe dir gerade eine Nachricht im Live-Chat auf ipscboerse.com bezÃ¼glich des Matches "${matchName}" hinterlassen.\n\nBitte schaue kurz in den Chat auf der Plattform rein, um mir zu antworten.\n\nViele GrÃ¼ÃŸe`
+    `Hallo,\n\nich habe dir gerade eine Nachricht im Live-Chat auf ipscboerse.com bezüglich des Matches "${matchName}" hinterlassen.\n\nBitte schaue kurz in den Chat auf der Plattform rein, um mir zu antworten.\n\nViele Grüße`
   );
 
   window.location.href = `mailto:${partnerEmail}?subject=${subject}&body=${body}`;
@@ -552,7 +552,7 @@ async function toggleGlobalInbox() {
   updateHeaderChatBadge(); 
 
   const listContainer = document.getElementById("global-inbox-list");
-  listContainer.innerHTML = `<p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Lade GesprÃ¤che...</p>`;
+  listContainer.innerHTML = `<p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Lade Gespräche...</p>`;
 
   const { data: allMsgs, error } = await window.supabaseClient
     .from("chat_messages")
@@ -659,7 +659,7 @@ function reportMatch(id) {
       return; 
   }
   const subject = encodeURIComponent("Melde-Anzeige: Eintrag ID " + id);
-  const body = encodeURIComponent("Hallo Administratoren,\n\nich mÃ¶chte folgenden Eintrag melden: " + window.location.origin + "/?id=" + id + "\n\nGrund der Meldung:\n");
+  const body = encodeURIComponent("Hallo Administratoren,\n\nich möchte folgenden Eintrag melden: " + window.location.origin + "/?id=" + id + "\n\nGrund der Meldung:\n");
   window.location.href = `mailto:info@ipscboerse.com?subject=${subject}&body=${body}`;
 }
 window.reportMatch = reportMatch;
@@ -709,8 +709,8 @@ async function handleDelete(id, sellerEmail) {
       return alert(window.currentLang === "en" ? "Error: Unauthorized." : "Fehler: Unberechtigt."); 
   }
   
-  const textAdmin = window.currentLang === "en" ? "Do you want to permanently delete this entry as an ADMIN?" : "MÃ¶chtest du diesen fremden Eintrag als ADMIN unwiderruflich lÃ¶schen?";
-  const textUser = window.currentLang === "en" ? "Do you really want to permanently delete this entry?" : "MÃ¶chtest du diesen Eintrag wirklich unwiderruflich lÃ¶schen?";
+  const textAdmin = window.currentLang === "en" ? "Do you want to permanently delete this entry as an ADMIN?" : "Möchtest du diesen fremden Eintrag als ADMIN unwiderruflich löschen?";
+  const textUser = window.currentLang === "en" ? "Do you really want to permanently delete this entry?" : "Möchtest du diesen Eintrag wirklich unwiderruflich löschen?";
   const text = isAdmin && !isOwner ? textAdmin : textUser;
     
   if (!confirm(text)) return;
@@ -745,7 +745,7 @@ document.getElementById("match-form")?.addEventListener("submit", async (e) => {
   }
 
   const { data: duplicateEntries, error: spamError } = await spamCheck;
-  if (spamError) return alert((window.currentLang === "en" ? "Spam check error: " : "Fehler bei der Spam-PrÃ¼fung: ") + spamError.message);
+  if (spamError) return alert((window.currentLang === "en" ? "Spam check error: " : "Fehler bei der Spam-Prüfung: ") + spamError.message);
   if (duplicateEntries && duplicateEntries.length > 0) return alert(window.translations[window.currentLang]["spam-error"]);
 
   const matchData = {
@@ -805,7 +805,7 @@ function checkPlannerImport() {
 }
 
 // =========================================================================
-// AUTOMATISCHE LADEN & SPEICHERN LOGIK FÃœR PROFILWERTE
+// AUTOMATISCHE LADEN & SPEICHERN LOGIK FÜR PROFILWERTE
 // =========================================================================
 async function loadUserSettingsProfile() {
   if (!window.currentUser) return;
