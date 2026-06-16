@@ -7,7 +7,7 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#1a1c23" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#0b1121" media="(prefers-color-scheme: dark)">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="IPSC Börse">
@@ -15,6 +15,12 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <!-- TURBO SCRIPT WIEDER EINGEFÜGT MIT CACHE-KONTROLLE -->
+    <script type="module">
+      import turbo from 'https://cdn.skypack.dev/@hotwired/turbo';
+    </script>
+    <meta name="turbo-cache-control" content="no-preview">
+
     <script>
         // Setzt das Theme SOFORT, bevor die Seite gerendert wird
         (function() {
@@ -25,12 +31,12 @@
         })();
     </script>
     <style>
-        /* Verhindert das weiße Aufblitzen des Hintergrunds */
-        html { background-color: #ffffff; }
-        html[data-theme="dark"] { background-color: #1a1c23; }
+        /* Exakte Farben aus der global.css für nahtlose Übergänge */
+        html, body { background-color: #f8fafc; }
+        html[data-theme="dark"], html[data-theme="dark"] body { background-color: #0b1121; }
         body { visibility: visible !important; }
     </style>
-
+    
     <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
     <link rel="stylesheet" href="global.css">
     
