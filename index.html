@@ -25,7 +25,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <link rel="stylesheet" href="global.css?v=20">
+    <link rel="stylesheet" href="global.css?v=21">
 
     <style>
         .hero-section { 
@@ -200,29 +200,88 @@
 
         @media (max-width: 768px) {
             .hero-section {
-                padding: 30px 16px;
-                margin-bottom: 24px;
-                border-radius: 20px;
+                padding: 24px 18px;
+                margin-bottom: 22px;
+                border-radius: 18px;
             }
 
             .hero-section h2 {
                 font-size: 24px;
+                line-height: 1.25;
+                margin-bottom: 12px;
             }
 
             .hero-section p {
-                font-size: 14px;
+                font-size: 15px;
+                line-height: 1.45;
             }
 
             .news-section {
-                padding: 24px 16px;
-                margin-bottom: 30px;
-                border-radius: 20px;
+                padding: 20px 16px;
+                margin-bottom: 24px;
+                border-radius: 18px;
+            }
+
+            .news-section-title {
+                font-size: 22px;
+                margin-bottom: 16px;
+                padding-bottom: 12px;
+            }
+
+            .news-timeline {
+                gap: 18px;
+            }
+
+            .news-item {
+                padding-left: 14px;
+            }
+
+            .news-date {
+                font-size: 11px;
+                margin-bottom: 4px;
+            }
+
+            .news-item-title {
+                font-size: 17px;
+                margin-bottom: 6px;
+            }
+
+            .news-item-body {
+                font-size: 14px;
+                line-height: 1.45;
             }
 
             .dashboard-grid {
                 grid-template-columns: 1fr;
-                gap: 16px;
-                margin-bottom: 40px;
+                gap: 14px;
+                margin-bottom: 30px;
+            }
+
+            .dash-card {
+                padding: 18px 16px;
+                gap: 10px;
+                border-radius: 18px;
+            }
+
+            .dash-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+                border-radius: 10px;
+            }
+
+            .dash-title,
+            .dash-card-title {
+                font-size: 17px;
+            }
+
+            .dash-desc {
+                font-size: 14px;
+                line-height: 1.4;
+            }
+
+            .dash-action {
+                font-size: 14px;
             }
         }
     </style>
@@ -370,9 +429,9 @@
         </div>
     </footer>
 
-    <script src="auth.js?v=9"></script>
-    <script src="lang.js?v=9"></script>
-    <script src="app.js?v=9"></script>
+    <script src="auth.js?v=10"></script>
+    <script src="lang.js?v=10"></script>
+    <script src="app.js?v=10"></script>
     
     <script>
         document.addEventListener("DOMContentLoaded", () => {
