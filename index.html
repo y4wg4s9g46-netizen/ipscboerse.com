@@ -28,11 +28,6 @@
     <link rel="stylesheet" href="global.css?v=14">
 
     <style>
-        /* ==========================================================================
-           INDEX-SPEZIFISCHES LAYOUT (Nutzt nun die Variablen der global.css)
-           ========================================================================== */
-        
-        /* --- HERO AREA --- */
         .hero-section { 
             background: linear-gradient(135deg, rgba(255, 159, 67, 0.12) 0%, rgba(255, 128, 8, 0.05) 100%);
             border: 1px solid rgba(255, 159, 67, 0.15); 
@@ -42,11 +37,13 @@
             margin-bottom: 40px; 
             box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.5);
         }
+
         html[data-theme="dark"] .hero-section {
             background: linear-gradient(135deg, rgba(255, 159, 67, 0.08) 0%, rgba(255, 128, 8, 0.02) 100%);
             box-shadow: none;
             border-color: rgba(255, 159, 67, 0.1);
         }
+
         .hero-section h2 { 
             font-size: clamp(24px, 5vw, 36px); 
             font-weight: 800; 
@@ -54,6 +51,7 @@
             color: var(--text-color); 
             letter-spacing: -0.5px; 
         }
+
         .hero-section p { 
             font-size: 16px; 
             color: var(--text-muted); 
@@ -62,7 +60,6 @@
             line-height: 1.6; 
         }
 
-        /* --- ADMIN NEWS SEKTION --- */
         .news-section { 
             background: var(--card-bg);
             border: 1px solid var(--border-color); 
@@ -71,6 +68,7 @@
             box-shadow: var(--shadow-sm); 
             margin-bottom: 40px;
         }
+
         .news-section-title { 
             font-size: 20px; 
             font-weight: 800; 
@@ -83,16 +81,19 @@
             border-bottom: 2px solid var(--bg-color); 
             padding-bottom: 16px;
         }
+
         .news-timeline { 
             display: flex; 
             flex-direction: column; 
             gap: 28px;
         }
+
         .news-item { 
             border-left: 3px solid var(--accent-color); 
             padding-left: 18px; 
             position: relative;
         }
+
         .news-date { 
             font-size: 12px; 
             font-weight: 800; 
@@ -101,12 +102,14 @@
             letter-spacing: 0.5px;
             margin-bottom: 6px; 
         }
+
         .news-item-title { 
             font-size: 16px; 
             font-weight: 700;
             margin: 0 0 8px 0; 
             color: var(--text-color); 
         }
+
         .news-item-body { 
             font-size: 14px;
             color: var(--text-muted); 
@@ -114,13 +117,13 @@
             line-height: 1.6; 
         }
 
-        /* --- DASHBOARD GRID --- */
         .dashboard-grid { 
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
             gap: 24px; 
             margin-bottom: 60px; 
         }
+
         .dash-card { 
             background: var(--card-bg);
             border: 1px solid var(--border-color); 
@@ -135,19 +138,23 @@
             color: inherit; 
             position: relative; 
         }
+
         .dash-card:hover { 
             transform: translateY(-4px); 
             box-shadow: 0 12px 25px rgba(0,0,0,0.06);
             border-color: #cbd5e1; 
         }
+
         html[data-theme="dark"] .dash-card:hover {
             border-color: var(--text-muted);
         }
+
         .dash-card-header { 
             display: flex; 
             align-items: center; 
             gap: 16px;
         }
+
         .dash-icon { 
             width: 48px; 
             height: 48px; 
@@ -160,18 +167,22 @@
             border: 1px solid var(--border-color);
             box-shadow: var(--shadow-sm);
         }
-        .dash-card-title { 
+
+        .dash-card-title,
+        .dash-title { 
             margin: 0; 
             font-size: 18px; 
             font-weight: 800; 
             color: var(--text-color);
         }
+
         .dash-desc { 
             margin: 0; 
             font-size: 14px; 
             color: var(--text-muted); 
             line-height: 1.6;
         }
+
         .dash-action { 
             font-size: 14px; 
             font-weight: 700; 
@@ -182,29 +193,47 @@
             gap: 6px; 
             transition: var(--transition);
         }
+
         .dash-card:hover .dash-action {
             gap: 10px; 
         }
 
         @media (max-width: 768px) {
-            .hero-section { padding: 30px 16px; margin-bottom: 24px; border-radius: 20px; }
-            .hero-section h2 { font-size: 24px; }
-            .hero-section p { font-size: 14px; }
-            .news-section { padding: 24px 16px; margin-bottom: 30px; border-radius: 20px; }
-            .dashboard-grid { grid-template-columns: 1fr; gap: 16px; margin-bottom: 40px; }
+            .hero-section {
+                padding: 30px 16px;
+                margin-bottom: 24px;
+                border-radius: 20px;
+            }
+
+            .hero-section h2 {
+                font-size: 24px;
+            }
+
+            .hero-section p {
+                font-size: 14px;
+            }
+
+            .news-section {
+                padding: 24px 16px;
+                margin-bottom: 30px;
+                border-radius: 20px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin-bottom: 40px;
+            }
         }
     </style>
 </head>
+
 <body>
 
-    <header id="main-header" style="min-height: 60px; display: flex; align-items: center; padding: 0 16px;">
-    <a href="index.html" class="logo-link">
-        <img src="icon-192.png" alt="Logo" style="height: 40px; width: auto; display: block;">
-    </a>
-    <div id="header-nav-buttons" style="display: flex; margin-left: auto;"></div>
-</header>
+    <header id="main-header"></header>
 
-    <script src="header.js"></script>
+    <script src="header.js?v=9"></script>
+
     <div class="container">
         
         <div class="hero-section">
@@ -214,6 +243,7 @@
 
         <div class="news-section">
             <h3 class="news-section-title" data-txt="news-title">📢 Neueste Plattform-Updates</h3>
+
             <div class="news-timeline">
                 
                 <div class="news-item">
@@ -238,6 +268,7 @@
         </div>
 
         <div class="dashboard-grid">
+
             <a href="marktplatz.html" class="dash-card">
                 <div class="dash-card-header">
                     <div class="dash-icon">🛒</div>
@@ -327,6 +358,7 @@
                 <p class="dash-desc" data-txt="card-desc-hub">Schluss mit Suchen: Alle wichtigen Links zu MatchSign, PractiScore, IPSCess, Verbänden und Regelwerken gebündelt.</p>
                 <div class="dash-action" data-txt="card-action-hub">Zum Link-Hub &rarr;</div>
             </a>
+
         </div>
 
     </div>
@@ -338,33 +370,35 @@
         </div>
     </footer>
 
-    <script src="auth.js"></script>
-    <script src="lang.js"></script>
-    <script src="app.js"></script>
+    <script src="auth.js?v=9"></script>
+    <script src="lang.js?v=9"></script>
+    <script src="app.js?v=9"></script>
     
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
+
             if (typeof updateThemeToggleIcon === "function") {
                 updateThemeToggleIcon(savedThemeSetting);
             }
         });
         
         window.onAuthChange = () => { 
-            if(typeof updateHeaderChatBadge === 'function') {
+            if (typeof updateHeaderChatBadge === "function") {
                 updateHeaderChatBadge(); 
             }
         };
     </script>
     
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('PWA Service Worker registriert!', reg.scope))
-                    .catch(err => console.error('PWA Fehler:', err));
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("sw.js")
+                    .then(reg => console.log("PWA Service Worker registriert!", reg.scope))
+                    .catch(err => console.error("PWA Fehler:", err));
             });
         }
     </script>
+
 </body>
 </html>
