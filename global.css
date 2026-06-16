@@ -1,8 +1,10 @@
+@charset "UTF-8";
+
 /* ==========================================================================
    GLOBAL STYLES & VARIABLES
    ========================================================================== */
 
-/* Modernes Variablen-System fÃ¼r Hell- und Dunkelmodus */
+/* Modernes Variablen-System für Hell- und Dunkelmodus */
 :root, html[data-theme="light"] {
     --bg-color: #f8fafc;
     --card-bg: #ffffff;
@@ -51,7 +53,7 @@ html[data-theme="dark"] {
 }
 
 /* ==========================================================================
-   ðŸ“± NATIVE APP FEELING (Anti-Browser-Verhalten)
+   📱 NATIVE APP FEELING (Anti-Browser-Verhalten)
    ========================================================================== */
 
 /* Verhindert das graue Aufblinken beim Antippen auf dem iPhone */
@@ -66,13 +68,13 @@ body {
     user-select: none !important;
 }
 
-/* Ausnahmen: In Eingabefeldern und im Chat MUSS man markieren dÃ¼rfen! */
+/* Ausnahmen: In Eingabefeldern und im Chat MUSS man markieren dürfen! */
 input, textarea, select, .chat-bubble {
     -webkit-user-select: auto !important;
     user-select: auto !important;
 }
 
-/* Kein "Bild speichern" MenÃ¼ auf dem Logo und den Avataren */
+/* Kein "Bild speichern" Menü auf dem Logo und den Avataren */
 img {
     pointer-events: none !important; 
 }
@@ -161,7 +163,7 @@ footer {
 }
 
 /* ==========================================================================
-   FEED, BEITRÃ„GE & TABS (Premium Layout)
+   FEED, BEITRÄGE & TABS (Premium Layout)
    ========================================================================== */
 
 .post-card { 
@@ -301,10 +303,10 @@ footer {
 }
 
 /* ==========================================================================
-   ðŸ”§ FEHLERBEHEBUNGEN UI (Screenshots 1-3)
+   🔧 FEHLERBEHEBUNGEN UI (Screenshots 1-3)
    ========================================================================== */
 
-/* --- FIX 1: Einheitliche GrÃ¶ÃŸe der Input-Felder --- */
+/* --- FIX 1: Einheitliche Größe der Input-Felder --- */
 input, textarea, select {
     box-sizing: border-box !important;
     font-family: inherit;
@@ -319,7 +321,7 @@ input, textarea, select {
     height: auto !important; 
 }
 
-/* --- FIX 2: Header-Ãœberlappung verhindern --- */
+/* --- FIX 2: Header-Überlappung verhindern --- */
 header .header-right,
 header #header-user-actions-div,
 #auth-status-container {
@@ -392,7 +394,7 @@ header #header-user-actions-div,
     transform: translateY(-2px);
 }
 
-/* âœ¨ NATIVE APP FEELING: Taktiles Button-Feedback */
+/* ✨ NATIVE APP FEELING: Taktiles Button-Feedback */
 .btn-primary-auth:active, .btn-post:active, .btn-submit:active, .btn-secondary-auth:active, .btn-danger-block:active { 
     transform: scale(0.96) !important; 
     box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
@@ -446,7 +448,7 @@ header #header-user-actions-div,
 
 
 /* ==========================================================================
-   ðŸŽ¯ PREMIUM TUNING OVERRIDES (Vektor-Icons, Logo & Pill-Logout)
+   🎯 PREMIUM TUNING OVERRIDES (Vektor-Icons, Logo & Pill-Logout)
    ========================================================================= */
 
 /* Logo auf Actionsport-Design trimmen */
@@ -524,7 +526,7 @@ header #btn-logout:hover {
 
 
 /* ==========================================================================
-   ðŸ’¬ INSTAGRAM MESSENGER OVERHAUL (Sleek Chat Bubbles & Hidden Actions)
+   💬 INSTAGRAM MESSENGER OVERHAUL (Sleek Chat Bubbles & Hidden Actions)
    ========================================================================== */
 
 /* Das Chat-Fenster flach, clean und randlos wie Instagram DMs */
@@ -540,7 +542,7 @@ header #btn-logout:hover {
     height: 400px !important;
 }
 
-/* Container-Box fÃ¼r Sprechblase + Steuerung */
+/* Container-Box für Sprechblase + Steuerung */
 .chat-bubble-container {
     display: flex !important;
     flex-direction: column !important;
@@ -550,19 +552,19 @@ header #btn-logout:hover {
     position: relative !important;
 }
 
-/* MEINE NACHRICHTEN (RechtsbÃ¼ndig) */
+/* MEINE NACHRICHTEN (Rechtsbündig) */
 .chat-bubble-container:has(.bubble-me) {
     align-self: flex-end !important;
     align-items: flex-end !important;
 }
 
-/* PARTNER NACHRICHTEN (LinksbÃ¼ndig) */
+/* PARTNER NACHRICHTEN (Linksbündig) */
 .chat-bubble-container:has(.bubble-other) {
     align-self: flex-start !important;
     align-items: flex-start !important;
 }
 
-/* PillenfÃ¶rmige, ultra-smooth Instagram Bubbles */
+/* Pillenförmige, ultra-smooth Instagram Bubbles */
 .chat-bubble {
     padding: 12px 18px !important;
     font-size: 14px !important;
@@ -588,18 +590,18 @@ header #btn-logout:hover {
     border-radius: 22px 22px 22px 4px !important;
 }
 
-/* Dunkelmodus-Anpassung fÃ¼r die Partner-Blase */
+/* Dunkelmodus-Anpassung für die Partner-Blase */
 html[data-theme="dark"] .chat-bubble.bubble-other {
     background: #263238 !important;
     color: #f8fafc !important;
 }
 
-/* ðŸŽ¯ REAL INSTAGRAM LONG-PRESS POPUP VIA CSS */
+/* 🎯 REAL INSTAGRAM LONG-PRESS POPUP VIA CSS */
 .chat-bubble-meta {
     display: flex !important;
     gap: 10px !important;
     position: absolute !important;
-    bottom: calc(100% + 6px) !important; /* Schwebt wie ein echtes IG-Popup Ã¼ber der Blase */
+    bottom: calc(100% + 6px) !important; /* Schwebt wie ein echtes IG-Popup über der Blase */
     background: var(--card-bg) !important;
     border: 1px solid var(--border-color) !important;
     padding: 6px 12px !important;
@@ -613,7 +615,7 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
     letter-spacing: 0.5px;
     white-space: nowrap !important;
     
-    /* StandardmÃ¤ÃŸig zu 100% unsichtbar und weggedrÃ¼ckt */
+    /* Standardmäßig zu 100% unsichtbar und weggedrückt */
     opacity: 0 !important;
     visibility: hidden !important;
     transform: translateY(10px) scale(0.85) !important;
@@ -631,7 +633,7 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
     left: 10px !important;
 }
 
-/* ðŸ”¥ DAS DESIGN-WUNDER: Beim Antippen/GedrÃ¼ckthalten (active) oder Hovern ploppt das MenÃ¼ auf */
+/* 🔥 DAS DESIGN-WUNDER: Beim Antippen/Gedrückthalten (active) oder Hovern ploppt das Menü auf */
 .chat-bubble-container:hover .chat-bubble-meta,
 .chat-bubble-container:active .chat-bubble-meta,
 .chat-bubble:active + .chat-bubble-meta {
@@ -766,4 +768,11 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
 .btn-social-passkey:hover {
     filter: brightness(1.1);
     transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   VIEW TRANSITIONS (Gegen das weiße Blitzen)
+   ========================================================================== */
+@view-transition {
+    navigation: auto;
 }
