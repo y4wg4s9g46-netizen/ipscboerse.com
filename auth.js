@@ -40,11 +40,19 @@ function cacheHeaderUser(user) {
         );
     } catch (err) {}
 }
+
 function clearHeaderUserCache() {
     try {
         localStorage.removeItem(HEADER_USER_CACHE_KEY);
         localStorage.removeItem(HEADER_AVATAR_CACHE_KEY);
     } catch (err) {}
+}
+
+function markHeaderReady() {
+    const mainHeader = document.querySelector("header");
+    if (mainHeader) {
+        mainHeader.classList.add("auth-ready");
+    }
 }
 
 window.uploadImage = async function(file, folder) {
@@ -124,13 +132,22 @@ function updateThemeToggleIcon(theme) {
     const btn = document.getElementById('theme-toggle');
     if (!btn) return;
 
-    if (theme === 'dark') {
-        btn.innerText = '☀️';
-    } else if (theme === 'light') {
-        btn.innerText = '🌙';
-    } else {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        btn.innerText = prefersDark ? '☀️' : '🌙';
+    let effectiveTheme = theme;
+    if (!effectiveTheme || effectiveTheme === 'auto') {
+        effectiveTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    btn.dataset.themeState = effectiveTheme;
+    btn.setAttribute(
+        'aria-label',
+        effectiveTheme === 'dark' ? 'Helles Design aktivieren' : 'Dunkles Design aktivieren'
+    );
+    btn.title = effectiveTheme === 'dark' ? 'Helles Design aktivieren' : 'Dunkles Design aktivieren';
+
+    // Wichtig: Wenn header.js ein SVG eingefügt hat, wird es nicht mehr durch Text ersetzt.
+    // Dadurch zuckt der Theme-Button beim Seitenwechsel nicht.
+    if (!btn.querySelector('svg')) {
+        btn.innerText = effectiveTheme === 'dark' ? '☀️' : '🌙';
     }
 }
 
@@ -416,6 +433,7 @@ function applyLanguage(lang) {
     window.onLanguageChanged(lang);
   }
 }
+
 function showHeaderElement(el, displayType = "inline-flex") {
   if (!el) return;
   el.style.setProperty("display", displayType, "important");
@@ -504,11 +522,9 @@ async function checkUserStatus() {
     }
   }
 
-  const mainHeader = document.querySelector("header");
-  if (mainHeader) {
-    mainHeader.classList.add("auth-ready");
-  }
+  markHeaderReady();
 }
+
 function toggleAuthView(view) {
   if(document.getElementById("modal-login-view")) document.getElementById("modal-login-view").style.display = view === "login" ? "block" : "none";
   if(document.getElementById("modal-register-view")) document.getElementById("modal-register-view").style.display = view === "register" ? "block" : "none";
@@ -775,84 +791,19 @@ if (document.readyState === "loading") {
 }
 
 setTimeout(async () => {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    try {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
-    if (hashParams.has('error_code') && hashParams.get('error_code') === 'otp_expired') {
-        alert(window.currentLang === "en"
-            ? "This reset link has expired or has already been used. Please request a new one."
-            : "Dieser Link ist abgelaufen oder wurde bereits verwendet. Bitte fordere einen neuen Passwort-Link an.");
+        if (hashParams.has('error_code') && hashParams.get('error_code') === 'otp_expired') {
+            alert(window.currentLang === "en"
+                ? "This reset link has expired or has already been used. Please request a new one."
+                : "Dieser Link ist abgelaufen oder wurde bereits verwendet. Bitte fordere einen neuen Passwort-Link an.");
 
-        history.replaceState("", document.title, window.location.pathname + window.location.search);
-    }
-
-    const { data: { session } } = await window.supabaseClient.auth.getSession();
-
-    window.currentUser = session?.user || null;
-
-    if (window.currentUser) {
-        cacheHeaderUser(window.currentUser);
-    } else {
-        clearHeaderUserCache();
-    }
-
-    await checkUserStatus();
-
-    if (window.currentUser) {
-        try {
-            const salesRes = await window.supabaseClient.from('mediated_deals').select('*').eq('seller_email', window.currentUser.email);
-            const purchaseRes = await window.supabaseClient.from('mediated_deals').select('*').eq('buyer_email', window.currentUser.email);
-
-            const salesData = salesRes.data || [];
-            const purchaseData = purchaseRes.data || [];
-
-            const salesCountEl = document.getElementById("profile-sales-count");
-            const purchaseCountEl = document.getElementById("profile-purchases-count");
-
-            if (salesCountEl) salesCountEl.innerText = salesData.length;
-            if (purchaseCountEl) purchaseCountEl.innerText = purchaseData.length;
-
-            let totalComm = 0, totalPay = 0, countComm = 0, countPay = 0;
-
-            salesData.forEach(d => {
-                if (d.rating_communication) {
-                    totalComm += d.rating_communication;
-                    countComm++;
-                }
-
-                if (d.rating_payment) {
-                    totalPay += d.rating_payment;
-                    countPay++;
-                }
-            });
-
-            purchaseData.forEach(d => {
-                if (d.rating_communication) {
-                    totalComm += d.rating_communication;
-                    countComm++;
-                }
-
-                if (d.rating_payment) {
-                    totalPay += d.rating_payment;
-                    countPay++;
-                }
-            });
-
-            const ratingCommEl = document.getElementById("profile-rating-comm");
-            const ratingPayEl = document.getElementById("profile-rating-pay");
-
-            if (ratingCommEl) ratingCommEl.innerText = formatStars(countComm > 0 ? totalComm / countComm : 0);
-            if (ratingPayEl) ratingPayEl.innerText = formatStars(countPay > 0 ? totalPay / countPay : 0);
-
-        } catch(e) {
-            console.error("Fehler beim Laden der Profil-Statistiken:", e);
+            history.replaceState("", document.title, window.location.pathname + window.location.search);
         }
-    }
 
-    if (typeof window.onAuthChange === "function") {
-        window.onAuthChange(window.currentUser);
-    }
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
 
-    window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
         window.currentUser = session?.user || null;
 
         if (window.currentUser) {
@@ -861,18 +812,90 @@ setTimeout(async () => {
             clearHeaderUserCache();
         }
 
-        if (event === "PASSWORD_RECOVERY") {
-            const modal = document.getElementById("auth-modal");
-
-            if (modal) modal.style.display = "flex";
-
-            toggleAuthView("reset-password");
-        }
-
         await checkUserStatus();
+
+        if (window.currentUser) {
+            try {
+                const salesRes = await window.supabaseClient.from('mediated_deals').select('*').eq('seller_email', window.currentUser.email);
+                const purchaseRes = await window.supabaseClient.from('mediated_deals').select('*').eq('buyer_email', window.currentUser.email);
+
+                const salesData = salesRes.data || [];
+                const purchaseData = purchaseRes.data || [];
+
+                const salesCountEl = document.getElementById("profile-sales-count");
+                const purchaseCountEl = document.getElementById("profile-purchases-count");
+
+                if (salesCountEl) salesCountEl.innerText = salesData.length;
+                if (purchaseCountEl) purchaseCountEl.innerText = purchaseData.length;
+
+                let totalComm = 0, totalPay = 0, countComm = 0, countPay = 0;
+
+                salesData.forEach(d => {
+                    if (d.rating_communication) {
+                        totalComm += d.rating_communication;
+                        countComm++;
+                    }
+
+                    if (d.rating_payment) {
+                        totalPay += d.rating_payment;
+                        countPay++;
+                    }
+                });
+
+                purchaseData.forEach(d => {
+                    if (d.rating_communication) {
+                        totalComm += d.rating_communication;
+                        countComm++;
+                    }
+
+                    if (d.rating_payment) {
+                        totalPay += d.rating_payment;
+                        countPay++;
+                    }
+                });
+
+                const ratingCommEl = document.getElementById("profile-rating-comm");
+                const ratingPayEl = document.getElementById("profile-rating-pay");
+
+                if (ratingCommEl) ratingCommEl.innerText = formatStars(countComm > 0 ? totalComm / countComm : 0);
+                if (ratingPayEl) ratingPayEl.innerText = formatStars(countPay > 0 ? totalPay / countPay : 0);
+
+            } catch(e) {
+                console.error("Fehler beim Laden der Profil-Statistiken:", e);
+            }
+        }
 
         if (typeof window.onAuthChange === "function") {
             window.onAuthChange(window.currentUser);
         }
-    });
+
+        window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
+            window.currentUser = session?.user || null;
+
+            if (window.currentUser) {
+                cacheHeaderUser(window.currentUser);
+            } else {
+                clearHeaderUserCache();
+            }
+
+            if (event === "PASSWORD_RECOVERY") {
+                const modal = document.getElementById("auth-modal");
+
+                if (modal) modal.style.display = "flex";
+
+                toggleAuthView("reset-password");
+            }
+
+            await checkUserStatus();
+
+            if (typeof window.onAuthChange === "function") {
+                window.onAuthChange(window.currentUser);
+            }
+        });
+    } catch (err) {
+        console.error("Auth-Initialisierung fehlgeschlagen:", err);
+        window.currentUser = null;
+        clearHeaderUserCache();
+        await checkUserStatus();
+    }
 }, 150);
