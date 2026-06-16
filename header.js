@@ -1,4 +1,170 @@
 (function() {
+    const HEADER_USER_CACHE_KEY = "headerUserCache";
+    const HEADER_AVATAR_CACHE_KEY = "headerAvatar";
+    const DEFAULT_HEADER_AVATAR = "icon-192.png";
+
+    const escapeAttr = (value) => String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    const getCachedHeaderUser = () => {
+        try {
+            const raw = localStorage.getItem(HEADER_USER_CACHE_KEY);
+            if (!raw) return null;
+
+            const cached = JSON.parse(raw);
+            const maxAgeMs = 7 * 24 * 60 * 60 * 1000;
+
+            if (!cached || !cached.updated_at || Date.now() - cached.updated_at > maxAgeMs) {
+                localStorage.removeItem(HEADER_USER_CACHE_KEY);
+                return null;
+            }
+
+            return cached;
+        } catch (err) {
+            localStorage.removeItem(HEADER_USER_CACHE_KEY);
+            return null;
+        }
+    };
+
+    const getAvatarFromUser = (user) => {
+        return user?.user_metadata?.avatar_url
+            || user?.user_metadata?.picture
+            || user?.user_metadata?.profile_picture
+            || localStorage.getItem(HEADER_AVATAR_CACHE_KEY)
+            || DEFAULT_HEADER_AVATAR;
+    };
+
+    const setHeaderAuthState = (isLoggedIn, user = null) => {
+        const container = document.getElementById("auth-status-container");
+        const loginBtn = document.getElementById("btn-open-login");
+        const profileBtn = document.getElementById("btn-open-settings");
+        const logoutBtn = document.getElementById("btn-logout");
+        const avatarImg = document.getElementById("header-avatar");
+
+        if (!container) return;
+
+        container.dataset.authState = isLoggedIn ? "in" : "out";
+
+        if (loginBtn) loginBtn.style.display = isLoggedIn ? "none" : "inline-flex";
+        if (profileBtn) profileBtn.style.display = isLoggedIn ? "inline-flex" : "none";
+        if (logoutBtn) logoutBtn.style.display = isLoggedIn ? "inline-flex" : "none";
+
+        if (isLoggedIn && user) {
+            const avatarUrl = getAvatarFromUser(user);
+
+            if (avatarImg && avatarUrl && avatarImg.getAttribute("src") !== avatarUrl) {
+                avatarImg.setAttribute("src", avatarUrl);
+            }
+
+            const cachedUser = {
+                email: user.email || "",
+                avatar_url: avatarUrl,
+                updated_at: Date.now()
+            };
+
+            try {
+                localStorage.setItem(HEADER_USER_CACHE_KEY, JSON.stringify(cachedUser));
+                localStorage.setItem(HEADER_AVATAR_CACHE_KEY, avatarUrl);
+            } catch (err) {}
+        }
+
+        if (!isLoggedIn) {
+            try {
+                localStorage.removeItem(HEADER_USER_CACHE_KEY);
+                localStorage.removeItem(HEADER_AVATAR_CACHE_KEY);
+            } catch (err) {}
+
+            if (avatarImg) avatarImg.setAttribute("src", DEFAULT_HEADER_AVATAR);
+        }
+    };
+
+    const bindHeaderAuthButtons = (isVipPage) => {
+        const loginBtn = document.getElementById("btn-open-login");
+        const profileBtn = document.getElementById("btn-open-settings");
+        const logoutBtn = document.getElementById("btn-logout");
+
+        if (loginBtn && !loginBtn.dataset.headerBound) {
+            loginBtn.dataset.headerBound = "1";
+            loginBtn.addEventListener("click", () => {
+                if (isVipPage) {
+                    window.location.href = "index.html";
+                    return;
+                }
+
+                const modal = document.getElementById("auth-modal");
+                if (modal) {
+                    modal.style.display = "flex";
+                    if (typeof window.toggleAuthView === "function") {
+                        window.toggleAuthView("login");
+                    }
+                }
+            });
+        }
+
+        if (profileBtn && !profileBtn.dataset.headerBound) {
+            profileBtn.dataset.headerBound = "1";
+            profileBtn.addEventListener("click", () => {
+                if (typeof window.openSettingsModal === "function") {
+                    window.openSettingsModal();
+                    return;
+                }
+
+                const modal = document.getElementById("auth-modal");
+                if (modal) modal.style.display = "flex";
+            });
+        }
+
+        if (logoutBtn && !logoutBtn.dataset.headerBound) {
+            logoutBtn.dataset.headerBound = "1";
+            logoutBtn.addEventListener("click", async () => {
+                try {
+                    const client = window.supabaseClient || window.supabase;
+                    if (client?.auth) await client.auth.signOut();
+                } catch (err) {
+                    console.error("Logout fehlgeschlagen:", err);
+                } finally {
+                    setHeaderAuthState(false);
+                    window.location.reload();
+                }
+            });
+        }
+    };
+
+    const syncHeaderAuthState = () => {
+        let attempts = 0;
+
+        const trySync = () => {
+            const client = window.supabaseClient || window.supabase;
+
+            if (!client?.auth) {
+                attempts++;
+                if (attempts <= 30) setTimeout(trySync, 100);
+                return;
+            }
+
+            client.auth.getSession()
+                .then(({ data }) => {
+                    const session = data?.session;
+                    setHeaderAuthState(!!session?.user, session?.user || null);
+                })
+                .catch(() => {
+                    setHeaderAuthState(false);
+                });
+
+            if (typeof client.auth.onAuthStateChange === "function" && !window.__headerAuthListenerInstalled) {
+                window.__headerAuthListenerInstalled = true;
+                client.auth.onAuthStateChange((_event, session) => {
+                    setHeaderAuthState(!!session?.user, session?.user || null);
+                });
+            }
+        };
+
+        trySync();
+    };
+
     const injectHeader = () => {
         const header = document.querySelector('header');
         if (!header) return false;
@@ -8,14 +174,14 @@
         if (page === "") page = "index.html";
 
         const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
+        const cachedHeaderUser = getCachedHeaderUser();
+        const cachedAvatarUrl = escapeAttr(cachedHeaderUser?.avatar_url || localStorage.getItem(HEADER_AVATAR_CACHE_KEY) || DEFAULT_HEADER_AVATAR);
+        const hasCachedLogin = !!cachedHeaderUser;
         const isVipPage = (page === "doppel-aa.html" || page === "performance.html");
 
         const headerTitle = isVipPage ? "Double Alpha" : "IPSC STARTPLATZ-<span class='logo-accent'>BÖRSE</span>";
         const headerSub = isVipPage ? "Vereins-Bereich 🔒" : "Von Schützen für Schützen";
 
-        // ==========================================
-        // 1. LINKS DEFINIEREN (Für Desktop-Menü)
-        // ==========================================
         const links = [
             { href: "index.html", text: "Startseite", key: "nav-startseite" },
             { href: "marktplatz.html", text: "Marktplatz", key: "card-title-market" },
@@ -23,7 +189,7 @@
             { href: "mein-planer.html", text: "Mein Planer", key: "card-title-planer" },
             { href: "community.html", text: "Community", key: "card-title-comm" },
             { href: "schiessbuch.html", text: "Schießbuch", key: "card-title-schießbuch" },
-            { href: "sg-timer-live.html", text: "⏱️ SG-Timer Live", key: "nav-sgtimer" }, 
+            { href: "sg-timer-live.html", text: "⏱️ SG-Timer Live", key: "nav-sgtimer" },
             { href: "tools.html", text: "Tools & Training", key: "card-title-tools" },
             { href: "analytics.html", text: "Statistiken", key: "nav-analytics" },
             { href: "wiederladen.html", text: "Wiederladen", key: "nav-wiederladen" },
@@ -37,9 +203,6 @@
             navHtml += `<a href="${link.href}" class="${className}" data-txt="${link.key}">${link.text}</a>`;
         });
 
-        // ==========================================
-        // 2. HEADER AUFBAUEN (inklusive Desktop-Nav)
-        // ==========================================
         header.innerHTML = `
             <a href="index.html" class="header-logo-link" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 14px; cursor: pointer; transition: opacity 0.2s; text-align: left;" title="Zur Startseite">
                 <img src="icon-192.png" width="38" height="44" alt="IPSC Logo" style="height: 44px; width: auto; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); border-radius: 4px;" />
@@ -66,8 +229,14 @@
                 </select>
                 `}
                 
-                <div id="auth-status-container">
-                    <button class="btn-auth" id="btn-open-login" ${isVipPage ? 'onclick="window.location.href=\'index.html\'"' : 'data-txt="btn-login-reg"'}>Login</button>
+                <div id="auth-status-container" data-auth-state="${hasCachedLogin ? 'in' : 'out'}">
+                    <button class="btn-auth" id="btn-open-login" style="${hasCachedLogin ? 'display:none;' : ''}" ${isVipPage ? '' : 'data-txt="btn-login-reg"'}>Login</button>
+
+                    <button id="btn-open-settings" class="theme-toggle-btn header-avatar-btn" style="${hasCachedLogin ? '' : 'display:none;'}" title="Profil" aria-label="Profil öffnen">
+                        <img id="header-avatar" src="${cachedAvatarUrl}" width="32" height="32" alt="Profilbild">
+                    </button>
+
+                    <button class="btn-auth" id="btn-logout" style="${hasCachedLogin ? '' : 'display:none;'}" data-txt="btn-logout">Logout</button>
                 </div>
             </div>
 
@@ -76,14 +245,11 @@
             </nav>
         `;
 
-        // ==========================================
-        // 3. MOBILE BOTTOM TAB BAR & MEHR-MENÜ
-        // ==========================================
         if (!document.getElementById('bottom-tab-bar')) {
             const bottomBar = document.createElement('nav');
             bottomBar.id = 'bottom-tab-bar';
-            bottomBar.className = 'mobile-only'; 
-            
+            bottomBar.className = 'mobile-only';
+
             bottomBar.innerHTML = `
                 <a href="index.html" class="tab-item ${page === 'index.html' ? 'active' : ''}">
                     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -110,7 +276,7 @@
 
             const moreMenu = document.createElement('div');
             moreMenu.id = 'more-menu-overlay';
-            moreMenu.className = 'mobile-only'; 
+            moreMenu.className = 'mobile-only';
             moreMenu.innerHTML = `
                 <div class="more-menu-content" id="more-menu-list">
                     <a href="freie-matches.html" class="${page === 'freie-matches.html' ? 'active' : ''}">Freie Match-Plätze</a>
@@ -125,9 +291,6 @@
             document.body.appendChild(moreMenu);
         }
 
-        // ==========================================
-        // 4. CSS STYLING (Responsive!)
-        // ==========================================
         if (isVipPage) {
             const vipStyle = document.createElement('style');
             vipStyle.innerHTML = `
@@ -140,14 +303,16 @@
 
         const style = document.createElement('style');
         style.innerHTML = `
-            /* --- ALLGEMEINER HEADER --- */
             header { position: sticky !important; top: 0 !important; z-index: 100 !important; display: flex; flex-direction: column; align-items: center; padding-top: 15px; }
-            header .header-controls { position: absolute !important; top: calc(env(safe-area-inset-top) + 24px) !important; right: 20px !important; display: flex !important; align-items: center !important; gap: 10px !important; flex-direction: row !important; }
-            header .theme-toggle-btn { width: 38px !important; height: 38px !important; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; box-shadow: var(--shadow-sm); }
-            header .lang-select { height: 38px !important; padding: 0 10px !important; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; font-weight: 600; font-size: 13px; }
-            header .btn-auth { height: 38px !important; padding: 0 16px !important; font-weight: 600; font-size: 13px; border-radius: 8px; cursor: pointer; background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); }
+            header .header-controls { position: absolute !important; top: calc(env(safe-area-inset-top) + 24px) !important; right: 20px !important; display: flex !important; align-items: center !important; gap: 10px !important; flex-direction: row !important; min-height: 38px !important; }
+            header #auth-status-container { display: flex !important; align-items: center !important; justify-content: flex-end !important; flex-direction: row !important; gap: 8px !important; min-height: 38px !important; }
+            header .theme-toggle-btn { width: 38px !important; height: 38px !important; min-width: 38px !important; min-height: 38px !important; max-width: 38px !important; max-height: 38px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; flex: 0 0 38px !important; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; box-shadow: var(--shadow-sm); box-sizing: border-box !important; }
+            header .lang-select { width: auto !important; min-width: 54px !important; max-width: 64px !important; height: 38px !important; padding: 0 10px !important; flex: 0 0 auto !important; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; font-weight: 600; font-size: 13px; box-sizing: border-box !important; }
+            header .btn-auth { width: auto !important; height: 38px !important; padding: 0 16px !important; flex: 0 0 auto !important; white-space: nowrap !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; font-weight: 600; font-size: 13px; border-radius: 8px; cursor: pointer; background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); box-sizing: border-box !important; }
+            header #btn-open-settings.header-avatar-btn { padding: 0 !important; overflow: hidden !important; border-radius: 50% !important; transition: none !important; }
+            header #btn-open-settings.header-avatar-btn img, header #header-avatar { width: 32px !important; height: 32px !important; min-width: 32px !important; min-height: 32px !important; max-width: 32px !important; max-height: 32px !important; object-fit: cover !important; border-radius: 50% !important; display: block !important; box-sizing: border-box !important; transition: none !important; flex: 0 0 32px !important; }
+            header #btn-logout { width: auto !important; min-width: auto !important; max-width: none !important; flex: 0 0 auto !important; white-space: nowrap !important; }
 
-            /* --- DESKTOP STANDARD (PC) --- */
             .mobile-only { display: none !important; } 
             
             header .main-nav { width: 100% !important; margin-top: 20px !important; display: flex !important; justify-content: center !important; gap: 8px !important; border-top: 1px solid var(--border-color) !important; padding-top: 15px !important; padding-bottom: 15px !important; flex-wrap: wrap !important; }
@@ -155,16 +320,13 @@
             header .main-nav a.active { color: #ffffff !important; background-color: var(--accent-color) !important; box-shadow: var(--shadow-sm) !important; }
             header .main-nav a.inactive { color: var(--text-muted) !important; background-color: rgba(0, 0, 0, 0.03) !important; }
 
-            /* --- MOBILE & APP (Handy) --- */
             @media (max-width: 768px) {
                 header .main-nav.desktop-only { display: none !important; } 
                 .mobile-only { display: flex !important; }  
                 
-                /* 🔥 HEADER LAYOUT FIX FÜR HANDYS 🔥 */
                 header { padding: calc(env(safe-area-inset-top) + 12px) 10px 12px 10px !important; align-items: center !important; }
                 header .header-logo-link { justify-content: center !important; width: 100% !important; }
                 
-                /* Flex-Wrap erlaubt einen sauberen Umbruch in die zweite Zeile */
                 header .header-controls { 
                     position: relative !important; 
                     top: auto !important; right: auto !important;
@@ -178,7 +340,6 @@
                     width: 100% !important; 
                 }
 
-                /* Container für Profilbild + Abmelden waagerecht fixieren */
                 #auth-status-container {
                     display: flex !important;
                     flex-direction: row !important;
@@ -187,15 +348,14 @@
                     gap: 8px !important;
                 }
 
-                /* Mobile Größenanpassung der Buttons, damit alles besser passt */
-                header .btn-auth { height: 34px !important; padding: 0 12px !important; font-size: 11px !important; }
-                header .lang-select { height: 34px !important; font-size: 11px !important; }
-                header .theme-toggle-btn { width: 34px !important; height: 34px !important; }
-                #auth-status-container img { width: 34px !important; height: 34px !important; }
+                header .btn-auth { width: auto !important; height: 34px !important; padding: 0 12px !important; font-size: 11px !important; flex: 0 0 auto !important; }
+                header .lang-select { width: auto !important; min-width: 50px !important; max-width: 58px !important; height: 34px !important; font-size: 11px !important; flex: 0 0 auto !important; }
+                header .theme-toggle-btn { width: 34px !important; height: 34px !important; min-width: 34px !important; min-height: 34px !important; max-width: 34px !important; max-height: 34px !important; flex: 0 0 34px !important; }
+                header #auth-status-container { min-height: 34px !important; flex: 0 0 auto !important; }
+                header #btn-open-settings.header-avatar-btn img, header #header-avatar { width: 28px !important; height: 28px !important; min-width: 28px !important; min-height: 28px !important; max-width: 28px !important; max-height: 28px !important; }
 
                 body { padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
 
-                /* Styling für Bottom Tab Bar */
                 #bottom-tab-bar {
                     position: fixed; bottom: 0; left: 0; width: 100%;
                     background: var(--card-bg); border-top: 1px solid var(--border-color);
@@ -213,7 +373,6 @@
                 #bottom-tab-bar .tab-item span { font-size: 10px; font-weight: 600; }
                 #bottom-tab-bar .tab-item.active { color: var(--accent-color); }
                 
-                /* Styling für das "Mehr" Overlay */
                 #more-menu-overlay {
                     position: fixed; bottom: calc(65px + env(safe-area-inset-bottom)); left: 0; width: 100%;
                     background: var(--bg-color); border-radius: 20px 20px 0 0;
@@ -234,7 +393,6 @@
         `;
         document.head.appendChild(style);
 
-        // Globaler Toggle für das Mehr-Menü
         window.toggleMoreMenu = function() {
             const menu = document.getElementById('more-menu-overlay');
             const btn = document.getElementById('btn-more-menu');
@@ -247,6 +405,9 @@
             }
         };
 
+        bindHeaderAuthButtons(isVipPage);
+        syncHeaderAuthState();
+
         return true;
     };
 
@@ -254,9 +415,6 @@
         document.addEventListener('DOMContentLoaded', injectHeader);
     }
 
-    // ==========================================
-    // 🎯 VIP-ZUGANG: IN BEIDE MENÜS INJIZIEREN
-    // ==========================================
     const checkVipStatus = () => {
         setTimeout(async () => {
             if (!window.supabaseClient) return;
@@ -274,40 +432,46 @@
                 const path = window.location.pathname;
                 const page = path.split("/").pop() || "index.html";
 
-                // 1. VIP-Links in die Desktop-Leiste einfügen
-                const desktopNav = document.querySelector('header .main-nav'); 
+                const desktopNav = document.querySelector('header .main-nav');
                 if (desktopNav) {
                     if (!desktopNav.querySelector('a[href="doppel-aa.html"]')) {
                         const sniperLink = document.createElement('a');
-                        sniperLink.href = 'doppel-aa.html'; 
+                        sniperLink.href = 'doppel-aa.html';
                         sniperLink.innerText = '🎯 Double Alpha';
                         sniperLink.className = (page === "doppel-aa.html") ? "active" : "inactive";
-                        if (page !== "doppel-aa.html") { sniperLink.style.color = '#ff9f43'; sniperLink.style.border = '1px solid rgba(255, 159, 67, 0.3)'; }
+                        if (page !== "doppel-aa.html") {
+                            sniperLink.style.color = '#ff9f43';
+                            sniperLink.style.border = '1px solid rgba(255, 159, 67, 0.3)';
+                        }
                         desktopNav.appendChild(sniperLink);
                     }
+
                     if (!desktopNav.querySelector('a[href="performance.html"]')) {
                         const performanceLink = document.createElement('a');
-                        performanceLink.href = 'performance.html'; 
+                        performanceLink.href = 'performance.html';
                         performanceLink.innerText = '📊 Performance-Check';
                         performanceLink.className = (page === "performance.html") ? "active" : "inactive";
-                        if (page !== "performance.html") { performanceLink.style.color = '#ff9f43'; performanceLink.style.border = '1px solid rgba(255, 159, 67, 0.3)'; }
+                        if (page !== "performance.html") {
+                            performanceLink.style.color = '#ff9f43';
+                            performanceLink.style.border = '1px solid rgba(255, 159, 67, 0.3)';
+                        }
                         desktopNav.appendChild(performanceLink);
                     }
                 }
 
-                // 2. VIP-Links in das Mobile "Mehr" Menü einfügen
-                const moreMenuList = document.getElementById('more-menu-list'); 
+                const moreMenuList = document.getElementById('more-menu-list');
                 if (moreMenuList) {
                     if (!moreMenuList.querySelector('a[href="performance.html"]')) {
                         const performanceLink = document.createElement('a');
-                        performanceLink.href = 'performance.html'; 
+                        performanceLink.href = 'performance.html';
                         performanceLink.innerText = '📊 Performance-Check';
                         performanceLink.className = (page === "performance.html") ? "active" : "vip-link";
                         moreMenuList.prepend(performanceLink);
                     }
+
                     if (!moreMenuList.querySelector('a[href="doppel-aa.html"]')) {
                         const sniperLink = document.createElement('a');
-                        sniperLink.href = 'doppel-aa.html'; 
+                        sniperLink.href = 'doppel-aa.html';
                         sniperLink.innerText = '🎯 Double Alpha';
                         sniperLink.className = (page === "doppel-aa.html") ? "active" : "vip-link";
                         moreMenuList.prepend(sniperLink);
