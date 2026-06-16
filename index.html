@@ -15,7 +15,6 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- TURBO SCRIPT WIEDER EINGEFÜGT MIT CACHE-KONTROLLE -->
     <script type="module">
       import turbo from 'https://cdn.skypack.dev/@hotwired/turbo';
     </script>
@@ -209,7 +208,6 @@
 </head>
 <body>
 
-    <!-- DER NEUE PERMANENT-HEADER -->
     <header id="main-header" data-turbo-permanent></header>
     <script src="header.js" data-turbo-eval="false"></script>
 
@@ -346,8 +344,8 @@
         </div>
     </footer>
 
-    <script src="auth.js"></script>
-    <script src="lang.js"></script>
+    <script src="auth.js" data-turbo-eval="false"></script>
+    <script src="lang.js" data-turbo-eval="false"></script>
     <script src="app.js"></script>
     
     <script>
