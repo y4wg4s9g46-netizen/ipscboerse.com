@@ -137,8 +137,19 @@ header h1 {
 }
 
 @media (max-width: 1024px) {
-    html, body { width: 100%; }
-    .container { padding: 0 16px; margin-top: 20px; width: 100%; box-sizing: border-box; }
+    .container button,
+    .modal-content button,
+    .btn-submit {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    header button {
+        width: auto !important;
+        box-sizing: border-box;
+        flex-shrink: 0;
+    }
+}
     
     header {
         display: flex !important;
