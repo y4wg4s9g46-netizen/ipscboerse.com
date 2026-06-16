@@ -30,7 +30,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                                 <label for="login-password" style="margin-bottom: 0;">Passwort *</label>
                                 <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 600;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
                             </div>
-                            <input type="password" id="login-password" required placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
+                            <input type="password" id="login-password" required placeholder="⁠********⁠">
                         </div>
                         <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit E-Mail einloggen</button>
                     </form>
@@ -133,7 +133,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                         </div>
                         
                         <div class="settings-ratings" style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
-                            <div><span data-txt="modal-settings-comm">ðŸ’¬ Kommunikation:</span> <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
+                            <div><span data-txt="modal-settings-comm">💬 Kommunikation:</span> <span id="profile-rating-comm" style="font-weight: bold; color: #ffca28;">-</span></div>
                             <div><span data-txt="modal-settings-pay">ðŸ’³ Bezahlung:</span> <span id="profile-rating-pay" style="font-weight: bold; color: #ffca28;">-</span></div>
                         </div>
                     </div>
@@ -356,11 +356,11 @@ function renderMatches(matches) {
             <p style="margin-top: 12px;">${m.match_date} | ${window.escapeHtml(m.match_location)}</p>
           </div>
           <div class="card-actions">
-            <p>${parseFloat(m.match_price).toFixed(2)} â‚¬</p>
+            <p>${parseFloat(m.match_price).toFixed(2)} €</p>
             
             <div style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
                 <button class="${contactBtnClass}" onclick="openChatSystem(${m.id}, '${m.seller_email}', '${cleanMatchName}')">ðŸ’¬ Live-Chat</button>
-                <button class="${contactBtnClass}" style="background-color: #555;" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">âœ‰ï¸ ${contactText}</button>
+                <button class="${contactBtnClass}" style="background-color: #555;" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">📧 ${contactText}</button>
             </div>
 
             <div class="action-buttons-group">
