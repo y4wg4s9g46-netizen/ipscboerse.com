@@ -302,15 +302,72 @@
         }
 
         const style = document.createElement('style');
-        style.innerHTML = `
-            header { position: sticky !important; top: 0 !important; z-index: 100 !important; display: flex; flex-direction: column; align-items: center; padding-top: 15px; }
+style.innerHTML = `
+    header { position: sticky !important; top: 0 !important; z-index: 100 !important; display: flex; flex-direction: column; align-items: center; padding-top: 15px; }
+
+    /* AUTH READY: verhindert sichtbaren Zwischenzustand beim Seitenwechsel */
+    header:not(.auth-ready) .header-controls {
+        visibility: hidden !important;
+    }
+
+    header.auth-ready .header-controls {
+        visibility: visible !important;
+    }
+
+    /* AUTH-ZUSTAND: niemals Login und Logout gleichzeitig anzeigen */
+    header #auth-status-container[data-auth-state="in"] #btn-open-login {
+        display: none !important;
+    }
+
+    header #auth-status-container[data-auth-state="in"] #btn-open-settings,
+    header #auth-status-container[data-auth-state="in"] #btn-logout {
+        display: inline-flex !important;
+    }
+
+    header #auth-status-container[data-auth-state="out"] #btn-open-login {
+        display: inline-flex !important;
+    }
+
+    header #auth-status-container[data-auth-state="out"] #btn-open-settings,
+    header #auth-status-container[data-auth-state="out"] #btn-logout {
+        display: none !important;
+    }
+
+    header .header-controls { position: absolute !important; top: calc(env(safe-area-inset-top) + 24px) !important; right: 20px !important; display: flex !important; align-items: center !important; gap: 10px !important; flex-direction: row !important; min-height: 38px !important; }
             header .header-controls { position: absolute !important; top: calc(env(safe-area-inset-top) + 24px) !important; right: 20px !important; display: flex !important; align-items: center !important; gap: 10px !important; flex-direction: row !important; min-height: 38px !important; }
             header #auth-status-container { display: flex !important; align-items: center !important; justify-content: flex-end !important; flex-direction: row !important; gap: 8px !important; min-height: 38px !important; }
             header .theme-toggle-btn { width: 38px !important; height: 38px !important; min-width: 38px !important; min-height: 38px !important; max-width: 38px !important; max-height: 38px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; flex: 0 0 38px !important; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; box-shadow: var(--shadow-sm); box-sizing: border-box !important; }
             header .lang-select { width: auto !important; min-width: 54px !important; max-width: 64px !important; height: 38px !important; padding: 0 10px !important; flex: 0 0 auto !important; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; font-weight: 600; font-size: 13px; box-sizing: border-box !important; }
             header .btn-auth { width: auto !important; height: 38px !important; padding: 0 16px !important; flex: 0 0 auto !important; white-space: nowrap !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; font-weight: 600; font-size: 13px; border-radius: 8px; cursor: pointer; background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); box-sizing: border-box !important; }
-            header #btn-open-settings.header-avatar-btn { padding: 0 !important; overflow: hidden !important; border-radius: 50% !important; transition: none !important; }
-            header #btn-open-settings.header-avatar-btn img, header #header-avatar { width: 32px !important; height: 32px !important; min-width: 32px !important; min-height: 32px !important; max-width: 32px !important; max-height: 32px !important; object-fit: cover !important; border-radius: 50% !important; display: block !important; box-sizing: border-box !important; transition: none !important; flex: 0 0 32px !important; }
+            header #btn-open-settings.header-avatar-btn {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+    max-width: 42px !important;
+    max-height: 42px !important;
+    flex: 0 0 42px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border-radius: 50% !important;
+    transition: none !important;
+}
+
+header #btn-open-settings.header-avatar-btn img,
+header #header-avatar {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+    object-fit: cover !important;
+    border-radius: 50% !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    transition: none !important;
+    flex: 0 0 36px !important;
+}
             header #btn-logout { width: auto !important; min-width: auto !important; max-width: none !important; flex: 0 0 auto !important; white-space: nowrap !important; }
 
             .mobile-only { display: none !important; } 
@@ -352,7 +409,25 @@
                 header .lang-select { width: auto !important; min-width: 50px !important; max-width: 58px !important; height: 34px !important; font-size: 11px !important; flex: 0 0 auto !important; }
                 header .theme-toggle-btn { width: 34px !important; height: 34px !important; min-width: 34px !important; min-height: 34px !important; max-width: 34px !important; max-height: 34px !important; flex: 0 0 34px !important; }
                 header #auth-status-container { min-height: 34px !important; flex: 0 0 auto !important; }
-                header #btn-open-settings.header-avatar-btn img, header #header-avatar { width: 28px !important; height: 28px !important; min-width: 28px !important; min-height: 28px !important; max-width: 28px !important; max-height: 28px !important; }
+                header #btn-open-settings.header-avatar-btn {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    max-width: 40px !important;
+    max-height: 40px !important;
+    flex: 0 0 40px !important;
+}
+
+header #btn-open-settings.header-avatar-btn img,
+header #header-avatar {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    max-width: 34px !important;
+    max-height: 34px !important;
+}
 
                 body { padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
 
