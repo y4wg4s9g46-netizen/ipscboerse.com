@@ -26,7 +26,6 @@ function cacheHeaderUser(user) {
         user.user_metadata?.avatar_url ||
         user.user_metadata?.picture ||
         user.user_metadata?.profile_picture ||
-        localStorage.getItem(HEADER_AVATAR_CACHE_KEY) ||
         DEFAULT_HEADER_AVATAR;
 
     try {
@@ -41,7 +40,6 @@ function cacheHeaderUser(user) {
         );
     } catch (err) {}
 }
-
 function clearHeaderUserCache() {
     try {
         localStorage.removeItem(HEADER_USER_CACHE_KEY);
