@@ -1006,3 +1006,77 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
         font-size: 14px !important;
     }
 }
+/* ==========================================================================
+   FINAL MOBILE SIZE OVERRIDE – erzwingt kleinere Seitenboxen
+   ========================================================================== */
+
+@media (max-width: 768px) {
+
+    body .container {
+        margin-top: 18px !important;
+        margin-bottom: 18px !important;
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+    }
+
+    body .container > div,
+    body .container > section,
+    body .container > form,
+    body .container .card,
+    body .container .form-card,
+    body .container .tool-section,
+    body .container .news-section,
+    body .container .hero-section,
+    body .container .post-card,
+    body .container .dash-card,
+    body .container .modal-content {
+        padding: 16px 14px !important;
+        margin-bottom: 16px !important;
+        border-radius: 16px !important;
+    }
+
+    body .container h1,
+    body .container h2,
+    body .container h3 {
+        font-size: 22px !important;
+        line-height: 1.2 !important;
+        margin-top: 0 !important;
+        margin-bottom: 14px !important;
+    }
+
+    body .container p {
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+    }
+
+    body .container label {
+        font-size: 11px !important;
+        margin-bottom: 5px !important;
+    }
+
+    body .container input,
+    body .container select,
+    body .container textarea {
+        min-height: 40px !important;
+        height: 40px !important;
+        padding: 7px 12px !important;
+        font-size: 14px !important;
+        border-radius: 10px !important;
+    }
+
+    body .container button,
+    body .container .btn-submit,
+    body .container .btn-primary-auth,
+    body .container .btn-secondary-auth,
+    body .container .btn-post {
+        min-height: 40px !important;
+        padding: 9px 14px !important;
+        font-size: 14px !important;
+        border-radius: 12px !important;
+    }
+
+    body .form-group,
+    body .hit-input-group {
+        margin-bottom: 14px !important;
+    }
+}
