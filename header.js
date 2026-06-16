@@ -126,7 +126,11 @@
 
         header.innerHTML = `
             <a href="index.html" class="header-logo-link" title="Zur Startseite">
-                <img src="icon-192.png" width="38" height="44" alt="IPSC Logo" class="header-logo-img">
+               <span class="header-logo-frame">
+
+    <img src="icon-192.png" width="44" height="44" alt="IPSC Logo" class="header-logo-img">
+
+</span>
                 <div class="logo-text-group">
                     <h1 ${isVipPage ? "" : 'data-txt="main-title"'} class="${isVipPage ? "vip-title" : ""}">${headerTitle}</h1>
                     <p ${isVipPage ? "" : 'data-txt="sub-title"'}>${headerSub}</p>
