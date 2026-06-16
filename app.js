@@ -222,7 +222,7 @@ window.escapeHtml = function(text) {
         </div>`;
         document.body.insertAdjacentHTML("beforeend", inboxModalHtml);
     }
-})(); // Injektion läuft
+})();
 
 // =========================================================================
 // ZENTRALE SEITEN-INITIALISIERUNG FÜR DIE SPA (ROUTER)
@@ -233,6 +233,13 @@ function initCurrentPage() {
         enforceFutureDates();
         checkPlannerImport();
         fetchMatches();
+    }
+    
+    // ---- FREIE MATCHES LOGIK ----
+    if (document.getElementById("js-match-container")) {
+        if (typeof window.initFreieMatches === "function") {
+            window.initFreieMatches();
+        }
     }
     
     // ---- MEIN PLANER LOGIK ----
@@ -312,7 +319,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // =========================================================================
-// EVENT DELEGATION (Fängt Klicks etc. ab, egal ob die Seite neu geladen wurde)
+// EVENT DELEGATION
 // =========================================================================
 document.addEventListener("click", (e) => {
   if (e.target && e.target.closest("#btn-cancel-edit")) {
@@ -981,6 +988,7 @@ window.deletePost = async function(id) {
     if(!confirm("Beitrag wirklich löschen?")) return;
     const { error } = await window.supabaseClient.from('community_posts').delete().eq('id', id); if(!error) window.loadPosts();
 };
+
 // ==========================================================================
 // FREIE MATCHES & BENUTZERPROFILE LOGIK
 // ==========================================================================
@@ -1077,31 +1085,39 @@ window.openUserProfile = async function(sellerEmail, authorName, authorAvatar, a
     }
 };
 
-// NUR LADEN WENN WIR AUF DER "FREIE MATCHES" SEITE SIND
-if (document.getElementById('js-match-container')) {
+// ==========================================================================
+// FREIE MATCHES LOGIK INIT
+// ==========================================================================
+window.initFreieMatches = function() {
+    const container = document.getElementById('js-match-container');
+    if (!container) return;
+
     fetch('matches.json?v=' + new Date().getTime())
       .then(res => res.json())
       .then(data => {
           allMatches = data;
-          const container = document.getElementById('js-match-container');
           
           if (allMatches.length === 0) {
               const noMatchesTxt = window.currentLang === "en" ? "Currently all matches are 100% booked." : "Aktuell sind alle Matches zu 100% belegt.";
               container.innerHTML = `<p style="padding: 10px;">${noMatchesTxt}</p>`;
-              document.getElementById('match-filters').style.display = 'none';
+              if(document.getElementById('match-filters')) document.getElementById('match-filters').style.display = 'none';
               return;
           }
 
-          document.getElementById('match-filters').style.display = 'flex';
+          if(document.getElementById('match-filters')) document.getElementById('match-filters').style.display = 'flex';
           window.setupFreeFilters(allMatches);
           window.renderFreeMatches(allMatches);
       })
       .catch(err => {
-          console.error("Fehler beim Laden:", err);
+          console.error("Fehler beim Laden der Freien Matches:", err);
           const errorTxt = window.currentLang === "en" ? "Error loading data. Please reload the page." : "Fehler beim Laden der Daten. Bitte lade die Seite neu.";
-          const container = document.getElementById('js-match-container');
           if(container) container.innerHTML = `<p class='loading-msg'>${errorTxt}</p>`;
       });
+};
+
+// Falls die Seite direkt geladen wird
+if (document.getElementById('js-match-container')) {
+    window.initFreieMatches();
 }
 
 window.setupFreeFilters = function(matches) {
