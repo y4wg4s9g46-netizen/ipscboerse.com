@@ -274,7 +274,7 @@
                 }
 
                 header:not(.auth-ready) .header-controls {
-                    visibility: hidden !important;
+                    visibility: visible !important;
                 }
 
                 header.auth-ready .header-controls {
@@ -738,7 +738,7 @@
           Header-Controls bleiben unsichtbar,
           bis auth.js den echten Login-Zustand geprüft hat.
         */
-        header.classList.remove("auth-ready");
+        header.classList.add("auth-ready");
 
         return true;
     };
