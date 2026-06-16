@@ -1087,3 +1087,60 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
         border-radius: 18px !important;
     }
 }
+/* ==========================================================================
+   MEIN PLANER MOBILE COMPACT FIX
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    #planner-section,
+    #logged-out-section {
+        padding: 16px 14px !important;
+        margin-bottom: 18px !important;
+        border-radius: 16px !important;
+    }
+
+    #planner-section h2 {
+        font-size: 22px !important;
+        margin-bottom: 12px !important;
+    }
+
+    #planner-section h3 {
+        font-size: 20px !important;
+        margin-bottom: 12px !important;
+    }
+
+    #planner-section .form-group {
+        margin-bottom: 14px !important;
+    }
+
+    #planner-section input {
+        height: 40px !important;
+        min-height: 40px !important;
+        padding: 7px 12px !important;
+        font-size: 14px !important;
+        border-radius: 10px !important;
+    }
+
+    #planner-section .btn-post,
+    #planner-section .btn-success {
+        min-height: 40px !important;
+        padding: 9px 14px !important;
+        font-size: 14px !important;
+        border-radius: 12px !important;
+    }
+
+    #planner-section h3[style*="margin-top"] {
+        margin-top: 24px !important;
+    }
+
+    #planner-section > div:first-child {
+        padding-bottom: 12px !important;
+        margin-bottom: 18px !important;
+    }
+
+    .match-item {
+        padding: 14px 12px !important;
+        margin-bottom: 14px !important;
+        border-radius: 14px !important;
+    }
+}
