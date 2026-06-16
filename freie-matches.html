@@ -6,8 +6,7 @@
     <title>Freie Match-Plätze | Startplatz Börse</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#0b1121" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="IPSC Börse">
@@ -24,295 +23,54 @@
         })();
     </script>
     <style>
+        /* Exakte Hintergrundfarben für nahtlose Übergänge */
         html, body { background-color: #f8fafc; }
         html[data-theme="dark"], html[data-theme="dark"] body { background-color: #0b1121; }
         body { visibility: visible !important; }
     </style>
 
-    <link rel="stylesheet" href="global.css?v=16">
-
-    <style>
-        /* ==========================================================================\
-           FREIE MATCHES - SPEZIFISCHES LAYOUT
-           ========================================================================== */
-
-        .info-box {
-            background-color: rgba(59, 130, 246, 0.08);
-            border-left: 4px solid var(--info-color);
-            color: var(--text-color);
-            padding: 16px; 
-            margin-bottom: 30px; 
-            border-radius: var(--radius);
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .filter-section {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 20px;
-            border-radius: var(--radius-lg);
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .filter-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 100fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .matches-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .match-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            box-shadow: var(--shadow-sm);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: var(--transition);
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .match-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--info-color);
-        }
-
-        .card-header h3 {
-            margin: 0 0 10px 0;
-            font-size: 18px;
-            color: var(--text-color);
-        }
-
-        .badge-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 15px;
-        }
-
-        .badge, .badge-region, .badge-lvl, .badge-disziplin, .badge-datum {
-            font-size: 11px;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .badge { background-color: rgba(16, 185, 129, 0.1); color: var(--success-color); }
-        .badge.ausgebucht { background-color: rgba(239, 68, 68, 0.1); color: var(--danger-color); }
-        .badge-region { background-color: rgba(59, 130, 246, 0.1); color: var(--info-color); }
-        .badge-lvl { background-color: rgba(255, 159, 67, 0.1); color: var(--accent-color); }
-        .badge-disziplin { background-color: rgba(100, 116, 139, 0.1); color: var(--text-muted); }
-        .badge-datum { background-color: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color); }
-
-        .card-actions {
-            text-align: right;
-            margin-top: 10px;
-        }
-
-        .btn-contact {
-            display: inline-block;
-            background: var(--info-color);
-            color: #ffffff;
-            padding: 8px 16px;
-            border-radius: var(--radius);
-            font-weight: 700;
-            font-size: 13px;
-            transition: var(--transition);
-        }
-
-        .match-card:hover .btn-contact {
-            background: #2563eb;
-        }
-    </style>
+    <link rel="stylesheet" href="global.css">
 </head>
 <body>
 
     <header></header>
     <script src="header.js"></script>
-
+    
     <div class="container">
-        
         <div class="info-box" data-txt="free-info-box">
-            <strong>Hinweis für Match-Veranstalter & Vereine:</strong> Du hast noch freie Startplätze auf deiner Range oder ein Match ist nicht ausgebucht? Kontaktiere uns einfach über das Kontaktformular oder per E-Mail, und wir listen dein Match vollkommen kostenfrei in dieser Übersicht auf!
+            <strong>Info:</strong> Die Matches werden automatisch im Hintergrund aktualisiert. Es werden nur Turniere angezeigt, die eine Auslastung von unter 100% aufweisen (freie Startplätze).
         </div>
 
-        <div class="filter-section">
-            <div class="filter-grid">
-                <div class="form-group">
-                    <label for="filter-region" data-txt="lbl-region">Region / Land</label>
-                    <select id="filter-region" onchange="applyFreeFilters()">
-                        <option value="all" data-txt="opt-all">Alle Regionen</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="filter-level" data-txt="lbl-level">Match Level</label>
-                    <select id="filter-level" onchange="applyFreeFilters()">
-                        <option value="all" data-txt="opt-all">Alle Level</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="filter-disziplin" data-txt="lbl-discipline">Disziplin</label>
-                    <select id="filter-disziplin" onchange="applyFreeFilters()">
-                        <option value="all" data-txt="opt-all">Alle Disziplinen</option>
-                    </select>
-                </div>
-            </div>
+        <h2 style="margin-bottom: 24px; font-weight: 800; letter-spacing: -0.5px;" data-txt="free-list-title">Verfügbare Matches auf MatchSign (Auslastung &lt; 100%)</h2>
+
+        <div class="filter-container" id="match-filters" style="display: none;">
+            <select id="filter-region">
+                <option value="all">Alle Länder</option>
+            </select>
+            <select id="filter-disziplin">
+                <option value="all">Alle Disziplinen</option>
+            </select>
+            <select id="filter-level">
+                <option value="all">Alle Level</option>
+            </select>
         </div>
 
-        <div class="matches-list" id="free-matches-container">
-            <p style="text-align: center; color: var(--text-muted); grid-column: 1/-1;" data-txt="free-loading">Lade freie Match-Plätze...</p>
+        <div class="match-list" id="js-match-container">
+            <p class="loading-msg" id="js-status-text" data-txt="free-loading">Lade aktuelle Matches...</p>
         </div>
+    </div>
 
-    </div> <footer>
-        <div style="max-width: 1000px; margin: 0 auto; text-align: center; padding: 20px 0;">
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
             <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
-            <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
 
     <script src="auth.js"></script>
     <script src="lang.js"></script>
     <script src="app.js"></script>
-    <script src="router.js"></script>
     
-    <script>
-    let allMatches = [];
-
-    async function loadFreeMatches() {
-        const container = document.getElementById("free-matches-container");
-        try {
-            const { data, error } = await window.supabaseClient
-                .from('free_matches')
-                .select('*')
-                .order('datum', { ascending: true });
-
-            if (error) throw error;
-            allMatches = data || [];
-            
-            setupFreeFilters(allMatches);
-            renderFreeMatches(allMatches);
-        } catch (err) {
-            console.error("Fehler beim Laden der freien Plätze:", err);
-            if(container) container.innerHTML = `<p style="color:var(--danger-color); text-align:center; grid-column:1/-1;">Fehler beim Laden.</p>`;
-        }
-    }
-
-    // Sofortiger Start beim direkten Laden oder SPA-Initialisierung
-    if (document.readyState === "complete" || document.readyState === "interactive") {
-        loadFreeMatches();
-    } else {
-        document.addEventListener("DOMContentLoaded", loadFreeMatches);
-    }
-    // Sicherheitsanker für den SPA-Router
-    if (window.location.pathname.includes("freie-matches.html")) {
-        loadFreeMatches();
-    }
-
-    function setupFreeFilters(matches) {
-        const regSelect = document.getElementById("filter-region");
-        const lvlSelect = document.getElementById("filter-level");
-        const disSelect = document.getElementById("filter-disziplin");
-
-        if(!regSelect || !lvlSelect || !disSelect) return;
-
-        const currentReg = regSelect.value;
-        const currentLvl = lvlSelect.value;
-        const currentDis = disSelect.value;
-
-        regSelect.innerHTML = `<option value="all">${window.currentLang === 'en' ? 'All Regions' : 'Alle Regionen'}</option>`;
-        lvlSelect.innerHTML = `<option value="all">${window.currentLang === 'en' ? 'All Levels' : 'Alle Level'}</option>`;
-        disSelect.innerHTML = `<option value="all">${window.currentLang === 'en' ? 'All Disciplines' : 'Alle Disziplinen'}</option>`;
-
-        const regionen = [...new Set(matches.map(m => m.region).filter(Boolean))].sort();
-        const levels = [...new Set(matches.map(m => m.level).filter(Boolean))].sort();
-        const disziplinen = [...new Set(matches.map(m => m.disziplin).filter(Boolean))].sort();
-
-        regionen.forEach(r => regSelect.innerHTML += `<option value="${r}">${r}</option>`);
-        levels.forEach(l => lvlSelect.innerHTML += `<option value="${l}">${l}</option>`);
-        disziplinen.forEach(d => disSelect.innerHTML += `<option value="${d}">${d}</option>`);
-
-        regSelect.value = currentRegHtml(regSelect, currentReg);
-        lvlSelect.value = currentRegHtml(lvlSelect, currentLvl);
-        disSelect.value = currentRegHtml(disSelect, currentDis);
-    }
-
-    function currentRegHtml(selectEl, val) {
-        if ([...selectEl.options].some(o => o.value === val)) return val;
-        return "all";
-    }
-
-    function applyFreeFilters() {
-        const reg = document.getElementById("filter-region")?.value || "all";
-        const lvl = document.getElementById("filter-level")?.value || "all";
-        const dis = document.getElementById("filter-disziplin")?.value || "all";
-
-        let filtered = allMatches;
-        if (reg !== "all") filtered = filtered.filter(m => m.region === reg);
-        if (lvl !== "all") filtered = filtered.filter(m => m.level === lvl);
-        if (dis !== "all") filtered = filtered.filter(m => m.disziplin === dis);
-
-        renderFreeMatches(filtered);
-    }
-
-    function renderFreeMatches(matches) {
-        const container = document.getElementById("free-matches-container");
-        if (!container) return;
-
-        if (matches.length === 0) {
-            container.innerHTML = `<p style="text-align: center; color: var(--text-muted); grid-column: 1/-1;">${window.currentLang === 'en' ? 'No matching slots found.' : 'Keine passenden Match-Plätze gefunden.'}</p>`;
-            return;
-        }
-
-        const html = matches.map(match => {
-            const isAusgebucht = match.auslastung && (match.auslastung.toLowerCase().includes("ausgebucht") || match.auslastung.toLowerCase().includes("voll"));
-            const loadBadgeTxt = isAusgebucht ? "" : (window.currentLang === 'en' ? 'Slots:' : 'Plätze:');
-            const btnTxt = window.currentLang === 'en' ? 'To Match' : 'Zum Wettkampf';
-
-            return `
-                <a href="${match.link || '#'}" target="_blank" class="match-card">
-                    <div class="card-header">
-                        <h3>${match.match_name}</h3>
-                        <div class="badge-container">
-                            <span class="badge-datum">📅 ${match.datum || 'N/A'}</span>
-                            <span class="badge ${isAusgebucht ? 'ausgebucht' : ''}">${loadBadgeTxt} ${match.auslastung}</span>
-                            <span class="badge-region">Reg: ${match.region || '-'}</span>
-                            <span class="badge-lvl">Level: ${match.level || '-'}</span>
-                            <span class="badge-disziplin">${match.disziplin || '-'}</span>
-                        </div>
-                    </div>
-                    <div class="card-actions">
-                        <span class="btn-contact">${btnTxt}</span>
-                    </div>
-                </div>
-            `;
-        }).join('');
-        container.innerHTML = html;
-    }
-
-    window.onLanguageChanged = () => { 
-        const selector = document.getElementById("language-select");
-        if (selector) selector.value = window.currentLang;
-        if (allMatches.length > 0) {
-            setupFreeFilters(allMatches);
-            applyFreeFilters();
-        }
-    };
-    </script>
-
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
