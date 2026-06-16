@@ -771,8 +771,19 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
 }
 
 /* ==========================================================================
-   VIEW TRANSITIONS (Gegen das weiße Blitzen)
+   VIEW TRANSITIONS (Gegen das weiße Blitzen & für App-Speed)
    ========================================================================== */
 @view-transition {
     navigation: auto;
+}
+
+/* 1. Animation extrem beschleunigen (Snappy wie eine native App) */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 0.15s;
+}
+
+/* 2. Header & Logo vom Blitzen/Faden ausschließen (bleibt starr stehen) */
+header {
+    view-transition-name: app-header;
 }
