@@ -6,13 +6,48 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
     auth: {
         experimental: { passkey: true },
         persistSession: true,
-        detectSessionInUrl: true // JETZT AUF TRUE: Erlaubt Supabase, den Passwort-Code aus der URL zu lesen!
+        detectSessionInUrl: true
     }
 });
 
 window.supabaseClient = supabaseClient;
 window.currentUser = null;
 window.currentLang = "de";
+
+// Header-Cache gegen Zucken beim Seitenwechsel
+const HEADER_USER_CACHE_KEY = "headerUserCache";
+const HEADER_AVATAR_CACHE_KEY = "headerAvatar";
+const DEFAULT_HEADER_AVATAR = "icon-192.png";
+
+function cacheHeaderUser(user) {
+    if (!user) return;
+
+    const avatarUrl =
+        user.user_metadata?.avatar_url ||
+        user.user_metadata?.picture ||
+        user.user_metadata?.profile_picture ||
+        localStorage.getItem(HEADER_AVATAR_CACHE_KEY) ||
+        DEFAULT_HEADER_AVATAR;
+
+    try {
+        localStorage.setItem(HEADER_AVATAR_CACHE_KEY, avatarUrl);
+        localStorage.setItem(
+            HEADER_USER_CACHE_KEY,
+            JSON.stringify({
+                email: user.email || "",
+                avatar_url: avatarUrl,
+                updated_at: Date.now()
+            })
+        );
+    } catch (err) {}
+}
+
+function clearHeaderUserCache() {
+    try {
+        localStorage.removeItem(HEADER_USER_CACHE_KEY);
+        localStorage.removeItem(HEADER_AVATAR_CACHE_KEY);
+    } catch (err) {}
+}
 
 window.uploadImage = async function(file, folder) {
     const fileExt = file.name.split('.').pop();
@@ -41,6 +76,7 @@ window.loginWithPasskey = async function() {
         if (btn) btn.innerHTML = oldHtml;
         alert("Passkey-Login fehlgeschlagen oder abgebrochen: " + error.message);
     } else {
+        if (data?.session?.user) cacheHeaderUser(data.session.user);
         if (btn) btn.innerHTML = "✅ Erfolgreich!";
         location.reload();
     }
@@ -59,7 +95,7 @@ window.registerPasskey = async function() {
     } else {
         if (btn) {
             btn.innerHTML = "✅ Gerät erfolgreich als Passkey hinterlegt!";
-            btn.style.backgroundColor = "#10b981"; 
+            btn.style.backgroundColor = "#10b981";
         }
     }
 };
@@ -89,10 +125,11 @@ window.loginWithApple = async function() {
 function updateThemeToggleIcon(theme) {
     const btn = document.getElementById('theme-toggle');
     if (!btn) return;
+
     if (theme === 'dark') {
-        btn.innerText = '☀️'; 
+        btn.innerText = '☀️';
     } else if (theme === 'light') {
-        btn.innerText = '🌙'; 
+        btn.innerText = '🌙';
     } else {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         btn.innerText = prefersDark ? '☀️' : '🌙';
@@ -102,14 +139,14 @@ function updateThemeToggleIcon(theme) {
 window.toggleTheme = function() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     let newTheme = 'light';
-    
+
     if (!currentTheme) {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         newTheme = prefersDark ? 'light' : 'dark';
     } else {
         newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     }
-    
+
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('selectedTheme', newTheme);
     updateThemeToggleIcon(newTheme);
@@ -117,6 +154,7 @@ window.toggleTheme = function() {
 
 function initTheme() {
     const savedTheme = localStorage.getItem('selectedTheme');
+
     if (savedTheme) {
         document.documentElement.setAttribute('data-theme', savedTheme);
         updateThemeToggleIcon(savedTheme);
@@ -133,6 +171,7 @@ window.translations = {
     "sub-title": "Von Schützen für Schützen – Live Marktplatz",
     "btn-login-reg": "Login / Registrieren",
     "logout": "Abmelden",
+    "btn-logout": "Abmelden",
     "info-msg": "<strong>Wichtiger Hinweis:</strong> Diese Plattform dient nur der Vermittlung. Die endgültige Umschreibung des Startplatzes muss zwingend über den jeweiligen Match Director durchgeführt werden!",
     "form-title": "Eintrag erstellen",
     "form-title-edit": "Eintrag bearbeiten ✏️",
@@ -193,7 +232,7 @@ window.translations = {
     "email-body-footer": "\n\nIst das Inserat noch aktuell?\n\nViele Grüße",
     "security-notice": "⚠️ WICHTIGER SICHERHEITSHINWEIS:\n\n1. Nutze für Zahlungen IMMER PayPal mit Käuferschutz (niemals 'Freunde & Familie').\n2. Kontaktiere ZWINGEND den Match Director, BEVOR du Geld sendest, um zu prüfen, ob eine Umschreibung des Platzes überhaupt noch möglich ist!\n\nMöchtest du den E-Mail-Kontakt jetzt öffnen?",
     "spam-error": "Spam-Schutz: Du hast bereits einen Eintrag für dieses Match an diesem Datum erstellt!",
-    
+
     "nav-marketplace": "Marktplatz",
     "nav-free-slots": "Freie Match-Plätze",
     "nav-my-planner": "Mein Planer",
@@ -210,7 +249,7 @@ window.translations = {
     "planner-subtitle-planned": "Geplante Matches",
     "planner-loading": "Lade Daten aus Supabase...",
     "planner-btn-export": "📅 In Kalender exportieren (.ics)",
-    
+
     "free-info-box": "<strong>Info:</strong> Die Matches werden automatisch im Hintergrund aktualisiert. Es werden nur Turniere angezeigt, die eine Auslastung von unter 100% aufweisen (freie Startplätze).",
     "free-list-title": "Verfügbare Matches auf MatchSign (Auslastung < 100%)",
     "free-all-countries": "Alle Länder",
@@ -240,6 +279,7 @@ window.translations = {
     "sub-title": "By Shooters for Shooters – Live Marketplace",
     "btn-login-reg": "Login / Register",
     "logout": "Logout",
+    "btn-logout": "Logout",
     "info-msg": "<strong>Important Notice:</strong> This platform only serves as a mediator. The final transfer of the slot must be processed by the respective Match Director!",
     "form-title": "Create Entry",
     "form-title-edit": "Edit Entry ✏️",
@@ -300,7 +340,7 @@ window.translations = {
     "email-body-footer": "\n\nIs this listing still available?\n\nBest regards",
     "security-notice": "⚠️ IMPORTANT SAFETY NOTICE:\n\n1. ALWAYS use PayPal with Buyer Protection for payments (never use 'Friends & Family').\n2. You MUST contact the Match Director BEFORE making any payment to confirm if a slot transfer is still permitted!\n\nDo you want to open the email client now?",
     "grid-error": "Spam protection: You have already posted an entry for this match on this date!",
-    
+
     "nav-marketplace": "Marketplace",
     "nav-free-slots": "Free Match Slots",
     "nav-my-planner": "My Planner",
@@ -317,7 +357,7 @@ window.translations = {
     "planner-subtitle-planned": "Planned Matches",
     "planner-loading": "Loading data from Supabase...",
     "planner-btn-export": "📅 Export to Calendar (.ics)",
-    
+
     "free-info-box": "<strong>Info:</strong> The matches are automatically updated in the background. Only tournaments with a capacity under 100% are displayed (available slots).",
     "free-list-title": "Available Matches on MatchSign (Capacity < 100%)",
     "free-all-countries": "All Countries",
@@ -353,13 +393,16 @@ window.escapeHtml = escapeHtml;
 
 function applyLanguage(lang) {
   window.currentLang = lang;
-  localStorage.setItem("selectedLanguage", lang); 
+  localStorage.setItem("selectedLanguage", lang);
+
   document.querySelectorAll("[data-txt]").forEach(el => {
     const key = el.getAttribute("data-txt");
-    if (window.translations[lang] && window.translations[lang][key]) { 
+
+    if (window.translations[lang] && window.translations[lang][key]) {
       if (key === "form-title" && window.editingMatchId !== undefined && window.editingMatchId !== null) return;
       if (key === "btn-insert" && window.editingMatchId !== undefined && window.editingMatchId !== null) return;
-      el.innerHTML = window.translations[lang][key]; 
+
+      el.innerHTML = window.translations[lang][key];
     }
   });
 
@@ -370,31 +413,98 @@ function applyLanguage(lang) {
     levelSelect.innerHTML = `<option value="">${defaultText}</option><option value="Level I">Level I</option><option value="Level II">Level II</option><option value="Level III">Level III</option>`;
     levelSelect.value = currentVal;
   }
-  if (typeof window.onLanguageChanged === "function") { window.onLanguageChanged(lang); }
+
+  if (typeof window.onLanguageChanged === "function") {
+    window.onLanguageChanged(lang);
+  }
 }
 
 async function checkUserStatus() {
   const container = document.getElementById("auth-status-container");
   const emailField = document.getElementById("seller-email");
   const user = window.currentUser;
-  
+
+  const loginBtn = document.getElementById("btn-open-login");
+  const profileBtn = document.getElementById("btn-open-settings");
+  const logoutBtn = document.getElementById("btn-logout");
+  const avatarImg = document.getElementById("header-avatar");
+
   if (user) {
-    const displayName = user.user_metadata?.username || user.email.split('@')[0];
-    const avatarUrl = user.user_metadata?.avatar_url;
-    
-    const avatarHtml = avatarUrl 
-        ? `<img src="${avatarUrl}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-color); box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: block;">` 
-        : `<span style="font-weight:bold; color:var(--accent-color);">${escapeHtml(displayName)}</span>`;
+    const displayName = user.user_metadata?.username || user.email.split("@")[0];
+
+    const avatarUrl =
+      user.user_metadata?.avatar_url ||
+      user.user_metadata?.picture ||
+      user.user_metadata?.profile_picture ||
+      localStorage.getItem(HEADER_AVATAR_CACHE_KEY) ||
+      DEFAULT_HEADER_AVATAR;
 
     if (container) {
-      container.innerHTML = `<div id="btn-open-settings" style="cursor:pointer; display:flex; align-items:center;">${avatarHtml}</div><button class="btn-auth" id="btn-logout" style="border-color: var(--danger-color); color: var(--danger-color); margin-left: 4px;">${window.translations[window.currentLang]["logout"]}</button>`;
+      container.dataset.authState = "in";
     }
-    if (emailField) { emailField.value = user.email; emailField.readOnly = true; }
+
+    // WICHTIG: Kein container.innerHTML mehr.
+    // Nur bestehende Header-Elemente ein-/ausblenden.
+    if (loginBtn) {
+      loginBtn.style.display = "none";
+    }
+
+    if (profileBtn) {
+      profileBtn.style.display = "inline-flex";
+      profileBtn.title = displayName;
+      profileBtn.setAttribute("aria-label", "Profil öffnen");
+    }
+
+    if (logoutBtn) {
+      logoutBtn.style.display = "inline-flex";
+      logoutBtn.innerHTML =
+        window.translations?.[window.currentLang]?.["logout"] ||
+        window.translations?.[window.currentLang]?.["btn-logout"] ||
+        "Abmelden";
+    }
+
+    if (avatarImg && avatarImg.getAttribute("src") !== avatarUrl) {
+      avatarImg.setAttribute("src", avatarUrl);
+    }
+
+    cacheHeaderUser(user);
+
+    if (emailField) {
+      emailField.value = user.email;
+      emailField.readOnly = true;
+    }
+
   } else {
     if (container) {
-      container.innerHTML = `<button class="btn-auth" id="btn-open-login">${window.translations[window.currentLang]["btn-login-reg"]}</button>`;
+      container.dataset.authState = "out";
     }
-    if (emailField) { emailField.value = ""; emailField.placeholder = "Logge dich ein, um zu inserieren"; }
+
+    if (loginBtn) {
+      loginBtn.style.display = "inline-flex";
+      loginBtn.innerHTML =
+        window.translations?.[window.currentLang]?.["btn-login-reg"] ||
+        "Login / Registrieren";
+    }
+
+    if (profileBtn) {
+      profileBtn.style.display = "none";
+    }
+
+    if (logoutBtn) {
+      logoutBtn.style.display = "none";
+    }
+
+    if (avatarImg) {
+      avatarImg.setAttribute("src", DEFAULT_HEADER_AVATAR);
+    }
+
+    clearHeaderUserCache();
+
+    if (emailField) {
+      emailField.value = "";
+      emailField.placeholder = "Logge dich ein, um zu inserieren";
+      emailField.readOnly = false;
+    }
   }
 }
 
@@ -409,40 +519,58 @@ window.toggleAuthView = toggleAuthView;
 
 document.addEventListener("click", async (e) => {
     if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
-        document.getElementById("auth-modal").style.display = "flex";
-        toggleAuthView("login");
+        const modal = document.getElementById("auth-modal");
+        if (modal) {
+            modal.style.display = "flex";
+            toggleAuthView("login");
+        }
     }
+
     if (e.target.id === "btn-close-modal" || e.target.closest("#btn-close-modal")) {
-        document.getElementById("auth-modal").style.display = "none";
+        const modal = document.getElementById("auth-modal");
+        if (modal) modal.style.display = "none";
     }
+
     if (e.target.id === "btn-logout" || e.target.closest("#btn-logout")) {
+        clearHeaderUserCache();
         await window.supabaseClient.auth.signOut();
         location.reload();
     }
+
     if (e.target.id === "btn-open-settings" || e.target.closest("#btn-open-settings")) {
-        document.getElementById("auth-modal").style.display = "flex";
-        toggleAuthView("settings");
-        
+        const modal = document.getElementById("auth-modal");
+        if (modal) {
+            modal.style.display = "flex";
+            toggleAuthView("settings");
+        }
+
         const settingsIpsc = document.getElementById("settings-ipsc-alias");
         if (settingsIpsc && window.currentUser) {
             settingsIpsc.value = window.currentUser.user_metadata?.ipsc_alias || "";
         }
+
         const settingsRealName = document.getElementById("settings-real-name");
         if (settingsRealName && window.currentUser) {
             settingsRealName.value = window.currentUser.user_metadata?.real_name || "";
         }
+
         const previewImg = document.getElementById("settings-avatar-preview");
         if (previewImg && window.currentUser?.user_metadata?.avatar_url) {
             previewImg.src = window.currentUser.user_metadata.avatar_url;
             previewImg.style.display = 'block';
         }
     }
+
     if (e.target.id === "btn-delete-account") {
         e.preventDefault();
+
         if (!confirm("⚠️ WARNUNG:\n\nMöchtest du dein Profil und all deine aktiven Marktplatz-Inserate wirklich unwiderruflich löschen?")) return;
+
         await window.supabaseClient.from("matches").delete().eq("seller_email", window.currentUser.email);
         await window.supabaseClient.auth.updateUser({ data: { deleted: true, username: "Gelöschter Schütze" } });
+        clearHeaderUserCache();
         await window.supabaseClient.auth.signOut();
+
         alert("Dein Konto und deine Inserate wurden erfolgreich entfernt.");
         location.reload();
     }
@@ -451,34 +579,44 @@ document.addEventListener("click", async (e) => {
 window.previewSettingsAvatar = function(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
+
         reader.onload = function(e) {
             const img = document.getElementById('settings-avatar-preview');
-            if (img) { img.src = e.target.result; img.style.display = 'block'; }
-        }
+
+            if (img) {
+                img.src = e.target.result;
+                img.style.display = 'block';
+            }
+        };
+
         reader.readAsDataURL(input.files[0]);
     }
-}
+};
 
 document.addEventListener("submit", async (e) => {
     if (e.target.id === "login-form") {
-        e.preventDefault(); 
+        e.preventDefault();
+
         const btn = e.target.querySelector('button[type="submit"]');
-        if (btn) btn.innerText = "Lade..."; 
-        
-        const { error } = await window.supabaseClient.auth.signInWithPassword({
+        if (btn) btn.innerText = "Lade...";
+
+        const { data, error } = await window.supabaseClient.auth.signInWithPassword({
             email: document.getElementById("login-email").value,
             password: document.getElementById("login-password").value,
         });
-        
+
         if (error) {
-            if (btn) btn.innerText = "Einloggen"; 
+            if (btn) btn.innerText = "Einloggen";
             alert("Login fehlgeschlagen: " + error.message);
         } else {
+            if (data?.session?.user) cacheHeaderUser(data.session.user);
             location.reload();
         }
     }
+
     else if (e.target.id === "register-form") {
         e.preventDefault();
+
         const agbCheckbox = document.getElementById("register-agb");
         if (agbCheckbox && !agbCheckbox.checked) {
             alert(window.currentLang === "en" ? "Please accept the terms and conditions." : "Bitte akzeptiere die AGB und Nutzungsbedingungen, um fortzufahren.");
@@ -489,7 +627,7 @@ document.addEventListener("submit", async (e) => {
         const ipscAlias = document.getElementById("register-ipsc-alias") ? document.getElementById("register-ipsc-alias").value.trim() : "";
         const emailValue = document.getElementById("register-email").value;
         const passwordValue = document.getElementById("register-password").value;
-        
+
         const publicUsername = ipscAlias !== "" ? ipscAlias : emailValue.split('@')[0];
 
         const { error } = await window.supabaseClient.auth.signUp({
@@ -503,64 +641,100 @@ document.addEventListener("submit", async (e) => {
                 }
             }
         });
+
         if (error) alert("Registrierung fehlgeschlagen: " + error.message);
-        else { alert("Konto erstellt! Bitte überprüfe dein Postfach."); toggleAuthView("login"); }
+        else {
+            alert("Konto erstellt! Bitte überprüfe dein Postfach.");
+            toggleAuthView("login");
+        }
     }
+
     else if (e.target.id === "forgot-form") {
         e.preventDefault();
+
         const { error } = await window.supabaseClient.auth.resetPasswordForEmail(document.getElementById("forgot-email").value, {
             redirectTo: window.location.origin + window.location.pathname,
         });
+
         if (error) alert("Fehler: " + error.message);
-        else { alert("Link zum Zurücksetzen gesendet!"); toggleAuthView("login"); }
+        else {
+            alert("Link zum Zurücksetzen gesendet!");
+            toggleAuthView("login");
+        }
     }
+
     else if (e.target.id === "reset-password-form") {
         e.preventDefault();
+
         const { error } = await window.supabaseClient.auth.updateUser({
             password: document.getElementById("reset-password-input").value
         });
+
         if (error) alert("Fehler: " + error.message);
-        else { 
-            alert(window.currentLang === "en" ? "Password updated! Confirmation email has been sent." : "Passwort erfolgreich aktualisiert! Eine Bestätigungs-E-Mail wurde versendet."); 
-            location.reload(); 
+        else {
+            alert(window.currentLang === "en" ? "Password updated! Confirmation email has been sent." : "Passwort erfolgreich aktualisiert! Eine Bestätigungs-E-Mail wurde versendet.");
+            location.reload();
         }
     }
+
     else if (e.target.id === "settings-form") {
         e.preventDefault();
+
         const btn = e.target.querySelector('button[type="submit"]');
         const oldText = btn ? btn.innerText : "";
         if (btn) btn.innerText = "Speichere... (Bild lädt hoch)";
 
         try {
             const newPassword = document.getElementById("settings-password") ? document.getElementById("settings-password").value : "";
-            const newIpscAlias = document.getElementById("settings-ipsc-alias") ? document.getElementById("settings-ipsc-alias").value.trim() : ""; 
+            const newIpscAlias = document.getElementById("settings-ipsc-alias") ? document.getElementById("settings-ipsc-alias").value.trim() : "";
             const newRealName = document.getElementById("settings-real-name") ? document.getElementById("settings-real-name").value.trim() : "";
 
             const publicUsername = newIpscAlias !== "" ? newIpscAlias : window.currentUser.email.split('@')[0];
 
             const avatarInput = document.getElementById("settings-avatar");
             const avatarFile = avatarInput && avatarInput.files.length > 0 ? avatarInput.files[0] : null;
-            
-            let updates = { data: { username: publicUsername, ipsc_alias: newIpscAlias, real_name: newRealName } };
-            if (newPassword.trim().length >= 6) { updates.password = newPassword; }
+
+            let updates = {
+                data: {
+                    username: publicUsername,
+                    ipsc_alias: newIpscAlias,
+                    real_name: newRealName
+                }
+            };
+
+            if (newPassword.trim().length >= 6) {
+                updates.password = newPassword;
+            }
 
             if (avatarFile) {
                 const avatarUrl = await window.uploadImage(avatarFile, 'avatars');
                 updates.data.avatar_url = avatarUrl;
+
+                try {
+                    localStorage.setItem(HEADER_AVATAR_CACHE_KEY, avatarUrl);
+                    localStorage.setItem(
+                        HEADER_USER_CACHE_KEY,
+                        JSON.stringify({
+                            email: window.currentUser.email || "",
+                            avatar_url: avatarUrl,
+                            updated_at: Date.now()
+                        })
+                    );
+                } catch (err) {}
             }
 
             const { error } = await window.supabaseClient.auth.updateUser(updates);
             if (error) throw error;
-            
-            // Extra Profile Update für Konsistenz in der Supabase DB
+
             await window.supabaseClient.from("profiles").update({
                 username: publicUsername,
                 ipsc_alias: newIpscAlias,
                 real_name: newRealName
             }).eq("id", window.currentUser.id);
 
-            alert(window.currentLang === "en" ? "Account updated!" : "Konto erfolgreich aktualisiert!"); 
-            location.reload(); 
+            alert(window.currentLang === "en" ? "Account updated!" : "Konto erfolgreich aktualisiert!");
+            location.reload();
+
         } catch (err) {
             if (btn) btn.innerText = oldText;
             alert("Fehler beim Speichern: " + err.message);
@@ -570,24 +744,26 @@ document.addEventListener("submit", async (e) => {
 
 document.addEventListener("change", (e) => {
     if (e.target.id === "language-select") {
-        localStorage.setItem("selectedLanguage", e.target.value); 
+        localStorage.setItem("selectedLanguage", e.target.value);
         applyLanguage(e.target.value);
     }
 });
 
 function formatStars(value) {
     if (!value || isNaN(value) || value === 0) return "-";
+
     let fullStars = Math.round(value);
     return "★".repeat(fullStars) + "☆".repeat(5 - fullStars) + ` (${parseFloat(value).toFixed(1)}/5)`;
 }
 
 const initAppLanguage = () => {
     initTheme();
+
     const savedLang = localStorage.getItem("selectedLanguage") || "de";
-    
+
     const selector = document.getElementById("language-select");
     if (selector) selector.value = savedLang;
-    
+
     applyLanguage(savedLang);
 };
 
@@ -598,42 +774,66 @@ if (document.readyState === "loading") {
 }
 
 setTimeout(async () => {
-    // ABFANG-LOGIK FÜR ABGELAUFENE/FEHLERHAFTE LINKS:
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
+
     if (hashParams.has('error_code') && hashParams.get('error_code') === 'otp_expired') {
-        alert(window.currentLang === "en" 
-            ? "This reset link has expired or has already been used. Please request a new one." 
+        alert(window.currentLang === "en"
+            ? "This reset link has expired or has already been used. Please request a new one."
             : "Dieser Link ist abgelaufen oder wurde bereits verwendet. Bitte fordere einen neuen Passwort-Link an.");
+
         history.replaceState("", document.title, window.location.pathname + window.location.search);
     }
 
     const { data: { session } } = await window.supabaseClient.auth.getSession();
+
     window.currentUser = session?.user || null;
+
+    if (window.currentUser) {
+        cacheHeaderUser(window.currentUser);
+    } else {
+        clearHeaderUserCache();
+    }
+
     await checkUserStatus();
 
     if (window.currentUser) {
         try {
             const salesRes = await window.supabaseClient.from('mediated_deals').select('*').eq('seller_email', window.currentUser.email);
             const purchaseRes = await window.supabaseClient.from('mediated_deals').select('*').eq('buyer_email', window.currentUser.email);
-            
+
             const salesData = salesRes.data || [];
             const purchaseData = purchaseRes.data || [];
-            
+
             const salesCountEl = document.getElementById("profile-sales-count");
             const purchaseCountEl = document.getElementById("profile-purchases-count");
-            
+
             if (salesCountEl) salesCountEl.innerText = salesData.length;
             if (purchaseCountEl) purchaseCountEl.innerText = purchaseData.length;
 
             let totalComm = 0, totalPay = 0, countComm = 0, countPay = 0;
-            
+
             salesData.forEach(d => {
-                if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
-                if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
+                if (d.rating_communication) {
+                    totalComm += d.rating_communication;
+                    countComm++;
+                }
+
+                if (d.rating_payment) {
+                    totalPay += d.rating_payment;
+                    countPay++;
+                }
             });
+
             purchaseData.forEach(d => {
-                if (d.rating_communication) { totalComm += d.rating_communication; countComm++; }
-                if (d.rating_payment) { totalPay += d.rating_payment; countPay++; }
+                if (d.rating_communication) {
+                    totalComm += d.rating_communication;
+                    countComm++;
+                }
+
+                if (d.rating_payment) {
+                    totalPay += d.rating_payment;
+                    countPay++;
+                }
             });
 
             const ratingCommEl = document.getElementById("profile-rating-comm");
@@ -641,28 +841,37 @@ setTimeout(async () => {
 
             if (ratingCommEl) ratingCommEl.innerText = formatStars(countComm > 0 ? totalComm / countComm : 0);
             if (ratingPayEl) ratingPayEl.innerText = formatStars(countPay > 0 ? totalPay / countPay : 0);
+
         } catch(e) {
             console.error("Fehler beim Laden der Profil-Statistiken:", e);
         }
     }
-    
-    if (typeof window.onAuthChange === "function") { 
-        window.onAuthChange(window.currentUser); 
+
+    if (typeof window.onAuthChange === "function") {
+        window.onAuthChange(window.currentUser);
     }
 
     window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
         window.currentUser = session?.user || null;
-        
+
+        if (window.currentUser) {
+            cacheHeaderUser(window.currentUser);
+        } else {
+            clearHeaderUserCache();
+        }
+
         if (event === "PASSWORD_RECOVERY") {
             const modal = document.getElementById("auth-modal");
+
             if (modal) modal.style.display = "flex";
+
             toggleAuthView("reset-password");
         }
-        
+
         await checkUserStatus();
-        
-        if (typeof window.onAuthChange === "function") { 
-            window.onAuthChange(window.currentUser); 
+
+        if (typeof window.onAuthChange === "function") {
+            window.onAuthChange(window.currentUser);
         }
     });
 }, 150);
