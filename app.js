@@ -699,7 +699,16 @@ function resetFormState() {
   document.getElementById("btn-cancel-edit").style.display = "none";
   enforceFutureDates();
 }
-document.getElementById("btn-cancel-edit")?.addEventListener("click", resetFormState);
+
+// -------------------------------------------------------------
+// EVENT DELEGATION FÜR DYNAMISCHE SPA-INHALTE
+// -------------------------------------------------------------
+
+document.addEventListener("click", (e) => {
+  if (e.target && e.target.closest("#btn-cancel-edit")) {
+    resetFormState();
+  }
+});
 
 async function handleDelete(id, sellerEmail) {
   const isAdmin = window.currentUser && window.currentUser.email === "fabian-schoeps@gmx.de";
@@ -720,72 +729,76 @@ async function handleDelete(id, sellerEmail) {
   fetchMatches();
 }
 
-document.getElementById("match-form")?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  if (!window.currentUser) return alert(window.currentLang === "en" ? "Please log in." : "Bitte melde dich an.");
-  
-  const inputDate = document.getElementById("match-date").value;
-  const todayStr = new Date().toISOString().split("T")[0];
-  
-  if (inputDate < todayStr) {
-    alert(window.currentLang === "en" ? "Error: Match date cannot be in the past!" : "Fehler: Das Match-Datum darf nicht in der Vergangenheit liegen!");
-    return;
-  }
+document.addEventListener("submit", async (e) => {
+  if (e.target && e.target.id === "match-form") {
+    e.preventDefault();
+    if (!window.currentUser) return alert(window.currentLang === "en" ? "Please log in." : "Bitte melde dich an.");
+    
+    const inputDate = document.getElementById("match-date").value;
+    const todayStr = new Date().toISOString().split("T")[0];
+    
+    if (inputDate < todayStr) {
+      alert(window.currentLang === "en" ? "Error: Match date cannot be in the past!" : "Fehler: Das Match-Datum darf nicht in der Vergangenheit liegen!");
+      return;
+    }
 
-  const matchName = document.getElementById("match-name").value;
-  let spamCheck = window.supabaseClient
-      .from("matches")
-      .select("id")
-      .eq("seller_email", window.currentUser.email)
-      .eq("match_name", matchName)
-      .eq("match_date", inputDate);
-      
-  if (window.editingMatchId !== null) { 
-      spamCheck = spamCheck.neq("id", window.editingMatchId); 
-  }
+    const matchName = document.getElementById("match-name").value;
+    let spamCheck = window.supabaseClient
+        .from("matches")
+        .select("id")
+        .eq("seller_email", window.currentUser.email)
+        .eq("match_name", matchName)
+        .eq("match_date", inputDate);
+        
+    if (window.editingMatchId !== null) { 
+        spamCheck = spamCheck.neq("id", window.editingMatchId); 
+    }
 
-  const { data: duplicateEntries, error: spamError } = await spamCheck;
-  if (spamError) return alert((window.currentLang === "en" ? "Spam check error: " : "Fehler bei der Spam-Prüfung: ") + spamError.message);
-  if (duplicateEntries && duplicateEntries.length > 0) return alert(window.translations[window.currentLang]["spam-error"]);
+    const { data: duplicateEntries, error: spamError } = await spamCheck;
+    if (spamError) return alert((window.currentLang === "en" ? "Spam check error: " : "Fehler bei der Spam-Prüfung: ") + spamError.message);
+    if (duplicateEntries && duplicateEntries.length > 0) return alert(window.translations[window.currentLang]["spam-error"]);
 
-  const matchData = {
-    match_name: matchName,
-    match_level: document.getElementById("match-level").value,
-    match_date: inputDate,
-    match_location: document.getElementById("match-location").value,
-    match_country: document.getElementById("match-country").value,
-    match_price: document.getElementById("match-price").value,
-    seller_email: window.currentUser.email,
-    type: document.getElementById("type-want").checked ? "want" : "offer",
-    author_name: window.currentUser.user_metadata?.username || window.currentUser.email.split('@')[0],
-    author_avatar: window.currentUser.user_metadata?.avatar_url || '',
-    author_ipsc_alias: window.currentUser.user_metadata?.ipsc_alias || ''
-  };
-  
-  matchData.match_squad = document.getElementById("match-squad").value || null;
+    const matchData = {
+      match_name: matchName,
+      match_level: document.getElementById("match-level").value,
+      match_date: inputDate,
+      match_location: document.getElementById("match-location").value,
+      match_country: document.getElementById("match-country").value,
+      match_price: document.getElementById("match-price").value,
+      seller_email: window.currentUser.email,
+      type: document.getElementById("type-want").checked ? "want" : "offer",
+      author_name: window.currentUser.user_metadata?.username || window.currentUser.email.split('@')[0],
+      author_avatar: window.currentUser.user_metadata?.avatar_url || '',
+      author_ipsc_alias: window.currentUser.user_metadata?.ipsc_alias || ''
+    };
+    
+    matchData.match_squad = document.getElementById("match-squad").value || null;
 
-  if (window.editingMatchId !== null) {
-    const { error } = await window.supabaseClient.from("matches").update(matchData).eq("id", window.editingMatchId);
-    if (error) alert((window.currentLang === "en" ? "Error updating: " : "Fehler beim Aktualisieren: ") + error.message);
-  } else {
-    const { error } = await window.supabaseClient.from("matches").insert([matchData]);
-    if (error) alert((window.currentLang === "en" ? "Error creating: " : "Fehler beim Erstellen: ") + error.message);
-  }
+    if (window.editingMatchId !== null) {
+      const { error } = await window.supabaseClient.from("matches").update(matchData).eq("id", window.editingMatchId);
+      if (error) alert((window.currentLang === "en" ? "Error updating: " : "Fehler beim Aktualisieren: ") + error.message);
+    } else {
+      const { error } = await window.supabaseClient.from("matches").insert([matchData]);
+      if (error) alert((window.currentLang === "en" ? "Error creating: " : "Fehler beim Erstellen: ") + error.message);
+    }
 
-  resetFormState();
-  fetchMatches();
-  
-  if (window.history.replaceState) {
-    const url = new URL(window.location);
-    url.search = '';
-    window.history.replaceState({}, document.title, url);
+    resetFormState();
+    fetchMatches();
+    
+    if (window.history.replaceState) {
+      const url = new URL(window.location);
+      url.search = '';
+      window.history.replaceState({}, document.title, url);
+    }
   }
 });
 
-document.getElementById("filter-type-select")?.addEventListener("change", (e) => {
-  const type = e.target.value;
-  if (type === "all") renderMatches(cachedMatches);
-  else renderMatches(cachedMatches.filter(m => m.type === type));
+document.addEventListener("change", (e) => {
+  if (e.target && e.target.id === "filter-type-select") {
+    const type = e.target.value;
+    if (type === "all") renderMatches(cachedMatches);
+    else renderMatches(cachedMatches.filter(m => m.type === type));
+  }
 });
 
 function checkPlannerImport() {
@@ -836,6 +849,19 @@ window.onAuthChange = (user) => {
   loadUserSettingsProfile();
 };
 
-enforceFutureDates();
-checkPlannerImport();
-fetchMatches();
+// =========================================================================
+// INITIALISIERUNG BEI JEDEM SPA-SEITENWECHSEL
+// =========================================================================
+function initAppElements() {
+  enforceFutureDates();
+  checkPlannerImport();
+  if (document.getElementById("match-container")) {
+    fetchMatches();
+  }
+}
+
+// 1. Beim allerersten, echten Laden der App ausführen:
+initAppElements();
+
+// 2. Jedes Mal ausführen, wenn der Router den Inhalt getauscht hat:
+document.addEventListener("pageLoaded", initAppElements);
