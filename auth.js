@@ -478,7 +478,6 @@ async function checkUserStatus() {
 
     if (logoutBtn) {
       logoutBtn.innerHTML =
-        window.translations?.[window.currentLang]?.["logout"] ||
         window.translations?.[window.currentLang]?.["btn-logout"] ||
         "Abmelden";
     }
