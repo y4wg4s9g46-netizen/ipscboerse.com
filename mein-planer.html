@@ -6,16 +6,16 @@
     <title>Mein Wettkampfplaner | Startplatz Börse</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0b1121" media="(prefers-color-scheme: dark)">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="IPSC Börse">
-    <link rel=\"apple-touch-icon\" href=\"icon-192.png\">
+    <link rel="apple-touch-icon" href="icon-192.png">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // Setzt das Theme SOFORT, bevor die Seite gerendert wird
         (function() {
             var theme = localStorage.getItem("selectedTheme") || "auto";
             if (theme === "dark" || (theme === "auto" && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -24,63 +24,55 @@
         })();
     </script>
     <style>
-        /* Exakte Farben aus der global.css für nahtlose Übergänge */
         html, body { background-color: #f8fafc; }
-        html[data-theme="dark"], html[data-theme="dark"] body { background-color: #0f172a; }
+        html[data-theme="dark"], html[data-theme="dark"] body { background-color: #0b1121; }
+        body { visibility: visible !important; }
     </style>
-    <link rel="stylesheet" href="global.css">
+
+    <link rel="stylesheet" href="global.css?v=16">
 </head>
 <body>
 
     <header></header>
+    <script src="header.js"></script>
 
-    <div class="main-container">
+    <div class="container">
         
-        <div class="planner-header">
-            <h1 data-txt="planner-main-title">Mein Wettkampfplaner</h1>
-            <p data-txt="planner-subtitle">Verwalte deine gemerkten Matches, plane deine Saison und exportiere deine Termine direkt in deinen Kalender.</p>
-        </div>
-
-        <div id="logged-out-section" style="display: none;">
-            <h2 data-txt="planner-login-required-title">Bitte melde dich an</h2>
-            <p data-txt="planner-login-required-desc">Um deinen persönlichen Wettkampfplaner zu nutzen, deine Termine zu speichern und zu verwalten, musst du eingeloggt sein.</p>
-            <button class="btn-primary" onclick="if(typeof openAuthModal==='function')openAuthModal()" style="margin-top: 15px;" data-txt="btn-login-now">Jetzt anmelden / Registrieren</button>
+        <div id="logged-out-section" style="text-align: center;">
+            <h2 data-txt="planner-logged-out-title">Nicht angemeldet</h2>
+            <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 25px;" data-txt="planner-logged-out-desc">Logge dich ein, um deine Matches zu verwalten und in die Cloud zu synchronisieren.</p>
+            <button class="btn-primary-auth" onclick="document.getElementById('auth-modal').style.display = 'flex'; if(typeof toggleAuthView === 'function') toggleAuthView('login');" style="width: auto; padding: 14px 32px;" data-txt="planner-logged-out-btn">Jetzt einloggen</button>
         </div>
 
         <div id="planner-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--bg-color); padding-bottom: 16px; margin-bottom: 24px;">
+                <h2 style="margin: 0;" data-txt="planner-title-my-matches">Meine Matches</h2>
+            </div>
+
+            <h3 data-txt="planner-subtitle-new">Neues Match eintragen</h3>
+            <div class="form-group">
+                <label data-txt="planner-lbl-match-name">Match-Name</label>
+                <input type="text" id="match-name" placeholder="z.B. Helmbrechts-Cup 2026">
+            </div>
             
-            <div class="planner-actions-bar">
-                <div class="matches-counter">
-                    <span id="planner-count-badge">0</span> <span data-txt="planner-matches-count-label">Wettkämpfe geplant</span>
+            <div class="planner-form-row">
+                <div class="form-group" style="flex: 1;">
+                    <label data-txt="planner-lbl-match-date">Datum</label>
+                    <input type="date" id="match-date">
                 </div>
-                <button class="btn-export-ics" onclick="exportToICS()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    <span data-txt="btn-export-calendar">In Kalender exportieren (.ics)</span>
-                </button>
+                <div class="form-group" style="flex: 1;">
+                    <label data-txt="planner-lbl-match-location">Ort / Land</label>
+                    <input type="text" id="match-location" placeholder="z.B. Philippsburg">
+                </div>
+            </div>
+            <button class="btn-post" onclick="addMatch()" data-txt="planner-btn-save">Match in Cloud speichern</button>
+
+            <h3 style="margin-top: 40px;" data-txt="planner-subtitle-planned">Geplante Matches</h3>
+            <div id="match-list">
+                <p style="color: var(--text-muted); font-style: italic; font-weight: 600;" data-txt="planner-loading">Lade Daten aus Supabase...</p>
             </div>
 
-            <div class="table-responsive">
-                <table class="planner-table">
-                    <thead>
-                        <tr>
-                            <th data-txt="th-date">Datum</th>
-                            <th data-txt="th-match">Match / Wettkampf</th>
-                            <th data-txt="th-location">Ort</th>
-                            <th style="width: 100px; text-align: center;" data-txt="th-actions">Aktionen</th>
-                        </tr>
-                    </thead>
-                    <tbody id="planner-tbody">
-                        </tbody>
-                </table>
-            </div>
-
-            <div id="planner-empty-state" class="planner-empty" style="display: none;">
-                <div class="empty-icon">📅</div>
-                <h3 data-txt="planner-empty-title">Noch keine Wettkämpfe geplant</h3>
-                <p data-txt="planner-empty-desc">Stöbere im Marktplatz nach interessanten Matches und klicke auf das Kalender-Symbol (Planer), um sie hier hinzuzufügen.</p>
-                <a href="marktplatz.html" class="btn-secondary" style="display: inline-flex; margin-top: 15px; text-decoration: none; justify-content: center; align-items: center;" data-txt="nav-marketplace">Zum Marktplatz</a>
-            </div>
-
+            <button onclick="exportToCalendar()" class="btn-success" style="margin-top: 24px; font-size: 15px;" data-txt="planner-btn-export">📅 In Kalender exportieren (.ics)</button>
         </div>
 
     </div>
@@ -88,154 +80,122 @@
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
             <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
-            <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
 
     <script src="auth.js"></script>
     <script src="lang.js"></script>
     <script src="app.js"></script>
-
+    <script src="router.js"></script>
     <script>
-        // Lokales Array für ICS-Export
         let myMatches = [];
 
-        // 1. Sichere die bestehende Auth-Funktion aus der app.js
-        const globalAuthChange = window.onAuthChange;
+        function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
 
-        // 2. Erweitere die Funktion (ohne die alte zu zerstören)
         window.onAuthChange = (user) => {
-            if (typeof globalAuthChange === "function") globalAuthChange(user);
-
             if (user) {
-                const loggedOutSec = document.getElementById('logged-out-section');
-                const plannerSec = document.getElementById('planner-section');
-                if(loggedOutSec) loggedOutSec.style.display = 'none';
-                if(plannerSec) plannerSec.style.display = 'block';
-                
-                loadMyMatches();
+                document.getElementById('logged-out-section').style.display = 'none';
+                document.getElementById('planner-section').style.display = 'block';
+                loadMatchesFromSupabase();
             } else {
-                const loggedOutSec = document.getElementById('logged-out-section');
-                const plannerSec = document.getElementById('planner-section');
-                if(loggedOutSec) loggedOutSec.style.display = 'block';
-                if(plannerSec) plannerSec.style.display = 'none';
-                myMatches = [];
+                document.getElementById('logged-out-section').style.display = 'block';
+                document.getElementById('planner-section').style.display = 'none';
+                document.getElementById('match-list').innerHTML = '';
             }
         };
 
-        // 3. Sofort-Fallprüfung bei Laden der Seite (Race-Condition-Schutz)
-        document.addEventListener("DOMContentLoaded", () => {
-            if (window.currentUser) {
-                window.onAuthChange(window.currentUser);
-            }
-            
-            // Dark Mode Toggle Check
-            const savedThemeSetting = localStorage.getItem("selectedTheme") || "auto";
-            if (typeof updateThemeToggleIcon === "function") {
-                updateThemeToggleIcon(savedThemeSetting);
-            }
-        });
-
-        // DATEN AUS SUPABASE LADEN
-        async function loadMyMatches() {
-            if (!window.currentUser || !window.supabaseClient) return;
-
-            try {
-                // Holt alle gemerkten IDs des Nutzers
-                const { data: plannerEntries, error: pErr } = await window.supabaseClient
-                    .from('user_planner')
-                    .select('match_id')
-                    .eq('user_id', window.currentUser.id);
-
-                if (pErr) throw pErr;
-
-                const tbody = document.getElementById('planner-tbody');
-                const emptyState = document.getElementById('planner-empty-state');
-                const countBadge = document.getElementById('planner-count-badge');
-
-                if (!plannerEntries || plannerEntries.length === 0) {
-                    tbody.innerHTML = '';
-                    if(emptyState) emptyState.style.display = 'block';
-                    if(countBadge) countBadge.innerText = '0';
-                    myMatches = [];
-                    return;
-                }
-
-                // Holt die echten Match-Details aus der Tabelle 'matches'
-                const matchIds = plannerEntries.map(e => e.match_id);
-                const { data: matches, error: mErr } = await window.supabaseClient
-                    .from('matches')
-                    .select('*')
-                    .in('id', matchIds)
-                    .order('match_date', { ascending: true });
-
-                if (mErr) throw mErr;
-                myMatches = matches || [];
-
-                if(countBadge) countBadge.innerText = myMatches.length;
-
-                if (!matches || matches.length === 0) {
-                    tbody.innerHTML = '';
-                    if(emptyState) emptyState.style.display = 'block';
-                    return;
-                }
-
-                if(emptyState) emptyState.style.display = 'none';
-                tbody.innerHTML = '';
-
-                // Befüllen der Tabelle für User & Scraper
-                matches.forEach(match => {
-                    const rawDate = match.match_date ? new Date(match.match_date) : null;
-                    const formattedDate = rawDate ? rawDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '---';
-
-                    const tr = document.createElement('tr');
-                    tr.id = `planner-row-${match.id}`;
-                    tr.innerHTML = `
-                        <td class="cell-date" data-label="Datum">${formattedDate}</td>
-                        <td class="cell-name" data-label="Wettkampf"><strong>${escapeHtml(match.match_name)}</strong></td>
-                        <td class="cell-location" data-label="Ort">${escapeHtml(match.match_location || '---')}</td>
-                        <td class="cell-actions" data-label="Aktionen">
-                            <button class="btn-remove-planner" onclick="removeFromPlanner('${match.id}')" title="Aus Planer entfernen">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-
-            } catch (err) {
-                console.error("Fehler im Planer:", err.message);
-            }
+        async function loadMatchesFromSupabase() {
+            if (!window.currentUser) return;
+            const { data, error } = await window.supabaseClient.from('user_matches').select('*').order('match_date', { ascending: true });
+            if (error) { console.error("Fehler beim Laden:", error); return; }
+            myMatches = data || [];
+            renderMatches();
         }
 
-        // AUS PLANER ENTFERNEN LOGIK
-        async function removeFromPlanner(matchId) {
-            if (!window.currentUser || !window.supabaseClient) return;
+        async function addMatch() {
+            const name = document.getElementById('match-name').value.trim();
+            const date = document.getElementById('match-date').value;
+            const location = document.getElementById('match-location').value.trim();
 
-            try {
-                const { error } = await window.supabaseClient
-                    .from('user_planner')
-                    .delete()
-                    .eq('user_id', window.currentUser.id)
-                    .eq('match_id', matchId);
+            if (!name || !date) { alert("Match-Name und Datum sind Pflichtfelder."); return; }
+            const { error = null } = await window.supabaseClient.from('user_matches').insert([{ user_id: window.currentUser.id, match_name: name, match_date: date, match_location: location }]);
+            if (error) { alert("Fehler beim Speichern: " + error.message); return; }
 
-                if (error) throw error;
+            document.getElementById('match-name').value = '';
+            document.getElementById('match-date').value = '';
+            document.getElementById('match-location').value = '';
+            loadMatchesFromSupabase();
+        }
 
-                // Direktes, sanftes Entfernen der Zeile aus dem DOM
-                const row = document.getElementById(`planner-row-${matchId}`);
-                if (row) row.remove();
+        async function deleteMatch(id) {
+            const { error } = await window.supabaseClient.from('user_matches').delete().eq('id', id);
+            if (!error) loadMatchesFromSupabase();
+        }
+
+        function renderMatches() {
+            const container = document.getElementById('match-list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (myMatches.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); font-style: italic; font-weight: 600;" data-txt="planner-no-matches">Noch keine Matches eingetragen.</p>';
+                return;
+            }
+
+            myMatches.forEach(match => {
+                const dateObj = new Date(match.match_date);
+                const displayDate = dateObj.toLocaleDateString('de-DE');
+                const safeName = encodeURIComponent(match.match_name);
+                const safeLocation = encodeURIComponent(match.match_location || '');
                 
-                // Aktualisiert die Ansicht neu
-                loadMyMatches();
+                let matchTitleHtml = escapeHtml(match.match_name);
+                if (match.match_url) {
+                    matchTitleHtml = `<a href="${escapeHtml(match.match_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(match.match_name)} 🔗</a>`;
+                }
 
-            } catch (err) {
-                alert("Fehler beim Entfernen: " + err.message);
-            }
+                let badgesHtml = '';
+                if (match.auto_imported) {
+                    badgesHtml += `<span class="badge badge-bot">🤖 Auto-Import</span>`;
+                }
+
+                if (match.status) {
+                    const statusLower = match.status.toLowerCase();
+                    if (statusLower.includes('approved') || statusLower.includes('bestätigt')) {
+                        badgesHtml += `<span class="badge badge-approved">Approved</span>`;
+                    } else if (statusLower.includes('warteliste') || statusLower.includes('waiting')) {
+                        badgesHtml += `<span class="badge badge-warteliste">Warteliste</span>`;
+                    } else {
+                        badgesHtml += `<span class="badge badge-pending">${escapeHtml(match.status)}</span>`;
+                    }
+                }
+
+                if (match.squad && match.squad !== 'TBD') {
+                    badgesHtml += `<span class="badge badge-squad">${escapeHtml(match.squad)}</span>`;
+                }
+
+                container.innerHTML += `
+                    <div class="match-item">
+                        <div>
+                            <h4>${matchTitleHtml} ${badgesHtml}</h4>
+                            <p>📅 ${displayDate} | 📍 ${escapeHtml(match.match_location || '-')}</p>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap;">
+                            <button onclick="inserierenAufMarktplatz('${safeName}', '${match.match_date}', '${safeLocation}')" style="background: var(--accent-gradient); color: #fff; border: none; border-radius: var(--radius); width: auto; padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(255, 159, 67, 0.3);">📢 Inserieren</button>
+                            <button onclick="deleteMatch(${match.id})" class="delete-btn">Löschen</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        function inserierenAufMarktplatz(name, date, location) {
+            const params = new URLSearchParams({ from_planner: 'true', name: decodeURIComponent(name), date: date, location: decodeURIComponent(location) });
+            window.location.href = 'marktplatz.html?' + params.toString();
         }
 
-        // ICS-KALENDER EXPORT GENERATOR
-        function exportToICS() {
-            if (!myMatches || myMatches.length === 0) { alert("Keine Matches zum Exportieren."); return; }
+        function exportToCalendar() {
+            if (myMatches.length === 0) { alert("Keine Matches zum Exportieren."); return; }
             let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//IPSC Boerse//Wettkampfplaner//DE\nCALSCALE:GREGORIAN\n";
             myMatches.forEach(match => {
                 const dateStr = match.match_date.replace(/-/g, '');
@@ -261,17 +221,7 @@
             document.body.removeChild(link);
         }
 
-        function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
-    </script>
-    
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('PWA Service Worker registriert!', reg.scope))
-                    .catch(err => console.error('PWA Fehler:', err));
-            });
-        }
+        window.onLanguageChanged = () => { renderMatches(); };
     </script>
 </body>
 </html>
