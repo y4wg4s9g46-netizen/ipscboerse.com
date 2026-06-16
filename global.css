@@ -83,6 +83,11 @@ img {
    BASE LAYOUT & HEADER
    ========================================================================== */
 
+html {
+    /* FIX: Verhindert das weiße Aufblitzen der Leinwand im Dark Mode */
+    background-color: var(--bg-color);
+}
+
 body { 
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--bg-color); 
@@ -786,4 +791,9 @@ html[data-theme="dark"] .chat-bubble.bubble-other {
 /* 2. Header & Logo vom Blitzen/Faden ausschließen (bleibt starr stehen) */
 header {
     view-transition-name: app-header;
+}
+
+/* FIX: Verbietet dem Header das "Wackeln" falls sich Scrollbars ändern */
+::view-transition-group(app-header) {
+    animation: none;
 }
