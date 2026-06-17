@@ -7578,3 +7578,61 @@ body.page-marktplatz .owner-actions-top + .match-card-main .match-summary {
         line-height: 1.32 !important;
     }
 }
+
+/* ==========================================================================
+   BROWSER / APP DOCK TUNING v38
+   ========================================================================== */
+
+@media (max-width: 768px) {
+
+    html.is-browser-mode #bottom-tab-bar {
+        bottom: max(7px, env(safe-area-inset-bottom)) !important;
+        width: calc(100% - 30px) !important;
+        height: 64px !important;
+        padding: 6px 7px !important;
+        border-radius: 24px !important;
+        background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.70)) !important;
+        box-shadow: 0 14px 34px rgba(15,23,42,.14), 0 1px 6px rgba(15,23,42,.05), inset 0 1px 0 rgba(255,255,255,.72) !important;
+    }
+
+    html[data-theme="dark"].is-browser-mode #bottom-tab-bar {
+        background: linear-gradient(180deg, rgba(31,41,55,.82), rgba(15,23,42,.72)) !important;
+        box-shadow: 0 16px 38px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.07) !important;
+    }
+
+    html.is-browser-mode #bottom-tab-bar .tab-item {
+        height: 52px !important;
+        border-radius: 19px !important;
+    }
+
+    html.is-browser-mode #bottom-tab-bar .tab-item::before {
+        inset: 4px 5px !important;
+        border-radius: 18px !important;
+    }
+
+    html.is-browser-mode #bottom-tab-bar .tab-item svg {
+        width: 22px !important;
+        height: 22px !important;
+    }
+
+    html.is-browser-mode #bottom-tab-bar .tab-item span {
+        font-size: 10.8px !important;
+        font-weight: 740 !important;
+    }
+
+    html.is-browser-mode body {
+        padding-bottom: calc(132px + env(safe-area-inset-bottom)) !important;
+    }
+
+    html.is-browser-mode .container,
+    html.is-browser-mode main,
+    html.is-browser-mode .main-container {
+        padding-bottom: calc(118px + env(safe-area-inset-bottom)) !important;
+    }
+
+    html.is-standalone-app #bottom-tab-bar {
+        bottom: max(12px, env(safe-area-inset-bottom)) !important;
+        height: 72px !important;
+        border-radius: 28px !important;
+    }
+}

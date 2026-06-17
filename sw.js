@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipsc-pwa-v37';
+const CACHE_NAME = 'ipsc-pwa-v38';
 
 // Install-Event: Wird aufgerufen, wenn der Service Worker das erste Mal registriert wird
 self.addEventListener('install', event => {

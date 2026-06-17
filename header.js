@@ -1255,6 +1255,32 @@ header .header-logo-img {
         }
 
 
+
+        // Browser/App Mode Detection v38:
+        // Wichtig für Safari-Browser vs. spätere PWA/App-Ansicht.
+        if (!window.__displayModeDetectionV38) {
+            window.__displayModeDetectionV38 = true;
+
+            const updateDisplayModeV38 = () => {
+                const isStandalone =
+                    window.matchMedia?.("(display-mode: standalone)")?.matches ||
+                    window.navigator?.standalone === true;
+
+                document.documentElement.classList.toggle("is-standalone-app", !!isStandalone);
+                document.documentElement.classList.toggle("is-browser-mode", !isStandalone);
+                document.documentElement.dataset.displayMode = isStandalone ? "standalone" : "browser";
+            };
+
+            updateDisplayModeV38();
+
+            try {
+                window.matchMedia?.("(display-mode: standalone)")?.addEventListener?.("change", updateDisplayModeV38);
+            } catch (_) {}
+
+            window.addEventListener("resize", updateDisplayModeV38, { passive: true });
+            window.addEventListener("orientationchange", updateDisplayModeV38, { passive: true });
+        }
+
         if (!document.getElementById("premium-bottom-nav-v37")) {
             const dockStyle = document.createElement("style");
             dockStyle.id = "premium-bottom-nav-v37";
@@ -1437,6 +1463,90 @@ header .header-logo-img {
                 const item = event.target.closest?.("#bottom-tab-bar .tab-item");
                 if (item) triggerNavFeedbackV37(item);
             }, { passive: true });
+        }
+
+
+        if (!document.getElementById("premium-bottom-nav-v38")) {
+            const dockStyleV38 = document.createElement("style");
+            dockStyleV38.id = "premium-bottom-nav-v38";
+            dockStyleV38.innerHTML = `
+                @media (max-width: 768px) {
+                    /* Browser-Safari: etwas flacher/leichter, damit es nicht so wuchtig wirkt */
+                    html.is-browser-mode #bottom-tab-bar {
+                        bottom: max(7px, env(safe-area-inset-bottom)) !important;
+                        width: calc(100% - 30px) !important;
+                        height: 64px !important;
+                        padding: 6px 7px !important;
+                        border-radius: 24px !important;
+                        background:
+                            linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.70)) !important;
+                        box-shadow:
+                            0 14px 34px rgba(15, 23, 42, 0.14),
+                            0 1px 6px rgba(15, 23, 42, 0.05),
+                            inset 0 1px 0 rgba(255,255,255,0.72) !important;
+                    }
+
+                    html[data-theme="dark"].is-browser-mode #bottom-tab-bar {
+                        background:
+                            linear-gradient(180deg, rgba(31,41,55,0.82), rgba(15,23,42,0.72)) !important;
+                        box-shadow:
+                            0 16px 38px rgba(0,0,0,0.34),
+                            inset 0 1px 0 rgba(255,255,255,0.07) !important;
+                    }
+
+                    html.is-browser-mode #bottom-tab-bar .tab-item {
+                        height: 52px !important;
+                        border-radius: 19px !important;
+                    }
+
+                    html.is-browser-mode #bottom-tab-bar .tab-item::before {
+                        inset: 4px 5px !important;
+                        border-radius: 18px !important;
+                    }
+
+                    html.is-browser-mode #bottom-tab-bar .tab-item svg {
+                        width: 22px !important;
+                        height: 22px !important;
+                    }
+
+                    html.is-browser-mode #bottom-tab-bar .tab-item span {
+                        font-size: 10.8px !important;
+                        font-weight: 740 !important;
+                    }
+
+                    html.is-browser-mode #bottom-tab-bar .tab-item.active::before {
+                        background:
+                            radial-gradient(circle at 50% 0%, rgba(255,255,255,0.42), transparent 55%),
+                            linear-gradient(135deg, rgba(255,159,67,0.15), rgba(255,128,8,0.07)) !important;
+                        box-shadow:
+                            inset 0 0 0 1px rgba(255,159,67,0.13),
+                            0 6px 15px rgba(255,159,67,0.10) !important;
+                    }
+
+                    /* App/PWA später: darf etwas kräftiger bleiben */
+                    html.is-standalone-app #bottom-tab-bar {
+                        bottom: max(12px, env(safe-area-inset-bottom)) !important;
+                        height: 72px !important;
+                        border-radius: 28px !important;
+                    }
+
+                    /* Mehr Luft, damit Inhalte im Browser nicht unter dem Dock kleben */
+                    html.is-browser-mode body {
+                        padding-bottom: calc(132px + env(safe-area-inset-bottom)) !important;
+                    }
+
+                    html.is-browser-mode .container,
+                    html.is-browser-mode main,
+                    html.is-browser-mode .main-container {
+                        padding-bottom: calc(118px + env(safe-area-inset-bottom)) !important;
+                    }
+
+                    html.is-browser-mode .more-menu-content {
+                        bottom: calc(82px + env(safe-area-inset-bottom)) !important;
+                    }
+                }
+            `;
+            document.head.appendChild(dockStyleV38);
         }
 
         window.toggleMoreMenu = function() {
