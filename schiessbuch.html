@@ -82,7 +82,7 @@
       })();
     </script>
 
-    <link rel="stylesheet" href="global.css?v=55">
+    <link rel="stylesheet" href="global.css?v=56">
     <style id="app-transition-prevent-flash-v50">
       html, body {
         background-color: #0f172a !important;
@@ -155,13 +155,119 @@
       })();
     </script>
 
+
+    <style id="schiessbuch-integrity-v56">
+      .integrity-info-box {
+        margin: 0 0 18px 0;
+        padding: 14px 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 159, 67, .25);
+        background: linear-gradient(135deg, rgba(255,159,67,.12), rgba(255,128,8,.04));
+        color: var(--text-muted);
+        font-size: 13px;
+        line-height: 1.45;
+        font-weight: 650;
+      }
+      .integrity-info-box strong {
+        color: var(--accent-color);
+      }
+      .integrity-mini {
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(148, 163, 184, .08);
+        border: 1px dashed rgba(148, 163, 184, .28);
+        font-size: 12px;
+        color: var(--text-muted);
+        line-height: 1.4;
+      }
+      .integrity-mini .hash-line {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .integrity-mini code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        color: var(--text-color);
+        font-size: 11px;
+        background: rgba(15,23,42,.08);
+        padding: 2px 5px;
+        border-radius: 6px;
+      }
+      html[data-theme="dark"] .integrity-mini code {
+        background: rgba(255,255,255,.06);
+      }
+      .integrity-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 7px;
+        padding: 5px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: .02em;
+      }
+      .integrity-badge.ok {
+        background: rgba(16,185,129,.12);
+        color: var(--success-color);
+        border: 1px solid rgba(16,185,129,.24);
+      }
+      .integrity-badge.pending {
+        background: rgba(59,130,246,.10);
+        color: var(--info-color);
+        border: 1px solid rgba(59,130,246,.22);
+      }
+      .integrity-badge.warn {
+        background: rgba(245,158,11,.12);
+        color: #f59e0b;
+        border: 1px solid rgba(245,158,11,.26);
+      }
+      .integrity-badge.bad {
+        background: rgba(239,68,68,.12);
+        color: var(--danger-color);
+        border: 1px solid rgba(239,68,68,.24);
+      }
+      .btn-share-verify {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        width: 100%;
+        margin-top: 10px;
+        min-height: 42px;
+        border: 1px solid rgba(59,130,246,.28);
+        border-radius: 14px;
+        background: rgba(59,130,246,.08);
+        color: var(--info-color);
+        font-weight: 850;
+        cursor: pointer;
+      }
+      .signature-hash-note {
+        margin-top: 8px;
+        font-size: 12px;
+        line-height: 1.4;
+        color: var(--text-muted);
+      }
+      @media (max-width: 560px) {
+        .integrity-info-box {
+          font-size: 12.5px;
+          padding: 13px 14px;
+        }
+        .integrity-mini {
+          font-size: 11.5px;
+        }
+      }
+    </style>
+
 </head>
 <body class="page-schiessbuch">
     <div id="app-page-transition-cover" aria-hidden="true"></div>
 
     <header id="main-header"></header>
   
-   <script src="header.js?v=34"></script>
+   <script src="header.js?v=35"></script>
 
     <div class="container">
         <div class="page-section" id="auth-guard" style="display: none; text-align: center; padding: 40px 20px;">
@@ -172,6 +278,10 @@
         </div>
 
         <div id="logbook-content" style="display: none;">
+            <div class="integrity-info-box" id="schiessbuch-integrity-info">
+                <strong>🔗 Manipulationsschutz aktiv:</strong> Neue Schießbuch-Einträge erhalten einen Hash-Fingerabdruck und werden beim Signieren mit dem vorherigen Eintrag verkettet. Nach der Bestätigung wird der Eintrag gesperrt.
+                <div id="schiessbuch-integrity-schema-note" style="display:none; margin-top:8px;">⚠️ Supabase-Spalten fehlen noch. Bis zur SQL-Migration läuft der Hash-Test nur lokal auf diesem Gerät.</div>
+            </div>
             
             <div class="dash-1218">
                 <div class="dash-circle">
@@ -223,7 +333,7 @@
         <div class="modal-content" style="max-width: 500px;">
             <span class="modal-close-trigger" onclick="closeModals()">&times;</span>
             <h3 style="color: var(--info-color);">🔒 Aufsichts-Bestätigung</h3>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Bitte gib das Gerät der Standaufsicht. Nach der Unterschrift wird dieser Eintrag <b>unwiderruflich gesperrt</b> und manipulationssicher archiviert.</p>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Bitte gib das Gerät der Standaufsicht. Nach der Unterschrift wird dieser Eintrag <b>unwiderruflich gesperrt</b> und manipulationssicher archiviert.</p><div class="integrity-mini" id="sign-integrity-preview">Hash wird beim Öffnen berechnet...</div>
             
             <div class="form-group">
                 <label data-txt="lbl-username">Name der Aufsicht / Schießleiter</label>
@@ -259,9 +369,195 @@
         let canvas, ctx;
         let isDrawing = false;
 
+        let integritySchemaAvailable = null;
+        const SCHIESSBUCH_LOCAL_INTEGRITY_KEY = "schiessbuchIntegrityMirrorV56";
+
+        function stableStringify(value) {
+            if (value === null || typeof value !== "object") return JSON.stringify(value);
+            if (Array.isArray(value)) return "[" + value.map(stableStringify).join(",") + "]";
+            return "{" + Object.keys(value).sort().map(key => JSON.stringify(key) + ":" + stableStringify(value[key])).join(",") + "}";
+        }
+
+        function normalizeHashValue(value) {
+            return String(value ?? "").trim().replace(/\s+/g, " ");
+        }
+
+        function canonicalEntryData(log) {
+            return {
+                user_id: normalizeHashValue(log.user_id || window.currentUser?.id),
+                datum: normalizeHashValue(log.datum),
+                ort: normalizeHashValue(log.ort),
+                disziplin: normalizeHashValue(log.disziplin),
+                waffe: normalizeHashValue(log.waffe),
+                schusszahl: normalizeHashValue(log.schusszahl)
+            };
+        }
+
+        async function sha256Hex(value) {
+            const encoded = new TextEncoder().encode(String(value));
+            const digest = await crypto.subtle.digest("SHA-256", encoded);
+            return Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, "0")).join("");
+        }
+
+        async function buildEntryHash(log) {
+            return sha256Hex(stableStringify(canonicalEntryData(log)));
+        }
+
+        async function buildChainHash(entryHash, previousHash, userId) {
+            return sha256Hex(stableStringify({
+                previous_hash: previousHash || "",
+                entry_hash: entryHash,
+                user_id: userId || window.currentUser?.id || ""
+            }));
+        }
+
+        function shortHash(hash) {
+            return hash ? `${String(hash).slice(0, 10)}…${String(hash).slice(-6)}` : "—";
+        }
+
+        function getLocalIntegrityMirror() {
+            try {
+                return JSON.parse(localStorage.getItem(SCHIESSBUCH_LOCAL_INTEGRITY_KEY) || "{}") || {};
+            } catch (_) {
+                return {};
+            }
+        }
+
+        function setLocalIntegrityForLog(id, data) {
+            if (!id) return;
+            const mirror = getLocalIntegrityMirror();
+            mirror[id] = { ...(mirror[id] || {}), ...data, updated_at: new Date().toISOString() };
+            localStorage.setItem(SCHIESSBUCH_LOCAL_INTEGRITY_KEY, JSON.stringify(mirror));
+        }
+
+        function getIntegrityData(log) {
+            const local = getLocalIntegrityMirror()[log.id] || {};
+            return {
+                entry_hash: log.entry_hash || local.entry_hash || null,
+                previous_hash: log.previous_hash || local.previous_hash || null,
+                chain_hash: log.chain_hash || local.chain_hash || null,
+                signature_hash: log.signature_hash || local.signature_hash || null,
+                confirmation_hash: log.confirmation_hash || local.confirmation_hash || null,
+                locked_at: log.locked_at || local.locked_at || null,
+                integrity_status: log.integrity_status || local.integrity_status || null,
+                local_only: !log.entry_hash && !!local.entry_hash
+            };
+        }
+
+        async function checkIntegritySchema() {
+            if (integritySchemaAvailable !== null) return integritySchemaAvailable;
+            try {
+                const { error } = await window.supabaseClient
+                    .from("schiessbuch")
+                    .select("id,entry_hash,previous_hash,chain_hash,signature_hash,confirmation_hash,locked_at,integrity_status")
+                    .limit(1);
+                integritySchemaAvailable = !error;
+            } catch (_) {
+                integritySchemaAvailable = false;
+            }
+
+            const note = document.getElementById("schiessbuch-integrity-schema-note");
+            if (note) note.style.display = integritySchemaAvailable ? "none" : "block";
+            return integritySchemaAvailable;
+        }
+
+        function getLatestChainHashFromLogs() {
+            const sorted = [...logs]
+                .filter(log => log && log.id)
+                .sort((a, b) => new Date(a.datum || a.created_at || 0) - new Date(b.datum || b.created_at || 0));
+            for (let i = sorted.length - 1; i >= 0; i--) {
+                const integrity = getIntegrityData(sorted[i]);
+                if (integrity.chain_hash) return integrity.chain_hash;
+            }
+            return "";
+        }
+
+        async function buildDraftIntegrity(payload) {
+            const entryHash = await buildEntryHash(payload);
+            const previousHash = getLatestChainHashFromLogs();
+            const chainHash = await buildChainHash(entryHash, previousHash, payload.user_id);
+            return {
+                entry_hash: entryHash,
+                previous_hash: previousHash || null,
+                chain_hash: chainHash,
+                integrity_status: "draft_hash_created"
+            };
+        }
+
+        async function verifyLogIntegrity(log) {
+            const integrity = getIntegrityData(log);
+            if (!integrity.entry_hash || !integrity.chain_hash) {
+                return { state: "warn", text: "Alt-Eintrag ohne Hash" };
+            }
+
+            const expectedEntryHash = await buildEntryHash(log);
+            if (expectedEntryHash !== integrity.entry_hash) {
+                return { state: "bad", text: "Manipulation erkannt: Eintragsdaten verändert" };
+            }
+
+            const expectedChainHash = await buildChainHash(integrity.entry_hash, integrity.previous_hash, log.user_id);
+            if (expectedChainHash !== integrity.chain_hash) {
+                return { state: "bad", text: "Hash-Kette beschädigt" };
+            }
+
+            if (log.is_verified) {
+                if (!integrity.signature_hash || !integrity.confirmation_hash) {
+                    return { state: "warn", text: "Signiert, aber alter Signatur-Hash fehlt" };
+                }
+                return { state: "ok", text: integrity.local_only ? "Lokal geprüft & gesperrt" : "Hash geprüft & gesperrt" };
+            }
+
+            return { state: "pending", text: integrity.local_only ? "Lokaler Entwurfs-Hash" : "Entwurfs-Hash erstellt" };
+        }
+
+        async function refreshIntegrityBadges() {
+            const badges = document.querySelectorAll("[data-integrity-id]");
+            for (const badge of badges) {
+                const id = badge.getAttribute("data-integrity-id");
+                const log = logs.find(item => String(item.id) === String(id));
+                if (!log) continue;
+                const result = await verifyLogIntegrity(log);
+                badge.className = `integrity-badge ${result.state}`;
+                badge.textContent = result.state === "bad" ? `⚠️ ${result.text}` : result.state === "ok" ? `✅ ${result.text}` : result.state === "pending" ? `🔗 ${result.text}` : `ℹ️ ${result.text}`;
+            }
+        }
+
+        function buildShareTextForLog(id) {
+            const log = logs.find(item => String(item.id) === String(id));
+            if (!log) return "";
+            const integrity = getIntegrityData(log);
+            return [
+                "Schießbuch-Prüfdaten",
+                `Datum: ${log.datum}`,
+                `Ort: ${log.ort}`,
+                `Disziplin: ${log.disziplin}`,
+                `Waffe/Kaliber: ${log.waffe}`,
+                `Schusszahl: ${log.schusszahl}`,
+                `Eintrag-Hash: ${integrity.entry_hash || "nicht vorhanden"}`,
+                `Ketten-Hash: ${integrity.chain_hash || "nicht vorhanden"}`,
+                `Bestätigung: ${log.is_verified ? "signiert/gesperrt" : "Entwurf"}`
+            ].join("\\n");
+        }
+
+        async function shareIntegrityProof(id) {
+            const text = buildShareTextForLog(id);
+            if (!text) return;
+            try {
+                if (navigator.share) {
+                    await navigator.share({ title: "Schießbuch-Prüfdaten", text });
+                } else {
+                    await navigator.clipboard.writeText(text);
+                    alert("Prüfdaten wurden kopiert.");
+                }
+            } catch (_) {}
+        }
+
+
+
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('entry-date').valueAsDate = new Date();
             initCanvas();
+            checkIntegritySchema();
 
             setTimeout(() => {
                 if (window.currentUser) {
@@ -299,10 +595,21 @@
 
         async function fetchLogs() {
             if (!window.currentUser) return;
+            const supportsIntegrity = await checkIntegritySchema();
+            const selectFields = supportsIntegrity
+                ? '*,entry_hash,previous_hash,chain_hash,signature_hash,confirmation_hash,locked_at,integrity_status'
+                : '*';
+
             const { data, error } = await window.supabaseClient
                 .from('schiessbuch')
-                .select('*')
+                .select(selectFields)
                 .order('datum', { ascending: false });
+
+            if (error && supportsIntegrity) {
+                integritySchemaAvailable = false;
+                return fetchLogs();
+            }
+
             if (data) {
                 logs = data;
                 renderLogs();
@@ -322,15 +629,35 @@
                 is_verified: false
             };
 
-            const { error } = await window.supabaseClient.from('schiessbuch').insert([payload]);
-  
+            const integrity = await buildDraftIntegrity(payload);
+            const supportsIntegrity = await checkIntegritySchema();
+
+            let insertPayload = supportsIntegrity ? { ...payload, ...integrity } : payload;
+            let { data, error } = await window.supabaseClient
+                .from('schiessbuch')
+                .insert([insertPayload])
+                .select()
+                .single();
+
+            if (error && supportsIntegrity) {
+                integritySchemaAvailable = false;
+                const fallback = await window.supabaseClient
+                    .from('schiessbuch')
+                    .insert([payload])
+                    .select()
+                    .single();
+                data = fallback.data;
+                error = fallback.error;
+            }
+
             if (!error) {
+                if (data?.id) setLocalIntegrityForLog(data.id, integrity);
                 closeModals();
                 document.getElementById('add-entry-form').reset();
                 document.getElementById('entry-date').valueAsDate = new Date();
                 fetchLogs();
             } else {
-                alert("Fehler beim Speichern!");
+                alert("Fehler beim Speichern: " + error.message);
             }
         });
 
@@ -347,7 +674,7 @@
         function renderLogs() {
             const list = document.getElementById('log-list');
             list.innerHTML = '';
-            
+
             if (logs.length === 0) {
                 const isEn = (window.currentLang === 'en');
                 list.innerHTML = `<p style="text-align:center; color: var(--text-muted);">${isEn ? 'No entries available.' : 'Noch keine Einträge vorhanden.'}</p>`;
@@ -358,13 +685,24 @@
                 const d = new Date(log.datum);
                 const dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 const isEn = (window.currentLang === 'en');
+                const integrity = getIntegrityData(log);
 
                 let statusBadge = log.is_verified 
                     ? `<span class="log-badge-verified">✓ ${isEn ? 'Stamped' : 'Gestempelt'}</span>` 
                     : `<span class="log-badge-pending">⏳ ${isEn ? 'Draft' : 'Entwurf'}</span>`;
-                
+
+                let integrityBlock = `
+                    <div class="integrity-mini">
+                        <div class="hash-line"><strong>Entry-Hash:</strong> <code>${shortHash(integrity.entry_hash)}</code></div>
+                        <div class="hash-line"><strong>Chain-Hash:</strong> <code>${shortHash(integrity.chain_hash)}</code></div>
+                        ${integrity.previous_hash ? `<div class="hash-line"><strong>Vorheriger Hash:</strong> <code>${shortHash(integrity.previous_hash)}</code></div>` : ""}
+                        <span class="integrity-badge pending" data-integrity-id="${log.id}">🔍 Prüfe Hash...</span>
+                    </div>
+                `;
+
                 let actionArea = log.is_verified 
-                    ? `<div class="locked-info">🔒 ${isEn ? 'Locked securely' : 'Durch Aufsicht'} '${escapeHtml(log.aufsicht_name)}' ${isEn ? '' : 'manipulationssicher gesperrt'}</div>`
+                    ? `<div class="locked-info">🔒 ${isEn ? 'Locked securely' : 'Durch Aufsicht'} '${escapeHtml(log.aufsicht_name)}' ${isEn ? '' : 'manipulationssicher gesperrt'}</div>
+                       <button class="btn-share-verify" onclick="shareIntegrityProof('${log.id}')">🔗 Prüfdaten teilen/kopieren</button>`
                     : `<button class="btn-sign" onclick="openSignModal('${log.id}')">✍️ ${isEn ? 'Get Stamp & Signature' : 'Stempel & Unterschrift einholen'}</button>`;
 
                 list.innerHTML += `
@@ -379,10 +717,13 @@
                             <div><span>${isEn ? 'Weapon:' : 'Waffe:'}</span> <strong>${escapeHtml(log.waffe)}</strong></div>
                             <div><span>${isEn ? 'Shots:' : 'Schusszahl:'}</span> <strong>${log.schusszahl}</strong></div>
                         </div>
+                        ${integrityBlock}
                         ${actionArea}
                     </div>
                 `;
             });
+
+            setTimeout(refreshIntegrityBadges, 0);
         }
 
         function escapeHtml(text) { 
@@ -556,9 +897,21 @@
 
         function openAddModal() { document.getElementById('modal-add-entry').style.display = 'flex'; }
 
-        function openSignModal(id) {
+        async function openSignModal(id) {
             document.getElementById('sign-entry-id').value = id;
             document.getElementById('sign-name').value = '';
+            const log = logs.find(item => String(item.id) === String(id));
+            const preview = document.getElementById('sign-integrity-preview');
+            if (preview && log) {
+                const integrity = getIntegrityData(log);
+                const entryHash = integrity.entry_hash || await buildEntryHash(log);
+                const chainHash = integrity.chain_hash || await buildChainHash(entryHash, integrity.previous_hash, log.user_id);
+                preview.innerHTML = `
+                    <div><strong>Dieser Eintrag wird gesperrt.</strong></div>
+                    <div class="hash-line">Entry-Hash: <code>${shortHash(entryHash)}</code></div>
+                    <div class="hash-line">Chain-Hash: <code>${shortHash(chainHash)}</code></div>
+                `;
+            }
             setTimeout(resizeCanvas, 50);
             clearCanvas();
             document.getElementById('modal-sign').style.display = 'flex';
@@ -569,23 +922,75 @@
         async function saveSignature() {
             const id = document.getElementById('sign-entry-id').value;
             const name = document.getElementById('sign-name').value.trim();
-            
+
             if (!name) return alert("Bitte Namen der Aufsicht eintragen!");
-            
+
             const dataUrl = canvas.toDataURL('image/png');
             if (dataUrl.length < 3000) return alert("Bitte eine Unterschrift im Feld hinterlassen!");
-            
-            const { error } = await window.supabaseClient
-                .from('schiessbuch')
-                .update({ 
-                    is_verified: true, 
+
+            const log = logs.find(item => String(item.id) === String(id));
+            if (!log) return alert("Eintrag nicht gefunden. Bitte neu laden.");
+
+            const existingIntegrity = getIntegrityData(log);
+            const entryHash = existingIntegrity.entry_hash || await buildEntryHash(log);
+            const previousHash = existingIntegrity.previous_hash || "";
+            const chainHash = existingIntegrity.chain_hash || await buildChainHash(entryHash, previousHash, log.user_id);
+            const signatureHash = await sha256Hex(dataUrl);
+            const lockedAt = new Date().toISOString();
+            const confirmationHash = await sha256Hex(stableStringify({
+                entry_hash: entryHash,
+                chain_hash: chainHash,
+                signature_hash: signatureHash,
+                aufsicht_name: name,
+                locked_at: lockedAt
+            }));
+
+            const integrityUpdate = {
+                entry_hash: entryHash,
+                previous_hash: previousHash || null,
+                chain_hash: chainHash,
+                signature_hash: signatureHash,
+                confirmation_hash: confirmationHash,
+                locked_at: lockedAt,
+                integrity_status: "verified_locked"
+            };
+
+            const supportsIntegrity = await checkIntegritySchema();
+            const updatePayload = supportsIntegrity
+                ? { 
+                    is_verified: true,
                     aufsicht_name: name,
-                    signature_data: dataUrl 
-                })
+                    signature_data: dataUrl,
+                    ...integrityUpdate
+                  }
+                : {
+                    is_verified: true,
+                    aufsicht_name: name,
+                    signature_data: dataUrl
+                  };
+
+            let { error } = await window.supabaseClient
+                .from('schiessbuch')
+                .update(updatePayload)
                 .eq('id', id)
                 .eq('user_id', window.currentUser.id);
-                
+
+            if (error && supportsIntegrity) {
+                integritySchemaAvailable = false;
+                const fallback = await window.supabaseClient
+                    .from('schiessbuch')
+                    .update({ 
+                        is_verified: true, 
+                        aufsicht_name: name,
+                        signature_data: dataUrl 
+                    })
+                    .eq('id', id)
+                    .eq('user_id', window.currentUser.id);
+                error = fallback.error;
+            }
+
             if (!error) {
+                setLocalIntegrityForLog(id, integrityUpdate);
                 closeModals();
                 fetchLogs();
             } else {
