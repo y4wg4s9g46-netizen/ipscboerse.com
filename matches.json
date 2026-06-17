@@ -2,7 +2,7 @@
     {
         "name": "Allauch Crow Cup 2026",
         "datum": "05.07.2026",
-        "auslastung": "80%",
+        "auslastung": "79%",
         "region": "FRA",
         "level": "2",
         "disziplin": "HG",
@@ -16,15 +16,6 @@
         "level": "3",
         "disziplin": "HG",
         "url": "https://www.ipscmatch.de/index.pl?match=Bracara_Augusta_Match_-_2026"
-    },
-    {
-        "name": "Summer Breeze 2026",
-        "datum": "25.07.2026",
-        "auslastung": "94%",
-        "region": "GER",
-        "level": "2",
-        "disziplin": "HG",
-        "url": "https://www.ipscmatch.de/index.pl?match=SummerBreeze2026"
     },
     {
         "name": "RLP Shotgun Cup 2026",
@@ -56,7 +47,7 @@
     {
         "name": "Hubertus Summercup 2026 PCC",
         "datum": "31.08.2026",
-        "auslastung": "85%",
+        "auslastung": "87%",
         "region": "GER",
         "level": "2",
         "disziplin": "PCC",
@@ -119,7 +110,7 @@
     {
         "name": "11. Karlstadt Cup powered by Frankonia",
         "datum": "01.11.2026",
-        "auslastung": "90%",
+        "auslastung": "91%",
         "region": "GER",
         "level": "3",
         "disziplin": "HG",
@@ -128,7 +119,7 @@
     {
         "name": "Tenerife Open 2026",
         "datum": "13.12.2026",
-        "auslastung": "38%",
+        "auslastung": "40%",
         "region": "ESP",
         "level": "3",
         "disziplin": "HG, PCC, MR",
