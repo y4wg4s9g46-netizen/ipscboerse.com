@@ -8245,3 +8245,38 @@ html[data-theme="dark"] .chat-toast {
         bottom: calc(92px + env(safe-area-inset-bottom)) !important;
     }
 }
+
+/* ==========================================================================
+   GOOGLE OAUTH READY v42
+   ========================================================================== */
+
+.btn-social-google,
+.btn-social-apple {
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.btn-social-google.is-oauth-loading,
+.btn-social-apple.is-oauth-loading {
+    opacity: 0.78 !important;
+    pointer-events: none !important;
+    transform: scale(0.99) !important;
+}
+
+.btn-social-google span,
+.btn-social-apple span {
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+@media (max-width: 768px) {
+    .btn-social-google,
+    .btn-social-apple {
+        width: 100% !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        border-radius: 15px !important;
+        font-size: 14px !important;
+        font-weight: 740 !important;
+    }
+}

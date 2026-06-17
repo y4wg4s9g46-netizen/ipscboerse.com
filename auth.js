@@ -107,24 +107,110 @@ window.registerPasskey = async function() {
 };
 
 // --- SOCIAL LOGIN FUNKTIONEN (GOOGLE & APPLE) ---
-window.loginWithGoogle = async function() {
-    const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-            redirectTo: window.location.origin
+const OAUTH_RETURN_KEY = "ipscOAuthReturnPath";
+
+function getOAuthRedirectUrl() {
+    /*
+      Für Supabase Social Login muss redirectTo in der Supabase Redirect-Allowlist stehen.
+      Wir bleiben bewusst auf der aktuellen statischen Seite, damit der Nutzer nach Google/Apple
+      nicht immer auf index.html zurückfällt.
+    */
+    let path = window.location.pathname || "/index.html";
+
+    if (path === "/") path = "/index.html";
+
+    return `${window.location.origin}${path}`;
+}
+
+function setSocialButtonLoading(provider, isLoading) {
+    const selectors = {
+        google: '.btn-social-google, button[onclick="loginWithGoogle()"]',
+        apple: '.btn-social-apple, button[onclick="loginWithApple()"]'
+    };
+
+    const btn = document.querySelector(selectors[provider]);
+    if (!btn) return;
+
+    if (isLoading) {
+        if (!btn.dataset.oldHtml) btn.dataset.oldHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.classList.add("is-oauth-loading");
+        btn.innerHTML = provider === "google"
+            ? "⏳ Google wird geöffnet..."
+            : "⏳ Apple wird geöffnet...";
+    } else {
+        btn.disabled = false;
+        btn.classList.remove("is-oauth-loading");
+        if (btn.dataset.oldHtml) {
+            btn.innerHTML = btn.dataset.oldHtml;
+            delete btn.dataset.oldHtml;
         }
-    });
-    if (error) alert("Google-Login fehlgeschlagen: " + error.message);
+    }
+}
+
+async function startSocialOAuth(provider) {
+    if (!window.supabaseClient?.auth?.signInWithOAuth) {
+        alert("Login ist noch nicht bereit. Bitte Seite kurz neu laden.");
+        return;
+    }
+
+    setSocialButtonLoading(provider, true);
+
+    try {
+        const returnPath = `${window.location.pathname || "/index.html"}${window.location.search || ""}`;
+        localStorage.setItem(OAUTH_RETURN_KEY, returnPath);
+
+        const options = {
+            redirectTo: getOAuthRedirectUrl()
+        };
+
+        if (provider === "google") {
+            options.scopes = "openid email profile";
+            options.queryParams = {
+                prompt: "select_account"
+            };
+        }
+
+        const { error } = await window.supabaseClient.auth.signInWithOAuth({
+            provider,
+            options
+        });
+
+        if (error) throw error;
+
+    } catch (error) {
+        console.error(`${provider} OAuth error:`, error);
+        setSocialButtonLoading(provider, false);
+
+        const providerName = provider === "google" ? "Google" : "Apple";
+        alert(`${providerName}-Login fehlgeschlagen: ${error.message || error}`);
+    }
+}
+
+function cleanOAuthUrlIfNeeded() {
+    try {
+        const hasOAuthQuery =
+            window.location.search.includes("code=") ||
+            window.location.search.includes("error=") ||
+            window.location.search.includes("error_description=");
+
+        const hasOAuthHash =
+            window.location.hash.includes("access_token") ||
+            window.location.hash.includes("refresh_token") ||
+            window.location.hash.includes("error_description");
+
+        if ((hasOAuthQuery || hasOAuthHash) && window.history?.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    } catch (err) {}
+}
+
+window.loginWithGoogle = async function() {
+    await startSocialOAuth("google");
 };
 
 window.loginWithApple = async function() {
-    const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
-        provider: 'apple',
-        options: {
-            redirectTo: window.location.origin
-        }
-    });
-    if (error) alert("Apple-Login fehlgeschlagen: " + error.message);
+    await startSocialOAuth("apple");
 };
 
 // --- DESIGN SCHALTER LOGIK (LIGHT / DARK MODE) ---
@@ -812,6 +898,7 @@ setTimeout(async () => {
         }
 
         await checkUserStatus();
+        if (window.currentUser) cleanOAuthUrlIfNeeded();
 
         if (window.currentUser) {
             try {
@@ -886,6 +973,8 @@ setTimeout(async () => {
             }
 
             await checkUserStatus();
+
+            if (event === "SIGNED_IN" && window.currentUser) cleanOAuthUrlIfNeeded();
 
             if (typeof window.onAuthChange === "function") {
                 window.onAuthChange(window.currentUser);
