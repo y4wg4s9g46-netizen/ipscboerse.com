@@ -17,13 +17,13 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="preload" href="icon-192.png" as="image">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="global.css?v=34">
+    <link rel="stylesheet" href="global.css?v=36">
 </head>
 <body class="page-schiessbuch">
 
     <header id="main-header"></header>
   
-   <script src="header.js?v=18"></script>
+   <script src="header.js?v=20"></script>
 
     <div class="container">
         <div class="page-section" id="auth-guard" style="display: none; text-align: center; padding: 40px 20px;">
@@ -62,13 +62,13 @@
         </div>
     </div>
 
-    <div class="modal" id="modal-add-entry">
+    <div class="modal log-entry-modal" id="modal-add-entry">
         <div class="modal-content">
             <span class="modal-close-trigger" onclick="closeModals()">&times;</span>
             <h3 data-txt="log-entry-title">Neuer Eintrag</h3>
             
             <form id="add-entry-form">
-                <div class="form-group"><label data-txt="planner-lbl-match-date">Datum</label><input type="date" id="entry-date" required></div>
+                <div class="form-group"><label data-txt="planner-lbl-match-date">Datum</label><input type="date" id="entry-date" class="date-input-mobile" required></div>
                 <div class="form-group"><label data-txt="lbl-location">Schießstand / Ort</label><input type="text" id="entry-ort" placeholder="z.B. Philippsburg" required></div>
                 <div class="form-group"><label data-txt="tools-hf-pf">Disziplin</label><input type="text" id="entry-disziplin" placeholder="z.B. IPSC Handgun oder Fallscheibe" required></div>
                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
@@ -113,8 +113,8 @@
     </footer>
 
     <script src="auth.js?v=10"></script>
-    <script src="lang.js?v=15"></script>
-    <script src="app.js?v=16"></script>
+    <script src="lang.js?v=16"></script>
+    <script src="app.js?v=17"></script>
 
     <script>
         let logs = [];

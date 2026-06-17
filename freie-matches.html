@@ -23,12 +23,12 @@
         })();
     </script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <link rel="stylesheet" href="global.css?v=34">
+    <link rel="stylesheet" href="global.css?v=36">
 </head>
 <body class="page-freie-matches">
 
     <header id="main-header"></header>
-    <script src="header.js?v=18"></script>
+    <script src="header.js?v=20"></script>
     
     <div class="container">
         <div class="info-box" data-txt="free-info-box">
@@ -62,8 +62,8 @@
     </footer>
 
     <script src="auth.js?v=10"></script>
-    <script src="lang.js?v=15"></script>
-    <script src="app.js?v=16"></script>
+    <script src="lang.js?v=16"></script>
+    <script src="app.js?v=17"></script>
     
     <script>
     let allMatches = [];
@@ -237,7 +237,7 @@
         }
 
         const loadBadgeTxt = window.currentLang === "en" ? "Capacity:" : "Auslastung:";
-        const btnTxt = window.currentLang === "en" ? "Go to Match" : "Zum Match";
+        const btnTxt = window.currentLang === "en" ? "Open original" : "Matchseite öffnen";
         let html = matchesToDisplay.map(match => `
             <a href="${match.url}" target="_blank" style="text-decoration: none; color: inherit; display: block;">
                 <div class="match-card">
@@ -255,7 +255,7 @@
        
                     </div>
                     <div class="card-actions">
-                        <span class="btn-contact">${btnTxt}</span>
+                        <span class="btn-contact free-match-link-button"><span class="free-match-link-icon">➤</span><span>${btnTxt}</span></span>
                     </div>
                 </div>
      

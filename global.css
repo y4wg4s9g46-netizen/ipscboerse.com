@@ -7191,3 +7191,237 @@ body.page-marktplatz .owner-actions-top + .match-card-main .match-summary {
         border-radius: 13px !important;
     }
 }
+
+/* ==========================================================================
+   APP READY POLISH v36 – Buttons, SG-Timer, Schießbuch-Date, Mobile Fit
+   ========================================================================== */
+
+@media (max-width: 768px) {
+
+    /* Schrift nochmal etwas weicher in Content-Cards */
+    body h1,
+    body h2,
+    body h3,
+    body h4,
+    body .match-title,
+    body .panel-card h2,
+    body .news-section-title {
+        font-weight: 730 !important;
+        letter-spacing: -0.55px !important;
+    }
+
+    body .badge,
+    body label,
+    body .form-group label {
+        font-weight: 690 !important;
+    }
+
+    /* Planner: Inserieren-Button wie der schöne orange Marketplace-Stil */
+    body.page-mein-planer .match-item button:first-of-type {
+        background: var(--accent-gradient) !important;
+        color: #fff !important;
+        border: none !important;
+        min-height: 40px !important;
+        height: 40px !important;
+        padding: 0 18px !important;
+        border-radius: 14px !important;
+        box-shadow: 0 10px 22px rgba(255, 128, 8, 0.24) !important;
+        font-size: 14px !important;
+        font-weight: 740 !important;
+    }
+
+    body.page-mein-planer .match-item .delete-btn {
+        min-height: 38px !important;
+        height: 38px !important;
+        padding: 0 18px !important;
+        border-radius: 14px !important;
+    }
+
+    /* Freie Matches: Link wirkt wie "zur Originalseite" statt klobiger Standardbutton */
+    body.page-freie-matches .card-actions {
+        border-top: 1px solid var(--border-color) !important;
+        padding-top: 12px !important;
+        margin-top: 12px !important;
+        display: flex !important;
+        justify-content: flex-start !important;
+    }
+
+    body.page-freie-matches .free-match-link-button {
+        width: auto !important;
+        min-width: 0 !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 0 15px !important;
+        border-radius: 999px !important;
+        background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(59,130,246,0.06)) !important;
+        color: #2f65db !important;
+        border: 1px solid rgba(59,130,246,0.26) !important;
+        box-shadow: 0 8px 18px rgba(59,130,246,0.10) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 7px !important;
+        font-size: 13px !important;
+        font-weight: 740 !important;
+        text-decoration: none !important;
+    }
+
+    html[data-theme="dark"] body.page-freie-matches .free-match-link-button {
+        background: rgba(59,130,246,0.12) !important;
+        color: #93c5fd !important;
+        border-color: rgba(147,197,253,0.22) !important;
+    }
+
+    body.page-freie-matches .free-match-link-icon {
+        width: 22px !important;
+        height: 22px !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: linear-gradient(135deg, #4f83f1 0%, #2f65db 100%) !important;
+        color: #fff !important;
+        font-size: 12px !important;
+        line-height: 1 !important;
+        transform: rotate(-35deg) !important;
+    }
+
+    /* SG-Timer: Tabs dürfen nicht seitlich rauslaufen */
+    body.page-sg-timer-live .main-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+        box-sizing: border-box !important;
+    }
+
+    body.page-sg-timer-live .tab-navigation {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 9px !important;
+        padding: 0 !important;
+        margin: 14px 0 18px 0 !important;
+        overflow: visible !important;
+        box-sizing: border-box !important;
+    }
+
+    body.page-sg-timer-live .tab-btn {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        min-height: 42px !important;
+        height: 42px !important;
+        padding: 0 8px !important;
+        border-radius: 16px !important;
+        font-size: 12.5px !important;
+        line-height: 1.05 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        justify-content: center !important;
+    }
+
+    body.page-sg-timer-live .panel-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+    }
+
+    body.page-sg-timer-live .shot-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed !important;
+        font-size: 12px !important;
+    }
+
+    body.page-sg-timer-live .shot-table th,
+    body.page-sg-timer-live .shot-table td {
+        padding: 8px 5px !important;
+        font-size: 12px !important;
+        line-height: 1.15 !important;
+        word-break: break-word !important;
+    }
+
+    body.page-sg-timer-live #highscores .shot-table th:nth-child(1),
+    body.page-sg-timer-live #highscores .shot-table td:nth-child(1) {
+        width: 48px !important;
+    }
+
+    body.page-sg-timer-live #highscores .shot-table th:nth-child(2),
+    body.page-sg-timer-live #highscores .shot-table td:nth-child(2) {
+        width: 37% !important;
+    }
+
+    body.page-sg-timer-live #highscores .shot-table th:nth-child(3),
+    body.page-sg-timer-live #highscores .shot-table td:nth-child(3) {
+        width: 22% !important;
+    }
+
+    body.page-sg-timer-live #highscores .shot-table th:nth-child(4),
+    body.page-sg-timer-live #highscores .shot-table td:nth-child(4) {
+        width: 26% !important;
+        text-align: right !important;
+    }
+
+    /* Schießbuch-Modal: Date-Feld auf iPhone sauber darstellen */
+    body.page-schiessbuch .log-entry-modal .modal-content {
+        width: calc(100vw - 28px) !important;
+        max-width: 430px !important;
+        max-height: calc(100dvh - 150px) !important;
+        padding: 26px 20px 96px 20px !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+    }
+
+    body.page-schiessbuch #add-entry-form {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    body.page-schiessbuch #add-entry-form .form-group {
+        width: 100% !important;
+        min-width: 0 !important;
+        margin-bottom: 14px !important;
+    }
+
+    body.page-schiessbuch #entry-date,
+    body.page-schiessbuch input[type="date"].date-input-mobile {
+        width: 100% !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        max-width: 100% !important;
+        padding: 0 13px !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
+        font-size: 15px !important;
+        line-height: 44px !important;
+        appearance: auto !important;
+        -webkit-appearance: none !important;
+        background-color: var(--input-bg) !important;
+    }
+
+    body.page-schiessbuch #entry-date::-webkit-date-and-time-value {
+        text-align: left !important;
+        min-height: 44px !important;
+        line-height: 44px !important;
+    }
+
+    body.page-schiessbuch #entry-date::-webkit-calendar-picker-indicator {
+        margin-left: auto !important;
+        opacity: .75 !important;
+    }
+
+    body.page-schiessbuch #add-entry-form button[type="submit"],
+    body.page-schiessbuch #add-entry-form .btn-primary-auth {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 44px !important;
+        height: 44px !important;
+        margin-top: 10px !important;
+        border-radius: 15px !important;
+    }
+}

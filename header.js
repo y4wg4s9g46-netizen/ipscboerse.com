@@ -1068,6 +1068,192 @@ header .header-logo-img {
             document.head.appendChild(polishStyleV14);
         }
 
+
+        if (!document.getElementById("premium-bottom-nav-v35")) {
+            const navStyle = document.createElement("style");
+            navStyle.id = "premium-bottom-nav-v35";
+            navStyle.innerHTML = `
+                @media (max-width: 768px) {
+                    .bottom-tab-bar {
+                        position: fixed !important;
+                        left: 50% !important;
+                        right: auto !important;
+                        bottom: max(10px, env(safe-area-inset-bottom)) !important;
+                        transform: translateX(-50%) !important;
+                        width: calc(100% - 22px) !important;
+                        max-width: 520px !important;
+                        height: 72px !important;
+                        padding: 7px 8px !important;
+                        display: grid !important;
+                        grid-template-columns: repeat(5, 1fr) !important;
+                        align-items: center !important;
+                        gap: 4px !important;
+                        border-radius: 28px !important;
+                        border: 1px solid rgba(148, 163, 184, 0.22) !important;
+                        background:
+                            linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.78)) !important;
+                        box-shadow:
+                            0 18px 44px rgba(15, 23, 42, 0.14),
+                            0 2px 8px rgba(15, 23, 42, 0.05),
+                            inset 0 1px 0 rgba(255,255,255,0.78) !important;
+                        backdrop-filter: blur(22px) saturate(1.6) !important;
+                        -webkit-backdrop-filter: blur(22px) saturate(1.6) !important;
+                        z-index: 99990 !important;
+                    }
+
+                    html[data-theme="dark"] .bottom-tab-bar {
+                        background:
+                            linear-gradient(180deg, rgba(31, 41, 55, 0.88), rgba(15, 23, 42, 0.78)) !important;
+                        border-color: rgba(148, 163, 184, 0.18) !important;
+                        box-shadow:
+                            0 18px 46px rgba(0,0,0,0.36),
+                            inset 0 1px 0 rgba(255,255,255,0.08) !important;
+                    }
+
+                    .bottom-tab-bar .tab-item {
+                        position: relative !important;
+                        height: 58px !important;
+                        min-width: 0 !important;
+                        padding: 5px 2px 4px !important;
+                        border-radius: 22px !important;
+                        display: flex !important;
+                        flex-direction: column !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        gap: 2px !important;
+                        color: var(--text-muted) !important;
+                        text-decoration: none !important;
+                        -webkit-tap-highlight-color: transparent !important;
+                        touch-action: manipulation !important;
+                        user-select: none !important;
+                        transition:
+                            transform 145ms cubic-bezier(.2,.8,.2,1),
+                            background 145ms ease,
+                            color 145ms ease,
+                            box-shadow 145ms ease !important;
+                    }
+
+                    .bottom-tab-bar .tab-item::before {
+                        content: "" !important;
+                        position: absolute !important;
+                        inset: 5px 7px !important;
+                        border-radius: 20px !important;
+                        background: transparent !important;
+                        transform: scale(.86) !important;
+                        opacity: 0 !important;
+                        transition:
+                            opacity 160ms ease,
+                            transform 160ms cubic-bezier(.2,.8,.2,1),
+                            background 160ms ease !important;
+                        z-index: -1 !important;
+                    }
+
+                    .bottom-tab-bar .tab-item svg {
+                        width: 24px !important;
+                        height: 24px !important;
+                        stroke-width: 2.35 !important;
+                        margin: 0 !important;
+                        transition:
+                            transform 150ms cubic-bezier(.2,.8,.2,1),
+                            stroke 150ms ease,
+                            filter 150ms ease !important;
+                    }
+
+                    .bottom-tab-bar .tab-item span {
+                        font-size: 11.5px !important;
+                        line-height: 1 !important;
+                        font-weight: 760 !important;
+                        letter-spacing: -0.12px !important;
+                        white-space: nowrap !important;
+                        transition: transform 150ms ease, color 150ms ease !important;
+                    }
+
+                    .bottom-tab-bar .tab-item.active {
+                        color: var(--accent-color) !important;
+                    }
+
+                    .bottom-tab-bar .tab-item.active::before {
+                        opacity: 1 !important;
+                        transform: scale(1) !important;
+                        background:
+                            radial-gradient(circle at 50% 0%, rgba(255,255,255,0.55), transparent 55%),
+                            linear-gradient(135deg, rgba(255,159,67,0.18), rgba(255,128,8,0.09)) !important;
+                        box-shadow:
+                            inset 0 0 0 1px rgba(255,159,67,0.15),
+                            0 8px 20px rgba(255,159,67,0.13) !important;
+                    }
+
+                    html[data-theme="dark"] .bottom-tab-bar .tab-item.active::before {
+                        background:
+                            radial-gradient(circle at 50% 0%, rgba(255,255,255,0.10), transparent 56%),
+                            linear-gradient(135deg, rgba(255,159,67,0.22), rgba(255,128,8,0.10)) !important;
+                        box-shadow:
+                            inset 0 0 0 1px rgba(255,159,67,0.20),
+                            0 8px 20px rgba(255,128,8,0.12) !important;
+                    }
+
+                    .bottom-tab-bar .tab-item.active svg {
+                        transform: translateY(-1px) scale(1.06) !important;
+                        filter: drop-shadow(0 5px 9px rgba(255,159,67,0.18)) !important;
+                    }
+
+                    .bottom-tab-bar .tab-item:active,
+                    .bottom-tab-bar .tab-item.is-pressing {
+                        transform: scale(.92) !important;
+                    }
+
+                    .bottom-tab-bar .tab-item:active::before,
+                    .bottom-tab-bar .tab-item.is-pressing::before {
+                        opacity: 1 !important;
+                        transform: scale(.92) !important;
+                        background: rgba(148, 163, 184, 0.12) !important;
+                    }
+
+                    .bottom-tab-bar .tab-item:active svg,
+                    .bottom-tab-bar .tab-item.is-pressing svg {
+                        transform: translateY(1px) scale(.94) !important;
+                    }
+
+                    body {
+                        padding-bottom: calc(98px + env(safe-area-inset-bottom)) !important;
+                    }
+
+                    .more-menu-content {
+                        bottom: calc(90px + env(safe-area-inset-bottom)) !important;
+                        border-radius: 24px !important;
+                        box-shadow: 0 22px 60px rgba(15, 23, 42, 0.22) !important;
+                        backdrop-filter: blur(22px) saturate(1.4) !important;
+                        -webkit-backdrop-filter: blur(22px) saturate(1.4) !important;
+                    }
+                }
+            `;
+            document.head.appendChild(navStyle);
+        }
+
+        // Premium Tap/Haptic Feedback v35:
+        // Android/Chrome nutzt navigator.vibrate; iOS Safari ignoriert es, bekommt aber Press-Animation.
+        if (!window.__premiumBottomNavFeedbackBound) {
+            window.__premiumBottomNavFeedbackBound = true;
+
+            const triggerNavFeedback = (el) => {
+                if (!el) return;
+
+                el.classList.add("is-pressing");
+                window.setTimeout(() => el.classList.remove("is-pressing"), 145);
+
+                try {
+                    if (window.navigator && typeof window.navigator.vibrate === "function") {
+                        window.navigator.vibrate(8);
+                    }
+                } catch (_) {}
+            };
+
+            document.addEventListener("pointerdown", (event) => {
+                const item = event.target.closest?.(".bottom-tab-bar .tab-item");
+                if (item) triggerNavFeedback(item);
+            }, { passive: true });
+        }
+
         window.toggleMoreMenu = function() {
             const menu = document.getElementById("more-menu-overlay");
             const btn = document.getElementById("btn-more-menu");
