@@ -27,20 +27,20 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                         </div>
                         <div class="form-group">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                <label for="login-password" style="margin-bottom: 0;">Passwort *</label>
+                                <label for="login-password" style="margin-bottom: 0;" data-txt="lbl-password">Passwort *</label>
                                 <a onclick="toggleAuthView('forgot')" style="color: var(--info-color); text-decoration: none; font-size: 12px; cursor: pointer; font-weight: 600;" data-txt="link-forgot-pwd">Passwort vergessen?</a>
                             </div>
                             <input type="password" id="login-password" required placeholder="••••••••">
                         </div>
-                        <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit E-Mail einloggen</button>
+                        <button type="submit" class="btn-primary-auth" data-txt="modal-btn-login">Mit Passwort einloggen</button>
                     </form>
 
                     <div class="social-login-separator" style="margin: 24px 0 15px 0; text-align: center; border-top: 1px solid var(--border-color); padding-top: 20px;">
-                        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Oder Schnell-Login nutzen:</p>
+                        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;" data-txt="modal-social-separator">Oder Schnell-Login nutzen:</p>
                         
                         <button type="button" onclick="loginWithPasskey()" class="btn-social-passkey" style="margin-bottom: 8px;">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><path d="M9 9h.01"></path><path d="M15 9h.01"></path></svg>
-                            Mit FaceID / Passkey
+                            <span data-txt="modal-passkey-login">Mit FaceID / Passkey</span>
                         </button>
                         <button type="button" onclick="loginWithApple()" class="btn-social-apple" style="margin-bottom: 8px;">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;"><path d="M16.36 14.16c0 3.3-2.67 5.9-6.02 5.9-2.32 0-4.32-1.32-5.32-3.23.47.05.95.07 1.43.07 1.93 0 3.69-.73 5.03-1.95a3.98 3.98 0 0 1-1.78-3.05c.34.06.69.1 1.05.1a3.9 3.9 0 0 0 1.25-.2 4.02 4.02 0 0 1-3.2-3.92v-.05c.57.32 1.22.5 1.9.52a4.01 4.01 0 0 1-1.22-5.37A11.36 11.36 0 0 0 16.5 9c-.06-.31-.08-.63-.08-.96 0-2.2 1.76-3.98 3.95-3.98a3.93 3.93 0 0 1 2.87 1.24 7.82 7.82 0 0 0 2.51-.96 3.97 3.97 0 0 1-1.75 2.19 7.96 7.96 0 0 0 2.27-.61 8.09 8.09 0 0 1-1.97 2.04c.02.21.03.43.03.65 0 6.64-5.07 14.3-14.36 14.3a11.37 11.37 0 0 1-6.17-1.8c.41.05.83.07 1.26.07 2.36 0 4.54-.8 6.27-2.16z"/></svg>
@@ -294,8 +294,10 @@ function renderMatches(matches) {
     const t = (key, fallback) => (window.translations?.[window.currentLang]?.[key] || fallback || key);
     return items.map(m => {
       const isWant = m.type === "want";
-      const isSender = window.currentUser && window.currentUser.email === m.seller_email;
-      const isAdmin = window.currentUser && window.currentUser.email === "fabian-schoeps@gmx.de";
+      const currentEmail = (window.currentUser?.email || "").trim().toLowerCase();
+      const sellerEmailNormalized = (m.seller_email || "").trim().toLowerCase();
+      const isSender = !!currentEmail && currentEmail === sellerEmailNormalized;
+      const isAdmin = currentEmail === "fabian-schoeps@gmx.de";
       const canManage = isSender || isAdmin;
 
       let sellerAlias = null;
@@ -340,7 +342,13 @@ function renderMatches(matches) {
 
       return `
         <article class="match-card ${isWant ? "card-want" : "card-offer"}">
-          ${canManage ? `<button class="btn-delete card-delete-top" onclick="handleDelete(${m.id}, '${m.seller_email}')" title="${t("btn-delete", "Löschen")}">×</button>` : ""}
+          ${canManage ? `
+            <div class="owner-actions-top" aria-label="Eintrag verwalten">
+              <button class="btn-edit owner-action-btn" onclick="handleEditClick(${m.id})">${t("btn-edit", "Bearbeiten")}</button>
+              <button class="btn-delete owner-action-btn danger" onclick="handleDelete(${m.id}, '${m.seller_email}')">${t("btn-delete", "Löschen")}</button>
+              <button class="btn-mediated owner-action-btn success" onclick="triggerMediatedModal(${m.id})">${t("btn-mediated", "Vermittelt")}</button>
+            </div>
+          ` : ""}
           <div class="match-card-main">
             <div class="match-header-flex">
               ${avatarHtml}
@@ -378,12 +386,7 @@ function renderMatches(matches) {
               <button class="btn-report" onclick="reportMatch(${m.id})">${window.translations[window.currentLang]["report-btn"]}</button>
             </div>
 
-            ${canManage ? `
-              <div class="action-buttons-group manage-actions">
-                <button class="btn-mediated" onclick="triggerMediatedModal(${m.id})">✓ ${t("btn-mediated", "Vermittelt")}</button>
-                <button class="btn-edit" onclick="handleEditClick(${m.id})">${window.translations[window.currentLang]["btn-edit"]}</button>
-              </div>
-            ` : ""}
+            ${""}
           </div>
         </article>
       `;

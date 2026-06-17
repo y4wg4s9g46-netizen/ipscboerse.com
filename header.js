@@ -1091,6 +1091,11 @@ header .header-logo-img {
         */
         header.classList.add("auth-ready");
 
+        // translatePortalPage after header injection v16
+        if (typeof window.translatePortalPage === "function") {
+            window.translatePortalPage();
+        }
+
         return true;
     };
 

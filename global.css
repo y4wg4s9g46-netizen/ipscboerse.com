@@ -6515,3 +6515,419 @@ body.page-mein-planer .planned-heading {
         line-height: 1 !important;
     }
 }
+
+/* ==========================================================================
+   FINAL UX FIX v32 – echte Fehler aus iPhone-Screenshots
+   ========================================================================== */
+
+@media (max-width: 768px) {
+
+    /* Login: Button nicht wie ein Fremdkörper, sondern sauber im Formularfluss */
+    body #modal-login-view #login-form button[type="submit"],
+    body #login-form .btn-primary-auth,
+    body #login-form .btn-submit {
+        width: 100% !important;
+        max-width: none !important;
+        min-height: 46px !important;
+        margin: 14px 0 18px 0 !important;
+        padding: 11px 16px !important;
+        border-radius: 14px !important;
+        font-size: 15px !important;
+        justify-content: center !important;
+        display: flex !important;
+    }
+
+    body #modal-login-view .form-group {
+        margin-bottom: 14px !important;
+    }
+
+    body #modal-login-view input {
+        height: 44px !important;
+        min-height: 44px !important;
+        font-size: 15px !important;
+    }
+
+    body #modal-login-view .modal-divider {
+        margin: 18px 0 !important;
+    }
+
+    /* Startseite: mobile Inhalte deutlich kompakter */
+    body.page-index .container {
+        margin-top: 14px !important;
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+    }
+
+    body.page-index .hero-section {
+        padding: 18px 14px !important;
+        margin-bottom: 14px !important;
+        border-radius: 18px !important;
+    }
+
+    body.page-index .hero-section h2 {
+        font-size: 23px !important;
+        line-height: 1.16 !important;
+        margin-bottom: 10px !important;
+        letter-spacing: -0.35px !important;
+    }
+
+    body.page-index .hero-section p {
+        font-size: 14px !important;
+        line-height: 1.42 !important;
+    }
+
+    body.page-index .news-section {
+        padding: 16px 14px !important;
+        margin-bottom: 18px !important;
+        border-radius: 18px !important;
+    }
+
+    body.page-index .news-section-title {
+        font-size: 22px !important;
+        line-height: 1.15 !important;
+        margin-bottom: 13px !important;
+        padding-bottom: 10px !important;
+    }
+
+    body.page-index .news-timeline {
+        gap: 14px !important;
+    }
+
+    body.page-index .news-item {
+        padding-left: 12px !important;
+    }
+
+    body.page-index .news-date {
+        font-size: 10.5px !important;
+        margin-bottom: 4px !important;
+    }
+
+    body.page-index .news-item-title {
+        font-size: 17px !important;
+        line-height: 1.2 !important;
+        margin-bottom: 5px !important;
+    }
+
+    body.page-index .news-item-body {
+        font-size: 13.5px !important;
+        line-height: 1.38 !important;
+    }
+
+    /* Marktplatz: Karten wirklich kompakt, nicht nur hübsch */
+    body.page-marktplatz .container {
+        margin-top: 10px !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    body.page-marktplatz h2[data-txt="list-title"] {
+        font-size: 22px !important;
+        line-height: 1.12 !important;
+        margin: 15px 0 10px !important;
+        letter-spacing: -0.35px !important;
+    }
+
+    body.page-marktplatz .match-list {
+        gap: 10px !important;
+    }
+
+    body.page-marktplatz .match-card {
+        padding: 11px 11px 11px 13px !important;
+        margin-bottom: 10px !important;
+        border-radius: 16px !important;
+        gap: 7px !important;
+        min-height: 0 !important;
+    }
+
+    body.page-marktplatz .match-header-flex {
+        display: grid !important;
+        grid-template-columns: 38px 1fr !important;
+        gap: 9px !important;
+        align-items: start !important;
+    }
+
+    body.page-marktplatz .card-avatar,
+    body.page-marktplatz .avatar-placeholder-flex {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+    }
+
+    body.page-marktplatz .match-title,
+    body.page-marktplatz .match-details h3 {
+        font-size: 16px !important;
+        line-height: 1.15 !important;
+        margin-bottom: 5px !important;
+    }
+
+    body.page-marktplatz .badge-container {
+        gap: 4px !important;
+        margin-bottom: 5px !important;
+    }
+
+    body.page-marktplatz .badge,
+    body.page-marktplatz .rating-badge {
+        padding: 3px 6px !important;
+        font-size: 10px !important;
+        border-radius: 7px !important;
+    }
+
+    body.page-marktplatz .seller-link {
+        font-size: 12px !important;
+        line-height: 1.2 !important;
+    }
+
+    body.page-marktplatz .match-meta {
+        font-size: 12px !important;
+        line-height: 1.2 !important;
+        margin-top: 3px !important;
+    }
+
+    body.page-marktplatz .card-actions {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 6px !important;
+        padding-top: 7px !important;
+        margin-top: 4px !important;
+        border-top: 1px solid var(--border-color) !important;
+        align-items: stretch !important;
+    }
+
+    body.page-marktplatz .match-price {
+        grid-column: 1 / -1 !important;
+        font-size: 14px !important;
+        line-height: 1 !important;
+        margin: 0 0 1px 0 !important;
+        padding: 0 !important;
+    }
+
+    body.page-marktplatz .primary-actions,
+    body.page-marktplatz .action-buttons-group,
+    body.page-marktplatz .manage-actions {
+        display: contents !important;
+    }
+
+    body.page-marktplatz .btn-contact,
+    body.page-marktplatz .btn-contact-want,
+    body.page-marktplatz .btn-export,
+    body.page-marktplatz .btn-report,
+    body.page-marktplatz .btn-delete,
+    body.page-marktplatz .btn-edit,
+    body.page-marktplatz .btn-mediated {
+        width: 100% !important;
+        min-height: 32px !important;
+        height: 32px !important;
+        padding: 6px 7px !important;
+        font-size: 11.5px !important;
+        line-height: 1.05 !important;
+        border-radius: 10px !important;
+        white-space: nowrap !important;
+    }
+
+    body.page-marktplatz .market-form-accordion {
+        scroll-margin-top: 155px !important;
+    }
+
+    body.page-marktplatz .market-form-toggle {
+        padding: 13px 14px !important;
+        border-radius: 16px !important;
+        margin-bottom: 12px !important;
+    }
+
+    body.page-marktplatz .market-form-toggle-title {
+        font-size: 20px !important;
+        line-height: 1.1 !important;
+    }
+
+    body.page-marktplatz .market-form-toggle-text {
+        font-size: 13px !important;
+    }
+
+    body.page-marktplatz .filter-bar {
+        padding: 13px 12px !important;
+        margin-bottom: 13px !important;
+    }
+
+    /* Freie Matches / Planer: Karten weniger aufgeblasen */
+    body.page-freie-matches .match-card,
+    body.page-mein-planer .match-card,
+    body.page-mein-planer .planned-match-card,
+    body.page-schiessbuch .card {
+        padding: 15px 13px !important;
+        margin-bottom: 14px !important;
+        border-radius: 17px !important;
+    }
+}
+
+/* ==========================================================================
+   FINAL POLISH v33 – Übersetzung, Owner-Actions, Login, Community
+   ========================================================================== */
+
+@media (max-width: 768px) {
+
+    /* Allgemein: etwas weicher und runder */
+    body .card,
+    body .dash-card,
+    body .form-section,
+    body .tool-section,
+    body .news-section,
+    body .hero-section,
+    body .post-card,
+    body .match-card,
+    body .modal-content,
+    body .filter-bar,
+    body .info-box {
+        border-radius: 20px !important;
+    }
+
+    /* Login-Button exakt wie die Inputs führen: keine schwebende Insel */
+    body #auth-modal #modal-login-view form#login-form {
+        display: block !important;
+    }
+
+    body #auth-modal #modal-login-view form#login-form > button[type="submit"],
+    body #auth-modal #modal-login-view #login-form .btn-primary-auth {
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        height: 46px !important;
+        min-height: 46px !important;
+        margin: 12px 0 16px 0 !important;
+        padding: 0 16px !important;
+        border-radius: 15px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        align-self: stretch !important;
+        font-size: 15px !important;
+        line-height: 1 !important;
+        text-align: center !important;
+    }
+
+    body #auth-modal #modal-login-view .social-login-separator {
+        margin-top: 16px !important;
+        padding-top: 16px !important;
+    }
+
+    /* Community: nur der kleine orange Plus-FAB, keine doppelte große Leiste */
+    body.page-community .community-create-card {
+        display: none !important;
+    }
+
+    body.page-community .floating-action-bar {
+        width: auto !important;
+        left: auto !important;
+        right: 18px !important;
+        bottom: calc(78px + env(safe-area-inset-bottom)) !important;
+        transform: none !important;
+        z-index: 100000 !important;
+    }
+
+    body.page-community .floating-action-bar .btn-post {
+        width: 54px !important;
+        height: 54px !important;
+        min-width: 54px !important;
+        min-height: 54px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        font-size: 0 !important;
+        box-shadow: 0 16px 34px rgba(255, 128, 8, 0.35) !important;
+    }
+
+    body.page-community .floating-action-bar .btn-post span {
+        font-size: 34px !important;
+        margin: 0 !important;
+        line-height: 1 !important;
+    }
+
+    /* Community Tabs wirklich getrennt statt verklebter Schalter */
+    body.page-community .tabs-container {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+        padding: 0 !important;
+        background: transparent !important;
+        border-radius: 0 !important;
+        margin-bottom: 18px !important;
+    }
+
+    body.page-community .tab-button {
+        width: 100% !important;
+        min-height: 42px !important;
+        border-radius: 14px !important;
+        background: var(--card-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        box-shadow: var(--shadow-sm) !important;
+    }
+
+    body.page-community .tab-button.active {
+        background: var(--accent-gradient) !important;
+        border-color: rgba(255, 159, 67, 0.4) !important;
+        color: #fff !important;
+    }
+
+    /* Marktplatz Owner/Admin-Aktionen oben rechts, ohne untere Buttons zu zerstören */
+    body.page-marktplatz .match-card {
+        position: relative !important;
+        padding-top: 12px !important;
+    }
+
+    body.page-marktplatz .owner-actions-top {
+        position: absolute !important;
+        top: 9px !important;
+        right: 9px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        z-index: 8 !important;
+        max-width: calc(100% - 80px) !important;
+        flex-wrap: wrap !important;
+        justify-content: flex-end !important;
+    }
+
+    body.page-marktplatz .owner-action-btn {
+        width: auto !important;
+        min-width: 0 !important;
+        min-height: 26px !important;
+        height: 26px !important;
+        padding: 0 8px !important;
+        border-radius: 999px !important;
+        font-size: 10.5px !important;
+        line-height: 1 !important;
+        box-shadow: none !important;
+        background: rgba(59, 130, 246, 0.10) !important;
+        color: var(--info-color) !important;
+        border: 1px solid rgba(59, 130, 246, 0.22) !important;
+    }
+
+    body.page-marktplatz .owner-action-btn.danger {
+        background: rgba(239, 68, 68, 0.08) !important;
+        color: var(--danger-color) !important;
+        border-color: rgba(239, 68, 68, 0.24) !important;
+    }
+
+    body.page-marktplatz .owner-action-btn.success {
+        background: rgba(52, 211, 153, 0.10) !important;
+        color: var(--success-color) !important;
+        border-color: rgba(52, 211, 153, 0.24) !important;
+    }
+
+    body.page-marktplatz .card-delete-top {
+        display: none !important;
+    }
+
+    body.page-marktplatz .manage-actions {
+        display: none !important;
+    }
+
+    /* auf Owner-Karten Titelbereich etwas Luft für Top-Actions */
+    body.page-marktplatz .match-card:has(.owner-actions-top) .match-summary {
+        padding-right: 0 !important;
+    }
+}
+
+/* Fallback für Browser ohne :has – schadet nicht */
+body.page-marktplatz .owner-actions-top + .match-card-main .match-summary {
+    padding-right: 0 !important;
+}
