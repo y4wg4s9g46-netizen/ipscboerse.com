@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="dark light">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Schießbuch bestätigen | IPSC Börse</title>
+    <link rel="stylesheet" href="global.css?v=57">
+    <script>
+      (function () {
+        try {
+          var theme = localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || "light";
+          if (theme !== "dark" && theme !== "light") theme = "light";
+          document.documentElement.setAttribute("data-theme", theme);
+        } catch (_) { document.documentElement.setAttribute("data-theme", "light"); }
+      })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+      body { min-height: 100vh; padding: 18px; background: var(--bg-color); color: var(--text-color); }
+      .confirm-shell { max-width: 560px; margin: 0 auto; padding: 18px 0 36px; }
+      .confirm-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 26px; padding: 22px; box-shadow: var(--shadow-lg); }
+      .brand { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+      .brand img { width:44px; height:44px; border-radius:14px; }
+      h1 { margin:0; font-size:22px; line-height:1.1; }
+      .sub { margin:5px 0 0; color:var(--text-muted); font-size:13px; font-weight:650; line-height:1.35; }
+      .entry-box { margin:18px 0; padding:15px; border-radius:18px; background:var(--input-bg); border:1px solid var(--border-color); }
+      .entry-row { display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid rgba(148,163,184,.18); }
+      .entry-row:last-child { border-bottom:0; }
+      .entry-row span { color:var(--text-muted); font-weight:750; }
+      .entry-row strong { text-align:right; }
+      .hash-box { font-size:11px; line-height:1.5; color:var(--text-muted); word-break:break-all; background:rgba(148,163,184,.08); padding:12px; border-radius:14px; }
+      .form-group { margin:14px 0; }
+      label { display:block; margin-bottom:7px; font-size:12px; text-transform:uppercase; letter-spacing:.08em; font-weight:900; color:var(--text-muted); }
+      input { width:100%; min-height:46px; border-radius:15px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color); padding:0 13px; font-size:16px; box-sizing:border-box; }
+      canvas { width:100%; height:190px; border-radius:18px; border:2px dashed rgba(255,159,67,.36); background:#fff; touch-action:none; display:block; }
+      .btn-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+      button { min-height:46px; border-radius:16px; border:1px solid var(--border-color); font-weight:900; cursor:pointer; }
+      .btn-primary { color:#fff; border-color:rgba(255,159,67,.45); background:var(--accent-gradient); box-shadow:0 12px 26px rgba(255,128,8,.20); }
+      .btn-secondary { color:var(--text-color); background:var(--card-bg); }
+      .status { margin-top:14px; padding:12px; border-radius:14px; font-size:13px; line-height:1.4; display:none; }
+      .status.ok { display:block; background:rgba(16,185,129,.12); color:var(--success-color); border:1px solid rgba(16,185,129,.22); }
+      .status.bad { display:block; background:rgba(239,68,68,.12); color:var(--danger-color); border:1px solid rgba(239,68,68,.22); }
+      .status.info { display:block; background:rgba(59,130,246,.10); color:var(--info-color); border:1px solid rgba(59,130,246,.22); }
+    </style>
+</head>
+<body>
+  <div class="confirm-shell">
+    <div class="confirm-card">
+      <div class="brand">
+        <img src="icon-192.png" alt="IPSC">
+        <div>
+          <h1>Schießbuch bestätigen</h1>
+          <p class="sub">Du bestätigst nur den unten angezeigten Eintrag. Die Daten sind über Hashwerte eingefroren.</p>
+        </div>
+      </div>
+
+      <div id="loading" class="status info">Lade Bestätigungslink...</div>
+      <div id="error" class="status bad"></div>
+
+      <div id="confirm-content" style="display:none;">
+        <div class="entry-box" id="entry-box"></div>
+        <div class="hash-box" id="hash-box"></div>
+
+        <div class="form-group">
+          <label>Name *</label>
+          <input id="confirmer-name" type="text" placeholder="Vor- und Nachname" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label>IPSC-/DVC-/Lizenznummer freiwillig</label>
+          <input id="confirmer-license" type="text" placeholder="optional">
+        </div>
+        <div class="form-group">
+          <label>Unterschrift *</label>
+          <canvas id="signature-pad"></canvas>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-secondary" type="button" onclick="clearSignature()">Neu unterschreiben</button>
+          <button class="btn-primary" type="button" onclick="submitConfirmation()">Eintrag bestätigen</button>
+        </div>
+        <div id="success" class="status ok"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const SUPABASE_URL = "https://huprxirlthkisjngwash.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_yModrA5JZTiN5Cw7MHQqLQ_Coc04WAS";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let token = new URLSearchParams(window.location.search).get("t") || "";
+let tokenHash = "";
+let confirmation = null;
+let canvas, ctx, drawing = false;
+
+function stableStringify(value) {
+  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) return "[" + value.map(stableStringify).join(",") + "]";
+  return "{" + Object.keys(value).sort().map(key => JSON.stringify(key) + ":" + stableStringify(value[key])).join(",") + "}";
+}
+async function sha256Hex(value) {
+  const encoded = new TextEncoder().encode(String(value));
+  const digest = await crypto.subtle.digest("SHA-256", encoded);
+  return Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, "0")).join("");
+}
+function shortHash(hash) { return hash ? `${String(hash).slice(0, 12)}…${String(hash).slice(-8)}` : "—"; }
+function escapeHtml(value) {
+  return String(value || "").replace(/[&<>"']/g, m => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[m]));
+}
+function showError(msg) {
+  document.getElementById("loading").style.display = "none";
+  const el = document.getElementById("error");
+  el.textContent = msg;
+  el.style.display = "block";
+}
+function renderEntry(data) {
+  const snap = data.entry_snapshot || {};
+  document.getElementById("entry-box").innerHTML = `
+    <div class="entry-row"><span>Datum</span><strong>${escapeHtml(snap.datum)}</strong></div>
+    <div class="entry-row"><span>Ort</span><strong>${escapeHtml(snap.ort)}</strong></div>
+    <div class="entry-row"><span>Disziplin</span><strong>${escapeHtml(snap.disziplin)}</strong></div>
+    <div class="entry-row"><span>Waffe/Kaliber</span><strong>${escapeHtml(snap.waffe)}</strong></div>
+    <div class="entry-row"><span>Schusszahl</span><strong>${escapeHtml(snap.schusszahl)}</strong></div>
+  `;
+  document.getElementById("hash-box").innerHTML = `
+    Entry-Hash: ${escapeHtml(shortHash(data.entry_hash))}<br>
+    Chain-Hash: ${escapeHtml(shortHash(data.chain_hash))}<br>
+    Prüfcode: ${escapeHtml(data.verify_code || "wird nach Bestätigung aktiv")}
+  `;
+}
+async function loadConfirmation() {
+  document.getElementById("loading").style.display = "block";
+  if (!token || token.length < 20) return showError("Ungültiger oder fehlender Bestätigungslink.");
+  tokenHash = await sha256Hex(token);
+  const { data, error } = await supabaseClient.rpc("get_schiessbuch_confirmation_by_token", { p_token_hash: tokenHash });
+  if (error) return showError("Link konnte nicht geladen werden: " + error.message);
+  if (!data || data.status !== "pending") return showError("Dieser Link ist ungültig, abgelaufen oder bereits verbraucht.");
+  confirmation = data;
+  renderEntry(data);
+  document.getElementById("loading").style.display = "none";
+  document.getElementById("confirm-content").style.display = "block";
+  setTimeout(initCanvas, 30);
+}
+function initCanvas() {
+  canvas = document.getElementById("signature-pad");
+  ctx = canvas.getContext("2d");
+  resizeCanvas();
+  window.addEventListener("resize", resizeCanvas);
+  canvas.addEventListener("mousedown", start);
+  canvas.addEventListener("mousemove", move);
+  canvas.addEventListener("mouseup", stop);
+  canvas.addEventListener("mouseleave", stop);
+  canvas.addEventListener("touchstart", e => { e.preventDefault(); start(e.touches[0]); }, { passive:false });
+  canvas.addEventListener("touchmove", e => { e.preventDefault(); move(e.touches[0]); }, { passive:false });
+  canvas.addEventListener("touchend", stop);
+}
+function resizeCanvas() {
+  const rect = canvas.getBoundingClientRect();
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+  canvas.width = rect.width * ratio;
+  canvas.height = rect.height * ratio;
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "#0f172a";
+}
+function pos(e) {
+  const r = canvas.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+function start(e) { drawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+function move(e) { if (!drawing) return; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }
+function stop() { drawing = false; }
+function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+async function submitConfirmation() {
+  const name = document.getElementById("confirmer-name").value.trim();
+  const license = document.getElementById("confirmer-license").value.trim();
+  if (!name) return alert("Bitte Namen eintragen.");
+  const signatureData = canvas.toDataURL("image/png");
+  if (signatureData.length < 3000) return alert("Bitte im Feld unterschreiben.");
+  const signatureHash = await sha256Hex(signatureData);
+  const confirmedAt = new Date().toISOString();
+  const confirmationHash = await sha256Hex(stableStringify({
+    entry_hash: confirmation.entry_hash,
+    chain_hash: confirmation.chain_hash,
+    signature_hash: signatureHash,
+    confirmer_name: name,
+    confirmer_license: license,
+    confirmed_at: confirmedAt
+  }));
+
+  const { data, error } = await supabaseClient.rpc("submit_schiessbuch_external_confirmation", {
+    p_token_hash: tokenHash,
+    p_name: name,
+    p_license: license || null,
+    p_signature_data: signatureData,
+    p_signature_hash: signatureHash,
+    p_confirmation_hash: confirmationHash,
+    p_user_agent: navigator.userAgent || ""
+  });
+
+  if (error) return showError("Bestätigung konnte nicht gespeichert werden: " + error.message);
+  document.querySelector(".btn-primary").disabled = true;
+  document.querySelector(".btn-secondary").disabled = true;
+  const success = document.getElementById("success");
+  success.textContent = "Danke. Der Schießbuch-Eintrag wurde bestätigt, signiert und gesperrt.";
+  success.style.display = "block";
+}
+loadConfirmation();
+</script>
+</body>
+</html>

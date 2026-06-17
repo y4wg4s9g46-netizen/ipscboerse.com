@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="dark light">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Schießbuch prüfen | IPSC Börse</title>
+    <link rel="stylesheet" href="global.css?v=57">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+      body { min-height:100vh; padding:18px; background:var(--bg-color); color:var(--text-color); }
+      .verify-shell { max-width:560px; margin:0 auto; padding:18px 0 36px; }
+      .verify-card { background:var(--card-bg); border:1px solid var(--border-color); border-radius:26px; padding:22px; box-shadow:var(--shadow-lg); }
+      h1 { margin:0 0 8px 0; font-size:24px; }
+      .status { margin:15px 0; padding:14px; border-radius:16px; font-weight:850; line-height:1.4; }
+      .ok { background:rgba(16,185,129,.12); color:var(--success-color); border:1px solid rgba(16,185,129,.24); }
+      .bad { background:rgba(239,68,68,.12); color:var(--danger-color); border:1px solid rgba(239,68,68,.24); }
+      .row { display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px solid rgba(148,163,184,.18); }
+      .row span { color:var(--text-muted); font-weight:750; }
+      .row strong { text-align:right; }
+      code { word-break:break-all; font-size:11px; color:var(--text-color); }
+    </style>
+</head>
+<body>
+<div class="verify-shell">
+  <div class="verify-card">
+    <h1>QR-Prüfung Schießbuch</h1>
+    <p style="color:var(--text-muted);font-weight:650;line-height:1.4;">Hier kann geprüft werden, ob der digital bestätigte Eintrag vorhanden ist und seine Hashdaten gültig gespeichert wurden.</p>
+    <div id="result" class="status">Lade Prüfung...</div>
+    <div id="details"></div>
+  </div>
+</div>
+<script>
+const SUPABASE_URL = "https://huprxirlthkisjngwash.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_yModrA5JZTiN5Cw7MHQqLQ_Coc04WAS";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+function esc(v){return String(v||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+function shortHash(h){return h ? `${String(h).slice(0,16)}…${String(h).slice(-10)}` : "—";}
+async function loadVerify(){
+  const code = new URLSearchParams(location.search).get("id") || "";
+  const result = document.getElementById("result");
+  const details = document.getElementById("details");
+  if(!code){ result.className="status bad"; result.textContent="Kein Prüfcode übergeben."; return; }
+  const { data, error } = await supabaseClient.rpc("verify_schiessbuch_confirmation", { p_verify_code: code });
+  if(error || !data || !data.is_valid){
+    result.className="status bad";
+    result.textContent = "Prüfung fehlgeschlagen oder Eintrag nicht gefunden.";
+    return;
+  }
+  const snap = data.entry_snapshot || {};
+  result.className="status ok";
+  result.textContent = "✅ Eintrag vorhanden, bestätigt und mit Hashdaten gespeichert.";
+  details.innerHTML = `
+    <div class="row"><span>Datum</span><strong>${esc(snap.datum)}</strong></div>
+    <div class="row"><span>Ort</span><strong>${esc(snap.ort)}</strong></div>
+    <div class="row"><span>Disziplin</span><strong>${esc(snap.disziplin)}</strong></div>
+    <div class="row"><span>Waffe/Kaliber</span><strong>${esc(snap.waffe)}</strong></div>
+    <div class="row"><span>Schusszahl</span><strong>${esc(snap.schusszahl)}</strong></div>
+    <div class="row"><span>Bestätigt durch</span><strong>${esc(data.confirmer_name)}</strong></div>
+    ${data.confirmer_license ? `<div class="row"><span>Lizenznummer</span><strong>${esc(data.confirmer_license)}</strong></div>` : ""}
+    <div class="row"><span>Bestätigt am</span><strong>${esc(new Date(data.confirmed_at).toLocaleString("de-DE"))}</strong></div>
+    <div style="margin-top:15px;color:var(--text-muted);font-size:12px;line-height:1.5;">
+      Entry-Hash:<br><code>${esc(shortHash(data.entry_hash))}</code><br>
+      Chain-Hash:<br><code>${esc(shortHash(data.chain_hash))}</code><br>
+      Confirmation-Hash:<br><code>${esc(shortHash(data.confirmation_hash))}</code>
+    </div>
+  `;
+}
+loadVerify();
+</script>
+</body>
+</html>

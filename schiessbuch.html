@@ -82,7 +82,7 @@
       })();
     </script>
 
-    <link rel="stylesheet" href="global.css?v=56">
+    <link rel="stylesheet" href="global.css?v=57">
     <style id="app-transition-prevent-flash-v50">
       html, body {
         background-color: #0f172a !important;
@@ -261,13 +261,82 @@
       }
     </style>
 
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+    <style id="schiessbuch-external-confirm-v57">
+      .external-confirm-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 9px;
+        margin-top: 10px;
+      }
+      .btn-external-confirm {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        min-height: 42px;
+        border: 1px solid rgba(255,159,67,.34);
+        border-radius: 14px;
+        background: linear-gradient(135deg, rgba(255,159,67,.14), rgba(255,128,8,.05));
+        color: var(--accent-color);
+        font-weight: 900;
+        cursor: pointer;
+      }
+      .btn-external-confirm:active,
+      .btn-share-verify:active {
+        transform: scale(.985);
+      }
+      .external-confirm-note {
+        margin-top: 9px;
+        font-size: 12px;
+        line-height: 1.4;
+        color: var(--text-muted);
+      }
+      .verify-code-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 6px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(59,130,246,.22);
+        background: rgba(59,130,246,.08);
+        color: var(--info-color);
+        font-size: 11px;
+        font-weight: 850;
+      }
+      .signature-preview-img {
+        display: block;
+        max-width: 180px;
+        max-height: 64px;
+        margin-top: 8px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        background: #fff;
+        padding: 5px;
+      }
+      .pdf-export-hint {
+        margin: -8px 0 14px 0;
+        color: var(--text-muted);
+        font-size: 12px;
+        line-height: 1.35;
+        font-weight: 650;
+      }
+      @media (max-width: 560px) {
+        .external-confirm-actions { gap: 8px; }
+      }
+    </style>
+
 </head>
 <body class="page-schiessbuch">
     <div id="app-page-transition-cover" aria-hidden="true"></div>
 
     <header id="main-header"></header>
   
-   <script src="header.js?v=35"></script>
+   <script src="header.js?v=36"></script>
 
     <div class="container">
         <div class="page-section" id="auth-guard" style="display: none; text-align: center; padding: 40px 20px;">
@@ -303,6 +372,7 @@
                     </div>
                 </div>
 
+                <div id="schiessbuch-pdf-hint-v57" class="pdf-export-hint">PDF enthält bestätigte Einträge inkl. Finger-Unterschrift, Hashdaten und QR-Prüfcode.</div>
                 <div id="log-list">
                     <p style="text-align: center; color: var(--text-muted); font-size: 14px;" data-txt="planner-loading">Lade Schießbuch...</p>
                 </div>
@@ -440,6 +510,9 @@
                 confirmation_hash: log.confirmation_hash || local.confirmation_hash || null,
                 locked_at: log.locked_at || local.locked_at || null,
                 integrity_status: log.integrity_status || local.integrity_status || null,
+                verify_code: log.verify_code || local.verify_code || null,
+                external_license: log.external_license || local.external_license || null,
+                external_confirmer_name: log.external_confirmer_name || local.external_confirmer_name || null,
                 local_only: !log.entry_hash && !!local.entry_hash
             };
         }
@@ -522,6 +595,269 @@
             }
         }
 
+
+        function randomTokenV57(bytes = 32) {
+            const array = new Uint8Array(bytes);
+            crypto.getRandomValues(array);
+            return Array.from(array).map(byte => byte.toString(16).padStart(2, "0")).join("");
+        }
+
+        function randomUuidV57() {
+            if (crypto.randomUUID) return crypto.randomUUID();
+            return "v57-" + randomTokenV57(16);
+        }
+
+        function getPublicBaseUrlV57() {
+            return window.location.origin + window.location.pathname.replace(/[^/]*$/, "");
+        }
+
+        function getVerifyUrlV57(code) {
+            return `${getPublicBaseUrlV57()}schiessbuch-verify.html?id=${encodeURIComponent(code)}`;
+        }
+
+        function getExternalSnapshot(log) {
+            return {
+                datum: log.datum,
+                ort: log.ort,
+                disziplin: log.disziplin,
+                waffe: log.waffe,
+                schusszahl: String(log.schusszahl || ""),
+                owner_hint: window.userProfileData?.real_name || window.currentUser?.email || "Schütze"
+            };
+        }
+
+        async function createExternalConfirmation(id) {
+            const log = logs.find(item => String(item.id) === String(id));
+            if (!log) return alert("Eintrag nicht gefunden.");
+            if (log.is_verified) return alert("Dieser Eintrag ist bereits bestätigt und gesperrt.");
+
+            const supportsIntegrity = await checkIntegritySchema();
+            if (!supportsIntegrity) {
+                alert("Bitte zuerst die Supabase SQL-Migration v57 ausführen. Danach kann der externe Bestätigungslink erzeugt werden.");
+                return;
+            }
+
+            const token = randomTokenV57();
+            const tokenHash = await sha256Hex(token);
+            const verifyCode = randomUuidV57();
+
+            const existingIntegrity = getIntegrityData(log);
+            const entryHash = existingIntegrity.entry_hash || await buildEntryHash(log);
+            const previousHash = existingIntegrity.previous_hash || getLatestChainHashFromLogs() || "";
+            const chainHash = existingIntegrity.chain_hash || await buildChainHash(entryHash, previousHash, log.user_id);
+            const snapshot = getExternalSnapshot(log);
+
+            const { data, error } = await window.supabaseClient.rpc("create_schiessbuch_external_confirmation", {
+                p_log_id: id,
+                p_token_hash: tokenHash,
+                p_verify_code: verifyCode,
+                p_entry_snapshot: snapshot,
+                p_entry_hash: entryHash,
+                p_previous_hash: previousHash || null,
+                p_chain_hash: chainHash
+            });
+
+            if (error) {
+                console.error(error);
+                alert("Bestätigungslink konnte nicht erstellt werden: " + error.message);
+                return;
+            }
+
+            setLocalIntegrityForLog(id, {
+                entry_hash: entryHash,
+                previous_hash: previousHash || null,
+                chain_hash: chainHash,
+                integrity_status: "external_pending",
+                verify_code: verifyCode
+            });
+
+            const confirmUrl = `${getPublicBaseUrlV57()}schiessbuch-confirm.html?t=${encodeURIComponent(token)}`;
+            const shareText = [
+                "Bitte bestätige meinen Schießbuch-Eintrag.",
+                "",
+                `Datum: ${snapshot.datum}`,
+                `Ort: ${snapshot.ort}`,
+                `Disziplin: ${snapshot.disziplin}`,
+                `Waffe/Kaliber: ${snapshot.waffe}`,
+                `Schusszahl: ${snapshot.schusszahl}`,
+                "",
+                confirmUrl
+            ].join("\n");
+
+            try {
+                if (navigator.share) {
+                    await navigator.share({
+                        title: "Schießbuch-Eintrag bestätigen",
+                        text: shareText,
+                        url: confirmUrl
+                    });
+                } else {
+                    await navigator.clipboard.writeText(shareText);
+                    alert("Bestätigungslink wurde kopiert.");
+                }
+            } catch (_) {
+                try {
+                    await navigator.clipboard.writeText(shareText);
+                    alert("Bestätigungslink wurde kopiert.");
+                } catch (copyError) {
+                    prompt("Bestätigungslink kopieren:", confirmUrl);
+                }
+            }
+
+            fetchLogs();
+        }
+
+        async function buildClientSchiessbuchPDF(event) {
+            const verifiedLogs = logs.filter(log => log.is_verified);
+            const isEn = (window.currentLang === "en");
+
+            if (!verifiedLogs.length) {
+                alert(isEn ? "There are no confirmed entries yet." : "Es gibt noch keine bestätigten Einträge.");
+                return;
+            }
+
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                alert("PDF-Modul konnte nicht geladen werden. Bitte neu laden.");
+                return;
+            }
+
+            const btn = event ? event.target : null;
+            const oldText = btn ? btn.innerText : "";
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = "⏳ Erstelle PDF...";
+            }
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+                const pageW = doc.internal.pageSize.getWidth();
+                const pageH = doc.internal.pageSize.getHeight();
+                const margin = 14;
+                let y = 16;
+
+                const now = new Date();
+                const pad = n => String(n).padStart(2, "0");
+                const dateDisplay = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()}`;
+                const fileDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+                const ownerName = window.userProfileData?.real_name || window.currentUser?.email || "Schütze";
+
+                function safe(value) {
+                    return String(value ?? "").replace(/[–—]/g, "-").replace(/•/g, "-").trim();
+                }
+
+                function write(text, x, yy, opts = {}) {
+                    doc.setFont("helvetica", opts.bold ? "bold" : "normal");
+                    doc.setFontSize(opts.size || 10);
+                    doc.setTextColor(...(opts.color || [15, 23, 42]));
+                    doc.text(safe(text), x, yy, opts.align ? { align: opts.align } : undefined);
+                }
+
+                function addPageIfNeeded(space = 44) {
+                    if (y + space > pageH - 14) {
+                        doc.addPage();
+                        y = 16;
+                        header(false);
+                    }
+                }
+
+                function header(first = false) {
+                    write("Digitales Schießbuch", margin, y, { bold: true, size: first ? 18 : 12 });
+                    write(`Erstellt am ${dateDisplay}`, pageW - margin, y, { size: 8, color: [100, 116, 139], align: "right" });
+                    y += first ? 9 : 7;
+                    doc.setDrawColor(255, 159, 67);
+                    doc.setLineWidth(0.4);
+                    doc.line(margin, y, pageW - margin, y);
+                    y += 8;
+                }
+
+                function shortPdfHash(hash) {
+                    return hash ? `${String(hash).slice(0, 16)}…${String(hash).slice(-10)}` : "nicht vorhanden";
+                }
+
+                async function qrDataUrl(text) {
+                    try {
+                        if (window.QRCode && window.QRCode.toDataURL) {
+                            return await window.QRCode.toDataURL(text, { width: 180, margin: 1, errorCorrectionLevel: "M" });
+                        }
+                    } catch (_) {}
+                    return null;
+                }
+
+                header(true);
+                write(`Schütze: ${ownerName}`, margin, y, { bold: true, size: 11 });
+                y += 6;
+                write(`Bestätigte Einträge: ${verifiedLogs.length}`, margin, y, { size: 9, color: [100, 116, 139] });
+                y += 10;
+
+                for (const log of verifiedLogs) {
+                    addPageIfNeeded(72);
+                    const integrity = getIntegrityData(log);
+                    const d = new Date(log.datum);
+                    const dateStr = isNaN(d.getTime()) ? String(log.datum || "") : d.toLocaleDateString("de-DE");
+                    const verifyCode = log.verify_code || integrity.verify_code || "";
+                    const verifyUrl = verifyCode ? getVerifyUrlV57(verifyCode) : "";
+                    const signature = log.signature_data || "";
+                    const confirmer = log.external_confirmer_name || log.aufsicht_name || "Bestätiger";
+                    const license = log.external_license || "";
+
+                    doc.setDrawColor(226, 232, 240);
+                    doc.roundedRect(margin, y, pageW - margin * 2, 62, 3, 3, "S");
+
+                    write(`${dateStr} · ${safe(log.ort)}`, margin + 4, y + 7, { bold: true, size: 12 });
+                    write(`Disziplin: ${log.disziplin || "-"}`, margin + 4, y + 14, { size: 9 });
+                    write(`Waffe/Kaliber: ${log.waffe || "-"}`, margin + 4, y + 20, { size: 9 });
+                    write(`Schusszahl: ${log.schusszahl || "-"}`, margin + 4, y + 26, { size: 9 });
+                    write(`Bestätigt durch: ${confirmer}${license ? " · Lizenz: " + license : ""}`, margin + 4, y + 33, { bold: true, size: 9, color: [15, 23, 42] });
+                    write(`Entry-Hash: ${shortPdfHash(integrity.entry_hash)}`, margin + 4, y + 40, { size: 7.2, color: [100, 116, 139] });
+                    write(`Chain-Hash: ${shortPdfHash(integrity.chain_hash)}`, margin + 4, y + 45, { size: 7.2, color: [100, 116, 139] });
+                    write(`Confirmation: ${shortPdfHash(integrity.confirmation_hash)}`, margin + 4, y + 50, { size: 7.2, color: [100, 116, 139] });
+
+                    if (signature) {
+                        try {
+                            doc.addImage(signature, "PNG", margin + 4, y + 52, 44, 15, undefined, "FAST");
+                            write("Unterschrift", margin + 50, y + 61, { size: 7, color: [100, 116, 139] });
+                        } catch (_) {}
+                    }
+
+                    if (verifyUrl) {
+                        const qr = await qrDataUrl(verifyUrl);
+                        if (qr) {
+                            try {
+                                doc.addImage(qr, "PNG", pageW - margin - 30, y + 8, 26, 26, undefined, "FAST");
+                            } catch (_) {}
+                        }
+                        write("QR-Prüfung", pageW - margin - 17, y + 39, { size: 7, color: [100, 116, 139], align: "center" });
+                        write(verifyCode.slice(0, 18), pageW - margin - 17, y + 44, { size: 6.2, color: [100, 116, 139], align: "center" });
+                    } else {
+                        write("Kein QR-Code", pageW - margin - 4, y + 14, { size: 7, color: [148, 163, 184], align: "right" });
+                    }
+
+                    y += 70;
+                }
+
+                const total = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= total; i++) {
+                    doc.setPage(i);
+                    doc.setFont("helvetica", "normal");
+                    doc.setFontSize(8);
+                    doc.setTextColor(148, 163, 184);
+                    doc.text(`Seite ${i}/${total}`, pageW - margin, pageH - 8, { align: "right" });
+                }
+
+                doc.save(`Schiessbuch_${fileDate}.pdf`);
+            } catch (err) {
+                console.error(err);
+                alert("Fehler beim PDF-Export: " + err.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = oldText;
+                }
+            }
+        }
+
+
         function buildShareTextForLog(id) {
             const log = logs.find(item => String(item.id) === String(id));
             if (!log) return "";
@@ -535,7 +871,8 @@
                 `Schusszahl: ${log.schusszahl}`,
                 `Eintrag-Hash: ${integrity.entry_hash || "nicht vorhanden"}`,
                 `Ketten-Hash: ${integrity.chain_hash || "nicht vorhanden"}`,
-                `Bestätigung: ${log.is_verified ? "signiert/gesperrt" : "Entwurf"}`
+                `Bestätigung: ${log.is_verified ? "signiert/gesperrt" : "Entwurf"}`,
+                integrity.verify_code ? `QR-Prüfung: ${getVerifyUrlV57(integrity.verify_code)}` : ""
             ].join("\\n");
         }
 
@@ -701,9 +1038,15 @@
                 `;
 
                 let actionArea = log.is_verified 
-                    ? `<div class="locked-info">🔒 ${isEn ? 'Locked securely' : 'Durch Aufsicht'} '${escapeHtml(log.aufsicht_name)}' ${isEn ? '' : 'manipulationssicher gesperrt'}</div>
+                    ? `<div class="locked-info">🔒 ${isEn ? 'Locked securely' : 'Bestätigt durch'} '${escapeHtml(log.external_confirmer_name || log.aufsicht_name)}' ${log.external_license ? ` · Lizenz: ${escapeHtml(log.external_license)}` : ""}</div>
+                       ${log.signature_data ? `<img class="signature-preview-img" src="${log.signature_data}" alt="Unterschrift">` : ""}
+                       ${integrity.verify_code ? `<span class="verify-code-chip">QR-Prüfcode aktiv</span>` : ""}
                        <button class="btn-share-verify" onclick="shareIntegrityProof('${log.id}')">🔗 Prüfdaten teilen/kopieren</button>`
-                    : `<button class="btn-sign" onclick="openSignModal('${log.id}')">✍️ ${isEn ? 'Get Stamp & Signature' : 'Stempel & Unterschrift einholen'}</button>`;
+                    : `<div class="external-confirm-actions">
+                           <button class="btn-sign" onclick="openSignModal('${log.id}')">✍️ ${isEn ? 'Sign locally' : 'Direkt unterschreiben lassen'}</button>
+                           <button class="btn-external-confirm" onclick="createExternalConfirmation('${log.id}')">📲 ${isEn ? 'Send external confirmation' : 'Extern bestätigen lassen'}</button>
+                           <div class="external-confirm-note">Erzeugt einen Einmal-Link. Dein Kumpel sieht nur diesen Eintrag und unterschreibt auf seinem Handy.</div>
+                       </div>`;
 
                 list.innerHTML += `
                     <div class="log-entry">
@@ -737,79 +1080,7 @@
         // DIE NEUE EXPORT FUNKTION (HYBRID: APP & WEB)
         // =================================================================
         async function exportToPDF(event) {
-            const verifiedLogs = logs.filter(log => log.is_verified);
-            const isEn = (window.currentLang === 'en');
-
-            if (verifiedLogs.length === 0) {
-                alert(isEn ? "There are no stamped training entries for official export yet!" : "Es gibt noch keine gestempelten Trainingseinheiten für den offiziellen Export!");
-                return;
-            }
-
-            const btn = event ? event.target : null;
-            const originalText = btn ? btn.innerText : "";
-            if (btn) {
-                btn.disabled = true;
-                btn.innerText = isEn ? "⏳ Generating..." : "⏳ Erstelle PDF...";
-            }
-
-            try {
-                const { data: { session } } = await window.supabaseClient.auth.getSession();
-                if (!session) return alert(isEn ? "Session expired, please log in again!" : "Sitzung abgelaufen, bitte neu einloggen!");
-                // PDF vom Server generieren lassen
-                const response = await fetch('https://huprxirlthkisjngwash.supabase.co/functions/v1/generate-schiessbuch-pdf', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${session.access_token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (!response.ok) throw new Error("Server communication broken.");
-
-                const blob = await response.blob();
-                const fileName = `Schiessnachweis_${(window.userProfileData?.real_name || 'Export').replace(/\s+/g, '_')}.pdf`;
-                // PRÜFEN: Sind wir auf dem Handy in der Capacitor-App?
-                const isApp = window.Capacitor && window.Capacitor.isNativePlatform();
-                if (isApp) {
-                    // --- NATIVE HANDY APP LOGIK ---
-                    const { Filesystem, Directory } = window.Capacitor.Plugins;
-                    const { Share } = window.Capacitor.Plugins;
-
-                    const base64Data = await convertBlobToBase64(blob);
-                    const savedFile = await Filesystem.writeFile({
-                        path: fileName,
-                        data: base64Data,
-                        directory: Directory.Cache
-                    });
-                    await Share.share({
-                        title: 'Mein Schießbuch',
-                        text: 'Hier ist mein Schießnachweis.',
-                        url: savedFile.uri,
-                        dialogTitle: 'PDF speichern oder teilen'
-                    });
-                } else {
-                    // --- NORMALE BROWSER LOGIK (PC / Standard Mobile Safari) ---
-                    const downloadBlob = new Blob([blob], { type: 'application/pdf' });
-                    const url = window.URL.createObjectURL(downloadBlob);
-                    
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    
-                    window.URL.revokeObjectURL(url);
-                    a.remove();
-                }
-
-            } catch (err) {
-                console.error(err);
-                alert("Fehler beim PDF-Export: " + err.message);
-            } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerText = originalText;
-                }
-            }
+            return buildClientSchiessbuchPDF(event);
         }
 
         // Hilfsfunktion: Wandelt rohe PDF-Daten in Base64 für das Handy um
@@ -937,12 +1208,14 @@
             const chainHash = existingIntegrity.chain_hash || await buildChainHash(entryHash, previousHash, log.user_id);
             const signatureHash = await sha256Hex(dataUrl);
             const lockedAt = new Date().toISOString();
+            const verifyCode = log.verify_code || existingIntegrity.verify_code || randomUuidV57();
             const confirmationHash = await sha256Hex(stableStringify({
                 entry_hash: entryHash,
                 chain_hash: chainHash,
                 signature_hash: signatureHash,
                 aufsicht_name: name,
-                locked_at: lockedAt
+                locked_at: lockedAt,
+                verify_code: verifyCode
             }));
 
             const integrityUpdate = {
@@ -952,7 +1225,9 @@
                 signature_hash: signatureHash,
                 confirmation_hash: confirmationHash,
                 locked_at: lockedAt,
-                integrity_status: "verified_locked"
+                integrity_status: "verified_locked",
+                verify_code: verifyCode,
+                external_confirmer_name: name
             };
 
             const supportsIntegrity = await checkIntegritySchema();
@@ -961,6 +1236,9 @@
                     is_verified: true,
                     aufsicht_name: name,
                     signature_data: dataUrl,
+                    verify_code: verifyCode,
+                    external_confirmer_name: name,
+                    external_confirmed_at: lockedAt,
                     ...integrityUpdate
                   }
                 : {
