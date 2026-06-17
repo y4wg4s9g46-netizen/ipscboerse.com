@@ -8280,3 +8280,110 @@ html[data-theme="dark"] .chat-toast {
         font-weight: 740 !important;
     }
 }
+
+/* ==========================================================================
+   FINAL LOGIN MODAL CENTER FIX v43
+   Ziel: Desktop wieder sauber wie v41, Mobile unverändert app-like
+   ========================================================================== */
+
+/* Login/Auth-Modal: Desktop exakt mittig, nicht oben versetzt */
+#auth-modal.modal,
+#auth-modal,
+.auth-modal,
+.modal.auth-modal {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    display: none;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 24px !important;
+    overflow: hidden !important;
+    background: rgba(8, 13, 27, 0.58) !important;
+    backdrop-filter: blur(10px) saturate(1.15) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(1.15) !important;
+    z-index: 100250 !important;
+}
+
+/* Wenn JS das Modal öffnet */
+#auth-modal.modal[style*="flex"],
+#auth-modal[style*="flex"],
+#auth-modal.is-open,
+.auth-modal.is-open {
+    display: flex !important;
+}
+
+/* Desktop-Karte: v41 Look, sauber zentriert */
+#auth-modal .modal-content,
+#auth-modal .auth-modal-content {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    margin: 0 auto !important;
+    width: min(92vw, 500px) !important;
+    max-width: 500px !important;
+    max-height: min(88dvh, 820px) !important;
+    overflow-y: auto !important;
+    border-radius: 24px !important;
+    padding: 28px 30px !important;
+}
+
+/* Verhindert, dass alte Generic-Modal-Regeln das Login-Fenster nach oben ziehen */
+@media (min-width: 769px) {
+    #auth-modal .modal-content {
+        align-self: center !important;
+        justify-self: center !important;
+    }
+
+    #auth-modal h3 {
+        margin-top: 0 !important;
+    }
+
+    #auth-modal .modal-close-container,
+    #auth-modal .modal-close-trigger {
+        top: 16px !important;
+        right: 16px !important;
+    }
+}
+
+/* Mobile: bleibt v41/v42 artig, aber etwas mehr Safe-Area */
+@media (max-width: 768px) {
+    #auth-modal.modal,
+    #auth-modal,
+    .auth-modal,
+    .modal.auth-modal {
+        align-items: center !important;
+        justify-content: center !important;
+        padding: max(14px, env(safe-area-inset-top)) 14px max(86px, env(safe-area-inset-bottom)) 14px !important;
+        overflow: hidden !important;
+    }
+
+    #auth-modal .modal-content,
+    #auth-modal .auth-modal-content {
+        width: calc(100vw - 28px) !important;
+        max-width: 430px !important;
+        max-height: calc(100dvh - 132px) !important;
+        padding: 24px 20px calc(24px + env(safe-area-inset-bottom)) 20px !important;
+        border-radius: 26px !important;
+        margin: 0 auto !important;
+    }
+}
+
+/* OAuth Buttons behalten v42-Funktion, aber v41-ruhiger */
+#auth-modal .btn-social-google,
+#auth-modal .btn-social-apple,
+#auth-modal .btn-social-passkey {
+    border-radius: 15px !important;
+    min-height: 42px !important;
+    font-weight: 760 !important;
+}
+
+#auth-modal .btn-social-google.is-oauth-loading,
+#auth-modal .btn-social-apple.is-oauth-loading {
+    opacity: .82 !important;
+}
