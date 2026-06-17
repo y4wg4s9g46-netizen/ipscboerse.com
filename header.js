@@ -274,7 +274,7 @@
                     display: flex !important;
                     flex-direction: column !important;
                     align-items: center !important;
-                    padding-top: 15px !important;
+                    padding-top: 12px !important;
                 }
 
                 header:not(.auth-ready) .header-controls {
@@ -290,20 +290,20 @@
                     color: inherit !important;
                     display: inline-flex !important;
                     align-items: center !important;
-                    gap: 14px !important;
+                    gap: 10px !important;
                     cursor: pointer !important;
                     transition: opacity 0.2s !important;
                     text-align: left !important;
                 }
 
                 header .header-logo-frame {
-    width: 54px !important;
-    height: 54px !important;
-    min-width: 54px !important;
-    min-height: 54px !important;
-    max-width: 54px !important;
-    max-height: 54px !important;
-    flex: 0 0 54px !important;
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    max-width: 48px !important;
+    max-height: 48px !important;
+    flex: 0 0 48px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -312,14 +312,14 @@
 }
 
 header .header-logo-img {
-    width: 44px !important;
-    height: 44px !important;
-    min-width: 44px !important;
-    min-height: 44px !important;
-    max-width: 44px !important;
-    max-height: 44px !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
     object-fit: contain !important;
-    flex: 0 0 44px !important;
+    flex: 0 0 38px !important;
     filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)) !important;
     border-radius: 4px !important;
     display: block !important;
@@ -516,7 +516,7 @@ header .header-logo-img {
                     justify-content: center !important;
                     gap: 8px !important;
                     border-top: 1px solid var(--border-color) !important;
-                    padding-top: 15px !important;
+                    padding-top: 12px !important;
                     padding-bottom: 15px !important;
                     flex-wrap: wrap !important;
                 }
@@ -573,7 +573,7 @@ header .header-logo-img {
                         justify-content: center !important;
                         align-items: center !important;
                         gap: 8px !important;
-                        margin-top: 15px !important;
+                        margin-top: 10px !important;
                         width: 100% !important;
                     }
 
@@ -634,8 +634,42 @@ header .header-logo-img {
                         max-height: 34px !important;
                     }
 
+
+
+                    header .header-logo-frame {
+                        width: 42px !important;
+                        height: 42px !important;
+                        min-width: 42px !important;
+                        min-height: 42px !important;
+                        max-width: 42px !important;
+                        max-height: 42px !important;
+                        flex: 0 0 42px !important;
+                    }
+
+                    header .header-logo-img {
+                        width: 34px !important;
+                        height: 34px !important;
+                        min-width: 34px !important;
+                        min-height: 34px !important;
+                        max-width: 34px !important;
+                        max-height: 34px !important;
+                        flex: 0 0 34px !important;
+                    }
+
+                    header .logo-text-group h1 {
+                        font-size: 19px !important;
+                        line-height: 1.08 !important;
+                        letter-spacing: 0.6px !important;
+                    }
+
+                    header .logo-text-group p {
+                        font-size: 9.5px !important;
+                        letter-spacing: 1.4px !important;
+                        margin-top: 2px !important;
+                    }
+
                     body {
-                        padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+                        padding-bottom: calc(72px + env(safe-area-inset-bottom)) !important;
                     }
 
                     #bottom-tab-bar {
@@ -648,7 +682,7 @@ header .header-logo-img {
                         justify-content: space-around !important;
                         align-items: center !important;
                         padding-bottom: env(safe-area-inset-bottom) !important;
-                        height: 65px !important;
+                        height: 58px !important;
                         z-index: 99999 !important;
                         box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08) !important;
                         -webkit-transform: translateZ(0) !important;
@@ -689,7 +723,7 @@ header .header-logo-img {
 
                     #more-menu-overlay {
                         position: fixed !important;
-                        bottom: calc(65px + env(safe-area-inset-bottom)) !important;
+                        bottom: calc(58px + env(safe-area-inset-bottom)) !important;
                         left: 0 !important;
                         width: 100% !important;
                         background: var(--bg-color) !important;
