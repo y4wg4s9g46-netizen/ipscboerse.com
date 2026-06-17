@@ -81,7 +81,7 @@
       })();
     </script>
 
-    <link rel="stylesheet" href="global.css?v=52">
+    <link rel="stylesheet" href="global.css?v=53">
     <style id="app-transition-prevent-flash-v50">
       html, body {
         background-color: #0f172a !important;
@@ -154,18 +154,193 @@
       })();
     </script>
 
+
+    <style id="hit-factor-battle-v53">
+      .hf-stage-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 0 0 18px 0;
+      }
+      .hf-stage-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .hf-stage-tab,
+      .hf-add-stage-btn,
+      .hf-print-btn {
+        border: 1px solid var(--border-color);
+        background: var(--card-bg);
+        color: var(--text-color);
+        min-height: 38px;
+        padding: 0 14px;
+        border-radius: 999px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: var(--shadow-sm);
+      }
+      .hf-stage-tab.active {
+        border-color: rgba(255,159,67,.45);
+        color: #fff;
+        background: var(--accent-gradient);
+        box-shadow: 0 10px 24px rgba(255,128,8,.18);
+      }
+      .hf-add-stage-btn {
+        color: var(--accent-color);
+        border-color: rgba(255,159,67,.35);
+        background: rgba(255,159,67,.08);
+      }
+      .hit-stepper-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 20px;
+      }
+      .hit-stepper-card {
+        border: 1px solid var(--border-color);
+        background: var(--input-bg);
+        border-radius: 18px;
+        padding: 12px;
+        box-shadow: var(--shadow-sm);
+      }
+      .hit-stepper-card label {
+        display: block;
+        margin-bottom: 9px;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+      .hit-stepper-card.alpha label { color: var(--success-color); }
+      .hit-stepper-card.penalty label { color: var(--danger-color); }
+      .hit-stepper {
+        display: grid;
+        grid-template-columns: 44px 1fr 44px;
+        gap: 8px;
+        align-items: center;
+      }
+      .hit-stepper button {
+        width: 44px;
+        height: 44px;
+        border-radius: 15px;
+        border: 1px solid var(--border-color);
+        background: var(--card-bg);
+        color: var(--text-color);
+        font-size: 22px;
+        font-weight: 900;
+        line-height: 1;
+        cursor: pointer;
+        box-shadow: var(--shadow-sm);
+        touch-action: manipulation;
+      }
+      .hit-stepper button.plus {
+        color: #fff;
+        border-color: rgba(255,159,67,.42);
+        background: var(--accent-gradient);
+      }
+      .hit-stepper input {
+        height: 44px !important;
+        text-align: center;
+        font-size: 22px !important;
+        font-weight: 900 !important;
+        padding: 0 4px !important;
+        border-radius: 15px !important;
+      }
+      .hf-mini-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .hf-winner-card {
+        display: none;
+        margin: 20px 0 14px 0;
+        padding: 18px;
+        border-radius: 22px;
+        border: 1px solid rgba(255,159,67,.28);
+        background: linear-gradient(135deg, rgba(255,159,67,.16), rgba(255,128,8,.06));
+        box-shadow: 0 12px 30px rgba(255,128,8,.10);
+      }
+      .hf-winner-card strong {
+        display: block;
+        color: var(--accent-color);
+        font-size: 13px;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+      .hf-winner-card span {
+        color: var(--text-color);
+        font-size: 22px;
+        font-weight: 900;
+      }
+      .overall-section {
+        display: none;
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 2px solid var(--bg-color);
+      }
+      .overall-section h3 {
+        margin: 0 0 12px 0;
+        color: var(--text-color);
+        font-size: 18px;
+        font-weight: 900;
+      }
+      .overall-note {
+        margin: 0 0 14px 0;
+        color: var(--text-muted);
+        font-size: 13px;
+        line-height: 1.45;
+        font-weight: 600;
+      }
+      @media (max-width: 560px) {
+        .hit-stepper-grid { grid-template-columns: 1fr; gap: 12px; }
+        .hf-stage-toolbar { align-items: stretch; }
+        .hf-add-stage-btn { width: 100%; }
+        .hf-mini-actions { grid-template-columns: 1fr; }
+      }
+      @media print {
+        header, footer, #bottom-tab-bar, #more-menu-overlay, .hf-add-stage-btn, .hf-print-btn, #btn-clear-ranking, .btn-submit, .btn-secondary:not(.hf-print-btn) {
+          display: none !important;
+        }
+        body, html {
+          background: #fff !important;
+          color: #111827 !important;
+        }
+        .tool-section {
+          box-shadow: none !important;
+          border: 1px solid #ddd !important;
+        }
+        .container {
+          max-width: 100% !important;
+          padding: 0 !important;
+        }
+      }
+    </style>
+
 </head>
 <body class="page-tools">
     <div id="app-page-transition-cover" aria-hidden="true"></div>
 
     <header id="main-header"></header>
-    <script src="header.js?v=31"></script>
+    <script src="header.js?v=32"></script>
 
     <div class="container">
         
         <div class="tool-section">
             <h2 data-txt="tools-hf-title">🏆 Hit-Factor Battle</h2>
             <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 24px; line-height: 1.5;" data-txt="tools-hf-desc">Trage die Ergebnisse von dir und deinen Freunden ein, um eine Live-Rangliste für die Stage zu erstellen.</p>
+
+            <div class="hf-stage-toolbar" aria-label="Stage-Auswahl">
+                <div class="hf-stage-tabs" id="hf-stage-tabs"></div>
+                <button type="button" class="hf-add-stage-btn" onclick="addStage()">+ Stage</button>
+            </div>
+
             
             <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
                 <div class="form-group" style="flex: 1 1 100%;">
@@ -186,16 +361,52 @@
             </div>
 
             <label style="font-size: 13px; font-weight: 700; margin-bottom: 8px; display: block; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;" data-txt="tools-hf-scoring">Trefferaufnahme</label>
-            <div class="scoring-grid">
-                <div class="form-group"><label style="color: var(--success-color);" data-txt="tools-hf-alpha">Alpha (A)</label><input type="number" id="hf-a" class="input-A" min="0" value="0"></div>
-                <div class="form-group"><label data-txt="tools-hf-charlie">Charlie (C)</label><input type="number" id="hf-c" min="0" value="0"></div>
-                <div class="form-group"><label data-txt="tools-hf-delta">Delta (D)</label><input type="number" id="hf-d" min="0" value="0"></div>
-                <div class="form-group"><label style="color: var(--danger-color);" data-txt="tools-hf-miss">Miss (M)</label><input type="number" id="hf-m" class="input-M" min="0" value="0"></div>
-                <div class="form-group"><label style="color: var(--danger-color);" data-txt="tools-hf-ns">No-Shoot</label><input type="number" id="hf-ns" class="input-M" min="0" value="0"></div>
+            <div class="hit-stepper-grid">
+                <div class="hit-stepper-card alpha">
+                    <label data-txt="tools-hf-alpha">Alpha (A)</label>
+                    <div class="hit-stepper">
+                        <button type="button" onclick="changeHitValue('hf-a', -1)">−</button>
+                        <input type="number" id="hf-a" class="input-A" min="0" value="0" inputmode="numeric">
+                        <button type="button" class="plus" onclick="changeHitValue('hf-a', 1)">+</button>
+                    </div>
+                </div>
+                <div class="hit-stepper-card">
+                    <label data-txt="tools-hf-charlie">Charlie (C)</label>
+                    <div class="hit-stepper">
+                        <button type="button" onclick="changeHitValue('hf-c', -1)">−</button>
+                        <input type="number" id="hf-c" min="0" value="0" inputmode="numeric">
+                        <button type="button" class="plus" onclick="changeHitValue('hf-c', 1)">+</button>
+                    </div>
+                </div>
+                <div class="hit-stepper-card">
+                    <label data-txt="tools-hf-delta">Delta (D)</label>
+                    <div class="hit-stepper">
+                        <button type="button" onclick="changeHitValue('hf-d', -1)">−</button>
+                        <input type="number" id="hf-d" min="0" value="0" inputmode="numeric">
+                        <button type="button" class="plus" onclick="changeHitValue('hf-d', 1)">+</button>
+                    </div>
+                </div>
+                <div class="hit-stepper-card penalty">
+                    <label data-txt="tools-hf-miss">Miss (M)</label>
+                    <div class="hit-stepper">
+                        <button type="button" onclick="changeHitValue('hf-m', -1)">−</button>
+                        <input type="number" id="hf-m" class="input-M" min="0" value="0" inputmode="numeric">
+                        <button type="button" class="plus" onclick="changeHitValue('hf-m', 1)">+</button>
+                    </div>
+                </div>
+                <div class="hit-stepper-card penalty">
+                    <label data-txt="tools-hf-ns">No-Shoot</label>
+                    <div class="hit-stepper">
+                        <button type="button" onclick="changeHitValue('hf-ns', -1)">−</button>
+                        <input type="number" id="hf-ns" class="input-M" min="0" value="0" inputmode="numeric">
+                        <button type="button" class="plus" onclick="changeHitValue('hf-ns', 1)">+</button>
+                    </div>
+                </div>
             </div>
 
             <button class="btn-submit" onclick="addShooterToRanking()" data-txt="tools-hf-btn-submit">Schütze eintragen & berechnen</button>
 
+            <h3 id="ranking-stage-title" style="display:none; margin: 22px 0 12px 0; font-size: 18px; font-weight: 900;">Stage 1</h3>
             <div style="overflow-x: auto;">
                 <table class="leaderboard" id="ranking-table" style="display: none;">
                     <thead>
@@ -211,7 +422,31 @@
                     <tbody id="ranking-body"></tbody>
                 </table>
             </div>
-            <button id="btn-clear-ranking" class="btn-secondary" style="margin-top: 20px; display: none; width: 100%; color: var(--danger-color); border-color: rgba(239, 68, 68, 0.3);" onclick="clearRanking()" data-txt="tools-hf-btn-clear">Rangliste leeren</button>
+            <button id="btn-clear-ranking" class="btn-secondary" style="margin-top: 20px; display: none; width: 100%; color: var(--danger-color); border-color: rgba(239, 68, 68, 0.3);" onclick="clearStageRanking()">Aktuelle Stage leeren</button>
+            <div class="overall-section" id="overall-section">
+                <div class="hf-winner-card" id="hf-winner-card"></div>
+                <h3>🏁 Gesamtwertung</h3>
+                <p class="overall-note">Jede Stage wird auf 100 Punkte normiert. Der Stage-Sieger bekommt 100 Punkte, alle anderen anteilig nach Hit-Factor.</p>
+                <div style="overflow-x: auto;">
+                    <table class="leaderboard" id="overall-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;">#</th>
+                                <th>Name</th>
+                                <th>Stages</th>
+                                <th>Stage-Punkte</th>
+                                <th>Ø HF</th>
+                            </tr>
+                        </thead>
+                        <tbody id="overall-body"></tbody>
+                    </table>
+                </div>
+                <div class="hf-mini-actions">
+                    <button type="button" class="btn-secondary hf-print-btn" onclick="printHitFactorResults()">PDF / Drucken</button>
+                    <button type="button" class="btn-secondary" onclick="clearRanking()" style="color: var(--danger-color); border-color: rgba(239, 68, 68, 0.3);">Battle löschen</button>
+                </div>
+            </div>
+
         </div>
 
         <div class="tool-section">
@@ -273,18 +508,77 @@
             if (selector) selector.value = window.currentLang;
         };
 
-        // --- 1. HIT-FACTOR BATTLE LOGIK ---
-        let rankingData = [];
+        // --- 1. HIT-FACTOR BATTLE LOGIK v53 ---
+        let hfStages = [{ id: 1, name: "Stage 1", entries: [] }];
+        let activeStageIndex = 0;
+
+        function getActiveStage() {
+            return hfStages[activeStageIndex] || hfStages[0];
+        }
+
+        function getHitValue(id) {
+            const el = document.getElementById(id);
+            return Math.max(0, parseInt(el && el.value, 10) || 0);
+        }
+
+        function changeHitValue(id, delta) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const next = Math.max(0, (parseInt(el.value, 10) || 0) + delta);
+            el.value = String(next);
+            try {
+                if (window.navigator && typeof window.navigator.vibrate === "function") window.navigator.vibrate(7);
+            } catch (_) {}
+        }
+
+        function resetHitInputs() {
+            ["hf-a", "hf-c", "hf-d", "hf-m", "hf-ns"].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = "0";
+            });
+            const time = document.getElementById("hf-time");
+            if (time) time.value = "";
+            const name = document.getElementById("hf-name");
+            if (name) name.focus();
+        }
+
+        function addStage() {
+            const nextNumber = hfStages.length + 1;
+            hfStages.push({ id: Date.now(), name: `Stage ${nextNumber}`, entries: [] });
+            activeStageIndex = hfStages.length - 1;
+            renderStageTabs();
+            renderRanking();
+            resetHitInputs();
+        }
+
+        function setActiveStage(index) {
+            activeStageIndex = Math.max(0, Math.min(index, hfStages.length - 1));
+            renderStageTabs();
+            renderRanking();
+        }
+
+        function renderStageTabs() {
+            const wrap = document.getElementById("hf-stage-tabs");
+            if (!wrap) return;
+            wrap.innerHTML = hfStages.map((stage, index) => `
+                <button type="button" class="hf-stage-tab ${index === activeStageIndex ? "active" : ""}" onclick="setActiveStage(${index})">
+                    ${stage.name}
+                </button>
+            `).join("");
+        }
+
         function addShooterToRanking() {
-            const name = document.getElementById('hf-name').value.trim() || `Schütze ${rankingData.length + 1}`;
+            const stage = getActiveStage();
+            const name = document.getElementById('hf-name').value.trim() || `Schütze ${stage.entries.length + 1}`;
             const isMajor = document.getElementById('hf-pf').value === 'major';
             const time = parseFloat(document.getElementById('hf-time').value) || 0;
-            const a = parseInt(document.getElementById('hf-a').value) || 0;
-            const c = parseInt(document.getElementById('hf-c').value) || 0;
-            const d = parseInt(document.getElementById('hf-d').value) || 0;
-            const m = parseInt(document.getElementById('hf-m').value) || 0;
-            const ns = parseInt(document.getElementById('hf-ns').value) || 0;
-            if (time <= 0 && (a+c+d+m) > 0) {
+            const a = getHitValue('hf-a');
+            const c = getHitValue('hf-c');
+            const d = getHitValue('hf-d');
+            const m = getHitValue('hf-m');
+            const ns = getHitValue('hf-ns');
+
+            if (time <= 0 && (a + c + d + m + ns) > 0) {
                 alert(window.currentLang === 'en' ? "Please enter a valid time!" : "Bitte gib eine gültige Zeit ein!");
                 return;
             }
@@ -294,53 +588,144 @@
             pts += d * (isMajor ? 2 : 1);
             pts -= (m * 10);
             pts -= (ns * 10);
-            
-            let hf = 0;
-            if (pts > 0 && time > 0) {
-                hf = pts / time;
-            }
 
-            rankingData.push({
-                id: Date.now(),
-                name: name,
+            const hf = (pts > 0 && time > 0) ? (pts / time) : 0;
+
+            stage.entries.push({
+                id: Date.now() + Math.floor(Math.random() * 1000),
+                name,
                 points: pts,
-                time: time,
-                hf: hf,
-                pf: isMajor ? 'Maj' : 'Min'
+                time,
+                hf,
+                pf: isMajor ? 'Maj' : 'Min',
+                hits: { a, c, d, m, ns }
             });
-            rankingData.sort((a, b) => b.hf - a.hf);
 
-            document.getElementById('hf-name').value = '';
-            document.getElementById('hf-a').value = '0';
-            document.getElementById('hf-c').value = '0';
-            document.getElementById('hf-d').value = '0';
-            document.getElementById('hf-m').value = '0';
-            document.getElementById('hf-ns').value = '0';
-
+            stage.entries.sort((a, b) => b.hf - a.hf);
+            resetHitInputs();
             renderRanking();
         }
 
         function removeShooter(id) {
-            rankingData = rankingData.filter(s => s.id !== id);
+            const stage = getActiveStage();
+            stage.entries = stage.entries.filter(s => s.id !== id);
             renderRanking();
         }
 
-        function clearRanking() {
-            const msg = window.currentLang === 'en' ? "Are you sure you want to clear the leaderboard?" : "Bist du sicher, dass du die Rangliste löschen möchtest?";
-            if(confirm(msg)) {
-                rankingData = [];
+        function clearStageRanking() {
+            const stage = getActiveStage();
+            const msg = `Aktuelle ${stage.name} wirklich leeren?`;
+            if (confirm(msg)) {
+                stage.entries = [];
                 renderRanking();
             }
         }
 
+        function clearRanking() {
+            const msg = window.currentLang === 'en' ? "Clear complete battle including all stages?" : "Komplette Battle inklusive aller Stages löschen?";
+            if(confirm(msg)) {
+                hfStages = [{ id: 1, name: "Stage 1", entries: [] }];
+                activeStageIndex = 0;
+                renderStageTabs();
+                renderRanking();
+            }
+        }
+
+        function getAllEntriesCount() {
+            return hfStages.reduce((sum, stage) => sum + stage.entries.length, 0);
+        }
+
+        function getOverallRows() {
+            const aggregates = new Map();
+
+            hfStages.forEach(stage => {
+                if (!stage.entries.length) return;
+                const winnerHf = Math.max(...stage.entries.map(s => s.hf || 0));
+                stage.entries.forEach(entry => {
+                    const key = entry.name.trim().toLowerCase();
+                    if (!aggregates.has(key)) {
+                        aggregates.set(key, {
+                            name: entry.name,
+                            stagePoints: 0,
+                            stages: 0,
+                            hfSum: 0,
+                            rawPoints: 0
+                        });
+                    }
+                    const row = aggregates.get(key);
+                    const normalizedStagePoints = winnerHf > 0 ? (entry.hf / winnerHf) * 100 : 0;
+                    row.stagePoints += normalizedStagePoints;
+                    row.stages += 1;
+                    row.hfSum += entry.hf || 0;
+                    row.rawPoints += entry.points || 0;
+                });
+            });
+
+            return Array.from(aggregates.values())
+                .map(row => ({
+                    ...row,
+                    avgHf: row.stages ? row.hfSum / row.stages : 0
+                }))
+                .sort((a, b) => b.stagePoints - a.stagePoints || b.avgHf - a.avgHf);
+        }
+
+        function renderOverallRanking() {
+            const section = document.getElementById("overall-section");
+            const tbody = document.getElementById("overall-body");
+            const winnerCard = document.getElementById("hf-winner-card");
+            if (!section || !tbody || !winnerCard) return;
+
+            const rows = getOverallRows();
+            if (!rows.length) {
+                section.style.display = "none";
+                winnerCard.style.display = "none";
+                tbody.innerHTML = "";
+                return;
+            }
+
+            section.style.display = "block";
+            const winner = rows[0];
+            winnerCard.style.display = "block";
+            winnerCard.innerHTML = `<strong>Gesamtsieger</strong><span>🏆 ${winner.name}</span><div style="margin-top:6px;color:var(--text-muted);font-weight:700;">${winner.stagePoints.toFixed(1)} Stage-Punkte · ${winner.stages} Stage${winner.stages === 1 ? "" : "s"}</div>`;
+
+            tbody.innerHTML = rows.map((row, index) => `
+                <tr>
+                    <td class="${index === 0 ? "rank-1" : ""}">${index + 1}.</td>
+                    <td><strong>${escapeHtmlHF(row.name)}</strong></td>
+                    <td>${row.stages}</td>
+                    <td style="font-weight:900;color:var(--accent-color);">${row.stagePoints.toFixed(1)}</td>
+                    <td>${row.avgHf.toFixed(4)}</td>
+                </tr>
+            `).join("");
+        }
+
+        function escapeHtmlHF(value) {
+            return String(value || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
         function renderRanking() {
+            renderStageTabs();
+
+            const stage = getActiveStage();
             const table = document.getElementById('ranking-table');
             const tbody = document.getElementById('ranking-body');
             const clearBtn = document.getElementById('btn-clear-ranking');
+            const stageTitle = document.getElementById('ranking-stage-title');
 
-            if (rankingData.length === 0) {
+            if (stageTitle) {
+                stageTitle.textContent = `${stage.name} Rangliste`;
+                stageTitle.style.display = stage.entries.length ? 'block' : 'none';
+            }
+
+            if (stage.entries.length === 0) {
                 table.style.display = 'none';
-                clearBtn.style.display = 'none';
+                clearBtn.style.display = getAllEntriesCount() ? 'block' : 'none';
+                renderOverallRanking();
                 return;
             }
 
@@ -348,15 +733,15 @@
             clearBtn.style.display = 'block';
             tbody.innerHTML = '';
 
-            rankingData.forEach((shooter, index) => {
+            stage.entries.forEach((shooter, index) => {
                 const rankClass = index === 0 ? 'rank-1' : '';
                 const hfDisplay = shooter.hf.toFixed(4);
                 const timeDisplay = shooter.time.toFixed(2);
-                
+
                 tbody.innerHTML += `
                     <tr>
                         <td class="${rankClass}">${index + 1}.</td>
-                        <td><strong>${shooter.name}</strong> <span style="font-size: 10px; color: var(--text-muted);">${shooter.pf}</span></td>
+                        <td><strong>${escapeHtmlHF(shooter.name)}</strong> <span style="font-size: 10px; color: var(--text-muted);">${shooter.pf}</span></td>
                         <td>${shooter.points}</td>
                         <td>${timeDisplay}s</td>
                         <td style="font-weight: 900; color: var(--accent-color);">${hfDisplay}</td>
@@ -364,8 +749,21 @@
                     </tr>
                 `;
             });
+
+            renderOverallRanking();
         }
 
+        function printHitFactorResults() {
+            renderOverallRanking();
+            window.print();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            renderStageTabs();
+            renderRanking();
+        });
+
+        
         // --- 2. DRY-FIRE TIMER & GENERATOR LOGIK ---
         let audioCtx;
         function playBeep(frequency, durationMs) {
