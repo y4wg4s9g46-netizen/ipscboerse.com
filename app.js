@@ -534,6 +534,86 @@ function closeChatSystem() {
 }
 window.closeChatSystem = closeChatSystem;
 
+
+// Robust Chat Submit Handler v40
+// War vorher nicht zuverlässig gebunden: dadurch konnte der Browser nur das Formular neu laden,
+// statt die Nachricht in Supabase zu speichern.
+if (!window.__chatSubmitHandlerV40Bound) {
+  window.__chatSubmitHandlerV40Bound = true;
+
+  document.addEventListener("submit", async (event) => {
+    const form = event.target;
+    if (!form || form.id !== "chat-send-form") return;
+
+    event.preventDefault();
+
+    if (!window.currentUser || !window.activeChatRoom) {
+      return alert(window.currentLang === "en" ? "Please open a chat first." : "Bitte öffne zuerst einen Chat.");
+    }
+
+    const input = document.getElementById("chat-message-input");
+    const editIdInput = document.getElementById("chat-edit-id");
+    const sendBtn = document.getElementById("btn-chat-send");
+
+    if (!input) return;
+
+    const message = input.value.trim();
+    if (!message) return;
+
+    const originalBtnText = sendBtn ? sendBtn.innerText : "";
+    if (sendBtn) {
+      sendBtn.disabled = true;
+      sendBtn.innerText = window.currentLang === "en" ? "Sending..." : "Sende...";
+    }
+
+    try {
+      const editId = editIdInput ? editIdInput.value.trim() : "";
+
+      if (editId) {
+        const { error } = await window.supabaseClient
+          .from("chat_messages")
+          .update({ message })
+          .eq("id", editId)
+          .eq("sender_email", window.currentUser.email);
+
+        if (error) throw error;
+
+        if (editIdInput) editIdInput.value = "";
+      } else {
+        const { error } = await window.supabaseClient
+          .from("chat_messages")
+          .insert({
+            match_id: window.activeChatRoom.matchId,
+            match_name: window.activeChatRoom.matchName,
+            sender_email: window.currentUser.email,
+            receiver_email: window.activeChatRoom.receiverEmail,
+            message
+          });
+
+        if (error) throw error;
+      }
+
+      input.value = "";
+      if (sendBtn) sendBtn.innerText = window.currentLang === "en" ? "Send" : "Senden";
+
+      if (typeof loadChatMessages === "function") {
+        await loadChatMessages();
+      }
+
+      if (typeof updateHeaderChatBadge === "function") {
+        updateHeaderChatBadge();
+      }
+    } catch (error) {
+      console.error("Chat send error:", error);
+      alert((window.currentLang === "en" ? "Message could not be sent: " : "Nachricht konnte nicht gesendet werden: ") + (error.message || error));
+      if (sendBtn) sendBtn.innerText = originalBtnText || (window.currentLang === "en" ? "Send" : "Senden");
+    } finally {
+      if (sendBtn) sendBtn.disabled = false;
+    }
+  });
+}
+
+
 function triggerChatEmailReminder() {
   if (!window.activeChatRoom) return;
 

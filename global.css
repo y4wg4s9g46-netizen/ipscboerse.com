@@ -7837,3 +7837,88 @@ body.page-schiessbuch .log-entry-form button[type="submit"] {
         grid-template-columns: 1fr !important;
     }
 }
+
+/* ==========================================================================
+   HOTFIX v40 – Community, Chat, Settings-Passkey
+   ========================================================================== */
+
+/* Passkey Button im Einstellungsmenü: nicht mehr riesig/vollbreit */
+#modal-settings-view button[onclick="registerPasskey()"],
+#modal-settings-view .settings-passkey-card button,
+#modal-settings-view .settings-passkey-card .btn-primary-auth {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    margin: 12px auto 0 auto !important;
+    padding: 0 18px !important;
+    border-radius: 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 13.5px !important;
+    line-height: 1 !important;
+    white-space: normal !important;
+    text-align: center !important;
+    background: linear-gradient(135deg, #4f83f1 0%, #2f65db 100%) !important;
+    box-shadow: 0 10px 22px rgba(59, 130, 246, 0.16) !important;
+}
+
+#modal-settings-view .settings-passkey-card {
+    text-align: left !important;
+}
+
+#modal-settings-view .settings-passkey-card button,
+#modal-settings-view .settings-passkey-card .btn-primary-auth {
+    align-self: center !important;
+}
+
+/* Chat-Modal: Eingabe/Senden auf Handy stabil nebeneinander */
+#chat-modal {
+    z-index: 100250 !important;
+}
+
+#chat-send-form {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    gap: 8px !important;
+    align-items: stretch !important;
+}
+
+#chat-message-input {
+    min-width: 0 !important;
+    width: 100% !important;
+}
+
+#btn-chat-send {
+    width: auto !important;
+    min-width: 84px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    margin: 0 !important;
+    padding: 0 14px !important;
+    border-radius: 14px !important;
+}
+
+@media (max-width: 768px) {
+    #modal-settings-view button[onclick="registerPasskey()"],
+    #modal-settings-view .settings-passkey-card button,
+    #modal-settings-view .settings-passkey-card .btn-primary-auth {
+        width: fit-content !important;
+        max-width: 100% !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        font-size: 13px !important;
+    }
+
+    #chat-modal .modal-content {
+        width: calc(100vw - 28px) !important;
+        max-width: 460px !important;
+        padding: 20px 16px calc(92px + env(safe-area-inset-bottom)) 16px !important;
+    }
+
+    #chat-send-form {
+        grid-template-columns: minmax(0, 1fr) auto !important;
+    }
+}
