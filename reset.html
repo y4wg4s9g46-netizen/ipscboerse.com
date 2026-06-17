@@ -92,8 +92,31 @@
       })();
     </script>
 
+
+    <style id="app-transition-prevent-flash-v51">
+      html, body { background-color: #0f172a !important; overscroll-behavior: none; }
+      html[data-theme="light"], html[data-theme="light"] body { background-color: #f6f8fc !important; }
+      #app-page-transition-cover { position: fixed !important; inset: 0 !important; z-index: 2147483000 !important; pointer-events: none !important; opacity: 0 !important; background: #0f172a !important; transition: opacity 25ms linear !important; transform: translateZ(0) !important; }
+      html[data-theme="light"] #app-page-transition-cover { background: #f6f8fc !important; }
+      html.is-page-leaving #app-page-transition-cover { opacity: 1 !important; }
+    </style>
+    <script id="app-transition-script-v51">
+      (function () {
+        function ensureCover() { try { if (!document.body) return; if (!document.getElementById("app-page-transition-cover")) { var cover = document.createElement("div"); cover.id = "app-page-transition-cover"; cover.setAttribute("aria-hidden", "true"); document.body.prepend(cover); } } catch (_) {} }
+        function markLeaving() { ensureCover(); try { document.documentElement.classList.add("is-page-leaving"); } catch (_) {} }
+        function clearLeaving() { try { document.documentElement.classList.remove("is-page-leaving"); } catch (_) {} ensureCover(); }
+        window.showPageTransitionCover = markLeaving;
+        window.addEventListener("pageshow", clearLeaving, { passive: true });
+        window.addEventListener("pagehide", markLeaving, { passive: true });
+        window.addEventListener("beforeunload", markLeaving);
+        document.addEventListener("DOMContentLoaded", ensureCover, { once: true });
+        document.addEventListener("click", function (event) { var target = event.target && event.target.closest ? event.target.closest("a[href]") : null; if (!target) return; if (target.target && target.target !== "_self") return; if (target.hasAttribute("download")) return; var href = target.getAttribute("href") || ""; if (!href || href.indexOf("#") === 0 || href.indexOf("javascript:") === 0 || href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0) return; try { var url = new URL(href, window.location.href); if (url.origin !== window.location.origin) return; markLeaving(); } catch (_) {} }, true);
+      })();
+    </script>
+
 </head>
 <body class="page-reset">
+    <div id="app-page-transition-cover" aria-hidden="true"></div>
     <p>Verbindung zum Server wird hergestellt...</p>
 </body>
 </html>

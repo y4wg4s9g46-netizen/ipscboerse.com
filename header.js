@@ -1622,6 +1622,75 @@ header .header-logo-img {
             document.head.appendChild(dockStyleV38);
         }
 
+
+        // Final Mobile UI Fix v51: dock lower + real transition cover + Doppel-AA overflow safety
+        if (!window.__finalMobileUiFixV51) {
+            window.__finalMobileUiFixV51 = true;
+            const ensureTransitionCoverV51 = () => {
+                try {
+                    if (!document.body) return;
+                    if (!document.getElementById("app-page-transition-cover")) {
+                        const cover = document.createElement("div");
+                        cover.id = "app-page-transition-cover";
+                        cover.setAttribute("aria-hidden", "true");
+                        document.body.prepend(cover);
+                    }
+                } catch (_) {}
+            };
+            ensureTransitionCoverV51();
+            document.addEventListener("DOMContentLoaded", ensureTransitionCoverV51, { once: true });
+            window.addEventListener("pageshow", ensureTransitionCoverV51, { passive: true });
+            const showCoverV51 = () => {
+                ensureTransitionCoverV51();
+                try { document.documentElement.classList.add("is-page-leaving"); } catch (_) {}
+            };
+            window.showPageTransitionCover = showCoverV51;
+            document.addEventListener("click", (event) => {
+                const target = event.target?.closest?.("a[href]");
+                if (!target) return;
+                if (target.target && target.target !== "_self") return;
+                if (target.hasAttribute("download")) return;
+                const href = target.getAttribute("href") || "";
+                if (!href || href.startsWith("#") || href.startsWith("javascript:") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
+                try {
+                    const url = new URL(href, window.location.href);
+                    if (url.origin !== window.location.origin) return;
+                    showCoverV51();
+                } catch (_) {}
+            }, true);
+            window.addEventListener("pagehide", showCoverV51, { passive: true });
+            window.addEventListener("beforeunload", showCoverV51);
+            const finalStyleV51 = document.createElement("style");
+            finalStyleV51.id = "final-mobile-ui-fix-v51";
+            finalStyleV51.textContent = `
+                html, body { background-color: #0f172a !important; }
+                html[data-theme="light"], html[data-theme="light"] body { background-color: #f6f8fc !important; }
+                #app-page-transition-cover { position: fixed !important; inset: 0 !important; z-index: 2147483000 !important; pointer-events: none !important; opacity: 0 !important; background: #0f172a !important; transition: opacity 25ms linear !important; transform: translateZ(0) !important; will-change: opacity !important; }
+                html[data-theme="light"] #app-page-transition-cover { background: #f6f8fc !important; }
+                html.is-page-leaving #app-page-transition-cover { opacity: 1 !important; }
+                @media (max-width: 768px) {
+                    html.is-native-shell #bottom-tab-bar, html.is-standalone-app #bottom-tab-bar, body.is-app-shell #bottom-tab-bar { bottom: 0px !important; width: calc(100% - 16px) !important; max-width: 520px !important; height: 72px !important; border-radius: 28px !important; transform: translate3d(-50%, 0, 0) !important; }
+                    html.is-browser-mode #bottom-tab-bar { bottom: 0px !important; width: calc(100% - 16px) !important; max-width: 520px !important; height: 64px !important; border-radius: 24px !important; transform: translate3d(-50%, 0, 0) !important; }
+                    html.is-native-shell body, html.is-standalone-app body, body.is-app-shell { padding-bottom: calc(88px + env(safe-area-inset-bottom)) !important; }
+                    html.is-native-shell .container, html.is-native-shell main, html.is-native-shell .main-container, html.is-standalone-app .container, html.is-standalone-app main, html.is-standalone-app .main-container, body.is-app-shell .container, body.is-app-shell main, body.is-app-shell .main-container { padding-bottom: calc(90px + env(safe-area-inset-bottom)) !important; }
+                    html.is-browser-mode body { padding-bottom: calc(118px + env(safe-area-inset-bottom)) !important; }
+                    html.is-browser-mode .container, html.is-browser-mode main, html.is-browser-mode .main-container { padding-bottom: calc(108px + env(safe-area-inset-bottom)) !important; }
+                    body.page-doppel-aa .modal { padding: max(10px, env(safe-area-inset-top)) 12px calc(82px + env(safe-area-inset-bottom)) 12px !important; overflow-x: hidden !important; }
+                    body.page-doppel-aa .modal-content { box-sizing: border-box !important; width: calc(100vw - 24px) !important; max-width: 470px !important; max-height: calc(100dvh - 118px - env(safe-area-inset-bottom)) !important; padding: 20px 18px 22px 18px !important; border-radius: 24px !important; overflow-x: hidden !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; }
+                    body.page-doppel-aa #bot-submit-form, body.page-doppel-aa .form-row, body.page-doppel-aa .form-group, body.page-doppel-aa .checkbox-grid, body.page-doppel-aa .checkbox-group, body.page-doppel-aa .checkbox-group-terms { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; }
+                    body.page-doppel-aa .form-row { flex-direction: column !important; gap: 0 !important; }
+                    body.page-doppel-aa .form-group input, body.page-doppel-aa .form-group select, body.page-doppel-aa input, body.page-doppel-aa select { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; height: 44px !important; min-height: 44px !important; border-radius: 16px !important; }
+                    body.page-doppel-aa .radio-container, body.page-doppel-aa .checkbox-grid { display: grid !important; grid-template-columns: 1fr !important; gap: 12px !important; }
+                    body.page-doppel-aa .radio-label, body.page-doppel-aa .checkbox-grid .checkbox-group, body.page-doppel-aa .checkbox-group-terms { display: flex !important; align-items: center !important; justify-content: flex-start !important; gap: 11px !important; text-align: left !important; white-space: normal !important; }
+                    body.page-doppel-aa .radio-label input, body.page-doppel-aa .checkbox-grid .checkbox-group input, body.page-doppel-aa .checkbox-group-terms input { flex: 0 0 24px !important; width: 24px !important; height: 24px !important; min-width: 24px !important; min-height: 24px !important; margin: 0 !important; }
+                    body.page-doppel-aa .checkbox-grid .checkbox-group label, body.page-doppel-aa .checkbox-group-terms label { flex: 1 1 auto !important; min-width: 0 !important; overflow-wrap: anywhere !important; line-height: 1.25 !important; }
+                    body.page-doppel-aa #bot-submit-btn { width: 100% !important; height: 48px !important; min-height: 48px !important; border-radius: 18px !important; font-size: 15px !important; }
+                }
+            `;
+            document.head.appendChild(finalStyleV51);
+        }
+
+
         window.toggleMoreMenu = function() {
             const menu = document.getElementById("more-menu-overlay");
             const btn = document.getElementById("btn-more-menu");
