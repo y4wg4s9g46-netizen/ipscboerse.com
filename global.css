@@ -6931,3 +6931,263 @@ body.page-mein-planer .planned-heading {
 body.page-marktplatz .owner-actions-top + .match-card-main .match-summary {
     padding-right: 0 !important;
 }
+
+/* ==========================================================================
+   PREMIUM POLISH v34 – weichere Typografie, Zahnrad-Menü, Karten-Finish
+   ========================================================================== */
+
+@media (max-width: 768px) {
+
+    /* Schrift in Karten geschmeidiger, weniger "fett/aggressiv" */
+    body h1,
+    body h2,
+    body h3,
+    body h4,
+    body .match-title,
+    body .news-section-title,
+    body .hero-section h2,
+    body .planned-heading,
+    body .page-section h2,
+    body .panel-card h2 {
+        font-weight: 760 !important;
+        letter-spacing: -0.45px !important;
+    }
+
+    body p,
+    body .match-meta,
+    body .news-item-body,
+    body .dash-desc,
+    body .info-box,
+    body .post-content,
+    body .match-details p {
+        font-weight: 500 !important;
+        letter-spacing: -0.08px !important;
+    }
+
+    body label,
+    body .form-group label,
+    body .badge {
+        font-weight: 720 !important;
+    }
+
+    /* Marktplatz: Zahnrad statt Edit/Delete/Mediated-Pills oben */
+    body.page-marktplatz .owner-menu {
+        position: absolute !important;
+        top: 9px !important;
+        right: 9px !important;
+        z-index: 20 !important;
+    }
+
+    body.page-marktplatz .owner-menu-trigger {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        list-style: none !important;
+        cursor: pointer !important;
+        background: rgba(255, 159, 67, 0.12) !important;
+        border: 1px solid rgba(255, 159, 67, 0.28) !important;
+        color: var(--accent-color) !important;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08) !important;
+        font-size: 16px !important;
+    }
+
+    body.page-marktplatz .owner-menu-trigger::-webkit-details-marker {
+        display: none !important;
+    }
+
+    body.page-marktplatz .owner-menu[open] .owner-menu-trigger {
+        background: var(--accent-gradient) !important;
+        color: #fff !important;
+    }
+
+    body.page-marktplatz .owner-menu-popover {
+        position: absolute !important;
+        top: 38px !important;
+        right: 0 !important;
+        min-width: 138px !important;
+        padding: 7px !important;
+        border-radius: 14px !important;
+        background: var(--card-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        box-shadow: 0 18px 38px rgba(15, 23, 42, 0.18) !important;
+        display: grid !important;
+        gap: 6px !important;
+    }
+
+    body.page-marktplatz .owner-menu-popover button {
+        width: 100% !important;
+        height: 34px !important;
+        min-height: 34px !important;
+        padding: 0 10px !important;
+        border-radius: 10px !important;
+        font-size: 12px !important;
+        justify-content: flex-start !important;
+        background: var(--input-bg) !important;
+        color: var(--text-color) !important;
+        border: 1px solid var(--border-color) !important;
+        box-shadow: none !important;
+    }
+
+    body.page-marktplatz .owner-menu-popover button.danger {
+        color: var(--danger-color) !important;
+        background: rgba(239, 68, 68, 0.08) !important;
+        border-color: rgba(239, 68, 68, 0.22) !important;
+    }
+
+    body.page-marktplatz .owner-actions-top,
+    body.page-marktplatz .owner-action-btn,
+    body.page-marktplatz .card-delete-top {
+        display: none !important;
+    }
+
+    body.page-marktplatz .match-card:has(.owner-menu) .match-summary {
+        padding-right: 38px !important;
+    }
+
+    body.page-marktplatz .action-buttons-group {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 6px !important;
+    }
+
+    body.page-marktplatz .action-buttons-group .btn-mediated {
+        grid-column: 1 / -1 !important;
+        background: rgba(52, 211, 153, 0.14) !important;
+        color: var(--success-color) !important;
+        border: 1px solid rgba(52, 211, 153, 0.28) !important;
+    }
+
+    /* Planer/Freie Matches: Buttons wie die Marktplatz-Pills */
+    body.page-mein-planer .match-item button,
+    body.page-freie-matches .match-card a,
+    body.page-freie-matches .match-card button,
+    body.page-schiessbuch .btn-primary-auth,
+    body.page-schiessbuch .btn-success {
+        min-height: 38px !important;
+        height: 38px !important;
+        padding: 0 16px !important;
+        border-radius: 13px !important;
+        font-size: 13.5px !important;
+        font-weight: 720 !important;
+        box-shadow: 0 8px 18px rgba(59, 130, 246, 0.14) !important;
+    }
+
+    body.page-freie-matches .match-card a,
+    body.page-freie-matches .match-card button,
+    body.page-mein-planer .match-item button:first-of-type {
+        background: linear-gradient(135deg, #4f83f1 0%, #2f65db 100%) !important;
+        color: #fff !important;
+        border: none !important;
+        text-decoration: none !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: auto !important;
+    }
+
+    body.page-mein-planer .match-item .delete-btn,
+    body.page-schiessbuch .delete-btn {
+        background: rgba(239, 68, 68, 0.08) !important;
+        color: var(--danger-color) !important;
+        border: 1px solid rgba(239, 68, 68, 0.25) !important;
+        box-shadow: none !important;
+    }
+
+    body.page-mein-planer .match-item {
+        padding: 17px 15px !important;
+        border-radius: 18px !important;
+    }
+
+    body.page-mein-planer .match-item h4 {
+        font-size: 18px !important;
+        line-height: 1.18 !important;
+    }
+
+    body.page-mein-planer .match-item p {
+        font-size: 14px !important;
+        line-height: 1.35 !important;
+    }
+
+    /* Community Plus: Symbol erzwingen */
+    body.page-community .floating-action-bar .btn-post::before {
+        content: "+" !important;
+        font-size: 34px !important;
+        line-height: 1 !important;
+        font-weight: 850 !important;
+        color: #fff !important;
+        display: block !important;
+    }
+
+    body.page-community .floating-action-bar .btn-post span {
+        display: none !important;
+    }
+
+    /* Schießbuch / Modals: keine ausbrechenden Felder */
+    body .modal-content,
+    body .modal-content * {
+        box-sizing: border-box !important;
+    }
+
+    body .modal-content {
+        overflow-x: hidden !important;
+    }
+
+    body .modal-content form,
+    body .modal-content .form-group {
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    body .modal-content [style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    body .modal-content input,
+    body .modal-content select,
+    body .modal-content textarea {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    body.page-schiessbuch .page-section > div[style*="justify-content: space-between"] {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        align-items: stretch !important;
+    }
+
+    body.page-schiessbuch .page-section > div[style*="justify-content: space-between"] > div {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+
+    body.page-schiessbuch .page-section > div[style*="justify-content: space-between"] button {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    /* SG-Timer: Archiv-Tabs und Cards etwas ruhiger */
+    body.page-sg-timer-live .panel-card h2 {
+        font-size: 22px !important;
+        line-height: 1.16 !important;
+    }
+
+    body.page-sg-timer-live .tab-navigation {
+        overflow-x: auto !important;
+        gap: 8px !important;
+        padding-bottom: 4px !important;
+    }
+
+    body.page-sg-timer-live .tab-btn {
+        white-space: nowrap !important;
+        font-size: 13px !important;
+        min-height: 38px !important;
+        border-radius: 13px !important;
+    }
+}

@@ -27,13 +27,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
-   <link rel="stylesheet" href="global.css?v=33">
+   <link rel="stylesheet" href="global.css?v=34">
 </head>
 <body class="page-mein-planer">
 
     <header id="main-header"></header>
 
-    <script src="header.js?v=17"></script>
+    <script src="header.js?v=18"></script>
     <div class="container">
         
         <div id="logged-out-section" style="text-align: center;">
@@ -97,9 +97,9 @@
 
     <script src="auth.js?v=10"></script>
 
-<script src="lang.js?v=14"></script>
+<script src="lang.js?v=15"></script>
 
-<script src="app.js?v=15"></script>
+<script src="app.js?v=16"></script>
     <script>
         let myMatches = [];
 
@@ -143,6 +143,21 @@
         async function deleteMatch(id) {
             const { error } = await window.supabaseClient.from('user_matches').delete().eq('id', id);
             if (!error) loadMatchesFromSupabase();
+        }
+
+        function formatPlannerLocation(rawLocation) {
+            let value = String(rawLocation || "-").trim();
+            if (!value || value === "-") return "-";
+
+            // Entfernt GPS-Koordinaten am Ende, z.B. "49.95549043478704, 9.783251740550964"
+            value = value
+                .replace(/\s*\|?\s*-?\d{1,3}\.\d{4,}\s*,\s*-?\d{1,3}\.\d{4,}\s*$/g, "")
+                .replace(/\s+-?\d{1,3}\.\d{4,}\s*,\s*-?\d{1,3}\.\d{4,}\s*$/g, "")
+                .replace(/\s{2,}/g, " ")
+                .replace(/\s*,\s*$/g, "")
+                .trim();
+
+            return value || "-";
         }
 
         function renderMatches() {
@@ -191,7 +206,7 @@
                     <div class="match-item">
                         <div>
                             <h4>${matchTitleHtml} ${badgesHtml}</h4>
-                            <p>📅 ${displayDate} | 📍 ${escapeHtml(match.match_location || '-')}</p>
+                            <p>📅 ${displayDate} | 📍 ${escapeHtml(formatPlannerLocation(match.match_location))}</p>
                         </div>
                         <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap;">
                             <button onclick="inserierenAufMarktplatz('${safeName}', '${match.match_date}', '${safeLocation}')" style="background: var(--accent-gradient); color: #fff; border: none; border-radius: var(--radius); width: auto; padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(255, 159, 67, 0.3);">📢 Inserieren</button>

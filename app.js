@@ -343,11 +343,13 @@ function renderMatches(matches) {
       return `
         <article class="match-card ${isWant ? "card-want" : "card-offer"}">
           ${canManage ? `
-            <div class="owner-actions-top" aria-label="Eintrag verwalten">
-              <button class="btn-edit owner-action-btn" onclick="handleEditClick(${m.id})">${t("btn-edit", "Bearbeiten")}</button>
-              <button class="btn-delete owner-action-btn danger" onclick="handleDelete(${m.id}, '${m.seller_email}')">${t("btn-delete", "Löschen")}</button>
-              <button class="btn-mediated owner-action-btn success" onclick="triggerMediatedModal(${m.id})">${t("btn-mediated", "Vermittelt")}</button>
-            </div>
+            <details class="owner-menu">
+              <summary class="owner-menu-trigger" title="${t("btn-manage", "Verwalten")}">⚙</summary>
+              <div class="owner-menu-popover">
+                <button type="button" onclick="handleEditClick(${m.id})">${t("btn-edit", "Bearbeiten")}</button>
+                <button type="button" class="danger" onclick="handleDelete(${m.id}, '${m.seller_email}')">${t("btn-delete", "Löschen")}</button>
+              </div>
+            </details>
           ` : ""}
           <div class="match-card-main">
             <div class="match-header-flex">
@@ -384,6 +386,7 @@ function renderMatches(matches) {
             <div class="action-buttons-group">
               <button class="btn-export" onclick="exportToIcs(${m.id})">${window.translations[window.currentLang]["btn-export"]}</button>
               <button class="btn-report" onclick="reportMatch(${m.id})">${window.translations[window.currentLang]["report-btn"]}</button>
+              ${canManage ? `<button class="btn-mediated" onclick="triggerMediatedModal(${m.id})">✓ ${t("btn-mediated", "Vermittelt")}</button>` : ""}
             </div>
 
             ${""}
