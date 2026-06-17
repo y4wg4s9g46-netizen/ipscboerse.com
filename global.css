@@ -4791,3 +4791,332 @@ html {
         border-radius: 9px !important;
     }
 }
+
+/* ==========================================================================
+   FINAL MOBILE ULTRA DENSITY v26 – gesamter Seiteninhalt kleiner
+   ========================================================================== */
+
+html {
+    -webkit-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
+}
+
+@media (max-width: 768px) {
+
+    html,
+    body {
+        font-size: 13px !important;
+    }
+
+    body {
+        line-height: 1.35 !important;
+    }
+
+    /* Header kompakter */
+    header,
+    #main-header {
+        padding-top: calc(env(safe-area-inset-top) + 8px) !important;
+        padding-bottom: 8px !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        gap: 8px !important;
+    }
+
+    header h1,
+    #main-header h1 {
+        font-size: 18px !important;
+        line-height: 1.05 !important;
+        letter-spacing: 0.4px !important;
+        margin: 0 !important;
+    }
+
+    header p,
+    #main-header p,
+    header p[data-txt="sub-title"] {
+        font-size: 9px !important;
+        line-height: 1.1 !important;
+        letter-spacing: 1.2px !important;
+        margin-top: 2px !important;
+    }
+
+    header .header-logo-frame {
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        flex: 0 0 40px !important;
+    }
+
+    header .header-logo-img {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
+        max-width: 34px !important;
+        max-height: 34px !important;
+    }
+
+    header .header-controls,
+    header .header-actions {
+        gap: 6px !important;
+    }
+
+    header button,
+    header .btn-auth,
+    header .theme-toggle-btn,
+    header #btn-logout {
+        min-height: 30px !important;
+        height: 30px !important;
+        padding: 0 8px !important;
+        font-size: 11px !important;
+        border-radius: 9px !important;
+    }
+
+    header #btn-open-settings {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+        padding: 0 !important;
+    }
+
+    header #btn-open-settings img {
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+    }
+
+    /* Seitenfläche kompakter */
+    body .container,
+    body.page-community .container,
+    body.page-doppel-aa .container,
+    body.page-index .container,
+    body.page-marktplatz .container,
+    body.page-mein-planer .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-top: 10px !important;
+        margin-bottom: 10px !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Alle großen Boxen */
+    body .hero-section,
+    body .news-section,
+    body .dash-card,
+    body .form-section,
+    body #planner-section,
+    body #logged-out-section,
+    body #logged-out-msg,
+    body #username-setup-section,
+    body .post-card,
+    body .match-card,
+    body .match-item,
+    body .stage-card,
+    body .tool-section,
+    body .card,
+    body .filter-bar,
+    body .info-box,
+    body .danger-box,
+    body .modal-content,
+    body .comments-wrapper {
+        padding: 10px 10px !important;
+        margin-bottom: 10px !important;
+        border-radius: 12px !important;
+    }
+
+    body h1 {
+        font-size: 21px !important;
+        line-height: 1.1 !important;
+        margin-bottom: 8px !important;
+    }
+
+    body h2,
+    body .hero-section h2,
+    body .news-section-title,
+    body .form-section h2,
+    body #planner-section h2,
+    body #logged-out-msg h2,
+    body #username-setup-section h2 {
+        font-size: 18px !important;
+        line-height: 1.15 !important;
+        margin-top: 0 !important;
+        margin-bottom: 8px !important;
+        padding-bottom: 8px !important;
+    }
+
+    body h3,
+    body #planner-section h3,
+    body .dash-title,
+    body .dash-card-title,
+    body .match-details h3,
+    body .post-meta h4,
+    body .news-item-title {
+        font-size: 15.5px !important;
+        line-height: 1.2 !important;
+        margin-bottom: 6px !important;
+    }
+
+    body h4 {
+        font-size: 14.5px !important;
+        line-height: 1.2 !important;
+        margin-bottom: 6px !important;
+    }
+
+    body p,
+    body .dash-desc,
+    body .news-item-body,
+    body .match-details p,
+    body .post-content,
+    body .info-box {
+        font-size: 12.5px !important;
+        line-height: 1.32 !important;
+    }
+
+    body .dashboard-grid,
+    body .match-list,
+    body .news-timeline {
+        gap: 8px !important;
+        margin-bottom: 18px !important;
+    }
+
+    body .form-grid,
+    body .planner-form-row {
+        gap: 8px !important;
+    }
+
+    body .form-group,
+    body .hit-input-group {
+        margin-bottom: 9px !important;
+    }
+
+    body label,
+    body .form-group label,
+    body .hit-input-group label {
+        font-size: 10px !important;
+        margin-bottom: 4px !important;
+        letter-spacing: 0.6px !important;
+    }
+
+    body input,
+    body select,
+    body textarea,
+    body .form-group input,
+    body .form-group select,
+    body .form-group textarea,
+    body .hit-input-group input,
+    body .hit-input-group select,
+    body .hit-input-group textarea,
+    body .modal-content input,
+    body .modal-content select,
+    body .modal-content textarea {
+        min-height: 32px !important;
+        height: 32px !important;
+        padding: 5px 8px !important;
+        font-size: 12.5px !important;
+        line-height: 1.15 !important;
+        border-radius: 8px !important;
+        border-width: 1px !important;
+    }
+
+    body textarea,
+    body .modal-content textarea {
+        height: auto !important;
+        min-height: 68px !important;
+    }
+
+    body button,
+    body .btn-submit,
+    body .btn-post,
+    body .btn-primary-auth,
+    body .btn-secondary-auth,
+    body .btn-success,
+    body .btn-contact,
+    body .btn-delete,
+    body .btn-edit,
+    body .btn-export,
+    body .btn-mediated,
+    body .delete-btn,
+    body .tab-button,
+    body .comment-input-box button,
+    body .action-buttons-group button {
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        min-height: 30px !important;
+        height: auto !important;
+        padding: 5px 9px !important;
+        font-size: 12px !important;
+        line-height: 1.1 !important;
+        border-radius: 8px !important;
+        flex: 0 0 auto !important;
+    }
+
+    body .btn-submit,
+    body .btn-post,
+    body .btn-primary-auth,
+    body .btn-success {
+        min-height: 32px !important;
+        padding: 6px 10px !important;
+        font-size: 12.5px !important;
+        border-radius: 9px !important;
+    }
+
+    body .floating-action-bar {
+        width: calc(100% - 20px) !important;
+        bottom: max(10px, env(safe-area-inset-bottom)) !important;
+    }
+
+    body .floating-action-bar button,
+    body .floating-action-bar .btn-post {
+        width: 100% !important;
+        min-height: 36px !important;
+        padding: 7px 12px !important;
+        font-size: 13px !important;
+        border-radius: 999px !important;
+    }
+
+    body .action-buttons-group {
+        gap: 5px !important;
+        flex-wrap: wrap !important;
+    }
+
+    body .badge {
+        padding: 3px 6px !important;
+        font-size: 9.5px !important;
+        border-radius: 6px !important;
+    }
+
+    body .dash-card-header,
+    body .match-header-flex,
+    body .post-header {
+        gap: 8px !important;
+    }
+
+    body .dash-icon {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 15px !important;
+        border-radius: 8px !important;
+    }
+
+    body .card-avatar,
+    body .avatar-placeholder-flex,
+    body .avatar {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+        font-size: 13px !important;
+    }
+
+    footer {
+        padding-top: 18px !important;
+        padding-bottom: max(18px, env(safe-area-inset-bottom)) !important;
+        margin-top: 22px !important;
+        font-size: 12px !important;
+    }
+}
