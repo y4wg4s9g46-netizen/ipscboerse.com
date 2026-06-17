@@ -7636,3 +7636,204 @@ body.page-marktplatz .owner-actions-top + .match-card-main .match-summary {
         border-radius: 28px !important;
     }
 }
+
+/* ==========================================================================
+   RELEASE CANDIDATE POLISH v39 – Settings, Community i18n, Desktop Finish
+   ========================================================================== */
+
+/* Modals müssen über der Bottom-Bar liegen, sonst wirkt das Einstellungsmenü kaputt */
+.modal,
+.modal-overlay,
+#auth-modal {
+    z-index: 100200 !important;
+}
+
+#bottom-tab-bar {
+    z-index: 99990 !important;
+}
+
+/* Konto-Einstellungen: Button-/Kartenoptik glätten */
+#modal-settings-view {
+    --settings-soft-border: rgba(148, 163, 184, 0.22);
+}
+
+#modal-settings-view h3 {
+    font-weight: 760 !important;
+    letter-spacing: -0.45px !important;
+}
+
+#modal-settings-view .settings-stats-card,
+#modal-settings-view .settings-passkey-card,
+#modal-settings-view .settings-realname-card,
+#modal-settings-view .settings-ipsc-card {
+    border-radius: 18px !important;
+    border: 1px solid var(--settings-soft-border) !important;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05) !important;
+}
+
+#modal-settings-view .settings-passkey-card .btn-primary-auth,
+#modal-settings-view button[onclick="registerPasskey()"] {
+    width: 100% !important;
+    max-width: 360px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    margin: 12px auto 0 auto !important;
+    border-radius: 14px !important;
+    padding: 0 16px !important;
+    font-size: 14px !important;
+    font-weight: 740 !important;
+    background: linear-gradient(135deg, #4f83f1 0%, #2f65db 100%) !important;
+    box-shadow: 0 10px 22px rgba(59, 130, 246, 0.18) !important;
+}
+
+#modal-settings-view #settings-form > button[type="submit"],
+#modal-settings-view button[data-txt="btn-save"] {
+    width: 100% !important;
+    max-width: 360px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 18px auto 16px auto !important;
+    border-radius: 15px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--accent-gradient) !important;
+    box-shadow: 0 12px 26px rgba(255, 128, 8, 0.22) !important;
+}
+
+#modal-settings-view input[type="file"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 10px !important;
+    border-radius: 14px !important;
+    border: 1px solid var(--border-color) !important;
+    background: var(--input-bg) !important;
+    color: var(--text-color) !important;
+}
+
+#modal-settings-view #profile-preview {
+    width: 104px !important;
+    height: 104px !important;
+    border-radius: 24px !important;
+    object-fit: cover !important;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12) !important;
+}
+
+#modal-settings-view button[onclick*="deleteAccount"],
+#modal-settings-view .btn-delete-account {
+    width: 100% !important;
+    min-height: 44px !important;
+    border-radius: 15px !important;
+    font-weight: 760 !important;
+}
+
+/* Desktop: Planner-Erstellen-Karte genauso hochwertig/orange wie Marktplatz */
+body.page-mein-planer .planner-form-toggle {
+    position: relative !important;
+    overflow: hidden !important;
+    background:
+        radial-gradient(circle at 92% 35%, rgba(255,159,67,0.20), transparent 34%),
+        linear-gradient(135deg, rgba(255,159,67,0.16), rgba(255,128,8,0.07)) !important;
+    border: 1px solid rgba(255,159,67,0.24) !important;
+    box-shadow: 0 10px 26px rgba(255,128,8,0.10), var(--shadow-sm) !important;
+    border-radius: 18px !important;
+}
+
+body.page-mein-planer .planner-form-toggle-kicker {
+    color: var(--accent-color) !important;
+}
+
+body.page-mein-planer .planner-form-toggle-icon {
+    background: var(--accent-gradient) !important;
+    color: #fff !important;
+    box-shadow: 0 12px 26px rgba(255,128,8,0.26) !important;
+}
+
+/* Desktop: Schießbuch-Neuer-Eintrag Modal besser proportionieren */
+body.page-schiessbuch .log-entry-modal .modal-content {
+    width: min(92vw, 560px) !important;
+    max-width: 560px !important;
+    border-radius: 24px !important;
+    padding: 34px 34px 30px 34px !important;
+}
+
+body.page-schiessbuch .log-entry-modal .modal-close-trigger {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 50% !important;
+    background: var(--input-bg) !important;
+    color: var(--text-muted) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 20px !important;
+}
+
+body.page-schiessbuch .log-entry-form {
+    display: grid !important;
+    gap: 14px !important;
+}
+
+body.page-schiessbuch .log-entry-two-col {
+    display: grid !important;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) !important;
+    gap: 14px !important;
+}
+
+body.page-schiessbuch .log-entry-form input {
+    height: 42px !important;
+    min-height: 42px !important;
+    border-radius: 13px !important;
+    font-size: 14px !important;
+}
+
+body.page-schiessbuch .log-entry-form button[type="submit"] {
+    width: 100% !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    border-radius: 15px !important;
+    margin-top: 6px !important;
+    background: var(--accent-gradient) !important;
+    box-shadow: 0 12px 26px rgba(255, 128, 8, 0.22) !important;
+}
+
+/* Mobile Settings: kompakter, aber scrollbar und nicht von Dock verdeckt */
+@media (max-width: 768px) {
+    #auth-modal .modal-content {
+        max-height: calc(100dvh - 116px) !important;
+        padding-bottom: calc(108px + env(safe-area-inset-bottom)) !important;
+    }
+
+    #modal-settings-view .settings-passkey-card .btn-primary-auth,
+    #modal-settings-view button[onclick="registerPasskey()"],
+    #modal-settings-view #settings-form > button[type="submit"],
+    #modal-settings-view button[data-txt="btn-save"] {
+        max-width: none !important;
+    }
+
+    #modal-settings-view .settings-stats-card,
+    #modal-settings-view .settings-passkey-card,
+    #modal-settings-view .settings-realname-card,
+    #modal-settings-view .settings-ipsc-card {
+        padding: 14px !important;
+        border-radius: 18px !important;
+        margin-bottom: 14px !important;
+    }
+
+    #modal-settings-view #profile-preview {
+        width: 92px !important;
+        height: 92px !important;
+        border-radius: 22px !important;
+    }
+
+    body.page-schiessbuch .log-entry-modal .modal-content {
+        width: calc(100vw - 28px) !important;
+        max-width: 430px !important;
+        padding: 26px 20px calc(110px + env(safe-area-inset-bottom)) 20px !important;
+        max-height: calc(100dvh - 120px) !important;
+    }
+
+    body.page-schiessbuch .log-entry-two-col {
+        grid-template-columns: 1fr !important;
+    }
+}
