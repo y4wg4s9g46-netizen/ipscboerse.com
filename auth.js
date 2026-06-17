@@ -7,7 +7,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
         experimental: { passkey: true },
         persistSession: true,
         detectSessionInUrl: true,
-        flowType: "pkce" 
+        flowType: "implicit"
     }
 });
 
@@ -156,6 +156,7 @@ async function startSocialOAuth(provider) {
     }
 
     setSocialButtonLoading(provider, true);
+    console.info("Starting social OAuth", provider, getOAuthRedirectUrl());
 
     try {
         const returnPath = `${window.location.pathname || "/index.html"}${window.location.search || ""}`;
@@ -189,61 +190,34 @@ async function startSocialOAuth(provider) {
 }
 
 
-async function handleOAuthCallbackIfNeeded() {
+
+async function settleOAuthSessionIfPresentV47() {
     /*
-      Google/Apple OAuth kommt nach Supabase Callback mit ?code=... zurück.
-      In manchen Browsern ist die automatische Supabase-Erkennung zu spät für unsere Header-Initialisierung.
-      Darum tauschen wir den Code hier explizit gegen eine Session.
+      v47: Kein manueller exchangeCodeForSession mehr.
+      Supabase soll die OAuth-Rückkehr selbst auswerten.
+      Wir warten nur kurz und lesen dann die Session nach, damit Header/Avatar sicher aktualisieren.
     */
-    try {
-        const params = new URLSearchParams(window.location.search || "");
-        const hashParams = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
+    const hasOAuthReturn =
+        window.location.hash.includes("access_token") ||
+        window.location.hash.includes("refresh_token") ||
+        window.location.search.includes("code=") ||
+        window.location.search.includes("error=") ||
+        window.location.search.includes("error_description=");
 
-        const oauthError =
-            params.get("error_description") ||
-            params.get("error") ||
-            hashParams.get("error_description") ||
-            hashParams.get("error");
+    if (!hasOAuthReturn) return null;
 
-        if (oauthError) {
-            console.error("OAuth callback error:", oauthError);
-            if (window.history?.replaceState) {
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-            alert("Google/Apple Login fehlgeschlagen: " + oauthError);
-            return null;
-        }
+    await new Promise(resolve => setTimeout(resolve, 450));
 
-        const code = params.get("code");
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
 
-        if (!code) return null;
-
-        const { data, error } = await window.supabaseClient.auth.exchangeCodeForSession(code);
-
-        if (error) {
-            console.error("OAuth code exchange failed:", error);
-            alert("Login konnte nicht abgeschlossen werden: " + (error.message || error));
-            return null;
-        }
-
-        const session = data?.session || null;
-
-        if (session?.user) {
-            window.currentUser = session.user;
-            cacheHeaderUser(session.user);
-
-            if (window.history?.replaceState) {
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-
-            return session;
-        }
-
-        return null;
-    } catch (err) {
-        console.error("OAuth callback handling failed:", err);
-        return null;
+    if (session?.user) {
+        window.currentUser = session.user;
+        cacheHeaderUser(session.user);
+        cleanOAuthUrlIfNeeded();
+        return session;
     }
+
+    return null;
 }
 
 function cleanOAuthUrlIfNeeded() {
@@ -946,11 +920,11 @@ setTimeout(async () => {
             history.replaceState("", document.title, window.location.pathname + window.location.search);
         }
 
-        const oauthSession = await handleOAuthCallbackIfNeeded();
+        const settledOAuthSession = await settleOAuthSessionIfPresentV47();
 
         const { data: { session } } = await window.supabaseClient.auth.getSession();
 
-        window.currentUser = oauthSession?.user || session?.user || null;
+        window.currentUser = settledOAuthSession?.user || session?.user || null;
 
         if (window.currentUser) {
             cacheHeaderUser(window.currentUser);

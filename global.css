@@ -8515,3 +8515,8 @@ html[data-theme="dark"] .chat-toast {
         max-width: 100% !important;
     }
 }
+
+/* ==========================================================================
+   OAUTH AUTO SESSION FIX v47
+   Google/Apple Login läuft wieder über Supabase detectSessionInUrl.
+   ========================================================================== */
