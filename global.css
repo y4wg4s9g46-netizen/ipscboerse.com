@@ -8447,3 +8447,71 @@ html[data-theme="dark"] .chat-toast {
         padding-bottom: 24px !important;
     }
 }
+
+/* ==========================================================================
+   OAUTH CALLBACK HOTFIX v45
+   ========================================================================== */
+
+.btn-social-google.is-oauth-loading,
+.btn-social-apple.is-oauth-loading {
+    cursor: progress !important;
+}
+
+/* ==========================================================================
+   DESKTOP LOGIN BUTTON ALIGNMENT v46
+   Mobile bleibt unverändert, Desktop Social-/Login-Buttons sauber mittig.
+   ========================================================================== */
+
+@media (min-width: 769px) {
+    #auth-modal #login-form,
+    #auth-modal #modal-login-view,
+    #auth-modal #modal-register-view,
+    #auth-modal #modal-reset-view {
+        width: 100% !important;
+    }
+
+    /* Passwort-Login und Schnell-Login Buttons nicht mehr links kleben lassen */
+    #auth-modal #login-form button[type="submit"],
+    #auth-modal #register-form button[type="submit"],
+    #auth-modal #reset-form button[type="submit"],
+    #auth-modal .btn-primary-auth,
+    #auth-modal .btn-social-passkey,
+    #auth-modal .btn-social-apple,
+    #auth-modal .btn-social-google {
+        width: min(100%, 290px) !important;
+        max-width: 290px !important;
+        min-height: 42px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    #auth-modal #login-form button[type="submit"] {
+        margin-top: 14px !important;
+        margin-bottom: 0 !important;
+    }
+
+    #auth-modal .btn-social-passkey,
+    #auth-modal .btn-social-apple,
+    #auth-modal .btn-social-google {
+        margin-top: 8px !important;
+        margin-bottom: 0 !important;
+    }
+
+    #auth-modal .modal-footer {
+        text-align: center !important;
+    }
+}
+
+/* Mobile explizit nicht verschieben */
+@media (max-width: 768px) {
+    #auth-modal .btn-social-passkey,
+    #auth-modal .btn-social-apple,
+    #auth-modal .btn-social-google {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
