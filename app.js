@@ -183,16 +183,16 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
     if (!document.getElementById("chat-modal")) {
         const chatModalHtml = `
         <div class="modal" id="chat-modal">
-            <div class="modal-content" style="max-width: 500px; padding: 25px;">
+            <div class="modal-content chat-modal-content" style="max-width: 500px; padding: 25px;">
                 <div class="modal-close-container">
                     <button class="modal-close-trigger" id="btn-close-chat" onclick="closeChatSystem()">&times;</button>
                 </div>
-                <h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3>
+                <div class="chat-modal-header"><div><span class="chat-kicker">Live-Chat</span><h3 id="chat-title-match" style="font-size: 18px; margin-bottom: 2px;">Chat</h3></div></div>
                 <p id="chat-title-partner" style="font-size: 12px; color: var(--text-muted); margin-top:0; margin-bottom: 10px;">Gesprächspartner: -</p>
                 <div class="chat-history-area" id="chat-box-messages"></div>
                 <form id="chat-send-form" style="display: flex; gap: 8px;">
                     <input type="hidden" id="chat-edit-id" value="">
-                    <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." style="flex: 1; padding: 10px 14px;">
+                    <input type="text" id="chat-message-input" required placeholder="Nachricht schreiben..." data-txt-ph="chat-input-placeholder" style="flex: 1; padding: 10px 14px;">
                     <button type="submit" id="btn-chat-send" class="btn-primary-auth" style="width: auto; margin-top: 0; padding: 10px 20px;">Senden</button>
                 </form>
             </div>
@@ -477,6 +477,14 @@ async function loadChatMessages() {
   }
 
   box.innerHTML = "";
+  if (!messages || messages.length === 0) {
+    box.innerHTML = `
+      <div class="chat-empty-state">
+        <div class="chat-empty-icon">💬</div>
+        <strong>${window.currentLang === "en" ? "No messages yet" : "Noch keine Nachrichten"}</strong>
+        <span>${window.currentLang === "en" ? "Start the conversation with a short message." : "Starte das Gespräch mit einer kurzen Nachricht."}</span>
+      </div>`;
+  }
   if (messages && messages.length > 0) {
     messages.forEach(msg => {
       const isMe = msg.sender_email.toLowerCase() === window.currentUser.email.toLowerCase();
@@ -630,6 +638,8 @@ function triggerChatEmailReminder() {
 window.triggerChatEmailReminder = triggerChatEmailReminder;
 
 async function toggleGlobalInbox() {
+  requestChatNotificationPermissionSoft();
+
   if (!window.currentUser) {
     return alert(window.currentLang === "en" ? "Please log in to see your messages." : "Bitte logge dich ein, um deine Nachrichten zu sehen.");
   }
@@ -686,6 +696,108 @@ async function toggleGlobalInbox() {
   }).join("");
 }
 window.toggleGlobalInbox = toggleGlobalInbox;
+
+
+function getPortalText(key, fallback) {
+  const lang = window.currentLang || localStorage.getItem("selectedLanguage") || "de";
+  return window.translations?.[lang]?.[key] || fallback;
+}
+
+function ensureChatToastContainer() {
+  let container = document.getElementById("chat-toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "chat-toast-container";
+    document.body.appendChild(container);
+  }
+  return container;
+}
+
+function showChatToast(message, matchName) {
+  const container = ensureChatToastContainer();
+  const toast = document.createElement("button");
+  toast.type = "button";
+  toast.className = "chat-toast";
+  toast.innerHTML = `
+    <span class="chat-toast-icon">💬</span>
+    <span class="chat-toast-text">
+      <strong>${getPortalText("chat-notification-title", "Neue Nachricht")}</strong>
+      <small>${window.escapeHtml(matchName || "")}</small>
+      <em>${window.escapeHtml(String(message || "").slice(0, 80))}</em>
+    </span>
+  `;
+
+  toast.addEventListener("click", () => {
+    toast.remove();
+    if (typeof toggleGlobalInbox === "function") toggleGlobalInbox();
+  });
+
+  container.appendChild(toast);
+
+  window.setTimeout(() => {
+    toast.classList.add("is-hiding");
+    window.setTimeout(() => toast.remove(), 260);
+  }, 5200);
+}
+
+function requestChatNotificationPermissionSoft() {
+  try {
+    if (!("Notification" in window)) return;
+    if (Notification.permission === "default") {
+      Notification.requestPermission().catch(() => {});
+    }
+  } catch (_) {}
+}
+
+function showBrowserChatNotification(message, matchName) {
+  try {
+    if (!("Notification" in window)) return;
+    if (Notification.permission !== "granted") return;
+
+    const notification = new Notification(getPortalText("chat-notification-title", "Neue Nachricht"), {
+      body: `${matchName || "Chat"}: ${String(message || "").slice(0, 120)}`,
+      icon: "icon-192.png",
+      badge: "icon-192.png",
+      tag: "ipsc-chat-message",
+      renotify: true
+    });
+
+    notification.onclick = () => {
+      window.focus();
+      notification.close();
+      if (typeof toggleGlobalInbox === "function") toggleGlobalInbox();
+    };
+  } catch (_) {}
+}
+
+function handleIncomingChatNotificationV41(newMsg) {
+  if (!window.currentUser || !newMsg) return;
+
+  const isForMe =
+    String(newMsg.receiver_email || "").toLowerCase() === String(window.currentUser.email || "").toLowerCase();
+
+  const isFromMe =
+    String(newMsg.sender_email || "").toLowerCase() === String(window.currentUser.email || "").toLowerCase();
+
+  if (!isForMe || isFromMe) return;
+
+  const isActiveSameChat =
+    window.activeChatRoom &&
+    String(newMsg.match_id) === String(window.activeChatRoom.matchId) &&
+    String(newMsg.sender_email || "").toLowerCase() === String(window.activeChatRoom.receiverEmail || "").toLowerCase();
+
+  // Wenn der Chat gerade offen ist, reicht das Live-Nachladen.
+  if (isActiveSameChat && document.getElementById("chat-modal")?.style.display === "flex") {
+    return;
+  }
+
+  showChatToast(newMsg.message, newMsg.match_name);
+  showBrowserChatNotification(newMsg.message, newMsg.match_name);
+
+  try {
+    if (navigator.vibrate) navigator.vibrate(12);
+  } catch (_) {}
+}
 
 function updateHeaderChatBadge() {
   if (!window.currentUser) return;
