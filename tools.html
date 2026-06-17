@@ -81,7 +81,7 @@
       })();
     </script>
 
-    <link rel="stylesheet" href="global.css?v=54">
+    <link rel="stylesheet" href="global.css?v=55">
     <style id="app-transition-prevent-flash-v50">
       html, body {
         background-color: #0f172a !important;
@@ -448,12 +448,25 @@
       }
     </style>
 
+
+    <style id="hit-factor-name-pdf-v55">
+      .hf-saved-name-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;margin:-6px 0 18px 0;align-items:center}
+      .hf-saved-name-row select{min-width:0!important;width:100%!important;height:42px!important;min-height:42px!important;padding:0 12px!important;border-radius:14px!important;background:var(--input-bg)!important;border:1px solid var(--border-color)!important;color:var(--text-color)!important;font-weight:750!important;box-sizing:border-box!important}
+      .hf-save-name-btn{height:42px!important;min-height:42px!important;border-radius:14px!important;border:1px solid rgba(255,159,67,.36)!important;background:rgba(255,159,67,.09)!important;color:var(--accent-color)!important;padding:0 12px!important;font-weight:850!important;white-space:nowrap!important;cursor:pointer!important}
+      .hf-save-name-btn:active{transform:scale(.98)}
+      body.page-tools .hit-stepper-card .hit-stepper{grid-template-columns:42px minmax(0,1fr) 42px!important;width:100%!important;max-width:100%!important;overflow:hidden!important}
+      body.page-tools .hit-stepper-card .hit-stepper button{width:42px!important;min-width:42px!important;max-width:42px!important;height:42px!important;padding:0!important}
+      body.page-tools .hit-stepper-card .hit-stepper input[type="number"]{width:100%!important;min-width:0!important;max-width:100%!important;height:42px!important;padding:0 6px!important;text-align:center!important;appearance:textfield!important;-webkit-appearance:none!important}
+      body.page-tools .hit-stepper-card .hit-stepper input::-webkit-outer-spin-button,body.page-tools .hit-stepper-card .hit-stepper input::-webkit-inner-spin-button{-webkit-appearance:none!important;margin:0!important}
+      @media(max-width:560px){.hf-saved-name-row{grid-template-columns:1fr;gap:8px}.hf-save-name-btn{width:100%!important}body.page-tools .hit-stepper-grid{grid-template-columns:1fr!important}body.page-tools .hit-stepper-card .hit-stepper{grid-template-columns:40px minmax(0,1fr) 40px!important}body.page-tools .hit-stepper-card .hit-stepper button{width:40px!important;min-width:40px!important;max-width:40px!important;height:40px!important}body.page-tools .hit-stepper-card .hit-stepper input[type="number"]{height:40px!important}}
+    </style>
+
 </head>
 <body class="page-tools">
     <div id="app-page-transition-cover" aria-hidden="true"></div>
 
     <header id="main-header"></header>
-    <script src="header.js?v=33"></script>
+    <script src="header.js?v=34"></script>
 
     <div class="container">
         
@@ -471,6 +484,12 @@
                 <div class="form-group" style="flex: 1 1 100%;">
                     <label data-txt="tools-hf-name">Schützenname</label>
                     <input type="text" id="hf-name" placeholder="z.B. Max Mustermann">
+                </div>
+                <div class="hf-saved-name-row">
+                    <select id="hf-saved-name-select" aria-label="Gespeicherte Namen auswählen" onchange="selectSavedHFName(this.value)">
+                        <option value="">Gespeicherten Namen wählen...</option>
+                    </select>
+                    <button type="button" class="hf-save-name-btn" onclick="saveCurrentHFName()">Namen speichern</button>
                 </div>
                 <div class="form-group" style="flex: 1; min-width: 120px;">
                     <label data-txt="tools-hf-pf">Wertung</label>
@@ -692,6 +711,54 @@
             `).join("");
         }
 
+
+        const HF_SAVED_NAMES_KEY = "hitFactorBattleSavedNamesV55";
+
+        function getSavedHFNames() {
+            try {
+                const list = JSON.parse(localStorage.getItem(HF_SAVED_NAMES_KEY) || "[]");
+                return Array.isArray(list) ? list.filter(Boolean) : [];
+            } catch (_) {
+                return [];
+            }
+        }
+
+        function setSavedHFNames(list) {
+            const unique = Array.from(new Set((list || []).map(v => String(v || "").trim()).filter(Boolean))).slice(0, 60);
+            localStorage.setItem(HF_SAVED_NAMES_KEY, JSON.stringify(unique));
+            renderSavedHFNames();
+        }
+
+        function renderSavedHFNames() {
+            const select = document.getElementById("hf-saved-name-select");
+            if (!select) return;
+            const current = select.value;
+            const names = getSavedHFNames();
+            select.innerHTML = '<option value="">Gespeicherten Namen wählen...</option>' + names.map(name => `<option value="${escapeHtmlHF(name)}">${escapeHtmlHF(name)}</option>`).join("");
+            if (names.includes(current)) select.value = current;
+        }
+
+        function selectSavedHFName(value) {
+            const input = document.getElementById("hf-name");
+            if (input && value) input.value = value;
+        }
+
+        function saveCurrentHFName() {
+            const input = document.getElementById("hf-name");
+            const name = String(input?.value || "").trim();
+            if (!name) {
+                alert("Bitte zuerst einen Namen eingeben.");
+                return;
+            }
+            const names = getSavedHFNames();
+            if (!names.includes(name)) names.push(name);
+            setSavedHFNames(names);
+            const select = document.getElementById("hf-saved-name-select");
+            if (select) select.value = name;
+            try { if (navigator.vibrate) navigator.vibrate(10); } catch (_) {}
+        }
+
+
         function addShooterToRanking() {
             const stage = getActiveStage();
             const name = document.getElementById('hf-name').value.trim() || `Schütze ${stage.entries.length + 1}`;
@@ -881,8 +948,8 @@
         function downloadHitFactorPDF() {
             renderOverallRanking();
 
-            const allRows = getOverallRows();
-            if (!allRows.length) {
+            const overallRows = getOverallRows();
+            if (!overallRows.length) {
                 alert("Bitte zuerst mindestens ein Ergebnis eintragen.");
                 return;
             }
@@ -894,142 +961,120 @@
 
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-
-            const page = {
-                w: doc.internal.pageSize.getWidth(),
-                h: doc.internal.pageSize.getHeight(),
-                m: 14
-            };
-
+            const pageW = doc.internal.pageSize.getWidth();
+            const pageH = doc.internal.pageSize.getHeight();
+            const margin = 14;
+            const contentW = pageW - margin * 2;
             let y = 16;
 
-            const today = new Date();
+            const now = new Date();
             const pad = n => String(n).padStart(2, "0");
-            const dateStr = `${pad(today.getDate())}.${pad(today.getMonth() + 1)}.${today.getFullYear()}`;
-            const fileDate = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+            const dateDisplay = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()}`;
+            const fileDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 
-            function cleanText(value) {
-                return String(value ?? "")
-                    .replace(/🏆/g, "")
-                    .replace(/🥇/g, "")
-                    .replace(/–/g, "-")
-                    .replace(/•/g, "-")
-                    .trim();
+            const safe = value => String(value ?? "")
+                .replace(/🏆|🥇|🥈|🥉/g, "")
+                .replace(/[–—]/g, "-")
+                .replace(/•/g, "-")
+                .trim();
+
+            function write(text, x, yy, opts = {}) {
+                doc.setFont("helvetica", opts.bold ? "bold" : "normal");
+                doc.setFontSize(opts.size || 10);
+                doc.setTextColor(...(opts.color || [15, 23, 42]));
+                doc.text(safe(text), x, yy, opts.align ? { align: opts.align } : undefined);
             }
 
-            function addPageIfNeeded(minSpace = 22) {
-                if (y + minSpace > page.h - page.m) {
-                    doc.addPage();
-                    y = 16;
-                    drawHeader(false);
-                }
-            }
-
-            function drawHeader(first = false) {
-                doc.setTextColor(15, 23, 42);
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(first ? 19 : 13);
-                doc.text("IPSC Hit-Factor Battle", page.m, y);
+            function footer(pageNo, total) {
                 doc.setFont("helvetica", "normal");
-                doc.setFontSize(9);
-                doc.setTextColor(100, 116, 139);
-                doc.text(`Erstellt am ${dateStr} - ipscboerse.com`, page.w - page.m, y, { align: "right" });
-                y += first ? 10 : 8;
+                doc.setFontSize(8);
+                doc.setTextColor(148, 163, 184);
+                doc.text(`Seite ${pageNo}/${total || ""}`, pageW - margin, pageH - 8, { align: "right" });
+            }
+
+            function header(first = false) {
+                write("IPSC Hit-Factor Battle", margin, y, { bold: true, size: first ? 18 : 12 });
+                write(`Erstellt am ${dateDisplay} - ipscboerse.com`, pageW - margin, y, { size: 8, color: [100, 116, 139], align: "right" });
+                y += first ? 9 : 7;
                 doc.setDrawColor(255, 159, 67);
                 doc.setLineWidth(0.4);
-                doc.line(page.m, y, page.w - page.m, y);
+                doc.line(margin, y, pageW - margin, y);
                 y += 8;
             }
 
-            function drawSectionTitle(title) {
-                addPageIfNeeded(18);
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(13);
-                doc.setTextColor(15, 23, 42);
-                doc.text(cleanText(title), page.m, y);
+            function addPageIfNeeded(need = 18) {
+                if (y + need > pageH - 15) {
+                    doc.addPage();
+                    y = 16;
+                    header(false);
+                }
+            }
+
+            function section(title) {
+                addPageIfNeeded(14);
+                y += 2;
+                write(title, margin, y, { bold: true, size: 13 });
                 y += 7;
             }
 
             function drawTable(headers, rows, widths) {
-                const x0 = page.m;
-                const rowH = 7;
-                const headerH = 8;
+                addPageIfNeeded(18);
+                doc.setDrawColor(255, 159, 67);
+                doc.setLineWidth(0.35);
+                doc.line(margin, y, margin + contentW, y);
+                y += 5;
 
-                addPageIfNeeded(headerH + rowH + 8);
-
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(8.5);
-                doc.setFillColor(255, 159, 67);
-                doc.setTextColor(255, 255, 255);
-                let x = x0;
+                let x = margin;
                 headers.forEach((h, i) => {
-                    doc.rect(x, y, widths[i], headerH, "F");
-                    doc.text(cleanText(h), x + 1.5, y + 5.3);
+                    write(h, x, y, { bold: true, size: 8.2, color: [255, 128, 8] });
                     x += widths[i];
                 });
-                y += headerH;
+                y += 4;
 
-                doc.setFont("helvetica", "normal");
-                doc.setFontSize(8.2);
-                rows.forEach((row, rIndex) => {
-                    addPageIfNeeded(rowH + 8);
-                    x = x0;
-                    const fill = rIndex % 2 === 0 ? 248 : 255;
-                    doc.setFillColor(fill, fill, fill);
-                    doc.setTextColor(15, 23, 42);
+                doc.setDrawColor(226, 232, 240);
+                doc.line(margin, y, margin + contentW, y);
+                y += 5;
+
+                rows.forEach(row => {
+                    addPageIfNeeded(9);
+                    x = margin;
                     row.forEach((cell, i) => {
-                        doc.rect(x, y, widths[i], rowH, "F");
-                        const text = cleanText(cell);
-                        const maxChars = Math.max(4, Math.floor(widths[i] / 2.2));
-                        const clipped = text.length > maxChars ? text.slice(0, maxChars - 1) + "…" : text;
-                        doc.text(clipped, x + 1.5, y + 4.9);
+                        const text = safe(cell);
+                        const maxLen = Math.max(5, Math.floor(widths[i] / 2.05));
+                        write(text.length > maxLen ? text.slice(0, maxLen - 1) + "…" : text, x, y, { size: 8.4 });
                         x += widths[i];
                     });
-                    y += rowH;
+                    y += 6.8;
+                    doc.setDrawColor(241, 245, 249);
+                    doc.line(margin, y - 2.2, margin + contentW, y - 2.2);
                 });
-
-                y += 6;
+                y += 4;
             }
 
-            drawHeader(true);
+            header(true);
 
-            const winner = allRows[0];
-            doc.setFillColor(255, 246, 235);
-            doc.roundedRect(page.m, y, page.w - page.m * 2, 22, 4, 4, "F");
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(12);
-            doc.setTextColor(255, 128, 8);
-            doc.text("Gesamtsieger", page.m + 4, y + 8);
-            doc.setFontSize(16);
-            doc.setTextColor(15, 23, 42);
-            doc.text(cleanText(winner.name), page.m + 4, y + 16);
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(9);
-            doc.setTextColor(100, 116, 139);
-            doc.text(`${winner.stagePoints.toFixed(1)} Stage-Punkte - ${winner.stages} Stage${winner.stages === 1 ? "" : "s"} - Ø HF ${winner.avgHf.toFixed(4)}`, page.w - page.m - 4, y + 16, { align: "right" });
-            y += 31;
+            const winner = overallRows[0];
+            doc.setDrawColor(255, 159, 67);
+            doc.setLineWidth(0.35);
+            doc.roundedRect(margin, y, contentW, 22, 3, 3, "S");
+            write("Gesamtsieger", margin + 4, y + 7, { bold: true, size: 10, color: [255, 128, 8] });
+            write(winner.name, margin + 4, y + 15.5, { bold: true, size: 15 });
+            write(`${winner.stagePoints.toFixed(1)} Stage-Punkte - ${winner.stages} Stage${winner.stages === 1 ? "" : "s"} - Ø HF ${winner.avgHf.toFixed(4)}`, pageW - margin - 4, y + 15.5, { size: 8.5, color: [100, 116, 139], align: "right" });
+            y += 30;
 
-            drawSectionTitle("Gesamtwertung");
+            section("Gesamtwertung");
             drawTable(
                 ["#", "Name", "Stages", "Stage-Punkte", "Ø HF"],
-                allRows.map((row, index) => [
-                    `${index + 1}.`,
-                    row.name,
-                    String(row.stages),
-                    row.stagePoints.toFixed(1),
-                    row.avgHf.toFixed(4)
-                ]),
-                [10, 72, 22, 38, 26]
+                overallRows.map((row, index) => [`${index + 1}.`, row.name, String(row.stages), row.stagePoints.toFixed(1), row.avgHf.toFixed(4)]),
+                [10, 72, 23, 38, 25]
             );
 
-            hfStages.forEach((stage, stageIndex) => {
+            hfStages.forEach(stage => {
                 if (!stage.entries.length) return;
-
-                drawSectionTitle(`${stage.name} - Stage-Wertung`);
-                const stageWinnerHf = Math.max(...stage.entries.map(entry => entry.hf || 0));
-
+                section(`${stage.name} - Stage-Wertung`);
+                const bestHf = Math.max(...stage.entries.map(e => e.hf || 0));
                 drawTable(
-                    ["#", "Name", "PF", "Punkte", "Zeit", "HF", "A/C/D/M/NS", "Stage %"],
+                    ["#", "Name", "PF", "Punkte", "Zeit", "HF", "A/C/D/M/NS", "%"],
                     stage.entries.map((entry, index) => [
                         `${index + 1}.`,
                         entry.name,
@@ -1038,19 +1083,16 @@
                         `${entry.time.toFixed(2)}s`,
                         entry.hf.toFixed(4),
                         `${entry.hits.a}/${entry.hits.c}/${entry.hits.d}/${entry.hits.m}/${entry.hits.ns}`,
-                        stageWinnerHf > 0 ? `${((entry.hf / stageWinnerHf) * 100).toFixed(1)}` : "0.0"
+                        bestHf > 0 ? ((entry.hf / bestHf) * 100).toFixed(1) : "0.0"
                     ]),
-                    [8, 50, 12, 18, 20, 22, 27, 23]
+                    [8, 50, 12, 19, 19, 22, 29, 9]
                 );
             });
 
-            const pageCount = doc.internal.getNumberOfPages();
-            for (let i = 1; i <= pageCount; i++) {
+            const total = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= total; i++) {
                 doc.setPage(i);
-                doc.setFont("helvetica", "normal");
-                doc.setFontSize(8);
-                doc.setTextColor(148, 163, 184);
-                doc.text(`Seite ${i}/${pageCount}`, page.w - page.m, page.h - 8, { align: "right" });
+                footer(i, total);
             }
 
             doc.save(`Hit-Factor-Battle_${fileDate}.pdf`);
