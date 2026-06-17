@@ -3,7 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <title>IPSC Match-Marktplatz | Startplatz Börse</title>
+        <meta name="theme-color" content="#0f172a">
+    <script>
+      (function () {
+        try {
+          var savedTheme = localStorage.getItem("theme") || localStorage.getItem("selectedTheme") || "dark";
+          if (savedTheme !== "light" && savedTheme !== "dark") savedTheme = "dark";
+          document.documentElement.setAttribute("data-theme", savedTheme);
+          document.documentElement.style.backgroundColor = savedTheme === "dark" ? "#0f172a" : "#f6f8fc";
+          document.documentElement.style.colorScheme = savedTheme === "dark" ? "dark" : "light";
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "dark");
+          document.documentElement.style.backgroundColor = "#0f172a";
+          document.documentElement.style.colorScheme = "dark";
+        }
+      })();
+    </script>
+    <style id="app-prepaint-v49">
+      html {
+        min-height: 100%;
+        background: #0f172a;
+      }
+      html[data-theme="light"] {
+        background: #f6f8fc;
+      }
+      body {
+        min-height: 100vh;
+        background: #0f172a;
+        overscroll-behavior: none;
+      }
+      html[data-theme="light"] body {
+        background: #f6f8fc;
+      }
+      #main-header {
+        background: inherit;
+      }
+    </style>
+<title>IPSC Match-Marktplatz | Startplatz Börse</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
@@ -26,14 +62,64 @@
         })();
     </script>
     <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
-    <link rel="stylesheet" href="global.css?v=48">
+    <link rel="stylesheet" href="global.css?v=50">
+    <style id="app-transition-prevent-flash-v50">
+      html, body {
+        background-color: #0f172a !important;
+      }
+      html[data-theme="light"], html[data-theme="light"] body {
+        background-color: #f6f8fc !important;
+      }
+      #app-page-transition-cover {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483000;
+        pointer-events: none;
+        opacity: 0;
+        background: #0f172a;
+        transition: opacity 70ms linear;
+      }
+      html[data-theme="light"] #app-page-transition-cover {
+        background: #f6f8fc;
+      }
+      html.is-page-leaving #app-page-transition-cover {
+        opacity: 1;
+      }
+    </style>
+    <script id="app-transition-script-v50">
+      (function () {
+        function markLeaving() {
+          try { document.documentElement.classList.add("is-page-leaving"); } catch (_) {}
+        }
+        function clearLeaving() {
+          try { document.documentElement.classList.remove("is-page-leaving"); } catch (_) {}
+        }
+        window.addEventListener("pageshow", clearLeaving, { passive: true });
+        window.addEventListener("pagehide", markLeaving, { passive: true });
+        window.addEventListener("beforeunload", markLeaving);
+        document.addEventListener("click", function (event) {
+          var target = event.target && event.target.closest ? event.target.closest("a[href]") : null;
+          if (!target) return;
+          if (target.target && target.target !== "_self") return;
+          if (target.hasAttribute("download")) return;
+          var href = target.getAttribute("href") || "";
+          if (!href || href.indexOf("#") === 0 || href.indexOf("javascript:") === 0 || href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0) return;
+          try {
+            var url = new URL(href, window.location.href);
+            if (url.origin !== window.location.origin) return;
+            markLeaving();
+          } catch (_) {}
+        }, true);
+      })();
+    </script>
+
 </head>
 <body class="page-marktplatz">
 
 
     <header id="main-header"></header>
 
-    <script src="header.js?v=27"></script>
+    <script src="header.js?v=29"></script>
 
     <div class="container">
         
@@ -195,7 +281,7 @@
 
 <script src="auth.js?v=10"></script>
 <script src="lang.js?v=21"></script>
-<script src="app.js?v=23"></script>
+<script src="app.js?v=25"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";

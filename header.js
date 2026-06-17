@@ -1293,6 +1293,42 @@ header .header-logo-img {
 
 
 
+
+
+        // Page transition dark cover v50: verhindert weißen Blitz bei programmatischer Navigation
+        if (!window.__pageTransitionCoverV50) {
+            window.__pageTransitionCoverV50 = true;
+            window.showPageTransitionCover = function() {
+                try {
+                    document.documentElement.classList.add("is-page-leaving");
+                } catch (_) {}
+            };
+
+            window.addEventListener("pageshow", () => {
+                try { document.documentElement.classList.remove("is-page-leaving"); } catch (_) {}
+            }, { passive: true });
+        }
+
+        // Native Shell Detection v49 (Capacitor/Xtools/WKWebView)
+        if (!window.__nativeShellDetectionV49) {
+            window.__nativeShellDetectionV49 = true;
+            const markNativeShellV49 = () => {
+                const isCapacitor =
+                    !!window.Capacitor ||
+                    !!window.webkit?.messageHandlers ||
+                    location.protocol === "capacitor:" ||
+                    location.protocol === "ionic:";
+
+                document.body?.classList.toggle("is-app-shell", !!isCapacitor);
+                document.documentElement.classList.toggle("is-native-shell", !!isCapacitor);
+            };
+
+            if (document.body) markNativeShellV49();
+            else document.addEventListener("DOMContentLoaded", markNativeShellV49, { once: true });
+
+            window.addEventListener("pageshow", markNativeShellV49, { passive: true });
+        }
+
         // Browser/App Mode Detection v38:
         // Wichtig für Safari-Browser vs. spätere PWA/App-Ansicht.
         if (!window.__displayModeDetectionV38) {

@@ -8563,3 +8563,178 @@ header #auth-status-container #chat-badge-count,
 header #btn-logout #chat-badge-count {
     display: none !important;
 }
+
+/* ==========================================================================
+   NATIVE APP POLISH v49
+   - Kein weißer Flash beim Seitenwechsel
+   - App-Hintergrund durchgehend dunkel/hell
+   - Header im App-Modus sticky
+   ========================================================================== */
+
+html,
+body {
+    min-height: 100%;
+    background-color: var(--bg-color, #0f172a) !important;
+    overscroll-behavior: none;
+}
+
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+    background-color: #0f172a !important;
+}
+
+html[data-theme="light"],
+html[data-theme="light"] body {
+    background-color: #f6f8fc !important;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--bg-color, #0f172a);
+}
+
+html[data-theme="dark"] body::before {
+    background:
+        radial-gradient(circle at 50% -12%, rgba(255,159,67,0.08), transparent 34%),
+        linear-gradient(180deg, #111827 0%, #0f172a 42%, #0b1120 100%);
+}
+
+html[data-theme="light"] body::before {
+    background:
+        radial-gradient(circle at 50% -12%, rgba(255,159,67,0.12), transparent 34%),
+        linear-gradient(180deg, #ffffff 0%, #f6f8fc 45%, #eef2f7 100%);
+}
+
+/* Capacitor/WKWebView: verhindert weißes Blitzen beim Laden/Navigation */
+body.is-app-shell,
+html.is-standalone-app body {
+    background-color: #0f172a !important;
+}
+
+html[data-theme="light"] body.is-app-shell,
+html[data-theme="light"].is-standalone-app body {
+    background-color: #f6f8fc !important;
+}
+
+/* App-Modus: Header oben sticky, damit die App nicht wie eine Webseite wirkt */
+@media (max-width: 768px) {
+    html.is-standalone-app #main-header,
+    html.is-standalone-app header.site-header,
+    body.is-app-shell #main-header,
+    body.is-app-shell header.site-header {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 99980 !important;
+        background: var(--header-bg, var(--card-bg)) !important;
+        backdrop-filter: blur(20px) saturate(1.35) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(1.35) !important;
+        box-shadow: 0 1px 0 rgba(148,163,184,0.16), 0 12px 28px rgba(15,23,42,0.08) !important;
+    }
+
+    html[data-theme="dark"].is-standalone-app #main-header,
+    html[data-theme="dark"].is-standalone-app header.site-header,
+    html[data-theme="dark"] body.is-app-shell #main-header,
+    html[data-theme="dark"] body.is-app-shell header.site-header {
+        background: rgba(17,24,39,0.92) !important;
+        box-shadow: 0 1px 0 rgba(255,255,255,0.06), 0 12px 28px rgba(0,0,0,0.22) !important;
+    }
+}
+
+/* Link-Taps in der App fühlen sich etwas nativer an */
+a,
+button,
+.tab-item {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ==========================================================================
+   APP PAGE SWITCH FLASH + BOTTOM DOCK v50
+   - Kein weißer Blitz beim Seitenwechsel
+   - Bottom-Dock etwas tiefer
+   - Header nicht sticky erzwingen
+   ========================================================================== */
+
+/* Letzte Sicherheit gegen weißen WKWebView-/Browser-Hintergrund */
+html,
+body,
+body.is-app-shell,
+html.is-native-shell body,
+html.is-standalone-app body {
+    background-color: #0f172a !important;
+}
+
+html[data-theme="light"],
+html[data-theme="light"] body,
+html[data-theme="light"] body.is-app-shell,
+html[data-theme="light"].is-native-shell body,
+html[data-theme="light"].is-standalone-app body {
+    background-color: #f6f8fc !important;
+}
+
+/* Overlay wird direkt vor echter Navigation dunkel/hell eingeblendet */
+#app-page-transition-cover {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2147483000 !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    background: #0f172a !important;
+    transition: opacity 70ms linear !important;
+}
+
+html[data-theme="light"] #app-page-transition-cover {
+    background: #f6f8fc !important;
+}
+
+html.is-page-leaving #app-page-transition-cover {
+    opacity: 1 !important;
+}
+
+/* Korrektur: Header im App-Modus nicht festkleben, nur normal oben im Content */
+@media (max-width: 768px) {
+    html.is-standalone-app #main-header,
+    html.is-standalone-app header.site-header,
+    body.is-app-shell #main-header,
+    body.is-app-shell header.site-header {
+        position: relative !important;
+        top: auto !important;
+        z-index: auto !important;
+    }
+}
+
+/* Bottom-Dock in App/Xtools etwas tiefer setzen */
+@media (max-width: 768px) {
+    html.is-standalone-app #bottom-tab-bar,
+    html.is-native-shell #bottom-tab-bar,
+    body.is-app-shell #bottom-tab-bar {
+        bottom: max(4px, calc(env(safe-area-inset-bottom) - 12px)) !important;
+    }
+
+    html.is-standalone-app body,
+    html.is-native-shell body,
+    body.is-app-shell {
+        padding-bottom: calc(96px + env(safe-area-inset-bottom)) !important;
+    }
+
+    html.is-standalone-app .container,
+    html.is-standalone-app main,
+    html.is-standalone-app .main-container,
+    html.is-native-shell .container,
+    html.is-native-shell main,
+    html.is-native-shell .main-container,
+    body.is-app-shell .container,
+    body.is-app-shell main,
+    body.is-app-shell .main-container {
+        padding-bottom: calc(98px + env(safe-area-inset-bottom)) !important;
+    }
+
+    html.is-standalone-app #chat-toast-container,
+    html.is-native-shell #chat-toast-container,
+    body.is-app-shell #chat-toast-container {
+        bottom: calc(82px + env(safe-area-inset-bottom)) !important;
+    }
+}
