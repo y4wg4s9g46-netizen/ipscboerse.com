@@ -1,4 +1,6 @@
 (function() {
+    const __headerLogoPreload = new Image();
+    __headerLogoPreload.src = "icon-192.png";
     const HEADER_USER_CACHE_KEY = "headerUserCache";
     const HEADER_AVATAR_CACHE_KEY = "headerAvatar";
     const DEFAULT_HEADER_AVATAR = "icon-192.png";
@@ -882,6 +884,134 @@ header .header-logo-img {
             `;
 
             document.head.appendChild(polishStyle);
+        }
+
+
+        if (!document.getElementById("dynamic-header-polish-v13")) {
+            const polishStyleV13 = document.createElement("style");
+            polishStyleV13.id = "dynamic-header-polish-v13";
+
+            polishStyleV13.innerHTML = `
+                #main-header {
+                    min-height: 152px !important;
+                    box-sizing: border-box !important;
+                }
+
+                header .header-logo-frame,
+                header .header-logo-img,
+                header #btn-open-settings.header-avatar-btn,
+                header #header-avatar {
+                    transition: none !important;
+                    animation: none !important;
+                }
+
+                @media (max-width: 768px) {
+                    #main-header {
+                        min-height: 155px !important;
+                    }
+
+                    header {
+                        padding: calc(env(safe-area-inset-top) + 14px) 12px 14px 12px !important;
+                    }
+
+                    header .header-logo-link {
+                        gap: 11px !important;
+                    }
+
+                    header .header-logo-frame {
+                        width: 52px !important;
+                        height: 52px !important;
+                        min-width: 52px !important;
+                        min-height: 52px !important;
+                        max-width: 52px !important;
+                        max-height: 52px !important;
+                        flex: 0 0 52px !important;
+                    }
+
+                    header .header-logo-img {
+                        width: 44px !important;
+                        height: 44px !important;
+                        min-width: 44px !important;
+                        min-height: 44px !important;
+                        max-width: 44px !important;
+                        max-height: 44px !important;
+                        object-fit: contain !important;
+                        transform: translateZ(0) !important;
+                        backface-visibility: hidden !important;
+                    }
+
+                    header .logo-text-group h1 {
+                        font-size: 22px !important;
+                        line-height: 1.08 !important;
+                        letter-spacing: 0.7px !important;
+                    }
+
+                    header .logo-text-group p {
+                        font-size: 10.5px !important;
+                        line-height: 1.15 !important;
+                        letter-spacing: 1.7px !important;
+                    }
+
+                    header .header-controls {
+                        gap: 9px !important;
+                        margin-top: 12px !important;
+                    }
+
+                    header .theme-toggle-btn {
+                        width: 38px !important;
+                        height: 38px !important;
+                        min-width: 38px !important;
+                        min-height: 38px !important;
+                        max-width: 38px !important;
+                        max-height: 38px !important;
+                        flex: 0 0 38px !important;
+                        border-radius: 11px !important;
+                    }
+
+                    header .lang-select {
+                        height: 38px !important;
+                        min-width: 58px !important;
+                        max-width: 68px !important;
+                        font-size: 13px !important;
+                        border-radius: 11px !important;
+                    }
+
+                    header #btn-open-settings.header-avatar-btn {
+                        width: 48px !important;
+                        height: 48px !important;
+                        min-width: 48px !important;
+                        min-height: 48px !important;
+                        max-width: 48px !important;
+                        max-height: 48px !important;
+                        flex: 0 0 48px !important;
+                        border-radius: 50% !important;
+                    }
+
+                    header #btn-open-settings.header-avatar-btn img,
+                    header #header-avatar {
+                        width: 42px !important;
+                        height: 42px !important;
+                        min-width: 42px !important;
+                        min-height: 42px !important;
+                        max-width: 42px !important;
+                        max-height: 42px !important;
+                        border: 2px solid var(--accent-color) !important;
+                        padding: 2px !important;
+                        box-shadow: 0 6px 16px rgba(255, 159, 67, 0.28) !important;
+                    }
+
+                    header #btn-logout {
+                        height: 38px !important;
+                        min-height: 38px !important;
+                        padding: 0 18px !important;
+                        font-size: 11px !important;
+                        border-radius: 999px !important;
+                        letter-spacing: 0.8px !important;
+                    }
+                }
+            `;
+
+            document.head.appendChild(polishStyleV13);
         }
 
         window.toggleMoreMenu = function() {

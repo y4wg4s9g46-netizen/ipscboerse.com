@@ -284,110 +284,120 @@ function renderMatches(matches) {
   const container = document.getElementById("match-container");
   if (!container) return;
 
-  if (!matches.length) { 
-    container.innerHTML = `<p>${window.translations[window.currentLang]["no-slots"]}</p>`; 
-    return; 
+  if (!matches.length) {
+    container.innerHTML = `<p class="empty-state">${window.translations[window.currentLang]["no-slots"]}</p>`;
+    return;
   }
-  
-  window.supabaseClient.from('profiles').select('email, ipsc_alias').then(({data: profiles}) => {
-      
-      let aliasMap = {};
-      if(profiles) {
-          profiles.forEach(p => { aliasMap[p.email] = p.ipsc_alias; });
+
+  const buildCards = (items, aliasMap = {}) => {
+    const escapeJsAttr = (value) => window.escapeHtml(String(value || "")).replace(/'/g, "\\'").replace(/\n/g, " ");
+    return items.map(m => {
+      const isWant = m.type === "want";
+      const isSender = window.currentUser && window.currentUser.email === m.seller_email;
+      const isAdmin = window.currentUser && window.currentUser.email === "fabian-schoeps@gmx.de";
+      const canManage = isSender || isAdmin;
+
+      let sellerAlias = null;
+      if (isSender && window.currentUser.user_metadata?.ipsc_alias) {
+        sellerAlias = window.currentUser.user_metadata.ipsc_alias;
+      } else if (aliasMap[m.seller_email]) {
+        sellerAlias = aliasMap[m.seller_email];
+      } else if (m.seller_profile && m.seller_profile.ipsc_alias) {
+        sellerAlias = m.seller_profile.ipsc_alias;
+      } else if (m.author_ipsc_alias) {
+        sellerAlias = m.author_ipsc_alias;
       }
 
-      container.innerHTML = matches.map(m => {
-        const isWant = m.type === "want";
-        const levelBadge = m.match_level ? `<span class="badge" style="background:#555; color:#fff; padding:2px 5px; border-radius:3px;">${window.escapeHtml(m.match_level)}</span>` : "";
-        const squadBadge = m.match_squad ? `<span class="badge" style="background:#3498db; color:#fff; padding:2px 5px; border-radius:3px;">Squad ${window.escapeHtml(m.match_squad)}</span>` : "";
-        const countryBadge = m.match_country ? `<span class="badge" style="background:#8e44ad; color:#fff; padding:2px 5px; border-radius:3px;">${window.escapeHtml(m.match_country)}</span>` : "";
+      const levelBadge = m.match_level ? `<span class="badge badge-level">${window.escapeHtml(m.match_level)}</span>` : "";
+      const squadBadge = m.match_squad ? `<span class="badge badge-squad">Squad ${window.escapeHtml(m.match_squad)}</span>` : "";
+      const countryBadge = m.match_country ? `<span class="badge badge-country">${window.escapeHtml(m.match_country)}</span>` : "";
+      const typeBadge = `<span class="badge badge-type ${isWant ? "badge-want" : "badge-offer"}">${isWant ? window.translations[window.currentLang]["tag-want"] : window.translations[window.currentLang]["tag-offer"]}</span>`;
+      const trustedBadge = (sellerAlias && sellerAlias.trim() !== "")
+        ? `<span class="badge badge-trusted" title="Verifizierter IPSC Alias: ${window.escapeHtml(sellerAlias)}">✓ Trusted</span>`
+        : "";
 
-        const isSender = window.currentUser && window.currentUser.email === m.seller_email;
-        const isAdmin = window.currentUser && window.currentUser.email === "fabian-schoeps@gmx.de";
-        const canManage = isSender || isAdmin;
+      const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
+      const contactBtnClass = isWant ? "btn-contact btn-contact-want" : "btn-contact";
+      const contactText = isWant ? window.translations[window.currentLang]["btn-contact-want"] : window.translations[window.currentLang]["btn-request"];
 
-        let sellerAlias = null;
-        if(isSender && window.currentUser.user_metadata?.ipsc_alias) {
-             sellerAlias = window.currentUser.user_metadata.ipsc_alias;
-        } else if (aliasMap[m.seller_email]) {
-            sellerAlias = aliasMap[m.seller_email];
-        } else if (m.seller_profile && m.seller_profile.ipsc_alias) {
-             sellerAlias = m.seller_profile.ipsc_alias;
-        } else if (m.author_ipsc_alias) {
-             sellerAlias = m.author_ipsc_alias;
-        }
+      const authorName = m.author_name || m.seller_email.split('@')[0];
+      const authorAvatar = m.author_avatar || '';
+      const safeSellerEmail = escapeJsAttr(m.seller_email);
+      const safeAuthorName = escapeJsAttr(authorName);
+      const safeAuthorNameText = window.escapeHtml(authorName);
+      const safeAvatar = escapeJsAttr(authorAvatar);
+      const safeAlias = escapeJsAttr(sellerAlias || "");
 
-        const trustedBadge = (sellerAlias && sellerAlias.trim() !== "") 
-            ? `<span class="badge" style="background:var(--success-color); color:#fff; padding:2px 6px; border-radius:3px; display:inline-flex; align-items:center; gap:4px;" title="Verifizierter IPSC Alias: ${window.escapeHtml(sellerAlias)}">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                Trusted
-               </span>` 
-            : "";
+      const profileClick = `openUserProfile('${safeSellerEmail}', '${safeAuthorName}', '${safeAvatar}', '${safeAlias}')`;
 
-        const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
-        const contactBtnClass = isWant ? "btn-contact btn-contact-want" : "btn-contact";
-        const contactText = isWant ? window.translations[window.currentLang]["btn-contact-want"] : window.translations[window.currentLang]["btn-request"];
+      const avatarHtml = authorAvatar
+        ? `<img src="${safeAvatar}" class="card-avatar" onclick="${profileClick}" title="Profil von ${safeAuthorNameText} ansehen">`
+        : `<div class="avatar-placeholder-flex" onclick="${profileClick}" title="Profil von ${safeAuthorNameText} ansehen">${window.escapeHtml(authorName.charAt(0).toUpperCase())}</div>`;
 
-        const authorName = m.author_name || m.seller_email.split('@')[0];
-        const authorAvatar = m.author_avatar || '';
-        
-        const avatarHtml = authorAvatar 
-            ? `<img src="${authorAvatar}" class="card-avatar" onclick="openUserProfile('${m.seller_email}', '${window.escapeHtml(authorName)}', '${authorAvatar}', '${window.escapeHtml(sellerAlias || '')}')" title="Profil von ${window.escapeHtml(authorName)} ansehen">`
-            : `<div class="avatar-placeholder-flex" onclick="openUserProfile('${m.seller_email}', '${window.escapeHtml(authorName)}', '${authorAvatar}', '${window.escapeHtml(sellerAlias || '')}')" title="Profil von ${window.escapeHtml(authorName)} ansehen">${window.escapeHtml(authorName.charAt(0).toUpperCase())}</div>`;
+      const priceNumber = Number.parseFloat(m.match_price);
+      const priceText = Number.isFinite(priceNumber) ? `${priceNumber.toFixed(2)} €` : "-";
 
-        return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
-          <div class="match-details">
+      return `
+        <article class="match-card ${isWant ? "card-want" : "card-offer"}">
+          <div class="match-card-main">
             <div class="match-header-flex">
               ${avatarHtml}
-              <div>
-                <h3 style="margin: 0;">
-                  ${window.escapeHtml(m.match_name)} 
-                  ${levelBadge} 
-                  ${squadBadge} 
+
+              <div class="match-summary">
+                <h3 class="match-title">${window.escapeHtml(m.match_name)}</h3>
+
+                <div class="badge-container">
+                  ${levelBadge}
+                  ${squadBadge}
                   ${countryBadge}
-                  <span class="badge">${isWant ? window.translations[window.currentLang]["tag-want"] : window.translations[window.currentLang]["tag-offer"]}</span>
+                  ${typeBadge}
                   ${trustedBadge}
-                </h3>
-                <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">
-                  Inseriert von: <span style="color: var(--accent-color); font-weight: 600; cursor: pointer;" onclick="openUserProfile('${m.seller_email}', '${window.escapeHtml(authorName)}', '${authorAvatar}', '${window.escapeHtml(sellerAlias || '')}')">${window.escapeHtml(authorName)}</span>
-                </p>
+                </div>
+
+                <button type="button" class="seller-link" onclick="${profileClick}">
+                  Inseriert von: <strong>${safeAuthorNameText}</strong>
+                </button>
+
+                <div class="match-meta">${window.escapeHtml(m.match_date)} · ${window.escapeHtml(m.match_location || "-")}</div>
               </div>
             </div>
-            <p style="margin-top: 12px;">${m.match_date} | ${window.escapeHtml(m.match_location)}</p>
           </div>
+
           <div class="card-actions">
-            <p>${parseFloat(m.match_price).toFixed(2)} €</p>
-            
-            <div style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
-                <button class="${contactBtnClass}" onclick="openChatSystem(${m.id}, '${m.seller_email}', '${cleanMatchName}')">💬 Live-Chat</button>
-                <button class="${contactBtnClass}" style="background-color: #555;" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">✉️ ${contactText}</button>
+            <div class="match-price">${priceText}</div>
+
+            <div class="primary-actions">
+              <button class="${contactBtnClass}" onclick="openChatSystem(${m.id}, '${m.seller_email}', '${cleanMatchName}')">💬 Live-Chat</button>
+              <button class="${contactBtnClass} btn-contact-secondary" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">✉️ ${contactText}</button>
             </div>
 
             <div class="action-buttons-group">
-                <button class="btn-export" onclick="exportToIcs(${m.id})">${window.translations[window.currentLang]["btn-export"]}</button>
-                <button class="btn-report" onclick="reportMatch(${m.id})">${window.translations[window.currentLang]["report-btn"]}</button>
+              <button class="btn-export" onclick="exportToIcs(${m.id})">${window.translations[window.currentLang]["btn-export"]}</button>
+              <button class="btn-report" onclick="reportMatch(${m.id})">${window.translations[window.currentLang]["report-btn"]}</button>
             </div>
+
             ${canManage ? `
-              <div class="action-buttons-group">
-                <button class="btn-mediated" onclick="triggerMediatedModal(${m.id})">Erfolgreich vermittelt</button>
-              </div>
-              <div class="action-buttons-group">
+              <div class="action-buttons-group manage-actions">
+                <button class="btn-mediated" onclick="triggerMediatedModal(${m.id})">✓ Vermittelt</button>
                 <button class="btn-edit" onclick="handleEditClick(${m.id})">${window.translations[window.currentLang]["btn-edit"]}</button>
                 <button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${window.translations[window.currentLang]["btn-delete"]}</button>
               </div>
             ` : ""}
           </div>
-        </div>`;
-      }).join("");
+        </article>
+      `;
+    }).join("");
+  };
+
+  window.supabaseClient.from('profiles').select('email, ipsc_alias').then(({data: profiles}) => {
+    const aliasMap = {};
+    if (profiles) {
+      profiles.forEach(p => { aliasMap[p.email] = p.ipsc_alias; });
+    }
+
+    container.innerHTML = buildCards(matches, aliasMap);
   }).catch(() => {
-      container.innerHTML = matches.map(m => {
-        const isWant = m.type === "want";
-        const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
-        return `<div class="match-card ${isWant ? "card-want" : "card-offer"}">
-          <div class="match-details"><h3>${window.escapeHtml(m.match_name)}</h3><p>${m.match_date} | ${window.escapeHtml(m.match_location)}</p></div>
-          <div class="card-actions"><p>${parseFloat(m.match_price).toFixed(2)} €</p><button class="btn-contact" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">Kontakt</button></div>
-        </div>`;
-      }).join("");
+    container.innerHTML = buildCards(matches, {});
   });
 }
 
@@ -687,7 +697,7 @@ function handleEditClick(id) {
   document.getElementById("form-section-title").innerText = window.translations[window.currentLang]["form-title-edit"];
   document.getElementById("btn-submit-ad").innerText = window.translations[window.currentLang]["btn-save-edit"];
   document.getElementById("btn-cancel-edit").style.display = "inline-block";
-  document.getElementById("form-anchor").scrollIntoView({ behavior: "smooth" });
+  if (typeof window.openMarketForm === "function") { window.openMarketForm(); } else { document.getElementById("form-anchor").scrollIntoView({ behavior: "smooth" }); }
 }
 window.handleEditClick = handleEditClick;
 
@@ -798,6 +808,8 @@ function checkPlannerImport() {
     if (name && document.getElementById("match-name")) document.getElementById("match-name").value = name;
     if (date && document.getElementById("match-date")) document.getElementById("match-date").value = date;
     if (location && document.getElementById("match-location")) document.getElementById("match-location").value = location;
+
+    if (typeof window.openMarketForm === "function") window.openMarketForm();
 
     const formAnchor = document.getElementById("form-anchor");
     if (formAnchor) setTimeout(() => { formAnchor.scrollIntoView({ behavior: "smooth" }); }, 300);
