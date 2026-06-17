@@ -291,6 +291,7 @@ function renderMatches(matches) {
 
   const buildCards = (items, aliasMap = {}) => {
     const escapeJsAttr = (value) => window.escapeHtml(String(value || "")).replace(/'/g, "\\'").replace(/\n/g, " ");
+    const t = (key, fallback) => (window.translations?.[window.currentLang]?.[key] || fallback || key);
     return items.map(m => {
       const isWant = m.type === "want";
       const isSender = window.currentUser && window.currentUser.email === m.seller_email;
@@ -309,11 +310,11 @@ function renderMatches(matches) {
       }
 
       const levelBadge = m.match_level ? `<span class="badge badge-level">${window.escapeHtml(m.match_level)}</span>` : "";
-      const squadBadge = m.match_squad ? `<span class="badge badge-squad">Squad ${window.escapeHtml(m.match_squad)}</span>` : "";
+      const squadBadge = m.match_squad ? `<span class="badge badge-squad">${t("label-squad", "Squad")} ${window.escapeHtml(m.match_squad)}</span>` : "";
       const countryBadge = m.match_country ? `<span class="badge badge-country">${window.escapeHtml(m.match_country)}</span>` : "";
       const typeBadge = `<span class="badge badge-type ${isWant ? "badge-want" : "badge-offer"}">${isWant ? window.translations[window.currentLang]["tag-want"] : window.translations[window.currentLang]["tag-offer"]}</span>`;
       const trustedBadge = (sellerAlias && sellerAlias.trim() !== "")
-        ? `<span class="badge badge-trusted" title="Verifizierter IPSC Alias: ${window.escapeHtml(sellerAlias)}">✓ Trusted</span>`
+        ? `<span class="badge badge-trusted" title="${t("trusted-title", "Verifizierter IPSC Alias")}: ${window.escapeHtml(sellerAlias)}">✓ ${t("trusted-badge", "Trusted")}</span>`
         : "";
 
       const cleanMatchName = m.match_name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
@@ -339,6 +340,7 @@ function renderMatches(matches) {
 
       return `
         <article class="match-card ${isWant ? "card-want" : "card-offer"}">
+          ${canManage ? `<button class="btn-delete card-delete-top" onclick="handleDelete(${m.id}, '${m.seller_email}')" title="${t("btn-delete", "Löschen")}">×</button>` : ""}
           <div class="match-card-main">
             <div class="match-header-flex">
               ${avatarHtml}
@@ -355,7 +357,7 @@ function renderMatches(matches) {
                 </div>
 
                 <button type="button" class="seller-link" onclick="${profileClick}">
-                  Inseriert von: <strong>${safeAuthorNameText}</strong>
+                  ${t("listed-by", "Inseriert von")}: <strong>${safeAuthorNameText}</strong>
                 </button>
 
                 <div class="match-meta">${window.escapeHtml(m.match_date)} · ${window.escapeHtml(m.match_location || "-")}</div>
@@ -367,7 +369,7 @@ function renderMatches(matches) {
             <div class="match-price">${priceText}</div>
 
             <div class="primary-actions">
-              <button class="${contactBtnClass}" onclick="openChatSystem(${m.id}, '${m.seller_email}', '${cleanMatchName}')">💬 Live-Chat</button>
+              <button class="${contactBtnClass}" onclick="openChatSystem(${m.id}, '${m.seller_email}', '${cleanMatchName}')">💬 ${t("btn-live-chat", "Live-Chat")}</button>
               <button class="${contactBtnClass} btn-contact-secondary" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">✉️ ${contactText}</button>
             </div>
 
@@ -378,9 +380,8 @@ function renderMatches(matches) {
 
             ${canManage ? `
               <div class="action-buttons-group manage-actions">
-                <button class="btn-mediated" onclick="triggerMediatedModal(${m.id})">✓ Vermittelt</button>
+                <button class="btn-mediated" onclick="triggerMediatedModal(${m.id})">✓ ${t("btn-mediated", "Vermittelt")}</button>
                 <button class="btn-edit" onclick="handleEditClick(${m.id})">${window.translations[window.currentLang]["btn-edit"]}</button>
-                <button class="btn-delete" onclick="handleDelete(${m.id}, '${m.seller_email}')">${window.translations[window.currentLang]["btn-delete"]}</button>
               </div>
             ` : ""}
           </div>

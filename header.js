@@ -184,27 +184,27 @@
             bottomBar.innerHTML = `
                 <a href="index.html" class="tab-item ${page === "index.html" ? "active" : ""}">
                     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                    <span>Start</span>
+                    <span data-txt="tab-start">Start</span>
                 </a>
 
                 <a href="marktplatz.html" class="tab-item ${page === "marktplatz.html" ? "active" : ""}">
                     <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                    <span>Markt</span>
+                    <span data-txt="tab-market">Markt</span>
                 </a>
 
                 <a href="mein-planer.html" class="tab-item ${page === "mein-planer.html" ? "active" : ""}">
                     <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                    <span>Planer</span>
+                    <span data-txt="tab-planner">Planer</span>
                 </a>
 
                 <a href="community.html" class="tab-item ${page === "community.html" ? "active" : ""}">
                     <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                    <span>Comm</span>
+                    <span data-txt="tab-comm">Comm</span>
                 </a>
 
                 <div class="tab-item" id="btn-more-menu" onclick="toggleMoreMenu()">
                     <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                    <span>Mehr</span>
+                    <span data-txt="tab-more">Mehr</span>
                 </div>
             `;
 
@@ -216,13 +216,13 @@
 
             moreMenu.innerHTML = `
                 <div class="more-menu-content" id="more-menu-list">
-                    <a href="freie-matches.html" class="${page === "freie-matches.html" ? "active" : ""}">Freie Match-Plätze</a>
-                    <a href="schiessbuch.html" class="${page === "schiessbuch.html" ? "active" : ""}">Schießbuch</a>
-                    <a href="sg-timer-live.html" class="${page === "sg-timer-live.html" ? "active" : ""}">⏱️ SG-Timer Live</a>
-                    <a href="tools.html" class="${page === "tools.html" ? "active" : ""}">Tools & Training</a>
-                    <a href="analytics.html" class="${page === "analytics.html" ? "active" : ""}">Statistiken</a>
-                    <a href="wiederladen.html" class="${page === "wiederladen.html" ? "active" : ""}">Wiederladen</a>
-                    <a href="ipsc-hub.html" class="${page === "ipsc-hub.html" ? "active" : ""}">IPSC Hub</a>
+                    <a href="freie-matches.html" class="${page === "freie-matches.html" ? "active" : ""}" data-txt="card-title-free">Freie Match-Plätze</a>
+                    <a href="schiessbuch.html" class="${page === "schiessbuch.html" ? "active" : ""}" data-txt="card-title-schiessbuch">Schießbuch</a>
+                    <a href="sg-timer-live.html" class="${page === "sg-timer-live.html" ? "active" : ""}" data-txt="nav-sgtimer">⏱️ SG-Timer Live</a>
+                    <a href="tools.html" class="${page === "tools.html" ? "active" : ""}" data-txt="card-title-tools">Tools & Training</a>
+                    <a href="analytics.html" class="${page === "analytics.html" ? "active" : ""}" data-txt="nav-analytics">Statistiken</a>
+                    <a href="wiederladen.html" class="${page === "wiederladen.html" ? "active" : ""}" data-txt="nav-wiederladen">Wiederladen</a>
+                    <a href="ipsc-hub.html" class="${page === "ipsc-hub.html" ? "active" : ""}" data-txt="card-title-hub">IPSC Hub</a>
                 </div>
             `;
 
@@ -1012,6 +1012,60 @@ header .header-logo-img {
             `;
 
             document.head.appendChild(polishStyleV13);
+        }
+
+
+        if (!document.getElementById("dynamic-header-polish-v14")) {
+            const polishStyleV14 = document.createElement("style");
+            polishStyleV14.id = "dynamic-header-polish-v14";
+
+            polishStyleV14.innerHTML = `
+                @media (max-width: 768px) {
+                    #main-header {
+                        min-height: 132px !important;
+                    }
+
+                    header {
+                        padding: calc(env(safe-area-inset-top) + 12px) 12px 10px 12px !important;
+                    }
+
+                    header .header-logo-link {
+                        gap: 10px !important;
+                        margin-bottom: 0 !important;
+                    }
+
+                    header .logo-text-group p {
+                        margin-top: 1px !important;
+                        margin-bottom: 0 !important;
+                    }
+
+                    header .header-controls {
+                        margin-top: 5px !important;
+                        gap: 8px !important;
+                    }
+
+                    header .header-logo-frame {
+                        width: 50px !important;
+                        height: 50px !important;
+                        min-width: 50px !important;
+                        min-height: 50px !important;
+                        max-width: 50px !important;
+                        max-height: 50px !important;
+                        flex: 0 0 50px !important;
+                    }
+
+                    header .header-logo-img {
+                        width: 42px !important;
+                        height: 42px !important;
+                        min-width: 42px !important;
+                        min-height: 42px !important;
+                        max-width: 42px !important;
+                        max-height: 42px !important;
+                    }
+                }
+            `;
+
+            document.head.appendChild(polishStyleV14);
         }
 
         window.toggleMoreMenu = function() {

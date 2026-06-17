@@ -6129,3 +6129,248 @@ body.page-marktplatz .mediated-submit {
     width: 100% !important;
     background: linear-gradient(135deg, var(--success-color), #059669) !important;
 }
+
+/* ==========================================================================
+   PREMIUM POLISH v30 – Header dichter, Modals zentral, Marktplatz sauber
+   ========================================================================== */
+
+/* Header: unnötigen Weißraum unter dem Claim reduzieren */
+@media (max-width: 768px) {
+    #main-header {
+        min-height: 132px !important;
+        padding-bottom: 10px !important;
+    }
+
+    header {
+        padding-top: calc(env(safe-area-inset-top) + 12px) !important;
+        padding-bottom: 10px !important;
+    }
+
+    header .header-logo-link {
+        gap: 10px !important;
+        margin-bottom: 0 !important;
+    }
+
+    header .logo-text-group p {
+        margin-top: 1px !important;
+        margin-bottom: 0 !important;
+    }
+
+    header .header-controls {
+        margin-top: 5px !important;
+        gap: 8px !important;
+    }
+
+    header .header-logo-frame {
+        width: 50px !important;
+        height: 50px !important;
+        min-width: 50px !important;
+        min-height: 50px !important;
+        flex: 0 0 50px !important;
+    }
+
+    header .header-logo-img {
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+        min-height: 42px !important;
+        max-width: 42px !important;
+        max-height: 42px !important;
+    }
+}
+
+/* Login / Profil-Modals: mittig und hochwertiger */
+@media (max-width: 768px) {
+    #auth-modal,
+    .modal,
+    .modal-overlay {
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    #auth-modal .modal-content {
+        margin: auto !important;
+        transform: none !important;
+        width: min(100%, 430px) !important;
+        max-width: calc(100vw - 30px) !important;
+        max-height: calc(100dvh - 132px) !important;
+        padding: 24px 20px !important;
+        border-radius: 24px !important;
+    }
+
+    #auth-modal .btn-primary-auth,
+    #auth-modal .btn-social-passkey,
+    #auth-modal .btn-social-apple,
+    #auth-modal .btn-social-google {
+        margin-left: auto !important;
+        margin-right: auto !important;
+        display: flex !important;
+    }
+}
+
+/* Marktplatz: Delete oben rechts, keine überlagernden Buttons */
+body.page-marktplatz .match-card {
+    position: relative !important;
+}
+
+body.page-marktplatz .card-delete-top {
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    z-index: 5 !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+    font-weight: 800 !important;
+    background: rgba(239, 68, 68, 0.08) !important;
+    color: var(--danger-color) !important;
+    border: 1px solid rgba(239, 68, 68, 0.25) !important;
+    box-shadow: none !important;
+}
+
+body.page-marktplatz .card-delete-top:hover {
+    background: var(--danger-color) !important;
+    color: #fff !important;
+}
+
+body.page-marktplatz .manage-actions {
+    grid-template-columns: 1fr 1fr !important;
+}
+
+@media (max-width: 768px) {
+    body.page-marktplatz .match-card {
+        padding-right: 44px !important;
+    }
+
+    body.page-marktplatz .card-delete-top {
+        top: 9px !important;
+        right: 9px !important;
+        width: 28px !important;
+        min-width: 28px !important;
+        height: 28px !important;
+        min-height: 28px !important;
+        font-size: 18px !important;
+    }
+
+    body.page-marktplatz .card-actions {
+        grid-template-columns: auto 1fr !important;
+        grid-template-areas:
+            "price primary"
+            "secondary secondary"
+            "manage manage" !important;
+    }
+
+    body.page-marktplatz .manage-actions {
+        grid-area: manage !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 7px !important;
+        width: 100% !important;
+        margin: 0 !important;
+    }
+}
+
+/* Planer: Match erstellen einklappbar wie Marktplatz */
+body.page-mein-planer .planner-form-accordion {
+    margin-bottom: 22px !important;
+}
+
+body.page-mein-planer .planner-form-toggle {
+    width: 100% !important;
+    min-height: 74px !important;
+    padding: 16px 18px !important;
+    border-radius: 18px !important;
+    border: 1px solid var(--border-color) !important;
+    background: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    box-shadow: var(--shadow-sm) !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    grid-template-areas:
+        "kicker icon"
+        "title icon"
+        "text icon" !important;
+    text-align: left !important;
+    align-items: center !important;
+    gap: 2px 12px !important;
+    cursor: pointer !important;
+}
+
+body.page-mein-planer .planner-form-toggle-kicker {
+    grid-area: kicker !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+    letter-spacing: 1.2px !important;
+    text-transform: uppercase !important;
+    color: var(--accent-color) !important;
+}
+
+body.page-mein-planer .planner-form-toggle-title {
+    grid-area: title !important;
+    font-size: 20px !important;
+    font-weight: 900 !important;
+    line-height: 1.15 !important;
+}
+
+body.page-mein-planer .planner-form-toggle-text {
+    grid-area: text !important;
+    font-size: 13px !important;
+    color: var(--text-muted) !important;
+    font-weight: 600 !important;
+}
+
+body.page-mein-planer .planner-form-toggle-icon {
+    grid-area: icon !important;
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 159, 67, 0.12) !important;
+    color: var(--accent-color) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+}
+
+body.page-mein-planer .planner-form-panel {
+    margin-top: 12px !important;
+    padding: 18px 16px !important;
+    border-radius: 18px !important;
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+body.page-mein-planer .planner-form-panel[hidden] {
+    display: none !important;
+}
+
+body.page-mein-planer .planned-heading {
+    margin-top: 24px !important;
+}
+
+@media (max-width: 768px) {
+    body.page-mein-planer .planner-form-toggle {
+        min-height: 66px !important;
+        padding: 14px 14px !important;
+        border-radius: 16px !important;
+    }
+
+    body.page-mein-planer .planner-form-toggle-title {
+        font-size: 18px !important;
+    }
+
+    body.page-mein-planer .planner-form-panel {
+        padding: 15px 13px !important;
+        border-radius: 16px !important;
+    }
+}

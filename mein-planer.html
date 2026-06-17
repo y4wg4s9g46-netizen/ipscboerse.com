@@ -27,13 +27,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
-   <link rel="stylesheet" href="global.css?v=29">
+   <link rel="stylesheet" href="global.css?v=30">
 </head>
 <body class="page-mein-planer">
 
     <header id="main-header"></header>
 
-    <script src="header.js?v=13"></script>
+    <script src="header.js?v=14"></script>
     <div class="container">
         
         <div id="logged-out-section" style="text-align: center;">
@@ -47,7 +47,17 @@
                 <h2 style="margin: 0;" data-txt="planner-title-my-matches">Meine Matches</h2>
             </div>
 
-            <h3 data-txt="planner-subtitle-new">Neues Match eintragen</h3>
+            <section class="planner-form-accordion" id="planner-form-anchor">
+                <button type="button" id="planner-form-toggle" class="planner-form-toggle" aria-expanded="false" aria-controls="planner-form-panel">
+                    <span class="planner-form-toggle-kicker" data-txt="planner-form-kicker">Match-Planer</span>
+                    <span class="planner-form-toggle-title" data-txt="planner-form-title">Match erstellen</span>
+                    <span class="planner-form-toggle-text" data-txt="planner-form-text">Neues Match in deine Saisonplanung aufnehmen</span>
+                    <span class="planner-form-toggle-icon" aria-hidden="true">+</span>
+                </button>
+
+                <div class="planner-form-panel" id="planner-form-panel" hidden>
+                    <h3 data-txt="planner-subtitle-new">Neues Match eintragen</h3>
+            
             <div class="form-group">
                 <label data-txt="planner-lbl-match-name">Match-Name</label>
                 <input type="text" id="match-name" placeholder="z.B. Helmbrechts-Cup 2026">
@@ -65,7 +75,10 @@
             </div>
             <button class="btn-post" onclick="addMatch()" data-txt="planner-btn-save">Match in Cloud speichern</button>
 
-            <h3 style="margin-top: 40px;" data-txt="planner-subtitle-planned">Geplante Matches</h3>
+                </div>
+            </section>
+
+            <h3 class="planned-heading" data-txt="planner-subtitle-planned">Geplante Matches</h3>
             <div id="match-list">
                 <p style="color: var(--text-muted); font-style: italic; font-weight: 600;" data-txt="planner-loading">Lade Daten aus Supabase...</p>
             </div>
@@ -84,9 +97,9 @@
 
     <script src="auth.js?v=10"></script>
 
-<script src="lang.js?v=10"></script>
+<script src="lang.js?v=11"></script>
 
-<script src="app.js?v=11"></script>
+<script src="app.js?v=12"></script>
     <script>
         let myMatches = [];
 
@@ -223,5 +236,45 @@
 
         window.onLanguageChanged = () => { renderMatches(); };
     </script>
+
+    <script>
+        (function() {
+            const plannerPanel = document.getElementById("planner-form-panel");
+            const plannerToggle = document.getElementById("planner-form-toggle");
+
+            function setPlannerFormOpen(open) {
+                if (!plannerPanel || !plannerToggle) return;
+
+                plannerPanel.hidden = !open;
+                plannerPanel.classList.toggle("is-open", open);
+                plannerToggle.classList.toggle("is-open", open);
+                plannerToggle.setAttribute("aria-expanded", open ? "true" : "false");
+
+                const icon = plannerToggle.querySelector(".planner-form-toggle-icon");
+                if (icon) icon.textContent = open ? "–" : "+";
+            }
+
+            window.openPlannerForm = function() {
+                setPlannerFormOpen(true);
+                setTimeout(() => {
+                    document.getElementById("planner-form-anchor")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }, 80);
+            };
+
+            window.closePlannerForm = function() {
+                setPlannerFormOpen(false);
+            };
+
+            if (plannerToggle) {
+                plannerToggle.addEventListener("click", () => {
+                    const isOpen = plannerToggle.getAttribute("aria-expanded") === "true";
+                    setPlannerFormOpen(!isOpen);
+                });
+            }
+
+            setPlannerFormOpen(false);
+        })();
+    </script>
+
 </body>
 </html>

@@ -15,6 +15,16 @@ window.portalTranslations = {
         "nav-wiederladen": "Wiederladen",
         "nav-analytics": "Statistiken",
         "nav-sgtimer": "⏱️ SG-Timer Live",
+        "tab-start": "Home",
+        "tab-market": "Market",
+        "tab-planner": "Planner",
+        "tab-comm": "Comm",
+        "tab-more": "More",
+        "tab-start": "Start",
+        "tab-market": "Markt",
+        "tab-planner": "Planer",
+        "tab-comm": "Comm",
+        "tab-more": "Mehr",
         "card-title-schiessbuch": "Schießbuch",
 
         // --- STARTSEITE (index.html) ---
@@ -98,6 +108,19 @@ window.portalTranslations = {
         "filter-wants": "Nur Gesuche (Suche)",
         "list-title": "Aktuelle Marktplatz-Einträge",
         "loading": "Lade aktuelle Startplätze...",
+
+        "market-form-kicker": "Startplatz-Börse",
+        "market-form-title": "Eintrag erstellen",
+        "market-form-text": "Startplatz anbieten oder suchen",
+        "planner-form-kicker": "Match-Planer",
+        "planner-form-title": "Match erstellen",
+        "planner-form-text": "Neues Match in deine Saisonplanung aufnehmen",
+        "label-squad": "Squad",
+        "listed-by": "Inseriert von",
+        "trusted-badge": "Trusted",
+        "trusted-title": "Verifizierter IPSC Alias",
+        "btn-live-chat": "Live-Chat",
+        "btn-mediated": "Vermittelt",
 
         // --- MARKTPLATZ ERWEITERTE POPUPS ---
         "mediated-title": "Startplatz erfolgreich vermittelt",
@@ -412,6 +435,19 @@ window.portalTranslations = {
         "filter-wants": "Requests Only (Buying)",
         "list-title": "Current Marketplace Entries",
         "loading": "Loading available slots...",
+
+        "market-form-kicker": "Marketplace",
+        "market-form-title": "Create listing",
+        "market-form-text": "Offer or search for a match slot",
+        "planner-form-kicker": "Season Planner",
+        "planner-form-title": "Create match",
+        "planner-form-text": "Add a new match to your season plan",
+        "label-squad": "Squad",
+        "listed-by": "Listed by",
+        "trusted-badge": "Trusted",
+        "trusted-title": "Verified IPSC alias",
+        "btn-live-chat": "Live Chat",
+        "btn-mediated": "Mediated",
 
         // --- MARKETPLACE ERWEITERTE POPUPS ---
         "mediated-title": "Slot Successfully Mediated",
