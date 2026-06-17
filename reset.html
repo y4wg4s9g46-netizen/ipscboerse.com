@@ -114,6 +114,34 @@
       })();
     </script>
 
+
+    <script id="theme-sync-v52">
+      (function () {
+        try {
+          var selected = localStorage.getItem("selectedTheme");
+          var legacy = localStorage.getItem("theme");
+          var theme = selected || legacy || "light";
+
+          if (theme === "auto") {
+            theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          }
+
+          if (theme !== "light" && theme !== "dark") theme = "light";
+
+          document.documentElement.setAttribute("data-theme", theme);
+          document.documentElement.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
+          document.documentElement.style.colorScheme = theme === "dark" ? "dark" : "light";
+
+          localStorage.setItem("selectedTheme", theme);
+          localStorage.setItem("theme", theme);
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "light");
+          document.documentElement.style.backgroundColor = "#f6f8fc";
+          document.documentElement.style.colorScheme = "light";
+        }
+      })();
+    </script>
+
 </head>
 <body class="page-reset">
     <div id="app-page-transition-cover" aria-hidden="true"></div>

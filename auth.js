@@ -283,11 +283,12 @@ window.toggleTheme = function() {
 
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('selectedTheme', newTheme);
+    localStorage.setItem('theme', newTheme);
     updateThemeToggleIcon(newTheme);
 };
 
 function initTheme() {
-    const savedTheme = localStorage.getItem('selectedTheme');
+    const savedTheme = localStorage.getItem('selectedTheme') || localStorage.getItem('theme');
 
     if (savedTheme) {
         document.documentElement.setAttribute('data-theme', savedTheme);

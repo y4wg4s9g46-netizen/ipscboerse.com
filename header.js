@@ -96,6 +96,8 @@
 
         const hasCachedLogin = !!cachedHeaderUser;
         const isVipPage = page === "doppel-aa.html" || page === "performance.html";
+        const moreTabPagesV52 = ["freie-matches.html", "schiessbuch.html", "sg-timer-live.html", "tools.html", "analytics.html", "wiederladen.html", "ipsc-hub.html", "doppel-aa.html", "performance.html"];
+        const isMoreTabActiveV52 = moreTabPagesV52.includes(page);
 
         const headerTitle = isVipPage
             ? "Double Alpha"
@@ -202,7 +204,7 @@
                     <span data-txt="tab-comm">Comm</span>
                 </a>
 
-                <div class="tab-item" id="btn-more-menu" onclick="toggleMoreMenu()">
+                <div class="tab-item ${isMoreTabActiveV52 ? "active" : ""}" id="btn-more-menu" onclick="toggleMoreMenu()">
                     <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                     <span data-txt="tab-more">Mehr</span>
                 </div>
@@ -1691,19 +1693,155 @@ header .header-logo-img {
         }
 
 
-        window.toggleMoreMenu = function() {
+        
+        // Bottom Dock + More Menu Polish v52
+        if (!document.getElementById("bottom-nav-more-polish-v52")) {
+            const morePolishV52 = document.createElement("style");
+            morePolishV52.id = "bottom-nav-more-polish-v52";
+            morePolishV52.textContent = `
+                @media (max-width: 768px) {
+                    #bottom-tab-bar {
+                        overflow: visible !important;
+                    }
+
+                    #bottom-tab-bar .tab-item.active,
+                    #bottom-tab-bar .tab-item.open {
+                        color: var(--accent-color) !important;
+                    }
+
+                    #btn-more-menu.active::before,
+                    #btn-more-menu.open::before {
+                        opacity: 1 !important;
+                        transform: scale(1) !important;
+                        background: linear-gradient(135deg, rgba(255,159,67,.20), rgba(255,128,8,.10)) !important;
+                        box-shadow: inset 0 0 0 1px rgba(255,159,67,.17), 0 8px 22px rgba(255,159,67,.14) !important;
+                    }
+
+                    #more-menu-overlay {
+                        position: fixed !important;
+                        left: 50% !important;
+                        right: auto !important;
+                        width: calc(100% - 16px) !important;
+                        max-width: 520px !important;
+                        background: transparent !important;
+                        border: 0 !important;
+                        box-shadow: none !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        overflow: visible !important;
+                        z-index: 99988 !important;
+                        pointer-events: none !important;
+                        opacity: 0 !important;
+                        transform: translate3d(-50%, 14px, 0) scale(.985) !important;
+                        transition: opacity .18s ease, transform .18s cubic-bezier(.2,.8,.2,1) !important;
+                    }
+
+                    #more-menu-overlay.show {
+                        opacity: 1 !important;
+                        pointer-events: auto !important;
+                        transform: translate3d(-50%, 0, 0) scale(1) !important;
+                    }
+
+                    html.is-browser-mode #more-menu-overlay {
+                        bottom: 63px !important;
+                    }
+
+                    html.is-native-shell #more-menu-overlay,
+                    html.is-standalone-app #more-menu-overlay,
+                    body.is-app-shell #more-menu-overlay {
+                        bottom: 71px !important;
+                    }
+
+                    #more-menu-list.more-menu-content {
+                        position: static !important;
+                        box-sizing: border-box !important;
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        display: grid !important;
+                        grid-template-columns: 1fr !important;
+                        gap: 8px !important;
+                        padding: 12px !important;
+                        border-radius: 26px 26px 18px 18px !important;
+                        border: 1px solid rgba(148,163,184,.24) !important;
+                        background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.84)) !important;
+                        box-shadow: 0 -12px 34px rgba(15,23,42,.14), inset 0 1px 0 rgba(255,255,255,.70) !important;
+                        backdrop-filter: blur(24px) saturate(1.45) !important;
+                        -webkit-backdrop-filter: blur(24px) saturate(1.45) !important;
+                        max-height: min(58vh, 410px) !important;
+                        overflow-y: auto !important;
+                        -webkit-overflow-scrolling: touch !important;
+                    }
+
+                    html[data-theme="dark"] #more-menu-list.more-menu-content {
+                        background: linear-gradient(180deg, rgba(31,41,55,.96), rgba(15,23,42,.89)) !important;
+                        border-color: rgba(148,163,184,.20) !important;
+                        box-shadow: 0 -14px 38px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.08) !important;
+                    }
+
+                    #more-menu-list a {
+                        min-height: 46px !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        padding: 0 14px !important;
+                        border-radius: 17px !important;
+                        text-decoration: none !important;
+                        font-weight: 760 !important;
+                        color: var(--text-color) !important;
+                        background: rgba(255,255,255,.55) !important;
+                        border: 1px solid rgba(148,163,184,.22) !important;
+                    }
+
+                    html[data-theme="dark"] #more-menu-list a {
+                        background: rgba(15,23,42,.40) !important;
+                        border-color: rgba(148,163,184,.18) !important;
+                    }
+
+                    #more-menu-list a.active {
+                        color: #fff !important;
+                        background: var(--accent-gradient) !important;
+                        border-color: rgba(255,159,67,.44) !important;
+                        box-shadow: 0 10px 24px rgba(255,128,8,.22) !important;
+                    }
+
+                    #more-menu-list a:active {
+                        transform: scale(.985) !important;
+                    }
+                }
+            `;
+            document.head.appendChild(morePolishV52);
+
+            document.addEventListener("click", (event) => {
+                const link = event.target?.closest?.("#more-menu-overlay a[href]");
+                if (!link) return;
+                const menu = document.getElementById("more-menu-overlay");
+                const btn = document.getElementById("btn-more-menu");
+                if (menu) menu.classList.remove("show");
+                if (btn) btn.classList.remove("open");
+                if (typeof window.showPageTransitionCover === "function") {
+                    window.showPageTransitionCover();
+                }
+            }, true);
+
+            document.addEventListener("click", (event) => {
+                const menu = document.getElementById("more-menu-overlay");
+                const btn = document.getElementById("btn-more-menu");
+                if (!menu || !btn || !menu.classList.contains("show")) return;
+                if (event.target?.closest?.("#more-menu-overlay") || event.target?.closest?.("#btn-more-menu")) return;
+                menu.classList.remove("show");
+                btn.classList.remove("open");
+            }, true);
+        }
+
+window.toggleMoreMenu = function() {
             const menu = document.getElementById("more-menu-overlay");
             const btn = document.getElementById("btn-more-menu");
 
             if (!menu || !btn) return;
 
-            if (menu.classList.contains("show")) {
-                menu.classList.remove("show");
-                btn.style.color = "var(--text-muted)";
-            } else {
-                menu.classList.add("show");
-                btn.style.color = "var(--accent-color)";
-            }
+            const willOpen = !menu.classList.contains("show");
+            menu.classList.toggle("show", willOpen);
+            btn.classList.toggle("open", willOpen);
         };
 
         bindHeaderAuthButtons(isVipPage);
