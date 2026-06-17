@@ -81,7 +81,7 @@
       })();
     </script>
 
-    <link rel="stylesheet" href="global.css?v=53">
+    <link rel="stylesheet" href="global.css?v=54">
     <style id="app-transition-prevent-flash-v50">
       html, body {
         background-color: #0f172a !important;
@@ -323,12 +323,137 @@
       }
     </style>
 
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+    <style id="hit-factor-battle-v54">
+      html, body {
+        overflow-x: hidden !important;
+        max-width: 100vw !important;
+      }
+      body.page-tools .container,
+      body.page-tools .tool-section {
+        box-sizing: border-box !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+      }
+      body.page-tools .tool-section * {
+        box-sizing: border-box !important;
+      }
+
+      /* Hit-Factor Eingabe: kein horizontales Ziehen mehr */
+      body.page-tools .hit-stepper-grid {
+        width: 100% !important;
+        max-width: 100% !important;
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 12px !important;
+        overflow: hidden !important;
+      }
+      body.page-tools .hit-stepper-card {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+        padding: 12px !important;
+      }
+      body.page-tools .hit-stepper-card label {
+        max-width: 100% !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+      }
+      body.page-tools .hit-stepper-card .hit-stepper {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        display: grid !important;
+        grid-template-columns: 42px minmax(0, 1fr) 42px !important;
+        gap: 8px !important;
+        align-items: center !important;
+        overflow: hidden !important;
+      }
+      body.page-tools .hit-stepper-card .hit-stepper button {
+        width: 42px !important;
+        min-width: 42px !important;
+        max-width: 42px !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        padding: 0 !important;
+        border-radius: 14px !important;
+        font-size: 21px !important;
+        line-height: 1 !important;
+        flex: none !important;
+        -webkit-appearance: none !important;
+        appearance: none !important;
+      }
+      body.page-tools .hit-stepper-card .hit-stepper input,
+      body.page-tools .hit-stepper-card .hit-stepper input[type="number"] {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        padding: 0 6px !important;
+        margin: 0 !important;
+        text-align: center !important;
+        border-radius: 14px !important;
+        font-size: 21px !important;
+        font-weight: 900 !important;
+        flex: 1 1 auto !important;
+        -webkit-appearance: none !important;
+        appearance: textfield !important;
+      }
+      body.page-tools .hit-stepper-card .hit-stepper input::-webkit-outer-spin-button,
+      body.page-tools .hit-stepper-card .hit-stepper input::-webkit-inner-spin-button {
+        -webkit-appearance: none !important;
+        margin: 0 !important;
+      }
+
+      body.page-tools .hf-mini-actions {
+        grid-template-columns: 1fr !important;
+      }
+
+      .hf-pdf-btn {
+        color: #fff !important;
+        border-color: rgba(255,159,67,.45) !important;
+        background: var(--accent-gradient) !important;
+        box-shadow: 0 12px 26px rgba(255,128,8,.18) !important;
+      }
+
+      @media (max-width: 640px) {
+        body.page-tools .hit-stepper-grid {
+          grid-template-columns: 1fr !important;
+          gap: 11px !important;
+        }
+        body.page-tools .hit-stepper-card {
+          padding: 11px !important;
+          border-radius: 17px !important;
+        }
+        body.page-tools .hit-stepper-card .hit-stepper {
+          grid-template-columns: 40px minmax(0, 1fr) 40px !important;
+          gap: 8px !important;
+        }
+        body.page-tools .hit-stepper-card .hit-stepper button {
+          width: 40px !important;
+          min-width: 40px !important;
+          max-width: 40px !important;
+          height: 40px !important;
+          min-height: 40px !important;
+        }
+        body.page-tools .hit-stepper-card .hit-stepper input,
+        body.page-tools .hit-stepper-card .hit-stepper input[type="number"] {
+          height: 40px !important;
+          min-height: 40px !important;
+          font-size: 20px !important;
+        }
+      }
+    </style>
+
 </head>
 <body class="page-tools">
     <div id="app-page-transition-cover" aria-hidden="true"></div>
 
     <header id="main-header"></header>
-    <script src="header.js?v=32"></script>
+    <script src="header.js?v=33"></script>
 
     <div class="container">
         
@@ -366,7 +491,7 @@
                     <label data-txt="tools-hf-alpha">Alpha (A)</label>
                     <div class="hit-stepper">
                         <button type="button" onclick="changeHitValue('hf-a', -1)">−</button>
-                        <input type="number" id="hf-a" class="input-A" min="0" value="0" inputmode="numeric">
+                        <input type="number" id="hf-a" class="input-A" min="0" value="0" inputmode="numeric" readonly>
                         <button type="button" class="plus" onclick="changeHitValue('hf-a', 1)">+</button>
                     </div>
                 </div>
@@ -374,7 +499,7 @@
                     <label data-txt="tools-hf-charlie">Charlie (C)</label>
                     <div class="hit-stepper">
                         <button type="button" onclick="changeHitValue('hf-c', -1)">−</button>
-                        <input type="number" id="hf-c" min="0" value="0" inputmode="numeric">
+                        <input type="number" id="hf-c" min="0" value="0" inputmode="numeric" readonly>
                         <button type="button" class="plus" onclick="changeHitValue('hf-c', 1)">+</button>
                     </div>
                 </div>
@@ -382,7 +507,7 @@
                     <label data-txt="tools-hf-delta">Delta (D)</label>
                     <div class="hit-stepper">
                         <button type="button" onclick="changeHitValue('hf-d', -1)">−</button>
-                        <input type="number" id="hf-d" min="0" value="0" inputmode="numeric">
+                        <input type="number" id="hf-d" min="0" value="0" inputmode="numeric" readonly>
                         <button type="button" class="plus" onclick="changeHitValue('hf-d', 1)">+</button>
                     </div>
                 </div>
@@ -390,7 +515,7 @@
                     <label data-txt="tools-hf-miss">Miss (M)</label>
                     <div class="hit-stepper">
                         <button type="button" onclick="changeHitValue('hf-m', -1)">−</button>
-                        <input type="number" id="hf-m" class="input-M" min="0" value="0" inputmode="numeric">
+                        <input type="number" id="hf-m" class="input-M" min="0" value="0" inputmode="numeric" readonly>
                         <button type="button" class="plus" onclick="changeHitValue('hf-m', 1)">+</button>
                     </div>
                 </div>
@@ -398,7 +523,7 @@
                     <label data-txt="tools-hf-ns">No-Shoot</label>
                     <div class="hit-stepper">
                         <button type="button" onclick="changeHitValue('hf-ns', -1)">−</button>
-                        <input type="number" id="hf-ns" class="input-M" min="0" value="0" inputmode="numeric">
+                        <input type="number" id="hf-ns" class="input-M" min="0" value="0" inputmode="numeric" readonly>
                         <button type="button" class="plus" onclick="changeHitValue('hf-ns', 1)">+</button>
                     </div>
                 </div>
@@ -442,7 +567,7 @@
                     </table>
                 </div>
                 <div class="hf-mini-actions">
-                    <button type="button" class="btn-secondary hf-print-btn" onclick="printHitFactorResults()">PDF / Drucken</button>
+                    <button type="button" class="btn-secondary hf-print-btn" onclick="downloadHitFactorPDF()" class="btn-secondary hf-print-btn hf-pdf-btn">PDF erstellen</button>
                     <button type="button" class="btn-secondary" onclick="clearRanking()" style="color: var(--danger-color); border-color: rgba(239, 68, 68, 0.3);">Battle löschen</button>
                 </div>
             </div>
@@ -753,9 +878,182 @@
             renderOverallRanking();
         }
 
-        function printHitFactorResults() {
+        function downloadHitFactorPDF() {
             renderOverallRanking();
-            window.print();
+
+            const allRows = getOverallRows();
+            if (!allRows.length) {
+                alert("Bitte zuerst mindestens ein Ergebnis eintragen.");
+                return;
+            }
+
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                alert("PDF-Modul konnte nicht geladen werden. Bitte Seite neu laden und erneut versuchen.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+            const page = {
+                w: doc.internal.pageSize.getWidth(),
+                h: doc.internal.pageSize.getHeight(),
+                m: 14
+            };
+
+            let y = 16;
+
+            const today = new Date();
+            const pad = n => String(n).padStart(2, "0");
+            const dateStr = `${pad(today.getDate())}.${pad(today.getMonth() + 1)}.${today.getFullYear()}`;
+            const fileDate = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+
+            function cleanText(value) {
+                return String(value ?? "")
+                    .replace(/🏆/g, "")
+                    .replace(/🥇/g, "")
+                    .replace(/–/g, "-")
+                    .replace(/•/g, "-")
+                    .trim();
+            }
+
+            function addPageIfNeeded(minSpace = 22) {
+                if (y + minSpace > page.h - page.m) {
+                    doc.addPage();
+                    y = 16;
+                    drawHeader(false);
+                }
+            }
+
+            function drawHeader(first = false) {
+                doc.setTextColor(15, 23, 42);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(first ? 19 : 13);
+                doc.text("IPSC Hit-Factor Battle", page.m, y);
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(9);
+                doc.setTextColor(100, 116, 139);
+                doc.text(`Erstellt am ${dateStr} - ipscboerse.com`, page.w - page.m, y, { align: "right" });
+                y += first ? 10 : 8;
+                doc.setDrawColor(255, 159, 67);
+                doc.setLineWidth(0.4);
+                doc.line(page.m, y, page.w - page.m, y);
+                y += 8;
+            }
+
+            function drawSectionTitle(title) {
+                addPageIfNeeded(18);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(13);
+                doc.setTextColor(15, 23, 42);
+                doc.text(cleanText(title), page.m, y);
+                y += 7;
+            }
+
+            function drawTable(headers, rows, widths) {
+                const x0 = page.m;
+                const rowH = 7;
+                const headerH = 8;
+
+                addPageIfNeeded(headerH + rowH + 8);
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(8.5);
+                doc.setFillColor(255, 159, 67);
+                doc.setTextColor(255, 255, 255);
+                let x = x0;
+                headers.forEach((h, i) => {
+                    doc.rect(x, y, widths[i], headerH, "F");
+                    doc.text(cleanText(h), x + 1.5, y + 5.3);
+                    x += widths[i];
+                });
+                y += headerH;
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(8.2);
+                rows.forEach((row, rIndex) => {
+                    addPageIfNeeded(rowH + 8);
+                    x = x0;
+                    const fill = rIndex % 2 === 0 ? 248 : 255;
+                    doc.setFillColor(fill, fill, fill);
+                    doc.setTextColor(15, 23, 42);
+                    row.forEach((cell, i) => {
+                        doc.rect(x, y, widths[i], rowH, "F");
+                        const text = cleanText(cell);
+                        const maxChars = Math.max(4, Math.floor(widths[i] / 2.2));
+                        const clipped = text.length > maxChars ? text.slice(0, maxChars - 1) + "…" : text;
+                        doc.text(clipped, x + 1.5, y + 4.9);
+                        x += widths[i];
+                    });
+                    y += rowH;
+                });
+
+                y += 6;
+            }
+
+            drawHeader(true);
+
+            const winner = allRows[0];
+            doc.setFillColor(255, 246, 235);
+            doc.roundedRect(page.m, y, page.w - page.m * 2, 22, 4, 4, "F");
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(12);
+            doc.setTextColor(255, 128, 8);
+            doc.text("Gesamtsieger", page.m + 4, y + 8);
+            doc.setFontSize(16);
+            doc.setTextColor(15, 23, 42);
+            doc.text(cleanText(winner.name), page.m + 4, y + 16);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9);
+            doc.setTextColor(100, 116, 139);
+            doc.text(`${winner.stagePoints.toFixed(1)} Stage-Punkte - ${winner.stages} Stage${winner.stages === 1 ? "" : "s"} - Ø HF ${winner.avgHf.toFixed(4)}`, page.w - page.m - 4, y + 16, { align: "right" });
+            y += 31;
+
+            drawSectionTitle("Gesamtwertung");
+            drawTable(
+                ["#", "Name", "Stages", "Stage-Punkte", "Ø HF"],
+                allRows.map((row, index) => [
+                    `${index + 1}.`,
+                    row.name,
+                    String(row.stages),
+                    row.stagePoints.toFixed(1),
+                    row.avgHf.toFixed(4)
+                ]),
+                [10, 72, 22, 38, 26]
+            );
+
+            hfStages.forEach((stage, stageIndex) => {
+                if (!stage.entries.length) return;
+
+                drawSectionTitle(`${stage.name} - Stage-Wertung`);
+                const stageWinnerHf = Math.max(...stage.entries.map(entry => entry.hf || 0));
+
+                drawTable(
+                    ["#", "Name", "PF", "Punkte", "Zeit", "HF", "A/C/D/M/NS", "Stage %"],
+                    stage.entries.map((entry, index) => [
+                        `${index + 1}.`,
+                        entry.name,
+                        entry.pf,
+                        String(entry.points),
+                        `${entry.time.toFixed(2)}s`,
+                        entry.hf.toFixed(4),
+                        `${entry.hits.a}/${entry.hits.c}/${entry.hits.d}/${entry.hits.m}/${entry.hits.ns}`,
+                        stageWinnerHf > 0 ? `${((entry.hf / stageWinnerHf) * 100).toFixed(1)}` : "0.0"
+                    ]),
+                    [8, 50, 12, 18, 20, 22, 27, 23]
+                );
+            });
+
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(8);
+                doc.setTextColor(148, 163, 184);
+                doc.text(`Seite ${i}/${pageCount}`, page.w - page.m, page.h - 8, { align: "right" });
+            }
+
+            doc.save(`Hit-Factor-Battle_${fileDate}.pdf`);
         }
 
         document.addEventListener("DOMContentLoaded", () => {

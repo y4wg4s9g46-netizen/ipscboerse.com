@@ -9126,3 +9126,19 @@ html[data-theme="dark"] body {
 
 
 /* HIT FACTOR BATTLE + PERFORMANCE LOADER v53: page-specific CSS is in tools.html/performance.html */
+
+
+/* HIT FACTOR MOBILE OVERFLOW GUARD v54 */
+@media (max-width: 768px) {
+    html,
+    body {
+        overflow-x: hidden !important;
+        max-width: 100vw !important;
+    }
+    body.page-tools .container,
+    body.page-tools .tool-section {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+    }
+}
