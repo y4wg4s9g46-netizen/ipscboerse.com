@@ -777,6 +777,113 @@ header .header-logo-img {
             document.head.appendChild(style);
         }
 
+        if (!document.getElementById("dynamic-header-polish-v12")) {
+            const polishStyle = document.createElement("style");
+            polishStyle.id = "dynamic-header-polish-v12";
+
+            polishStyle.innerHTML = `
+                @media (max-width: 768px) {
+                    header {
+                        padding: calc(env(safe-area-inset-top) + 14px) 12px 14px 12px !important;
+                    }
+
+                    header .header-logo-link {
+                        gap: 11px !important;
+                    }
+
+                    header .header-logo-frame {
+                        width: 50px !important;
+                        height: 50px !important;
+                        min-width: 50px !important;
+                        min-height: 50px !important;
+                        max-width: 50px !important;
+                        max-height: 50px !important;
+                        flex: 0 0 50px !important;
+                    }
+
+                    header .header-logo-img {
+                        width: 42px !important;
+                        height: 42px !important;
+                        min-width: 42px !important;
+                        min-height: 42px !important;
+                        max-width: 42px !important;
+                        max-height: 42px !important;
+                    }
+
+                    header .logo-text-group h1 {
+                        font-size: 22px !important;
+                        line-height: 1.08 !important;
+                        letter-spacing: 0.7px !important;
+                    }
+
+                    header .logo-text-group p {
+                        font-size: 10.5px !important;
+                        line-height: 1.15 !important;
+                        letter-spacing: 1.7px !important;
+                    }
+
+                    header .header-controls {
+                        gap: 9px !important;
+                        margin-top: 12px !important;
+                    }
+
+                    header .theme-toggle-btn {
+                        width: 38px !important;
+                        height: 38px !important;
+                        min-width: 38px !important;
+                        min-height: 38px !important;
+                        max-width: 38px !important;
+                        max-height: 38px !important;
+                        flex: 0 0 38px !important;
+                        border-radius: 11px !important;
+                    }
+
+                    header .lang-select {
+                        height: 38px !important;
+                        min-width: 58px !important;
+                        max-width: 68px !important;
+                        font-size: 13px !important;
+                        border-radius: 11px !important;
+                    }
+
+                    header #btn-open-settings.header-avatar-btn {
+                        width: 48px !important;
+                        height: 48px !important;
+                        min-width: 48px !important;
+                        min-height: 48px !important;
+                        max-width: 48px !important;
+                        max-height: 48px !important;
+                        flex: 0 0 48px !important;
+                        border-radius: 50% !important;
+                    }
+
+                    header #btn-open-settings.header-avatar-btn img,
+                    header #header-avatar {
+                        width: 42px !important;
+                        height: 42px !important;
+                        min-width: 42px !important;
+                        min-height: 42px !important;
+                        max-width: 42px !important;
+                        max-height: 42px !important;
+                        border: 2px solid var(--accent-color) !important;
+                        padding: 2px !important;
+                        box-shadow: 0 6px 16px rgba(255, 159, 67, 0.28) !important;
+                    }
+
+                    header #btn-logout {
+                        height: 38px !important;
+                        min-height: 38px !important;
+                        padding: 0 18px !important;
+                        font-size: 11px !important;
+                        border-radius: 999px !important;
+                        letter-spacing: 0.8px !important;
+                    }
+                }
+            `;
+
+            document.head.appendChild(polishStyle);
+        }
+
         window.toggleMoreMenu = function() {
             const menu = document.getElementById("more-menu-overlay");
             const btn = document.getElementById("btn-more-menu");
