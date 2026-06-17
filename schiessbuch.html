@@ -82,7 +82,7 @@
       })();
     </script>
 
-    <link rel="stylesheet" href="global.css?v=58">
+    <link rel="stylesheet" href="global.css?v=59">
     <style id="app-transition-prevent-flash-v50">
       html, body {
         background-color: #0f172a !important;
@@ -331,13 +331,15 @@
     </style>
 
     <!-- SCHIESSBUCH BIGINT ID FIX v58 -->
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+    <!-- SCHIESSBUCH QR PDF FIX v59 -->
 </head>
 <body class="page-schiessbuch">
     <div id="app-page-transition-cover" aria-hidden="true"></div>
 
     <header id="main-header"></header>
   
-   <script src="header.js?v=37"></script>
+   <script src="header.js?v=38"></script>
 
     <div class="container">
         <div class="page-section" id="auth-guard" style="display: none; text-align: center; padding: 40px 20px;">
@@ -777,10 +779,113 @@
                 }
 
                 async function qrDataUrl(text) {
+                    const value = String(text || "");
+                    if (!value) return null;
+
+                    async function loadScriptOnce(src, testFn) {
+                        if (testFn && testFn()) return true;
+                        return new Promise(resolve => {
+                            const existing = Array.from(document.scripts).find(script => script.src === src);
+                            if (existing) {
+                                existing.addEventListener("load", () => resolve(true), { once: true });
+                                existing.addEventListener("error", () => resolve(false), { once: true });
+                                setTimeout(() => resolve(!!(testFn && testFn())), 1200);
+                                return;
+                            }
+                            const script = document.createElement("script");
+                            script.src = src;
+                            script.async = true;
+                            script.onload = () => resolve(true);
+                            script.onerror = () => resolve(false);
+                            document.head.appendChild(script);
+                            setTimeout(() => resolve(!!(testFn && testFn())), 1800);
+                        });
+                    }
+
+                    // 1) qrcode library: QRCode.toDataURL
                     try {
-                        if (window.QRCode && window.QRCode.toDataURL) {
-                            return await window.QRCode.toDataURL(text, { width: 180, margin: 1, errorCorrectionLevel: "M" });
+                        if (!window.QRCode || !window.QRCode.toDataURL) {
+                            await loadScriptOnce(
+                                "https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js",
+                                () => window.QRCode && window.QRCode.toDataURL
+                            );
                         }
+                        if (window.QRCode && window.QRCode.toDataURL) {
+                            const result = await window.QRCode.toDataURL(value, {
+                                width: 420,
+                                margin: 2,
+                                errorCorrectionLevel: "M",
+                                color: { dark: "#000000", light: "#ffffff" }
+                            });
+                            if (result && result.startsWith("data:image")) return result;
+                        }
+                    } catch (err) {
+                        console.warn("QRCode.toDataURL failed", err);
+                    }
+
+                    // 2) qrcode library: QRCode.toCanvas
+                    try {
+                        if (window.QRCode && window.QRCode.toCanvas) {
+                            const canvas = document.createElement("canvas");
+                            await window.QRCode.toCanvas(canvas, value, {
+                                width: 420,
+                                margin: 2,
+                                errorCorrectionLevel: "M",
+                                color: { dark: "#000000", light: "#ffffff" }
+                            });
+                            const result = canvas.toDataURL("image/png");
+                            if (result && result.startsWith("data:image")) return result;
+                        }
+                    } catch (err) {
+                        console.warn("QRCode.toCanvas failed", err);
+                    }
+
+                    // 3) QRious fallback
+                    try {
+                        if (!window.QRious) {
+                            await loadScriptOnce(
+                                "https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js",
+                                () => window.QRious
+                            );
+                        }
+                        if (window.QRious) {
+                            const canvas = document.createElement("canvas");
+                            new window.QRious({
+                                element: canvas,
+                                value,
+                                size: 420,
+                                level: "M",
+                                background: "white",
+                                foreground: "black",
+                                padding: 12
+                            });
+                            const result = canvas.toDataURL("image/png");
+                            if (result && result.startsWith("data:image")) return result;
+                        }
+                    } catch (err) {
+                        console.warn("QRious failed", err);
+                    }
+
+                    // 4) Remote QR fallback converted into data URL
+                    try {
+                        const remoteUrl = "https://api.qrserver.com/v1/create-qr-code/?size=420x420&margin=12&format=png&data=" + encodeURIComponent(value);
+                        const response = await fetch(remoteUrl, { mode: "cors", cache: "no-store" });
+                        if (response.ok) {
+                            const blob = await response.blob();
+                            const dataUrl = await new Promise((resolve, reject) => {
+                                const reader = new FileReader();
+                                reader.onload = () => resolve(reader.result);
+                                reader.onerror = reject;
+                                reader.readAsDataURL(blob);
+                            });
+                            if (dataUrl && String(dataUrl).startsWith("data:image")) return dataUrl;
+                        }
+                    } catch (err) {
+                        console.warn("Remote QR fallback failed", err);
+                    }
+
+                    return null;
+                }
                     } catch (_) {}
                     return null;
                 }
@@ -803,7 +908,7 @@
                     const license = log.external_license || "";
 
                     doc.setDrawColor(226, 232, 240);
-                    doc.roundedRect(margin, y, pageW - margin * 2, 62, 3, 3, "S");
+                    doc.roundedRect(margin, y, pageW - margin * 2, 66, 3, 3, "S");
 
                     write(`${dateStr} · ${safe(log.ort)}`, margin + 4, y + 7, { bold: true, size: 12 });
                     write(`Disziplin: ${log.disziplin || "-"}`, margin + 4, y + 14, { size: 9 });
@@ -822,19 +927,39 @@
                     }
 
                     if (verifyUrl) {
+                        const qrX = pageW - margin - 34;
+                        const qrY = y + 7;
+                        const qrSize = 30;
+
+                        // White background and border so the QR never disappears in dark/iOS PDF preview.
+                        doc.setFillColor(255, 255, 255);
+                        doc.setDrawColor(15, 23, 42);
+                        doc.setLineWidth(0.2);
+                        doc.rect(qrX - 1.5, qrY - 1.5, qrSize + 3, qrSize + 3, "FD");
+
                         const qr = await qrDataUrl(verifyUrl);
                         if (qr) {
                             try {
-                                doc.addImage(qr, "PNG", pageW - margin - 30, y + 8, 26, 26, undefined, "FAST");
-                            } catch (_) {}
+                                doc.addImage(qr, "PNG", qrX, qrY, qrSize, qrSize, undefined, "MEDIUM");
+                            } catch (err) {
+                                console.warn("PDF add QR failed", err);
+                            }
                         }
-                        write("QR-Prüfung", pageW - margin - 17, y + 39, { size: 7, color: [100, 116, 139], align: "center" });
-                        write(verifyCode.slice(0, 18), pageW - margin - 17, y + 44, { size: 6.2, color: [100, 116, 139], align: "center" });
+
+                        write("QR-Prüfung", qrX + qrSize / 2, qrY + qrSize + 5.5, { size: 7.2, color: [15, 23, 42], align: "center" });
+                        write(verifyCode.slice(0, 18), qrX + qrSize / 2, qrY + qrSize + 10.5, { size: 6.2, color: [100, 116, 139], align: "center" });
+
+                        // If image generation failed, the PDF still contains the direct verification URL.
+                        if (!qr) {
+                            write("QR konnte nicht geladen werden", qrX + qrSize / 2, qrY + 12, { size: 5.8, color: [239, 68, 68], align: "center" });
+                            const shortUrl = verifyUrl.replace(/^https?:\/\//, "").slice(0, 38);
+                            write(shortUrl, margin + 4, y + 57, { size: 6.4, color: [59, 130, 246] });
+                        }
                     } else {
                         write("Kein QR-Code", pageW - margin - 4, y + 14, { size: 7, color: [148, 163, 184], align: "right" });
                     }
 
-                    y += 70;
+                    y += 74;
                 }
 
                 const total = doc.internal.getNumberOfPages();
