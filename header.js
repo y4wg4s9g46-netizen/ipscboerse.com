@@ -147,7 +147,7 @@
                 </button>
 
                 ${isVipPage ? "" : `
-                    <button id="header-chat-btn" class="theme-toggle-btn" onclick="toggleGlobalInbox()" title="Nachrichten">
+                    <button id="header-chat-btn" class="theme-toggle-btn header-chat-btn" onclick="toggleGlobalInbox()" title="Nachrichten" aria-label="Nachrichten öffnen">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                         </svg>
@@ -400,6 +400,43 @@ header .header-logo-img {
                     box-shadow: var(--shadow-sm) !important;
                     box-sizing: border-box !important;
                     padding: 0 !important;
+                }
+
+
+                header #header-chat-btn {
+                    position: relative !important;
+                    overflow: visible !important;
+                    isolation: isolate !important;
+                }
+
+                header #chat-badge-count {
+                    display: none;
+                    position: absolute !important;
+                    top: -7px !important;
+                    right: -7px !important;
+                    min-width: 18px !important;
+                    height: 18px !important;
+                    padding: 0 5px !important;
+                    border-radius: 999px !important;
+                    background: #ef4444 !important;
+                    color: #ffffff !important;
+                    font-size: 10px !important;
+                    line-height: 18px !important;
+                    font-weight: 800 !important;
+                    text-align: center !important;
+                    box-shadow: 0 0 0 2px var(--card-bg), 0 8px 16px rgba(239,68,68,.28) !important;
+                    z-index: 5 !important;
+                    pointer-events: none !important;
+                }
+
+                header #header-chat-btn.has-chat-unread #chat-badge-count {
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                }
+
+                header #header-chat-btn.has-chat-unread {
+                    border-color: rgba(239,68,68,.35) !important;
                 }
 
                 header .theme-toggle-btn svg {

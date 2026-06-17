@@ -800,22 +800,44 @@ function handleIncomingChatNotificationV41(newMsg) {
 }
 
 function updateHeaderChatBadge() {
-  if (!window.currentUser) return;
+  const badge = document.getElementById("chat-badge-count");
+  const chatBtn = document.getElementById("header-chat-btn");
+
+  const setBadge = (count) => {
+    const safeCount = Number(count || 0);
+    if (badge) {
+      if (safeCount > 0) {
+        badge.innerText = safeCount > 99 ? "99+" : String(safeCount);
+        badge.style.display = "inline-flex";
+      } else {
+        badge.innerText = "0";
+        badge.style.display = "none";
+      }
+    }
+
+    if (chatBtn) {
+      chatBtn.classList.toggle("has-chat-unread", safeCount > 0);
+      chatBtn.setAttribute("aria-label", safeCount > 0 ? `Nachrichten öffnen (${safeCount} neu)` : "Nachrichten öffnen");
+    }
+  };
+
+  if (!window.currentUser) {
+    setBadge(0);
+    return;
+  }
+
   window.supabaseClient
     .from("chat_messages")
-    .select("id", { count: 'exact' })
+    .select("id", { count: "exact", head: true })
     .eq("receiver_email", window.currentUser.email)
     .gt("created_at", window.lastChatCheckedTimestamp)
     .then(({ count, error }) => {
-       const badge = document.getElementById("chat-badge-count");
-       if (badge) {
-         if (!error && count > 0) {
-           badge.innerText = count;
-           badge.style.display = "block";
-         } else {
-           badge.style.display = "none";
-         }
+       if (error) {
+         console.warn("Chat badge count failed:", error);
+         setBadge(0);
+         return;
        }
+       setBadge(count || 0);
     });
 }
 
