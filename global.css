@@ -7425,3 +7425,156 @@ body.page-marktplatz .owner-actions-top + .match-card-main .match-summary {
         border-radius: 15px !important;
     }
 }
+
+/* ==========================================================================
+   MOBILE APP DOCK + PLANER COMPACT v37
+   ========================================================================== */
+
+@media (max-width: 768px) {
+
+    /* Fallback: falls Header-JS-Style später nicht greift, trotzdem das echte Dock stylen */
+    #bottom-tab-bar {
+        position: fixed !important;
+        left: 50% !important;
+        right: auto !important;
+        bottom: max(12px, env(safe-area-inset-bottom)) !important;
+        transform: translateX(-50%) translateZ(0) !important;
+        width: calc(100% - 24px) !important;
+        max-width: 520px !important;
+        height: 72px !important;
+        padding: 7px 8px !important;
+        display: grid !important;
+        grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+        gap: 4px !important;
+        border-radius: 28px !important;
+        border: 1px solid rgba(148, 163, 184, 0.24) !important;
+        background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,255,255,0.80)) !important;
+        box-shadow: 0 18px 44px rgba(15,23,42,.16), 0 2px 8px rgba(15,23,42,.05), inset 0 1px 0 rgba(255,255,255,.82) !important;
+        backdrop-filter: blur(22px) saturate(1.6) !important;
+        -webkit-backdrop-filter: blur(22px) saturate(1.6) !important;
+        z-index: 99990 !important;
+        overflow: hidden !important;
+    }
+
+    html[data-theme="dark"] #bottom-tab-bar {
+        background: linear-gradient(180deg, rgba(31,41,55,.90), rgba(15,23,42,.80)) !important;
+        border-color: rgba(148,163,184,.18) !important;
+        box-shadow: 0 18px 46px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.08) !important;
+    }
+
+    #bottom-tab-bar .tab-item {
+        width: auto !important;
+        height: 58px !important;
+        min-width: 0 !important;
+        padding: 5px 2px 4px !important;
+        border-radius: 22px !important;
+        gap: 2px !important;
+        position: relative !important;
+    }
+
+    #bottom-tab-bar .tab-item::before {
+        content: "" !important;
+        position: absolute !important;
+        inset: 5px 6px !important;
+        border-radius: 20px !important;
+        opacity: 0 !important;
+        transform: scale(.86) !important;
+        z-index: -1 !important;
+        transition: opacity .16s ease, transform .16s cubic-bezier(.2,.8,.2,1) !important;
+    }
+
+    #bottom-tab-bar .tab-item.active::before {
+        opacity: 1 !important;
+        transform: scale(1) !important;
+        background: linear-gradient(135deg, rgba(255,159,67,.18), rgba(255,128,8,.09)) !important;
+        box-shadow: inset 0 0 0 1px rgba(255,159,67,.15), 0 8px 20px rgba(255,159,67,.13) !important;
+    }
+
+    #bottom-tab-bar .tab-item:active,
+    #bottom-tab-bar .tab-item.is-pressing {
+        transform: scale(.92) !important;
+    }
+
+    body {
+        padding-bottom: calc(104px + env(safe-area-inset-bottom)) !important;
+    }
+
+    /* Planer: "Match erstellen" im gleichen Premium-Orange-Look wie Marktplatz */
+    body.page-mein-planer .planner-form-toggle {
+        position: relative !important;
+        overflow: hidden !important;
+        background:
+            radial-gradient(circle at 90% 30%, rgba(255,159,67,0.22), transparent 34%),
+            linear-gradient(135deg, rgba(255,159,67,0.16), rgba(255,128,8,0.07)) !important;
+        border: 1px solid rgba(255,159,67,0.24) !important;
+        box-shadow: 0 10px 26px rgba(255,128,8,0.10), var(--shadow-sm) !important;
+    }
+
+    body.page-mein-planer .planner-form-toggle-kicker {
+        color: var(--accent-color) !important;
+    }
+
+    body.page-mein-planer .planner-form-toggle-icon {
+        background: var(--accent-gradient) !important;
+        color: #fff !important;
+        box-shadow: 0 12px 26px rgba(255,128,8,0.26) !important;
+    }
+
+    /* Geplante Matches kompakter: Buttons nebeneinander */
+    body.page-mein-planer .match-item {
+        padding: 15px 14px !important;
+        border-radius: 18px !important;
+    }
+
+    body.page-mein-planer .planner-card-actions {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 9px !important;
+        align-items: stretch !important;
+        margin-top: 14px !important;
+        width: 100% !important;
+    }
+
+    body.page-mein-planer .planner-card-actions button,
+    body.page-mein-planer .planner-insert-btn,
+    body.page-mein-planer .planner-delete-btn {
+        width: 100% !important;
+        min-width: 0 !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        padding: 0 10px !important;
+        border-radius: 14px !important;
+        font-size: 13.5px !important;
+        font-weight: 760 !important;
+        line-height: 1 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        white-space: nowrap !important;
+    }
+
+    body.page-mein-planer .planner-insert-btn {
+        background: var(--accent-gradient) !important;
+        color: #fff !important;
+        border: none !important;
+        box-shadow: 0 10px 22px rgba(255,128,8,.24) !important;
+    }
+
+    body.page-mein-planer .planner-delete-btn {
+        background: rgba(239, 68, 68, 0.07) !important;
+        color: var(--danger-color) !important;
+        border: 1px solid rgba(239, 68, 68, 0.24) !important;
+        box-shadow: none !important;
+    }
+
+    body.page-mein-planer .match-item h4 {
+        font-size: 17px !important;
+        line-height: 1.18 !important;
+        margin-bottom: 8px !important;
+    }
+
+    body.page-mein-planer .match-item p {
+        font-size: 13.5px !important;
+        line-height: 1.32 !important;
+    }
+}
