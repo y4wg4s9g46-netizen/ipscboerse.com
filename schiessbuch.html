@@ -82,7 +82,7 @@
       })();
     </script>
 
-    <link rel="stylesheet" href="global.css?v=57">
+    <link rel="stylesheet" href="global.css?v=58">
     <style id="app-transition-prevent-flash-v50">
       html, body {
         background-color: #0f172a !important;
@@ -330,13 +330,14 @@
       }
     </style>
 
+    <!-- SCHIESSBUCH BIGINT ID FIX v58 -->
 </head>
 <body class="page-schiessbuch">
     <div id="app-page-transition-cover" aria-hidden="true"></div>
 
     <header id="main-header"></header>
   
-   <script src="header.js?v=36"></script>
+   <script src="header.js?v=37"></script>
 
     <div class="container">
         <div class="page-section" id="auth-guard" style="display: none; text-align: center; padding: 40px 20px;">
@@ -648,7 +649,7 @@
             const snapshot = getExternalSnapshot(log);
 
             const { data, error } = await window.supabaseClient.rpc("create_schiessbuch_external_confirmation", {
-                p_log_id: id,
+                p_log_id: Number(id),
                 p_token_hash: tokenHash,
                 p_verify_code: verifyCode,
                 p_entry_snapshot: snapshot,
