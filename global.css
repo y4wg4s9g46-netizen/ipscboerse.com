@@ -5231,3 +5231,169 @@ html {
         font-size: 15px !important;
     }
 }
+
+/* ==========================================================================
+   MARKTPLATZ DENSE CARD LAYOUT v28 – kompakte professionelle Einträge
+   ========================================================================== */
+
+@media (max-width: 768px) {
+
+    body.page-marktplatz .container {
+        margin-top: 12px !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    body.page-marktplatz h2[data-txt="list-title"] {
+        font-size: 23px !important;
+        line-height: 1.12 !important;
+        margin: 18px 0 12px !important;
+        letter-spacing: -0.4px !important;
+    }
+
+    body.page-marktplatz .match-list {
+        gap: 10px !important;
+    }
+
+    body.page-marktplatz .match-card {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 11px 11px 11px 13px !important;
+        margin-bottom: 10px !important;
+        border-radius: 15px !important;
+        gap: 9px !important;
+        min-height: 0 !important;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05) !important;
+    }
+
+    body.page-marktplatz .match-card::before {
+        width: 4px !important;
+    }
+
+    body.page-marktplatz .match-header-flex {
+        display: grid !important;
+        grid-template-columns: 38px 1fr !important;
+        gap: 9px !important;
+        align-items: start !important;
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+
+    body.page-marktplatz .card-avatar,
+    body.page-marktplatz .avatar-placeholder-flex {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+        margin-top: 1px !important;
+        border-width: 1.5px !important;
+    }
+
+    body.page-marktplatz .match-details {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+
+    body.page-marktplatz .match-details h3 {
+        font-size: 16px !important;
+        line-height: 1.15 !important;
+        margin: 0 0 5px 0 !important;
+        gap: 5px !important;
+        display: flex !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+    }
+
+    body.page-marktplatz .match-details h3 a {
+        font-size: 16px !important;
+        line-height: 1.15 !important;
+    }
+
+    body.page-marktplatz .match-details p {
+        font-size: 12.5px !important;
+        line-height: 1.28 !important;
+        margin: 3px 0 !important;
+    }
+
+    body.page-marktplatz .badge-container {
+        gap: 5px !important;
+        margin-top: 6px !important;
+    }
+
+    body.page-marktplatz .badge,
+    body.page-marktplatz .rating-badge {
+        padding: 4px 7px !important;
+        font-size: 10.5px !important;
+        line-height: 1.05 !important;
+        border-radius: 7px !important;
+        box-shadow: none !important;
+        margin-left: 0 !important;
+    }
+
+    body.page-marktplatz .card-actions {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 7px !important;
+        width: 100% !important;
+        border-top: 1px solid var(--border-color) !important;
+        padding-top: 8px !important;
+        margin-top: 2px !important;
+        align-items: stretch !important;
+    }
+
+    body.page-marktplatz .card-actions > .btn-contact {
+        width: 100% !important;
+        min-height: 34px !important;
+        padding: 7px 8px !important;
+        font-size: 12.5px !important;
+        line-height: 1.1 !important;
+        border-radius: 11px !important;
+        box-shadow: 0 5px 12px rgba(255, 159, 67, 0.18) !important;
+        white-space: nowrap !important;
+    }
+
+    body.page-marktplatz .action-buttons-group {
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 7px !important;
+        margin-top: 0 !important;
+    }
+
+    body.page-marktplatz .action-buttons-group button,
+    body.page-marktplatz .btn-export,
+    body.page-marktplatz .btn-report,
+    body.page-marktplatz .btn-delete,
+    body.page-marktplatz .btn-edit,
+    body.page-marktplatz .btn-mediated {
+        width: 100% !important;
+        min-height: 34px !important;
+        padding: 7px 8px !important;
+        font-size: 12.5px !important;
+        line-height: 1.1 !important;
+        border-radius: 11px !important;
+        flex: unset !important;
+        white-space: nowrap !important;
+    }
+
+    body.page-marktplatz .form-section,
+    body.page-marktplatz .filter-bar,
+    body.page-marktplatz .info-box {
+        padding: 14px 12px !important;
+        margin-bottom: 14px !important;
+        border-radius: 15px !important;
+    }
+
+    body.page-marktplatz .toggle-selector {
+        padding: 12px !important;
+        gap: 10px !important;
+        border-radius: 14px !important;
+    }
+
+    body.page-marktplatz .toggle-selector label {
+        font-size: 13px !important;
+        line-height: 1.2 !important;
+    }
+}
