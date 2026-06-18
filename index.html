@@ -147,16 +147,16 @@
     <link rel="preload" href="icon-192.png" as="image">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=75">
+<link rel="stylesheet" href="global.css?v=76">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
 
-<body class="page-index app-v71 app-v72 app-v73 app-v74 app-v75">
+<body class="page-index app-v71 app-v72 app-v73 app-v74 app-v75 app-v76">
 
     <header id="main-header"></header>
 
-    <script src="header.js?v=54"></script>
+    <script src="header.js?v=55"></script>
 
     <div class="container">
 
@@ -173,13 +173,23 @@
                 <a class="app-cta-v71 app-cta-secondary-v71" href="mein-planer.html" data-txt="v74-home-action-planner"></a>
             </div>
 
-            <div class="hero-quicklinks-v74">
-                <a href="marktplatz.html"><strong data-txt="v74-home-quick-market"></strong><span data-txt="v74-home-quick-market-desc"></span></a>
-                <a href="schiessbuch.html"><strong data-txt="v74-home-quick-log"></strong><span data-txt="v74-home-quick-log-desc"></span></a>
-                <a href="tools.html"><strong data-txt="v74-home-quick-tools"></strong><span data-txt="v74-home-quick-tools-desc"></span></a>
-            </div>
+            <section class="home-favorites-v76" aria-label="Favoriten">
+                <div class="home-favorites-head-v76">
+                    <div>
+                        <strong data-txt="v76-fav-title">Meine Favoriten</strong>
+                        <span data-txt="v76-fav-subtitle">Deine drei Schnellzugriffe</span>
+                    </div>
+                    <button type="button" class="fav-edit-btn-v76" onclick="openFavoritesV76()" data-txt="v76-fav-edit">Favoriten bearbeiten</button>
+                </div>
+                <div class="hero-quicklinks-v74 hero-quicklinks-v76" id="favorite-links-v76">
+                    <a href="marktplatz.html"><strong data-txt="v74-home-quick-market"></strong><span data-txt="v74-home-quick-market-desc"></span></a>
+                    <a href="schiessbuch.html"><strong data-txt="v74-home-quick-log"></strong><span data-txt="v74-home-quick-log-desc"></span></a>
+                    <a href="tools.html"><strong data-txt="v74-home-quick-tools"></strong><span data-txt="v74-home-quick-tools-desc"></span></a>
+                </div>
+            </section>
         </div>
-        </div>
+
+        <div class="home-section-separator-v76"></div>
 
         <div class="news-section">
             <h3 class="news-section-title" data-txt="news-title">📢 Neueste Plattform-Updates</h3>
@@ -318,8 +328,8 @@
         </div>
     </footer>
 <script src="auth.js?v=69"></script>
-    <script src="lang.js?v=25"></script>
-    <script src="app.js?v=31"></script>
+    <script src="lang.js?v=26"></script>
+    <script src="app.js?v=32"></script>
     
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -403,6 +413,64 @@
   });
 
   window.addEventListener("pageshow", markLoaded);
+})();
+</script>
+
+
+<div class="favorites-modal-v76" id="favorites-modal-v76" aria-hidden="true">
+    <div class="favorites-sheet-v76">
+        <div class="favorites-sheet-head-v76">
+            <div>
+                <strong data-txt="v76-fav-modal-title">Favoriten wählen</strong>
+                <span data-txt="v76-fav-modal-subtitle">Wähle bis zu drei Bereiche für deine Startseite.</span>
+            </div>
+            <button type="button" onclick="closeFavoritesV76()" aria-label="Schließen">×</button>
+        </div>
+        <div class="favorites-options-v76" id="favorites-options-v76"></div>
+        <button type="button" class="favorites-save-v76" onclick="saveFavoritesV76()" data-txt="btn-save">Speichern</button>
+    </div>
+</div>
+<script id="favorites-script-v76">
+(function(){
+  const STORAGE = 'ipsc_favorites_v76';
+  const choices = [
+    {id:'market', href:'marktplatz.html', title:'v76-fav-market', sub:'v76-fav-market-sub', icon:'🛒'},
+    {id:'planner', href:'mein-planer.html', title:'v76-fav-planner', sub:'v76-fav-planner-sub', icon:'📅'},
+    {id:'log', href:'schiessbuch.html', title:'v76-fav-log', sub:'v76-fav-log-sub', icon:'📋'},
+    {id:'community', href:'community.html', title:'v76-fav-community', sub:'v76-fav-community-sub', icon:'👥'},
+    {id:'free', href:'freie-matches.html', title:'v76-fav-free', sub:'v76-fav-free-sub', icon:'🎯'},
+    {id:'tools', href:'tools.html', title:'v76-fav-tools', sub:'v76-fav-tools-sub', icon:'🏆'},
+    {id:'reload', href:'wiederladen.html', title:'v76-fav-reload', sub:'v76-fav-reload-sub', icon:'📦'},
+    {id:'analytics', href:'analytics.html', title:'v76-fav-analytics', sub:'v76-fav-analytics-sub', icon:'📊'},
+    {id:'hub', href:'ipsc-hub.html', title:'v76-fav-hub', sub:'v76-fav-hub-sub', icon:'🔗'},
+    {id:'timer', href:'sg-timer-live.html', title:'v76-fav-timer', sub:'v76-fav-timer-sub', icon:'⏱️'}
+  ];
+  const defaults = ['market','log','tools'];
+  function t(k){ const lang=window.currentLang || localStorage.getItem('selectedLanguage') || 'de'; return window.portalTranslations?.[lang]?.[k] || k; }
+  function getFavs(){ try{ const a=JSON.parse(localStorage.getItem(STORAGE)||'null'); if(Array.isArray(a)&&a.length) return a.slice(0,3); }catch(e){} return defaults; }
+  function setFavs(a){ localStorage.setItem(STORAGE, JSON.stringify(a.slice(0,3))); }
+  function renderFavs(){
+    const box=document.getElementById('favorite-links-v76'); if(!box) return;
+    const favs=getFavs();
+    box.innerHTML=favs.map(id=>choices.find(c=>c.id===id)).filter(Boolean).map(c=>`<a href="${c.href}"><strong><span>${c.icon}</span> ${t(c.title)}</strong><span>${t(c.sub)}</span></a>`).join('');
+  }
+  function renderOptions(){
+    const box=document.getElementById('favorites-options-v76'); if(!box) return;
+    const favs=getFavs();
+    box.innerHTML=choices.map(c=>`<button type="button" class="${favs.includes(c.id)?'selected':''}" data-id="${c.id}" onclick="toggleFavoriteV76('${c.id}')"><span>${c.icon}</span><div><strong>${t(c.title)}</strong><small>${t(c.sub)}</small></div></button>`).join('');
+  }
+  window.openFavoritesV76=function(){ renderOptions(); document.getElementById('favorites-modal-v76')?.classList.add('show'); };
+  window.closeFavoritesV76=function(){ document.getElementById('favorites-modal-v76')?.classList.remove('show'); };
+  window.toggleFavoriteV76=function(id){
+    let favs=getFavs();
+    if(favs.includes(id)) favs=favs.filter(x=>x!==id); else { if(favs.length>=3) favs.shift(); favs.push(id); }
+    setFavs(favs); renderOptions(); renderFavs();
+  };
+  window.saveFavoritesV76=function(){ closeFavoritesV76(); renderFavs(); };
+  const oldLangHook=window.onLanguageChanged;
+  window.onLanguageChanged=function(){ if(typeof oldLangHook==='function') oldLangHook(); renderFavs(); renderOptions(); };
+  document.addEventListener('DOMContentLoaded', renderFavs);
+  renderFavs();
 })();
 </script>
 

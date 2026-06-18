@@ -140,7 +140,7 @@
       })();
     </script>
 
-<title>Performance-Check | IPSC ELO Analyse</title>
+<title>ELO-Vergleich | IPSC Startplatz-Börse</title>
     
     <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -149,7 +149,7 @@
     <link rel="preload" href="icon-192.png" as="image">
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
-<link rel="stylesheet" href="global.css?v=75">
+<link rel="stylesheet" href="global.css?v=76">
 
 
     <style id="performance-loader-overlay-v53">
@@ -203,7 +203,7 @@
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
-<body class="page-performance app-v71 app-v72 app-v73 app-v74 app-v75">
+<body class="page-performance app-v71 app-v72 app-v73 app-v74 app-v75 app-v76">
     <div id="performance-busy-overlay" class="performance-busy-overlay" aria-hidden="true">
         <div class="performance-busy-card">
             <div class="performance-busy-spinner"></div>
@@ -214,21 +214,21 @@
 
     <!-- 🌟 Header-Injection -->
     <header id="main-header"></header>
-    <script src="header.js?v=54"></script>
+    <script src="header.js?v=55"></script>
 
     <div class="container">
         
         
         <section class="app-page-hero-v72 app-page-hero-v74" data-page-hero-v72>
             <div class="app-page-hero-content-v72">
-                <div class="app-page-kicker-v72"><span></span><em data-txt="v74-perf-kicker"></em></div>
-                <h2 data-txt="v74-perf-title"></h2>
-                <p data-txt="v74-perf-desc"></p>
+                <div class="app-page-kicker-v72"><span></span><em data-txt="v76-elo-kicker"></em></div>
+                <h2 data-txt="v76-elo-title"></h2>
+                <p data-txt="v76-elo-desc"></p>
                 <div class="app-page-actions-v72 app-page-actions-v74">
                     <a class="app-page-action-v72 primary" href="#quick-analyze-section" data-txt="v74-perf-action-start"></a>
 <a class="app-page-action-v72 secondary" href="analytics.html" data-txt="v74-perf-action-analytics"></a>
                 </div>
-                <div class="app-page-status-v74" data-txt="v75-performance-status"></div>
+                <div class="app-page-status-v74" data-txt="v76-elo-status"></div>
             </div>
         </section>
 <!-- Dashboard Login-Aufforderung -->
@@ -243,7 +243,7 @@
             </div>
 
             <div id="quick-analyze-section" style="display: none;">
-                <h4 style="margin: 0 0 14px 0; color: var(--info-color); font-size: 15px;">🎯 Deine anstehenden Matches (aus Mein Planer)</h4>
+                <h4 style="margin: 0 0 14px 0; color: var(--info-color); font-size: 15px;"><span data-txt="v76-elo-upcoming-title">🎯 Automatisch erkannte kommende Matches</span></h4>
                 <div id="quick-analyze-buttons" style="display: flex; gap: 10px; flex-direction: column;"></div>
             </div>
 
@@ -381,8 +381,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="auth.js?v=69"></script>
-    <script src="lang.js?v=25"></script>
-    <script src="app.js?v=31"></script>
+    <script src="lang.js?v=26"></script>
+    <script src="app.js?v=32"></script>
     
     <script>
         let currentShooters = [];
@@ -963,7 +963,7 @@
                 }
 
                 if (profile.real_name) {
-                    document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>Willkommen zurück, ${profile.real_name}!</strong> Lade einen Screenshot hoch oder füge einen IPSCMatch-Link ein, um das Starterfeld direkt mit deiner ELO-Stärke abzugleichen.`;
+                    document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>${tPerfV76("v76-elo-welcome-title", "ELO-Vergleich")}</strong> ${tPerfV76("v76-elo-welcome-desc", "Wähle ein automatisch erkanntes Match aus oder füge einen IPSCMatch-Link mit Division ein, um das Starterfeld mit deiner ELO-Stärke zu vergleichen.")}`;
                     
                     const nameParts = profile.real_name.split(" ");
                     if (nameParts.length >= 2) {

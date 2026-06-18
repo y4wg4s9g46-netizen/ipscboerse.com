@@ -1884,7 +1884,7 @@ window.toggleMoreMenu = function() {
                     if (!desktopNav.querySelector('a[href="doppel-aa.html"]')) {
                         const sniperLink = document.createElement("a");
                         sniperLink.href = "doppel-aa.html";
-                        sniperLink.innerText = "🎯 Double Alpha";
+                        sniperLink.innerText = (savedLanguageSetting === "en" ? "🎯 Slot Bot" : "🎯 Startplatz-Bot");
                         sniperLink.className = page === "doppel-aa.html" ? "active" : "inactive";
 
                         if (page !== "doppel-aa.html") {
@@ -1898,7 +1898,7 @@ window.toggleMoreMenu = function() {
                     if (!desktopNav.querySelector('a[href="performance.html"]')) {
                         const performanceLink = document.createElement("a");
                         performanceLink.href = "performance.html";
-                        performanceLink.innerText = "📊 Performance-Check";
+                        performanceLink.innerText = (savedLanguageSetting === "en" ? "📊 ELO Comparison" : "📊 ELO-Vergleich");
                         performanceLink.className = page === "performance.html" ? "active" : "inactive";
 
                         if (page !== "performance.html") {
@@ -1913,20 +1913,35 @@ window.toggleMoreMenu = function() {
                 const moreMenuList = document.getElementById("more-menu-list");
 
                 if (moreMenuList) {
-                    if (!moreMenuList.querySelector('a[href="performance.html"]')) {
-                        const performanceLink = document.createElement("a");
-                        performanceLink.href = "performance.html";
-                        performanceLink.innerText = "📊 Performance-Check";
-                        performanceLink.className = page === "performance.html" ? "active" : "vip-link";
-                        moreMenuList.prepend(performanceLink);
+                    let clubGroup = moreMenuList.querySelector(".club-links-v76");
+                    if (!clubGroup) {
+                        clubGroup = document.createElement("div");
+                        clubGroup.className = "club-links-v76";
+                        clubGroup.innerHTML = `<div class="club-links-label-v76">Double Alpha e.V.</div>`;
+                        moreMenuList.prepend(clubGroup);
                     }
 
-                    if (!moreMenuList.querySelector('a[href="doppel-aa.html"]')) {
+                    if (!clubGroup.querySelector('a[href="doppel-aa.html"]')) {
                         const sniperLink = document.createElement("a");
                         sniperLink.href = "doppel-aa.html";
-                        sniperLink.innerText = "🎯 Double Alpha";
+                        sniperLink.innerText = (savedLanguageSetting === "en" ? "🎯 Slot Bot" : "🎯 Startplatz-Bot");
                         sniperLink.className = page === "doppel-aa.html" ? "active" : "vip-link";
-                        moreMenuList.prepend(sniperLink);
+                        clubGroup.appendChild(sniperLink);
+                    }
+
+                    if (!clubGroup.querySelector('a[href="performance.html"]')) {
+                        const performanceLink = document.createElement("a");
+                        performanceLink.href = "performance.html";
+                        performanceLink.innerText = (savedLanguageSetting === "en" ? "📊 ELO Comparison" : "📊 ELO-Vergleich");
+                        performanceLink.className = page === "performance.html" ? "active" : "vip-link";
+                        clubGroup.appendChild(performanceLink);
+                    }
+
+                    if (!moreMenuList.querySelector(".more-scroll-hint-v76")) {
+                        const hint = document.createElement("div");
+                        hint.className = "more-scroll-hint-v76";
+                        hint.innerText = savedLanguageSetting === "en" ? "More sections below" : "Weitere Bereiche unten";
+                        clubGroup.after(hint);
                     }
                 }
             }

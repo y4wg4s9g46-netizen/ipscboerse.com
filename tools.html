@@ -150,7 +150,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
-<link rel="stylesheet" href="global.css?v=75">
+<link rel="stylesheet" href="global.css?v=76">
 
 
     <style id="hit-factor-battle-v53">
@@ -462,10 +462,10 @@
     <!-- PDF APP SHARE FIX v61 -->
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
-<body class="page-tools app-v71 app-v72 app-v73 app-v74 app-v75">
+<body class="page-tools app-v71 app-v72 app-v73 app-v74 app-v75 app-v76">
 
     <header id="main-header"></header>
-    <script src="header.js?v=54"></script>
+    <script src="header.js?v=55"></script>
 
     <div class="container">
         
@@ -475,12 +475,12 @@
             <div class="app-page-hero-content-v72">
                 <div class="app-page-kicker-v72"><span></span><em data-txt="v74-tools-kicker"></em></div>
                 <h2 data-txt="v74-tools-title"></h2>
-                <p data-txt="v74-tools-desc"></p>
+                <p data-txt="v76-tools-desc"></p>
                 <div class="app-page-actions-v72 app-page-actions-v74">
                     <a class="app-page-action-v72 primary" href="#hf-name" data-txt="v74-tools-action-hf"></a>
 <a class="app-page-action-v72 secondary" href="schiessbuch.html" data-txt="v74-tools-action-log"></a>
                 </div>
-                <div class="app-page-status-v74" data-txt="v75-tools-status"></div>
+                <div class="app-page-status-v74" data-txt="v76-tools-status"></div>
             </div>
         </section>
 <div class="tool-section">
@@ -609,7 +609,7 @@
         <div class="tool-section">
             <h2 data-txt="tools-df-title">⏱️ Dry-Fire Timer & Drill Generator</h2>
             <div class="drill-box" id="drill-output" data-txt="tools-df-placeholder">
-                Klicke auf den Button, um einen zufälligen Trockentrainings-Ablauf zu generieren.
+                <span data-txt="v76-tools-dry-desc">Generiere Dry-Fire-Drills und trainiere mit PAR-Zeit, Zufalls-Delay und klarer Timer-Anzeige.</span>
             </div>
             <button class="btn-secondary" style="width: 100%; margin-bottom: 40px;" onclick="generateDrill()" data-txt="tools-df-btn-gen">🎲 Neuen Drill generieren</button>
 
@@ -622,7 +622,7 @@
                 <div class="timer-display" id="timer-display">0.00</div>
                 <div class="timer-status" id="timer-status" data-txt="tools-df-status-ready">Bereit</div>
 
-                <button class="btn-submit" id="btn-start-timer" style="background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); padding: 16px;" onclick="startTimer()" data-txt="tools-df-btn-start">Start Timer (Zufalls-Delay)</button>
+                <button class="btn-submit" id="btn-start-timer" style="background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); padding: 16px;" onclick="startTimer()" data-txt="tools-df-btn-start"><span data-txt="v76-tools-dry-start">Start Timer (Zufalls-Delay)</span></button>
             </div>
         </div>
 
@@ -635,8 +635,8 @@
         </div>
     </footer>
 <script src="auth.js?v=69"></script>
-    <script src="lang.js?v=25"></script>
-    <script src="app.js?v=31"></script>
+    <script src="lang.js?v=26"></script>
+    <script src="app.js?v=32"></script>
     <script>
         // --- THEME LOGIK & CHAT BADGE ---
         document.addEventListener("DOMContentLoaded", () => {

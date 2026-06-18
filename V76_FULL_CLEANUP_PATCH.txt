@@ -1,0 +1,21 @@
+IPSC Börse v76 – Full Cleanup Patch
+
+Umgesetzt:
+- Startseite: Lücke reduziert, Favoriten mit lokalem Editor.
+- Marktplatz: Hero-Statusbox raus, Text eleganter.
+- Planer: Beschreibung/Profilnamen-Hinweis/Legende/Manuell hinzufügen.
+- Community: Beschreibung schöner, Statusbox raus.
+- Freie Matches: Info in Hero, separate Info-Box raus, Überschrift kürzer.
+- Schießbuch: Manipulationsschutz in Hero, separate Box raus.
+- SG-Timer: ruhigere Button-/Tab-Farbgebung.
+- Tools: PDF, Namensspeicherung, Hit-Factor und Dry-Fire klarer.
+- Statistiken: Vergangene Matches, A/C/D-Hinweis oben, untere Box raus.
+- Wiederladen: FPS/m/s-Auswahl, Power-Factor Umrechnung, Laborierungsformular einklappbar, Sicherheitshinweis.
+- IPSC Hub: Dopplungen raus.
+- Performance: ELO-Vergleich für kommende Matches.
+- Doppel-AA: Startplatz-Bot.
+- Mehr-Menü: Double Alpha e.V. Gruppe mit Orange-Outline und Scroll-Hinweis.
+
+Einspielen App:
+npx cap copy ios
+Nicht npx cap sync ios.

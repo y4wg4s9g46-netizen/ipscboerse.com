@@ -145,20 +145,20 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="preload" href="icon-192.png" as="image">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=75">
+<link rel="stylesheet" href="global.css?v=76">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
-<body class="page-sg-timer-live app-v71 app-v72 app-v73 app-v74 app-v75">
+<body class="page-sg-timer-live app-v71 app-v72 app-v73 app-v74 app-v75 app-v76">
 
     <header id="main-header"></header>
-    <script src="header.js?v=54"></script>
+    <script src="header.js?v=55"></script>
 
     <div class="main-container">
         
         <div class="tab-navigation">
-            <button class="tab-btn active" onclick="switchTab('live-console')">🕹️ Live-Konsole</button>
-            <button class="tab-btn" onclick="switchTab('highscores')" data-txt="sg-timer-highscores">🏆 Highscores</button>
+            <button class="tab-btn active" onclick="switchTab('live-console')"><span data-txt="v76-timer-tab-live">Konsole</span></button>
+            <button class="tab-btn" onclick="switchTab('highscores')" data-txt="v76-timer-tab-scores">Bestenlisten</button>
         </div>
 
         <div id="live-console" class="tab-content active">
@@ -166,18 +166,18 @@
                 <div style="display: flex; flex-direction: column;">
                     
                     <div class="panel-card">
-                        <h2 data-txt="sg-timer-connection">Verbindung</h2>
+                        <h2 data-txt="v76-timer-connect-title">Timer verbinden</h2><p class="timer-card-desc-v76" data-txt="v76-timer-connect-desc">Verbinde deinen SG Timer, um Live-Signale und Drillzeiten zu steuern.</p>
                         <div id="bt-status-badge" class="status-badge">
                             <span style="width: 8px; height: 8px; background: var(--danger-color); border-radius: 50%;"></span> <span id="js-txt-bt-status">Getrennt</span>
                         </div>
-                        <button id="btn-connect" class="btn-tactic btn-blue" onclick="connectSGTimer()">Gerät scannen & koppeln</button>
+                        <button id="btn-connect" class="btn-tactic btn-blue" onclick="connectSGTimer()"><span data-txt="v76-timer-pair">Gerät koppeln</span></button>
                     </div>
 
                     <div class="panel-card">
-                        <h2>RO Fernsteuerung</h2>
+                        <h2 data-txt="v76-timer-remote-title">RO Fernsteuerung</h2>
                         <div style="display: flex; gap: 12px; margin-top: 10px;">
-                            <button class="btn-tactic btn-green" onclick="remoteStartSession()">▶️ BIEP (Start)</button>
-                            <button class="btn-tactic btn-red" onclick="remoteStopSession()">⏹️ STOPP</button>
+                            <button class="btn-tactic btn-green" onclick="remoteStartSession()"><span>▶️</span> <span data-txt="v76-timer-start-signal">Startsignal senden</span></button>
+                            <button class="btn-tactic btn-red" onclick="remoteStopSession()"><span>⏹️</span> <span data-txt="v76-timer-stop">Stopp</span></button>
                         </div>
                     </div>
 
@@ -674,8 +674,8 @@
         }
     </script>
 <script src="auth.js?v=69"></script>
-    <script src="lang.js?v=25"></script>
-    <script src="app.js?v=31"></script>
+    <script src="lang.js?v=26"></script>
+    <script src="app.js?v=32"></script>
     <script>
         window.onAuthChange = () => { 
             if(typeof updateHeaderChatBadge === 'function') {
