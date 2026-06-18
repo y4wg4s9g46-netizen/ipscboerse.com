@@ -1,0 +1,15 @@
+IPSC Börse v66 – OAuth Bridge Fix
+
+Supabase Redirect URLs ergänzen:
+https://ipscboerse.com/auth-callback.html
+https://ipscboerse.com/auth-callback.html*
+ipscboerse://auth-callback
+ipscboerse://auth-callback/
+
+Wichtig:
+- auth-callback.html muss mit dem Public/GitHub-Paket online sein.
+- iOS URL Scheme bleibt: ipscboerse
+- Capacitor Plugins:
+  npm install @capacitor/app @capacitor/browser
+  npx cap sync ios
+- Danach neuer TestFlight-Build.

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="color-scheme" content="dark">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Login wird abgeschlossen…</title>
+  <style>
+    html,body{min-height:100%;margin:0;background:#0f172a;color:#f8fafc;color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:grid;place-items:center}
+    .box{width:min(86vw,420px);border:1px solid rgba(148,163,184,.22);background:rgba(15,23,42,.88);border-radius:24px;padding:24px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.32)}
+    .spinner{width:42px;height:42px;border-radius:999px;border:4px solid rgba(255,255,255,.22);border-top-color:#ff9f43;margin:0 auto 16px;animation:spin .9s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}h1{font-size:20px;margin:0 0 8px}p{margin:0;color:#94a3b8;line-height:1.45}a{color:#ffb15f;font-weight:800}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="spinner"></div>
+    <h1>Login wird abgeschlossen…</h1>
+    <p>Du wirst automatisch zurück zur IPSC-Börse-App geleitet.</p>
+    <p id="fallback" style="margin-top:14px;display:none;"><a id="fallback-link" href="#">App öffnen</a></p>
+  </div>
+  <script>
+    (function(){
+      var appUrl = "ipscboerse://auth-callback" + (location.search || "") + (location.hash || "");
+      var link = document.getElementById("fallback-link");
+      if (link) link.href = appUrl;
+      function openApp(){ try{ location.replace(appUrl); } catch(_){ location.href = appUrl; } }
+      setTimeout(openApp, 80);
+      setTimeout(function(){ var f=document.getElementById("fallback"); if(f) f.style.display="block"; }, 1400);
+    })();
+  </script>
+</body>
+</html>

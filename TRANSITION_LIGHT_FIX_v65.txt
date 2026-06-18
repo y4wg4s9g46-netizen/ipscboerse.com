@@ -1,0 +1,35 @@
+IPSC Börse v65 – Seitenwechsel wieder schnell + dunkler Hintergrund
+
+Neu:
+- Der schwere v63/v64 Seitenwechsel-Overlay ist entfernt.
+- Keine künstliche Verzögerung/SessionStorage-Klasse mehr.
+- Early Dark-Prepaint bleibt erhalten.
+- Native OAuth, PDF-Fix und Planer-Karten bleiben enthalten.
+
+Wichtig für iOS-App:
+Damit das WebView selbst nicht weiß aufblitzt, zusätzlich im Capacitor-Projekt setzen:
+backgroundColor: "#0f172a"
+
+Terminal-Auto-Patch im Projektordner:
+cd ~/Desktop/IPSC_App
+node - <<'NODE'
+const fs = require('fs');
+const files = ['capacitor.config.ts','capacitor.config.json'];
+const file = files.find(f => fs.existsSync(f));
+if (!file) { console.log('Keine capacitor.config.* gefunden'); process.exit(0); }
+let s = fs.readFileSync(file,'utf8');
+if (file.endsWith('.json')) {
+  const j = JSON.parse(s);
+  j.backgroundColor = '#0f172a';
+  fs.writeFileSync(file, JSON.stringify(j,null,2));
+} else {
+  if (/backgroundColor\s*:/.test(s)) {
+    s = s.replace(/backgroundColor\s*:\s*['"][^'"]*['"]/, "backgroundColor: '#0f172a'");
+  } else {
+    s = s.replace(/(webDir\s*:\s*['"][^'"]*['"]\s*,?)/, "$1\n  backgroundColor: '#0f172a',");
+  }
+  fs.writeFileSync(file,s);
+}
+console.log('gesetzt in', file);
+NODE
+npx cap sync ios

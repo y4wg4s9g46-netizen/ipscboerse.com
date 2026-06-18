@@ -1300,11 +1300,7 @@ header .header-logo-img {
         // Page transition dark cover v50: verhindert weißen Blitz bei programmatischer Navigation
         if (!window.__pageTransitionCoverV50) {
             window.__pageTransitionCoverV50 = true;
-            window.showPageTransitionCover = function() {
-                try {
-                    document.documentElement.classList.add("is-page-leaving");
-                } catch (_) {}
-            };
+            window.showPageTransitionCover = function(){ try { document.documentElement.style.backgroundColor = (document.documentElement.getAttribute("data-theme") === "light") ? "#f6f8fc" : "#0f172a"; } catch(_){} };
 
             window.addEventListener("pageshow", () => {
                 try { document.documentElement.classList.remove("is-page-leaving"); } catch (_) {}
