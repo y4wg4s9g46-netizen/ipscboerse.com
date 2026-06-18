@@ -1,5 +1,4 @@
 (function() {
-    // V76G STABLE CLUB RENDER: no repeated innerHTML rewrite, no menu twitch
     // V76D DOUBLE AA RETRY FIX
     // V76C DOUBLE AA MENU GATE: club links are hidden until Supabase confirms profiles.is_doppel_aa === true
     const __headerLogoPreload = new Image();
@@ -1880,10 +1879,7 @@ window.toggleMoreMenu = function() {
 
         if (!enabled) {
             document.querySelectorAll('header .main-nav a[data-club-link-v76d="1"]').forEach(el => el.remove());
-            if (clubPlaceholder && clubPlaceholder.dataset.clubVisibleV76g === "1") {
-                clubPlaceholder.innerHTML = "";
-                clubPlaceholder.dataset.clubVisibleV76g = "0";
-            }
+            if (clubPlaceholder) clubPlaceholder.innerHTML = "";
             return;
         }
 
@@ -1916,15 +1912,12 @@ window.toggleMoreMenu = function() {
         }
 
         if (clubPlaceholder) {
-            const desired = `${lang}|${page}`;
-            if (clubPlaceholder.dataset.clubVisibleV76g === "1" && clubPlaceholder.dataset.clubStateV76g === desired) {
-                return;
-            }
-
-            clubPlaceholder.dataset.clubVisibleV76g = "1";
-            clubPlaceholder.dataset.clubStateV76g = desired;
+            const state = `${lang}|${page}`;
+            if (clubPlaceholder.dataset.clubStateV76h === state && clubPlaceholder.dataset.clubVisibleV76h === "1") return;
+            clubPlaceholder.dataset.clubStateV76h = state;
+            clubPlaceholder.dataset.clubVisibleV76h = "1";
             clubPlaceholder.innerHTML = `
-                <div class="club-links-v76 club-links-v76b club-links-v76c club-links-v76d club-links-v76g">
+                <div class="club-links-v76 club-links-v76b club-links-v76c club-links-v76d club-links-v76h">
                     <div class="club-links-label-v76">Double Alpha e.V.</div>
                     <a href="doppel-aa.html" class="${page === "doppel-aa.html" ? "active" : "vip-link"}">${lang === "en" ? "🎯 Slot Bot" : "🎯 Startplatz-Bot"}</a>
                     <a href="performance.html" class="${page === "performance.html" ? "active" : "vip-link"}">${lang === "en" ? "📊 ELO Comparison" : "📊 ELO-Vergleich"}</a>
@@ -1933,7 +1926,7 @@ window.toggleMoreMenu = function() {
         }
     };
 
-        const checkVipStatus = () => {
+    const checkVipStatus = () => {
         let tries = 0;
         const maxTries = 30;
 

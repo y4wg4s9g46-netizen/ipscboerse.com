@@ -1,0 +1,19 @@
+IPSC Börse v76h Safe Performance Hotfix
+
+Warum:
+- v76g war zu aggressiv und konnte Safari/WebView stark verlangsamen.
+- v76h basiert wieder auf der sicheren v76f-Linie.
+
+Fix:
+- Keine globalen schweren Beobachter.
+- Keine schweren Page-Overlays.
+- Login wieder „Willkommen zurück“, aber kompakt.
+- Double-Alpha-Menü ohne doppelte Pfeile und ohne unnötiges Neuschreiben.
+- alte Konto-Texte entschärft.
+- leichter Light/Dark-Hintergrund-Fix ohne Performance-Risiko.
+
+Einspielen:
+- App/Xcode: www_v76h_safe_performance_hotfix.zip
+- Danach nur: npx cap copy ios
+- Nicht: npx cap sync ios
+- GitHub/Web: ipscboerse_public_v76h_safe_performance_hotfix.zip
