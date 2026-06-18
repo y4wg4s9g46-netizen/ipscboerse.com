@@ -139,6 +139,20 @@
       })();
     </script>
 
+<script id="light-flash-fix-v76g">
+      (function () {
+        try {
+          var root = document.documentElement;
+          root.classList.add("page-arriving-v76g");
+          setTimeout(function () { root.classList.remove("page-arriving-v76g"); }, 190);
+          window.addEventListener("pageshow", function () {
+            root.classList.add("page-arriving-v76g");
+            setTimeout(function () { root.classList.remove("page-arriving-v76g"); }, 190);
+          }, { passive: true });
+        } catch (_) {}
+      })();
+    </script>
+
 <title>Doppel AA Sniper | IPSC Börse</title>
     
     <link class="manifest" href="manifest.json">
@@ -148,14 +162,14 @@
     <link rel="preload" href="icon-192.png" as="image">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=76f">
+<link rel="stylesheet" href="global.css?v=76g">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
-<body class="page-doppel-aa app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f">
+<body class="page-doppel-aa app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76g">
 
     <header id="main-header"></header>
-    <script src="header.js?v=76d"></script>
+    <script src="header.js?v=76g"></script>
 
     <div class="container">
         
@@ -317,8 +331,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="auth.js?v=69"></script>
-    <script src="lang.js?v=76d"></script>
-    <script src="app.js?v=76f"></script>
+    <script src="lang.js?v=76g"></script>
+    <script src="app.js?v=76g"></script>
     
     <script>
         window.loadedMatchesCache = [];

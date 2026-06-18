@@ -117,7 +117,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                 </div>
 
                 <div id="modal-settings-view" style="display: none;">
-                    <h3 data-txt="modal-settings-title">Konto-Einstellungen</h3>
+                    <h3 data-txt="modal-settings-title">Konto</h3>
                     
                     <div class="settings-stats-card" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 20px;">
                         <span class="settings-stats-title" style="color: var(--success-color); font-weight: 700; margin-bottom: 8px; display: block;" data-txt="modal-settings-deals">📈 Erfolgreiche Vermittlungen</span>
@@ -154,7 +154,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
 
                         <div class="settings-alias-card" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: 6px; border-left: 4px solid var(--success-color); margin-bottom: 20px; display: flex; flex-direction: column;">
                             <label for="settings-ipsc-alias" class="settings-alias-title" style="color: var(--success-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Schützenname</label>
-                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-ipsc-alias-desc">Dies ist dein öffentlicher Anzeigename in der Community! Füllst du hier deine IPSC-Nummer ein, erhältst du zusätzlich das "Trusted Shooter" Badge.</p>
+                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-ipsc-alias-desc">Optional: Hinterlege deine IPSC-Alias- oder Mitgliedsnummer für mehr Vertrauen im Marktplatz.</p>
                             <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 oder AlphaShooter">
                         </div>
 
@@ -220,7 +220,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
 
 // ==========================================================================
 // V76E ACCOUNT & LOGIN POLISH
-// Macht Login und Konto-Einstellungen app-artiger, kompakter und klarer.
+// Macht Login und Konto app-artiger, kompakter und klarer.
 // ==========================================================================
 (function accountAndLoginPolishV76e() {
     function ensureAccountTranslationsV76e() {
@@ -579,7 +579,7 @@ document.addEventListener("DOMContentLoaded", () => {
         closeBtn.addEventListener("click", () => {
             document.getElementById("auth-modal").style.display = "none";
             const title = document.querySelector("#modal-settings-view h3");
-            if (title) title.innerText = "Konto-Einstellungen";
+            if (title) title.innerText = "Konto";
             const elementsToHide = [
                 document.querySelector("#modal-settings-view div[style*='3498db']"),
                 document.getElementById("settings-password")?.closest(".form-group"),
@@ -1431,7 +1431,7 @@ fetchMatches();
 // ==========================================================================
 // V76F LOGIN + SETTINGS BALANCE
 // - Login wieder klarer wie vorher: E-Mail zuerst, Schnell-Login darunter.
-// - Profilbereich in Konto-Einstellungen einklappbar, damit man alles schneller sieht.
+// - Profilbereich in Konto einklappbar, damit man alles schneller sieht.
 // ==========================================================================
 (function loginSettingsBalanceV76f() {
     function ensureTranslationsV76f() {
@@ -1440,7 +1440,7 @@ fetchMatches();
         window.translations.en = window.translations.en || {};
 
         Object.assign(window.translations.de, {
-            "v76f-login-title": "Anmelden",
+            "v76f-login-title": "Willkommen zurück",
             "v76f-login-subtitle": "Melde dich mit E-Mail, Passkey, Apple oder Google an.",
             "v76f-login-quick": "Oder Schnell-Login nutzen",
             "v76f-profile-edit": "Profil bearbeiten",
@@ -1453,7 +1453,7 @@ fetchMatches();
         });
 
         Object.assign(window.translations.en, {
-            "v76f-login-title": "Sign in",
+            "v76f-login-title": "Welcome back",
             "v76f-login-subtitle": "Sign in with email, passkey, Apple or Google.",
             "v76f-login-quick": "Or use quick sign-in",
             "v76f-profile-edit": "Edit profile",
@@ -1504,7 +1504,7 @@ fetchMatches();
 
         if (title) {
             title.setAttribute("data-txt", "v76f-login-title");
-            title.textContent = textV76f("v76f-login-title", "Anmelden");
+            title.textContent = textV76f("v76f-login-title", "Willkommen zurück");
         }
 
         if (subtitle) {
@@ -1603,4 +1603,121 @@ fetchMatches();
         ensureTranslationsV76f();
         translateV76f(document.getElementById("auth-modal") || document);
     };
+})();
+
+
+// ==========================================================================
+// V76G STABILITY + LOGIN + SETTINGS HOTFIX
+// - Login wieder "Willkommen zurück", aber oben kompakter.
+// - Konto-Profilbereich wird auch dann einklappbar, wenn das Modal später neu gerendert wird.
+// - alte Scraper-/Trusted-Texte werden hart ersetzt.
+// ==========================================================================
+(function stabilityLoginSettingsV76g() {
+    function lang() {
+        return window.currentLang || localStorage.getItem("selectedLanguage") || "de";
+    }
+
+    function setText(el, text) {
+        if (el) el.textContent = text;
+    }
+
+    function polishLoginV76g() {
+        const view = document.getElementById("modal-login-view");
+        if (!view) return;
+
+        view.classList.add("login-v76g");
+        const title = view.querySelector("h3");
+        if (title) {
+            title.setAttribute("data-txt", "v76f-login-title");
+            title.textContent = lang() === "en" ? "Welcome back" : "Willkommen zurück";
+        }
+
+        const sub = view.querySelector(".auth-subtitle-v76e");
+        if (sub) {
+            sub.textContent = lang() === "en"
+                ? "Sign in with email, passkey, Apple or Google."
+                : "Melde dich mit E-Mail, Passkey, Apple oder Google an.";
+        }
+    }
+
+    function replaceLegacySettingsTextsV76g(root) {
+        if (!root) return;
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        const replacements = [
+            ["Konto-Einstellungen", "Konto"],
+            ["🔒 Echter Name (Für automatische Statistiken)", "🔒 Echter Name (für automatische Zuordnung)"],
+            ["Trage hier deinen Klarnamen ein (z. B. Max Mustermann). Dieser Name wird niemals öffentlich gezeigt. Er dient exklusiv dazu, dass der Nacht-" + "Scraper deine Treffer auf ipscmatch.de findet.", "Trage deinen Namen so ein, wie er in Starterlisten erscheint. Der Name wird nicht öffentlich angezeigt und hilft der App, öffentlich verfügbare Matchdaten korrekt zuzuordnen."],
+            ["Dies ist dein öffentlicher Anzeigename in der Community! Füllst du hier deine IPSC-Nummer ein, erhältst du zusätzlich das \"Trusted Shooter\" Badge.", "Optional: Hinterlege deine IPSC-Alias- oder Mitgliedsnummer für mehr Vertrauen im Marktplatz."]
+        ];
+        const nodes = [];
+        while (walker.nextNode()) nodes.push(walker.currentNode);
+        nodes.forEach(node => {
+            let value = node.nodeValue;
+            replacements.forEach(([a, b]) => { value = value.split(a).join(b); });
+            node.nodeValue = value;
+        });
+    }
+
+    function makeSettingsCompactV76g() {
+        const view = document.getElementById("modal-settings-view");
+        const form = document.getElementById("settings-form");
+        if (!view || !form) return;
+
+        view.classList.add("settings-v76g");
+        replaceLegacySettingsTextsV76g(view);
+
+        const title = view.querySelector("h3");
+        if (title) {
+            title.setAttribute("data-txt", "modal-settings-title");
+            title.textContent = lang() === "en" ? "Account" : "Konto";
+        }
+
+        // Profilformular robust einklappen, auch wenn app.js das Modal später neu aufbaut.
+        if (!form.closest(".profile-editor-v76g")) {
+            const details = document.createElement("details");
+            details.className = "profile-editor-v76g";
+            details.open = false;
+
+            const summary = document.createElement("summary");
+            summary.innerHTML = `
+                <span>
+                    <strong>${lang() === "en" ? "Edit profile" : "Profil bearbeiten"}</strong>
+                    <small>${lang() === "en" ? "Name, member number, profile photo and password." : "Name, Mitgliedsnummer, Profilbild und Passwort."}</small>
+                </span>
+                <em>⌄</em>
+            `;
+
+            form.before(details);
+            details.appendChild(summary);
+            details.appendChild(form);
+        }
+    }
+
+    function run() {
+        polishLoginV76g();
+        makeSettingsCompactV76g();
+    }
+
+    document.addEventListener("DOMContentLoaded", run);
+    document.addEventListener("click", () => {
+        setTimeout(run, 20);
+        setTimeout(run, 120);
+        setTimeout(run, 500);
+    }, true);
+
+    // Wichtig: auth/settings modal wird teilweise dynamisch neu beschrieben.
+    // Deshalb beobachten wir nur kurz und idempotent.
+    let observerStarted = false;
+    function startObserver() {
+        if (observerStarted || !document.body || !window.MutationObserver) return;
+        observerStarted = true;
+        const obs = new MutationObserver(() => run());
+        obs.observe(document.body, { childList: true, subtree: true, characterData: true });
+        setTimeout(() => { try { obs.disconnect(); } catch (_) {} }, 12000);
+    }
+
+    startObserver();
+    setTimeout(startObserver, 250);
+
+    [50, 250, 750, 1500, 3000].forEach(ms => setTimeout(run, ms));
 })();

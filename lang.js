@@ -100,7 +100,7 @@ window.portalTranslations = {
         "card-action-tools": "Zu den Tools &rarr;",
 
         // --- KONTO-EINSTELLUNGEN MODAL (ALLE SEITEN) ---
-        "modal-settings-title": "Konto-Einstellungen",
+        "modal-settings-title": "Konto",
         "modal-settings-deals": "📈 Erfolgreiche Vermittlungen",
         "modal-settings-seller": "Als Verkäufer",
         "modal-settings-buyer": "Als Käufer",
@@ -378,7 +378,7 @@ window.portalTranslations = {
         "imp-h3-11": "7. Cookies & Local Storage",
         "imp-p-15": "Um deinen Login-Status über Browsersitzungen hinweg aufrechtzuerhalten, speichert Supabase ein Authentifizierungs-Token im 'Local Storage' deines Endgeräts. Dies ist ein technisch zwingend notwendiger Vorgang (Art. 6 Abs. 1 lit. f DSGVO). Es werden keine Marketing-, Tracking- oder Werbe-Cookies eingesetzt.",
         "imp-h3-12": "8. Ergebnisbezogene Löschung von Daten",
-        "imp-p-16": "Du kannst in deinen Konto-Einstellungen mit einem Klick auf 'Konto & alle Einträge unwiderruflich löschen' dein gesamtes Profil, all deine Inserate, verfassten Kommentare sowie deine gesamten persönlichen Chat-Verläufe sofort, dauerhaft und unwiderruflich aus unserer Live-Datenbank entfernen.",
+        "imp-p-16": "Du kannst in deinen Konto mit einem Klick auf 'Konto & alle Einträge unwiderruflich löschen' dein gesamtes Profil, all deine Inserate, verfassten Kommentare sowie deine gesamten persönlichen Chat-Verläufe sofort, dauerhaft und unwiderruflich aus unserer Live-Datenbank entfernen.",
         "imp-h3-13": "9. Deine Rechte",
         "imp-p-17": "Nach der DSGVO hast du das Recht auf unentgeltliche Auskunft über deine gespeicherten Daten, Berichtigung, Sperrung oder Löschung dieser Daten sowie das Recht auf Datenübertragbarkeit. Wende dich hierfür jederzeit an die im Impressum angegebene E-Mail-Adresse."
     },

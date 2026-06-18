@@ -1,0 +1,20 @@
+IPSC Börse v76g
+
+Fixes:
+- Double Alpha e.V. Mehr-Menü zuckt nicht mehr:
+  Der Vereinsbereich wird nicht mehr mehrfach neu geschrieben.
+  Der doppelte Pfeil im Scroll-Hinweis wurde entfernt.
+- Login:
+  Titel wieder „Willkommen zurück“, aber kompakter.
+  E-Mail-Login bleibt oben, Schnell-Login darunter.
+- Konto:
+  Profilbearbeitung wird robust einklappbar gemacht, auch wenn das Modal nachträglich gerendert wird.
+  Alte Texte wie „Nacht-Scraper“ werden hart ersetzt.
+- Light Mode:
+  zusätzlicher Prepaint-/Transition-Fix gegen helles Blitzen beim Seitenwechsel.
+
+Einspielen:
+- App/Xcode: www_v76g_stability_login_light_fix.zip
+- Danach nur: npx cap copy ios
+- Nicht: npx cap sync ios
+- GitHub/Web: ipscboerse_public_v76g_stability_login_light_fix.zip
