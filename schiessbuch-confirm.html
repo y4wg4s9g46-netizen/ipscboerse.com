@@ -5,6 +5,47 @@
     <meta name="color-scheme" content="dark light">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
+    <style id="native-page-transition-v72">
+      #native-page-curtain-v72 {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483200;
+        pointer-events: none;
+        opacity: 0;
+        background: #f6f8fc;
+        transition: opacity 95ms ease;
+        transform: translateZ(0);
+      }
+      html[data-theme="dark"] #native-page-curtain-v72 {
+        background: #0f172a;
+      }
+      html.is-native-navigating-v72 #native-page-curtain-v72 {
+        opacity: 1;
+      }
+      html.is-native-arriving-v72 body {
+        opacity: 0.995;
+      }
+    </style>
+    <script id="native-page-transition-script-v72">
+      (function () {
+        try {
+          var root = document.documentElement;
+          var theme = localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || root.getAttribute("data-theme") || "light";
+          if (theme !== "dark") theme = "light";
+          root.setAttribute("data-theme", theme);
+          root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
+          root.style.colorScheme = theme;
+          root.classList.add("is-native-arriving-v72");
+          window.addEventListener("pageshow", function () {
+            setTimeout(function () {
+              root.classList.remove("is-native-arriving-v72", "is-native-navigating-v72");
+            }, 80);
+          });
+        } catch (_) {}
+      })();
+    </script>
+
+
     <style id="theme-prepaint-v70">
       :root {
         background: #f6f8fc;
@@ -90,7 +131,7 @@
     </script>
 
 <title>Schießbuch bestätigen | IPSC Börse</title>
-    <link rel="stylesheet" href="global.css?v=71">
+    <link rel="stylesheet" href="global.css?v=72">
     <script>
       (function () {
         try {
@@ -130,7 +171,7 @@
     </style>
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
-<body class="app-v71">
+<body class="app-v71 app-v72">
   <div class="confirm-shell">
     <div class="confirm-card">
       <div class="brand">
@@ -295,6 +336,67 @@ async function submitConfirmation() {
   success.style.display = "block";
 }
 loadConfirmation();
+</script>
+
+
+<script id="native-app-experience-script-v72">
+(function () {
+  if (window.__IPSC_NATIVE_EXPERIENCE_V72) return;
+  window.__IPSC_NATIVE_EXPERIENCE_V72 = true;
+
+  function activeTheme() {
+    var t = document.documentElement.getAttribute("data-theme") || window.__IPSC_ACTIVE_THEME_V70 || "light";
+    return t === "dark" ? "dark" : "light";
+  }
+
+  function ensureCurtain() {
+    var curtain = document.getElementById("native-page-curtain-v72");
+    if (!curtain) {
+      curtain = document.createElement("div");
+      curtain.id = "native-page-curtain-v72";
+      document.body.appendChild(curtain);
+    }
+    curtain.style.background = activeTheme() === "dark" ? "#0f172a" : "#f6f8fc";
+    return curtain;
+  }
+
+  function markLoaded() {
+    document.documentElement.classList.remove("is-native-arriving-v72", "is-native-navigating-v72");
+    ensureCurtain();
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    markLoaded();
+
+    document.addEventListener("click", function (event) {
+      var a = event.target.closest && event.target.closest("a[href]");
+      if (!a) return;
+
+      var href = a.getAttribute("href") || "";
+      if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:") || href.startsWith("javascript:")) return;
+      if (a.target && a.target !== "_self") return;
+      if (a.hasAttribute("download")) return;
+
+      var url;
+      try { url = new URL(href, window.location.href); } catch (_) { return; }
+      if (url.origin !== window.location.origin) return;
+      if (url.pathname === window.location.pathname && url.search === window.location.search) return;
+
+      event.preventDefault();
+      ensureCurtain();
+      document.documentElement.classList.add("is-native-navigating-v72");
+      setTimeout(function () { window.location.href = url.href; }, 72);
+    }, true);
+
+    document.querySelectorAll(".dash-card, .card, .post-card, .market-card, .planner-card, .tool-section, .app-page-action-v72").forEach(function (el) {
+      el.addEventListener("touchstart", function () { el.classList.add("is-pressed-v72"); }, { passive: true });
+      el.addEventListener("touchend", function () { setTimeout(function () { el.classList.remove("is-pressed-v72"); }, 120); }, { passive: true });
+      el.addEventListener("touchcancel", function () { el.classList.remove("is-pressed-v72"); }, { passive: true });
+    });
+  });
+
+  window.addEventListener("pageshow", markLoaded);
+})();
 </script>
 
 </body>

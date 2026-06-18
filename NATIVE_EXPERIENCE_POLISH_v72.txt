@@ -1,0 +1,19 @@
+IPSC Börse v72 – Native Experience Polish
+
+Ziel:
+Alle Hauptseiten sollen sich wie echte App-Seiten anfühlen, nicht wie einzelne HTML-Seiten.
+
+Enthalten:
+- App-Hero auf Marktplatz, Community, Planer, Schießbuch, Tools, Performance, Analytics, freie Matches etc.
+- Community komplett hochwertiger: Composer-Karte, Filter-Chips, Feed-Karten, bessere Aktionen und Empty State.
+- Native Page-Transition-Curtain gegen sichtbares Blitzen beim internen Seitenwechsel.
+- App-Press-States auf Karten/Buttons.
+- Einheitlichere Info-/Filter-/Tab-Boxen.
+- Weitere Karten-, Form- und Dock-Politur.
+- v69 Login-Fix bleibt.
+- v70/v71 Theme- und Design-Fixes bleiben.
+
+Einspielen:
+- Für Xcode/App: www_v72_native_experience_polish.zip verwenden.
+- Danach: npx cap copy ios
+- Nicht npx cap sync ios, solange keine nativen Plugins geändert werden.
