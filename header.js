@@ -1,4 +1,5 @@
 (function() {
+    // V76D DOUBLE AA RETRY FIX
     // V76C DOUBLE AA MENU GATE: club links are hidden until Supabase confirms profiles.is_doppel_aa === true
     const __headerLogoPreload = new Image();
     __headerLogoPreload.src = "icon-192.png";
@@ -1864,72 +1865,128 @@ window.toggleMoreMenu = function() {
         document.addEventListener("DOMContentLoaded", injectHeader);
     }
 
-    const checkVipStatus = () => {
-        setTimeout(async () => {
-            const clubPlaceholder = document.getElementById("club-links-placeholder-v76c");
+    
+    // V76D: robuste Double-Alpha-Menüprüfung.
+    // v76c hat nur einmal sehr früh geprüft; wenn Supabase/Auth noch nicht fertig war,
+    // blieben Startplatz-Bot und ELO-Vergleich trotz is_doppel_aa=true unsichtbar.
+    const renderDoubleAAClubLinksV76d = (enabled) => {
+        const path = window.location.pathname || "";
+        const page = path.split("/").pop() || "index.html";
+        const lang = localStorage.getItem("selectedLanguage") || window.currentLang || "de";
+
+        const desktopNav = document.querySelector("header .main-nav");
+        const clubPlaceholder = document.getElementById("club-links-placeholder-v76c");
+
+        if (!enabled) {
+            document.querySelectorAll('header .main-nav a[data-club-link-v76d="1"]').forEach(el => el.remove());
             if (clubPlaceholder) clubPlaceholder.innerHTML = "";
+            return;
+        }
 
-            if (!window.supabaseClient) return;
-
-            const { data: { session } } = await window.supabaseClient.auth.getSession();
-            if (!session) return;
-
-            const { data: profile } = await window.supabaseClient
-                .from("profiles")
-                .select("is_doppel_aa")
-                .eq("id", session.user.id)
-                .single();
-
-            if (profile && profile.is_doppel_aa === true) {
-                const path = window.location.pathname;
-                const page = path.split("/").pop() || "index.html";
-
-                const desktopNav = document.querySelector("header .main-nav");
-
-                if (desktopNav) {
-                    if (!desktopNav.querySelector('a[href="doppel-aa.html"]')) {
-                        const sniperLink = document.createElement("a");
-                        sniperLink.href = "doppel-aa.html";
-                        sniperLink.innerText = (savedLanguageSetting === "en" ? "🎯 Slot Bot" : "🎯 Startplatz-Bot");
-                        sniperLink.className = page === "doppel-aa.html" ? "active" : "inactive";
-
-                        if (page !== "doppel-aa.html") {
-                            sniperLink.style.color = "#ff9f43";
-                            sniperLink.style.border = "1px solid rgba(255, 159, 67, 0.3)";
-                        }
-
-                        desktopNav.appendChild(sniperLink);
-                    }
-
-                    if (!desktopNav.querySelector('a[href="performance.html"]')) {
-                        const performanceLink = document.createElement("a");
-                        performanceLink.href = "performance.html";
-                        performanceLink.innerText = (savedLanguageSetting === "en" ? "📊 ELO Comparison" : "📊 ELO-Vergleich");
-                        performanceLink.className = page === "performance.html" ? "active" : "inactive";
-
-                        if (page !== "performance.html") {
-                            performanceLink.style.color = "#ff9f43";
-                            performanceLink.style.border = "1px solid rgba(255, 159, 67, 0.3)";
-                        }
-
-                        desktopNav.appendChild(performanceLink);
-                    }
+        if (desktopNav) {
+            if (!desktopNav.querySelector('a[href="doppel-aa.html"]')) {
+                const botLink = document.createElement("a");
+                botLink.href = "doppel-aa.html";
+                botLink.dataset.clubLinkV76d = "1";
+                botLink.innerText = lang === "en" ? "🎯 Slot Bot" : "🎯 Startplatz-Bot";
+                botLink.className = page === "doppel-aa.html" ? "active" : "inactive";
+                if (page !== "doppel-aa.html") {
+                    botLink.style.color = "#ff9f43";
+                    botLink.style.border = "1px solid rgba(255, 159, 67, 0.3)";
                 }
-
-                const moreMenuList = document.getElementById("more-menu-list");
-                const clubPlaceholder = document.getElementById("club-links-placeholder-v76c");
-
-                if (moreMenuList && clubPlaceholder) {
-                    clubPlaceholder.innerHTML = `
-                        <div class="club-links-v76 club-links-v76b club-links-v76c">
-                            <div class="club-links-label-v76">Double Alpha e.V.</div>
-                            <a href="doppel-aa.html" class="${page === "doppel-aa.html" ? "active" : "vip-link"}">${savedLanguageSetting === "en" ? "🎯 Slot Bot" : "🎯 Startplatz-Bot"}</a>
-                            <a href="performance.html" class="${page === "performance.html" ? "active" : "vip-link"}">${savedLanguageSetting === "en" ? "📊 ELO Comparison" : "📊 ELO-Vergleich"}</a>
-                        </div>
-                    `;
-                }
+                desktopNav.appendChild(botLink);
             }
-        }, 600);
+
+            if (!desktopNav.querySelector('a[href="performance.html"]')) {
+                const eloLink = document.createElement("a");
+                eloLink.href = "performance.html";
+                eloLink.dataset.clubLinkV76d = "1";
+                eloLink.innerText = lang === "en" ? "📊 ELO Comparison" : "📊 ELO-Vergleich";
+                eloLink.className = page === "performance.html" ? "active" : "inactive";
+                if (page !== "performance.html") {
+                    eloLink.style.color = "#ff9f43";
+                    eloLink.style.border = "1px solid rgba(255, 159, 67, 0.3)";
+                }
+                desktopNav.appendChild(eloLink);
+            }
+        }
+
+        if (clubPlaceholder) {
+            clubPlaceholder.innerHTML = `
+                <div class="club-links-v76 club-links-v76b club-links-v76c club-links-v76d">
+                    <div class="club-links-label-v76">Double Alpha e.V.</div>
+                    <a href="doppel-aa.html" class="${page === "doppel-aa.html" ? "active" : "vip-link"}">${lang === "en" ? "🎯 Slot Bot" : "🎯 Startplatz-Bot"}</a>
+                    <a href="performance.html" class="${page === "performance.html" ? "active" : "vip-link"}">${lang === "en" ? "📊 ELO Comparison" : "📊 ELO-Vergleich"}</a>
+                </div>
+            `;
+        }
+    };
+
+    const checkVipStatus = () => {
+        let tries = 0;
+        const maxTries = 30;
+
+        const run = async () => {
+            tries += 1;
+
+            try {
+                if (!window.supabaseClient || !window.supabaseClient.auth) {
+                    if (tries < maxTries) setTimeout(run, 400);
+                    return;
+                }
+
+                let user = window.currentUser || null;
+
+                if (!user) {
+                    const { data: sessionData } = await window.supabaseClient.auth.getSession();
+                    user = sessionData?.session?.user || null;
+                }
+
+                if (!user) {
+                    if (tries < maxTries) setTimeout(run, 400);
+                    return;
+                }
+
+                const { data: profile, error } = await window.supabaseClient
+                    .from("profiles")
+                    .select("is_doppel_aa")
+                    .eq("id", user.id)
+                    .maybeSingle();
+
+                if (error) {
+                    console.warn("Double Alpha Profilprüfung fehlgeschlagen:", error);
+                    if (tries < maxTries) setTimeout(run, 700);
+                    return;
+                }
+
+                const allowed = profile?.is_doppel_aa === true;
+                renderDoubleAAClubLinksV76d(allowed);
+
+                // Bei bestätigtem Zugriff noch einmal nach kurzer Zeit rendern,
+                // falls das Mehr-Menü erst nachträglich aufgebaut wurde.
+                if (allowed) setTimeout(() => renderDoubleAAClubLinksV76d(true), 800);
+            } catch (err) {
+                console.warn("Double Alpha Menüprüfung Fehler:", err);
+                if (tries < maxTries) setTimeout(run, 700);
+            }
+        };
+
+        run();
+
+        try {
+            if (window.supabaseClient?.auth?.onAuthStateChange && !window.__doubleAAAuthListenerV76d) {
+                window.__doubleAAAuthListenerV76d = true;
+                window.supabaseClient.auth.onAuthStateChange(() => {
+                    tries = 0;
+                    setTimeout(run, 150);
+                });
+            }
+        } catch (_) {}
+
+        // zusätzlicher Sicherheitslauf für langsame iOS/Safari-WebViews
+        setTimeout(run, 1500);
+        setTimeout(run, 3500);
+        setTimeout(run, 6500);
     };
 
     if (document.readyState === "loading") {

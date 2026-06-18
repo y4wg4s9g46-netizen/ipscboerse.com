@@ -1,0 +1,13 @@
+IPSC Börse v76d Hotfix
+
+Fix:
+- Double Alpha e.V. Seiten im Mehr-Menü wurden in v76c zu früh geprüft.
+- Wenn Supabase/Auth beim Laden noch nicht bereit war, blieben Startplatz-Bot und ELO-Vergleich unsichtbar, obwohl profiles.is_doppel_aa=true ist.
+- v76d prüft Supabase/Auth jetzt mehrfach und hört zusätzlich auf Auth-State-Änderungen.
+- Die beiden Vereinslinks bleiben für normale Nutzer verborgen und erscheinen nur bei profiles.is_doppel_aa=true.
+
+Einspielen:
+- App/Xcode: www_v76d_doubleaa_retry_fix.zip
+- Danach nur: npx cap copy ios
+- Nicht: npx cap sync ios
+- GitHub/Web: ipscboerse_public_v76d_doubleaa_retry_fix.zip
