@@ -5,28 +5,33 @@
     <meta name="color-scheme" content="dark light">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-    <style id="native-page-transition-v72">
-      #native-page-curtain-v72 {
+    <meta name="theme-color" content="#f6f8fc">
+    <style id="native-page-transition-v73">
+      #native-page-curtain-v73 {
         position: fixed;
         inset: 0;
         z-index: 2147483200;
         pointer-events: none;
         opacity: 0;
         background: #f6f8fc;
-        transition: opacity 95ms ease;
+        transition: opacity 88ms ease;
         transform: translateZ(0);
+        will-change: opacity;
       }
-      html[data-theme="dark"] #native-page-curtain-v72 {
+      html[data-theme="dark"] #native-page-curtain-v73 {
         background: #0f172a;
       }
-      html.is-native-navigating-v72 #native-page-curtain-v72 {
+      html.is-native-navigating-v73 #native-page-curtain-v73 {
         opacity: 1;
       }
-      html.is-native-arriving-v72 body {
-        opacity: 0.995;
+      html.is-native-arriving-v73 body {
+        opacity: .999;
+      }
+      @media (min-width: 900px) {
+        #native-page-curtain-v73 { transition-duration: 70ms; }
       }
     </style>
-    <script id="native-page-transition-script-v72">
+    <script id="native-page-transition-script-v73">
       (function () {
         try {
           var root = document.documentElement;
@@ -35,18 +40,19 @@
           root.setAttribute("data-theme", theme);
           root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
           root.style.colorScheme = theme;
-          root.classList.add("is-native-arriving-v72");
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", theme === "dark" ? "#0f172a" : "#f6f8fc");
+          root.classList.add("is-native-arriving-v73");
           window.addEventListener("pageshow", function () {
             setTimeout(function () {
-              root.classList.remove("is-native-arriving-v72", "is-native-navigating-v72");
-            }, 80);
+              root.classList.remove("is-native-arriving-v73", "is-native-navigating-v73");
+            }, 70);
           });
         } catch (_) {}
       })();
     </script>
 
-
-    <style id="theme-prepaint-v70">
+<style id="theme-prepaint-v70">
       :root {
         background: #f6f8fc;
         color-scheme: light;
@@ -131,7 +137,7 @@
     </script>
 
 <title>Schießbuch bestätigen | IPSC Börse</title>
-    <link rel="stylesheet" href="global.css?v=72">
+    <link rel="stylesheet" href="global.css?v=73">
     <script>
       (function () {
         try {
@@ -171,7 +177,7 @@
     </style>
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
-<body class="app-v71 app-v72">
+<body class="app-v71 app-v72 app-v73">
   <div class="confirm-shell">
     <div class="confirm-card">
       <div class="brand">
@@ -338,11 +344,10 @@ async function submitConfirmation() {
 loadConfirmation();
 </script>
 
-
-<script id="native-app-experience-script-v72">
+<script id="native-app-experience-script-v73">
 (function () {
-  if (window.__IPSC_NATIVE_EXPERIENCE_V72) return;
-  window.__IPSC_NATIVE_EXPERIENCE_V72 = true;
+  if (window.__IPSC_NATIVE_EXPERIENCE_V73) return;
+  window.__IPSC_NATIVE_EXPERIENCE_V73 = true;
 
   function activeTheme() {
     var t = document.documentElement.getAttribute("data-theme") || window.__IPSC_ACTIVE_THEME_V70 || "light";
@@ -350,10 +355,13 @@ loadConfirmation();
   }
 
   function ensureCurtain() {
-    var curtain = document.getElementById("native-page-curtain-v72");
+    var old = document.getElementById("native-page-curtain-v72");
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+
+    var curtain = document.getElementById("native-page-curtain-v73");
     if (!curtain) {
       curtain = document.createElement("div");
-      curtain.id = "native-page-curtain-v72";
+      curtain.id = "native-page-curtain-v73";
       document.body.appendChild(curtain);
     }
     curtain.style.background = activeTheme() === "dark" ? "#0f172a" : "#f6f8fc";
@@ -361,7 +369,7 @@ loadConfirmation();
   }
 
   function markLoaded() {
-    document.documentElement.classList.remove("is-native-arriving-v72", "is-native-navigating-v72");
+    document.documentElement.classList.remove("is-native-arriving-v72", "is-native-navigating-v72", "is-native-arriving-v73", "is-native-navigating-v73");
     ensureCurtain();
   }
 
@@ -384,13 +392,13 @@ loadConfirmation();
 
       event.preventDefault();
       ensureCurtain();
-      document.documentElement.classList.add("is-native-navigating-v72");
-      setTimeout(function () { window.location.href = url.href; }, 72);
+      document.documentElement.classList.add("is-native-navigating-v73");
+      setTimeout(function () { window.location.href = url.href; }, 64);
     }, true);
 
-    document.querySelectorAll(".dash-card, .card, .post-card, .market-card, .planner-card, .tool-section, .app-page-action-v72").forEach(function (el) {
+    document.querySelectorAll(".dash-card, .card, .post-card, .market-card, .planner-card, .tool-section, .app-page-action-v72, .app-page-action-v73").forEach(function (el) {
       el.addEventListener("touchstart", function () { el.classList.add("is-pressed-v72"); }, { passive: true });
-      el.addEventListener("touchend", function () { setTimeout(function () { el.classList.remove("is-pressed-v72"); }, 120); }, { passive: true });
+      el.addEventListener("touchend", function () { setTimeout(function () { el.classList.remove("is-pressed-v72"); }, 110); }, { passive: true });
       el.addEventListener("touchcancel", function () { el.classList.remove("is-pressed-v72"); }, { passive: true });
     });
   });

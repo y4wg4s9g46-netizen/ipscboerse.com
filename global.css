@@ -10309,3 +10309,236 @@ html.is-native-navigating-v72 body.app-v72 .container {
         border-radius: 30px 30px 0 0 !important;
     }
 }
+
+
+/* ==========================================================================
+   FINAL WEB + NATIVE POLISH v73
+   Fix: keine sichtbare Roh-CSS-Zeile mehr auf der Website.
+   Feinschliff: Desktop und App teilen denselben Premium-Look.
+   ========================================================================== */
+
+body.app-v73 {
+    min-height: 100vh;
+}
+
+body.app-v73::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background:
+        radial-gradient(circle at 12% 0%, rgba(255, 159, 67, 0.075), transparent 34rem),
+        radial-gradient(circle at 96% 8%, rgba(59, 130, 246, 0.045), transparent 30rem);
+}
+
+html[data-theme="dark"] body.app-v73::before {
+    background:
+        radial-gradient(circle at 10% -10%, rgba(255, 159, 67, 0.12), transparent 32rem),
+        radial-gradient(circle at 96% 4%, rgba(59, 130, 246, 0.08), transparent 32rem);
+}
+
+/* Website/Desktop darf breiter und hochwertiger wirken */
+@media (min-width: 1024px) {
+    body.app-v73 .container {
+        max-width: 1220px !important;
+        margin-top: 34px !important;
+        padding-left: 28px !important;
+        padding-right: 28px !important;
+    }
+
+    body.app-v73 .app-page-hero-v72 {
+        max-width: 1120px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 30px 32px !important;
+        border-radius: 30px !important;
+    }
+
+    body.page-index.app-v73 .app-home-hero-v71 {
+        max-width: 1120px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 34px 34px !important;
+        border-radius: 30px !important;
+    }
+
+    body.page-index.app-v73 .dashboard-grid,
+    body.app-v73 .dashboard-grid {
+        max-width: 1120px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    body.app-v73 .news-section,
+    body.app-v73 .form-card,
+    body.app-v73 .tool-section,
+    body.app-v73 .tabs-container,
+    body.app-v73 .filter-container,
+    body.app-v73 #analytics-content,
+    body.app-v73 #posts-container,
+    body.app-v73 .community-composer-v72,
+    body.app-v73 .community-filter-row-v72 {
+        max-width: 980px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* Top navigation auf Website ruhiger und weniger HTML */
+@media (min-width: 769px) {
+    body.app-v73 header {
+        position: sticky !important;
+        top: 0;
+        z-index: 1000;
+    }
+
+    body.app-v73 nav {
+        justify-content: center !important;
+        gap: 8px !important;
+        padding: 9px 14px !important;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    body.app-v73 nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    body.app-v73 nav a {
+        border-radius: 999px !important;
+        min-height: 34px;
+        padding: 0 13px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        font-size: 12px !important;
+        font-weight: 850 !important;
+        letter-spacing: -0.05px !important;
+        border: 1px solid transparent !important;
+    }
+
+    body.app-v73 nav a:hover {
+        background: rgba(255, 159, 67, 0.10) !important;
+        border-color: rgba(255, 159, 67, 0.16) !important;
+    }
+
+    body.app-v73 nav a.active {
+        background: var(--accent-gradient) !important;
+        color: white !important;
+        box-shadow: 0 8px 18px rgba(255, 128, 8, 0.18) !important;
+    }
+}
+
+/* Kompaktere, kristallklarere Schrift */
+body.app-v73 h1,
+body.app-v73 h2,
+body.app-v73 h3,
+body.app-v73 h4 {
+    text-wrap: balance;
+}
+
+body.app-v73 p {
+    text-wrap: pretty;
+}
+
+/* Page Heroes noch etwas premium/nativer */
+body.app-v73 .app-page-hero-v72,
+body.app-v73 .app-home-hero-v71 {
+    box-shadow:
+        0 1px 0 rgba(255,255,255,.72) inset,
+        0 16px 42px rgba(15, 23, 42, 0.055),
+        var(--app-ring-v71) !important;
+}
+
+html[data-theme="dark"] body.app-v73 .app-page-hero-v72,
+html[data-theme="dark"] body.app-v73 .app-home-hero-v71 {
+    box-shadow:
+        0 1px 0 rgba(255,255,255,.045) inset,
+        0 18px 48px rgba(0, 0, 0, 0.26),
+        var(--app-ring-v71) !important;
+}
+
+/* Community nochmal klarer */
+body.page-community.app-v73 .post-card {
+    transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
+}
+
+body.page-community.app-v73 .post-card:hover {
+    border-color: rgba(255, 159, 67, 0.22) !important;
+    box-shadow: var(--shadow-md), var(--app-ring-v71) !important;
+}
+
+body.page-community.app-v73 .community-composer-v72 {
+    position: sticky;
+    top: 92px;
+    z-index: 12;
+}
+
+@media (max-width: 768px) {
+    body.page-community.app-v73 .community-composer-v72 {
+        position: relative;
+        top: auto;
+    }
+}
+
+/* Analytics/Desktop wirkt weniger verloren */
+body.page-analytics.app-v73 .app-page-hero-v72 + * {
+    margin-top: 16px;
+}
+
+body.page-analytics.app-v73 .tool-section,
+body.page-analytics.app-v73 .card {
+    max-width: 980px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Keine alten v72 Curtains anzeigen */
+#native-page-curtain-v72 {
+    display: none !important;
+}
+
+/* Neuer Curtain */
+#native-page-curtain-v73 {
+    background: #f6f8fc;
+}
+
+html[data-theme="dark"] #native-page-curtain-v73 {
+    background: #0f172a;
+}
+
+html.is-native-navigating-v73 body.app-v73 .container {
+    animation: none !important;
+}
+
+/* Mobile: mehr App, weniger Webseite */
+@media (max-width: 768px) {
+    body.app-v73 .container {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+
+    body.app-v73 .app-page-hero-v72 {
+        box-shadow: var(--shadow-sm), var(--app-ring-v71) !important;
+    }
+
+    body.app-v73 .app-page-kicker-v72 {
+        height: 28px;
+        font-size: 10.8px;
+        padding: 0 10px;
+    }
+}
+
+/* Accessibility and clarity */
+body.app-v73 * {
+    -webkit-tap-highlight-color: transparent;
+}
+
+body.app-v73 a:focus-visible,
+body.app-v73 button:focus-visible,
+body.app-v73 input:focus-visible,
+body.app-v73 textarea:focus-visible,
+body.app-v73 select:focus-visible {
+    outline: 3px solid rgba(255,159,67,.34) !important;
+    outline-offset: 2px !important;
+}
