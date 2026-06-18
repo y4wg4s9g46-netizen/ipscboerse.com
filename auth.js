@@ -1,3 +1,4 @@
+// LIGHT THEME FLASH FIX v70
 // OAUTH NO RELOAD LOOP v69
 // NATIVE OAUTH APPPLUGIN FIX v68
 // NATIVE OAUTH BRIDGE FIX v66
@@ -519,10 +520,26 @@ window.toggleTheme = function() {
         newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     }
 
+    document.documentElement.classList.add('is-theme-switching-v70');
     document.documentElement.setAttribute('data-theme', newTheme);
+    document.documentElement.style.backgroundColor = newTheme === 'dark' ? '#0f172a' : '#f6f8fc';
+    document.documentElement.style.colorScheme = newTheme === 'dark' ? 'dark' : 'light';
+    if (document.body) document.body.style.backgroundColor = newTheme === 'dark' ? '#0f172a' : '#f6f8fc';
+
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) metaTheme.setAttribute('content', newTheme === 'dark' ? '#0f172a' : '#f6f8fc');
+
+    window.__IPSC_ACTIVE_THEME_V70 = newTheme;
+
     localStorage.setItem('selectedTheme', newTheme);
     localStorage.setItem('theme', newTheme);
     updateThemeToggleIcon(newTheme);
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            document.documentElement.classList.remove('is-theme-switching-v70');
+        });
+    });
 };
 
 function initTheme() {
@@ -530,6 +547,10 @@ function initTheme() {
 
     if (savedTheme) {
         document.documentElement.setAttribute('data-theme', savedTheme);
+        document.documentElement.style.backgroundColor = savedTheme === 'dark' ? '#0f172a' : '#f6f8fc';
+        document.documentElement.style.colorScheme = savedTheme === 'dark' ? 'dark' : 'light';
+        if (document.body) document.body.style.backgroundColor = savedTheme === 'dark' ? '#0f172a' : '#f6f8fc';
+        window.__IPSC_ACTIVE_THEME_V70 = savedTheme;
         updateThemeToggleIcon(savedTheme);
     } else {
         updateThemeToggleIcon('auto');

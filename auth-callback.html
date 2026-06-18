@@ -4,6 +4,91 @@
   <meta charset="UTF-8">
   <meta name="color-scheme" content="dark">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <style id="theme-prepaint-v70">
+      :root {
+        background: #f6f8fc;
+        color-scheme: light;
+      }
+      html {
+        min-height: 100%;
+        background: #f6f8fc !important;
+        color-scheme: light;
+      }
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background: #f6f8fc !important;
+        overscroll-behavior: none;
+      }
+      html[data-theme="dark"] {
+        background: #0f172a !important;
+        color-scheme: dark;
+      }
+      html[data-theme="dark"] body {
+        background: #0f172a !important;
+      }
+      html[data-theme="light"], html[data-theme="light"] body {
+        background: #f6f8fc !important;
+        color-scheme: light;
+      }
+      #app-page-transition-cover {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483000;
+        pointer-events: none;
+        opacity: 0;
+        background: #f6f8fc;
+        transition: opacity 18ms linear;
+        transform: translateZ(0);
+        will-change: opacity;
+      }
+      html[data-theme="dark"] #app-page-transition-cover {
+        background: #0f172a;
+      }
+      html.is-page-leaving #app-page-transition-cover {
+        opacity: 1;
+      }
+      html.is-theme-switching-v70 *,
+      html.is-theme-switching-v70 *::before,
+      html.is-theme-switching-v70 *::after {
+        transition: none !important;
+        animation: none !important;
+      }
+    </style>
+    <script id="theme-prepaint-script-v70">
+      (function () {
+        var theme = "light";
+        try {
+          var selected = localStorage.getItem("selectedTheme");
+          var legacy = localStorage.getItem("theme");
+          theme = selected || legacy || "light";
+          if (theme === "auto") {
+            theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          }
+          if (theme !== "light" && theme !== "dark") theme = "light";
+        } catch (_) {
+          theme = "light";
+        }
+
+        try {
+          var root = document.documentElement;
+          root.setAttribute("data-theme", theme);
+          root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
+          root.style.colorScheme = theme === "dark" ? "dark" : "light";
+          window.__IPSC_ACTIVE_THEME_V70 = theme;
+
+          try {
+            localStorage.setItem("selectedTheme", theme);
+            localStorage.setItem("theme", theme);
+          } catch (_) {}
+
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", theme === "dark" ? "#0f172a" : "#f6f8fc");
+        } catch (_) {}
+      })();
+    </script>
+
   <title>Login wird abgeschlossen…</title>
   <style>
     html,body{min-height:100%;margin:0;background:#0f172a;color:#f8fafc;color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:grid;place-items:center}
@@ -12,7 +97,7 @@
     @keyframes spin{to{transform:rotate(360deg)}}h1{font-size:20px;margin:0 0 8px}p{margin:0;color:#94a3b8;line-height:1.45}a{color:#ffb15f;font-weight:800}
   </style>
 </head>
-<body>
+<body class="app-v71">
   <div class="box">
     <div class="spinner"></div>
     <h1>Login wird abgeschlossen…</h1>

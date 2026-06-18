@@ -5,45 +5,92 @@
     <meta name="color-scheme" content="dark light">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-    <style id="native-dark-prepaint-v65">
+    <style id="theme-prepaint-v70">
       :root {
-        background-color: #0f172a;
-        color-scheme: dark;
-      }
-      html, body {
-        min-height: 100%;
-        background-color: #0f172a !important;
-      }
-      html[data-theme="light"], html[data-theme="light"] body {
-        background-color: #f6f8fc !important;
+        background: #f6f8fc;
         color-scheme: light;
       }
-      html[data-theme="dark"], html[data-theme="dark"] body {
-        background-color: #0f172a !important;
+      html {
+        min-height: 100%;
+        background: #f6f8fc !important;
+        color-scheme: light;
+      }
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background: #f6f8fc !important;
+        overscroll-behavior: none;
+      }
+      html[data-theme="dark"] {
+        background: #0f172a !important;
         color-scheme: dark;
       }
+      html[data-theme="dark"] body {
+        background: #0f172a !important;
+      }
+      html[data-theme="light"], html[data-theme="light"] body {
+        background: #f6f8fc !important;
+        color-scheme: light;
+      }
+      #app-page-transition-cover {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483000;
+        pointer-events: none;
+        opacity: 0;
+        background: #f6f8fc;
+        transition: opacity 18ms linear;
+        transform: translateZ(0);
+        will-change: opacity;
+      }
+      html[data-theme="dark"] #app-page-transition-cover {
+        background: #0f172a;
+      }
+      html.is-page-leaving #app-page-transition-cover {
+        opacity: 1;
+      }
+      html.is-theme-switching-v70 *,
+      html.is-theme-switching-v70 *::before,
+      html.is-theme-switching-v70 *::after {
+        transition: none !important;
+        animation: none !important;
+      }
     </style>
-    <script id="native-dark-prepaint-script-v65">
+    <script id="theme-prepaint-script-v70">
       (function () {
-        var theme = "dark";
+        var theme = "light";
         try {
-          var saved = localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || "dark";
-          if (saved === "auto") {
-            saved = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          var selected = localStorage.getItem("selectedTheme");
+          var legacy = localStorage.getItem("theme");
+          theme = selected || legacy || "light";
+          if (theme === "auto") {
+            theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
           }
-          if (saved === "light" || saved === "dark") theme = saved;
-        } catch (_) {}
+          if (theme !== "light" && theme !== "dark") theme = "light";
+        } catch (_) {
+          theme = "light";
+        }
+
         try {
-          document.documentElement.setAttribute("data-theme", theme);
-          document.documentElement.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
-          document.documentElement.style.colorScheme = theme === "dark" ? "dark" : "light";
+          var root = document.documentElement;
+          root.setAttribute("data-theme", theme);
+          root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
+          root.style.colorScheme = theme === "dark" ? "dark" : "light";
+          window.__IPSC_ACTIVE_THEME_V70 = theme;
+
+          try {
+            localStorage.setItem("selectedTheme", theme);
+            localStorage.setItem("theme", theme);
+          } catch (_) {}
+
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", theme === "dark" ? "#0f172a" : "#f6f8fc");
         } catch (_) {}
       })();
     </script>
 
-
-    <title>Schießbuch prüfen | IPSC Börse</title>
-    <link rel="stylesheet" href="global.css?v=69">
+<title>Schießbuch prüfen | IPSC Börse</title>
+    <link rel="stylesheet" href="global.css?v=71">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
       body { min-height:100vh; padding:18px; background:var(--bg-color); color:var(--text-color); }
@@ -60,7 +107,7 @@
     </style>
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
-<body>
+<body class="app-v71">
 <div class="verify-shell">
   <div class="verify-card">
     <h1>QR-Prüfung Schießbuch</h1>

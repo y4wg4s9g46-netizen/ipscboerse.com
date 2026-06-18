@@ -1300,7 +1300,7 @@ header .header-logo-img {
         // Page transition dark cover v50: verhindert weißen Blitz bei programmatischer Navigation
         if (!window.__pageTransitionCoverV50) {
             window.__pageTransitionCoverV50 = true;
-            window.showPageTransitionCover = function(){ try { document.documentElement.style.backgroundColor = (document.documentElement.getAttribute("data-theme") === "light") ? "#f6f8fc" : "#0f172a"; } catch(_){} };
+            window.showPageTransitionCover = function(){ try { var t=document.documentElement.getAttribute("data-theme") || window.__IPSC_ACTIVE_THEME_V70 || "light"; document.documentElement.style.backgroundColor = (t === "dark") ? "#0f172a" : "#f6f8fc"; } catch(_){} };
 
             window.addEventListener("pageshow", () => {
                 try { document.documentElement.classList.remove("is-page-leaving"); } catch (_) {}
@@ -1661,8 +1661,9 @@ header .header-logo-img {
             const finalStyleV51 = document.createElement("style");
             finalStyleV51.id = "final-mobile-ui-fix-v51";
             finalStyleV51.textContent = `
-                html, body { background-color: #0f172a !important; }
+                html, body { background-color: #f6f8fc !important; }
                 html[data-theme="light"], html[data-theme="light"] body { background-color: #f6f8fc !important; }
+                html[data-theme="dark"], html[data-theme="dark"] body { background-color: #0f172a !important; }
                 #app-page-transition-cover { position: fixed !important; inset: 0 !important; z-index: 2147483000 !important; pointer-events: none !important; opacity: 0 !important; background: #0f172a !important; transition: opacity 25ms linear !important; transform: translateZ(0) !important; will-change: opacity !important; }
                 html[data-theme="light"] #app-page-transition-cover { background: #f6f8fc !important; }
                 html.is-page-leaving #app-page-transition-cover { opacity: 1 !important; }

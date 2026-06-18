@@ -6,83 +6,95 @@
     <meta name="color-scheme" content="dark light">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 
-    <style id="native-dark-prepaint-v65">
+    <style id="theme-prepaint-v70">
       :root {
-        background-color: #0f172a;
-        color-scheme: dark;
-      }
-      html, body {
-        min-height: 100%;
-        background-color: #0f172a !important;
-      }
-      html[data-theme="light"], html[data-theme="light"] body {
-        background-color: #f6f8fc !important;
+        background: #f6f8fc;
         color-scheme: light;
       }
-      html[data-theme="dark"], html[data-theme="dark"] body {
-        background-color: #0f172a !important;
-        color-scheme: dark;
-      }
-    </style>
-    <script id="native-dark-prepaint-script-v65">
-      (function () {
-        var theme = "dark";
-        try {
-          var saved = localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || "dark";
-          if (saved === "auto") {
-            saved = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-          }
-          if (saved === "light" || saved === "dark") theme = saved;
-        } catch (_) {}
-        try {
-          document.documentElement.setAttribute("data-theme", theme);
-          document.documentElement.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
-          document.documentElement.style.colorScheme = theme === "dark" ? "dark" : "light";
-        } catch (_) {}
-      })();
-    </script>
-
-
-        <meta name="theme-color" content="#0f172a">
-    <script>
-      (function () {
-        try {
-          var savedTheme = localStorage.getItem("theme") || localStorage.getItem("selectedTheme") || "dark";
-          if (savedTheme !== "light" && savedTheme !== "dark") savedTheme = "dark";
-          document.documentElement.setAttribute("data-theme", savedTheme);
-          document.documentElement.style.backgroundColor = savedTheme === "dark" ? "#0f172a" : "#f6f8fc";
-          document.documentElement.style.colorScheme = savedTheme === "dark" ? "dark" : "light";
-        } catch (e) {
-          document.documentElement.setAttribute("data-theme", "dark");
-          document.documentElement.style.backgroundColor = "#0f172a";
-          document.documentElement.style.colorScheme = "dark";
-        }
-      })();
-    </script>
-    <style id="app-prepaint-v49">
       html {
         min-height: 100%;
-        background: #0f172a;
-      }
-      html[data-theme="light"] {
-        background: #f6f8fc;
+        background: #f6f8fc !important;
+        color-scheme: light;
       }
       body {
         min-height: 100vh;
-        background: #0f172a;
+        margin: 0;
+        background: #f6f8fc !important;
         overscroll-behavior: none;
       }
-      html[data-theme="light"] body {
-        background: #f6f8fc;
+      html[data-theme="dark"] {
+        background: #0f172a !important;
+        color-scheme: dark;
       }
-      #main-header {
-        background: inherit;
+      html[data-theme="dark"] body {
+        background: #0f172a !important;
+      }
+      html[data-theme="light"], html[data-theme="light"] body {
+        background: #f6f8fc !important;
+        color-scheme: light;
+      }
+      #app-page-transition-cover {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483000;
+        pointer-events: none;
+        opacity: 0;
+        background: #f6f8fc;
+        transition: opacity 18ms linear;
+        transform: translateZ(0);
+        will-change: opacity;
+      }
+      html[data-theme="dark"] #app-page-transition-cover {
+        background: #0f172a;
+      }
+      html.is-page-leaving #app-page-transition-cover {
+        opacity: 1;
+      }
+      html.is-theme-switching-v70 *,
+      html.is-theme-switching-v70 *::before,
+      html.is-theme-switching-v70 *::after {
+        transition: none !important;
+        animation: none !important;
       }
     </style>
+    <script id="theme-prepaint-script-v70">
+      (function () {
+        var theme = "light";
+        try {
+          var selected = localStorage.getItem("selectedTheme");
+          var legacy = localStorage.getItem("theme");
+          theme = selected || legacy || "light";
+          if (theme === "auto") {
+            theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          }
+          if (theme !== "light" && theme !== "dark") theme = "light";
+        } catch (_) {
+          theme = "light";
+        }
+
+        try {
+          var root = document.documentElement;
+          root.setAttribute("data-theme", theme);
+          root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
+          root.style.colorScheme = theme === "dark" ? "dark" : "light";
+          window.__IPSC_ACTIVE_THEME_V70 = theme;
+
+          try {
+            localStorage.setItem("selectedTheme", theme);
+            localStorage.setItem("theme", theme);
+          } catch (_) {}
+
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", theme === "dark" ? "#0f172a" : "#f6f8fc");
+        } catch (_) {}
+      })();
+    </script>
+
+<meta name="theme-color" content="#f6f8fc">
 <title>Performance-Check | IPSC ELO Analyse</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#f6f8fc">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="IPSC Börse">
@@ -90,36 +102,7 @@
     <link rel="preload" href="icon-192.png" as="image">
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
-
-    
-    <script id="theme-sync-v52">
-      (function () {
-        try {
-          var selected = localStorage.getItem("selectedTheme");
-          var legacy = localStorage.getItem("theme");
-          var theme = selected || legacy || "light";
-
-          if (theme === "auto") {
-            theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-          }
-
-          if (theme !== "light" && theme !== "dark") theme = "light";
-
-          document.documentElement.setAttribute("data-theme", theme);
-          document.documentElement.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
-          document.documentElement.style.colorScheme = theme === "dark" ? "dark" : "light";
-
-          localStorage.setItem("selectedTheme", theme);
-          localStorage.setItem("theme", theme);
-        } catch (e) {
-          document.documentElement.setAttribute("data-theme", "light");
-          document.documentElement.style.backgroundColor = "#f6f8fc";
-          document.documentElement.style.colorScheme = "light";
-        }
-      })();
-    </script>
-
-    <link rel="stylesheet" href="global.css?v=69">
+<link rel="stylesheet" href="global.css?v=71">
 
 
     <style id="performance-loader-overlay-v53">
@@ -173,7 +156,7 @@
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
-<body class="page-performance">
+<body class="page-performance app-v71">
     <div id="performance-busy-overlay" class="performance-busy-overlay" aria-hidden="true">
         <div class="performance-busy-card">
             <div class="performance-busy-spinner"></div>
@@ -184,7 +167,7 @@
 
     <!-- 🌟 Header-Injection -->
     <header id="main-header"></header>
-    <script src="header.js?v=48"></script>
+    <script src="header.js?v=50"></script>
 
     <div class="container">
         <!-- Dashboard Login-Aufforderung -->
@@ -338,7 +321,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="auth.js?v=69"></script>
     <script src="lang.js?v=21"></script>
-    <script src="app.js?v=26"></script>
+    <script src="app.js?v=27"></script>
     
     <script>
         let currentShooters = [];
