@@ -1,3 +1,4 @@
+// NATIVE OAUTH FIX v62
 // === ZENTRALE SUPABASE KONFIGURATION ===
 const SUPABASE_URL = "https://huprxirlthkisjngwash.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_yModrA5JZTiN5Cw7MHQqLQ_Coc04WAS";
@@ -123,6 +124,158 @@ function getOAuthRedirectUrl() {
     return `${window.location.origin}${path}`;
 }
 
+
+// --- NATIVE APP OAUTH CALLBACK v62 ---
+const NATIVE_OAUTH_CALLBACK_URL = "ipscboerse://auth-callback";
+
+function isNativeShellV62() {
+    try {
+        return !!(
+            (window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform()) ||
+            document.documentElement.classList.contains("is-native-shell") ||
+            document.body.classList.contains("is-app-shell")
+        );
+    } catch (_) {
+        return false;
+    }
+}
+
+function getCapacitorPluginV62(name) {
+    try {
+        return window.Capacitor?.Plugins?.[name] || null;
+    } catch (_) {
+        return null;
+    }
+}
+
+function getOAuthRedirectUrlV62() {
+    if (isNativeShellV62()) {
+        return NATIVE_OAUTH_CALLBACK_URL;
+    }
+    return getOAuthRedirectUrl();
+}
+
+async function closeNativeOAuthBrowserV62() {
+    try {
+        const Browser = getCapacitorPluginV62("Browser");
+        if (Browser && typeof Browser.close === "function") {
+            await Browser.close();
+        }
+    } catch (_) {}
+}
+
+async function finishNativeOAuthLoginV62(session) {
+    if (session?.user) {
+        window.currentUser = session.user;
+        cacheHeaderUser(session.user);
+    }
+
+    await closeNativeOAuthBrowserV62();
+
+    try {
+        const returnPath = localStorage.getItem(OAUTH_RETURN_KEY) || "/index.html";
+        localStorage.removeItem(OAUTH_RETURN_KEY);
+
+        if (returnPath && returnPath !== window.location.pathname + window.location.search) {
+            window.location.href = returnPath;
+        } else {
+            window.location.reload();
+        }
+    } catch (_) {
+        window.location.reload();
+    }
+}
+
+async function handleNativeOAuthUrlV62(url) {
+    if (!url || window.__ipscHandlingNativeOAuthV62) return false;
+    if (!String(url).startsWith("ipscboerse://")) return false;
+
+    window.__ipscHandlingNativeOAuthV62 = true;
+
+    try {
+        const parsed = new URL(url);
+        const hashParams = new URLSearchParams((parsed.hash || "").replace(/^#/, ""));
+        const queryParams = new URLSearchParams((parsed.search || "").replace(/^\?/, ""));
+
+        const errorDescription =
+            hashParams.get("error_description") ||
+            queryParams.get("error_description") ||
+            hashParams.get("error") ||
+            queryParams.get("error");
+
+        if (errorDescription) {
+            await closeNativeOAuthBrowserV62();
+            alert("Login abgebrochen oder fehlgeschlagen: " + decodeURIComponent(errorDescription));
+            return true;
+        }
+
+        const accessToken = hashParams.get("access_token") || queryParams.get("access_token");
+        const refreshToken = hashParams.get("refresh_token") || queryParams.get("refresh_token");
+        const code = queryParams.get("code") || hashParams.get("code");
+
+        let session = null;
+
+        if (accessToken && refreshToken) {
+            const { data, error } = await window.supabaseClient.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken
+            });
+
+            if (error) throw error;
+            session = data?.session || null;
+        } else if (code && window.supabaseClient.auth.exchangeCodeForSession) {
+            const { data, error } = await window.supabaseClient.auth.exchangeCodeForSession(code);
+
+            if (error) throw error;
+            session = data?.session || null;
+        } else {
+            throw new Error("Keine OAuth-Session im App-Link gefunden.");
+        }
+
+        await finishNativeOAuthLoginV62(session);
+        return true;
+
+    } catch (err) {
+        console.error("Native OAuth callback failed:", err);
+        await closeNativeOAuthBrowserV62();
+        alert("App-Login konnte nicht abgeschlossen werden: " + (err.message || err));
+        return false;
+    } finally {
+        setTimeout(() => {
+            window.__ipscHandlingNativeOAuthV62 = false;
+        }, 800);
+    }
+}
+
+async function initNativeOAuthReturnListenerV62() {
+    if (window.__ipscNativeOAuthListenerV62Installed) return;
+    window.__ipscNativeOAuthListenerV62Installed = true;
+
+    const App = getCapacitorPluginV62("App");
+
+    if (App && typeof App.addListener === "function") {
+        try {
+            App.addListener("appUrlOpen", async (event) => {
+                await handleNativeOAuthUrlV62(event?.url || "");
+            });
+        } catch (err) {
+            console.warn("Native OAuth appUrlOpen listener failed:", err);
+        }
+    }
+
+    if (App && typeof App.getLaunchUrl === "function") {
+        try {
+            const launch = await App.getLaunchUrl();
+            if (launch?.url) {
+                await handleNativeOAuthUrlV62(launch.url);
+            }
+        } catch (_) {}
+    }
+}
+
+setTimeout(initNativeOAuthReturnListenerV62, 250);
+// --- END NATIVE APP OAUTH CALLBACK v62 ---
+
 function setSocialButtonLoading(provider, isLoading) {
     const selectors = {
         google: '.btn-social-google, button[onclick="loginWithGoogle()"]',
@@ -156,15 +309,20 @@ async function startSocialOAuth(provider) {
     }
 
     setSocialButtonLoading(provider, true);
-    console.info("Starting social OAuth", provider, getOAuthRedirectUrl());
+    console.info("Starting social OAuth", provider, getOAuthRedirectUrlV62());
 
     try {
         const returnPath = `${window.location.pathname || "/index.html"}${window.location.search || ""}`;
         localStorage.setItem(OAUTH_RETURN_KEY, returnPath);
 
+        const isNativeOAuth = isNativeShellV62();
         const options = {
-            redirectTo: getOAuthRedirectUrl()
+            redirectTo: getOAuthRedirectUrlV62()
         };
+
+        if (isNativeOAuth) {
+            options.skipBrowserRedirect = true;
+        }
 
         if (provider === "google") {
             options.scopes = "openid email profile";
@@ -173,12 +331,25 @@ async function startSocialOAuth(provider) {
             };
         }
 
-        const { error } = await window.supabaseClient.auth.signInWithOAuth({
+        const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
             provider,
             options
         });
 
         if (error) throw error;
+
+        if (isNativeOAuth && data?.url) {
+            const Browser = getCapacitorPluginV62("Browser");
+
+            if (Browser && typeof Browser.open === "function") {
+                await Browser.open({
+                    url: data.url,
+                    presentationStyle: "fullscreen"
+                });
+            } else {
+                window.location.href = data.url;
+            }
+        }
 
     } catch (error) {
         console.error(`${provider} OAuth error:`, error);

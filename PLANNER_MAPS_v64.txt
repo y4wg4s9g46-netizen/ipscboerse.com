@@ -1,0 +1,12 @@
+IPSC Börse v64 – Planer Kartenlinks
+
+Neu:
+- Im Planer ist die gespeicherte Adresse/Ort jetzt mit Karten-Aktionen versehen.
+- Buttons:
+   Karten → Apple Karten / maps.apple.com
+  Google Maps → Google Maps
+- In der iOS-App wird zuerst versucht, die native Karten-App zu öffnen.
+- Fallback: Browser/Google Maps Webseite.
+
+Hinweis:
+Je genauer die Adresse im Feld "Adresse / Ort / Land" gepflegt ist, desto besser ist die Navigation.

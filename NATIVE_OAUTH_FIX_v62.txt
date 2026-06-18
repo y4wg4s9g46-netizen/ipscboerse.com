@@ -1,0 +1,43 @@
+IPSC Börse v62 – Native OAuth Fix für Google/Apple Login
+
+Problem:
+In der iOS-App öffnet Google/Apple Safari und meldet dort an, aber die App bekommt die Session nicht zurück.
+
+Fix:
+1) v62 www/public hochladen/einbauen.
+2) In Supabase Redirect URL hinzufügen:
+   ipscboerse://auth-callback
+
+Supabase:
+Authentication → URL Configuration → Redirect URLs
++ Add URL:
+ipscboerse://auth-callback
+Save
+
+3) In Xcode URL Scheme hinzufügen:
+TARGETS → App → Info → URL Types
++ drücken
+Identifier: ipscboerse
+URL Schemes: ipscboerse
+
+Alternativ in Info.plist:
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleURLName</key>
+    <string>ipscboerse</string>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>ipscboerse</string>
+    </array>
+  </dict>
+</array>
+
+4) Terminal:
+cd ~/Desktop/IPSC_App
+npx cap sync ios
+
+5) Xcode:
+Product → Clean Build Folder
+Product → Archive
+Upload neuer Build, z.B. 1.0 (2)

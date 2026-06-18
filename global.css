@@ -9151,3 +9151,30 @@ html[data-theme="dark"] body {
 
 
 /* SCHIESSBUCH EXTERNAL CONFIRMATION v57 */
+
+
+/* NATIVE DARK FLASH FIX v63 */
+html {
+    background-color: #0f172a;
+}
+html[data-theme="light"] {
+    background-color: #f6f8fc;
+}
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+    background-color: #0f172a !important;
+}
+html.is-page-leaving,
+html.is-page-entering {
+    background-color: #0f172a !important;
+}
+html[data-theme="light"].is-page-leaving,
+html[data-theme="light"].is-page-entering {
+    background-color: #f6f8fc !important;
+}
+#app-page-transition-cover {
+    position: fixed !important;
+    inset: -4px !important;
+    z-index: 2147483647 !important;
+    pointer-events: none !important;
+}

@@ -4,6 +4,75 @@
     <meta charset="UTF-8">
     <meta name="color-scheme" content="dark light">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+
+    <style id="native-dark-prepaint-v63">
+      :root {
+        background: #0f172a;
+        color-scheme: dark;
+      }
+      html, body {
+        min-height: 100%;
+        background-color: #0f172a !important;
+      }
+      html[data-theme="light"], html[data-theme="light"] body {
+        background-color: #f6f8fc !important;
+        color-scheme: light;
+      }
+      html[data-theme="dark"], html[data-theme="dark"] body {
+        background-color: #0f172a !important;
+        color-scheme: dark;
+      }
+      #app-page-transition-cover {
+        position: fixed !important;
+        inset: -4px !important;
+        z-index: 2147483647 !important;
+        pointer-events: none !important;
+        opacity: 0;
+        background: #0f172a !important;
+        transition: opacity 45ms linear !important;
+        transform: translateZ(0);
+        will-change: opacity;
+      }
+      html[data-theme="light"] #app-page-transition-cover {
+        background: #f6f8fc !important;
+      }
+      html.is-page-leaving #app-page-transition-cover,
+      html.is-page-entering #app-page-transition-cover {
+        opacity: 1 !important;
+      }
+      html.is-page-leaving,
+      html.is-page-entering {
+        background-color: #0f172a !important;
+      }
+      html[data-theme="light"].is-page-leaving,
+      html[data-theme="light"].is-page-entering {
+        background-color: #f6f8fc !important;
+      }
+    </style>
+    <script id="native-dark-prepaint-script-v63">
+      (function () {
+        var d = document.documentElement;
+        var theme = "dark";
+        try {
+          var saved = localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || "dark";
+          if (saved === "auto") {
+            saved = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          }
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch (_) {}
+
+        try {
+          d.setAttribute("data-theme", theme);
+          d.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
+          d.style.colorScheme = theme === "dark" ? "dark" : "light";
+
+          if (sessionStorage.getItem("ipscPageTransitionV63") === "1") {
+            d.classList.add("is-page-entering");
+          }
+        } catch (_) {}
+      })();
+    </script>
+
         <meta name="theme-color" content="#0f172a">
     <script>
       (function () {
@@ -80,85 +149,14 @@
       })();
     </script>
 
-    <link rel="stylesheet" href="global.css?v=61">
-    <style id="app-transition-prevent-flash-v50">
-      html, body {
-        background-color: #0f172a !important;
-      }
-      html[data-theme="light"], html[data-theme="light"] body {
-        background-color: #f6f8fc !important;
-      }
-      #app-page-transition-cover {
-        position: fixed;
-        inset: 0;
-        z-index: 2147483000;
-        pointer-events: none;
-        opacity: 0;
-        background: #0f172a;
-        transition: opacity 70ms linear;
-      }
-      html[data-theme="light"] #app-page-transition-cover {
-        background: #f6f8fc;
-      }
-      html.is-page-leaving #app-page-transition-cover {
-        opacity: 1;
-      }
-    </style>
-    <script id="app-transition-script-v50">
-      (function () {
-        function markLeaving() {
-          try { document.documentElement.classList.add("is-page-leaving"); } catch (_) {}
-        }
-        function clearLeaving() {
-          try { document.documentElement.classList.remove("is-page-leaving"); } catch (_) {}
-        }
-        window.addEventListener("pageshow", clearLeaving, { passive: true });
-        window.addEventListener("pagehide", markLeaving, { passive: true });
-        window.addEventListener("beforeunload", markLeaving);
-        document.addEventListener("click", function (event) {
-          var target = event.target && event.target.closest ? event.target.closest("a[href]") : null;
-          if (!target) return;
-          if (target.target && target.target !== "_self") return;
-          if (target.hasAttribute("download")) return;
-          var href = target.getAttribute("href") || "";
-          if (!href || href.indexOf("#") === 0 || href.indexOf("javascript:") === 0 || href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0) return;
-          try {
-            var url = new URL(href, window.location.href);
-            if (url.origin !== window.location.origin) return;
-            markLeaving();
-          } catch (_) {}
-        }, true);
-      })();
-    </script>
-
-
-    <style id="app-transition-prevent-flash-v51">
-      html, body { background-color: #0f172a !important; overscroll-behavior: none; }
-      html[data-theme="light"], html[data-theme="light"] body { background-color: #f6f8fc !important; }
-      #app-page-transition-cover { position: fixed !important; inset: 0 !important; z-index: 2147483000 !important; pointer-events: none !important; opacity: 0 !important; background: #0f172a !important; transition: opacity 25ms linear !important; transform: translateZ(0) !important; }
-      html[data-theme="light"] #app-page-transition-cover { background: #f6f8fc !important; }
-      html.is-page-leaving #app-page-transition-cover { opacity: 1 !important; }
-    </style>
-    <script id="app-transition-script-v51">
-      (function () {
-        function ensureCover() { try { if (!document.body) return; if (!document.getElementById("app-page-transition-cover")) { var cover = document.createElement("div"); cover.id = "app-page-transition-cover"; cover.setAttribute("aria-hidden", "true"); document.body.prepend(cover); } } catch (_) {} }
-        function markLeaving() { ensureCover(); try { document.documentElement.classList.add("is-page-leaving"); } catch (_) {} }
-        function clearLeaving() { try { document.documentElement.classList.remove("is-page-leaving"); } catch (_) {} ensureCover(); }
-        window.showPageTransitionCover = markLeaving;
-        window.addEventListener("pageshow", clearLeaving, { passive: true });
-        window.addEventListener("pagehide", markLeaving, { passive: true });
-        window.addEventListener("beforeunload", markLeaving);
-        document.addEventListener("DOMContentLoaded", ensureCover, { once: true });
-        document.addEventListener("click", function (event) { var target = event.target && event.target.closest ? event.target.closest("a[href]") : null; if (!target) return; if (target.target && target.target !== "_self") return; if (target.hasAttribute("download")) return; var href = target.getAttribute("href") || ""; if (!href || href.indexOf("#") === 0 || href.indexOf("javascript:") === 0 || href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0) return; try { var url = new URL(href, window.location.href); if (url.origin !== window.location.origin) return; markLeaving(); } catch (_) {} }, true);
-      })();
-    </script>
+    <link rel="stylesheet" href="global.css?v=64">
 
 </head>
 <body class="page-wiederladen">
     <div id="app-page-transition-cover" aria-hidden="true"></div>
 
     <header id="main-header"></header>
-    <script src="header.js?v=40"></script>
+    <script src="header.js?v=43"></script>
 
     <div class="container">
         
@@ -257,7 +255,7 @@
         </div>
     </footer>
 
-    <script src="auth.js?v=10"></script>
+    <script src="auth.js?v=62"></script>
     <script src="lang.js?v=21"></script>
     <script src="app.js?v=25"></script>
     
@@ -446,5 +444,103 @@
             });
         }
     </script>
+
+    <script id="native-page-transition-script-v63">
+      (function () {
+        var KEY = "ipscPageTransitionV63";
+
+        function currentTheme() {
+          try {
+            var saved = localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || "dark";
+            if (saved === "auto") {
+              saved = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+            }
+            return saved === "light" ? "light" : "dark";
+          } catch (_) {
+            return "dark";
+          }
+        }
+
+        function ensureCover() {
+          var cover = document.getElementById("app-page-transition-cover");
+          if (!cover && document.body) {
+            cover = document.createElement("div");
+            cover.id = "app-page-transition-cover";
+            cover.setAttribute("aria-hidden", "true");
+            document.body.insertBefore(cover, document.body.firstChild);
+          }
+          return cover;
+        }
+
+        function markLeaving() {
+          try {
+            ensureCover();
+            var theme = currentTheme();
+            document.documentElement.setAttribute("data-theme", theme);
+            document.documentElement.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
+            sessionStorage.setItem(KEY, "1");
+            document.documentElement.classList.add("is-page-leaving");
+          } catch (_) {}
+        }
+
+        function clearTransition() {
+          try {
+            ensureCover();
+            var theme = currentTheme();
+            document.documentElement.setAttribute("data-theme", theme);
+            document.documentElement.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
+
+            setTimeout(function () {
+              try {
+                document.documentElement.classList.remove("is-page-entering");
+                document.documentElement.classList.remove("is-page-leaving");
+                sessionStorage.removeItem(KEY);
+              } catch (_) {}
+            }, 140);
+          } catch (_) {}
+        }
+
+        function isInternalNavigationTarget(target) {
+          var link = target && target.closest ? target.closest("a[href]") : null;
+          if (!link) return false;
+
+          if (link.target && link.target !== "_self") return false;
+          if (link.hasAttribute("download")) return false;
+
+          var href = link.getAttribute("href") || "";
+          if (!href) return false;
+          if (href.indexOf("#") === 0) return false;
+          if (/^(javascript:|mailto:|tel:|sms:|blob:|data:)/i.test(href)) return false;
+
+          try {
+            var url = new URL(href, window.location.href);
+            if (url.origin !== window.location.origin) return false;
+            if (url.pathname === window.location.pathname && url.search === window.location.search && url.hash) return false;
+            return true;
+          } catch (_) {
+            return false;
+          }
+        }
+
+        window.showPageTransitionCover = markLeaving;
+
+        document.addEventListener("DOMContentLoaded", function () {
+          ensureCover();
+          clearTransition();
+        }, { once: true });
+
+        window.addEventListener("load", clearTransition, { passive: true });
+        window.addEventListener("pageshow", clearTransition, { passive: true });
+        window.addEventListener("pagehide", markLeaving, { passive: true });
+        window.addEventListener("beforeunload", markLeaving);
+
+        document.addEventListener("click", function (event) {
+          if (isInternalNavigationTarget(event.target)) {
+            markLeaving();
+          }
+        }, true);
+      })();
+    </script>
+
 </body>
 </html>

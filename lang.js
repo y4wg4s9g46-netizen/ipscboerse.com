@@ -205,7 +205,7 @@ window.portalTranslations = {
         "log-entry-save": "Eintrag speichern",
         "planner-lbl-match-name": "Match-Name",
         "planner-lbl-match-date": "Datum",
-        "planner-lbl-match-location": "Ort / Land",
+        "planner-lbl-match-location": "Adresse / Ort / Land",
         "planner-btn-save": "Eintrag speichern",
         "planner-subtitle-planned": "Geplante Matches",
         "planner-loading": "Lade Daten aus Supabase...",
