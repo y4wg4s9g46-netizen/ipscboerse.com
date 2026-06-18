@@ -1,3 +1,4 @@
+// OAUTH NO RELOAD LOOP v69
 // NATIVE OAUTH APPPLUGIN FIX v68
 // NATIVE OAUTH BRIDGE FIX v66
 // === ZENTRALE SUPABASE KONFIGURATION ===
@@ -171,7 +172,13 @@ async function updateUiAfterOAuthV66(session) {
         }
 
         const modal = document.getElementById("auth-modal");
-        if (modal) modal.style.display = "none";
+        if (modal) {
+            modal.style.display = "none";
+            modal.classList.remove("open", "active", "show");
+            modal.setAttribute("aria-hidden", "true");
+        }
+
+        document.body.classList.remove("auth-open", "modal-open");
 
         if (typeof updateAuthUI === "function") updateAuthUI(session?.user || window.currentUser || null);
         if (typeof window.onAuthChange === "function") window.onAuthChange(session?.user || window.currentUser || null);
@@ -180,14 +187,51 @@ async function updateUiAfterOAuthV66(session) {
         const returnPath = localStorage.getItem(OAUTH_RETURN_KEY);
         localStorage.removeItem(OAUTH_RETURN_KEY);
 
-        if (returnPath && returnPath !== window.location.pathname + window.location.search) {
-            window.location.href = returnPath;
-        } else {
-            setTimeout(() => window.location.reload(), 220);
+        const currentPath = `${window.location.pathname || "/index.html"}${window.location.search || ""}`;
+        const isCallbackPage = /auth-callback\.html/i.test(window.location.pathname || "");
+
+        // v69: Kein automatisches Reload mehr nach OAuth.
+        // Reload + App.getLaunchUrl kann denselben OAuth-Link erneut verarbeiten und Dauerblitzen auslösen.
+        if (returnPath && returnPath !== currentPath && !isCallbackPage) {
+            history.replaceState(null, "", returnPath);
         }
+
+        try {
+            const appleBtn = document.querySelector(".btn-social-apple");
+            const googleBtn = document.querySelector(".btn-social-google");
+            [appleBtn, googleBtn].forEach(btn => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove("loading", "is-loading");
+                    const original = btn.getAttribute("data-original-text");
+                    if (original) btn.textContent = original;
+                }
+            });
+        } catch (_) {}
+
+        window.dispatchEvent(new CustomEvent("ipsc:oauth-login-complete", { detail: { user: session?.user || window.currentUser || null } }));
     } catch (err) {
         console.warn("OAuth UI update failed", err);
-        setTimeout(() => window.location.reload(), 220);
+    }
+}
+
+
+
+function markOAuthUrlHandledV69(urlString, code, accessToken) {
+    try {
+        const keyMaterial = code || accessToken || String(urlString).slice(0, 240);
+        const key = "ipsc.oauth.handled.v69";
+        const now = Date.now();
+        const last = JSON.parse(sessionStorage.getItem(key) || "null");
+
+        if (last && last.keyMaterial === keyMaterial && now - Number(last.time || 0) < 120000) {
+            return false;
+        }
+
+        sessionStorage.setItem(key, JSON.stringify({ keyMaterial, time: now }));
+        return true;
+    } catch (_) {
+        return true;
     }
 }
 
@@ -218,6 +262,12 @@ async function handleNativeOAuthUrlV66(url) {
         const accessToken = hashParams.get("access_token") || queryParams.get("access_token");
         const refreshToken = hashParams.get("refresh_token") || queryParams.get("refresh_token");
         const code = queryParams.get("code") || hashParams.get("code");
+
+        if (!markOAuthUrlHandledV69(urlString, code, accessToken)) {
+            console.info("Duplicate OAuth callback ignored v69");
+            await closeNativeOAuthBrowserV66();
+            return true;
+        }
 
         let session = null;
 
@@ -280,7 +330,8 @@ async function initNativeOAuthReturnListenerV66() {
         } catch (_) {}
     }
 
-    if (App && typeof App.getLaunchUrl === "function") {
+    if (App && typeof App.getLaunchUrl === "function" && !window.__ipscLaunchUrlCheckedV69) {
+        window.__ipscLaunchUrlCheckedV69 = true;
         try {
             const launch = await App.getLaunchUrl();
             if (launch?.url) await handleNativeOAuthUrlV66(launch.url);
