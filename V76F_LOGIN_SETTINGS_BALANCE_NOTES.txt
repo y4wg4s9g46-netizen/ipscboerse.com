@@ -1,0 +1,16 @@
+IPSC Börse v76f
+
+Fixes:
+- Login wieder näher an der alten, klareren Struktur:
+  E-Mail-Login oben, Schnell-Login darunter.
+- Konto-Einstellungen kompakter:
+  Profilbearbeitung ist einklappbar.
+- Texte im Profil entschärft:
+  kein 'Nacht-Scraper'-Wording mehr, sondern saubere Formulierung zur öffentlichen Datenzuordnung.
+- Apple-/Passkey-/Google-Login aus v76e bleibt optisch verbessert.
+
+Einspielen:
+- App/Xcode: www_v76f_login_settings_balance.zip
+- Danach nur: npx cap copy ios
+- Nicht: npx cap sync ios
+- GitHub/Web: ipscboerse_public_v76f_login_settings_balance.zip

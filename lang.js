@@ -111,12 +111,12 @@ window.portalTranslations = {
         "modal-settings-passkey-btn": "Gerät als Passkey registrieren",
         "lbl-username": "Schützenname / Anzeigename",
         "lbl-ipsc-alias": "🛡️ IPSC Alias / Mitgliedsnummer",
-        "lbl-ipsc-alias-desc": "Füllst du dieses Feld aus, erhältst du das 'Trusted Shooter' Badge an deinen Inseraten!",
-        "lbl-real-name": "🔒 Echter Name (Für automatische Statistiken)",
-        "lbl-real-name-desc": "Trage hier deinen Klarnamen ein (z. B. Max Mustermann). Dieser Name wird niemals öffentlich gezeigt. Er dient exklusiv dazu, dass der Nacht-Scraper deine Treffer auf ipscmatch.de findet.",
+        "lbl-ipsc-alias-desc": "Optional: Hinterlege deine IPSC-Alias- oder Mitgliedsnummer für mehr Vertrauen im Marktplatz.",
+        "lbl-real-name": "🔒 Echter Name (für automatische Zuordnung)",
+        "lbl-real-name-desc": "Trage deinen Namen so ein, wie er in Starterlisten erscheint. Der Name wird nicht öffentlich angezeigt und hilft der App, öffentlich verfügbare Matchdaten korrekt zuzuordnen.",
         "ph-real-name": "z.B. Max Mustermann",
         "lbl-profile-pic": "Profilbild (Optional)",
-        "lbl-change-password": "Neues Passwort ändern (Optional)",
+        "lbl-change-password": "Neues Passwort (optional)",
         "btn-delete-acc": "Konto & alle Einträge unwiderruflich löschen",
         
         // --- PLATZHALTER-ÜBERSETZUNGEN ---
@@ -476,7 +476,7 @@ window.portalTranslations = {
         "lbl-real-name-desc": "Enter your real name here (e.g., John Doe). This name will never be displayed publicly. It is only used by the night scraper to map your match hits.",
         "ph-real-name": "e.g. John Doe",
         "lbl-profile-pic": "Profile Picture (Optional)",
-        "lbl-change-password": "Change New Password (Optional)",
+        "lbl-change-password": "New password (optional)",
         "btn-delete-acc": "Irrevocably delete account & all entries",
         
         // --- PLATZHALTER-ÜBERSETZUNGEN ---

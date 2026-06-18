@@ -1426,3 +1426,181 @@ window.onAuthChange = (user) => {
 enforceFutureDates();
 checkPlannerImport();
 fetchMatches();
+
+
+// ==========================================================================
+// V76F LOGIN + SETTINGS BALANCE
+// - Login wieder klarer wie vorher: E-Mail zuerst, Schnell-Login darunter.
+// - Profilbereich in Konto-Einstellungen einklappbar, damit man alles schneller sieht.
+// ==========================================================================
+(function loginSettingsBalanceV76f() {
+    function ensureTranslationsV76f() {
+        window.translations = window.translations || {};
+        window.translations.de = window.translations.de || {};
+        window.translations.en = window.translations.en || {};
+
+        Object.assign(window.translations.de, {
+            "v76f-login-title": "Anmelden",
+            "v76f-login-subtitle": "Melde dich mit E-Mail, Passkey, Apple oder Google an.",
+            "v76f-login-quick": "Oder Schnell-Login nutzen",
+            "v76f-profile-edit": "Profil bearbeiten",
+            "v76f-profile-edit-help": "Name, Mitgliedsnummer, Profilbild und Passwort ändern.",
+            "v76f-profile-title": "Profilübersicht",
+            "lbl-real-name": "🔒 Echter Name (für automatische Zuordnung)",
+            "lbl-real-name-desc": "Trage deinen Namen so ein, wie er in Starterlisten erscheint. Der Name wird nicht öffentlich angezeigt und hilft der App, öffentlich verfügbare Matchdaten korrekt zuzuordnen.",
+            "lbl-ipsc-alias-desc": "Optional: Hinterlege deine IPSC-Alias- oder Mitgliedsnummer für mehr Vertrauen im Marktplatz.",
+            "lbl-change-password": "Neues Passwort (optional)"
+        });
+
+        Object.assign(window.translations.en, {
+            "v76f-login-title": "Sign in",
+            "v76f-login-subtitle": "Sign in with email, passkey, Apple or Google.",
+            "v76f-login-quick": "Or use quick sign-in",
+            "v76f-profile-edit": "Edit profile",
+            "v76f-profile-edit-help": "Change name, member number, profile photo and password.",
+            "v76f-profile-title": "Profile overview",
+            "lbl-real-name": "🔒 Real name (for automatic matching)",
+            "lbl-real-name-desc": "Enter your name exactly as it appears on start lists. It is not shown publicly and helps the app match publicly available match data correctly.",
+            "lbl-ipsc-alias-desc": "Optional: Save your IPSC alias or member number to add more trust to marketplace listings.",
+            "lbl-change-password": "New password (optional)"
+        });
+    }
+
+    function langV76f() {
+        return window.currentLang || localStorage.getItem("selectedLanguage") || "de";
+    }
+
+    function textV76f(key, fallback) {
+        return window.translations?.[langV76f()]?.[key] || fallback || key;
+    }
+
+    function translateV76f(scope) {
+        if (!scope) return;
+        scope.querySelectorAll("[data-txt]").forEach(el => {
+            const key = el.getAttribute("data-txt");
+            const value = window.translations?.[langV76f()]?.[key];
+            if (value) el.textContent = value;
+        });
+        scope.querySelectorAll("[data-txt-ph]").forEach(el => {
+            const key = el.getAttribute("data-txt-ph");
+            const value = window.translations?.[langV76f()]?.[key];
+            if (value) el.setAttribute("placeholder", value);
+        });
+    }
+
+    function setupLoginClassicV76f() {
+        ensureTranslationsV76f();
+        const view = document.getElementById("modal-login-view");
+        if (!view) return;
+
+        view.classList.remove("login-polish-v76e");
+        view.classList.add("login-balanced-v76f");
+
+        const title = view.querySelector("h3");
+        const subtitle = view.querySelector(".auth-subtitle-v76e");
+        const form = document.getElementById("login-form");
+        const social = view.querySelector(".social-login-separator");
+        const emailLabel = view.querySelector(".auth-email-label-v76e");
+
+        if (title) {
+            title.setAttribute("data-txt", "v76f-login-title");
+            title.textContent = textV76f("v76f-login-title", "Anmelden");
+        }
+
+        if (subtitle) {
+            subtitle.setAttribute("data-txt", "v76f-login-subtitle");
+            subtitle.textContent = textV76f("v76f-login-subtitle", "Melde dich mit E-Mail, Passkey, Apple oder Google an.");
+        }
+
+        if (emailLabel) emailLabel.remove();
+
+        // Reihenfolge wieder ruhiger/klassischer: Titel, Beschreibung, E-Mail-Formular, Schnell-Login.
+        if (form && subtitle && form.previousElementSibling !== subtitle) {
+            subtitle.after(form);
+        } else if (form && title && !subtitle && form.previousElementSibling !== title) {
+            title.after(form);
+        }
+
+        if (social && form && social.previousElementSibling !== form) {
+            form.after(social);
+        }
+
+        if (social) {
+            social.classList.remove("quick-login-panel-v76e");
+            social.classList.add("quick-login-balanced-v76f");
+
+            const p = social.querySelector("p");
+            if (p) {
+                p.setAttribute("data-txt", "v76f-login-quick");
+                p.textContent = textV76f("v76f-login-quick", "Oder Schnell-Login nutzen");
+            }
+        }
+
+        // Apple-Logo aus v76e bleibt korrekt.
+        translateV76f(view);
+    }
+
+    function setupSettingsCompactV76f() {
+        ensureTranslationsV76f();
+        const view = document.getElementById("modal-settings-view");
+        const form = document.getElementById("settings-form");
+        if (!view || !form) return;
+
+        view.classList.add("settings-compact-v76f");
+
+        // Profil-Abschnitt einklappen, damit Konto direkt übersichtlicher ist.
+        if (!form.closest(".profile-editor-v76f")) {
+            const details = document.createElement("details");
+            details.className = "profile-editor-v76f";
+            details.open = false;
+
+            const summary = document.createElement("summary");
+            summary.innerHTML = `
+                <span>
+                    <strong data-txt="v76f-profile-edit">${textV76f("v76f-profile-edit", "Profil bearbeiten")}</strong>
+                    <small data-txt="v76f-profile-edit-help">${textV76f("v76f-profile-edit-help", "Name, Mitgliedsnummer, Profilbild und Passwort ändern.")}</small>
+                </span>
+                <em>⌄</em>
+            `;
+
+            form.before(details);
+            details.appendChild(summary);
+            details.appendChild(form);
+        }
+
+        // Alte Profil-Section-Headline weniger dominant machen
+        const titles = view.querySelectorAll(".settings-section-title-v76e");
+        titles.forEach(t => {
+            if ((t.textContent || "").trim().toLowerCase() === "profil" || (t.getAttribute("data-txt") === "v76e-profile-section")) {
+                t.setAttribute("data-txt", "v76f-profile-title");
+                t.textContent = textV76f("v76f-profile-title", "Profilübersicht");
+            }
+        });
+
+        translateV76f(view);
+    }
+
+    function runV76f() {
+        setupLoginClassicV76f();
+        setupSettingsCompactV76f();
+    }
+
+    document.addEventListener("DOMContentLoaded", runV76f);
+    setTimeout(runV76f, 50);
+    setTimeout(runV76f, 350);
+    setTimeout(runV76f, 900);
+
+    document.addEventListener("click", (e) => {
+        if (e.target.closest("#btn-open-login") || e.target.closest("#btn-open-settings") || e.target.closest("[onclick*='toggleAuthView']")) {
+            setTimeout(runV76f, 50);
+            setTimeout(runV76f, 250);
+        }
+    });
+
+    const previousLangHookV76f = window.onLanguageChanged;
+    window.onLanguageChanged = function() {
+        if (typeof previousLangHookV76f === "function") previousLangHookV76f();
+        ensureTranslationsV76f();
+        translateV76f(document.getElementById("auth-modal") || document);
+    };
+})();
