@@ -6,47 +6,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <meta name="theme-color" content="#f6f8fc">
-    <style id="native-page-transition-v73">
-      #native-page-curtain-v73 {
+    <style id="native-page-transition-v74">
+      #native-page-curtain-v74 {
         position: fixed;
         inset: 0;
-        z-index: 2147483200;
+        z-index: 2147483300;
         pointer-events: none;
         opacity: 0;
         background: #f6f8fc;
-        transition: opacity 88ms ease;
+        transition: opacity 72ms ease;
         transform: translateZ(0);
         will-change: opacity;
       }
-      html[data-theme="dark"] #native-page-curtain-v73 {
-        background: #0f172a;
+      html[data-theme="dark"] #native-page-curtain-v74 { background: #0f172a; }
+      html.is-native-navigating-v74 #native-page-curtain-v74 { opacity: 1; }
+      html.is-native-arriving-v74 body { opacity: 1; }
+      html[data-theme="light"],
+      html[data-theme="light"] body {
+        background: #f6f8fc !important;
       }
-      html.is-native-navigating-v73 #native-page-curtain-v73 {
-        opacity: 1;
-      }
-      html.is-native-arriving-v73 body {
-        opacity: .999;
-      }
-      @media (min-width: 900px) {
-        #native-page-curtain-v73 { transition-duration: 70ms; }
+      html[data-theme="dark"],
+      html[data-theme="dark"] body {
+        background: #0f172a !important;
       }
     </style>
-    <script id="native-page-transition-script-v73">
+    <script id="native-page-transition-script-v74">
       (function () {
         try {
           var root = document.documentElement;
           var theme = localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || root.getAttribute("data-theme") || "light";
+          if (theme === "auto") {
+            theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          }
           if (theme !== "dark") theme = "light";
           root.setAttribute("data-theme", theme);
           root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
           root.style.colorScheme = theme;
           var meta = document.querySelector('meta[name="theme-color"]');
           if (meta) meta.setAttribute("content", theme === "dark" ? "#0f172a" : "#f6f8fc");
-          root.classList.add("is-native-arriving-v73");
+          window.__IPSC_ACTIVE_THEME_V74 = theme;
+          root.classList.add("is-native-arriving-v74");
           window.addEventListener("pageshow", function () {
             setTimeout(function () {
-              root.classList.remove("is-native-arriving-v73", "is-native-navigating-v73");
-            }, 70);
+              root.classList.remove("is-native-arriving-v72", "is-native-navigating-v72", "is-native-arriving-v73", "is-native-navigating-v73", "is-native-arriving-v74", "is-native-navigating-v74");
+            }, 48);
           });
         } catch (_) {}
       })();
@@ -144,7 +147,7 @@
     @keyframes spin{to{transform:rotate(360deg)}}h1{font-size:20px;margin:0 0 8px}p{margin:0;color:#94a3b8;line-height:1.45}a{color:#ffb15f;font-weight:800}
   </style>
 </head>
-<body class="app-v71 app-v72 app-v73">
+<body class="app-v71 app-v72 app-v73 app-v74">
   <div class="box">
     <div class="spinner"></div>
     <h1>Login wird abgeschlossen…</h1>
@@ -162,24 +165,26 @@
     })();
   </script>
 
-<script id="native-app-experience-script-v73">
+<script id="native-app-experience-script-v74">
 (function () {
-  if (window.__IPSC_NATIVE_EXPERIENCE_V73) return;
-  window.__IPSC_NATIVE_EXPERIENCE_V73 = true;
+  if (window.__IPSC_NATIVE_EXPERIENCE_V74) return;
+  window.__IPSC_NATIVE_EXPERIENCE_V74 = true;
 
   function activeTheme() {
-    var t = document.documentElement.getAttribute("data-theme") || window.__IPSC_ACTIVE_THEME_V70 || "light";
+    var t = document.documentElement.getAttribute("data-theme") || window.__IPSC_ACTIVE_THEME_V74 || window.__IPSC_ACTIVE_THEME_V70 || "light";
     return t === "dark" ? "dark" : "light";
   }
 
   function ensureCurtain() {
-    var old = document.getElementById("native-page-curtain-v72");
-    if (old && old.parentNode) old.parentNode.removeChild(old);
+    ["native-page-curtain-v72", "native-page-curtain-v73"].forEach(function(id){
+      var old = document.getElementById(id);
+      if (old && old.parentNode) old.parentNode.removeChild(old);
+    });
 
-    var curtain = document.getElementById("native-page-curtain-v73");
+    var curtain = document.getElementById("native-page-curtain-v74");
     if (!curtain) {
       curtain = document.createElement("div");
-      curtain.id = "native-page-curtain-v73";
+      curtain.id = "native-page-curtain-v74";
       document.body.appendChild(curtain);
     }
     curtain.style.background = activeTheme() === "dark" ? "#0f172a" : "#f6f8fc";
@@ -187,7 +192,7 @@
   }
 
   function markLoaded() {
-    document.documentElement.classList.remove("is-native-arriving-v72", "is-native-navigating-v72", "is-native-arriving-v73", "is-native-navigating-v73");
+    document.documentElement.classList.remove("is-native-arriving-v72", "is-native-navigating-v72", "is-native-arriving-v73", "is-native-navigating-v73", "is-native-arriving-v74", "is-native-navigating-v74");
     ensureCurtain();
   }
 
@@ -210,15 +215,9 @@
 
       event.preventDefault();
       ensureCurtain();
-      document.documentElement.classList.add("is-native-navigating-v73");
-      setTimeout(function () { window.location.href = url.href; }, 64);
+      document.documentElement.classList.add("is-native-navigating-v74");
+      setTimeout(function () { window.location.href = url.href; }, 54);
     }, true);
-
-    document.querySelectorAll(".dash-card, .card, .post-card, .market-card, .planner-card, .tool-section, .app-page-action-v72, .app-page-action-v73").forEach(function (el) {
-      el.addEventListener("touchstart", function () { el.classList.add("is-pressed-v72"); }, { passive: true });
-      el.addEventListener("touchend", function () { setTimeout(function () { el.classList.remove("is-pressed-v72"); }, 110); }, { passive: true });
-      el.addEventListener("touchcancel", function () { el.classList.remove("is-pressed-v72"); }, { passive: true });
-    });
   });
 
   window.addEventListener("pageshow", markLoaded);

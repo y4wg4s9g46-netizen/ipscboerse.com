@@ -10542,3 +10542,262 @@ body.app-v73 select:focus-visible {
     outline: 3px solid rgba(255,159,67,.34) !important;
     outline-offset: 2px !important;
 }
+
+
+/* ==========================================================================
+   NATIVE LOGIC POLISH v74
+   Weniger Deko-Buttons, mehr echte Aktionen. Bessere Übersetzung,
+   funktionsfähige Community-Filter und stabilerer Light-Mode-Seitenwechsel.
+   ========================================================================== */
+
+body.app-v74 .container,
+body.app-v74 .app-page-hero-v72,
+body.app-v74 .app-home-hero-v71,
+body.app-v74 .dashboard-grid,
+body.app-v74 .news-section,
+body.app-v74 #feed-section,
+body.app-v74 #analytics-content,
+body.app-v74 .tool-section,
+body.app-v74 .form-card,
+body.app-v74 .tabs-container,
+body.app-v74 .filter-container {
+    width: min(100%, 1120px);
+    box-sizing: border-box;
+}
+
+body.app-v74 .app-page-hero-v72,
+body.app-v74 .app-home-hero-v71,
+body.app-v74 .dashboard-grid,
+body.app-v74 .news-section {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+body.app-v74 .app-page-hero-v74 {
+    grid-template-columns: 1fr !important;
+}
+
+body.app-v74 .app-page-kicker-v72 em {
+    font-style: normal;
+}
+
+body.app-v74 .app-page-status-v74 {
+    margin-top: 14px;
+    padding: 11px 13px;
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.045);
+    border: 1px solid rgba(15, 23, 42, 0.07);
+    color: var(--text-muted);
+    font-size: 12.8px;
+    line-height: 1.35;
+    font-weight: 650;
+}
+
+html[data-theme="dark"] body.app-v74 .app-page-status-v74 {
+    background: rgba(255, 255, 255, 0.045);
+    border-color: rgba(148, 163, 184, 0.12);
+}
+
+body.app-v74 .app-page-metrics-v72 {
+    display: none !important;
+}
+
+body.page-index.app-v74 .hero-quicklinks-v74 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 22px;
+}
+
+body.page-index.app-v74 .hero-quicklinks-v74 a {
+    text-decoration: none;
+    min-width: 0;
+    padding: 14px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(15, 23, 42, 0.07);
+    color: var(--text-color);
+    transition: transform .14s ease, border-color .14s ease, box-shadow .14s ease;
+}
+
+html[data-theme="dark"] body.page-index.app-v74 .hero-quicklinks-v74 a {
+    background: rgba(15, 23, 42, 0.42);
+    border-color: rgba(148, 163, 184, 0.13);
+}
+
+body.page-index.app-v74 .hero-quicklinks-v74 a:active {
+    transform: scale(.985);
+}
+
+body.page-index.app-v74 .hero-quicklinks-v74 strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: -.18px;
+}
+
+body.page-index.app-v74 .hero-quicklinks-v74 span {
+    display: block;
+    margin-top: 3px;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.25;
+}
+
+/* More logical action areas */
+body.app-v74 .app-page-actions-v74 {
+    margin-top: 20px;
+}
+
+body.app-v74 .app-page-action-v72 {
+    min-width: 0;
+    white-space: normal;
+    text-align: center;
+}
+
+body.app-v74 .info-box {
+    font-size: 14px !important;
+    line-height: 1.42 !important;
+}
+
+/* Community category filter fix */
+body.page-community.app-v74 .community-filter-row-v74 {
+    display: flex !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 2px 12px !important;
+    margin-bottom: 4px !important;
+    scrollbar-width: none;
+}
+
+body.page-community.app-v74 .community-filter-row-v74::-webkit-scrollbar {
+    display: none;
+}
+
+body.page-community.app-v74 .community-filter-row-v74 button,
+body.page-community.app-v74 .post-category-select-v74 button {
+    flex: 0 0 auto;
+    border: 1px solid var(--border-color) !important;
+    background: var(--surface-strong-v71) !important;
+    color: var(--text-muted) !important;
+    min-height: 38px;
+    padding: 0 12px !important;
+    border-radius: 999px !important;
+    font-size: 12.5px !important;
+    font-weight: 850 !important;
+    box-shadow: none !important;
+}
+
+body.page-community.app-v74 .community-filter-row-v74 button.active,
+body.page-community.app-v74 .post-category-select-v74 button.active {
+    background: rgba(255, 159, 67, 0.15) !important;
+    border-color: rgba(255, 159, 67, 0.30) !important;
+    color: var(--text-color) !important;
+}
+
+body.page-community.app-v74 .post-category-label-v74 {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-muted);
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    letter-spacing: .06em !important;
+    text-transform: uppercase;
+}
+
+body.page-community.app-v74 .post-category-select-v74 {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 0 12px;
+    margin-bottom: 10px;
+    scrollbar-width: none;
+}
+
+body.page-community.app-v74 .post-category-select-v74::-webkit-scrollbar {
+    display: none;
+}
+
+body.page-community.app-v74 .post-topic-v72 {
+    background: rgba(255, 159, 67, 0.12) !important;
+    color: var(--accent-color) !important;
+}
+
+/* Light-mode flash: keep same surface during navigation */
+#native-page-curtain-v74 {
+    background: #f6f8fc;
+}
+
+html[data-theme="dark"] #native-page-curtain-v74 {
+    background: #0f172a;
+}
+
+#native-page-curtain-v72,
+#native-page-curtain-v73 {
+    display: none !important;
+}
+
+html.is-native-navigating-v74 body.app-v74 .container {
+    animation: none !important;
+}
+
+html[data-theme="light"] body.app-v74 {
+    background-color: #f6f8fc !important;
+}
+
+/* Mobile rhythm */
+@media (max-width: 768px) {
+    body.app-v74 .app-page-actions-v74 {
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+    }
+
+    body.app-v74 .app-page-status-v74 {
+        font-size: 12.2px;
+        padding: 10px 11px;
+    }
+
+    body.page-index.app-v74 .hero-quicklinks-v74 {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    body.page-index.app-v74 .hero-quicklinks-v74 a {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 13px;
+    }
+
+    body.page-index.app-v74 .hero-quicklinks-v74 span {
+        text-align: right;
+        margin-top: 0;
+    }
+
+    body.page-community.app-v74 .community-filter-row-v74 {
+        margin-left: -2px;
+        margin-right: -2px;
+    }
+
+    body.page-community.app-v74 .post-category-select-v74 button {
+        min-height: 36px;
+        padding: 0 11px !important;
+    }
+}
+
+/* Desktop width consistency */
+@media (min-width: 1024px) {
+    body.app-v74 .container {
+        max-width: 1160px !important;
+    }
+
+    body.app-v74 .app-page-hero-v72,
+    body.page-index.app-v74 .app-home-hero-v71,
+    body.page-index.app-v74 .dashboard-grid,
+    body.page-index.app-v74 .news-section {
+        max-width: 1060px !important;
+    }
+}
