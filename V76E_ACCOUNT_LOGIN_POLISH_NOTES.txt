@@ -1,0 +1,17 @@
+IPSC Börse v76e Account/Login Polish
+
+Enthalten:
+- Login-Fenster moderner und app-artiger
+- Schnell-Login nach oben gezogen
+- Apple-Icon korrigiert
+- E-Mail-Login kompakter
+- Konto-Einstellungen neu strukturiert:
+  Profilkopf, Profil, Sicherheit, Vermittlungen, Gefahrenbereich
+- Profilbild-Upload als schöner Button statt rohem Datei-Feld
+- Passwort ändern einklappbar
+- Konto löschen in Gefahrenbereich einklappbar
+- DE/EN-Texte für neue Bereiche ergänzt
+
+Hinweis:
+Eine separate Ausrüstungsbörse/Gear-Seite ist noch NICHT eingebaut.
+Das sollte als eigener v77-Schritt kommen, damit Store-Finalisierung nicht unnötig riskant wird.

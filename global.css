@@ -11106,3 +11106,387 @@ body.page-freie-matches.app-v76c .filter-container {
     from { opacity: 0; transform: translateY(-4px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+
+/* ==========================================================================
+   V76E ACCOUNT & LOGIN POLISH
+   ========================================================================== */
+
+#auth-modal .modal-content {
+    border-radius: 34px !important;
+    padding: 30px 28px !important;
+    max-width: 560px !important;
+    width: min(94vw, 560px) !important;
+    max-height: min(86vh, 820px) !important;
+    overflow-y: auto !important;
+    box-shadow: 0 30px 90px rgba(15, 23, 42, .35) !important;
+    border-top: 4px solid var(--accent-color) !important;
+}
+
+#modal-login-view.login-polish-v76e h3,
+#modal-settings-view.settings-polish-v76e h3 {
+    font-size: clamp(34px, 7vw, 46px) !important;
+    line-height: .98 !important;
+    letter-spacing: -1.4px !important;
+    margin: 4px 0 10px !important;
+}
+
+.auth-subtitle-v76e {
+    margin: 0 0 18px !important;
+    color: var(--text-muted) !important;
+    font-size: 15px !important;
+    line-height: 1.45 !important;
+    font-weight: 700 !important;
+}
+
+.login-polish-v76e .quick-login-panel-v76e {
+    margin: 16px 0 18px !important;
+    padding: 16px !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 24px !important;
+    background: linear-gradient(145deg, rgba(255, 159, 67, .08), rgba(255,255,255,.72)) !important;
+    box-shadow: var(--shadow-sm) !important;
+    text-align: left !important;
+}
+
+html[data-theme="dark"] .login-polish-v76e .quick-login-panel-v76e {
+    background: linear-gradient(145deg, rgba(255, 159, 67, .10), rgba(30, 41, 59, .82)) !important;
+}
+
+.login-polish-v76e .quick-login-panel-v76e > p {
+    margin: 0 0 10px !important;
+    font-size: 12px !important;
+    letter-spacing: .13em !important;
+    text-transform: uppercase !important;
+    color: var(--text-muted) !important;
+    font-weight: 900 !important;
+}
+
+.auth-trust-v76e {
+    margin: 10px 4px 0 !important;
+    color: var(--text-muted) !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1.35 !important;
+}
+
+.auth-provider-btn-v76e,
+.login-polish-v76e .btn-social-passkey,
+.login-polish-v76e .btn-social-apple,
+.login-polish-v76e .btn-social-google {
+    width: 100% !important;
+    min-height: 54px !important;
+    border-radius: 17px !important;
+    font-size: 16px !important;
+    font-weight: 900 !important;
+    letter-spacing: -.2px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin: 8px 0 !important;
+    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease !important;
+}
+
+.auth-provider-btn-v76e:active {
+    transform: scale(.985);
+}
+
+.login-polish-v76e .btn-social-passkey {
+    background: rgba(59, 130, 246, .08) !important;
+    color: var(--text-color) !important;
+    border: 1px solid rgba(59, 130, 246, .22) !important;
+}
+
+.login-polish-v76e .btn-social-apple {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(15, 23, 42, .25) !important;
+}
+
+html[data-theme="dark"] .login-polish-v76e .btn-social-apple {
+    background: #ffffff !important;
+    color: #0f172a !important;
+}
+
+.login-polish-v76e .btn-social-google {
+    background: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.apple-mark-v76e {
+    font-size: 23px !important;
+    line-height: 1 !important;
+    margin-right: 2px !important;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif !important;
+}
+
+.auth-email-label-v76e {
+    margin: 18px 0 10px !important;
+    text-align: center !important;
+    color: var(--text-muted) !important;
+    font-size: 12px !important;
+    text-transform: uppercase !important;
+    letter-spacing: .14em !important;
+    font-weight: 900 !important;
+}
+
+.login-polish-v76e #login-form {
+    padding: 16px !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 24px !important;
+    background: rgba(148, 163, 184, .06) !important;
+}
+
+.login-polish-v76e #login-form .form-group {
+    margin-bottom: 12px !important;
+}
+
+.login-polish-v76e #login-form input,
+.settings-polish-v76e input,
+.settings-polish-v76e select {
+    border-radius: 16px !important;
+}
+
+.login-polish-v76e .modal-footer {
+    margin-top: 18px !important;
+    padding-top: 14px !important;
+    border-top: 1px solid var(--border-color) !important;
+}
+
+/* Settings */
+.settings-profile-head-v76e {
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    padding: 14px !important;
+    margin: 14px 0 18px !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 24px !important;
+    background: linear-gradient(145deg, rgba(255, 159, 67, .10), rgba(255, 255, 255, .72)) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+html[data-theme="dark"] .settings-profile-head-v76e {
+    background: linear-gradient(145deg, rgba(255, 159, 67, .10), rgba(30, 41, 59, .82)) !important;
+}
+
+.settings-profile-head-v76e img {
+    width: 68px !important;
+    height: 68px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 3px solid rgba(255, 159, 67, .45) !important;
+    box-shadow: 0 10px 26px rgba(255, 159, 67, .20) !important;
+}
+
+.settings-profile-head-v76e div {
+    min-width: 0 !important;
+    display: grid !important;
+    gap: 3px !important;
+}
+
+.profile-head-name-v76e {
+    font-size: 20px !important;
+    color: var(--text-color) !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.profile-head-meta-v76e,
+.profile-head-email-v76e {
+    color: var(--text-muted) !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.settings-section-title-v76e {
+    margin: 20px 0 10px !important;
+    color: var(--text-muted) !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .14em !important;
+}
+
+.settings-polish-v76e .settings-form-v76e,
+.settings-polish-v76e .settings-passkey-card,
+.settings-polish-v76e .settings-stats-card {
+    border-radius: 24px !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--shadow-sm) !important;
+    background: var(--card-bg) !important;
+    padding: 16px !important;
+    margin-bottom: 16px !important;
+}
+
+.settings-polish-v76e .settings-realname-card,
+.settings-polish-v76e .settings-alias-card {
+    border-radius: 18px !important;
+    border: 1px solid var(--border-color) !important;
+    border-left-width: 4px !important;
+    margin-bottom: 14px !important;
+}
+
+.settings-polish-v76e .settings-passkey-card.passkey-polished-v76e {
+    background: linear-gradient(145deg, rgba(59, 130, 246, .08), rgba(255,255,255,.72)) !important;
+}
+
+html[data-theme="dark"] .settings-polish-v76e .settings-passkey-card.passkey-polished-v76e {
+    background: linear-gradient(145deg, rgba(59, 130, 246, .12), rgba(30,41,59,.82)) !important;
+}
+
+.settings-polish-v76e .settings-passkey-title {
+    color: var(--info-color) !important;
+    font-size: 18px !important;
+    font-weight: 950 !important;
+}
+
+.settings-polish-v76e .settings-stats-card.stats-polished-v76e {
+    background: linear-gradient(145deg, rgba(16, 185, 129, .07), rgba(255,255,255,.72)) !important;
+}
+
+html[data-theme="dark"] .settings-polish-v76e .settings-stats-card.stats-polished-v76e {
+    background: linear-gradient(145deg, rgba(16, 185, 129, .10), rgba(30,41,59,.82)) !important;
+}
+
+.settings-polish-v76e .settings-stats-title {
+    font-size: 17px !important;
+    color: var(--success-color) !important;
+    font-weight: 950 !important;
+}
+
+.settings-polish-v76e .settings-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.settings-polish-v76e .settings-stat-item {
+    border-radius: 18px !important;
+    padding: 12px !important;
+}
+
+.avatar-polished-v76e {
+    padding: 14px !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 18px !important;
+    background: rgba(148, 163, 184, .06) !important;
+    align-items: center !important;
+}
+
+.avatar-polished-v76e input[type="file"] {
+    position: absolute !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 1px !important;
+    height: 1px !important;
+}
+
+.settings-avatar-preview-v76e {
+    width: 88px !important;
+    height: 88px !important;
+    max-width: 88px !important;
+    border-radius: 50% !important;
+    border: 3px solid rgba(255,159,67,.40) !important;
+    margin: 0 auto 12px !important;
+}
+
+.avatar-upload-btn-v76e {
+    border: 1px solid rgba(255, 159, 67, .30) !important;
+    background: rgba(255, 159, 67, .08) !important;
+    color: var(--accent-color) !important;
+    border-radius: 16px !important;
+    padding: 12px 16px !important;
+    font-weight: 950 !important;
+    cursor: pointer !important;
+}
+
+.settings-collapse-v76e,
+.settings-danger-v76e {
+    border: 1px solid var(--border-color) !important;
+    border-radius: 18px !important;
+    background: rgba(148, 163, 184, .06) !important;
+    padding: 0 !important;
+    margin: 12px 0 16px !important;
+    overflow: hidden !important;
+}
+
+.settings-collapse-v76e summary,
+.settings-danger-v76e summary {
+    list-style: none !important;
+    cursor: pointer !important;
+    padding: 15px 16px !important;
+    color: var(--text-color) !important;
+    font-weight: 950 !important;
+}
+
+.settings-collapse-v76e summary::-webkit-details-marker,
+.settings-danger-v76e summary::-webkit-details-marker {
+    display: none !important;
+}
+
+.settings-collapse-v76e summary::after,
+.settings-danger-v76e summary::after {
+    content: "⌄";
+    float: right;
+    color: var(--text-muted);
+}
+
+.settings-collapse-v76e[open] summary::after,
+.settings-danger-v76e[open] summary::after {
+    transform: rotate(180deg);
+}
+
+.settings-collapse-help-v76e {
+    margin: -4px 16px 12px !important;
+    color: var(--text-muted) !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+}
+
+.settings-collapse-v76e .form-group {
+    padding: 0 16px 16px !important;
+    margin: 0 !important;
+}
+
+.settings-danger-v76e {
+    border-color: rgba(239, 68, 68, .24) !important;
+    background: rgba(239, 68, 68, .04) !important;
+}
+
+.settings-danger-v76e summary {
+    color: #ef4444 !important;
+}
+
+.settings-danger-v76e .btn-danger-block {
+    margin: 0 16px 16px !important;
+    width: calc(100% - 32px) !important;
+    border-radius: 16px !important;
+}
+
+@media (max-width: 600px) {
+    #auth-modal .modal-content {
+        width: calc(100vw - 30px) !important;
+        padding: 26px 22px !important;
+        border-radius: 30px !important;
+    }
+
+    #modal-login-view.login-polish-v76e h3,
+    #modal-settings-view.settings-polish-v76e h3 {
+        font-size: 36px !important;
+    }
+
+    .settings-profile-head-v76e img {
+        width: 58px !important;
+        height: 58px !important;
+    }
+
+    .profile-head-name-v76e {
+        font-size: 18px !important;
+    }
+}

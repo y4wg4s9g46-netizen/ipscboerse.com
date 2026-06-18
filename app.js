@@ -218,6 +218,360 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
     }
 })(); // Injektion läuft
 
+// ==========================================================================
+// V76E ACCOUNT & LOGIN POLISH
+// Macht Login und Konto-Einstellungen app-artiger, kompakter und klarer.
+// ==========================================================================
+(function accountAndLoginPolishV76e() {
+    function ensureAccountTranslationsV76e() {
+        window.translations = window.translations || {};
+        window.translations.de = window.translations.de || {};
+        window.translations.en = window.translations.en || {};
+
+        Object.assign(window.translations.de, {
+            "v76e-login-title": "Willkommen zurück",
+            "v76e-login-subtitle": "Melde dich sicher bei deiner IPSC-Börse an.",
+            "v76e-login-quick": "Schnell anmelden",
+            "v76e-login-email": "Oder mit E-Mail anmelden",
+            "v76e-login-trust": "Sicherer Login mit Passkey, Apple oder Google.",
+            "v76e-settings-title": "Konto",
+            "v76e-profile-section": "Profil",
+            "v76e-security-section": "Sicherheit",
+            "v76e-stats-section": "Vermittlungen",
+            "v76e-danger-section": "Gefahrenbereich",
+            "v76e-avatar-change": "Profilbild ändern",
+            "v76e-password-summary": "Passwort ändern",
+            "v76e-password-help": "Nur ausfüllen, wenn du dein Passwort ändern möchtest.",
+            "v76e-delete-summary": "Gefahrenbereich anzeigen",
+            "v76e-profile-edit-hint": "Name, Schützenname und Profilbild",
+            "v76e-passkey-title": "Schnell-Login",
+            "v76e-passkey-desc": "FaceID, Fingerabdruck oder Geräte-PIN auf diesem Gerät aktivieren.",
+            "v76e-deals-compact": "Erfolgreiche Vermittlungen",
+            "modal-settings-passkey-btn": "Passkey auf diesem Gerät aktivieren",
+            "modal-apple-login": "Mit Apple anmelden",
+            "modal-google-login": "Mit Google anmelden",
+            "modal-passkey-login": "Mit FaceID / Passkey fortfahren"
+        });
+
+        Object.assign(window.translations.en, {
+            "v76e-login-title": "Welcome back",
+            "v76e-login-subtitle": "Sign in securely to your IPSC marketplace.",
+            "v76e-login-quick": "Quick sign-in",
+            "v76e-login-email": "Or sign in with email",
+            "v76e-login-trust": "Secure sign-in with passkey, Apple or Google.",
+            "v76e-settings-title": "Account",
+            "v76e-profile-section": "Profile",
+            "v76e-security-section": "Security",
+            "v76e-stats-section": "Deals",
+            "v76e-danger-section": "Danger zone",
+            "v76e-avatar-change": "Change profile photo",
+            "v76e-password-summary": "Change password",
+            "v76e-password-help": "Only fill this in if you want to change your password.",
+            "v76e-delete-summary": "Show danger zone",
+            "v76e-profile-edit-hint": "Name, shooter name and profile photo",
+            "v76e-passkey-title": "Quick sign-in",
+            "v76e-passkey-desc": "Enable Face ID, fingerprint or device PIN on this device.",
+            "v76e-deals-compact": "Successful deals",
+            "modal-settings-passkey-btn": "Enable passkey on this device",
+            "modal-apple-login": "Sign in with Apple",
+            "modal-google-login": "Sign in with Google",
+            "modal-passkey-login": "Continue with Face ID / Passkey"
+        });
+    }
+
+    function currentLangV76e() {
+        return window.currentLang || localStorage.getItem("selectedLanguage") || "de";
+    }
+
+    function tV76e(key, fallback) {
+        const lang = currentLangV76e();
+        return window.translations?.[lang]?.[key] || fallback || key;
+    }
+
+    function translateScopeV76e(scope) {
+        if (!scope) return;
+        scope.querySelectorAll("[data-txt]").forEach(el => {
+            const key = el.getAttribute("data-txt");
+            if (window.translations?.[currentLangV76e()]?.[key]) {
+                el.textContent = window.translations[currentLangV76e()][key];
+            }
+        });
+        scope.querySelectorAll("[data-txt-ph]").forEach(el => {
+            const key = el.getAttribute("data-txt-ph");
+            if (window.translations?.[currentLangV76e()]?.[key]) {
+                el.setAttribute("placeholder", window.translations[currentLangV76e()][key]);
+            }
+        });
+    }
+
+    function setupLoginPolishV76e() {
+        ensureAccountTranslationsV76e();
+
+        const view = document.getElementById("modal-login-view");
+        if (!view || view.dataset.polishedV76e === "1") return;
+        view.dataset.polishedV76e = "1";
+        view.classList.add("login-polish-v76e");
+
+        const title = view.querySelector("h3");
+        if (title) {
+            title.setAttribute("data-txt", "v76e-login-title");
+            title.textContent = tV76e("v76e-login-title", "Willkommen zurück");
+        }
+
+        if (title && !view.querySelector(".auth-subtitle-v76e")) {
+            const sub = document.createElement("p");
+            sub.className = "auth-subtitle-v76e";
+            sub.setAttribute("data-txt", "v76e-login-subtitle");
+            sub.textContent = tV76e("v76e-login-subtitle", "Melde dich sicher bei deiner IPSC-Börse an.");
+            title.after(sub);
+        }
+
+        const form = document.getElementById("login-form");
+        const social = view.querySelector(".social-login-separator");
+
+        if (social && form) {
+            social.classList.add("quick-login-panel-v76e");
+            view.insertBefore(social, form);
+
+            const p = social.querySelector("p");
+            if (p) {
+                p.setAttribute("data-txt", "v76e-login-quick");
+                p.textContent = tV76e("v76e-login-quick", "Schnell anmelden");
+            }
+
+            if (!social.querySelector(".auth-trust-v76e")) {
+                const trust = document.createElement("div");
+                trust.className = "auth-trust-v76e";
+                trust.setAttribute("data-txt", "v76e-login-trust");
+                trust.textContent = tV76e("v76e-login-trust", "Sicherer Login mit Passkey, Apple oder Google.");
+                social.appendChild(trust);
+            }
+
+            if (!view.querySelector(".auth-email-label-v76e")) {
+                const emailLabel = document.createElement("div");
+                emailLabel.className = "auth-email-label-v76e";
+                emailLabel.setAttribute("data-txt", "v76e-login-email");
+                emailLabel.textContent = tV76e("v76e-login-email", "Oder mit E-Mail anmelden");
+                form.before(emailLabel);
+            }
+        }
+
+        const appleBtn = view.querySelector(".btn-social-apple");
+        if (appleBtn && !appleBtn.dataset.appleFixedV76e) {
+            appleBtn.dataset.appleFixedV76e = "1";
+            const oldSvg = appleBtn.querySelector("svg");
+            if (oldSvg) oldSvg.remove();
+            const mark = document.createElement("span");
+            mark.className = "apple-mark-v76e";
+            mark.textContent = "";
+            appleBtn.prepend(mark);
+        }
+
+        view.querySelectorAll(".btn-social-passkey, .btn-social-apple, .btn-social-google").forEach(btn => {
+            btn.classList.add("auth-provider-btn-v76e");
+        });
+
+        translateScopeV76e(view);
+    }
+
+    function updateProfileHeadV76e() {
+        const box = document.getElementById("settings-profile-head-v76e");
+        if (!box) return;
+
+        const user = window.currentUser || null;
+        const meta = user?.user_metadata || {};
+        const name = meta.real_name || meta.full_name || meta.name || meta.ipsc_alias || user?.email?.split("@")[0] || "Profil";
+        const alias = meta.ipsc_alias || "";
+        const email = user?.email || "";
+        const avatar = meta.avatar_url || meta.picture || meta.profile_picture || "icon-192.png";
+
+        const img = box.querySelector("img");
+        const nameEl = box.querySelector(".profile-head-name-v76e");
+        const metaEl = box.querySelector(".profile-head-meta-v76e");
+        const emailEl = box.querySelector(".profile-head-email-v76e");
+
+        if (img) img.src = avatar;
+        if (nameEl) nameEl.textContent = name;
+        if (metaEl) metaEl.textContent = alias ? alias : tV76e("lbl-ipsc-alias", "IPSC Alias / Schützenname");
+        if (emailEl) emailEl.textContent = email;
+    }
+
+    function sectionTitleV76e(key, fallback) {
+        const div = document.createElement("div");
+        div.className = "settings-section-title-v76e";
+        div.setAttribute("data-txt", key);
+        div.textContent = tV76e(key, fallback);
+        return div;
+    }
+
+    function setupSettingsPolishV76e() {
+        ensureAccountTranslationsV76e();
+
+        const view = document.getElementById("modal-settings-view");
+        if (!view || view.dataset.polishedV76e === "1") {
+            updateProfileHeadV76e();
+            return;
+        }
+
+        view.dataset.polishedV76e = "1";
+        view.classList.add("settings-polish-v76e");
+
+        const title = view.querySelector("h3");
+        if (title) {
+            title.setAttribute("data-txt", "v76e-settings-title");
+            title.textContent = tV76e("v76e-settings-title", "Konto");
+        }
+
+        if (title && !document.getElementById("settings-profile-head-v76e")) {
+            const head = document.createElement("div");
+            head.id = "settings-profile-head-v76e";
+            head.className = "settings-profile-head-v76e";
+            head.innerHTML = `
+                <img src="icon-192.png" alt="Profilbild">
+                <div>
+                    <strong class="profile-head-name-v76e">Profil</strong>
+                    <span class="profile-head-meta-v76e"></span>
+                    <small class="profile-head-email-v76e"></small>
+                </div>
+            `;
+            title.after(head);
+        }
+
+        const form = document.getElementById("settings-form");
+        const stats = view.querySelector(".settings-stats-card");
+        const passkey = view.querySelector(".settings-passkey-card");
+        const realCard = view.querySelector(".settings-realname-card");
+        const aliasCard = view.querySelector(".settings-alias-card");
+        const avatarInput = document.getElementById("settings-avatar");
+        const avatarGroup = avatarInput?.closest(".form-group");
+        const avatarPreview = document.getElementById("settings-avatar-preview");
+        const passwordInput = document.getElementById("settings-password");
+        const passwordGroup = passwordInput?.closest(".form-group");
+        const deleteBtn = document.getElementById("btn-delete-account");
+
+        if (form) {
+            form.classList.add("settings-form-v76e");
+
+            if (!form.previousElementSibling?.classList?.contains("settings-section-title-v76e")) {
+                form.before(sectionTitleV76e("v76e-profile-section", "Profil"));
+            }
+        }
+
+        if (avatarGroup && !avatarGroup.classList.contains("avatar-polished-v76e")) {
+            avatarGroup.classList.add("avatar-polished-v76e");
+            const label = avatarGroup.querySelector("label");
+            if (label) label.style.display = "none";
+
+            if (avatarPreview) {
+                avatarPreview.classList.add("settings-avatar-preview-v76e");
+                avatarPreview.style.display = "block";
+            }
+
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "avatar-upload-btn-v76e";
+            btn.setAttribute("data-txt", "v76e-avatar-change");
+            btn.textContent = tV76e("v76e-avatar-change", "Profilbild ändern");
+            btn.addEventListener("click", () => avatarInput.click());
+            avatarGroup.appendChild(btn);
+        }
+
+        if (passwordGroup && !passwordGroup.closest(".settings-collapse-password-v76e")) {
+            const details = document.createElement("details");
+            details.className = "settings-collapse-v76e settings-collapse-password-v76e";
+            const summary = document.createElement("summary");
+            summary.setAttribute("data-txt", "v76e-password-summary");
+            summary.textContent = tV76e("v76e-password-summary", "Passwort ändern");
+            const help = document.createElement("p");
+            help.className = "settings-collapse-help-v76e";
+            help.setAttribute("data-txt", "v76e-password-help");
+            help.textContent = tV76e("v76e-password-help", "Nur ausfüllen, wenn du dein Passwort ändern möchtest.");
+            passwordGroup.before(details);
+            details.appendChild(summary);
+            details.appendChild(help);
+            details.appendChild(passwordGroup);
+        }
+
+        if (passkey && !passkey.classList.contains("passkey-polished-v76e")) {
+            passkey.classList.add("passkey-polished-v76e");
+            const passTitle = passkey.querySelector(".settings-passkey-title");
+            const passDesc = passkey.querySelector(".help-text");
+            if (passTitle) {
+                passTitle.setAttribute("data-txt", "v76e-passkey-title");
+                passTitle.textContent = tV76e("v76e-passkey-title", "Schnell-Login");
+            }
+            if (passDesc) {
+                passDesc.setAttribute("data-txt", "v76e-passkey-desc");
+                passDesc.textContent = tV76e("v76e-passkey-desc", "FaceID, Fingerabdruck oder Geräte-PIN auf diesem Gerät aktivieren.");
+            }
+        }
+
+        if (stats && !stats.classList.contains("stats-polished-v76e")) {
+            stats.classList.add("stats-polished-v76e");
+            const statsTitle = stats.querySelector(".settings-stats-title");
+            if (statsTitle) {
+                statsTitle.setAttribute("data-txt", "v76e-deals-compact");
+                statsTitle.textContent = tV76e("v76e-deals-compact", "Erfolgreiche Vermittlungen");
+            }
+        }
+
+        // Reihenfolge: Profilkopf -> Profilformular -> Sicherheit -> Vermittlungen -> Gefahrenbereich
+        if (form && passkey) {
+            form.after(passkey);
+            passkey.before(sectionTitleV76e("v76e-security-section", "Sicherheit"));
+        }
+
+        if (passkey && stats) {
+            passkey.after(stats);
+            stats.before(sectionTitleV76e("v76e-stats-section", "Vermittlungen"));
+        }
+
+        if (deleteBtn && !deleteBtn.closest(".settings-danger-v76e")) {
+            const details = document.createElement("details");
+            details.className = "settings-danger-v76e";
+            const summary = document.createElement("summary");
+            summary.setAttribute("data-txt", "v76e-delete-summary");
+            summary.textContent = tV76e("v76e-delete-summary", "Gefahrenbereich anzeigen");
+            deleteBtn.before(sectionTitleV76e("v76e-danger-section", "Gefahrenbereich"));
+            deleteBtn.before(details);
+            details.appendChild(summary);
+            details.appendChild(deleteBtn);
+        }
+
+        updateProfileHeadV76e();
+        translateScopeV76e(view);
+    }
+
+    function runPolishV76e() {
+        setupLoginPolishV76e();
+        setupSettingsPolishV76e();
+    }
+
+    document.addEventListener("DOMContentLoaded", runPolishV76e);
+    setTimeout(runPolishV76e, 50);
+    setTimeout(runPolishV76e, 500);
+
+    document.addEventListener("click", (event) => {
+        if (event.target.closest("#btn-open-login") || event.target.closest("#btn-open-settings")) {
+            setTimeout(runPolishV76e, 40);
+            setTimeout(updateProfileHeadV76e, 150);
+        }
+    });
+
+    window.addEventListener("ipsc:oauth-login-complete", () => {
+        setTimeout(runPolishV76e, 100);
+    });
+
+    const previousLanguageHookV76e = window.onLanguageChanged;
+    window.onLanguageChanged = function() {
+        if (typeof previousLanguageHookV76e === "function") previousLanguageHookV76e();
+        ensureAccountTranslationsV76e();
+        translateScopeV76e(document.getElementById("auth-modal") || document);
+        updateProfileHeadV76e();
+    };
+})();
+
+
 document.addEventListener("DOMContentLoaded", () => {
     // Schließen-Trigger für das Konto-Modal binden
     const closeBtn = document.getElementById("btn-close-modal");
