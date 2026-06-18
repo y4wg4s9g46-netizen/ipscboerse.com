@@ -149,16 +149,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/nsfwjs@2.4.0/dist/browser/nsfwjs.min.js"></script>
-<link rel="stylesheet" href="global.css?v=74">
+<link rel="stylesheet" href="global.css?v=75">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
 
-<body class="page-community app-v71 app-v72 app-v73 app-v74">
+<body class="page-community app-v71 app-v72 app-v73 app-v74 app-v75">
 
     <header id="main-header"></header>
 
-    <script src="header.js?v=53"></script>
+    <script src="header.js?v=54"></script>
 
     <div class="container">
         
@@ -173,7 +173,7 @@
                     <a class="app-page-action-v72 primary" href="#post-composer-v74" data-txt="v74-community-action-post"></a>
 <a class="app-page-action-v72 secondary" href="#posts-container" data-txt="v74-community-action-feed"></a>
                 </div>
-                <div class="app-page-status-v74" data-txt="v74-community-status"></div>
+                <div class="app-page-status-v74" data-txt="v75-community-status"></div>
             </div>
         </section>
 <div class="tabs-container">
@@ -270,8 +270,8 @@
         </div>
     </footer>
 <script src="auth.js?v=69"></script>
-    <script src="lang.js?v=24"></script>
-    <script src="app.js?v=30"></script>
+    <script src="lang.js?v=25"></script>
+    <script src="app.js?v=31"></script>
 
     <script>
         const ADMIN_EMAIL = 'fabian-schoeps@gmx.de';
@@ -421,7 +421,7 @@
                 .limit(50);
 
             if (error) {
-                container.innerHTML = 'Fehler beim Laden.';
+                container.innerHTML = communityI18nV74('v75-community-load-error','Fehler beim Laden.');
                 return;
             }
 
@@ -433,7 +433,7 @@
             container.innerHTML = '';
 
             if (filteredPosts.length === 0) {
-                container.innerHTML = '<div class="empty-state-v72"><div class="empty-icon-v72">💬</div><strong>Noch keine Beiträge</strong><p>Starte die erste Diskussion, teile einen Trainingstipp oder stelle eine Frage an die Community.</p><button class="btn-post" onclick="openPostModal()">Beitrag schreiben</button></div>';
+                container.innerHTML = `<div class="empty-state-v72"><div class="empty-icon-v72">💬</div><strong>${communityI18nV74('v75-community-empty-title','Noch keine Beiträge')}</strong><p>${communityI18nV74('v75-community-empty-desc','Starte die erste Diskussion, teile einen Trainingstipp oder stelle eine Frage an die Community.')}</p><button class="btn-post" onclick="openPostModal()">${communityI18nV74('v74-community-action-post','Beitrag schreiben')}</button></div>`;
                 return;
             }
 
@@ -449,7 +449,7 @@
                 const isAdmin = post.author_email && post.author_email.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim();
                 const avatarClass = isAdmin ? 'avatar admin-avatar' : 'avatar';
                 const initial = post.author_name ? post.author_name.charAt(0).toUpperCase() : '?';
-                const adminBadge = isAdmin ? '<span class="badge-admin">Admin News</span>' : '';
+                const adminBadge = isAdmin ? `<span class="badge-admin">${categoryLabelV74('admin')}</span>` : '';
 
                 const avatarHtml = post.author_avatar
                     ? `<img src="${post.author_avatar}" class="${avatarClass}" style="object-fit: cover; padding: 0; border: none;">`
@@ -675,7 +675,7 @@
 
             if (imageFile) {
                 const originalText = btn.innerText;
-                btn.innerText = "Prüfe Bild auf zulässige Inhalte...";
+                btn.innerText = communityI18nV74('v75-community-check-image','Prüfe Bild auf zulässige Inhalte...');
                 btn.style.opacity = "0.7";
 
                 try {
@@ -704,7 +704,7 @@
                 }
             }
 
-            btn.innerText = "Wird hochgeladen...";
+            btn.innerText = communityI18nV74('v75-community-uploading','Wird hochgeladen...');
             btn.style.opacity = "0.7";
 
             try {
@@ -734,12 +734,12 @@
                 selectPostCategoryV74('question');
                 closePostModal();
 
-                btn.innerText = "Teilen";
+                btn.innerText = communityI18nV74('btn-share-post','Teilen');
                 btn.style.opacity = "1";
 
                 loadPosts();
             } catch (err) {
-                btn.innerText = "Teilen";
+                btn.innerText = communityI18nV74('btn-share-post','Teilen');
                 btn.style.opacity = "1";
                 alert("Fehler beim Posten: " + err.message);
             }
@@ -769,6 +769,16 @@
         
         window.onLanguageChanged = () => {
             try {
+                document.querySelectorAll("[data-txt]").forEach(el => {
+                    const key = el.getAttribute("data-txt");
+                    const lang = window.currentLang || localStorage.getItem("selectedLanguage") || "de";
+                    if (window.translations?.[lang]?.[key]) el.innerHTML = window.translations[lang][key];
+                });
+                document.querySelectorAll("[data-txt-ph]").forEach(el => {
+                    const key = el.getAttribute("data-txt-ph");
+                    const lang = window.currentLang || localStorage.getItem("selectedLanguage") || "de";
+                    if (window.translations?.[lang]?.[key]) el.placeholder = window.translations[lang][key];
+                });
                 if (typeof loadPosts === "function") loadPosts();
             } catch (err) {
                 console.error("Community language refresh failed:", err);

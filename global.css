@@ -10801,3 +10801,164 @@ html[data-theme="light"] body.app-v74 {
         max-width: 1060px !important;
     }
 }
+
+
+/* ==========================================================================
+   FINAL UI CLEANUP v75
+   Removes duplicated hero buttons, fixes homepage gap, improves dark detail pages,
+   and makes the UI feel calmer and more professional.
+   ========================================================================== */
+
+/* Hide duplicated hero buttons on subpages. Real actions remain in the page content. */
+body.app-v75:not(.page-index) .app-page-actions-v72,
+body.app-v75:not(.page-index) .app-page-actions-v74 {
+    display: none !important;
+}
+
+body.app-v75 .app-page-hero-v72 {
+    padding: 24px !important;
+}
+
+body.app-v75 .app-page-status-v74 {
+    margin-top: 18px !important;
+    font-size: 13.2px !important;
+    line-height: 1.43 !important;
+    letter-spacing: -0.05px;
+}
+
+/* Homepage: no giant empty gap between hero and updates */
+body.page-index.app-v75 .app-home-hero-v71 {
+    margin-bottom: 16px !important;
+}
+
+body.page-index.app-v75 .news-section {
+    margin-top: 0 !important;
+    margin-bottom: 18px !important;
+}
+
+body.page-index.app-v75 .container {
+    display: block !important;
+}
+
+body.page-index.app-v75 .hero-quicklinks-v74 {
+    margin-bottom: 0 !important;
+}
+
+body.page-index.app-v75 .hero-quicklinks-v74 a {
+    cursor: pointer;
+}
+
+/* More premium but calmer surface */
+body.app-v75 .app-page-hero-v72,
+body.app-v75 .app-home-hero-v71,
+body.app-v75 .card,
+body.app-v75 .tool-section,
+body.app-v75 .form-card,
+body.app-v75 .post-card,
+body.app-v75 .info-box {
+    border-width: 1px !important;
+}
+
+html[data-theme="light"] body.app-v75 .app-page-hero-v72,
+html[data-theme="light"] body.app-v75 .app-home-hero-v71 {
+    background:
+        radial-gradient(circle at top right, rgba(255, 159, 67, 0.16), transparent 22rem),
+        linear-gradient(145deg, rgba(255,255,255,.985), rgba(255,255,255,.94)) !important;
+}
+
+/* Club / tools / analytics pages: bring darker detail sections closer to the rest */
+html[data-theme="dark"] body.app-v75 .tool-section,
+html[data-theme="dark"] body.app-v75 .form-card,
+html[data-theme="dark"] body.app-v75 .card,
+html[data-theme="dark"] body.app-v75 .info-box,
+html[data-theme="dark"] body.app-v75 .filter-container,
+html[data-theme="dark"] body.app-v75 .tabs-container {
+    background:
+        linear-gradient(180deg, rgba(17, 24, 39, .96), rgba(15, 23, 42, .96)) !important;
+    border-color: rgba(148, 163, 184, .14) !important;
+    box-shadow: 0 14px 38px rgba(0,0,0,.24), var(--app-ring-v71) !important;
+}
+
+body.app-v75 .tool-section h2,
+body.app-v75 .form-card h2,
+body.app-v75 .card h2 {
+    letter-spacing: -0.75px !important;
+}
+
+/* SG Timer page refinement */
+body.page-sg-timer-live.app-v75 .container > .card,
+body.page-sg-timer-live.app-v75 .container > section,
+body.page-sg-timer-live.app-v75 .tool-section {
+    border-radius: 24px !important;
+}
+
+body.page-sg-timer-live.app-v75 button,
+body.page-sg-timer-live.app-v75 .btn {
+    border-radius: 18px !important;
+}
+
+/* Hidden/club pages: remove confusing hero actions, keep status. */
+body.page-performance.app-v75 .app-page-status-v74,
+body.page-doppel-aa.app-v75 .app-page-status-v74,
+body.page-analytics.app-v75 .app-page-status-v74 {
+    border-color: rgba(255, 159, 67, .18) !important;
+}
+
+/* Community final polish */
+body.page-community.app-v75 .community-composer-v72 {
+    box-shadow: 0 1px 0 rgba(255,255,255,.04) inset, var(--shadow-sm), var(--app-ring-v71) !important;
+}
+
+body.page-community.app-v75 .community-filter-row-v74 {
+    position: relative;
+    z-index: 3;
+}
+
+body.page-community.app-v75 .community-filter-row-v74 button {
+    cursor: pointer;
+}
+
+body.page-community.app-v75 .post-card {
+    border-color: rgba(255, 159, 67, .20) !important;
+}
+
+/* Light-mode navigation curtain stronger to avoid white/dark jump */
+#native-page-curtain-v74,
+#native-page-curtain-v75 {
+    background: #f6f8fc !important;
+}
+
+html[data-theme="dark"] #native-page-curtain-v74,
+html[data-theme="dark"] #native-page-curtain-v75 {
+    background: #0f172a !important;
+}
+
+/* Mobile spacing */
+@media (max-width: 768px) {
+    body.app-v75 .app-page-hero-v72 {
+        padding: 20px 18px !important;
+        margin-bottom: 14px !important;
+    }
+
+    body.app-v75 .app-page-status-v74 {
+        margin-top: 16px !important;
+    }
+
+    body.page-index.app-v75 .app-home-hero-v71 {
+        margin-bottom: 14px !important;
+    }
+
+    body.page-index.app-v75 .news-section {
+        margin-top: 0 !important;
+    }
+}
+
+/* Desktop alignment */
+@media (min-width: 1024px) {
+    body.app-v75 .app-page-hero-v72,
+    body.page-index.app-v75 .app-home-hero-v71,
+    body.page-index.app-v75 .news-section,
+    body.page-index.app-v75 .dashboard-grid {
+        max-width: 1080px !important;
+    }
+}

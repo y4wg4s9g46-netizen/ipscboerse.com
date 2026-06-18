@@ -982,3 +982,49 @@ if (document.readyState === 'loading') {
     "v74-community-post-placeholder": "What's new around IPSC?"
 });
 })();
+
+
+// --- V75 Final UI Cleanup translations ---
+(function() {
+    window.portalTranslations = window.portalTranslations || {};
+    window.portalTranslations.de = Object.assign(window.portalTranslations.de || {}, {
+    "btn-logout": "Abmelden",
+    "v75-planner-status": "Bei exakter Match-Namenseingabe kann das System passende Matchdaten automatisch erkennen und deine Planung schneller vorbereiten.",
+    "v75-free-status": "Die Liste wird automatisch synchronisiert. Angezeigt werden verfügbare Matches mit freien Startplätzen.",
+    "v75-market-status": "Anzeige erstellen, Kontakt aufnehmen und Status behalten — die offizielle Umschreibung läuft weiterhin über den Match Director.",
+    "v75-community-status": "Wähle eine Kategorie, poste deine Frage oder deinen Matchbericht und filtere den Feed nach Themen.",
+    "v75-tools-status": "Stage-Auswertung und Hit-Factor-Tools laufen direkt auf dieser Seite — ohne zusätzliche Navigation im Hero.",
+    "v75-analytics-status": "Automatische Auswertungen laufen im Hintergrund, wenn passende Daten vorhanden sind.",
+    "v75-performance-status": "Vereinsbereich: Starterlisten und Planner-Daten werden automatisch mit deiner Performance verglichen.",
+    "v75-aa-status": "Vereinsbereich: offene Anmeldungen und Bot-Status werden automatisch abgeglichen.",
+    "v75-hub-status": "Alle wichtigen Links und Plattformen sind direkt unten auf dieser Seite gebündelt.",
+    "v75-reload-status": "Power-Factor und Laborierungswerte werden direkt unten auf dieser Seite berechnet.",
+    "v75-timer-status": "Live-Konsole und Bestenlisten liegen direkt darunter — schnell erreichbar ohne zusätzliche Hero-Buttons.",
+    "v75-log-status": "Einträge, PDF-Export, QR-Prüfung und externe Bestätigung liegen direkt unten im Schießbuch.",
+    "v75-community-empty-title": "Noch keine Beiträge",
+    "v75-community-empty-desc": "Starte die erste Diskussion, teile einen Trainingstipp oder stelle eine Frage an die Community.",
+    "v75-community-load-error": "Fehler beim Laden.",
+    "v75-community-check-image": "Prüfe Bild auf zulässige Inhalte...",
+    "v75-community-uploading": "Wird hochgeladen..."
+});
+    window.portalTranslations.en = Object.assign(window.portalTranslations.en || {}, {
+    "btn-logout": "Logout",
+    "v75-planner-status": "Enter the exact match name and the system can automatically detect matching match data to speed up your planning.",
+    "v75-free-status": "The list synchronizes automatically. Only matches with open slots are shown.",
+    "v75-market-status": "Create listings, contact shooters and keep track — official transfers still happen through the match director.",
+    "v75-community-status": "Choose a category, post your question or match report and filter the feed by topic.",
+    "v75-tools-status": "Stage scoring and hit factor tools are directly on this page — no extra hero navigation needed.",
+    "v75-analytics-status": "Automatic insights run in the background when matching data is available.",
+    "v75-performance-status": "Club area: start lists and planner data are automatically compared with your performance.",
+    "v75-aa-status": "Club area: open registrations and bot status are automatically synchronized.",
+    "v75-hub-status": "All important links and platforms are bundled directly below on this page.",
+    "v75-reload-status": "Power factor and load values are calculated directly below on this page.",
+    "v75-timer-status": "Live console and leaderboards are directly below — fast access without extra hero buttons.",
+    "v75-log-status": "Entries, PDF export, QR verification and external confirmation are directly below in the logbook.",
+    "v75-community-empty-title": "No posts yet",
+    "v75-community-empty-desc": "Start the first discussion, share a training tip or ask the community a question.",
+    "v75-community-load-error": "Could not load posts.",
+    "v75-community-check-image": "Checking image for allowed content...",
+    "v75-community-uploading": "Uploading..."
+});
+})();
