@@ -218,6 +218,12 @@
 
             moreMenu.innerHTML = `
                 <div class="more-menu-content" id="more-menu-list">
+                    <div class="club-links-v76 club-links-v76b">
+                        <div class="club-links-label-v76">Double Alpha e.V.</div>
+                        <a href="doppel-aa.html" class="${page === "doppel-aa.html" ? "active" : "vip-link"}">${savedLanguageSetting === "en" ? "🎯 Slot Bot" : "🎯 Startplatz-Bot"}</a>
+                        <a href="performance.html" class="${page === "performance.html" ? "active" : "vip-link"}">${savedLanguageSetting === "en" ? "📊 ELO Comparison" : "📊 ELO-Vergleich"}</a>
+                    </div>
+                    <div class="more-scroll-hint-v76">${savedLanguageSetting === "en" ? "More sections below" : "Weitere Bereiche unten"}</div>
                     <a href="freie-matches.html" class="${page === "freie-matches.html" ? "active" : ""}" data-txt="card-title-free">Freie Match-Plätze</a>
                     <a href="schiessbuch.html" class="${page === "schiessbuch.html" ? "active" : ""}" data-txt="card-title-schiessbuch">Schießbuch</a>
                     <a href="sg-timer-live.html" class="${page === "sg-timer-live.html" ? "active" : ""}" data-txt="nav-sgtimer">⏱️ SG-Timer Live</a>
