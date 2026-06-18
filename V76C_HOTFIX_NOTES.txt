@@ -1,0 +1,20 @@
+IPSC Börse v76c Hotfix
+
+Fixes:
+1. Mehr-Menü:
+   Double Alpha e.V.-Bereich wird nicht mehr statisch angezeigt.
+   Startplatz-Bot und ELO-Vergleich werden erst eingefügt, wenn Supabase im Profil `is_doppel_aa = true` bestätigt.
+
+2. Wiederladen:
+   `Timer-Archiv` in der Wiederlade-Seite heißt jetzt `Ladedaten`.
+   EN: `Load data`.
+
+3. Freie Matches:
+   Defekte Überschrift/Quellenzeile repariert.
+   `Verfügbare Matches` und `Quelle: MatchSign · Auslastung unter 100 %` stehen nicht mehr übereinander.
+
+Einspielen:
+- App/Xcode: www_v76c_hotfix_access_reload_free_matches.zip
+- Danach nur: npx cap copy ios
+- Nicht: npx cap sync ios
+- GitHub/Web: ipscboerse_public_v76c_hotfix_access_reload_free_matches.zip

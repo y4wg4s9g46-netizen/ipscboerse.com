@@ -293,7 +293,7 @@ window.portalTranslations = {
         "tools-db-notes": "Notizen / Waffe (Optional)",
         "tools-db-notes-ph": "z.B. Sicherer Minor-Faktor aus CZ Shadow 2",
         "tools-db-btn-save": "💾 Rezept in Cloud speichern",
-        "tools-db-saved-title": "Timer-Archiv",
+        "tools-db-saved-title": "Ladedaten",
 
         // --- IPSC HUB ---
         "hub-main-title": "IPSC Hub – Alle wichtigen Links",
@@ -651,7 +651,7 @@ window.portalTranslations = {
         "tools-db-notes": "Notes / Gun (Optional)",
         "tools-db-notes-ph": "e.g. Safe minor factor out of CZ Shadow 2",
         "tools-db-btn-save": "💾 Save Recipe to Cloud",
-        "tools-db-saved-title": "Timer archive",
+        "tools-db-saved-title": "Load data",
 
         // --- IPSC HUB ---
         "hub-main-title": "IPSC Hub – All Important Links",

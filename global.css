@@ -11037,3 +11037,61 @@ body.page-performance.app-v76 .app-page-hero-v72 { border-color:rgba(255,159,67,
 .club-links-v76b a.active, .club-links-v76b a.vip-link:first-of-type { background: var(--accent-gradient) !important; color:white !important; border-color:transparent !important; box-shadow:0 12px 26px rgba(255,128,8,.18) !important; }
 .more-scroll-hint-v76 { position:relative; }
 body.app-v76b .app-page-hero-v72 h2:empty::after { content: attr(data-txt); }
+
+
+/* ==========================================================================
+   V76C HOTFIX
+   - Double Alpha e.V. links are only rendered after Supabase confirms access.
+   - Free matches heading/source line spacing fixed.
+   - Reloading saved recipe area renamed to Ladedaten.
+   ========================================================================== */
+
+#club-links-placeholder-v76c:empty {
+    display: none !important;
+}
+
+.more-menu-content .club-links-v76c {
+    margin-bottom: 14px !important;
+}
+
+.section-heading-v76c {
+    width: min(100%, 1120px);
+    margin: 18px auto 14px !important;
+    padding: 0 2px;
+}
+
+.section-heading-v76c h2 {
+    margin: 0 0 4px !important;
+    font-size: clamp(30px, 6vw, 46px);
+    line-height: 1.05;
+    letter-spacing: -0.9px;
+    color: var(--text-color);
+}
+
+.section-heading-v76c .section-source-v76 {
+    display: block !important;
+    margin: 0 !important;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.35;
+    font-weight: 700;
+}
+
+body.page-freie-matches.app-v76c .filter-container {
+    margin-top: 12px !important;
+}
+
+@media (max-width: 768px) {
+    .section-heading-v76c {
+        margin: 14px auto 12px !important;
+        padding: 0 0;
+    }
+
+    .section-heading-v76c h2 {
+        font-size: 30px !important;
+    }
+
+    .section-heading-v76c .section-source-v76 {
+        font-size: 13.5px !important;
+    }
+}

@@ -1,4 +1,5 @@
 (function() {
+    // V76C DOUBLE AA MENU GATE: club links are hidden until Supabase confirms profiles.is_doppel_aa === true
     const __headerLogoPreload = new Image();
     __headerLogoPreload.src = "icon-192.png";
     const HEADER_USER_CACHE_KEY = "headerUserCache";
@@ -218,12 +219,8 @@
 
             moreMenu.innerHTML = `
                 <div class="more-menu-content" id="more-menu-list">
-                    <div class="club-links-v76 club-links-v76b">
-                        <div class="club-links-label-v76">Double Alpha e.V.</div>
-                        <a href="doppel-aa.html" class="${page === "doppel-aa.html" ? "active" : "vip-link"}">${savedLanguageSetting === "en" ? "🎯 Slot Bot" : "🎯 Startplatz-Bot"}</a>
-                        <a href="performance.html" class="${page === "performance.html" ? "active" : "vip-link"}">${savedLanguageSetting === "en" ? "📊 ELO Comparison" : "📊 ELO-Vergleich"}</a>
-                    </div>
-                    <div class="more-scroll-hint-v76">${savedLanguageSetting === "en" ? "More sections below" : "Weitere Bereiche unten"}</div>
+                    <div id="club-links-placeholder-v76c"></div>
+                    <div class="more-scroll-hint-v76">${savedLanguageSetting === "en" ? "More sections below" : "Weitere Bereiche unten"} ↓</div>
                     <a href="freie-matches.html" class="${page === "freie-matches.html" ? "active" : ""}" data-txt="card-title-free">Freie Match-Plätze</a>
                     <a href="schiessbuch.html" class="${page === "schiessbuch.html" ? "active" : ""}" data-txt="card-title-schiessbuch">Schießbuch</a>
                     <a href="sg-timer-live.html" class="${page === "sg-timer-live.html" ? "active" : ""}" data-txt="nav-sgtimer">⏱️ SG-Timer Live</a>
@@ -1869,6 +1866,9 @@ window.toggleMoreMenu = function() {
 
     const checkVipStatus = () => {
         setTimeout(async () => {
+            const clubPlaceholder = document.getElementById("club-links-placeholder-v76c");
+            if (clubPlaceholder) clubPlaceholder.innerHTML = "";
+
             if (!window.supabaseClient) return;
 
             const { data: { session } } = await window.supabaseClient.auth.getSession();
@@ -1917,38 +1917,16 @@ window.toggleMoreMenu = function() {
                 }
 
                 const moreMenuList = document.getElementById("more-menu-list");
+                const clubPlaceholder = document.getElementById("club-links-placeholder-v76c");
 
-                if (moreMenuList) {
-                    let clubGroup = moreMenuList.querySelector(".club-links-v76");
-                    if (!clubGroup) {
-                        clubGroup = document.createElement("div");
-                        clubGroup.className = "club-links-v76";
-                        clubGroup.innerHTML = `<div class="club-links-label-v76">Double Alpha e.V.</div>`;
-                        moreMenuList.prepend(clubGroup);
-                    }
-
-                    if (!clubGroup.querySelector('a[href="doppel-aa.html"]')) {
-                        const sniperLink = document.createElement("a");
-                        sniperLink.href = "doppel-aa.html";
-                        sniperLink.innerText = (savedLanguageSetting === "en" ? "🎯 Slot Bot" : "🎯 Startplatz-Bot");
-                        sniperLink.className = page === "doppel-aa.html" ? "active" : "vip-link";
-                        clubGroup.appendChild(sniperLink);
-                    }
-
-                    if (!clubGroup.querySelector('a[href="performance.html"]')) {
-                        const performanceLink = document.createElement("a");
-                        performanceLink.href = "performance.html";
-                        performanceLink.innerText = (savedLanguageSetting === "en" ? "📊 ELO Comparison" : "📊 ELO-Vergleich");
-                        performanceLink.className = page === "performance.html" ? "active" : "vip-link";
-                        clubGroup.appendChild(performanceLink);
-                    }
-
-                    if (!moreMenuList.querySelector(".more-scroll-hint-v76")) {
-                        const hint = document.createElement("div");
-                        hint.className = "more-scroll-hint-v76";
-                        hint.innerText = savedLanguageSetting === "en" ? "More sections below" : "Weitere Bereiche unten";
-                        clubGroup.after(hint);
-                    }
+                if (moreMenuList && clubPlaceholder) {
+                    clubPlaceholder.innerHTML = `
+                        <div class="club-links-v76 club-links-v76b club-links-v76c">
+                            <div class="club-links-label-v76">Double Alpha e.V.</div>
+                            <a href="doppel-aa.html" class="${page === "doppel-aa.html" ? "active" : "vip-link"}">${savedLanguageSetting === "en" ? "🎯 Slot Bot" : "🎯 Startplatz-Bot"}</a>
+                            <a href="performance.html" class="${page === "performance.html" ? "active" : "vip-link"}">${savedLanguageSetting === "en" ? "📊 ELO Comparison" : "📊 ELO-Vergleich"}</a>
+                        </div>
+                    `;
                 }
             }
         }, 600);
