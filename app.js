@@ -1098,7 +1098,7 @@ window.toggleGlobalInbox = toggleGlobalInbox;
 
 function getPortalText(key, fallback) {
   const lang = window.currentLang || localStorage.getItem("selectedLanguage") || "de";
-  return window.translations?.[lang]?.[key] || fallback;
+  return window.translations?.[lang]?.[key] || window.portalTranslations?.[lang]?.[key] || fallback;
 }
 
 function ensureChatToastContainer() {
@@ -1246,6 +1246,10 @@ setTimeout(() => {
       .channel('public:chat_messages')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_messages' }, payload => {
           updateHeaderChatBadge();
+
+          if (payload.eventType === "INSERT" && window.currentUser && payload.new) {
+              handleIncomingChatNotificationV41(payload.new);
+          }
           
           if (!window.activeChatRoom || !window.currentUser) return;
 
@@ -1255,6 +1259,7 @@ setTimeout(() => {
           }
 
           const newMsg = payload.new;
+          if (!newMsg) return;
           const matchMatch = newMsg.match_id == window.activeChatRoom.matchId;
           const participantMatch = (newMsg.sender_email.toLowerCase() === window.currentUser.email.toLowerCase() && newMsg.receiver_email.toLowerCase() === window.activeChatRoom.receiverEmail.toLowerCase()) ||
                                    (newMsg.sender_email.toLowerCase() === window.activeChatRoom.receiverEmail.toLowerCase() && newMsg.receiver_email.toLowerCase() === window.currentUser.email.toLowerCase());

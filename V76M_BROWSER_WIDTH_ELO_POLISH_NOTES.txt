@@ -1,0 +1,6 @@
+V76M Browser Width + ELO Planner Polish
+- Browser-Desktop: Marktplatz, Freie Matches, Planer, Community, Schießbuch, Tools, Statistiken, Wiederladen und ELO nutzen eine einheitliche 1240px-Shell.
+- Hero, Hinweisboxen, Filter, Listen und Karten springen nicht mehr zwischen verschiedenen Breiten.
+- Planer-Inserieren/Löschen-Buttons sind auf Desktop sauberer und einheitlicher.
+- ELO-Vergleich: Approved/confirmed Planer-Matches werden als Klick-Vorschläge oben gelistet; Analyse startet erst per Klick und landet anschließend in Bisherige Match-Analysen.
+- Keine neuen großen Features, nur Browser-/Launch-Polish.

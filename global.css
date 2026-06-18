@@ -12079,3 +12079,204 @@ html[data-theme="dark"] .inbox-chat-item-v76k.is-unread {
         overscroll-behavior: contain !important;
     }
 }
+
+
+/* ========================================================================== 
+   V76M BROWSER WIDTH + ELO PLANER POLISH
+   - Desktop browser: all main content cards share the same shell width.
+   - Marktplatz, Freie Matches, Planer, Community, Schießbuch, Tools,
+     Statistiken, Wiederladen and ELO no longer jump between different widths.
+   - Planner action buttons cleaned up on desktop.
+   ========================================================================== */
+@media (min-width: 900px) {
+    body.page-marktplatz .container,
+    body.page-freie-matches .container,
+    body.page-mein-planer .container,
+    body.page-community .container,
+    body.page-schiessbuch .container,
+    body.page-tools .container,
+    body.page-analytics .container,
+    body.page-wiederladen .container,
+    body.page-performance .container,
+    body.page-doppel-aa .container,
+    body.page-ipsc-hub .container,
+    body.page-sg-timer-live .container {
+        width: min(calc(100vw - 72px), 1240px) !important;
+        max-width: 1240px !important;
+        margin: 34px auto !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    body.page-marktplatz .container > .app-page-hero-v72,
+    body.page-marktplatz .container > .info-box,
+    body.page-marktplatz .container > .market-form-accordion,
+    body.page-marktplatz .container > .filter-bar,
+    body.page-marktplatz .container > .filter-container,
+    body.page-marktplatz .container > .match-list,
+    body.page-marktplatz .container > #listings-container,
+    body.page-marktplatz .container > #ads-list,
+    body.page-marktplatz .container > h2,
+    body.page-marktplatz .container > h3,
+    body.page-freie-matches .container > .app-page-hero-v72,
+    body.page-freie-matches .container > .section-heading-v76c,
+    body.page-freie-matches .container > .filter-container,
+    body.page-freie-matches .container > .match-list,
+    body.page-mein-planer .container > .app-page-hero-v72,
+    body.page-mein-planer .container > #logged-out-section,
+    body.page-mein-planer .container > #planner-section,
+    body.page-mein-planer .container > .planner-form-accordion,
+    body.page-community .container > .app-page-hero-v72,
+    body.page-community .container > .tabs-container,
+    body.page-community .container > #logged-out-msg,
+    body.page-community .container > #username-setup-section,
+    body.page-community .container > #feed-section,
+    body.page-community .container > #groups-section,
+    body.page-schiessbuch .container > .app-page-hero-v72,
+    body.page-schiessbuch .container > #auth-guard,
+    body.page-schiessbuch .container > #logbook-content,
+    body.page-schiessbuch .container > .dash-1218,
+    body.page-schiessbuch .container > .page-section,
+    body.page-tools .container > .app-page-hero-v72,
+    body.page-tools .container > .tool-section,
+    body.page-analytics .container > .app-page-hero-v72,
+    body.page-analytics .container > .tool-section,
+    body.page-analytics .container > #analytics-dashboard-content,
+    body.page-wiederladen .container > .app-page-hero-v72,
+    body.page-wiederladen .container > .tool-section,
+    body.page-performance .container > .app-page-hero-v72,
+    body.page-performance .container > #access-denied,
+    body.page-performance .container > #dashboard-content,
+    body.page-doppel-aa .container > .app-page-hero-v72,
+    body.page-doppel-aa .container > .info-box,
+    body.page-doppel-aa .container > .filter-container,
+    body.page-doppel-aa .container > .match-list,
+    body.page-ipsc-hub .container > .app-page-hero-v72,
+    body.page-ipsc-hub .container > .hub-grid,
+    body.page-sg-timer-live .container > .app-page-hero-v72,
+    body.page-sg-timer-live .container > .tool-section,
+    body.page-sg-timer-live .container > .card,
+    body.page-sg-timer-live .container > section {
+        width: 100% !important;
+        max-width: none !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    body.page-community #post-composer-v74,
+    body.page-community .community-filter-row-v72,
+    body.page-community #posts-container,
+    body.page-community #groups-list,
+    body.page-community .post-card,
+    body.page-community .comments-wrapper,
+    body.page-mein-planer #planner-section,
+    body.page-mein-planer #match-list,
+    body.page-mein-planer .match-item,
+    body.page-marktplatz #listings-container,
+    body.page-marktplatz #ads-list,
+    body.page-marktplatz .match-card,
+    body.page-freie-matches #js-match-container,
+    body.page-freie-matches .match-card,
+    body.page-schiessbuch #log-list,
+    body.page-schiessbuch .log-card,
+    body.page-schiessbuch .log-entry,
+    body.page-tools .tool-section > *,
+    body.page-analytics #analytics-dashboard-content,
+    body.page-analytics #stage-list,
+    body.page-wiederladen #reloading-content,
+    body.page-wiederladen .reloading-loads-section-v76k,
+    body.page-wiederladen #db-loads-list-container,
+    body.page-wiederladen #db-loads-list-container > *,
+    body.page-performance #dashboard-content > .info-box,
+    body.page-performance #quick-analyze-section,
+    body.page-performance .link-import-bar,
+    body.page-performance .upload-zone,
+    body.page-performance .match-archive,
+    body.page-performance #analysis-results,
+    body.page-performance .loader-container {
+        width: 100% !important;
+        max-width: none !important;
+        box-sizing: border-box !important;
+    }
+
+    body.page-community #groups-section,
+    body.page-community #logged-out-msg,
+    body.page-community #username-setup-section,
+    body.page-mein-planer #logged-out-section,
+    body.page-schiessbuch #auth-guard {
+        border-radius: 28px !important;
+    }
+
+    body.page-mein-planer .match-item {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 220px !important;
+        gap: 18px !important;
+        align-items: center !important;
+        padding: 20px 22px !important;
+        border-radius: 22px !important;
+    }
+
+    body.page-mein-planer .planner-card-actions {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+        justify-self: end !important;
+        align-items: stretch !important;
+        width: 220px !important;
+        margin-top: 0 !important;
+    }
+
+    body.page-mein-planer .planner-card-actions button,
+    body.page-mein-planer .planner-insert-btn,
+    body.page-mein-planer .planner-delete-btn {
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 42px !important;
+        height: 42px !important;
+        padding: 0 16px !important;
+        border-radius: 999px !important;
+        font-size: 14px !important;
+        font-weight: 850 !important;
+        letter-spacing: .01em !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        white-space: nowrap !important;
+        box-sizing: border-box !important;
+    }
+
+    body.page-mein-planer .planner-insert-btn {
+        background: linear-gradient(135deg, #ff9f43 0%, #ff8008 100%) !important;
+        border: 1px solid rgba(255,128,8,.22) !important;
+        color: #fff !important;
+        box-shadow: 0 10px 24px rgba(255,128,8,.22) !important;
+    }
+
+    body.page-mein-planer .planner-delete-btn {
+        background: rgba(239,68,68,.06) !important;
+        border: 1px solid rgba(239,68,68,.22) !important;
+        color: var(--danger-color) !important;
+        box-shadow: none !important;
+    }
+
+    body.page-performance .planner-quick-btn-v76j {
+        border-radius: 18px !important;
+        padding: 14px 16px !important;
+    }
+}
+
+@media (max-width: 899px) {
+    body.page-marktplatz .container,
+    body.page-freie-matches .container,
+    body.page-mein-planer .container,
+    body.page-community .container,
+    body.page-schiessbuch .container,
+    body.page-tools .container,
+    body.page-analytics .container,
+    body.page-wiederladen .container,
+    body.page-performance .container {
+        box-sizing: border-box !important;
+    }
+}

@@ -1,0 +1,15 @@
+V76L_IMPRESSUM_PUSH_LEGAL_NOTES
+
+Launch Legal/Impressum Polish based on v76k.
+
+Changes:
+- Impressum updated from § 5 TMG wording to § 5 DDG wording.
+- Added platform identity, independent/private platform note, consumer dispute notice, and no weapons/ammunition marketplace notice.
+- Expanded AGB with Match Director transfer responsibility, user duties, no regulated goods, moderation/house rules, and liability boundaries.
+- Expanded privacy policy to cover marketplace data, chat data, planner data, shooting log, SG Timer, reload recipes, profile/reputation data, SSO, passkeys, Supabase, image moderation, Local Storage, data deletion, and user rights.
+- Added explicit Push/Chat notification status: foreground/in-app/browser notifications are supported when available and permitted; no native background APNs/FCM push token storage or sending is active in this web bundle yet.
+- Chat realtime listener now also triggers the existing foreground toast/browser notification handler for incoming messages even when no chat room is currently open.
+
+Important:
+- Native background push for iOS/Android still requires the native Capacitor Push Notifications plugin, APNs/FCM setup, token storage, and a server/edge function to send pushes.
+- For Xcode: use only `npx cap copy ios`, not `npx cap sync ios`, unless a future native plugin change is intentionally made.

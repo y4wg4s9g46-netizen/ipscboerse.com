@@ -149,7 +149,7 @@
     <link rel="preload" href="icon-192.png" as="image">
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
-<link rel="stylesheet" href="global.css?v=76k">
+<link rel="stylesheet" href="global.css?v=76m">
 
 
     <style id="performance-loader-overlay-v53">
@@ -203,7 +203,7 @@
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
-<body class="page-performance app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k">
+<body class="page-performance app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m">
     <div id="performance-busy-overlay" class="performance-busy-overlay" aria-hidden="true">
         <div class="performance-busy-card">
             <div class="performance-busy-spinner"></div>
@@ -214,7 +214,7 @@
 
     <!-- 🌟 Header-Injection -->
     <header id="main-header"></header>
-    <script src="header.js?v=76k"></script>
+    <script src="header.js?v=76m"></script>
 
     <div class="container">
         
@@ -380,9 +380,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="auth.js?v=76k"></script>
-    <script src="lang.js?v=76k"></script>
-    <script src="app.js?v=76k"></script>
+<script src="auth.js?v=76m"></script>
+    <script src="lang.js?v=76m"></script>
+    <script src="app.js?v=76m"></script>
     
     <script>
         let currentShooters = [];
@@ -963,7 +963,7 @@
                 }
 
                 if (profile.real_name) {
-                    document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>${tPerfV76("v76-elo-welcome-title", "ELO-Vergleich")}</strong> ${tPerfV76("v76-elo-welcome-desc", "Wähle ein automatisch erkanntes Match aus oder füge einen IPSCMatch-Link mit Division ein, um das Starterfeld mit deiner ELO-Stärke zu vergleichen.")}`;
+                    document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>${tPerfV76("v76-elo-welcome-title", "ELO-Vergleich")}</strong> ${tPerfV76("v76-elo-welcome-desc", "Wähle ein bestätigtes Match aus deinem Planer aus oder füge einen IPSCMatch-Link mit Division ein. Die Analyse startet erst per Klick und wird danach unten gespeichert.")}`;
                     
                     const nameParts = profile.real_name.split(" ");
                     if (nameParts.length >= 2) {
@@ -1078,10 +1078,10 @@
                     const db = parsePlannerDateV76j(b.match_date);
                     return (da ? da.getTime() : 9999999999999) - (db ? db.getTime() : 9999999999999);
                 })
-                .slice(0, 10);
+                ;
 
             const title = container.querySelector("[data-txt='v76-elo-upcoming-title']");
-            if (title) title.textContent = "🎯 Deine anstehenden Matches (aus Mein Planer)";
+            if (title) title.textContent = "🎯 Approved Planer-Matches zur ELO-Analyse";
 
             if (!matches.length) {
                 container.style.display = "none";
@@ -1101,7 +1101,7 @@
 
                 if (hasLink) {
                     activeCount += 1;
-                    btn.innerHTML = `📊 ${plannedMatchLabelV76j(m)}`;
+                    btn.innerHTML = `📊 ${plannedMatchLabelV76j(m)}<br><small>Klicken zum Analysieren</small>`;
                     btn.onclick = () => importPlannedMatch(m);
                 } else {
                     btn.disabled = true;
@@ -2206,17 +2206,41 @@
 
         async function storeMatchAnalysis(matchName, rawText, shooters, renderedResults) {
             if (!window.currentUserId) return;
+            const archiveName = matchName || extractMatchNameFromOcr(rawText) || "Unbenanntes Match";
             const divisions = [...new Set((shooters || []).map(s => s.division).filter(Boolean))].sort();
+            const payload = {
+                user_id: window.currentUserId,
+                match_name: archiveName,
+                shooter_count: renderedResults ? renderedResults.length : 0,
+                divisions: divisions,
+                shooters: renderedResults || []
+            };
 
-            const { error } = await window.supabaseClient
-                .from("match_archives")
-                .insert([{
-                    user_id: window.currentUserId,
-                    match_name: matchName || extractMatchNameFromOcr(rawText) || "Unbenanntes Match",
-                    shooter_count: renderedResults ? renderedResults.length : 0,
-                    divisions: divisions,
-                    shooters: renderedResults || []
-                }]);
+            let error = null;
+            try {
+                const { data: existing } = await window.supabaseClient
+                    .from("match_archives")
+                    .select("id")
+                    .eq("user_id", window.currentUserId)
+                    .eq("match_name", archiveName)
+                    .limit(1)
+                    .maybeSingle();
+
+                if (existing && existing.id) {
+                    const updateResult = await window.supabaseClient
+                        .from("match_archives")
+                        .update(payload)
+                        .eq("id", existing.id);
+                    error = updateResult.error;
+                } else {
+                    const insertResult = await window.supabaseClient
+                        .from("match_archives")
+                        .insert([payload]);
+                    error = insertResult.error;
+                }
+            } catch (e) {
+                error = e;
+            }
 
             if (error) {
                 console.error("Speichern fehlgeschlagen:", error);
