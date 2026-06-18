@@ -1,0 +1,35 @@
+V76K LAUNCH POLISH
+
+Basis:
+- v76j_launch_layout_elo_fix, sichere v76h/v76j-Linie beibehalten.
+- Keine großen neuen Features, nur Launch-Mängel behoben.
+- Für Xcode/Capacitor weiterhin nur: npx cap copy ios
+- Nicht verwenden: npx cap sync ios
+
+Änderungen:
+1. Marktplatz mobil
+   - Nach dem Auth-Check wird die Marktplatzliste erneut gerendert, damit Besitzer/Admin-Aktionen sicher sichtbar werden.
+   - „Vermittelt" ist wieder als eigener Button sichtbar.
+   - Preis steht zusätzlich kompakt rechts im freien Kopfbereich der Karte; die Button-Zeile wird dadurch sauberer.
+
+2. Nachrichten
+   - Nachrichten-Popup zeigt neue Unterhaltungen deutlich mit „Neu"/„x neu".
+   - Inbox-Karten sind übersichtlicher, mit Match, Partner, Absender und letzter Nachricht.
+   - Gelesen-Zeitpunkt wird erst nach dem Öffnen/Rendern gesetzt, damit neue Nachrichten im Popup erkennbar bleiben.
+
+3. Mehr-Menü
+   - Scrollposition des Mehr-Menüs wird lokal gespeichert.
+   - Beim erneuten Öffnen bleibt das Menü unten bzw. springt zum aktiven unteren Eintrag.
+
+4. Wiederladen
+   - „Neue Laborierung" öffnet nur noch das Formular.
+   - Ladedaten/Rezeptbuch bleiben getrennt darunter sichtbar.
+   - Nach dem Speichern wird das Formular wieder geschlossen und die Ladedatenliste aktualisiert.
+
+5. Light-Mode-Flackern
+   - Vorsichtige Prepaint-Verbesserung: color-scheme bevorzugt light dark, passend zur Launch-Default-Optik.
+   - Keine schweren Overlays oder Performance-risikoreichen Änderungen ergänzt.
+
+6. App-Login nach Pause/Neustart
+   - Native OAuth-Callback-Dedupe persistiert nun über App-Neustarts.
+   - Stale/verbrauchte OAuth-Callback-URLs aus App.getLaunchUrl werden still ignoriert, statt „Auth session missing" als Alert zu zeigen.

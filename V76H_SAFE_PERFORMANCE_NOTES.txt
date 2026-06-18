@@ -5,7 +5,7 @@ Warum:
 - v76h basiert wieder auf der sicheren v76f-Linie.
 
 Fix:
-- Keine globalen schweren Beobachter.
+- Keine globalen MutationObserver.
 - Keine schweren Page-Overlays.
 - Login wieder „Willkommen zurück“, aber kompakt.
 - Double-Alpha-Menü ohne doppelte Pfeile und ohne unnötiges Neuschreiben.

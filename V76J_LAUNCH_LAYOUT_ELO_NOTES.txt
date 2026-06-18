@@ -1,0 +1,19 @@
+IPSC Börse v76j Launch Layout + ELO Fix
+
+Fixes:
+- Desktop-Breite auf Marktplatz, Community, Analytics, Wiederladen und Performance angepasst:
+  Inhalte unter dem Hero sind jetzt nicht mehr schmaler als der obere Bereich.
+- Analytics-Karte nutzt auf Desktop die volle Breite.
+- Wiederladen/Performance/Community/Marktplatz nutzen einheitliche Desktop-Breite.
+- ELO-Vergleich:
+  Automatisch erkannte Matches kommen robuster aus 'Mein Planer'.
+  Nicht nur 'Approved', sondern auch zugelassen/bestätigt/registered oder Matches mit echter Squad werden angezeigt.
+  Warteliste/Squad 99 bleibt ausgeschlossen.
+  Es werden kommende Matches sortiert angezeigt.
+  Wenn ein vorbereiteter Analyse-Link/Division vorhanden ist, wird dieser bevorzugt genutzt, damit nicht das falsche Feld gezogen wird.
+
+Einspielen:
+- GitHub/Web: ipscboerse_public_v76j_launch_layout_elo_fix.zip
+- App/Xcode: www_v76j_launch_layout_elo_fix.zip
+- Danach nur: npx cap copy ios
+- Nicht: npx cap sync ios

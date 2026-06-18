@@ -726,18 +726,18 @@ function renderMatches(matches) {
 
                 <div class="match-meta">${window.escapeHtml(m.match_date)} · ${window.escapeHtml(m.match_location || "-")}</div>
               </div>
+
+              <div class="match-price-head-v76k">${priceText}</div>
             </div>
           </div>
 
           <div class="card-actions">
-            <div class="match-price">${priceText}</div>
-
             <div class="primary-actions">
               <button class="${contactBtnClass}" onclick="openChatSystem(${m.id}, '${m.seller_email}', '${cleanMatchName}')">💬 ${t("btn-live-chat", "Live-Chat")}</button>
               <button class="${contactBtnClass} btn-contact-secondary" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">✉️ ${contactText}</button>
             </div>
 
-            <div class="action-buttons-group">
+            <div class="action-buttons-group ${canManage ? 'manage-actions' : ''}">
               <button class="btn-export" onclick="exportToIcs(${m.id})">${window.translations[window.currentLang]["btn-export"]}</button>
               <button class="btn-report" onclick="reportMatch(${m.id})">${window.translations[window.currentLang]["report-btn"]}</button>
               ${canManage ? `<button class="btn-mediated" onclick="triggerMediatedModal(${m.id})">✓ ${t("btn-mediated", "Vermittelt")}</button>` : ""}
@@ -1008,12 +1008,11 @@ async function toggleGlobalInbox() {
   
   modal.style.display = "flex";
 
-  window.lastChatCheckedTimestamp = new Date().toISOString();
-  localStorage.setItem("lastChatChecked", window.lastChatCheckedTimestamp);
-  updateHeaderChatBadge(); 
+  const previousChatChecked = window.lastChatCheckedTimestamp || localStorage.getItem("lastChatChecked") || new Date(0).toISOString();
+  const openedAt = new Date().toISOString();
 
   const listContainer = document.getElementById("global-inbox-list");
-  listContainer.innerHTML = `<p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Lade Gespräche...</p>`;
+  listContainer.innerHTML = `<div class="inbox-loading-v76k">${window.currentLang === "en" ? "Loading conversations..." : "Lade Gespräche..."}</div>`;
 
   const { data: allMsgs, error } = await window.supabaseClient
     .from("chat_messages")
@@ -1022,32 +1021,77 @@ async function toggleGlobalInbox() {
     .order("created_at", { ascending: false });
 
   if (error || !allMsgs || allMsgs.length === 0) {
-    listContainer.innerHTML = `<p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Keine aktiven Nachrichten gefunden.</p>`;
+    listContainer.innerHTML = `<div class="inbox-empty-v76k">${window.currentLang === "en" ? "No active conversations found." : "Keine aktiven Nachrichten gefunden."}</div>`;
+    window.lastChatCheckedTimestamp = openedAt;
+    localStorage.setItem("lastChatChecked", window.lastChatCheckedTimestamp);
+    updateHeaderChatBadge();
     return;
   }
 
+  const currentEmail = String(window.currentUser.email || "").toLowerCase();
   let uniqueChats = {};
+
   allMsgs.forEach(msg => {
-    const partner = msg.sender_email.toLowerCase() === window.currentUser.email.toLowerCase() ? msg.receiver_email : msg.sender_email;
-    const key = `${msg.match_id}_${partner.toLowerCase()}`;
+    const sender = String(msg.sender_email || "").toLowerCase();
+    const receiver = String(msg.receiver_email || "").toLowerCase();
+    const partner = sender === currentEmail ? msg.receiver_email : msg.sender_email;
+    if (!partner) return;
+
+    const key = `${msg.match_id}_${String(partner).toLowerCase()}`;
+    const createdAt = msg.created_at || "";
+    const isIncomingUnread = receiver === currentEmail && sender !== currentEmail && createdAt > previousChatChecked;
+
     if (!uniqueChats[key]) {
       uniqueChats[key] = {
         matchId: msg.match_id,
-        matchName: msg.match_name,
+        matchName: msg.match_name || "Chat",
         partnerEmail: partner,
-        lastMessage: msg.message
+        lastMessage: msg.message || "",
+        lastSenderEmail: msg.sender_email || "",
+        latestAt: createdAt,
+        unreadCount: 0
       };
     }
+
+    if (isIncomingUnread) uniqueChats[key].unreadCount += 1;
   });
 
-  listContainer.innerHTML = Object.values(uniqueChats).map(c => {
-    return `<div style="background: var(--bg-color); border: 1px solid var(--border-color); padding: 12px; border-radius: var(--radius); cursor: pointer; transition: border-color 0.15s;" 
-                 onclick="document.getElementById('global-inbox-modal').style.display='none'; openChatSystem(${c.matchId}, '${c.partnerEmail}', '${c.matchName.replace(/'/g, "\\'")}')">
-              <strong style="font-size: 13px; display: block; color: var(--accent-color);">${window.escapeHtml(c.matchName)}</strong>
-              <span style="font-size: 11px; color: var(--text-muted); display: block; margin: 2px 0;">Mit: ${window.escapeHtml(c.partnerEmail)}</span>
-              <p style="margin: 4px 0 0 0; font-size: 12px; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${window.escapeHtml(c.lastMessage)}</p>
-            </div>`;
+  const chats = Object.values(uniqueChats).sort((a, b) => String(b.latestAt || "").localeCompare(String(a.latestAt || "")));
+
+  listContainer.innerHTML = chats.map(c => {
+    const isUnread = Number(c.unreadCount || 0) > 0;
+    const senderLabel = String(c.lastSenderEmail || "").toLowerCase() === currentEmail
+      ? (window.currentLang === "en" ? "You" : "Du")
+      : window.escapeHtml(c.partnerEmail);
+    const unreadLabel = c.unreadCount > 1
+      ? `${c.unreadCount} ${window.currentLang === "en" ? "new" : "neu"}`
+      : (window.currentLang === "en" ? "New" : "Neu");
+
+    return `<button type="button"
+                    class="inbox-chat-item-v76k ${isUnread ? "is-unread" : ""}"
+                    data-match-id="${window.escapeHtml(c.matchId)}"
+                    data-partner-email="${window.escapeHtml(c.partnerEmail)}"
+                    data-match-name="${window.escapeHtml(c.matchName)}">
+              <span class="inbox-chat-title-row-v76k">
+                <strong>${window.escapeHtml(c.matchName)}</strong>
+                ${isUnread ? `<em>${unreadLabel}</em>` : ""}
+              </span>
+              <span class="inbox-chat-partner-v76k">${window.currentLang === "en" ? "With" : "Mit"}: ${window.escapeHtml(c.partnerEmail)}</span>
+              <span class="inbox-chat-snippet-v76k"><b>${senderLabel}:</b> ${window.escapeHtml(c.lastMessage)}</span>
+            </button>`;
   }).join("");
+
+  listContainer.querySelectorAll(".inbox-chat-item-v76k").forEach(item => {
+    item.addEventListener("click", () => {
+      const inboxModal = document.getElementById("global-inbox-modal");
+      if (inboxModal) inboxModal.style.display = "none";
+      openChatSystem(item.dataset.matchId, item.dataset.partnerEmail, item.dataset.matchName);
+    });
+  });
+
+  window.lastChatCheckedTimestamp = openedAt;
+  localStorage.setItem("lastChatChecked", window.lastChatCheckedTimestamp);
+  updateHeaderChatBadge();
 }
 window.toggleGlobalInbox = toggleGlobalInbox;
 
@@ -1421,6 +1465,12 @@ const originalOnAuthChange = window.onAuthChange;
 window.onAuthChange = (user) => {
   if (typeof originalOnAuthChange === "function") originalOnAuthChange(user);
   loadUserSettingsProfile();
+
+  // V76K: Marktplatz nach Auth-Check erneut rendern, damit Besitzer/Admin-Aktionen
+  // wie „Vermittelt" auch nach dem initialen Gast-Render sichtbar sind.
+  if (document.getElementById("match-container")) {
+    fetchMatches();
+  }
 };
 
 enforceFutureDates();

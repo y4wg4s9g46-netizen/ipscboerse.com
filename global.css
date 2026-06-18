@@ -11704,7 +11704,7 @@ html[data-theme="dark"] .login-balanced-v76f .quick-login-balanced-v76f {
 
 /* ==========================================================================
    V76H SAFE PERFORMANCE HOTFIX
-   Keine globalen schweren Beobachter, keine schweren Page-Overlays.
+   Keine globalen MutationObserver, keine schweren Page-Overlays.
    ========================================================================== */
 
 .club-links-v76h,
@@ -11766,5 +11766,316 @@ html[data-theme="dark"] #native-page-curtain-v74 {
 @media (max-width: 600px) {
     #modal-login-view.login-balanced-v76f h3 {
         font-size: 42px !important;
+    }
+}
+
+
+/* ==========================================================================
+   V76J DESKTOP WIDTH + ELO AUTOMATIC FIX
+   - Desktop-Inhalte sind wieder so breit wie der Hero-Bereich.
+   - Analytics/Reloading/Community/Performance nutzen die volle Containerbreite.
+   ========================================================================== */
+
+@media (min-width: 900px) {
+    body.page-marktplatz .container,
+    body.page-community .container,
+    body.page-analytics .container,
+    body.page-wiederladen .container,
+    body.page-performance .container,
+    body.page-tools .container,
+    body.page-schiessbuch .container,
+    body.page-freie-matches .container,
+    body.page-mein-planer .container {
+        width: min(100% - 48px, 1180px) !important;
+        max-width: 1180px !important;
+        margin: 34px auto !important;
+        padding-left: 24px !important;
+        padding-right: 24px !important;
+        box-sizing: border-box !important;
+    }
+
+    body.page-community .tabs-container,
+    body.page-community #logged-out-msg,
+    body.page-community #username-setup-section,
+    body.page-community #post-composer-v74,
+    body.page-community #posts-container,
+    body.page-community .post-card,
+    body.page-community .comments-wrapper,
+    body.page-marktplatz .info-box,
+    body.page-marktplatz .filter-bar,
+    body.page-marktplatz .form-section,
+    body.page-marktplatz .match-card,
+    body.page-marktplatz .listing-card,
+    body.page-marktplatz #listings-container,
+    body.page-analytics .tool-section,
+    body.page-analytics #analytics-dashboard-content,
+    body.page-wiederladen .tool-section,
+    body.page-performance #dashboard-content,
+    body.page-performance .info-box,
+    body.page-performance #quick-analyze-section,
+    body.page-performance .link-import-bar,
+    body.page-performance .upload-zone,
+    body.page-performance .match-archive,
+    body.page-performance #analysis-results {
+        width: 100% !important;
+        max-width: none !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    body.page-analytics .container > .tool-section[style] {
+        max-width: none !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    body.page-analytics #analytics-dashboard-content > div[style*="grid-template-columns"] {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+
+    body.page-performance .upload-zone {
+        min-height: 190px;
+    }
+}
+
+body.page-performance .planner-quick-btn-v76j {
+    background-color: var(--input-bg) !important;
+    color: var(--info-color) !important;
+    border: 1px solid var(--info-color) !important;
+    border-radius: var(--radius) !important;
+    font-weight: 750 !important;
+    line-height: 1.35 !important;
+}
+
+body.page-performance .planner-quick-btn-v76j:disabled {
+    opacity: .72 !important;
+    cursor: not-allowed !important;
+    color: var(--text-muted) !important;
+    border-color: var(--border-color) !important;
+}
+
+body.page-performance .planner-quick-btn-v76j small {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+
+/* ========================================================================== 
+   V76K LAUNCH POLISH
+   - Marktplatz owner actions are visible after auth re-render.
+   - Price moves into the free right-side card area.
+   - Inbox clearly marks new conversations.
+   - More menu remembers its lower scroll position.
+   - Reloading form is separate from saved Ladedaten.
+   ========================================================================== */
+body.page-marktplatz .match-header-flex {
+    grid-template-columns: 42px minmax(0, 1fr) auto !important;
+}
+
+body.page-marktplatz .match-price-head-v76k {
+    align-self: start !important;
+    justify-self: end !important;
+    white-space: nowrap !important;
+    margin-top: 2px !important;
+    padding: 7px 10px !important;
+    border-radius: 999px !important;
+    background: rgba(255, 159, 67, 0.10) !important;
+    border: 1px solid rgba(255, 159, 67, 0.22) !important;
+    color: var(--text-color) !important;
+    font-size: 14px !important;
+    line-height: 1 !important;
+    font-weight: 950 !important;
+}
+
+html[data-theme="dark"] body.page-marktplatz .match-price-head-v76k {
+    background: rgba(255, 159, 67, 0.13) !important;
+    border-color: rgba(255, 159, 67, 0.24) !important;
+}
+
+body.page-marktplatz .match-card:has(.owner-menu) .match-price-head-v76k {
+    margin-right: 36px !important;
+}
+
+body.page-marktplatz .card-actions {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+        "primary"
+        "secondary" !important;
+}
+
+body.page-marktplatz .card-actions > .match-price {
+    display: none !important;
+}
+
+body.page-marktplatz .action-buttons-group.manage-actions {
+    grid-template-columns: 1fr 1fr !important;
+}
+
+body.page-marktplatz .action-buttons-group.manage-actions .btn-mediated {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    grid-column: 1 / -1 !important;
+    min-height: 36px !important;
+    background: rgba(52, 211, 153, 0.14) !important;
+    color: var(--success-color) !important;
+    border: 1px solid rgba(52, 211, 153, 0.30) !important;
+}
+
+#global-inbox-modal .modal-content,
+#global-inbox-modal .global-inbox-content-v76k {
+    border-radius: 30px !important;
+}
+
+#global-inbox-list {
+    gap: 8px !important;
+    padding-right: 2px !important;
+}
+
+.inbox-chat-item-v76k {
+    width: 100% !important;
+    border: 1px solid var(--border-color) !important;
+    background: var(--bg-color) !important;
+    color: var(--text-color) !important;
+    border-radius: 18px !important;
+    padding: 13px 14px !important;
+    text-align: left !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    display: grid !important;
+    gap: 4px !important;
+    transition: transform .14s ease, border-color .14s ease, background .14s ease !important;
+}
+
+.inbox-chat-item-v76k:active {
+    transform: scale(.985) !important;
+}
+
+.inbox-chat-item-v76k.is-unread {
+    border-color: rgba(255, 159, 67, 0.42) !important;
+    background: linear-gradient(135deg, rgba(255,159,67,.13), rgba(255,255,255,.72)) !important;
+}
+
+html[data-theme="dark"] .inbox-chat-item-v76k.is-unread {
+    background: linear-gradient(135deg, rgba(255,159,67,.16), rgba(15,23,42,.72)) !important;
+}
+
+.inbox-chat-title-row-v76k {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 10px !important;
+    min-width: 0 !important;
+}
+
+.inbox-chat-title-row-v76k strong {
+    color: var(--accent-color) !important;
+    font-size: 14px !important;
+    line-height: 1.2 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.inbox-chat-title-row-v76k em {
+    flex: 0 0 auto !important;
+    border-radius: 999px !important;
+    padding: 4px 8px !important;
+    background: var(--accent-gradient) !important;
+    color: #fff !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+    font-style: normal !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .04em !important;
+}
+
+.inbox-chat-partner-v76k,
+.inbox-chat-snippet-v76k,
+.inbox-loading-v76k,
+.inbox-empty-v76k {
+    color: var(--text-muted) !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+}
+
+.inbox-chat-snippet-v76k {
+    color: var(--text-color) !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.inbox-chat-snippet-v76k b {
+    color: var(--text-muted) !important;
+    font-weight: 800 !important;
+}
+
+.inbox-loading-v76k,
+.inbox-empty-v76k {
+    padding: 18px 8px !important;
+    text-align: center !important;
+    font-style: italic !important;
+}
+
+.reloading-loads-section-v76k {
+    margin-top: 22px !important;
+}
+
+.reload-form-panel-v76 {
+    margin-bottom: 18px !important;
+}
+
+.reload-new-entry-v76.is-open span {
+    transform: rotate(45deg) !important;
+}
+
+@media (max-width: 768px) {
+    body.page-marktplatz .match-header-flex {
+        grid-template-columns: 38px minmax(0, 1fr) auto !important;
+    }
+
+    body.page-marktplatz .match-price-head-v76k {
+        font-size: 13px !important;
+        padding: 6px 8px !important;
+        max-width: 104px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    body.page-marktplatz .match-card:has(.owner-menu) .match-price-head-v76k {
+        margin-right: 30px !important;
+    }
+
+    body.page-marktplatz .card-actions {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        grid-template-areas:
+            "secondary"
+            "primary" !important;
+        gap: 7px !important;
+    }
+
+    body.page-marktplatz .primary-actions,
+    body.page-marktplatz .action-buttons-group,
+    body.page-marktplatz .manage-actions {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 7px !important;
+    }
+
+    body.page-marktplatz .action-buttons-group.manage-actions .btn-mediated {
+        grid-column: 1 / -1 !important;
+        height: 34px !important;
+        min-height: 34px !important;
+    }
+
+    #more-menu-list.more-menu-content {
+        scroll-behavior: auto !important;
+        overscroll-behavior: contain !important;
     }
 }

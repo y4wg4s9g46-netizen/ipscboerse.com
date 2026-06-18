@@ -221,15 +221,22 @@ async function updateUiAfterOAuthV66(session) {
 function markOAuthUrlHandledV69(urlString, code, accessToken) {
     try {
         const keyMaterial = code || accessToken || String(urlString).slice(0, 240);
-        const key = "ipsc.oauth.handled.v69";
+        const sessionKey = "ipsc.oauth.handled.v69";
+        const persistentKey = "ipsc.oauth.handled.v76k";
         const now = Date.now();
-        const last = JSON.parse(sessionStorage.getItem(key) || "null");
+        const isRecent = (entry, ttlMs) => entry && entry.keyMaterial === keyMaterial && now - Number(entry.time || 0) < ttlMs;
+        const lastSession = JSON.parse(sessionStorage.getItem(sessionKey) || "null");
+        const lastPersistent = JSON.parse(localStorage.getItem(persistentKey) || "null");
 
-        if (last && last.keyMaterial === keyMaterial && now - Number(last.time || 0) < 120000) {
+        // V76K: App.getLaunchUrl kann nach App-Pause/Neustart denselben OAuth-Link erneut liefern.
+        // SessionStorage reicht dann nicht; persistente Dedupe verhindert den „Auth session missing"-Dialog.
+        if (isRecent(lastSession, 120000) || isRecent(lastPersistent, 86400000)) {
             return false;
         }
 
-        sessionStorage.setItem(key, JSON.stringify({ keyMaterial, time: now }));
+        const payload = JSON.stringify({ keyMaterial, time: now });
+        sessionStorage.setItem(sessionKey, payload);
+        localStorage.setItem(persistentKey, payload);
         return true;
     } catch (_) {
         return true;
@@ -295,6 +302,18 @@ async function handleNativeOAuthUrlV66(url) {
     } catch (err) {
         console.error("Native OAuth callback failed:", err);
         await closeNativeOAuthBrowserV66();
+
+        const message = String(err?.message || err || "");
+        const staleOrConsumedCode = /auth session missing|session missing|flow state|code verifier|invalid.*code|expired/i.test(message);
+        if (staleOrConsumedCode) {
+            try {
+                const { data } = await window.supabaseClient.auth.getSession();
+                if (data?.session) await updateUiAfterOAuthV66(data.session);
+            } catch (_) {}
+            console.info("Stale native OAuth callback ignored v76k:", message);
+            return true;
+        }
+
         alert("App-Login konnte nicht abgeschlossen werden: " + (err.message || err));
         return false;
     } finally {

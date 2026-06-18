@@ -1812,9 +1812,22 @@ header .header-logo-img {
             `;
             document.head.appendChild(morePolishV52);
 
+            const moreMenuScrollKeyV76k = "ipsc.moreMenu.scrollTop.v76k";
+            const saveMoreMenuScrollV76k = () => {
+                try {
+                    const list = document.getElementById("more-menu-list");
+                    if (list) localStorage.setItem(moreMenuScrollKeyV76k, String(list.scrollTop || 0));
+                } catch (_) {}
+            };
+
+            document.addEventListener("scroll", (event) => {
+                if (event.target?.id === "more-menu-list") saveMoreMenuScrollV76k();
+            }, true);
+
             document.addEventListener("click", (event) => {
                 const link = event.target?.closest?.("#more-menu-overlay a[href]");
                 if (!link) return;
+                saveMoreMenuScrollV76k();
                 const menu = document.getElementById("more-menu-overlay");
                 const btn = document.getElementById("btn-more-menu");
                 if (menu) menu.classList.remove("show");
@@ -1843,6 +1856,27 @@ window.toggleMoreMenu = function() {
             const willOpen = !menu.classList.contains("show");
             menu.classList.toggle("show", willOpen);
             btn.classList.toggle("open", willOpen);
+
+            if (willOpen) {
+                requestAnimationFrame(() => {
+                    try {
+                        const list = document.getElementById("more-menu-list");
+                        if (!list) return;
+                        const storedScroll = Number(localStorage.getItem("ipsc.moreMenu.scrollTop.v76k") || "0");
+                        const activeLink = list.querySelector("a.active");
+                        if (storedScroll > 8) {
+                            list.scrollTop = storedScroll;
+                        } else if (activeLink) {
+                            activeLink.scrollIntoView({ block: "center" });
+                        }
+                    } catch (_) {}
+                });
+            } else {
+                try {
+                    const list = document.getElementById("more-menu-list");
+                    if (list) localStorage.setItem("ipsc.moreMenu.scrollTop.v76k", String(list.scrollTop || 0));
+                } catch (_) {}
+            }
         };
 
         bindHeaderAuthButtons(isVipPage);
