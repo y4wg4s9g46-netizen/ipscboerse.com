@@ -14,12 +14,12 @@
         pointer-events: none;
         opacity: 0;
         background: #f6f8fc;
-        transition: opacity 72ms ease;
+        transition: opacity 0ms linear;
         transform: translateZ(0);
         will-change: opacity;
       }
       html[data-theme="dark"] #native-page-curtain-v74 { background: #0f172a; }
-      html.is-native-navigating-v74 #native-page-curtain-v74 { opacity: 1; }
+      html.is-native-navigating-v74 #native-page-curtain-v74 { opacity: 1; transition: none; }
       html.is-native-arriving-v74 body { opacity: 1; }
       html[data-theme="light"],
       html[data-theme="light"] body {
@@ -40,7 +40,7 @@
           }
           if (theme !== "dark") theme = "light";
           root.setAttribute("data-theme", theme);
-          root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
+          root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc"; if (document.body) document.body.style.backgroundColor = root.style.backgroundColor;
           root.style.colorScheme = theme;
           var meta = document.querySelector('meta[name="theme-color"]');
           if (meta) meta.setAttribute("content", theme === "dark" ? "#0f172a" : "#f6f8fc");
@@ -124,7 +124,7 @@
         try {
           var root = document.documentElement;
           root.setAttribute("data-theme", theme);
-          root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
+          root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc"; if (document.body) document.body.style.backgroundColor = root.style.backgroundColor;
           root.style.colorScheme = theme === "dark" ? "dark" : "light";
           window.__IPSC_ACTIVE_THEME_V70 = theme;
 
@@ -145,14 +145,14 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="preload" href="icon-192.png" as="image">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=76m">
+<link rel="stylesheet" href="global.css?v=76o">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
 <body class="page-sg-timer-live app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m">
 
     <header id="main-header"></header>
-    <script src="header.js?v=76m"></script>
+    <script src="header.js?v=76o"></script>
 
     <div class="main-container">
         
@@ -673,9 +673,9 @@
             loadLeaderboard();
         }
     </script>
-<script src="auth.js?v=76m"></script>
+<script src="auth.js?v=76o"></script>
     <script src="lang.js?v=76m"></script>
-    <script src="app.js?v=76m"></script>
+    <script src="app.js?v=76o"></script>
     <script>
         window.onAuthChange = () => { 
             if(typeof updateHeaderChatBadge === 'function') {
@@ -735,7 +735,7 @@
       event.preventDefault();
       ensureCurtain();
       document.documentElement.classList.add("is-native-navigating-v74");
-      setTimeout(function () { window.location.href = url.href; }, 54);
+      setTimeout(function () { window.location.href = url.href; }, activeTheme() === "light" ? 92 : 54);
     }, true);
   });
 

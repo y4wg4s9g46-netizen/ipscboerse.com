@@ -1,0 +1,8 @@
+V76O Native Light Transition Polish
+
+- App-only Navigation-Guard für iOS/Capacitor ergänzt.
+- Light Mode zeigt den vorhandenen Page-Cover jetzt sofort und ohne Fade, damit beim Seitenwechsel kein hartes weißes WKWebView-Blitzen sichtbar wird.
+- Dark Mode bleibt praktisch unverändert, weil er laut Test stabil wirkt.
+- Header-/Bottom-Nav-/Mehr-Menü-Links werden in der nativen Shell kurz abgefangen, Cover wird gepaintet und danach navigiert.
+- Browser-Desktop-Layout bleibt unverändert.
+- Service-Worker-Cache auf v76o erhöht.

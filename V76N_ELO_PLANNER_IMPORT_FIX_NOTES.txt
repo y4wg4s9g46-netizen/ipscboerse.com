@@ -1,0 +1,8 @@
+v76n ELO Planner Import Fix
+
+- ELO-Vergleich lädt Planer-Matches robuster aus user_matches.
+- Zusätzlich zum expliziten user_id-Query wird der gleiche sichtbare Planer-Fallback wie in Mein Planer genutzt.
+- Alte/auto-importierte Spaltennamen werden normalisiert: match_url/link/url/source_url, status/approval_status, squad/squad_name, division/ipsc_division.
+- Bereits analysierte Planer-Matches bleiben oben sichtbar und können per Klick aktualisiert werden; sie werden nicht mehr aus der Vorschlagsliste ausgeblendet.
+- Zugriff prüft is_doppel_aa tolerant (true/"true"/1), damit Typunterschiede in Supabase den ELO-Bereich nicht blockieren.
+- Keine neue große Funktion, nur Reparatur der Planer-zu-ELO-Verknüpfung.

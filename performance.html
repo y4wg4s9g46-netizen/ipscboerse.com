@@ -15,12 +15,12 @@
         pointer-events: none;
         opacity: 0;
         background: #f6f8fc;
-        transition: opacity 72ms ease;
+        transition: opacity 0ms linear;
         transform: translateZ(0);
         will-change: opacity;
       }
       html[data-theme="dark"] #native-page-curtain-v74 { background: #0f172a; }
-      html.is-native-navigating-v74 #native-page-curtain-v74 { opacity: 1; }
+      html.is-native-navigating-v74 #native-page-curtain-v74 { opacity: 1; transition: none; }
       html.is-native-arriving-v74 body { opacity: 1; }
       html[data-theme="light"],
       html[data-theme="light"] body {
@@ -41,7 +41,7 @@
           }
           if (theme !== "dark") theme = "light";
           root.setAttribute("data-theme", theme);
-          root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
+          root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc"; if (document.body) document.body.style.backgroundColor = root.style.backgroundColor;
           root.style.colorScheme = theme;
           var meta = document.querySelector('meta[name="theme-color"]');
           if (meta) meta.setAttribute("content", theme === "dark" ? "#0f172a" : "#f6f8fc");
@@ -125,7 +125,7 @@
         try {
           var root = document.documentElement;
           root.setAttribute("data-theme", theme);
-          root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
+          root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc"; if (document.body) document.body.style.backgroundColor = root.style.backgroundColor;
           root.style.colorScheme = theme === "dark" ? "dark" : "light";
           window.__IPSC_ACTIVE_THEME_V70 = theme;
 
@@ -149,7 +149,7 @@
     <link rel="preload" href="icon-192.png" as="image">
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
-<link rel="stylesheet" href="global.css?v=76m">
+<link rel="stylesheet" href="global.css?v=76o">
 
 
     <style id="performance-loader-overlay-v53">
@@ -203,7 +203,7 @@
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
-<body class="page-performance app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m">
+<body class="page-performance app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76n app-v76m">
     <div id="performance-busy-overlay" class="performance-busy-overlay" aria-hidden="true">
         <div class="performance-busy-card">
             <div class="performance-busy-spinner"></div>
@@ -214,7 +214,7 @@
 
     <!-- 🌟 Header-Injection -->
     <header id="main-header"></header>
-    <script src="header.js?v=76m"></script>
+    <script src="header.js?v=76o"></script>
 
     <div class="container">
         
@@ -380,9 +380,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="auth.js?v=76m"></script>
+<script src="auth.js?v=76o"></script>
     <script src="lang.js?v=76m"></script>
-    <script src="app.js?v=76m"></script>
+    <script src="app.js?v=76o"></script>
     
     <script>
         let currentShooters = [];
@@ -946,7 +946,7 @@
                     console.error("🚨 Supabase Profil-Abfrage fehlgeschlagen:", error);
                 }
 
-                if (!profile || profile.is_doppel_aa !== true) { 
+                if (!profile || !hasDoppelAaAccess(profile)) { 
                     deniedBox.style.display = "block"; 
                     dashboard.style.display = "none"; 
                     return;
@@ -980,12 +980,7 @@
                     }
                 }
                 
-                const { data: plannedMatches } = await window.supabaseClient
-                    .from("user_matches")
-                    .select("*")
-                    .eq("user_id", user.id)
-                    .order("match_date", { ascending: true });
-
+                const plannedMatches = await loadPlannerMatchesForEloV76n(user);
                 renderUpcomingPlannerMatchesV76j(plannedMatches || []);
 
                 const urlParams = new URLSearchParams(window.location.search);
@@ -1002,6 +997,148 @@
         }
 
 
+        function getPlannerFieldV76n(match, names) {
+            if (!match) return "";
+            for (const name of names) {
+                if (Object.prototype.hasOwnProperty.call(match, name) && match[name] !== null && match[name] !== undefined && String(match[name]).trim() !== "") {
+                    return match[name];
+                }
+            }
+            return "";
+        }
+
+        function getPlannerUrlCandidatesV76n(match) {
+            if (!match) return [];
+            return [
+                match.analysis_url,
+                match.performance_url,
+                match.match_url,
+                match.ipscmatch_url,
+                match.ipsc_match_url,
+                match.match_link,
+                match.link,
+                match.url,
+                match.source_url,
+                match.registration_url,
+                match.complist_url
+            ].filter(Boolean).map(value => String(value).trim()).filter(Boolean);
+        }
+
+        function getPlannerMatchUrlV76n(match) {
+            const candidates = getPlannerUrlCandidatesV76n(match);
+            const ipsc = candidates.find(url => /ipscmatch\.de|match=/i.test(url));
+            return ipsc || candidates[0] || "";
+        }
+
+        function getPlannerOwnerIdV76n(match) {
+            return getPlannerFieldV76n(match, ["user_id", "profile_id", "owner_id", "created_by", "created_by_id", "account_id"]);
+        }
+
+        function plannerRowBelongsToUserV76n(match, user) {
+            if (!user) return false;
+            const ownerId = getPlannerOwnerIdV76n(match);
+            if (ownerId) return String(ownerId) === String(user.id);
+            // Legacy/Auto-Import-Zeilen ohne Owner-Spalte nur übernehmen, wenn sie überhaupt durch RLS sichtbar sind.
+            // Das spiegelt die Planer-Ansicht, verhindert aber nicht das explizite user_id-Query für normale Zeilen.
+            return true;
+        }
+
+        function normalizePlannerMatchForEloV76n(row) {
+            const copy = { ...(row || {}) };
+            copy.match_name = getPlannerFieldV76n(copy, ["match_name", "name", "title", "event_name", "competition_name", "match"]) || "Match";
+            copy.match_date = getPlannerFieldV76n(copy, ["match_date", "date", "datum", "event_date", "start_date", "starts_at"]);
+            copy.match_location = getPlannerFieldV76n(copy, ["match_location", "location", "ort", "venue", "address", "place"]);
+            copy.match_url = getPlannerMatchUrlV76n(copy);
+            copy.analysis_url = getPlannerFieldV76n(copy, ["analysis_url", "performance_url", "complist_url"]);
+            copy.status = getPlannerFieldV76n(copy, ["status", "registration_status", "approval_status", "state", "match_status"]);
+            copy.squad = getPlannerFieldV76n(copy, ["squad", "squad_name", "squad_number", "squad_no", "squad_id"]);
+            copy.division = getPlannerFieldV76n(copy, ["division", "match_division", "ipsc_division", "grepdiv"]);
+            copy.__plannerRawV76n = row;
+            return copy;
+        }
+
+        function plannerMatchDedupeKeyV76n(match) {
+            const matchId = getMatchIdFromUrl(getPlannerMatchUrlV76n(match));
+            if (matchId) return `id:${matchId}`;
+            const date = getPlannerFieldV76n(match, ["match_date", "date", "datum", "event_date", "start_date", "starts_at"]);
+            const name = normalizeMatchKey(match.match_name || match.name || match.title || "");
+            const location = normalizeMatchKey(match.match_location || match.location || match.ort || "");
+            return `name:${name}|date:${date || ""}|loc:${location}`;
+        }
+
+        function plannerMatchScoreV76n(match, user) {
+            let score = 0;
+            if (getPlannerOwnerIdV76n(match) && String(getPlannerOwnerIdV76n(match)) === String(user && user.id)) score += 10;
+            if (getPlannerMatchUrlV76n(match)) score += 5;
+            if (match.analysis_url || match.performance_url) score += 3;
+            if (match.status) score += 2;
+            if (match.squad) score += 2;
+            if (match.division || match.ipsc_division || match.match_division) score += 2;
+            return score;
+        }
+
+        function dedupePlannerMatchesForEloV76n(rows, user) {
+            const map = new Map();
+            (rows || []).map(normalizePlannerMatchForEloV76n).forEach(match => {
+                const key = plannerMatchDedupeKeyV76n(match);
+                if (!key || key === "name:|date:|loc:") return;
+                const existing = map.get(key);
+                if (!existing || plannerMatchScoreV76n(match, user) > plannerMatchScoreV76n(existing, user)) {
+                    map.set(key, match);
+                }
+            });
+            return Array.from(map.values()).sort((a, b) => {
+                const da = parsePlannerDateV76j(a.match_date);
+                const db = parsePlannerDateV76j(b.match_date);
+                return (da ? da.getTime() : 9999999999999) - (db ? db.getTime() : 9999999999999);
+            });
+        }
+
+        async function loadPlannerMatchesForEloV76n(user) {
+            if (!user || !window.supabaseClient) return [];
+            const allRows = [];
+            const seenRows = new Set();
+
+            function appendRows(rows) {
+                (rows || []).forEach(row => {
+                    const key = row && row.id ? `db:${row.id}` : JSON.stringify(row || {});
+                    if (seenRows.has(key)) return;
+                    seenRows.add(key);
+                    allRows.push(row);
+                });
+            }
+
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from("user_matches")
+                    .select("*")
+                    .eq("user_id", user.id)
+                    .order("match_date", { ascending: true });
+                if (error) console.warn("ELO-Planer: user_id-Abfrage fehlgeschlagen, nutze sichtbaren Planer-Fallback:", error);
+                appendRows(data || []);
+            } catch (err) {
+                console.warn("ELO-Planer: user_id-Abfrage nicht möglich:", err);
+            }
+
+            // Wichtig für ältere/automatisch importierte Planer-Zeilen: Der Planer selbst liest die sichtbaren Zeilen.
+            // Wenn das explizite user_id-Query keine Treffer liefert oder Auto-Import-Spalten anders befüllt wurden,
+            // übernehmen wir zusätzlich die RLS-sichtbaren Zeilen und filtern vorhandene Owner-Felder clientseitig.
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from("user_matches")
+                    .select("*")
+                    .order("match_date", { ascending: true });
+                if (error) console.warn("ELO-Planer: sichtbarer Planer-Fallback fehlgeschlagen:", error);
+                appendRows((data || []).filter(row => plannerRowBelongsToUserV76n(row, user)));
+            } catch (err) {
+                console.warn("ELO-Planer: sichtbarer Planer-Fallback nicht möglich:", err);
+            }
+
+            const normalized = dedupePlannerMatchesForEloV76n(allRows, user);
+            console.info(`ELO-Planer: ${normalized.length} Matches aus Mein Planer erkannt.`);
+            return normalized;
+        }
+
         function parsePlannerDateV76j(value) {
             if (!value) return null;
             const date = new Date(value);
@@ -1009,7 +1146,7 @@
         }
 
         function isFuturePlannerMatchV76j(match) {
-            const date = parsePlannerDateV76j(match && match.match_date);
+            const date = parsePlannerDateV76j(getPlannerFieldV76n(match, ["match_date", "date", "datum", "event_date", "start_date", "starts_at"]));
             if (!date) return true;
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -1017,17 +1154,16 @@
         }
 
         function hasPlannerMatchLinkV76j(match) {
-            const candidates = [match.match_url, match.analysis_url, match.performance_url].filter(Boolean);
-            return candidates.some(url => /ipscmatch\.de|match=/i.test(String(url)));
+            return getPlannerUrlCandidatesV76n(match).some(url => /ipscmatch\.de|match=/i.test(String(url)));
         }
 
         function normalizeStatusV76j(match) {
-            return String(match && match.status ? match.status : "").toLowerCase();
+            return String(getPlannerFieldV76n(match, ["status", "registration_status", "approval_status", "state", "match_status"])).toLowerCase();
         }
 
         function isWaitingOrRejectedV76j(match) {
             const status = normalizeStatusV76j(match);
-            const squad = String(match && match.squad ? match.squad : "").toUpperCase();
+            const squad = String(getPlannerFieldV76n(match, ["squad", "squad_name", "squad_number", "squad_no", "squad_id"])).toUpperCase();
             return status.includes("warteliste") ||
                 status.includes("waiting") ||
                 status.includes("waitlist") ||
@@ -1041,7 +1177,7 @@
         function isLikelyConfirmedPlannerMatchV76j(match) {
             if (!match || isWaitingOrRejectedV76j(match)) return false;
             const status = normalizeStatusV76j(match);
-            const squad = String(match.squad || "").trim();
+            const squad = String(getPlannerFieldV76n(match, ["squad", "squad_name", "squad_number", "squad_no", "squad_id"])).trim();
             const hasRealSquad = squad && !/^tbd$/i.test(squad) && !/99|wait/i.test(squad);
             if (hasRealSquad) return true;
             return status.includes("approved") ||
@@ -1055,12 +1191,14 @@
         }
 
         function plannedMatchLabelV76j(match) {
-            const date = parsePlannerDateV76j(match.match_date);
+            const date = parsePlannerDateV76j(getPlannerFieldV76n(match, ["match_date", "date", "datum", "event_date", "start_date", "starts_at"]));
             const dateLabel = date ? date.toLocaleDateString("de-DE") : "";
-            const squadInfo = match.squad ? ` | ${escapeHtml(match.squad)}` : "";
+            const squad = getPlannerFieldV76n(match, ["squad", "squad_name", "squad_number", "squad_no", "squad_id"]);
+            const squadInfo = squad ? ` | ${escapeHtml(squad)}` : "";
             const div = getPlannedMatchDivisionHint(match);
             const divInfo = div && div !== "Unknown" ? ` | Div: ${escapeHtml(div)}` : "";
-            return `${dateLabel ? escapeHtml(dateLabel) + " · " : ""}${escapeHtml(match.match_name || "Match")}${squadInfo}${divInfo}`;
+            const name = getPlannerFieldV76n(match, ["match_name", "name", "title", "event_name", "competition_name", "match"]) || "Match";
+            return `${dateLabel ? escapeHtml(dateLabel) + " · " : ""}${escapeHtml(name)}${squadInfo}${divInfo}`;
         }
 
         function renderUpcomingPlannerMatchesV76j(plannedMatches) {
@@ -1074,8 +1212,8 @@
                 .filter(isFuturePlannerMatchV76j)
                 .filter(isLikelyConfirmedPlannerMatchV76j)
                 .sort((a, b) => {
-                    const da = parsePlannerDateV76j(a.match_date);
-                    const db = parsePlannerDateV76j(b.match_date);
+                    const da = parsePlannerDateV76j(getPlannerFieldV76n(a, ["match_date", "date", "datum", "event_date", "start_date", "starts_at"]));
+                    const db = parsePlannerDateV76j(getPlannerFieldV76n(b, ["match_date", "date", "datum", "event_date", "start_date", "starts_at"]));
                     return (da ? da.getTime() : 9999999999999) - (db ? db.getTime() : 9999999999999);
                 })
                 ;
@@ -1096,8 +1234,8 @@
                 btn.style.width = "100%";
                 btn.style.textAlign = "left";
                 btn.style.padding = "12px 15px";
-                btn.dataset.matchName = m.match_name || "";
-                btn.dataset.matchId = getMatchIdFromUrl(m.match_url || m.analysis_url || m.performance_url || "") || "";
+                btn.dataset.matchName = getPlannerFieldV76n(m, ["match_name", "name", "title", "event_name", "competition_name", "match"]) || "";
+                btn.dataset.matchId = getMatchIdFromUrl(getPlannerMatchUrlV76n(m) || "") || "";
 
                 if (hasLink) {
                     activeCount += 1;
@@ -1762,7 +1900,7 @@
                 if (isValidIpscDivision(div)) return div;
             }
 
-            const urlFields = plannedMatch ? [plannedMatch.analysis_url, plannedMatch.performance_url, plannedMatch.match_url] : [];
+            const urlFields = getPlannerUrlCandidatesV76n(plannedMatch);
             for (const url of urlFields) {
                 const divFromUrl = getGrepDivisionFromUrl(url);
                 if (divFromUrl && isValidIpscDivision(divFromUrl)) return divFromUrl;
@@ -1884,7 +2022,7 @@
 
         function getReadyAnalysisUrlFromPlannedMatch(plannedMatch) {
             if (!plannedMatch) return null;
-            const candidates = [plannedMatch.analysis_url, plannedMatch.performance_url];
+            const candidates = getPlannerUrlCandidatesV76n(plannedMatch);
             for (const candidate of candidates) {
                 if (!candidate) continue;
                 try {
@@ -1898,7 +2036,7 @@
             }
 
             const hintedDiv = getPlannedMatchDivisionHint(plannedMatch);
-            const matchId = getMatchIdFromUrl(plannedMatch.match_url || "");
+            const matchId = getMatchIdFromUrl(getPlannerMatchUrlV76n(plannedMatch) || "");
             if (matchId && hintedDiv && isValidIpscDivision(hintedDiv)) {
                 return buildIpscComplistUrl(matchId, hintedDiv);
             }
@@ -1908,7 +2046,7 @@
 
         async function importPlannedMatch(plannedMatch) {
             const urlInputEl = document.getElementById('match-url');
-            const rawUrl = plannedMatch && plannedMatch.match_url ? plannedMatch.match_url : "";
+            const rawUrl = getPlannerMatchUrlV76n(plannedMatch);
 
             if (!cleanText(rawUrl)) {
                 alert("F\u00FCr dieses Match fehlt der IPSCMatch-Link in der... ");
@@ -1925,7 +2063,7 @@
                 const matchId = getMatchIdFromUrl(sourceUrl);
                 if (!matchId) throw new Error("Konnte die match= ID aus dem Planer-Link nicht lesen.");
 
-                const expectedSquad = plannedMatch.squad || null;
+                const expectedSquad = getPlannerFieldV76n(plannedMatch, ["squad", "squad_name", "squad_number", "squad_no", "squad_id"]) || null;
                 const dbDivision = getPlannedMatchDivisionHint(plannedMatch); 
 
                 let knownDivision = null;
@@ -1944,7 +2082,7 @@
                     division: knownDivision,
                     squad: expectedSquad,
                     sourceUrl: targetUrl,
-                    plannedName: plannedMatch.match_name || ""
+                    plannedName: getPlannerFieldV76n(plannedMatch, ["match_name", "name", "title", "event_name", "competition_name", "match"]) || ""
                 };
 
                 console.log("\u{1F3AF} Daten aus 'Mein Planer' gezogen. Generierter Link:", targetUrl);
@@ -2123,13 +2261,24 @@
             const buttonContainer = document.getElementById("quick-analyze-buttons");
             if (!section || !buttonContainer) return;
 
-            Array.from(buttonContainer.querySelectorAll("button[data-match-name]")).forEach(button => {
+            // v76n: Planer-Matches bleiben oben sichtbar, auch wenn bereits eine Analyse im Archiv existiert.
+            // So kann man ELO-Auswertungen später mit aktuellen Starterlisten/ELO-Daten erneut aktualisieren.
+            const buttons = Array.from(buttonContainer.querySelectorAll("button[data-match-name]"));
+            buttons.forEach(button => {
                 const alreadyArchived = isMatchNameArchived(button.dataset.matchName || "");
-                button.style.display = alreadyArchived ? "none" : "";
+                button.classList.toggle("planner-quick-btn-archived-v76n", alreadyArchived);
+                if (alreadyArchived && !button.querySelector(".planner-quick-archived-note-v76n")) {
+                    const note = document.createElement("small");
+                    note.className = "planner-quick-archived-note-v76n";
+                    note.textContent = "Bereits analysiert – erneut klicken zum Aktualisieren";
+                    note.style.display = "block";
+                    note.style.marginTop = "4px";
+                    note.style.color = "var(--text-muted)";
+                    button.appendChild(note);
+                }
             });
 
-            const visibleButtons = Array.from(buttonContainer.querySelectorAll("button[data-match-name]")).filter(button => button.style.display !== "none");
-            section.style.display = visibleButtons.length ? "block" : "none";
+            section.style.display = buttons.length ? "block" : "none";
         }
 
         async function renderMatchArchive() {
@@ -2683,7 +2832,7 @@
       event.preventDefault();
       ensureCurtain();
       document.documentElement.classList.add("is-native-navigating-v74");
-      setTimeout(function () { window.location.href = url.href; }, 54);
+      setTimeout(function () { window.location.href = url.href; }, activeTheme() === "light" ? 92 : 54);
     }, true);
   });
 

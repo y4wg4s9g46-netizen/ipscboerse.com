@@ -12280,3 +12280,89 @@ html[data-theme="dark"] .inbox-chat-item-v76k.is-unread {
         box-sizing: border-box !important;
     }
 }
+
+/* ==========================================================================
+   V76O NATIVE LIGHT-MODE TRANSITION POLISH
+   Verhindert das harte weiße Blitzen in der iOS-App beim Seitenwechsel.
+   Browser-Layout bleibt unverändert; der Guard greift nur in der nativen Shell.
+   ========================================================================== */
+:root {
+    --app-light-surface-v76o: #f6f8fc;
+    --app-dark-surface-v76o: #0f172a;
+}
+
+html,
+body {
+    background-color: var(--app-light-surface-v76o) !important;
+}
+
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+    background-color: var(--app-dark-surface-v76o) !important;
+}
+
+#app-page-transition-cover,
+#native-page-curtain-v74 {
+    background-color: var(--app-light-surface-v76o) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translate3d(0, 0, 0) !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+}
+
+html[data-theme="dark"] #app-page-transition-cover,
+html[data-theme="dark"] #native-page-curtain-v74 {
+    background-color: var(--app-dark-surface-v76o) !important;
+}
+
+html.is-native-navigating-v76o,
+html.is-native-navigating-v76o body,
+html.is-page-leaving,
+html.is-page-leaving body {
+    background-color: var(--app-light-surface-v76o) !important;
+}
+
+html[data-theme="dark"].is-native-navigating-v76o,
+html[data-theme="dark"].is-native-navigating-v76o body,
+html[data-theme="dark"].is-page-leaving,
+html[data-theme="dark"].is-page-leaving body {
+    background-color: var(--app-dark-surface-v76o) !important;
+}
+
+html[data-theme="light"].is-native-navigating-v76o #app-page-transition-cover,
+html[data-theme="light"].is-native-navigating-v76o #native-page-curtain-v74,
+html[data-theme="light"].is-page-leaving #app-page-transition-cover,
+html[data-theme="light"].is-page-leaving #native-page-curtain-v74 {
+    opacity: 1 !important;
+    transition: none !important;
+    background-color: var(--app-light-surface-v76o) !important;
+}
+
+html[data-theme="dark"].is-native-navigating-v76o #app-page-transition-cover,
+html[data-theme="dark"].is-native-navigating-v76o #native-page-curtain-v74,
+html[data-theme="dark"].is-page-leaving #app-page-transition-cover,
+html[data-theme="dark"].is-page-leaving #native-page-curtain-v74 {
+    opacity: 1 !important;
+    transition: opacity 24ms linear !important;
+    background-color: var(--app-dark-surface-v76o) !important;
+}
+
+@media (max-width: 768px) {
+    html[data-theme="light"].is-native-shell,
+    html[data-theme="light"].is-native-shell body,
+    html[data-theme="light"].is-standalone-app,
+    html[data-theme="light"].is-standalone-app body,
+    html[data-theme="light"] body.is-app-shell {
+        background-color: var(--app-light-surface-v76o) !important;
+    }
+
+    html[data-theme="dark"].is-native-shell,
+    html[data-theme="dark"].is-native-shell body,
+    html[data-theme="dark"].is-standalone-app,
+    html[data-theme="dark"].is-standalone-app body,
+    html[data-theme="dark"] body.is-app-shell {
+        background-color: var(--app-dark-surface-v76o) !important;
+    }
+}
+
