@@ -3,12 +3,12 @@
    Instead of extracting/replaying page DOM, every app view is the original page inside a same-origin iframe.
    This preserves layout, translations, data loading and page-specific scripts from the backup line.
 */
-(function IPSCAppFrameSpaV78G(){
-  if (window.__IPSC_APP_FRAME_SPA_V78G) return;
-  window.__IPSC_APP_FRAME_SPA_V78G = true;
+(function IPSCAppFrameSpaV78H(){
+  if (window.__IPSC_APP_FRAME_SPA_V78H) return;
+  window.__IPSC_APP_FRAME_SPA_V78H = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
 
-  const VERSION = '78g';
+  const VERSION = '78h';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -41,10 +41,28 @@
     booted: false
   };
 
+  function showShellAuthModalV78h(view){
+    try {
+      const modal = document.getElementById('auth-modal');
+      if (!modal) return false;
+      modal.style.setProperty('display', 'flex', 'important');
+      modal.style.setProperty('visibility', 'visible', 'important');
+      modal.style.setProperty('opacity', '1', 'important');
+      modal.style.setProperty('pointer-events', 'auto', 'important');
+      modal.removeAttribute('aria-hidden');
+      modal.classList.add('show', 'is-open');
+      document.body.classList.add('auth-open', 'modal-open');
+      document.documentElement.classList.add('auth-open', 'modal-open');
+      if (typeof window.resetAuthProviderButtonsV78e === 'function') window.resetAuthProviderButtonsV78e();
+      if (typeof window.toggleAuthView === 'function') window.toggleAuthView(view || 'login');
+      return true;
+    } catch (_) { return false; }
+  }
+
   function restoreShellChrome(){
     try {
-      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78g');
-      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78g');
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h');
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
       window.scrollTo(0, 0);
@@ -67,17 +85,16 @@
 
   function openShellSettings(){
     try {
-      const modal = document.getElementById('auth-modal');
-      if (modal) {
-        modal.style.display = 'flex';
-        modal.removeAttribute('aria-hidden');
-        modal.classList.add('show');
-      }
-      if (typeof window.toggleAuthView === 'function') window.toggleAuthView('settings');
+      showShellAuthModalV78h('settings');
       const settingsIpsc = document.getElementById('settings-ipsc-alias');
       if (settingsIpsc && window.currentUser) settingsIpsc.value = window.currentUser.user_metadata?.ipsc_alias || '';
       const settingsRealName = document.getElementById('settings-real-name');
       if (settingsRealName && window.currentUser) settingsRealName.value = window.currentUser.user_metadata?.real_name || '';
+      const previewImg = document.getElementById('settings-avatar-preview');
+      if (previewImg && window.currentUser?.user_metadata?.avatar_url) {
+        previewImg.src = window.currentUser.user_metadata.avatar_url;
+        previewImg.style.display = 'block';
+      }
       setTimeout(restoreShellChrome, 0);
       return true;
     } catch (_) { return false; }
@@ -85,8 +102,8 @@
 
   function markApp(){
     try {
-      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78g');
-      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78g');
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h');
       document.body.classList.remove('app-v78b','app-v78c','app-v78d','app-v78e','app-v78f');
     } catch (_) {}
   }
@@ -289,7 +306,7 @@
     const main = ensureRoot();
     if (!main) return null;
     const frame = document.createElement('iframe');
-    frame.className = 'app-frame-layer-v78c app-frame-layer-v78d app-frame-layer-v78f app-frame-layer-v78g';
+    frame.className = 'app-frame-layer-v78c app-frame-layer-v78d app-frame-layer-v78f app-frame-layer-v78g app-frame-layer-v78h';
     frame.setAttribute('title', view.title);
     frame.setAttribute('data-view', view.file);
     frame.setAttribute('data-key', view.key);
@@ -386,12 +403,8 @@
 
   function openLogin(){
     try {
-      const modal = document.getElementById('auth-modal');
-      if (modal) {
-        modal.style.display = 'flex';
-        modal.removeAttribute('aria-hidden');
-        if (typeof window.toggleAuthView === 'function') window.toggleAuthView('login');
-      }
+      showShellAuthModalV78h('login');
+      setTimeout(restoreShellChrome, 0);
     } catch (_) {}
   }
 
@@ -400,9 +413,9 @@
       if (event.origin !== window.location.origin) return;
       const data = event.data || {};
       if ((data.type === 'ipsc-navigate-v78c' || data.type === 'ipsc-navigate-v78d') && data.href) navigate(data.href);
-      if (data.type === 'ipsc-open-login-v78c' || data.type === 'ipsc-open-login-v78d') openLogin();
-      if (data.type === 'ipsc-open-settings-v78g') openShellSettings();
-      if (data.type === 'ipsc-restore-chrome-v78g') restoreShellChrome();
+      if (data.type === 'ipsc-open-login-v78c' || data.type === 'ipsc-open-login-v78d' || data.type === 'ipsc-open-login-v78h') openLogin();
+      if (data.type === 'ipsc-open-settings-v78g' || data.type === 'ipsc-open-settings-v78h') openShellSettings();
+      if (data.type === 'ipsc-restore-chrome-v78g' || data.type === 'ipsc-restore-chrome-v78h') restoreShellChrome();
     });
   }
 
@@ -461,8 +474,10 @@
     prewarm();
   }
 
-  window.IPSCAppV78 = { navigate, refresh, getCurrentView: () => state.activeFile, version: VERSION, applyTheme, syncLanguage, broadcastAuth: function(){ broadcast({ type: 'ipsc-auth-refresh-v78d' }); }, handleLogout, restoreShellChrome, openShellSettings };
+  window.IPSCAppV78 = { navigate, refresh, getCurrentView: () => state.activeFile, version: VERSION, applyTheme, syncLanguage, broadcastAuth: function(){ broadcast({ type: 'ipsc-auth-refresh-v78d' }); }, handleLogout, restoreShellChrome, openShellSettings, openLogin, showAuthModal: showShellAuthModalV78h };
   window.openSettingsModal = openShellSettings;
+  window.openLoginModal = openLogin;
+  window.showAuthModalV78h = showShellAuthModalV78h;
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();

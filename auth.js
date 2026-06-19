@@ -972,6 +972,26 @@ function toggleAuthView(view) {
 window.toggleAuthView = toggleAuthView;
 
 
+// V78H: Re-open auth modal robustly after v78e closes it with important hidden styles.
+function showAuthModalV78h(view) {
+    try {
+        const modal = document.getElementById("auth-modal");
+        if (!modal) return false;
+        modal.style.setProperty("display", "flex", "important");
+        modal.style.setProperty("visibility", "visible", "important");
+        modal.style.setProperty("opacity", "1", "important");
+        modal.style.setProperty("pointer-events", "auto", "important");
+        modal.removeAttribute("aria-hidden");
+        modal.classList.add("show", "is-open");
+        document.body.classList.add("auth-open", "modal-open");
+        document.documentElement.classList.add("auth-open", "modal-open");
+        if (typeof resetAuthProviderButtonsV78e === "function") resetAuthProviderButtonsV78e();
+        if (typeof toggleAuthView === "function") toggleAuthView(view || "login");
+        return true;
+    } catch (_) { return false; }
+}
+window.showAuthModalV78h = showAuthModalV78h;
+
 // V78E: Central app-login completion cleanup.
 // In the remote app shell (https://ipscboerse.com/app.html) OAuth/Passkey may complete without a hard reload.
 // The modal must close reliably and provider buttons must not remain in "wird geöffnet" / "Erfolgreich" states.
@@ -1039,10 +1059,17 @@ window.closeAuthModalAfterLoginV78e = closeAuthModalAfterLoginV78e;
 
 document.addEventListener("click", async (e) => {
     if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
-        const modal = document.getElementById("auth-modal");
-        if (modal) {
-            modal.style.display = "flex";
-            toggleAuthView("login");
+        if (typeof showAuthModalV78h === "function") {
+            showAuthModalV78h("login");
+        } else {
+            const modal = document.getElementById("auth-modal");
+            if (modal) {
+                modal.style.setProperty("display", "flex", "important");
+                modal.style.setProperty("visibility", "visible", "important");
+                modal.style.setProperty("opacity", "1", "important");
+                modal.style.setProperty("pointer-events", "auto", "important");
+                toggleAuthView("login");
+            }
         }
     }
 
@@ -1067,10 +1094,17 @@ document.addEventListener("click", async (e) => {
     }
 
     if (e.target.id === "btn-open-settings" || e.target.closest("#btn-open-settings")) {
-        const modal = document.getElementById("auth-modal");
-        if (modal) {
-            modal.style.display = "flex";
-            toggleAuthView("settings");
+        if (typeof showAuthModalV78h === "function") {
+            showAuthModalV78h("settings");
+        } else {
+            const modal = document.getElementById("auth-modal");
+            if (modal) {
+                modal.style.setProperty("display", "flex", "important");
+                modal.style.setProperty("visibility", "visible", "important");
+                modal.style.setProperty("opacity", "1", "important");
+                modal.style.setProperty("pointer-events", "auto", "important");
+                toggleAuthView("settings");
+            }
         }
 
         const settingsIpsc = document.getElementById("settings-ipsc-alias");

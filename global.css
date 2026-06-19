@@ -13590,7 +13590,7 @@ body.page-app-spa.app-v78d {
 body.page-app-spa.app-v78c #app-shell-root-v78,
 body.page-app-spa.app-v78d #app-shell-root-v78,
 body.page-app-spa.app-v78e #app-shell-root-v78,
-body.page-app-spa.app-v78g #app-shell-root-v78 {
+body.page-app-spa.app-v78h #app-shell-root-v78 {
   height: 100dvh !important;
   overflow: hidden !important;
   display: flex !important;
@@ -13600,7 +13600,7 @@ body.page-app-spa.app-v78g #app-shell-root-v78 {
 body.page-app-spa.app-v78c #main-header,
 body.page-app-spa.app-v78d #main-header,
 body.page-app-spa.app-v78e #main-header,
-body.page-app-spa.app-v78g #main-header {
+body.page-app-spa.app-v78h #main-header {
   flex: 0 0 auto !important;
   position: relative !important;
   z-index: 50 !important;
@@ -13608,7 +13608,7 @@ body.page-app-spa.app-v78g #main-header {
 body.page-app-spa.app-v78c #app-spa-view-v78,
 body.page-app-spa.app-v78d #app-spa-view-v78,
 body.page-app-spa.app-v78e #app-spa-view-v78,
-body.page-app-spa.app-v78g #app-spa-view-v78 {
+body.page-app-spa.app-v78h #app-spa-view-v78 {
   position: relative !important;
   flex: 1 1 auto !important;
   min-height: 0 !important;
@@ -13621,9 +13621,9 @@ body.page-app-spa.app-v78d .app-frame-layer-v78c,
 body.page-app-spa.app-v78d .app-frame-layer-v78d,
 body.page-app-spa.app-v78e .app-frame-layer-v78c,
 body.page-app-spa.app-v78e .app-frame-layer-v78d,
-body.page-app-spa.app-v78g .app-frame-layer-v78c,
-body.page-app-spa.app-v78g .app-frame-layer-v78d,
-body.page-app-spa.app-v78g .app-frame-layer-v78f {
+body.page-app-spa.app-v78h .app-frame-layer-v78c,
+body.page-app-spa.app-v78h .app-frame-layer-v78d,
+body.page-app-spa.app-v78h .app-frame-layer-v78f {
   position: absolute !important;
   inset: 0 !important;
   width: 100% !important;
@@ -13641,9 +13641,9 @@ body.page-app-spa.app-v78d .app-frame-layer-v78c.is-active,
 body.page-app-spa.app-v78d .app-frame-layer-v78d.is-active,
 body.page-app-spa.app-v78e .app-frame-layer-v78c.is-active,
 body.page-app-spa.app-v78e .app-frame-layer-v78d.is-active,
-body.page-app-spa.app-v78g .app-frame-layer-v78c.is-active,
-body.page-app-spa.app-v78g .app-frame-layer-v78d.is-active,
-body.page-app-spa.app-v78g .app-frame-layer-v78f.is-active {
+body.page-app-spa.app-v78h .app-frame-layer-v78c.is-active,
+body.page-app-spa.app-v78h .app-frame-layer-v78d.is-active,
+body.page-app-spa.app-v78h .app-frame-layer-v78f.is-active {
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
@@ -13654,9 +13654,9 @@ body.page-app-spa.app-v78d .app-frame-layer-v78c.is-previous,
 body.page-app-spa.app-v78d .app-frame-layer-v78d.is-previous,
 body.page-app-spa.app-v78e .app-frame-layer-v78c.is-previous,
 body.page-app-spa.app-v78e .app-frame-layer-v78d.is-previous,
-body.page-app-spa.app-v78g .app-frame-layer-v78c.is-previous,
-body.page-app-spa.app-v78g .app-frame-layer-v78d.is-previous,
-body.page-app-spa.app-v78g .app-frame-layer-v78f.is-previous {
+body.page-app-spa.app-v78h .app-frame-layer-v78c.is-previous,
+body.page-app-spa.app-v78h .app-frame-layer-v78d.is-previous,
+body.page-app-spa.app-v78h .app-frame-layer-v78f.is-previous {
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: none !important;
@@ -13665,31 +13665,31 @@ body.page-app-spa.app-v78g .app-frame-layer-v78f.is-previous {
 body.page-app-spa.app-v78c #spa-loader-v78,
 body.page-app-spa.app-v78d #spa-loader-v78,
 body.page-app-spa.app-v78e #spa-loader-v78,
-body.page-app-spa.app-v78g #spa-loader-v78 { display: none !important; }
+body.page-app-spa.app-v78h #spa-loader-v78 { display: none !important; }
 
 
 /* ======================================================================
-   V78G APP FINAL POLISH
+   V78H APP LOGIN SETTINGS REOPEN FIX
    - keep the v78 frame-shell layout intact
    - fix favorites icon alignment, Marktplatz form sizing, owner price/settings,
      profile click layer, and header restore after modal close.
    ====================================================================== */
-body.page-app-spa.app-v78g,
-html.is-app-spa-v78g,
-html.is-app-spa-v78g body {
+body.page-app-spa.app-v78h,
+html.is-app-spa-v78h,
+html.is-app-spa-v78h body {
   overflow: hidden !important;
   height: 100dvh !important;
   min-height: 100dvh !important;
   padding-bottom: 0 !important;
 }
-body.page-app-spa.app-v78g #app-shell-root-v78 {
+body.page-app-spa.app-v78h #app-shell-root-v78 {
   height: 100dvh !important;
   overflow: hidden !important;
   display: flex !important;
   flex-direction: column !important;
   background: var(--bg-color, #f6f8fc) !important;
 }
-body.page-app-spa.app-v78g #main-header {
+body.page-app-spa.app-v78h #main-header {
   flex: 0 0 auto !important;
   position: relative !important;
   z-index: 2147482000 !important;
@@ -13698,7 +13698,7 @@ body.page-app-spa.app-v78g #main-header {
   opacity: 1 !important;
   visibility: visible !important;
 }
-body.page-app-spa.app-v78g #app-spa-view-v78 {
+body.page-app-spa.app-v78h #app-spa-view-v78 {
   position: relative !important;
   flex: 1 1 auto !important;
   min-height: 0 !important;
@@ -13706,10 +13706,10 @@ body.page-app-spa.app-v78g #app-spa-view-v78 {
   opacity: 1 !important;
   z-index: 1 !important;
 }
-body.page-app-spa.app-v78g .app-frame-layer-v78g,
-body.page-app-spa.app-v78g .app-frame-layer-v78f,
-body.page-app-spa.app-v78g .app-frame-layer-v78d,
-body.page-app-spa.app-v78g .app-frame-layer-v78c {
+body.page-app-spa.app-v78h .app-frame-layer-v78g,
+body.page-app-spa.app-v78h .app-frame-layer-v78f,
+body.page-app-spa.app-v78h .app-frame-layer-v78d,
+body.page-app-spa.app-v78h .app-frame-layer-v78c {
   position: absolute !important;
   inset: 0 !important;
   width: 100% !important;
@@ -13722,27 +13722,27 @@ body.page-app-spa.app-v78g .app-frame-layer-v78c {
   transform: translateZ(0) !important;
   transition: opacity .14s ease-out !important;
 }
-body.page-app-spa.app-v78g .app-frame-layer-v78g.is-active,
-body.page-app-spa.app-v78g .app-frame-layer-v78f.is-active,
-body.page-app-spa.app-v78g .app-frame-layer-v78d.is-active,
-body.page-app-spa.app-v78g .app-frame-layer-v78c.is-active {
+body.page-app-spa.app-v78h .app-frame-layer-v78g.is-active,
+body.page-app-spa.app-v78h .app-frame-layer-v78f.is-active,
+body.page-app-spa.app-v78h .app-frame-layer-v78d.is-active,
+body.page-app-spa.app-v78h .app-frame-layer-v78c.is-active {
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
   z-index: 2 !important;
 }
-body.page-app-spa.app-v78g .app-frame-layer-v78g.is-previous,
-body.page-app-spa.app-v78g .app-frame-layer-v78f.is-previous,
-body.page-app-spa.app-v78g .app-frame-layer-v78d.is-previous,
-body.page-app-spa.app-v78g .app-frame-layer-v78c.is-previous {
+body.page-app-spa.app-v78h .app-frame-layer-v78g.is-previous,
+body.page-app-spa.app-v78h .app-frame-layer-v78f.is-previous,
+body.page-app-spa.app-v78h .app-frame-layer-v78d.is-previous,
+body.page-app-spa.app-v78h .app-frame-layer-v78c.is-previous {
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: none !important;
   z-index: 1 !important;
 }
-body.page-app-spa.app-v78g #btn-open-settings,
-body.page-app-spa.app-v78g #header-avatar,
-body.page-app-spa.app-v78g .header-avatar-btn {
+body.page-app-spa.app-v78h #btn-open-settings,
+body.page-app-spa.app-v78h #header-avatar,
+body.page-app-spa.app-v78h .header-avatar-btn {
   position: relative !important;
   z-index: 2147483000 !important;
   pointer-events: auto !important;
@@ -13905,4 +13905,23 @@ body.page-app-spa.app-v78g .header-avatar-btn {
     top: 18px !important;
     right: 15px !important;
   }
+}
+
+/* V78H auth reopen + frame-layer compatibility */
+body.page-app-spa.app-v78h .app-frame-layer-v78h {
+  position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important;
+  border: 0 !important; background: var(--bg-color, #f6f8fc) !important; opacity: 0 !important;
+  visibility: hidden !important; pointer-events: none !important; transform: translateZ(0) !important;
+  transition: opacity .14s ease-out !important;
+}
+body.page-app-spa.app-v78h .app-frame-layer-v78h.is-active {
+  opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; z-index: 2 !important;
+}
+body.page-app-spa.app-v78h .app-frame-layer-v78h.is-previous {
+  opacity: 1 !important; visibility: visible !important; pointer-events: none !important; z-index: 1 !important;
+}
+body.page-app-spa.app-v78h #auth-modal[aria-hidden="true"] { pointer-events: none; }
+body.page-app-spa.app-v78h #auth-modal.show,
+body.page-app-spa.app-v78h #auth-modal.is-open {
+  display: flex !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important;
 }

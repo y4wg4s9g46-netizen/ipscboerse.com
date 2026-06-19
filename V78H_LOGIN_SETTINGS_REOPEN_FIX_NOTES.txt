@@ -1,0 +1,6 @@
+V78H Login/Settings Reopen Fix
+
+- Keeps v78g UI/state polish.
+- Fixes Login button after prior auth close: v78e hid modal with visibility/opacity/pointer-events important; v78h resets those styles before opening.
+- Fixes avatar/profile settings click through the same robust modal opener.
+- No navigation architecture changes. No backend changes.
