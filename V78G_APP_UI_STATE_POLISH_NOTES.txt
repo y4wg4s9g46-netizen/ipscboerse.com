@@ -1,0 +1,7 @@
+V78G App UI/State Polish
+
+- Restores v78 frame-layer shell after v78f and keeps parent header fixed/visible.
+- Fixes profile/avatar settings click in the app shell.
+- Restores shell chrome after closing the Community post modal.
+- App-frame-only mobile polish: favorites icon alignment, Marktplatz form control sizing, price/settings collision fix.
+- Does not alter backend. Browser website is left untouched outside app-frame/shell selectors.

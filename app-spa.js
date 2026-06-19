@@ -3,12 +3,12 @@
    Instead of extracting/replaying page DOM, every app view is the original page inside a same-origin iframe.
    This preserves layout, translations, data loading and page-specific scripts from the backup line.
 */
-(function IPSCAppFrameSpaV78F(){
-  if (window.__IPSC_APP_FRAME_SPA_V78F) return;
-  window.__IPSC_APP_FRAME_SPA_V78F = true;
+(function IPSCAppFrameSpaV78G(){
+  if (window.__IPSC_APP_FRAME_SPA_V78G) return;
+  window.__IPSC_APP_FRAME_SPA_V78G = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
 
-  const VERSION = '78f';
+  const VERSION = '78g';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -41,11 +41,53 @@
     booted: false
   };
 
+  function restoreShellChrome(){
+    try {
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78g');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78g');
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      const root = document.getElementById('app-shell-root-v78');
+      const header = document.getElementById('main-header');
+      const main = document.getElementById('app-spa-view-v78');
+      if (root) { root.style.transform = ''; root.style.opacity = ''; root.style.visibility = ''; }
+      if (header) {
+        header.style.transform = '';
+        header.style.opacity = '';
+        header.style.visibility = '';
+        header.style.display = '';
+        header.classList.remove('is-hidden','is-collapsed','hide','hidden');
+      }
+      if (main) main.scrollTop = 0;
+    } catch (_) {}
+  }
+
+  function openShellSettings(){
+    try {
+      const modal = document.getElementById('auth-modal');
+      if (modal) {
+        modal.style.display = 'flex';
+        modal.removeAttribute('aria-hidden');
+        modal.classList.add('show');
+      }
+      if (typeof window.toggleAuthView === 'function') window.toggleAuthView('settings');
+      const settingsIpsc = document.getElementById('settings-ipsc-alias');
+      if (settingsIpsc && window.currentUser) settingsIpsc.value = window.currentUser.user_metadata?.ipsc_alias || '';
+      const settingsRealName = document.getElementById('settings-real-name');
+      if (settingsRealName && window.currentUser) settingsRealName.value = window.currentUser.user_metadata?.real_name || '';
+      setTimeout(restoreShellChrome, 0);
+      return true;
+    } catch (_) { return false; }
+  }
+
   function markApp(){
     try {
-      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78f');
-      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78f');
-      document.body.classList.remove('app-v78b','app-v78c','app-v78d','app-v78e');
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78g');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78g');
+      document.body.classList.remove('app-v78b','app-v78c','app-v78d','app-v78e','app-v78f');
     } catch (_) {}
   }
 
@@ -247,7 +289,7 @@
     const main = ensureRoot();
     if (!main) return null;
     const frame = document.createElement('iframe');
-    frame.className = 'app-frame-layer-v78c app-frame-layer-v78d app-frame-layer-v78f';
+    frame.className = 'app-frame-layer-v78c app-frame-layer-v78d app-frame-layer-v78f app-frame-layer-v78g';
     frame.setAttribute('title', view.title);
     frame.setAttribute('data-view', view.file);
     frame.setAttribute('data-key', view.key);
@@ -278,6 +320,7 @@
     if (!frame) return false;
 
     applyTheme(getTheme());
+    restoreShellChrome();
     updateChrome(view);
 
     const previous = state.activeFrame;
@@ -299,6 +342,7 @@
       state.activeFile = view.file;
       state.activeKey = view.key;
       state.activeFrame = frame;
+      restoreShellChrome();
       if (!opts.replace && history.pushState) history.pushState({ view: view.file + (view.search || '') + (view.hash || '') }, '', appUrlFor(view));
       try { frame.contentWindow && frame.contentWindow.postMessage({ type: 'ipsc-app-active-v78d', view: view.file, theme: getTheme(), lang: getLang() }, window.location.origin); } catch (_) {}
       return true;
@@ -324,6 +368,13 @@
 
   function interceptClicks(){
     document.addEventListener('click', function(ev){
+      const settingsBtn = ev.target && ev.target.closest && ev.target.closest('#btn-open-settings, .header-avatar-btn, #header-avatar');
+      if (settingsBtn) {
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        openShellSettings();
+        return;
+      }
       const a = ev.target && ev.target.closest && ev.target.closest('a[href]');
       const target = shouldHandleLink(a);
       if (!target) return;
@@ -350,6 +401,8 @@
       const data = event.data || {};
       if ((data.type === 'ipsc-navigate-v78c' || data.type === 'ipsc-navigate-v78d') && data.href) navigate(data.href);
       if (data.type === 'ipsc-open-login-v78c' || data.type === 'ipsc-open-login-v78d') openLogin();
+      if (data.type === 'ipsc-open-settings-v78g') openShellSettings();
+      if (data.type === 'ipsc-restore-chrome-v78g') restoreShellChrome();
     });
   }
 
@@ -387,6 +440,7 @@
 
   async function init(){
     markApp();
+    restoreShellChrome();
     applyTheme(getTheme());
     interceptClicks();
     listenMessages();
@@ -407,7 +461,8 @@
     prewarm();
   }
 
-  window.IPSCAppV78 = { navigate, refresh, getCurrentView: () => state.activeFile, version: VERSION, applyTheme, syncLanguage, broadcastAuth: function(){ broadcast({ type: 'ipsc-auth-refresh-v78d' }); }, handleLogout };
+  window.IPSCAppV78 = { navigate, refresh, getCurrentView: () => state.activeFile, version: VERSION, applyTheme, syncLanguage, broadcastAuth: function(){ broadcast({ type: 'ipsc-auth-refresh-v78d' }); }, handleLogout, restoreShellChrome, openShellSettings };
+  window.openSettingsModal = openShellSettings;
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();

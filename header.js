@@ -9,12 +9,12 @@
       if (!isFrame) return;
       window.__IPSC_APP_FRAME_V78D = true;
       try {
-        document.documentElement.classList.add("ipsc-app-frame", "ipsc-app-frame-v78c", "ipsc-app-frame-v78d");
+        document.documentElement.classList.add("ipsc-app-frame", "ipsc-app-frame-v78c", "ipsc-app-frame-v78d", "ipsc-app-frame-v78g");
         if (document.body) document.body.classList.add("ipsc-app-frame-body");
       } catch (_) {}
       function cleanFrameChrome(){
         try {
-          document.documentElement.classList.add("ipsc-app-frame", "ipsc-app-frame-v78c", "ipsc-app-frame-v78d");
+          document.documentElement.classList.add("ipsc-app-frame", "ipsc-app-frame-v78c", "ipsc-app-frame-v78d", "ipsc-app-frame-v78g");
           if (document.body) document.body.classList.add("ipsc-app-frame-body");
           document.querySelectorAll("#main-header, header#main-header, #bottom-tab-bar, #more-menu-overlay, .main-nav, .bottom-tab-bar").forEach(function(el){ el.remove(); });
         } catch (_) {}
@@ -24,6 +24,17 @@
       else setTimeout(cleanFrameChrome, 0);
       document.addEventListener("click", function(ev){
         try {
+          var settingsTarget = ev.target && ev.target.closest && ev.target.closest("#btn-open-settings, .header-avatar-btn, #header-avatar");
+          if (settingsTarget && window.parent && window.parent !== window) {
+            ev.preventDefault(); ev.stopImmediatePropagation();
+            window.parent.postMessage({ type: "ipsc-open-settings-v78g" }, window.location.origin);
+            return;
+          }
+          var closeTarget = ev.target && ev.target.closest && ev.target.closest(".modal-close-trigger, #btn-close-modal, button[onclick*='closePostModal']");
+          if (closeTarget && window.parent && window.parent !== window) {
+            setTimeout(function(){ window.parent.postMessage({ type: "ipsc-restore-chrome-v78g" }, window.location.origin); }, 80);
+            setTimeout(function(){ window.parent.postMessage({ type: "ipsc-restore-chrome-v78g" }, window.location.origin); }, 260);
+          }
           var loginTarget = ev.target && ev.target.closest && ev.target.closest("#btn-open-login, .btn-primary-auth, button[onclick*='auth-modal'], button[onclick*='toggleAuthView']");
           if (loginTarget && window.parent && window.parent !== window) {
             ev.preventDefault(); ev.stopImmediatePropagation();

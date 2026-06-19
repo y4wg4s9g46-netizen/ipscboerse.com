@@ -740,6 +740,12 @@
             document.getElementById('post-modal').style.display = 'none';
             document.getElementById('post-image').value = '';
             document.getElementById('post-image-preview').style.display = 'none';
+            try {
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'ipsc-restore-chrome-v78g' }, window.location.origin);
+                    setTimeout(function(){ window.parent.postMessage({ type: 'ipsc-restore-chrome-v78g' }, window.location.origin); }, 220);
+                }
+            } catch (_) {}
         }
 
         async function submitPost() {

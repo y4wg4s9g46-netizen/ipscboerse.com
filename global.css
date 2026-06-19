@@ -13590,7 +13590,7 @@ body.page-app-spa.app-v78d {
 body.page-app-spa.app-v78c #app-shell-root-v78,
 body.page-app-spa.app-v78d #app-shell-root-v78,
 body.page-app-spa.app-v78e #app-shell-root-v78,
-body.page-app-spa.app-v78f #app-shell-root-v78 {
+body.page-app-spa.app-v78g #app-shell-root-v78 {
   height: 100dvh !important;
   overflow: hidden !important;
   display: flex !important;
@@ -13600,7 +13600,7 @@ body.page-app-spa.app-v78f #app-shell-root-v78 {
 body.page-app-spa.app-v78c #main-header,
 body.page-app-spa.app-v78d #main-header,
 body.page-app-spa.app-v78e #main-header,
-body.page-app-spa.app-v78f #main-header {
+body.page-app-spa.app-v78g #main-header {
   flex: 0 0 auto !important;
   position: relative !important;
   z-index: 50 !important;
@@ -13608,7 +13608,7 @@ body.page-app-spa.app-v78f #main-header {
 body.page-app-spa.app-v78c #app-spa-view-v78,
 body.page-app-spa.app-v78d #app-spa-view-v78,
 body.page-app-spa.app-v78e #app-spa-view-v78,
-body.page-app-spa.app-v78f #app-spa-view-v78 {
+body.page-app-spa.app-v78g #app-spa-view-v78 {
   position: relative !important;
   flex: 1 1 auto !important;
   min-height: 0 !important;
@@ -13621,9 +13621,9 @@ body.page-app-spa.app-v78d .app-frame-layer-v78c,
 body.page-app-spa.app-v78d .app-frame-layer-v78d,
 body.page-app-spa.app-v78e .app-frame-layer-v78c,
 body.page-app-spa.app-v78e .app-frame-layer-v78d,
-body.page-app-spa.app-v78f .app-frame-layer-v78c,
-body.page-app-spa.app-v78f .app-frame-layer-v78d,
-body.page-app-spa.app-v78f .app-frame-layer-v78f {
+body.page-app-spa.app-v78g .app-frame-layer-v78c,
+body.page-app-spa.app-v78g .app-frame-layer-v78d,
+body.page-app-spa.app-v78g .app-frame-layer-v78f {
   position: absolute !important;
   inset: 0 !important;
   width: 100% !important;
@@ -13641,9 +13641,9 @@ body.page-app-spa.app-v78d .app-frame-layer-v78c.is-active,
 body.page-app-spa.app-v78d .app-frame-layer-v78d.is-active,
 body.page-app-spa.app-v78e .app-frame-layer-v78c.is-active,
 body.page-app-spa.app-v78e .app-frame-layer-v78d.is-active,
-body.page-app-spa.app-v78f .app-frame-layer-v78c.is-active,
-body.page-app-spa.app-v78f .app-frame-layer-v78d.is-active,
-body.page-app-spa.app-v78f .app-frame-layer-v78f.is-active {
+body.page-app-spa.app-v78g .app-frame-layer-v78c.is-active,
+body.page-app-spa.app-v78g .app-frame-layer-v78d.is-active,
+body.page-app-spa.app-v78g .app-frame-layer-v78f.is-active {
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
@@ -13654,9 +13654,9 @@ body.page-app-spa.app-v78d .app-frame-layer-v78c.is-previous,
 body.page-app-spa.app-v78d .app-frame-layer-v78d.is-previous,
 body.page-app-spa.app-v78e .app-frame-layer-v78c.is-previous,
 body.page-app-spa.app-v78e .app-frame-layer-v78d.is-previous,
-body.page-app-spa.app-v78f .app-frame-layer-v78c.is-previous,
-body.page-app-spa.app-v78f .app-frame-layer-v78d.is-previous,
-body.page-app-spa.app-v78f .app-frame-layer-v78f.is-previous {
+body.page-app-spa.app-v78g .app-frame-layer-v78c.is-previous,
+body.page-app-spa.app-v78g .app-frame-layer-v78d.is-previous,
+body.page-app-spa.app-v78g .app-frame-layer-v78f.is-previous {
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: none !important;
@@ -13665,4 +13665,244 @@ body.page-app-spa.app-v78f .app-frame-layer-v78f.is-previous {
 body.page-app-spa.app-v78c #spa-loader-v78,
 body.page-app-spa.app-v78d #spa-loader-v78,
 body.page-app-spa.app-v78e #spa-loader-v78,
-body.page-app-spa.app-v78f #spa-loader-v78 { display: none !important; }
+body.page-app-spa.app-v78g #spa-loader-v78 { display: none !important; }
+
+
+/* ======================================================================
+   V78G APP FINAL POLISH
+   - keep the v78 frame-shell layout intact
+   - fix favorites icon alignment, Marktplatz form sizing, owner price/settings,
+     profile click layer, and header restore after modal close.
+   ====================================================================== */
+body.page-app-spa.app-v78g,
+html.is-app-spa-v78g,
+html.is-app-spa-v78g body {
+  overflow: hidden !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  padding-bottom: 0 !important;
+}
+body.page-app-spa.app-v78g #app-shell-root-v78 {
+  height: 100dvh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: var(--bg-color, #f6f8fc) !important;
+}
+body.page-app-spa.app-v78g #main-header {
+  flex: 0 0 auto !important;
+  position: relative !important;
+  z-index: 2147482000 !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+body.page-app-spa.app-v78g #app-spa-view-v78 {
+  position: relative !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  opacity: 1 !important;
+  z-index: 1 !important;
+}
+body.page-app-spa.app-v78g .app-frame-layer-v78g,
+body.page-app-spa.app-v78g .app-frame-layer-v78f,
+body.page-app-spa.app-v78g .app-frame-layer-v78d,
+body.page-app-spa.app-v78g .app-frame-layer-v78c {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+  background: var(--bg-color, #f6f8fc) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateZ(0) !important;
+  transition: opacity .14s ease-out !important;
+}
+body.page-app-spa.app-v78g .app-frame-layer-v78g.is-active,
+body.page-app-spa.app-v78g .app-frame-layer-v78f.is-active,
+body.page-app-spa.app-v78g .app-frame-layer-v78d.is-active,
+body.page-app-spa.app-v78g .app-frame-layer-v78c.is-active {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  z-index: 2 !important;
+}
+body.page-app-spa.app-v78g .app-frame-layer-v78g.is-previous,
+body.page-app-spa.app-v78g .app-frame-layer-v78f.is-previous,
+body.page-app-spa.app-v78g .app-frame-layer-v78d.is-previous,
+body.page-app-spa.app-v78g .app-frame-layer-v78c.is-previous {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+body.page-app-spa.app-v78g #btn-open-settings,
+body.page-app-spa.app-v78g #header-avatar,
+body.page-app-spa.app-v78g .header-avatar-btn {
+  position: relative !important;
+  z-index: 2147483000 !important;
+  pointer-events: auto !important;
+}
+
+/* App-frame only: preserve browser website, polish mobile in-app pages. */
+@media (max-width: 768px) {
+  html.ipsc-app-frame body.page-index .hero-quicklinks-v76 a {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    align-items: center !important;
+    gap: 6px 12px !important;
+    min-height: 62px !important;
+    padding: 13px 16px !important;
+  }
+  html.ipsc-app-frame body.page-index .hero-quicklinks-v76 a strong {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    font-size: 15px !important;
+    line-height: 1.12 !important;
+    min-width: 0 !important;
+  }
+  html.ipsc-app-frame body.page-index .hero-quicklinks-v76 a strong > span:first-child {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    align-self: flex-start !important;
+    line-height: 1 !important;
+    font-size: 17px !important;
+    text-align: left !important;
+  }
+  html.ipsc-app-frame body.page-index .hero-quicklinks-v76 a > span:last-child {
+    text-align: right !important;
+    margin: 0 !important;
+    align-self: center !important;
+    font-size: 13px !important;
+  }
+
+  html.ipsc-app-frame body.page-marktplatz .form-section,
+  html.ipsc-app-frame body.page-marktplatz .market-form-panel {
+    padding: 20px 16px !important;
+    border-radius: 24px !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .toggle-selector {
+    padding: 14px !important;
+    gap: 10px !important;
+    border-radius: 22px !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .toggle-selector label {
+    min-height: 62px !important;
+    padding: 9px 10px !important;
+    gap: 12px !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .toggle-selector input[type="radio"] {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .toggle-selector span {
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+    letter-spacing: .02em !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .form-grid {
+    gap: 14px !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .form-group {
+    margin-bottom: 0 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .form-group label,
+  html.ipsc-app-frame body.page-marktplatz label {
+    margin-bottom: 8px !important;
+    font-size: 12px !important;
+    letter-spacing: .11em !important;
+    line-height: 1.15 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz input:not([type="radio"]):not([type="checkbox"]),
+  html.ipsc-app-frame body.page-marktplatz select {
+    min-height: 54px !important;
+    height: 54px !important;
+    padding: 0 16px !important;
+    border-radius: 18px !important;
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+    box-sizing: border-box !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz textarea {
+    min-height: 104px !important;
+    padding: 14px 16px !important;
+    border-radius: 18px !important;
+    font-size: 16px !important;
+  }
+
+  html.ipsc-app-frame body.page-marktplatz .match-card {
+    position: relative !important;
+    padding: 18px 15px 18px 18px !important;
+    overflow: visible !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .match-header-flex {
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    column-gap: 10px !important;
+    align-items: start !important;
+    padding-right: 154px !important;
+    position: relative !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .match-summary {
+    min-width: 0 !important;
+    padding-right: 0 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .match-price-head-v76k {
+    position: absolute !important;
+    top: 18px !important;
+    right: 66px !important;
+    margin: 0 !important;
+    min-width: 96px !important;
+    max-width: 112px !important;
+    height: 42px !important;
+    padding: 0 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    font-size: 13.5px !important;
+    line-height: 1 !important;
+    z-index: 3 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .owner-menu {
+    position: absolute !important;
+    top: 18px !important;
+    right: 15px !important;
+    z-index: 5 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .owner-menu-trigger {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  html.ipsc-app-frame body.page-marktplatz .match-header-flex {
+    padding-right: 0 !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .match-price-head-v76k {
+    position: static !important;
+    grid-column: 2 !important;
+    justify-self: start !important;
+    margin-top: 6px !important;
+    margin-right: 0 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .owner-menu {
+    top: 18px !important;
+    right: 15px !important;
+  }
+}
