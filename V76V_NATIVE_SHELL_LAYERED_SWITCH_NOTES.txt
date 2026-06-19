@@ -1,0 +1,9 @@
+v76v Native Shell Layered Switch
+
+- Analysiert anhand der Nutzer-Bildschirmaufnahme: v76u war Shell-aktiv, aber beim Wechsel blieb ein sichtbarer First-Paint/Blank-Moment.
+- Native Shell stellt Frames jetzt als echte übereinanderliegende Layer dar.
+- Aktive Frames wechseln nicht mehr von absolute zu relative; dadurch weniger Layout-Neuberechnung/Blank während Tabwechsel.
+- Alte Seite bleibt als sichtbarer outgoing Layer stehen, bis die neue Seite oben sichtbar ist.
+- Viewport-Höhe wird manuell stabil gehalten und nach dem Crossfade auf die neue Seite gesetzt.
+- Haupttabs werden nach dem Start sanft als versteckte Frames vorgewärmt, nicht alle schweren Unterseiten.
+- Browser/Desktop-Seiten bleiben normal.

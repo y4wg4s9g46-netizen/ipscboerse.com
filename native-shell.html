@@ -37,7 +37,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="preload" href="icon-192.png" as="image">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="global.css?v=76t">
+    <link rel="stylesheet" href="global.css?v=76v">
     <style id="native-shell-style-v76t">
       html.ipsc-native-shell-v76t,
       html.ipsc-native-shell-v76t body {
@@ -64,19 +64,49 @@
         background: var(--bg-color, #f6f8fc);
         overflow: visible;
         transform: translateZ(0);
+        contain: layout paint;
       }
       .native-shell-frame-v76t {
-        display: none;
+        display: block;
+        position: absolute;
+        inset: 0 auto auto 0;
         width: 100%;
         min-height: calc(100vh - 92px - env(safe-area-inset-bottom));
         border: 0;
         background: var(--bg-color, #f6f8fc);
         opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
         transform: translateZ(0);
+        z-index: 0;
+        will-change: opacity;
+        transition: opacity .12s ease-out;
+      }
+      .native-shell-frame-v76t.is-preparing,
+      .native-shell-frame-v76t.is-cached {
+        display: block;
+        position: absolute;
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .native-shell-frame-v76t.is-outgoing {
+        display: block;
+        position: absolute;
+        visibility: visible;
+        opacity: 1;
+        pointer-events: none;
+        z-index: 1;
       }
       .native-shell-frame-v76t.is-active {
         display: block;
+        position: absolute;
+        inset: 0 auto auto 0;
+        visibility: visible;
         opacity: 1;
+        pointer-events: auto;
+        z-index: 2;
       }
       #native-shell-loading-v76t {
         position: fixed;
@@ -116,15 +146,15 @@
       }
     </style>
 </head>
-<body class="page-native-shell app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t">
+<body class="page-native-shell app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v">
     <div id="native-shell-root-v76t">
         <header id="main-header"></header>
         <main id="native-shell-viewport-v76t" aria-live="polite"></main>
         <div id="native-shell-loading-v76t">Lade Seite …</div>
     </div>
-    <script src="native-shell.js?v=76t"></script>
-    <script src="header.js?v=76t"></script>
-    <script src="lang.js?v=76t"></script>
-    <script src="auth.js?v=76t"></script>
+    <script src="native-shell.js?v=76v"></script>
+    <script src="header.js?v=76v"></script>
+    <script src="lang.js?v=76v"></script>
+    <script src="auth.js?v=76v"></script>
 </body>
 </html>

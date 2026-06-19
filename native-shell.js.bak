@@ -1,9 +1,9 @@
-/* V76V Native App Shell No-Blank Layered Switch
+/* V76T Native App Shell Navigation
    Keeps the Capacitor WebView on one HTML document and swaps pages inside same-origin iframes.
    Browser/desktop pages remain untouched. */
 (function nativeAppShellV76t() {
-    if (window.__IPSC_NATIVE_APP_SHELL_V76V) return;
-    window.__IPSC_NATIVE_APP_SHELL_V76V = true;
+    if (window.__IPSC_NATIVE_APP_SHELL_V76T) return;
+    window.__IPSC_NATIVE_APP_SHELL_V76T = true;
 
     var PAGES = {
         "index.html": { title: "Start" },
@@ -26,7 +26,6 @@
     var currentKey = null;
     var frames = Object.create(null);
     var heightTimers = Object.create(null);
-    var prewarmStarted = false;
 
     function getTheme() {
         var t = document.documentElement.getAttribute("data-theme") || window.__IPSC_ACTIVE_THEME_V76T || window.__IPSC_ACTIVE_THEME_V76S;
@@ -102,48 +101,6 @@
         } catch (_) {}
     }
 
-    function activateFrame(frame, view, opts) {
-        opts = opts || {};
-        if (!frame || !view || !viewport) return;
-
-        var previousActive = viewport.querySelector(".native-shell-frame-v76t.is-active");
-        injectIntoFrame(frame, view.file);
-        resizeFrame(frame);
-
-        var newHeight = parseInt(frame.style.height || "0", 10) || (window.innerHeight - 80);
-        var oldHeight = previousActive ? (parseInt(previousActive.style.height || "0", 10) || 0) : 0;
-        viewport.style.height = Math.max(newHeight, oldHeight, window.innerHeight - 80) + "px";
-
-        if (previousActive && previousActive !== frame) {
-            previousActive.classList.remove("is-active", "is-preparing");
-            previousActive.classList.add("is-outgoing");
-        }
-
-        frame.classList.remove("is-preparing", "is-cached", "is-outgoing");
-        frame.classList.add("is-active");
-        setActiveChrome(view.file);
-        setLoading(false);
-        try { window.scrollTo({ top: 0, behavior: "instant" }); } catch (_) { window.scrollTo(0, 0); }
-
-        window.requestAnimationFrame(function () {
-            resizeFrame(frame);
-            window.setTimeout(function () {
-                if (previousActive && previousActive !== frame) {
-                    previousActive.classList.remove("is-outgoing", "is-active", "is-preparing");
-                    previousActive.classList.add("is-cached");
-                }
-                Object.keys(frames).forEach(function (k) {
-                    var f = frames[k];
-                    if (f !== frame && f !== previousActive) {
-                        f.classList.remove("is-active", "is-preparing", "is-outgoing");
-                        f.classList.add("is-cached");
-                    }
-                });
-                resizeFrame(frame);
-            }, 170);
-        });
-    }
-
     function resizeFrame(frame) {
         if (!frame || !frame.contentWindow || !frame.contentDocument) return;
         try {
@@ -157,11 +114,7 @@
                 html ? html.offsetHeight : 0,
                 window.innerHeight - 80
             );
-            h = Math.max(400, h + 4);
-            frame.style.height = h + "px";
-            if (viewport && frame.classList.contains("is-active")) {
-                viewport.style.height = Math.max(h, window.innerHeight - 80) + "px";
-            }
+            frame.style.height = Math.max(400, h + 4) + "px";
         } catch (_) {}
     }
 
@@ -255,7 +208,9 @@
             injectIntoFrame(frame, view.file);
             resizeFrame(frame);
             if (currentKey === view.key) {
-                activateFrame(frame, view);
+                frame.classList.add("is-active");
+                setLoading(false);
+                try { window.scrollTo({ top: 0, behavior: "instant" }); } catch (_) { window.scrollTo(0, 0); }
             }
         });
         viewport.appendChild(frame);
@@ -279,14 +234,16 @@
         try { sessionStorage.setItem("ipsc_native_shell_view_v76t", view.file); } catch (_) {}
 
         var frame = ensureFrame(view);
-        var frameReady = false;
-        try { frameReady = !!(frame.contentDocument && frame.contentDocument.readyState !== "loading"); } catch (_) { frameReady = false; }
-        if (frameReady) {
-            activateFrame(frame, view);
-        } else {
-            // V76V: keep the old page visible until the requested page has completed its first paint.
-            frame.classList.add("is-preparing");
+        Object.keys(frames).forEach(function (k) {
+            if (k !== view.key) frames[k].classList.remove("is-active");
+        });
+        if (frame.contentDocument && frame.contentDocument.readyState !== "loading") {
+            injectIntoFrame(frame, view.file);
+            frame.classList.add("is-active");
             setLoading(false);
+            resizeFrame(frame);
+        } else {
+            setLoading(true);
         }
 
         var url = "native-shell.html?view=" + encodeURIComponent(view.file + (view.search || "") + (view.hash || ""));
@@ -312,20 +269,17 @@
     }
 
     function warmHtmlCache() {
-        if (prewarmStarted) return;
-        prewarmStarted = true;
-        var warm = ["index.html", "marktplatz.html", "mein-planer.html", "community.html"];
+        var warm = ["index.html", "marktplatz.html", "mein-planer.html", "community.html", "freie-matches.html", "schiessbuch.html", "tools.html", "analytics.html", "wiederladen.html"];
         var i = 0;
         function next() {
             if (i >= warm.length) return;
             var f = warm[i++];
-            if (!currentKey || currentKey.indexOf(f) !== 0) {
+            if (f !== currentKey) {
                 try { fetch(f + "?shell=1", { cache: "force-cache" }).catch(function () {}); } catch (_) {}
-                try { ensureFrame(normalizeView(f)); } catch (_) {}
             }
-            setTimeout(next, 520);
+            setTimeout(next, 180);
         }
-        setTimeout(next, 1200);
+        setTimeout(next, 800);
     }
 
     function syncThemeToFrames() {
@@ -388,6 +342,5 @@
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
     else init();
 
-    window.IPSCNativeShellV76v = { routeTo: routeTo, syncTheme: syncThemeToFrames };
-    window.IPSCNativeShellV76u = window.IPSCNativeShellV76v;
+    window.IPSCNativeShellV76t = { routeTo: routeTo, syncTheme: syncThemeToFrames };
 })();
