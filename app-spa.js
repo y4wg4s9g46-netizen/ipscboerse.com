@@ -5,8 +5,10 @@
 (function IPSCUnifiedSpaV78(){
   if (window.__IPSC_UNIFIED_SPA_V78) return;
   window.__IPSC_UNIFIED_SPA_V78 = true;
+  window.__IPSC_UNIFIED_SPA_ACTIVE = true;
+  try { document.documentElement.classList.add('is-native-shell','is-app-spa-v78'); if (document.body) document.body.classList.add('page-native-shell'); } catch (_) {}
 
-  const VERSION = '78';
+  const VERSION = '78b';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -87,7 +89,7 @@
   }
 
   function appUrlFor(view){
-    return 'app.html?view=' + encodeURIComponent(view.file + (view.search || '') + (view.hash || ''));
+    return 'app.html?shell=1&view=' + encodeURIComponent(view.file + (view.search || '') + (view.hash || ''));
   }
 
   function sourceUrlFor(view){
@@ -269,8 +271,8 @@
   }
 
   function applyBodyClass(bodyClass){
-    const keep = 'page-app-spa app-v78 app-v78-spa';
-    document.body.className = (keep + ' ' + (bodyClass || '')).replace(/\bpage-native-shell\b/g, '').replace(/\s+/g, ' ').trim();
+    const keep = 'page-app-spa page-native-shell app-v78 app-v78-spa app-v78b';
+    document.body.className = (keep + ' ' + (bodyClass || '')).replace(/\s+/g, ' ').trim();
   }
 
   async function notifyAuthAndLang(view){
@@ -363,7 +365,7 @@
     if (!a || !a.getAttribute) return null;
     const href = a.getAttribute('href') || '';
     if (!href || href === '#' || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return null;
-    if (a.target && a.target !== '_self') return null;
+    if (a.hasAttribute('download')) return null;
     let url;
     try { url = new URL(href, window.location.href); } catch (_) { return null; }
     if (url.origin !== window.location.origin) return null;
@@ -380,6 +382,7 @@
       const target = shouldHandleLink(a);
       if (!target) return;
       ev.preventDefault();
+      ev.stopImmediatePropagation();
       navigate(target);
     }, true);
   }

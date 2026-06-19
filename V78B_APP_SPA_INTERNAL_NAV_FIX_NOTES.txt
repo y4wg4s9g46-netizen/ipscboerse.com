@@ -1,0 +1,8 @@
+v78b App-SPA Internal Navigation Fix
+
+- Fix: App links no longer fall through to older header bridge/navigation code.
+- app.html marks itself as page-native-shell/page-app-spa before header.js loads.
+- Header v76s/v76q transition bridge is disabled while app SPA is active.
+- Internal links with target=_blank are still routed inside the SPA when same-origin.
+- Capacitor server.url now starts at https://ipscboerse.com/app.html?shell=1.
+- Browser pages remain unchanged; only app.html SPA mode is affected.

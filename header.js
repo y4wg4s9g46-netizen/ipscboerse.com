@@ -1842,7 +1842,7 @@ header .header-logo-img {
                 const btn = document.getElementById("btn-more-menu");
                 if (menu) menu.classList.remove("show");
                 if (btn) btn.classList.remove("open");
-                if (typeof window.showPageTransitionCover === "function") {
+                if (!(window.__IPSC_UNIFIED_SPA_ACTIVE || document.body?.classList?.contains("page-app-spa")) && typeof window.showPageTransitionCover === "function") {
                     window.showPageTransitionCover();
                 }
             }, true);
@@ -2310,6 +2310,8 @@ window.toggleMoreMenu = function() {
     window.showPageTransitionCover = showBridge;
 
     function shouldBridgeLink(link) {
+        // V78B: unified SPA owns routing; never use old bridge/hard reload in app.html.
+        try { if (window.__IPSC_UNIFIED_SPA_ACTIVE || document.body?.classList?.contains("page-app-spa")) return false; } catch (_) {}
         // V76T: native shell owns routing; no colored bridge or hard reload while inside shell/embedded frames.
         try { if (new URLSearchParams(window.location.search || "").get("shell") === "1") return false; } catch (_) {}
         if (document.body && document.body.classList && document.body.classList.contains("page-native-shell")) return false;
