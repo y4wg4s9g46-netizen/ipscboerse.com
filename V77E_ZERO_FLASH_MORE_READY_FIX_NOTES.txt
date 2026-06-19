@@ -1,0 +1,7 @@
+v77e Zero Flash More Ready Fix
+
+- Fix: newly created iframes are no longer activated while still about:blank.
+- More pages stay in the zero-flash shell, but the previous page remains visible until the target document has really loaded and painted.
+- Reduced memory pressure: only the four main tabs are kept warm as live iframes; More pages are fetched only for cache and loaded as needed.
+- Added simple live-frame eviction for old More pages.
+- Passkey registration/login remain disabled in local capacitor:// shell; Apple, Google and E-Mail/Password remain the launch login paths.

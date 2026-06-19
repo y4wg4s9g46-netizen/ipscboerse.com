@@ -1,0 +1,1 @@
+V77F: More-page iframe paint-safe fix. Preparing iframes stay paintable behind active layer (opacity .001) instead of fully hidden; shell transition covers are disabled; activation waits for body paint readiness. Passkey remains disabled in capacitor://localhost local shell.

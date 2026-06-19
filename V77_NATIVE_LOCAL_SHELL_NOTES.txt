@@ -1,0 +1,21 @@
+V77_NATIVE_LOCAL_SHELL_NOTES
+
+Ziel:
+- App lädt nicht mehr die Remote-Webseite https://ipscboerse.com als WebView-Startseite.
+- Die iOS-App startet aus dem lokalen App-Bundle direkt in native-shell.html.
+- Dadurch werden HTML/CSS/JS-Dateien von Gerät geladen; Supabase/CDN-Daten bleiben online.
+- Haupttabs laufen weiter über die bestehende Native-Shell, aber jetzt wirklich im capacitor://localhost-Kontext.
+
+Wichtige Änderung:
+- capacitor.config.json: server.url entfernt, server.appStartPath = native-shell.html gesetzt.
+- ios/App/App/capacitor.config.json synchron angepasst.
+- Backup der alten Remote-Konfiguration: capacitor.config.remote-backup-v76v.json
+
+Erwartung:
+- Deutlich weniger Flackern, weil keine Remote-HTML-Navigation mehr.
+- Kein großer Backend-/Supabase-Umbau.
+
+Wichtig:
+- Für Xcode weiterhin: npx cap copy ios
+- Nicht verwenden: npx cap sync ios
+- Falls OAuth/Social Login getestet wird: Apple/Google Callback bleibt über https://ipscboerse.com/auth-callback.html -> ipscboerse://auth-callback.

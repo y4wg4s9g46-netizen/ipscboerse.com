@@ -1,0 +1,7 @@
+V77D Zero Flash All Pages + Auth Stable
+- Alle internen App-Seiten bleiben in der Native-Shell; auch Mehr-Unterseiten laden ohne harten Dokumentwechsel.
+- Alte Seite bleibt sichtbar, bis die neue iframe-Seite geladen und vorbereitet ist.
+- Kein Fallback auf normale Navigation für Mehr-Seiten.
+- ResizeObserver in der Shell entfernt, weil WKWebView die Schleife als Startup-Fehler meldete und sehr viele Logs erzeugte.
+- OAuth-Callback routet die Shell nicht mehr neu und lädt keine Frames hart neu; Auth-Zustand wird an geladene Frames gesendet.
+- Passkeys bleiben in der lokalen capacitor:// Shell bewusst blockiert, da WebAuthn/RP-ID nicht zur lokalen Origin passt.

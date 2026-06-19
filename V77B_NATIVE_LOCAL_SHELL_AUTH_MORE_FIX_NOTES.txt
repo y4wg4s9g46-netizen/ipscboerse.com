@@ -1,0 +1,10 @@
+V77B_NATIVE_LOCAL_SHELL_AUTH_MORE_FIX
+
+- Baut auf v77 Native Local Shell auf.
+- Login-Fenster in native-shell.html wieder aktiv: app.js wird in der Shell geladen, bevor auth.js gebunden wird.
+- Header-Login/Profile werden in der Shell direkt abgefangen und öffnen das Shell-Modal.
+- Login-Buttons innerhalb eingebetteter Seiten öffnen nun das zentrale Shell-Login statt in einem iframe ins Leere zu laufen.
+- Mehr-Menü in der nativen Shell robuster: #btn-more-menu wird direkt von native-shell.js getoggelt.
+- Unterseiten aus Mehr-Menü sind in PAGES registriert, inkl. Impressum/Reset/Schießbuch-Prüfseiten.
+- Kein neuer harter Overlay-/Curtain-Wechsel; Seitenwechsel bleibt über die v77 Layer-Shell.
+- Service Worker Cache auf v77b erhöht.

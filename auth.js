@@ -77,6 +77,10 @@ window.uploadImage = async function(file, folder) {
 
 // --- PASSKEY FUNKTIONEN ---
 window.loginWithPasskey = async function() {
+    if (isNativeShellV66() && (window.location.protocol === "capacitor:" || window.location.protocol === "ionic:")) {
+        alert("Passkey ist in der lokalen TestFlight-App mit dieser WebAuthn-Konfiguration noch nicht verfügbar. Bitte nutze Apple, Google oder E-Mail/Passwort.");
+        return;
+    }
     const btn = document.querySelector('#modal-login-view button[onclick="loginWithPasskey()"]');
     const oldHtml = btn ? btn.innerHTML : "";
     if (btn) btn.innerHTML = "⏳ Warte auf Sensor...";
@@ -89,11 +93,15 @@ window.loginWithPasskey = async function() {
     } else {
         if (data?.session?.user) cacheHeaderUser(data.session.user);
         if (btn) btn.innerHTML = "✅ Erfolgreich!";
-        location.reload();
+        if (document.body && document.body.classList.contains("page-native-shell")) { try { if (typeof updateAuthUI === "function") updateAuthUI(window.currentUser || data?.session?.user || null); } catch (_) {} } else { location.reload(); }
     }
 };
 
 window.registerPasskey = async function() {
+    if (isNativeShellV66() && (window.location.protocol === "capacitor:" || window.location.protocol === "ionic:")) {
+        alert("Passkey-Registrierung ist in der lokalen TestFlight-App mit dieser WebAuthn-Konfiguration noch nicht verfügbar. Bitte nutze Apple, Google oder E-Mail/Passwort.");
+        return;
+    }
     const btn = document.querySelector('#modal-settings-view button[onclick="registerPasskey()"]');
     const oldHtml = btn ? btn.innerHTML : "";
     if (btn) btn.innerHTML = "⏳ Bitte Sensor berühren...";
@@ -138,8 +146,12 @@ function isNativeShellV66() {
     try {
         return !!(
             (window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform()) ||
+            window.location.protocol === "capacitor:" ||
+            window.location.protocol === "ionic:" ||
             document.documentElement.classList.contains("is-native-shell") ||
-            document.body.classList.contains("is-app-shell")
+            document.documentElement.classList.contains("ipsc-native-shell-v76t") ||
+            document.body.classList.contains("is-app-shell") ||
+            document.body.classList.contains("page-native-shell")
         );
     } catch (_) {
         return false;
@@ -191,9 +203,18 @@ async function updateUiAfterOAuthV66(session) {
         const currentPath = `${window.location.pathname || "/index.html"}${window.location.search || ""}`;
         const isCallbackPage = /auth-callback\.html/i.test(window.location.pathname || "");
 
-        // v69: Kein automatisches Reload mehr nach OAuth.
-        // Reload + App.getLaunchUrl kann denselben OAuth-Link erneut verarbeiten und Dauerblitzen auslösen.
-        if (returnPath && returnPath !== currentPath && !isCallbackPage) {
+        // v77d: In der lokalen Native-Shell niemals nach OAuth hart routen oder Frames neu laden.
+        // Die aktuelle Ansicht bleibt sichtbar; nur Header, Modal und geladene Frames bekommen den Auth-Status.
+        if (document.body && document.body.classList.contains("page-native-shell")) {
+            try {
+                if (history && history.replaceState && /auth-callback/i.test(window.location.href)) {
+                    history.replaceState(null, "", "native-shell.html?view=index.html");
+                }
+                const shell = window.IPSCNativeShellV77e || window.IPSCNativeShellV77d || window.IPSCNativeShellV77c || window.IPSCNativeShellV77b;
+                if (shell && typeof shell.broadcastAuth === "function") shell.broadcastAuth("SIGNED_IN");
+                if (shell && typeof shell.syncTheme === "function") shell.syncTheme();
+            } catch (_) {}
+        } else if (returnPath && returnPath !== currentPath && !isCallbackPage) {
             history.replaceState(null, "", returnPath);
         }
 

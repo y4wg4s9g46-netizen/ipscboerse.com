@@ -1,0 +1,6 @@
+V77C Native Shell Hybrid Auth Fix
+- Core App-Shell bleibt für Start/Markt/Planer/Community aktiv.
+- Mehr-Unterseiten laufen wieder als normale lokale Dokumente statt als Shell-Iframes, um White-Screens zu vermeiden.
+- OAuth nach Apple/Google reloadet nicht mehr alle Frames; Shell aktualisiert Header/Modal direkt.
+- Native-Erkennung für capacitor://localhost erweitert.
+- Passkey in lokaler Native-Shell klar abgefangen, da WebAuthn/RP-Origin in der lokalen App nicht zur Web-Domain passt.

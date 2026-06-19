@@ -1,11 +1,9 @@
-/* V77F Zero Flash More Paint Safe Native Local Bundle App Shell
-   Fixes the More-page white screen by never activating a freshly created iframe
-   until its real target document has fired load (not about:blank).
-   Old page remains visible until the new page completed first paint. */
+/* V77 Native Local Bundle App Shell
+   Keeps the Capacitor WebView on one HTML document and swaps pages inside same-origin iframes.
+   Browser/desktop pages remain untouched. */
 (function nativeAppShellV76t() {
     if (window.__IPSC_NATIVE_APP_SHELL_V77) return;
     window.__IPSC_NATIVE_APP_SHELL_V77 = true;
-    window.__IPSC_NATIVE_APP_SHELL_V77F = true;
 
     var PAGES = {
         "index.html": { title: "Start" },
@@ -20,29 +18,8 @@
         "wiederladen.html": { title: "Wiederladen" },
         "ipsc-hub.html": { title: "IPSC Hub" },
         "doppel-aa.html": { title: "Startplatz-Bot" },
-        "performance.html": { title: "ELO-Vergleich" },
-        "impressum.html": { title: "Impressum" },
-        "reset.html": { title: "Passwort zurücksetzen" },
-        "schiessbuch-confirm.html": { title: "Schießbuch bestätigen" },
-        "schiessbuch-verify.html": { title: "Schießbuch prüfen" }
+        "performance.html": { title: "ELO-Vergleich" }
     };
-
-    var CORE_SHELL_PAGES = PAGES;
-    var CORE_FILES = { "index.html": 1, "marktplatz.html": 1, "mein-planer.html": 1, "community.html": 1 };
-    var MAX_LIVE_FRAMES = 5;
-
-    function shouldEmbedInShell(file) {
-        return !!PAGES[file];
-    }
-
-    function fullPageUrlFor(view) {
-        var search = view.search || "";
-        var hasNativeFlag = /(?:^|[?&])nativeShell=0(?:&|$)/.test(search);
-        if (!hasNativeFlag) {
-            search += (search ? "&" : "?") + "nativeShell=0";
-        }
-        return view.file + search + (view.hash || "");
-    }
 
     var viewport = null;
     var loader = null;
@@ -107,77 +84,6 @@
         loader.classList.toggle("is-visible", !!visible);
     }
 
-    function markFrameLoaded(frame, view) {
-        try {
-            var href = frame.contentWindow && frame.contentWindow.location && frame.contentWindow.location.href || "";
-            if (!href || href === "about:blank" || href.indexOf("about:blank") === 0) return false;
-            var loadedFile = (frame.contentWindow.location.pathname.split("/").pop() || "index.html");
-            if (loadedFile !== view.file) return false;
-            frame.dataset.loadedKey = view.key;
-            frame.dataset.loadedFile = view.file;
-            frame.dataset.lastUsed = String(Date.now());
-            return true;
-        } catch (_) { return false; }
-    }
-
-    function isFrameReadyForView(frame, view) {
-        try {
-            return !!(frame && frame.dataset.loadedKey === view.key && frame.contentDocument && frame.contentDocument.readyState !== "loading");
-        } catch (_) { return false; }
-    }
-
-    function isFramePaintReady(frame) {
-        try {
-            var doc = frame && frame.contentDocument;
-            if (!doc || !doc.body || !doc.documentElement) return false;
-            if (doc.readyState === "loading") return false;
-            var txt = (doc.body.innerText || doc.body.textContent || "").trim();
-            var h = Math.max(doc.body.scrollHeight || 0, doc.documentElement.scrollHeight || 0, doc.body.offsetHeight || 0, doc.documentElement.offsetHeight || 0);
-            return h > 120 || txt.length > 20;
-        } catch (_) { return false; }
-    }
-
-    function afterFramePaint(frame, cb) {
-        var tries = 0;
-        function tick() {
-            tries++;
-            if (isFramePaintReady(frame) || tries > 24) {
-                window.requestAnimationFrame(function () { window.requestAnimationFrame(cb); });
-                return;
-            }
-            window.setTimeout(tick, 50);
-        }
-        tick();
-    }
-
-    function removeFrameByKey(key) {
-        try {
-            var frame = frames[key];
-            if (!frame) return;
-            if (heightTimers[key]) { try { clearInterval(heightTimers[key]); } catch (_) {} delete heightTimers[key]; }
-            try { frame.src = "about:blank"; } catch (_) {}
-            try { frame.remove(); } catch (_) {}
-            delete frames[key];
-        } catch (_) {}
-    }
-
-    function evictOldFrames(activeKey, protectedKey) {
-        try {
-            var keys = Object.keys(frames);
-            if (keys.length <= MAX_LIVE_FRAMES) return;
-            var candidates = keys.filter(function (k) {
-                var f = frames[k];
-                if (!f || k === activeKey || k === protectedKey) return false;
-                if (f.classList.contains("is-active") || f.classList.contains("is-outgoing") || f.classList.contains("is-preparing")) return false;
-                var file = f.dataset.loadedFile || (k.split("?")[0].split("#")[0]);
-                return !CORE_FILES[file];
-            }).sort(function (a, b) {
-                return Number(frames[a].dataset.lastUsed || 0) - Number(frames[b].dataset.lastUsed || 0);
-            });
-            while (Object.keys(frames).length > MAX_LIVE_FRAMES && candidates.length) removeFrameByKey(candidates.shift());
-        } catch (_) {}
-    }
-
     function setActiveChrome(file) {
         try {
             document.documentElement.dataset.nativeShellView = file;
@@ -196,56 +102,6 @@
         } catch (_) {}
     }
 
-    function closeShellMoreMenu() {
-        try {
-            var menu = document.getElementById("more-menu-overlay");
-            var btn = document.getElementById("btn-more-menu");
-            if (menu) menu.classList.remove("show");
-            if (btn) btn.classList.remove("open");
-        } catch (_) {}
-    }
-
-    function toggleShellMoreMenu() {
-        try {
-            var menu = document.getElementById("more-menu-overlay");
-            var btn = document.getElementById("btn-more-menu");
-            if (!menu || !btn) return false;
-            var willOpen = !menu.classList.contains("show");
-            menu.classList.toggle("show", willOpen);
-            btn.classList.toggle("open", willOpen);
-            if (willOpen) {
-                window.requestAnimationFrame(function () {
-                    try {
-                        var list = document.getElementById("more-menu-list");
-                        if (!list) return;
-                        var stored = Number(localStorage.getItem("ipsc.moreMenu.scrollTop.v76k") || "0");
-                        if (stored > 8) list.scrollTop = stored;
-                    } catch (_) {}
-                });
-            }
-            return true;
-        } catch (_) { return false; }
-    }
-
-    function openShellAuthModal(view) {
-        view = view || "login";
-        try {
-            var modal = document.getElementById("auth-modal");
-            if (!modal) return false;
-            modal.style.display = "flex";
-            modal.classList.add("open");
-            modal.removeAttribute("aria-hidden");
-            if (document.body) document.body.classList.add("auth-open", "modal-open");
-            if (typeof window.toggleAuthView === "function") window.toggleAuthView(view);
-            var field = document.getElementById(view === "register" ? "register-email" : "login-email");
-            if (field) setTimeout(function(){ try { field.focus({ preventScroll: true }); } catch (_) {} }, 160);
-            return true;
-        } catch (_) { return false; }
-    }
-
-    window.openAuthModalV77b = openShellAuthModal;
-    window.toggleMoreMenuV77b = toggleShellMoreMenu;
-
     function activateFrame(frame, view, opts) {
         opts = opts || {};
         if (!frame || !view || !viewport) return;
@@ -263,7 +119,6 @@
             previousActive.classList.add("is-outgoing");
         }
 
-        frame.dataset.lastUsed = String(Date.now());
         frame.classList.remove("is-preparing", "is-cached", "is-outgoing");
         frame.classList.add("is-active");
         setActiveChrome(view.file);
@@ -285,7 +140,6 @@
                     }
                 });
                 resizeFrame(frame);
-                evictOldFrames(view.key, previousActive && previousActive.dataset ? previousActive.dataset.pageKey : null);
             }, 170);
         });
     }
@@ -342,10 +196,6 @@
                 ].join("\n");
                 (doc.head || doc.documentElement).appendChild(st);
             }
-            try {
-                frame.contentWindow.openParentAuthModalV77b = function(view) { return openShellAuthModal(view || "login"); };
-                frame.contentWindow.routeParentShellV77b = function(view) { return routeTo(view || "index.html"); };
-            } catch (_) {}
             bindFrameLinks(frame, file);
             scheduleHeightWatch(frame);
             resizeFrame(frame);
@@ -358,20 +208,7 @@
             if (!doc || doc.__ipscShellLinksBoundV76t) return;
             doc.__ipscShellLinksBoundV76t = true;
             doc.addEventListener("click", function (event) {
-                var target = event.target;
-                var loginTrigger = target && target.closest && target.closest('#btn-open-login, [onclick*="auth-modal"], [onclick*="toggleAuthView"], [data-native-login]');
-                if (loginTrigger) {
-                    var inline = String(loginTrigger.getAttribute("onclick") || "");
-                    var text = String(loginTrigger.innerText || loginTrigger.textContent || "").toLowerCase();
-                    if (loginTrigger.id === "btn-open-login" || inline.indexOf("auth-modal") >= 0 || inline.indexOf("toggleAuthView") >= 0 || /einloggen|anmelden|login/.test(text)) {
-                        event.preventDefault();
-                        event.stopImmediatePropagation();
-                        openShellAuthModal(inline.indexOf("register") >= 0 ? "register" : "login");
-                        return;
-                    }
-                }
-
-                var a = target && target.closest && target.closest("a[href]");
+                var a = event.target && event.target.closest && event.target.closest("a[href]");
                 if (!a) return;
                 if (a.target && a.target !== "_self") return;
                 if (a.hasAttribute("download")) return;
@@ -393,21 +230,14 @@
     function scheduleHeightWatch(frame) {
         var key = frame.dataset.pageKey;
         if (!key || heightTimers[key]) return;
-        // V77E: no ResizeObserver here. WKWebView logs ResizeObserver loop as startup errors
-        // and can quarantine noisy pages. A light interval + load/transition resize is safer.
         heightTimers[key] = window.setInterval(function () {
             if (frame.classList.contains("is-active")) resizeFrame(frame);
-        }, 900);
+        }, 700);
         try {
             var doc = frame.contentDocument;
-            if (doc && doc.body && !doc.body.__ipscMutationObserverV77d && window.MutationObserver) {
-                var pending = false;
-                doc.body.__ipscMutationObserverV77d = new MutationObserver(function () {
-                    if (pending || !frame.classList.contains("is-active")) return;
-                    pending = true;
-                    window.requestAnimationFrame(function(){ pending = false; resizeFrame(frame); });
-                });
-                doc.body.__ipscMutationObserverV77d.observe(doc.body, { childList: true, subtree: true, attributes: true });
+            if (doc && doc.body && !doc.body.__ipscResizeObserverV76t && window.ResizeObserver) {
+                doc.body.__ipscResizeObserverV76t = new ResizeObserver(function () { resizeFrame(frame); });
+                doc.body.__ipscResizeObserverV76t.observe(doc.body);
             }
         } catch (_) {}
     }
@@ -417,33 +247,19 @@
         var frame = document.createElement("iframe");
         frame.className = "native-shell-frame-v76t";
         frame.dataset.pageKey = view.key;
-        frame.dataset.loadedKey = "";
-        frame.dataset.loadedFile = "";
-        frame.dataset.lastUsed = String(Date.now());
         frame.title = PAGES[view.file].title || view.file;
         frame.setAttribute("loading", "eager");
         frame.setAttribute("scrolling", "no");
-        frame.setAttribute("aria-hidden", "true");
+        frame.src = shellUrlFor(view);
         frame.addEventListener("load", function () {
-            if (!markFrameLoaded(frame, view)) return;
-            frame.setAttribute("aria-hidden", "false");
             injectIntoFrame(frame, view.file);
             resizeFrame(frame);
-            // Give WebKit one frame to paint the real document before swapping layers.
             if (currentKey === view.key) {
-                afterFramePaint(frame, function () { activateFrame(frame, view); });
+                activateFrame(frame, view);
             }
-        });
-        frame.addEventListener("error", function () {
-            frame.dataset.loadedKey = "";
-            frame.classList.remove("is-preparing");
-            frame.classList.add("is-cached");
-            setLoading(false);
         });
         viewport.appendChild(frame);
         frames[view.key] = frame;
-        // Set src only after listeners and DOM insertion, to avoid activating about:blank.
-        frame.src = shellUrlFor(view);
         return frame;
     }
 
@@ -458,35 +274,19 @@
             return;
         }
 
-        if (currentKey === view.key && frames[view.key]) {
-            setActiveChrome(view.file);
-            closeShellMoreMenu();
-            try { injectIntoFrame(frames[view.key], view.file); resizeFrame(frames[view.key]); } catch (_) {}
-            if (opts.replace) history.replaceState({ view: view.file }, "", "native-shell.html?view=" + encodeURIComponent(view.file + (view.search || "") + (view.hash || "")));
-            return;
-        }
-
-        // V77E: every internal page stays inside the zero-flash shell.
-        // Do not fall back to a hard document navigation for More pages.
-
         currentKey = view.key;
         setActiveChrome(view.file);
-        closeShellMoreMenu();
         try { sessionStorage.setItem("ipsc_native_shell_view_v76t", view.file); } catch (_) {}
 
         var frame = ensureFrame(view);
-        var frameReady = isFrameReadyForView(frame, view);
+        var frameReady = false;
+        try { frameReady = !!(frame.contentDocument && frame.contentDocument.readyState !== "loading"); } catch (_) { frameReady = false; }
         if (frameReady) {
             activateFrame(frame, view);
         } else {
-            // V77F: keep the old page visible, but let the new iframe be *paintable* behind it.
-            // WKWebView can leave fully hidden iframes blank; opacity .001 + visible fixes More-page white screens.
-            frame.classList.remove("is-cached", "is-active", "is-outgoing");
+            // V76V: keep the old page visible until the requested page has completed its first paint.
             frame.classList.add("is-preparing");
             setLoading(false);
-            try {
-                if (!frame.src || frame.src === "about:blank") frame.src = shellUrlFor(view);
-            } catch (_) {}
         }
 
         var url = "native-shell.html?view=" + encodeURIComponent(view.file + (view.search || "") + (view.hash || ""));
@@ -495,27 +295,6 @@
     }
 
     function interceptShellClick(event) {
-        var moreBtn = event.target && event.target.closest && event.target.closest("#btn-more-menu");
-        if (moreBtn) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            toggleShellMoreMenu();
-            return;
-        }
-        var loginBtn = event.target && event.target.closest && event.target.closest("#btn-open-login");
-        if (loginBtn) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            openShellAuthModal("login");
-            return;
-        }
-        var settingsBtn = event.target && event.target.closest && event.target.closest("#btn-open-settings");
-        if (settingsBtn && document.getElementById("auth-modal")) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            openShellAuthModal("settings");
-            return;
-        }
         var a = event.target && event.target.closest && event.target.closest("a[href]");
         if (!a) return;
         if (a.target && a.target !== "_self") return;
@@ -535,44 +314,18 @@
     function warmHtmlCache() {
         if (prewarmStarted) return;
         prewarmStarted = true;
-        // V77E: only keep the four main tabs warm as live iframes.
-        // More-pages are loaded on demand while the old page remains visible; this avoids WKWebView memory pressure and white screens.
         var warm = ["index.html", "marktplatz.html", "mein-planer.html", "community.html"];
         var i = 0;
         function next() {
-            if (i >= warm.length) {
-                ["freie-matches.html", "schiessbuch.html", "sg-timer-live.html", "tools.html", "analytics.html", "wiederladen.html", "ipsc-hub.html", "doppel-aa.html", "performance.html"].forEach(function (f) {
-                    try { fetch(f + "?shell=1", { cache: "force-cache" }).catch(function () {}); } catch (_) {}
-                });
-                return;
-            }
+            if (i >= warm.length) return;
             var f = warm[i++];
             if (!currentKey || currentKey.indexOf(f) !== 0) {
                 try { fetch(f + "?shell=1", { cache: "force-cache" }).catch(function () {}); } catch (_) {}
                 try { ensureFrame(normalizeView(f)); } catch (_) {}
             }
-            setTimeout(next, 640);
+            setTimeout(next, 520);
         }
-        setTimeout(next, 1400);
-    }
-
-    function broadcastAuthToFrames(eventName) {
-        Object.keys(frames).forEach(function (k) {
-            var frame = frames[k];
-            try {
-                var w = frame.contentWindow;
-                if (!w) return;
-                if (w.supabaseClient && w.supabaseClient.auth && w.supabaseClient.auth.getSession) {
-                    w.supabaseClient.auth.getSession().then(function (res) {
-                        var user = res && res.data && res.data.session && res.data.session.user;
-                        try { w.currentUser = user || null; } catch (_) {}
-                        try { if (typeof w.updateAuthUI === "function") w.updateAuthUI(user || null); } catch (_) {}
-                        try { if (typeof w.onAuthChange === "function") w.onAuthChange(user || null); } catch (_) {}
-                    }).catch(function(){});
-                }
-                try { w.dispatchEvent(new CustomEvent("ipsc:shell-auth-updated-v77e", { detail: { eventName: eventName } })); } catch (_) {}
-            } catch (_) {}
-        });
+        setTimeout(next, 1200);
     }
 
     function syncThemeToFrames() {
@@ -596,20 +349,6 @@
         loader = document.getElementById("native-shell-loading-v76t");
         if (!viewport) return;
         applyShellTheme(getTheme());
-        try {
-            window.showPageTransitionCover = function () { return false; };
-            window.hidePageTransitionCover = function () { return false; };
-            document.documentElement.classList.remove("is-page-leaving", "is-native-navigating-v74", "is-native-navigating-v76o");
-        } catch (_) {}
-        // V77F: passkeys are not reliable from capacitor://localhost with the web RP-ID; keep launch login clean.
-        try {
-            window.loginWithPasskey = function () { alert("Passkey ist in der lokalen App-Version noch nicht verfügbar. Bitte nutze Apple, Google oder E-Mail/Passwort."); };
-            window.registerPasskey = function () { alert("Passkey-Registrierung ist in der lokalen App-Version noch nicht verfügbar. Bitte nutze Apple, Google oder E-Mail/Passwort."); };
-            var ps = document.createElement("style");
-            ps.id = "ipsc-native-shell-passkey-hint-v77e";
-            ps.textContent = '[onclick="loginWithPasskey()"],[onclick="registerPasskey()"]{opacity:.55!important;filter:grayscale(.35);}' + '\n' + '[onclick="loginWithPasskey()"]::after{content:"  · später";font-size:11px;opacity:.75;}';
-            document.head.appendChild(ps);
-        } catch (_) {}
         document.addEventListener("click", interceptShellClick, true);
         document.addEventListener("click", function (event) {
             if (event.target && event.target.closest && event.target.closest("#theme-toggle")) {
@@ -635,13 +374,11 @@
             if (window.supabaseClient && window.supabaseClient.auth && window.supabaseClient.auth.onAuthStateChange) {
                 window.supabaseClient.auth.onAuthStateChange(function (eventName) {
                     if (eventName === "SIGNED_IN" || eventName === "SIGNED_OUT" || eventName === "TOKEN_REFRESHED") {
-                        // V77E: do not reload all embedded frames after OAuth.
-                        // Reloading cached iframes caused visible blinking and white screens.
                         setTimeout(function () {
-                            try { if (typeof window.updateAuthUI === "function") window.updateAuthUI(window.currentUser || null); } catch (_) {}
-                            try { syncThemeToFrames(); } catch (_) {}
-                            try { broadcastAuthToFrames(eventName); window.dispatchEvent(new CustomEvent("ipsc:shell-auth-updated-v77e", { detail: { eventName: eventName } })); } catch (_) {}
-                        }, 120);
+                            Object.keys(frames).forEach(function (k) {
+                                try { frames[k].contentWindow.location.reload(); } catch (_) {}
+                            });
+                        }, 350);
                     }
                 });
             }
@@ -651,11 +388,6 @@
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
     else init();
 
-    window.IPSCNativeShellV76v = { routeTo: routeTo, syncTheme: syncThemeToFrames, openAuth: openShellAuthModal, toggleMore: toggleShellMoreMenu, broadcastAuth: broadcastAuthToFrames };
-    window.IPSCNativeShellV77b = window.IPSCNativeShellV76v;
-    window.IPSCNativeShellV77c = window.IPSCNativeShellV76v;
-    window.IPSCNativeShellV77d = window.IPSCNativeShellV76v;
-    window.IPSCNativeShellV77e = window.IPSCNativeShellV76v;
-    window.IPSCNativeShellV77f = window.IPSCNativeShellV76v;
+    window.IPSCNativeShellV76v = { routeTo: routeTo, syncTheme: syncThemeToFrames };
     window.IPSCNativeShellV76u = window.IPSCNativeShellV76v;
 })();

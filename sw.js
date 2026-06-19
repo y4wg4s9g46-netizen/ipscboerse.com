@@ -1,14 +1,14 @@
-const CACHE_NAME = 'ipscboerse-v76v';
+const CACHE_NAME = 'ipscboerse-v77e';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
     'native-shell.html',
-    'native-shell.js?v=76v',
-    'global.css?v=76v',
-    'header.js?v=76v',
-    'auth.js?v=76v',
-    'app.js?v=76v',
-    'lang.js?v=76v',
+    'native-shell.js?v=77e',
+    'global.css?v=77e',
+    'header.js?v=77e',
+    'auth.js?v=77e',
+    'app.js?v=77e',
+    'lang.js?v=77e',
     'marktplatz.html',
     'mein-planer.html',
     'community.html',
