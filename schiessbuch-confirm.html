@@ -202,7 +202,7 @@
     </script>
 
 <title>Schießbuch bestätigen | IPSC Börse</title>
-    <link rel="stylesheet" href="global.css?v=76s">
+    <link rel="stylesheet" href="global.css?v=76t">
     <script>
       (function () {
         try {
@@ -444,6 +444,7 @@ loadConfirmation();
     markLoaded();
 
     document.addEventListener("click", function (event) {
+      try { if (new URLSearchParams(window.location.search || "").get("shell") === "1") return; } catch (_) {}
       var a = event.target.closest && event.target.closest("a[href]");
       if (!a) return;
 

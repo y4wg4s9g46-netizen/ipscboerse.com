@@ -262,6 +262,7 @@
     markLoaded();
 
     document.addEventListener("click", function (event) {
+      try { if (new URLSearchParams(window.location.search || "").get("shell") === "1") return; } catch (_) {}
       var a = event.target.closest && event.target.closest("a[href]");
       if (!a) return;
 

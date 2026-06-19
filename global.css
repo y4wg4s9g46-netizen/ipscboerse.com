@@ -13496,3 +13496,59 @@ html[data-theme="dark"] #ipsc-surface-bridge-v76s { background: #0f172a !importa
         border-radius: 18px !important;
     }
 }
+
+
+/* ========================================================================
+   V76T NATIVE APP SHELL + MARKETPLACE OWNER BUTTON SAFETY
+   ======================================================================== */
+html.ipsc-native-shell-v76t body.page-native-shell {
+    background: var(--bg-color) !important;
+}
+html.ipsc-embedded-native-shell-v76t header,
+html.ipsc-embedded-native-shell-v76t #bottom-tab-bar,
+html.ipsc-embedded-native-shell-v76t #more-menu-overlay {
+    display: none !important;
+}
+@media (max-width: 768px) {
+    body.page-marktplatz .listing-card .market-card-actions,
+    body.page-marktplatz .listing-card .listing-actions,
+    body.page-marktplatz .market-card .market-card-actions,
+    body.page-marktplatz .market-card .listing-actions {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+        align-items: stretch !important;
+    }
+    body.page-marktplatz .listing-card .btn-mediated,
+    body.page-marktplatz .listing-card .btn-mark-mediated,
+    body.page-marktplatz .listing-card button[onclick*="markAsMediated"],
+    body.page-marktplatz .listing-card button[onclick*="mediated"],
+    body.page-marktplatz .listing-card button[onclick*="vermittelt"],
+    body.page-marktplatz .market-card .btn-mediated,
+    body.page-marktplatz .market-card .btn-mark-mediated,
+    body.page-marktplatz .market-card button[onclick*="markAsMediated"],
+    body.page-marktplatz .market-card button[onclick*="mediated"],
+    body.page-marktplatz .market-card button[onclick*="vermittelt"] {
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+        min-height: 46px !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+    body.page-marktplatz .listing-card .btn-chat,
+    body.page-marktplatz .listing-card .btn-contact,
+    body.page-marktplatz .listing-card .btn-export,
+    body.page-marktplatz .listing-card .btn-report,
+    body.page-marktplatz .market-card .btn-chat,
+    body.page-marktplatz .market-card .btn-contact,
+    body.page-marktplatz .market-card .btn-export,
+    body.page-marktplatz .market-card .btn-report {
+        min-width: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+}

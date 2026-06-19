@@ -210,14 +210,14 @@
     <link rel="preload" href="icon-192.png" as="image">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=76s">
+<link rel="stylesheet" href="global.css?v=76t">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
 <body class="page-impressum app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s">
 
     <header id="main-header"></header>
-    <script src="header.js?v=76s"></script>
+    <script src="header.js?v=76t"></script>
 
     <div class="container">
         <a href="index.html" class="back-btn" data-txt="imp-back">← Zurück zur Startseite</a>
@@ -493,9 +493,9 @@
             <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-<script src="auth.js?v=76s"></script>
-    <script src="lang.js?v=76m"></script>
-    <script src="app.js?v=76s"></script>
+<script src="auth.js?v=76t"></script>
+    <script src="lang.js?v=76t"></script>
+    <script src="app.js?v=76t"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -561,6 +561,7 @@
     markLoaded();
 
     document.addEventListener("click", function (event) {
+      try { if (new URLSearchParams(window.location.search || "").get("shell") === "1") return; } catch (_) {}
       var a = event.target.closest && event.target.closest("a[href]");
       if (!a) return;
 

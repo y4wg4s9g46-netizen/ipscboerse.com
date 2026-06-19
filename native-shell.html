@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <script id="ipsc-theme-instant-v76t">
+      (function () {
+        try {
+          var root = document.documentElement;
+          var theme = null;
+          try { theme = localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || localStorage.getItem("ipsc_effective_theme") || sessionStorage.getItem("ipsc_effective_theme"); } catch (_) {}
+          if (!theme || theme === "auto") {
+            try { theme = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light"; } catch (_) { theme = "light"; }
+          }
+          theme = theme === "dark" ? "dark" : "light";
+          var surface = theme === "dark" ? "#0f172a" : "#f6f8fc";
+          root.setAttribute("data-theme", theme);
+          root.style.background = surface;
+          root.style.backgroundColor = surface;
+          root.style.colorScheme = theme;
+          window.__IPSC_ACTIVE_THEME_V70 = theme;
+          window.__IPSC_ACTIVE_THEME_V74 = theme;
+          window.__IPSC_ACTIVE_THEME_V76S = theme;
+          window.__IPSC_ACTIVE_THEME_V76T = theme;
+          try { localStorage.setItem("ipsc_effective_theme", theme); sessionStorage.setItem("ipsc_effective_theme", theme); } catch (_) {}
+          var st = document.createElement("style");
+          st.id = "ipsc-native-shell-prepaint-v76t";
+          st.textContent = "html,body{margin:0;min-height:100%;background:" + surface + "!important;background-color:" + surface + "!important;color-scheme:" + theme + "!important;}";
+          document.head.appendChild(st);
+        } catch (_) {}
+      })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#f6f8fc">
+    <title>IPSC Startplatz-Börse</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="preload" href="icon-192.png" as="image">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="global.css?v=76t">
+    <style id="native-shell-style-v76t">
+      html.ipsc-native-shell-v76t,
+      html.ipsc-native-shell-v76t body {
+        min-height: 100%;
+        overflow-x: hidden;
+      }
+      body.page-native-shell {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg-color, #f6f8fc) !important;
+        color: var(--text-color, #0f172a);
+        padding-bottom: calc(92px + env(safe-area-inset-bottom)) !important;
+      }
+      #native-shell-root-v76t {
+        width: 100%;
+        min-height: 100vh;
+      }
+      #native-shell-viewport-v76t {
+        position: relative;
+        width: 100%;
+        max-width: none;
+        min-height: calc(100vh - 92px - env(safe-area-inset-bottom));
+        margin: 0 auto;
+        background: var(--bg-color, #f6f8fc);
+        overflow: visible;
+        transform: translateZ(0);
+      }
+      .native-shell-frame-v76t {
+        display: none;
+        width: 100%;
+        min-height: calc(100vh - 92px - env(safe-area-inset-bottom));
+        border: 0;
+        background: var(--bg-color, #f6f8fc);
+        opacity: 0;
+        transform: translateZ(0);
+      }
+      .native-shell-frame-v76t.is-active {
+        display: block;
+        opacity: 1;
+      }
+      #native-shell-loading-v76t {
+        position: fixed;
+        left: 50%;
+        bottom: calc(94px + env(safe-area-inset-bottom));
+        transform: translateX(-50%) translateY(8px);
+        z-index: 2147480100;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: .04em;
+        background: rgba(255, 159, 67, .12);
+        color: var(--accent-color, #ff7a1a);
+        border: 1px solid rgba(255, 159, 67, .22);
+        box-shadow: 0 12px 28px rgba(15,23,42,.12);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .14s ease, transform .14s ease;
+      }
+      html[data-theme="dark"] #native-shell-loading-v76t {
+        background: rgba(255, 159, 67, .16);
+        box-shadow: 0 14px 34px rgba(0,0,0,.22);
+      }
+      #native-shell-loading-v76t.is-visible {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      @media (max-width: 768px) {
+        body.page-native-shell > header {
+          position: relative !important;
+          z-index: 20;
+        }
+        #native-shell-viewport-v76t {
+          margin-top: 0;
+        }
+      }
+    </style>
+</head>
+<body class="page-native-shell app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t">
+    <div id="native-shell-root-v76t">
+        <header id="main-header"></header>
+        <main id="native-shell-viewport-v76t" aria-live="polite"></main>
+        <div id="native-shell-loading-v76t">Lade Seite …</div>
+    </div>
+    <script src="native-shell.js?v=76t"></script>
+    <script src="header.js?v=76t"></script>
+    <script src="lang.js?v=76t"></script>
+    <script src="auth.js?v=76t"></script>
+</body>
+</html>

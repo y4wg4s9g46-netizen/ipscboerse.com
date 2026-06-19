@@ -87,6 +87,15 @@
         const path = window.location.pathname;
         let page = path.split("/").pop() || "index.html";
         if (page === "") page = "index.html";
+        // V76T virtual page for native shell: keep active nav state while native-shell.html hosts the content.
+        if (page === "native-shell.html") {
+            try {
+                const viewParamV76t = new URLSearchParams(window.location.search || "").get("view") || sessionStorage.getItem("ipsc_native_shell_view_v76t") || "index.html";
+                const viewUrlV76t = new URL(viewParamV76t, window.location.href);
+                const viewPageV76t = viewUrlV76t.pathname.split("/").pop() || "index.html";
+                if (viewPageV76t && viewPageV76t !== "native-shell.html") page = viewPageV76t;
+            } catch (_) { page = "index.html"; }
+        }
 
         const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
         const cachedHeaderUser = getCachedHeaderUser();
@@ -2301,6 +2310,9 @@ window.toggleMoreMenu = function() {
     window.showPageTransitionCover = showBridge;
 
     function shouldBridgeLink(link) {
+        // V76T: native shell owns routing; no colored bridge or hard reload while inside shell/embedded frames.
+        try { if (new URLSearchParams(window.location.search || "").get("shell") === "1") return false; } catch (_) {}
+        if (document.body && document.body.classList && document.body.classList.contains("page-native-shell")) return false;
         if (!link) return false;
         if (link.target && link.target !== "_self") return false;
         if (link.hasAttribute("download")) return false;

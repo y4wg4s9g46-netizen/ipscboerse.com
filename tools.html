@@ -1,6 +1,27 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+    <script id="ipsc-native-shell-redirect-v76t">
+      (function () {
+        try {
+          var p = new URLSearchParams(window.location.search || "");
+          if (p.get("shell") === "1" || p.get("nativeShell") === "0") return;
+          if (window.top !== window.self) return;
+          var proto = window.location.protocol;
+          var isNative = proto === "capacitor:" || proto === "ionic:";
+          if (!isNative) return;
+          var file = (window.location.pathname.split("/").pop() || "index.html");
+          if (!file || file === "") file = "index.html";
+          var allowed = {'index.html':1,'marktplatz.html':1,'mein-planer.html':1,'community.html':1,'freie-matches.html':1,'schiessbuch.html':1,'sg-timer-live.html':1,'tools.html':1,'analytics.html':1,'wiederladen.html':1,'ipsc-hub.html':1,'doppel-aa.html':1,'performance.html':1};
+          if (!allowed[file]) return;
+          var view = file + (window.location.search || "") + (window.location.hash || "");
+          var target = "native-shell.html?view=" + encodeURIComponent(view);
+          if ((window.location.pathname || "").endsWith("/native-shell.html")) return;
+          window.location.replace(target);
+        } catch (_) {}
+      })();
+    </script>
+
     <script id="ipsc-theme-instant-v76s">
       (function () {
         try {
@@ -212,7 +233,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
-<link rel="stylesheet" href="global.css?v=76s">
+<link rel="stylesheet" href="global.css?v=76t">
 
 
     <style id="hit-factor-battle-v53">
@@ -524,10 +545,10 @@
     <!-- PDF APP SHARE FIX v61 -->
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
-<body class="page-tools app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s">
+<body class="page-tools app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t">
 
     <header id="main-header"></header>
-    <script src="header.js?v=76s"></script>
+    <script src="header.js?v=76t"></script>
 
     <div class="container">
         
@@ -696,9 +717,9 @@
             <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-<script src="auth.js?v=76s"></script>
-    <script src="lang.js?v=76m"></script>
-    <script src="app.js?v=76s"></script>
+<script src="auth.js?v=76t"></script>
+    <script src="lang.js?v=76t"></script>
+    <script src="app.js?v=76t"></script>
     <script>
         // --- THEME LOGIK & CHAT BADGE ---
         document.addEventListener("DOMContentLoaded", () => {
@@ -1427,6 +1448,7 @@ async function downloadHitFactorPDF() {
     markLoaded();
 
     document.addEventListener("click", function (event) {
+      try { if (new URLSearchParams(window.location.search || "").get("shell") === "1") return; } catch (_) {}
       var a = event.target.closest && event.target.closest("a[href]");
       if (!a) return;
 
