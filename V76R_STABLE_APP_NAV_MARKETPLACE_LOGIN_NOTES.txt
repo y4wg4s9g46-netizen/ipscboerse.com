@@ -1,0 +1,7 @@
+V76R STABLE APP NAV + MARKETPLACE + LOGIN FIT
+
+- Experimental v76q page-transition curtain disabled because it caused wrong-color flashes.
+- Navigation returns to stable native/HTML page changes without white/dark overlay.
+- Marketplace mobile owner card reordered: Export/Melden, full-width Vermittelt, then Live-Chat/Kontakt.
+- Login modal mobile headline and password fields reduced for better proportions.
+- Cache/version bumped to v76r.

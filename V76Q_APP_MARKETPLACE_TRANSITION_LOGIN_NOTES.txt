@@ -1,0 +1,4 @@
+V76Q APP MARKETPLACE + SOFT TRANSITION + LOGIN FIT
+- Marktplatz mobil: Besitzerkarte mit Vermittelt steht wieder sauber unter Export/Melden; Live-Chat/Kontakt bleiben wie ausgeloggt darunter.
+- Login mobil: Willkommen-Text, Subtitle, Labels und Email/Passwort-Felder kompakter.
+- App-Seitenwechsel: weicher Fade-Cover und Enter-Fade gegen hartes HTML-Blitzen.

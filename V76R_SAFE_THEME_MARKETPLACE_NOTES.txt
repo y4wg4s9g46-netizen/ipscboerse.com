@@ -1,0 +1,9 @@
+v76r Safe Theme + Marketplace Mobile Repair
+
+- Removed the experimental page transition curtain that caused white/dark flashes during HTML page reloads.
+- Added earliest possible theme prepaint before page styles so dark users do not see a light first-frame and light users do not see a dark first-frame.
+- Kept desktop/browser width polish intact.
+- Repaired mobile marketplace owner card actions: contact buttons no longer overlap; Export/Melden stay in a two-column row; Vermittelt spans full width below them.
+- Service worker cache bumped to v76r.
+
+Xcode: npx cap copy ios only. Do not use npx cap sync ios.

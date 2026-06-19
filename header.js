@@ -1642,10 +1642,7 @@ header .header-logo-img {
             ensureTransitionCoverV51();
             document.addEventListener("DOMContentLoaded", ensureTransitionCoverV51, { once: true });
             window.addEventListener("pageshow", ensureTransitionCoverV51, { passive: true });
-            const showCoverV51 = () => {
-                ensureTransitionCoverV51();
-                try { document.documentElement.classList.add("is-page-leaving"); } catch (_) {}
-            };
+            const showCoverV51 = () => { /* V76R: no colored curtain; avoid wrong-color flash */ };
             window.showPageTransitionCover = showCoverV51;
             document.addEventListener("click", (event) => {
                 const target = event.target?.closest?.("a[href]");
@@ -2046,9 +2043,10 @@ window.toggleMoreMenu = function() {
     var LIGHT_SURFACE = "#f6f8fc";
     var DARK_SURFACE = "#0f172a";
     var navTimer = null;
+    var SOFT_NAV_DELAY_V76Q = 135;
 
     function activeThemeV76o() {
-        var t = null; try { t = sessionStorage.getItem("ipsc_effective_theme"); } catch (_) {} t = t || document.documentElement.getAttribute("data-theme") || window.__IPSC_ACTIVE_THEME_V74 || window.__IPSC_ACTIVE_THEME_V70 || localStorage.getItem("ipsc_effective_theme") || localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || "light";
+        var t = document.documentElement.getAttribute("data-theme") || window.__IPSC_ACTIVE_THEME_V76S || window.__IPSC_ACTIVE_THEME_V74 || window.__IPSC_ACTIVE_THEME_V70; if (!t) { try { t = localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || localStorage.getItem("ipsc_effective_theme") || sessionStorage.getItem("ipsc_effective_theme") || "light"; } catch (_) { t = "light"; } }
         if (t === "auto") {
             try { t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; } catch (_) { t = "light"; }
         }
@@ -2114,6 +2112,7 @@ window.toggleMoreMenu = function() {
     }
 
     window.showPageTransitionCover = function () {
+        return; // V76R: curtain disabled to prevent white/dark flash
         ensureCoverV76o();
         paintSurfaceV76o();
         try {
@@ -2123,11 +2122,23 @@ window.toggleMoreMenu = function() {
         } catch (_) {}
         try {
             document.documentElement.classList.add("is-page-leaving", "is-native-navigating-v74", "is-native-navigating-v76o");
+            ["app-page-transition-cover", "native-page-curtain-v74"].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                el.style.transition = "opacity .15s ease";
+                el.style.opacity = "1";
+            });
         } catch (_) {}
     };
 
     function clearArrivingV76o() {
         try {
+            ["app-page-transition-cover", "native-page-curtain-v74"].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                el.style.transition = "opacity .18s ease";
+                el.style.opacity = "0";
+            });
             document.documentElement.classList.remove("is-page-leaving", "is-native-navigating-v74", "is-native-navigating-v76o");
         } catch (_) {}
         paintSurfaceV76o();
@@ -2147,9 +2158,10 @@ window.toggleMoreMenu = function() {
     document.addEventListener("click", function (event) {
         if (event.__ipscNativeNavV76o) return;
         var link = event.target && event.target.closest && event.target.closest(
-            "#bottom-tab-bar a[href], #more-menu-overlay a[href], header nav a[href], .main-nav a[href], a.header-logo-link[href]"
+            "#bottom-tab-bar a[href], #more-menu-overlay a[href], header nav a[href], .main-nav a[href], a.header-logo-link[href], .bottom-nav a[href], .nav-pill[href]"
         );
         if (!link) return;
+        return; // V76R: disable delayed curtain navigation; use normal stable page change
         if (!isNativeLikeV76o()) return;
         if (link.target && link.target !== "_self") return;
         if (link.hasAttribute("download")) return;
@@ -2170,7 +2182,159 @@ window.toggleMoreMenu = function() {
         if (navTimer) clearTimeout(navTimer);
         navTimer = setTimeout(function () {
             window.location.href = url.href;
-        }, activeThemeV76o() === "light" ? 36 : 54);
+        }, SOFT_NAV_DELAY_V76Q);
     }, true);
 })();
 
+
+
+// V76R_SAFE_NAV_NO_OVERLAY: keep theme background stable, but never show a colored reload curtain.
+(function () {
+    try {
+        window.showPageTransitionCover = function () {
+            try {
+                var root = document.documentElement;
+                var theme = root.getAttribute("data-theme") || window.__IPSC_ACTIVE_THEME_V70 || localStorage.getItem("ipsc_effective_theme") || localStorage.getItem("selectedTheme") || "light";
+                theme = theme === "dark" ? "dark" : "light";
+                var surface = theme === "dark" ? "#0f172a" : "#f6f8fc";
+                try { sessionStorage.setItem("ipsc_effective_theme", theme); localStorage.setItem("ipsc_effective_theme", theme); } catch (_) {}
+                root.setAttribute("data-theme", theme);
+                root.style.backgroundColor = surface;
+                root.style.colorScheme = theme;
+                if (document.body) {
+                    document.body.style.backgroundColor = surface;
+                    document.body.style.opacity = "1";
+                }
+                root.classList.remove("is-page-leaving", "is-native-navigating-v72", "is-native-navigating-v73", "is-native-navigating-v74", "is-native-navigating-v76o");
+            } catch (_) {}
+        };
+
+        var cleanup = function () {
+            try {
+                var root = document.documentElement;
+                root.classList.remove("is-page-leaving", "is-native-navigating-v72", "is-native-navigating-v73", "is-native-navigating-v74", "is-native-navigating-v76o", "is-native-arriving-v72", "is-native-arriving-v73", "is-native-arriving-v74", "is-native-arriving-v76o");
+                if (document.body) document.body.style.opacity = "1";
+            } catch (_) {}
+        };
+        cleanup();
+        window.addEventListener("pageshow", cleanup, { passive: true });
+        document.addEventListener("visibilitychange", cleanup, { passive: true });
+    } catch (_) {}
+})();
+
+
+// ========================================================================== 
+// V76S SAME-SURFACE PAGE BRIDGE
+// Uses the currently visible theme color during HTML page changes so Light->Light
+// and Dark->Dark do not flash to the opposite background.
+// ========================================================================== 
+(function sameSurfaceNavigationBridgeV76s() {
+    if (window.__IPSC_SAME_SURFACE_NAV_V76S) return;
+    window.__IPSC_SAME_SURFACE_NAV_V76S = true;
+
+    var LIGHT_SURFACE = "#f6f8fc";
+    var DARK_SURFACE = "#0f172a";
+    var NAV_DELAY_MS = 22;
+
+    function currentTheme() {
+        var t = document.documentElement.getAttribute("data-theme") || window.__IPSC_ACTIVE_THEME_V76S || window.__IPSC_ACTIVE_THEME_V74 || window.__IPSC_ACTIVE_THEME_V70;
+        if (!t || t === "auto") {
+            try { t = localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || localStorage.getItem("ipsc_effective_theme") || "light"; } catch (_) { t = "light"; }
+        }
+        if (t === "auto") {
+            try { t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light"; } catch (_) { t = "light"; }
+        }
+        return t === "dark" ? "dark" : "light";
+    }
+
+    function applySurface(theme) {
+        var surface = theme === "dark" ? DARK_SURFACE : LIGHT_SURFACE;
+        var root = document.documentElement;
+        root.setAttribute("data-theme", theme);
+        root.style.background = surface;
+        root.style.backgroundColor = surface;
+        root.style.colorScheme = theme;
+        if (document.body) {
+            document.body.style.background = surface;
+            document.body.style.backgroundColor = surface;
+        }
+        try {
+            localStorage.setItem("ipsc_effective_theme", theme);
+            sessionStorage.setItem("ipsc_effective_theme", theme);
+            sessionStorage.setItem("ipsc_nav_theme_v76s", theme);
+        } catch (_) {}
+        try {
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute("content", surface);
+            var cs = document.querySelector('meta[name="color-scheme"]');
+            if (cs) cs.setAttribute("content", theme);
+        } catch (_) {}
+        window.__IPSC_ACTIVE_THEME_V76S = theme;
+        window.__IPSC_ACTIVE_THEME_V74 = theme;
+        window.__IPSC_ACTIVE_THEME_V70 = theme;
+        return surface;
+    }
+
+    function showBridge() {
+        var theme = currentTheme();
+        var surface = applySurface(theme);
+        var bridge = document.getElementById("ipsc-surface-bridge-v76s");
+        if (!bridge) {
+            bridge = document.createElement("div");
+            bridge.id = "ipsc-surface-bridge-v76s";
+            bridge.setAttribute("aria-hidden", "true");
+            (document.body || document.documentElement).appendChild(bridge);
+        }
+        bridge.style.position = "fixed";
+        bridge.style.inset = "0";
+        bridge.style.zIndex = "2147483646";
+        bridge.style.pointerEvents = "none";
+        bridge.style.background = surface;
+        bridge.style.backgroundColor = surface;
+        bridge.style.opacity = "1";
+        bridge.style.transition = "none";
+        bridge.style.transform = "translateZ(0)";
+        bridge.style.display = "block";
+        return bridge;
+    }
+
+    window.showPageTransitionCover = showBridge;
+
+    function shouldBridgeLink(link) {
+        if (!link) return false;
+        if (link.target && link.target !== "_self") return false;
+        if (link.hasAttribute("download")) return false;
+        var href = link.getAttribute("href") || "";
+        if (!href || href.indexOf("#") === 0 || href.indexOf("javascript:") === 0 || href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0) return false;
+        var url;
+        try { url = new URL(href, window.location.href); } catch (_) { return false; }
+        if (url.origin !== window.location.origin) return false;
+        if (url.pathname === window.location.pathname && url.search === window.location.search && url.hash) return false;
+        return url;
+    }
+
+    document.addEventListener("click", function (event) {
+        if (event.defaultPrevented || event.__ipscBridgeV76s) return;
+        var link = event.target && event.target.closest && event.target.closest(
+            "#bottom-tab-bar a[href], #more-menu-overlay a[href], header nav a[href], .main-nav a[href], a.header-logo-link[href], .bottom-nav a[href], .nav-pill[href]"
+        );
+        var url = shouldBridgeLink(link);
+        if (!url) return;
+
+        // Desktop/browser still works normally; the bridge is only visible for one frame.
+        event.__ipscBridgeV76s = true;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        showBridge();
+        setTimeout(function () { window.location.href = url.href; }, NAV_DELAY_MS);
+    }, true);
+
+    window.addEventListener("pageshow", function () {
+        try {
+            var theme = currentTheme();
+            applySurface(theme);
+            var bridge = document.getElementById("ipsc-surface-bridge-v76s");
+            if (bridge) bridge.remove();
+        } catch (_) {}
+    }, { passive: true });
+})();

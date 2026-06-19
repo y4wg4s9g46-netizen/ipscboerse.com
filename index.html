@@ -1,16 +1,55 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+    <script id="ipsc-theme-instant-v76s">
+      (function () {
+        try {
+          var root = document.documentElement;
+          var nav = null, selected = null, legacy = null, effective = null;
+          try { nav = sessionStorage.getItem("ipsc_nav_theme_v76s"); } catch (_) {}
+          try {
+            selected = localStorage.getItem("selectedTheme");
+            legacy = localStorage.getItem("theme");
+            effective = localStorage.getItem("ipsc_effective_theme");
+          } catch (_) {}
+          var theme = nav || selected || legacy || effective || "light";
+          if (theme === "auto") {
+            theme = (effective && effective !== "auto") ? effective : ((window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light");
+          }
+          theme = theme === "dark" ? "dark" : "light";
+          var surface = theme === "dark" ? "#0f172a" : "#f6f8fc";
+          root.setAttribute("data-theme", theme);
+          root.style.background = surface;
+          root.style.backgroundColor = surface;
+          root.style.colorScheme = theme;
+          window.__IPSC_ACTIVE_THEME_V70 = theme;
+          window.__IPSC_ACTIVE_THEME_V74 = theme;
+          window.__IPSC_ACTIVE_THEME_V76S = theme;
+          try {
+            localStorage.setItem("ipsc_effective_theme", theme);
+            sessionStorage.setItem("ipsc_effective_theme", theme);
+          } catch (_) {}
+          var st = document.createElement("style");
+          st.id = "ipsc-instant-bg-v76s";
+          st.textContent = "html,body{min-height:100%;background:" + surface + "!important;background-color:" + surface + "!important;color-scheme:" + theme + "!important;}html[data-theme=\"light\"],html[data-theme=\"light\"] body{background:#f6f8fc!important;background-color:#f6f8fc!important;color-scheme:light!important;}html[data-theme=\"dark\"],html[data-theme=\"dark\"] body{background:#0f172a!important;background-color:#0f172a!important;color-scheme:dark!important;}#app-page-transition-cover,#native-page-curtain-v74{display:none!important;opacity:0!important;visibility:hidden!important;}#ipsc-surface-bridge-v76s{background:" + surface + "!important;}";
+          document.head.appendChild(st);
+          document.addEventListener("DOMContentLoaded", function () {
+            try { document.body.style.backgroundColor = surface; } catch (_) {}
+          }, { once: true });
+        } catch (_) {}
+      })();
+    </script>
     <meta charset="UTF-8">
-    <style id="native-app-prepaint-v76p">
+    <style id="native-app-prepaint-v76r">
       :root { background: #f6f8fc !important; color-scheme: light; }
       html, body { background: #f6f8fc !important; min-height: 100%; }
       html[data-theme="dark"], html[data-theme="dark"] body { background: #0f172a !important; color-scheme: dark; }
       html[data-theme="light"], html[data-theme="light"] body { background: #f6f8fc !important; color-scheme: light; }
       #app-page-transition-cover, #native-page-curtain-v74 { background: #f6f8fc; }
       html[data-theme="dark"] #app-page-transition-cover, html[data-theme="dark"] #native-page-curtain-v74 { background: #0f172a; }
-    </style>
-    <meta name="color-scheme" content="light">
+      /* V76R: no early body fade/colored curtain during navigation */
+</style>
+    <meta name="color-scheme" content="light dark">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 
     <meta name="theme-color" content="#f6f8fc">
@@ -22,12 +61,12 @@
         pointer-events: none;
         opacity: 0;
         background: #f6f8fc;
-        transition: opacity 0ms linear;
+        transition: opacity .15s ease;
         transform: translateZ(0);
         will-change: opacity;
       }
       html[data-theme="dark"] #native-page-curtain-v74 { background: #0f172a; }
-      html.is-native-navigating-v74 #native-page-curtain-v74 { opacity: 1; transition: none; }
+      html.is-native-navigating-v74 #native-page-curtain-v74 { opacity: 0 !important; display: none !important; transition: none !important; }
       html.is-native-arriving-v74 body { opacity: 1; }
       html[data-theme="light"],
       html[data-theme="light"] body {
@@ -47,7 +86,7 @@
           var effective = localStorage.getItem("ipsc_effective_theme");
           var selected = localStorage.getItem("selectedTheme");
           var legacy = localStorage.getItem("theme");
-          var theme = carried || effective || selected || legacy || "light";
+          var navV76s = null; try { navV76s = sessionStorage.getItem("ipsc_nav_theme_v76s"); } catch (_) {} var theme = navV76s || selected || legacy || effective || carried || "light";
           if (theme === "auto") {
             // In der nativen App verhindert das den dunklen Zwischenframe bei Light-Mode-Navigation.
             theme = effective || carried || "light";
@@ -116,9 +155,7 @@
       html[data-theme="dark"] #app-page-transition-cover {
         background: #0f172a;
       }
-      html.is-page-leaving #app-page-transition-cover {
-        opacity: 1;
-      }
+      html.is-page-leaving #app-page-transition-cover { opacity: 0 !important; display: none !important; }
       html.is-theme-switching-v70 *,
       html.is-theme-switching-v70 *::before,
       html.is-theme-switching-v70 *::after {
@@ -135,7 +172,7 @@
           var effective = localStorage.getItem("ipsc_effective_theme");
           var selected = localStorage.getItem("selectedTheme");
           var legacy = localStorage.getItem("theme");
-          theme = carried || effective || selected || legacy || "light";
+          var navV76s = null; try { navV76s = sessionStorage.getItem("ipsc_nav_theme_v76s"); } catch (_) {} theme = navV76s || selected || legacy || effective || carried || "light";
           if (theme === "auto") theme = effective || carried || "light";
           if (theme !== "light" && theme !== "dark") theme = "light";
         } catch (_) {
@@ -172,16 +209,16 @@
     <link rel="preload" href="icon-192.png" as="image">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=76p">
+<link rel="stylesheet" href="global.css?v=76s">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
 
-<body class="page-index app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p">
+<body class="page-index app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s">
 
     <header id="main-header"></header>
 
-    <script src="header.js?v=76p"></script>
+    <script src="header.js?v=76s"></script>
 
     <div class="container">
 
@@ -352,9 +389,9 @@
             <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-<script src="auth.js?v=76p"></script>
+<script src="auth.js?v=76s"></script>
     <script src="lang.js?v=76m"></script>
-    <script src="app.js?v=76p"></script>
+    <script src="app.js?v=76s"></script>
     
     <script>
         document.addEventListener("DOMContentLoaded", () => {

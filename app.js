@@ -732,15 +732,15 @@ function renderMatches(matches) {
           </div>
 
           <div class="card-actions">
-            <div class="primary-actions">
-              <button class="${contactBtnClass}" onclick="openChatSystem(${m.id}, '${m.seller_email}', '${cleanMatchName}')">💬 ${t("btn-live-chat", "Live-Chat")}</button>
-              <button class="${contactBtnClass} btn-contact-secondary" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">✉️ ${contactText}</button>
-            </div>
-
             <div class="action-buttons-group ${canManage ? 'manage-actions' : ''}">
               <button class="btn-export" onclick="exportToIcs(${m.id})">${window.translations[window.currentLang]["btn-export"]}</button>
               <button class="btn-report" onclick="reportMatch(${m.id})">${window.translations[window.currentLang]["report-btn"]}</button>
               ${canManage ? `<button class="btn-mediated" onclick="triggerMediatedModal(${m.id})">✓ ${t("btn-mediated", "Vermittelt")}</button>` : ""}
+            </div>
+
+            <div class="primary-actions">
+              <button class="${contactBtnClass}" onclick="openChatSystem(${m.id}, '${m.seller_email}', '${cleanMatchName}')">💬 ${t("btn-live-chat", "Live-Chat")}</button>
+              <button class="${contactBtnClass} btn-contact-secondary" onclick="handleContactClick('${m.seller_email}', '${cleanMatchName}', '${m.type}')">✉️ ${contactText}</button>
             </div>
 
             ${""}

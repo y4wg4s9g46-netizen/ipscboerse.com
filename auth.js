@@ -553,6 +553,7 @@ window.toggleTheme = function() {
     localStorage.setItem('selectedTheme', newTheme);
     localStorage.setItem('theme', newTheme);
     localStorage.setItem('ipsc_effective_theme', newTheme);
+    try { sessionStorage.setItem('ipsc_effective_theme', newTheme); sessionStorage.setItem('ipsc_nav_theme_v76s', newTheme); } catch (_) {}
     updateThemeToggleIcon(newTheme);
 
     requestAnimationFrame(() => {

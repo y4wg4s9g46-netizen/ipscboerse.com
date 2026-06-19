@@ -12502,3 +12502,997 @@ html.is-native-navigating-v74:not([data-theme="dark"]) body {
         margin-bottom: 10px !important;
     }
 }
+
+
+/* ========================================================================== 
+   V76Q APP MARKETPLACE + SOFT PAGE TRANSITION + LOGIN COMPACT
+   - Mobile owner/mediated marketplace cards use stable stacked rows.
+   - Native app page changes fade softly instead of a hard HTML reload flash.
+   - Login headline and password area are more proportional on small phones.
+   ========================================================================== */
+:root {
+    --ipsc-page-surface-v76q: #f6f8fc;
+    --ipsc-page-surface-dark-v76q: #0f172a;
+}
+
+#app-page-transition-cover,
+#native-page-curtain-v74 {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2147483300 !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    background: var(--ipsc-page-surface-v76q) !important;
+    transition: opacity .15s ease !important;
+    transform: translate3d(0,0,0) !important;
+    will-change: opacity !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+}
+
+html[data-theme="dark"] #app-page-transition-cover,
+html[data-theme="dark"] #native-page-curtain-v74 {
+    background: var(--ipsc-page-surface-dark-v76q) !important;
+}
+
+html.is-page-leaving #app-page-transition-cover,
+html.is-native-navigating-v74 #native-page-curtain-v74,
+html.is-native-navigating-v76o #app-page-transition-cover,
+html.is-native-navigating-v76o #native-page-curtain-v74 {
+    opacity: 1 !important;
+    transition: opacity .15s ease !important;
+}
+
+@media (max-width: 900px) {
+    body {
+        animation: ipsc-page-enter-v76q .18s ease-out .03s both;
+    }
+
+    html.is-page-leaving body,
+    html.is-native-navigating-v74 body,
+    html.is-native-navigating-v76o body {
+        opacity: .08 !important;
+        transition: opacity .15s ease !important;
+    }
+}
+
+@keyframes ipsc-page-enter-v76q {
+    from { opacity: .06; }
+    to { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    body.page-marktplatz .match-card {
+        padding: 15px 13px 16px 17px !important;
+        padding-right: 13px !important;
+        border-radius: 18px !important;
+        gap: 12px !important;
+    }
+
+    body.page-marktplatz .match-header-flex {
+        grid-template-columns: 42px minmax(0, 1fr) auto !important;
+        gap: 10px !important;
+        align-items: start !important;
+    }
+
+    body.page-marktplatz .card-avatar,
+    body.page-marktplatz .avatar-placeholder-flex {
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+        min-height: 42px !important;
+    }
+
+    body.page-marktplatz .match-card:has(.owner-menu) .match-summary {
+        padding-right: 0 !important;
+    }
+
+    body.page-marktplatz .match-price-head-v76k {
+        font-size: 13.5px !important;
+        padding: 7px 10px !important;
+        min-width: 86px !important;
+        max-width: 112px !important;
+        text-align: center !important;
+        margin-right: 42px !important;
+    }
+
+    body.page-marktplatz .owner-menu {
+        top: 15px !important;
+        right: 14px !important;
+    }
+
+    body.page-marktplatz .owner-menu-trigger {
+        width: 38px !important;
+        height: 38px !important;
+        font-size: 18px !important;
+        border-color: rgba(255,159,67,.30) !important;
+    }
+
+    body.page-marktplatz .card-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 8px !important;
+        padding-top: 10px !important;
+        border-top: 1px solid var(--border-color) !important;
+        align-items: stretch !important;
+    }
+
+    body.page-marktplatz .action-buttons-group {
+        order: 1 !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    body.page-marktplatz .primary-actions {
+        order: 2 !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    body.page-marktplatz .action-buttons-group.manage-actions .btn-mediated,
+    body.page-marktplatz .action-buttons-group .btn-mediated {
+        grid-column: 1 / -1 !important;
+        min-height: 40px !important;
+        height: 40px !important;
+        margin-top: 1px !important;
+        border-radius: 14px !important;
+        font-size: 13px !important;
+        font-weight: 900 !important;
+    }
+
+    body.page-marktplatz .btn-contact,
+    body.page-marktplatz .btn-contact-want,
+    body.page-marktplatz .btn-export,
+    body.page-marktplatz .btn-report,
+    body.page-marktplatz .btn-delete,
+    body.page-marktplatz .btn-edit,
+    body.page-marktplatz .btn-mediated {
+        min-width: 0 !important;
+        width: 100% !important;
+        min-height: 38px !important;
+        height: 38px !important;
+        padding: 0 10px !important;
+        border-radius: 14px !important;
+        font-size: 12.7px !important;
+        line-height: 1.1 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+
+    body.page-marktplatz .btn-contact-secondary {
+        font-size: 12.2px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    #auth-modal .modal-content,
+    #auth-modal .auth-modal-content {
+        width: calc(100vw - 32px) !important;
+        max-width: 418px !important;
+        max-height: calc(100dvh - 92px) !important;
+        padding: 20px 20px 18px !important;
+        border-radius: 27px !important;
+    }
+
+    #modal-login-view.login-balanced-v76f h3,
+    #modal-login-view.login-polish-v76e h3,
+    #auth-modal #modal-login-view h3 {
+        font-size: clamp(28px, 7.5vw, 32px) !important;
+        line-height: 1.04 !important;
+        letter-spacing: -0.8px !important;
+        margin: 0 0 8px !important;
+        padding-right: 48px !important;
+    }
+
+    .login-balanced-v76f .auth-subtitle-v76e,
+    .login-polish-v76e .auth-subtitle-v76e,
+    #auth-modal #modal-login-view .auth-subtitle-v76e {
+        font-size: 13.4px !important;
+        line-height: 1.28 !important;
+        margin-bottom: 11px !important;
+        max-width: 96% !important;
+    }
+
+    .login-balanced-v76f #login-form .form-group,
+    .login-polish-v76e #login-form .form-group,
+    #auth-modal #login-form .form-group {
+        margin-bottom: 9px !important;
+    }
+
+    .login-balanced-v76f #login-form label,
+    .login-polish-v76e #login-form label,
+    #auth-modal .form-group label {
+        font-size: 9.8px !important;
+        letter-spacing: .16em !important;
+        line-height: 1.12 !important;
+    }
+
+    .login-balanced-v76f #login-form input,
+    .login-polish-v76e #login-form input,
+    #auth-modal input {
+        min-height: 46px !important;
+        height: 46px !important;
+        border-radius: 15px !important;
+        font-size: 14px !important;
+        padding-left: 17px !important;
+        padding-right: 17px !important;
+    }
+
+    body #modal-login-view #login-form button[type="submit"],
+    body #auth-modal #modal-login-view form#login-form > button[type="submit"],
+    body #auth-modal #modal-login-view #login-form .btn-primary-auth {
+        min-height: 48px !important;
+        height: 48px !important;
+        border-radius: 16px !important;
+        font-size: 14.5px !important;
+        margin-top: 1px !important;
+    }
+
+    .login-balanced-v76f .quick-login-balanced-v76f,
+    .login-polish-v76e .quick-login-panel-v76e,
+    #auth-modal #modal-login-view .social-login-separator {
+        margin-top: 12px !important;
+        padding: 14px !important;
+        border-radius: 22px !important;
+    }
+
+    .login-balanced-v76f .auth-provider-btn-v76e,
+    .login-balanced-v76f .btn-social-passkey,
+    .login-balanced-v76f .btn-social-apple,
+    .login-balanced-v76f .btn-social-google,
+    .login-polish-v76e .btn-social-passkey,
+    .login-polish-v76e .btn-social-apple,
+    .login-polish-v76e .btn-social-google,
+    #auth-modal .btn-social-passkey,
+    #auth-modal .btn-social-apple,
+    #auth-modal .btn-social-google {
+        min-height: 47px !important;
+        height: 47px !important;
+        font-size: 14px !important;
+        border-radius: 15px !important;
+    }
+
+    #auth-modal .modal-footer {
+        margin-top: 11px !important;
+        font-size: 12.5px !important;
+    }
+}
+
+@media (max-width: 600px) and (max-height: 760px) {
+    #auth-modal .modal-content,
+    #auth-modal .auth-modal-content {
+        max-height: calc(100dvh - 70px) !important;
+        padding-top: 17px !important;
+        padding-bottom: 17px !important;
+    }
+
+    #modal-login-view.login-balanced-v76f h3,
+    #modal-login-view.login-polish-v76e h3,
+    #auth-modal #modal-login-view h3 {
+        font-size: clamp(27px, 7.1vw, 30px) !important;
+        margin-bottom: 6px !important;
+    }
+
+    .login-balanced-v76f .auth-subtitle-v76e,
+    .login-polish-v76e .auth-subtitle-v76e,
+    #auth-modal #modal-login-view .auth-subtitle-v76e {
+        font-size: 12.8px !important;
+        margin-bottom: 9px !important;
+    }
+}
+
+
+/* ==========================================================================
+   V76R STABLE APP NAV + MARKETPLACE + LOGIN FIT
+   - Reverts the experimental colored page-transition curtain from v76q.
+   - No white/dark overlay while switching pages; normal HTML navigation is used.
+   - Marketplace owner buttons are ordered like the logged-out card plus full-width Vermittelt.
+   - Login modal headline and password area are more compact on iPhone.
+   ========================================================================== */
+#app-page-transition-cover,
+#native-page-curtain-v74 {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: none !important;
+    animation: none !important;
+    background: transparent !important;
+}
+
+html.is-page-leaving body,
+html.is-native-navigating-v74 body,
+html.is-native-navigating-v76o body,
+body {
+    opacity: 1 !important;
+    animation: none !important;
+}
+
+html.is-page-leaving #app-page-transition-cover,
+html.is-native-navigating-v74 #native-page-curtain-v74,
+html.is-native-navigating-v76o #app-page-transition-cover,
+html.is-native-navigating-v76o #native-page-curtain-v74 {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+html[data-theme="light"],
+html[data-theme="light"] body,
+html[data-theme="light"] body.is-app-shell,
+html[data-theme="light"].is-native-shell body,
+html[data-theme="light"].is-standalone-app body {
+    background-color: #f6f8fc !important;
+    color-scheme: light !important;
+}
+
+html[data-theme="dark"],
+html[data-theme="dark"] body,
+html[data-theme="dark"] body.is-app-shell,
+html[data-theme="dark"].is-native-shell body,
+html[data-theme="dark"].is-standalone-app body {
+    background-color: #0f172a !important;
+    color-scheme: dark !important;
+}
+
+@media (max-width: 768px) {
+    body.page-marktplatz .match-card {
+        padding: 17px 14px 18px 18px !important;
+        padding-right: 14px !important;
+        border-radius: 20px !important;
+        gap: 13px !important;
+    }
+
+    body.page-marktplatz .match-header-flex {
+        grid-template-columns: 42px minmax(0, 1fr) auto !important;
+        gap: 10px !important;
+        align-items: start !important;
+    }
+
+    body.page-marktplatz .match-card:has(.owner-menu) .match-summary {
+        padding-right: 0 !important;
+    }
+
+    body.page-marktplatz .match-price-head-v76k {
+        margin-right: 42px !important;
+        min-width: 88px !important;
+        max-width: 118px !important;
+        text-align: center !important;
+        font-size: 13.5px !important;
+        padding: 7px 10px !important;
+    }
+
+    body.page-marktplatz .owner-menu {
+        top: 17px !important;
+        right: 14px !important;
+    }
+
+    body.page-marktplatz .owner-menu-trigger {
+        width: 38px !important;
+        height: 38px !important;
+    }
+
+    body.page-marktplatz .card-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100% !important;
+        gap: 8px !important;
+        padding-top: 11px !important;
+        border-top: 1px solid var(--border-color) !important;
+    }
+
+    body.page-marktplatz .action-buttons-group,
+    body.page-marktplatz .action-buttons-group.manage-actions {
+        order: 1 !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    body.page-marktplatz .action-buttons-group .btn-mediated,
+    body.page-marktplatz .action-buttons-group.manage-actions .btn-mediated {
+        order: 3 !important;
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+        min-height: 42px !important;
+        height: 42px !important;
+        margin-top: 1px !important;
+        border-radius: 15px !important;
+        font-size: 13.5px !important;
+        font-weight: 950 !important;
+    }
+
+    body.page-marktplatz .primary-actions {
+        order: 2 !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    body.page-marktplatz .btn-contact,
+    body.page-marktplatz .btn-contact-want,
+    body.page-marktplatz .btn-export,
+    body.page-marktplatz .btn-report,
+    body.page-marktplatz .btn-delete,
+    body.page-marktplatz .btn-edit,
+    body.page-marktplatz .btn-mediated {
+        min-width: 0 !important;
+        width: 100% !important;
+        min-height: 39px !important;
+        height: 39px !important;
+        padding: 0 9px !important;
+        border-radius: 14px !important;
+        font-size: 12.6px !important;
+        line-height: 1.1 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    body.page-marktplatz .btn-contact-secondary {
+        font-size: 12.1px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    #auth-modal .modal-content,
+    #auth-modal .auth-modal-content {
+        width: calc(100vw - 34px) !important;
+        max-width: 410px !important;
+        max-height: calc(100dvh - 92px) !important;
+        padding: 18px 20px 17px !important;
+        border-radius: 27px !important;
+    }
+
+    #auth-modal #modal-login-view h3,
+    #auth-modal #modal-login-view.login-balanced-v76f h3,
+    #auth-modal #modal-login-view.login-polish-v76e h3,
+    #modal-login-view.login-balanced-v76f h3,
+    #modal-login-view.login-polish-v76e h3 {
+        font-size: clamp(24px, 6.4vw, 29px) !important;
+        line-height: 1.05 !important;
+        letter-spacing: -0.65px !important;
+        margin: 0 0 7px !important;
+        padding-right: 48px !important;
+    }
+
+    #auth-modal #modal-login-view .auth-subtitle-v76e,
+    .login-balanced-v76f .auth-subtitle-v76e,
+    .login-polish-v76e .auth-subtitle-v76e {
+        font-size: 12.7px !important;
+        line-height: 1.28 !important;
+        margin-bottom: 10px !important;
+        max-width: 95% !important;
+    }
+
+    #auth-modal #login-form .form-group,
+    .login-balanced-v76f #login-form .form-group,
+    .login-polish-v76e #login-form .form-group {
+        margin-bottom: 8px !important;
+    }
+
+    #auth-modal .form-group label,
+    #auth-modal #login-form label,
+    .login-balanced-v76f #login-form label,
+    .login-polish-v76e #login-form label {
+        font-size: 9.4px !important;
+        letter-spacing: .14em !important;
+        line-height: 1.08 !important;
+    }
+
+    #auth-modal input,
+    #auth-modal #login-form input,
+    .login-balanced-v76f #login-form input,
+    .login-polish-v76e #login-form input {
+        min-height: 43px !important;
+        height: 43px !important;
+        border-radius: 14px !important;
+        font-size: 13.5px !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+
+    body #modal-login-view #login-form button[type="submit"],
+    body #auth-modal #modal-login-view form#login-form > button[type="submit"],
+    body #auth-modal #modal-login-view #login-form .btn-primary-auth {
+        min-height: 45px !important;
+        height: 45px !important;
+        border-radius: 15px !important;
+        font-size: 14px !important;
+        margin-top: 0 !important;
+    }
+
+    #auth-modal #modal-login-view .social-login-separator,
+    .login-balanced-v76f .quick-login-balanced-v76f,
+    .login-polish-v76e .quick-login-panel-v76e {
+        margin-top: 10px !important;
+        padding: 14px !important;
+        border-radius: 22px !important;
+    }
+}
+
+
+/* ========================================================================== 
+   V76R SAFE THEME + MARKETPLACE MOBILE REPAIR
+   - Reverts the experimental colored page-transition curtain: no white/dark
+     overlay may appear during normal HTML navigation.
+   - Keeps the browser desktop shell untouched.
+   - Mobile marketplace owner cards get enough height and deterministic rows.
+   ========================================================================== */
+html,
+body {
+    background-color: var(--bg-color) !important;
+}
+html[data-theme="light"],
+html[data-theme="light"] body,
+html:not([data-theme="dark"]),
+html:not([data-theme="dark"]) body {
+    background-color: #f6f8fc !important;
+    color-scheme: light !important;
+}
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+    background-color: #0f172a !important;
+    color-scheme: dark !important;
+}
+
+#app-page-transition-cover,
+#native-page-curtain-v72,
+#native-page-curtain-v73,
+#native-page-curtain-v74,
+#native-page-curtain-v75 {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    background: transparent !important;
+    transition: none !important;
+    animation: none !important;
+}
+
+html.is-page-leaving body,
+html.is-native-navigating-v72 body,
+html.is-native-navigating-v73 body,
+html.is-native-navigating-v74 body,
+html.is-native-navigating-v76o body,
+html.is-native-arriving-v72 body,
+html.is-native-arriving-v73 body,
+html.is-native-arriving-v74 body,
+html.is-native-arriving-v76o body {
+    opacity: 1 !important;
+    animation: none !important;
+    transition: none !important;
+}
+
+@media (max-width: 900px) {
+    body {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+    body.page-marktplatz .match-card {
+        padding: 16px 13px 17px 17px !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        border-radius: 20px !important;
+    }
+
+    body.page-marktplatz .match-header-flex {
+        grid-template-columns: 42px minmax(0, 1fr) auto !important;
+        column-gap: 10px !important;
+        align-items: start !important;
+    }
+
+    body.page-marktplatz .match-title {
+        font-size: 18px !important;
+        line-height: 1.13 !important;
+    }
+
+    body.page-marktplatz .badge-container {
+        gap: 5px !important;
+    }
+
+    body.page-marktplatz .match-price-head-v76k {
+        min-width: 88px !important;
+        max-width: 108px !important;
+        margin-right: 42px !important;
+        padding: 7px 9px !important;
+        font-size: 13.2px !important;
+    }
+
+    body.page-marktplatz .owner-menu {
+        top: 16px !important;
+        right: 14px !important;
+    }
+
+    body.page-marktplatz .owner-menu-trigger {
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        font-size: 18px !important;
+    }
+
+    body.page-marktplatz .card-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 9px !important;
+        padding-top: 12px !important;
+        margin-top: 10px !important;
+        border-top: 1px solid var(--border-color) !important;
+        align-items: stretch !important;
+        overflow: visible !important;
+    }
+
+    body.page-marktplatz .primary-actions {
+        order: 1 !important;
+        display: grid !important;
+        grid-template-columns: minmax(112px, .78fr) minmax(0, 1.22fr) !important;
+        gap: 8px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+    }
+
+    body.page-marktplatz .action-buttons-group {
+        order: 2 !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+    }
+
+    body.page-marktplatz .action-buttons-group.manage-actions .btn-mediated,
+    body.page-marktplatz .action-buttons-group .btn-mediated {
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+        min-height: 41px !important;
+        height: 41px !important;
+        margin-top: 0 !important;
+        border-radius: 15px !important;
+        font-size: 14px !important;
+        font-weight: 950 !important;
+    }
+
+    body.page-marktplatz .btn-contact,
+    body.page-marktplatz .btn-contact-want,
+    body.page-marktplatz .btn-export,
+    body.page-marktplatz .btn-report,
+    body.page-marktplatz .btn-delete,
+    body.page-marktplatz .btn-edit,
+    body.page-marktplatz .btn-mediated {
+        box-sizing: border-box !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        min-height: 40px !important;
+        height: 40px !important;
+        padding: 0 9px !important;
+        border-radius: 15px !important;
+        font-size: 13px !important;
+        line-height: 1.08 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        text-overflow: clip !important;
+    }
+
+    body.page-marktplatz .primary-actions .btn-contact:first-child {
+        font-size: 12.6px !important;
+        padding-left: 7px !important;
+        padding-right: 7px !important;
+    }
+
+    body.page-marktplatz .primary-actions .btn-contact-secondary {
+        font-size: clamp(11.2px, 3.05vw, 12.6px) !important;
+        letter-spacing: -0.15px !important;
+    }
+}
+
+@media (max-width: 380px) {
+    body.page-marktplatz .primary-actions {
+        grid-template-columns: 1fr !important;
+    }
+    body.page-marktplatz .btn-contact,
+    body.page-marktplatz .btn-contact-want,
+    body.page-marktplatz .btn-contact-secondary {
+        font-size: 13px !important;
+    }
+}
+
+
+/* V76R FINAL MOBILE ORDER + LOGIN OVERRIDE
+   Keep stable no-overlay navigation; owner card order exactly like logged-out plus mediated under Export/Melden. */
+@media (max-width: 768px) {
+    body.page-marktplatz .card-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 9px !important;
+        align-items: stretch !important;
+        width: 100% !important;
+    }
+    body.page-marktplatz .action-buttons-group,
+    body.page-marktplatz .action-buttons-group.manage-actions {
+        order: 1 !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+    body.page-marktplatz .action-buttons-group .btn-mediated,
+    body.page-marktplatz .action-buttons-group.manage-actions .btn-mediated {
+        grid-column: 1 / -1 !important;
+        order: 3 !important;
+        width: 100% !important;
+        min-height: 42px !important;
+        height: 42px !important;
+        font-size: 13.8px !important;
+    }
+    body.page-marktplatz .primary-actions {
+        order: 2 !important;
+        display: grid !important;
+        grid-template-columns: minmax(112px, .78fr) minmax(0, 1.22fr) !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 600px) {
+    #auth-modal #modal-login-view h3,
+    #auth-modal #modal-login-view.login-balanced-v76f h3,
+    #auth-modal #modal-login-view.login-polish-v76e h3,
+    #modal-login-view.login-balanced-v76f h3,
+    #modal-login-view.login-polish-v76e h3 {
+        font-size: clamp(23px, 6.1vw, 28px) !important;
+        line-height: 1.05 !important;
+        letter-spacing: -0.6px !important;
+        margin-bottom: 6px !important;
+    }
+    #auth-modal input,
+    #auth-modal #login-form input,
+    .login-balanced-v76f #login-form input,
+    .login-polish-v76e #login-form input {
+        min-height: 42px !important;
+        height: 42px !important;
+        border-radius: 14px !important;
+        font-size: 13.4px !important;
+    }
+}
+
+
+/* ========================================================================== 
+   V76S SAFE SAME-SURFACE NAV + MARKETPLACE MOBILE OWNER BUTTON FIX
+   - Page-change bridge always uses the CURRENT theme surface, not stale storage.
+   - Marketplace owner card keeps Export/Melden, Vermittelt, then chat/contact.
+   ========================================================================== */
+html[data-theme="light"],
+html[data-theme="light"] body {
+    background: #f6f8fc !important;
+    background-color: #f6f8fc !important;
+    color-scheme: light !important;
+}
+
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+    background: #0f172a !important;
+    background-color: #0f172a !important;
+    color-scheme: dark !important;
+}
+
+#ipsc-surface-bridge-v76s {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2147483646 !important;
+    pointer-events: none !important;
+    opacity: 1 !important;
+    transform: translateZ(0) !important;
+    will-change: opacity !important;
+}
+
+html[data-theme="light"] #ipsc-surface-bridge-v76s { background: #f6f8fc !important; }
+html[data-theme="dark"] #ipsc-surface-bridge-v76s { background: #0f172a !important; }
+
+@media (max-width: 768px) {
+    body.page-marktplatz .match-card {
+        padding: 18px 15px 18px 18px !important;
+        border-radius: 21px !important;
+        gap: 13px !important;
+        min-height: 0 !important;
+    }
+
+    body.page-marktplatz .match-header-flex {
+        display: grid !important;
+        grid-template-columns: 42px minmax(0, 1fr) auto !important;
+        column-gap: 10px !important;
+        align-items: start !important;
+    }
+
+    body.page-marktplatz .card-avatar,
+    body.page-marktplatz .avatar-placeholder-flex {
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+        min-height: 42px !important;
+    }
+
+    body.page-marktplatz .match-title,
+    body.page-marktplatz .match-details h3 {
+        font-size: 18px !important;
+        line-height: 1.13 !important;
+        margin: 0 0 5px !important;
+    }
+
+    body.page-marktplatz .match-card:has(.owner-menu) .match-summary {
+        padding-right: 0 !important;
+    }
+
+    body.page-marktplatz .match-price-head-v76k {
+        margin-right: 42px !important;
+        min-width: 88px !important;
+        max-width: 112px !important;
+        padding: 7px 9px !important;
+        font-size: 13.2px !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+    }
+
+    body.page-marktplatz .owner-menu {
+        top: 16px !important;
+        right: 14px !important;
+    }
+
+    body.page-marktplatz .owner-menu-trigger {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 17px !important;
+    }
+
+    body.page-marktplatz .card-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100% !important;
+        gap: 8px !important;
+        padding-top: 12px !important;
+        margin-top: 8px !important;
+        border-top: 1px solid var(--border-color) !important;
+        overflow: visible !important;
+    }
+
+    body.page-marktplatz .action-buttons-group,
+    body.page-marktplatz .action-buttons-group.manage-actions {
+        order: 1 !important;
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        gap: 8px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+    }
+
+    body.page-marktplatz .action-buttons-group .btn-mediated,
+    body.page-marktplatz .action-buttons-group.manage-actions .btn-mediated {
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+        min-height: 42px !important;
+        height: 42px !important;
+        margin: 0 !important;
+        border-radius: 15px !important;
+        font-size: 14px !important;
+        font-weight: 950 !important;
+    }
+
+    body.page-marktplatz .primary-actions {
+        order: 2 !important;
+        display: grid !important;
+        grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr) !important;
+        gap: 8px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+    }
+
+    body.page-marktplatz .btn-contact,
+    body.page-marktplatz .btn-contact-want,
+    body.page-marktplatz .btn-export,
+    body.page-marktplatz .btn-report,
+    body.page-marktplatz .btn-delete,
+    body.page-marktplatz .btn-edit,
+    body.page-marktplatz .btn-mediated {
+        box-sizing: border-box !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        min-height: 40px !important;
+        height: 40px !important;
+        padding: 0 9px !important;
+        border-radius: 15px !important;
+        font-size: 12.8px !important;
+        line-height: 1.08 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        text-overflow: ellipsis !important;
+    }
+
+    body.page-marktplatz .primary-actions .btn-contact:first-child {
+        font-size: 12.4px !important;
+        padding-left: 7px !important;
+        padding-right: 7px !important;
+    }
+
+    body.page-marktplatz .primary-actions .btn-contact-secondary {
+        font-size: clamp(11.3px, 3.02vw, 12.5px) !important;
+        letter-spacing: -0.18px !important;
+    }
+}
+
+@media (max-width: 380px) {
+    body.page-marktplatz .primary-actions {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 600px) {
+    #auth-modal #modal-login-view h3,
+    #auth-modal #modal-login-view.login-balanced-v76f h3,
+    #auth-modal #modal-login-view.login-polish-v76e h3,
+    #modal-login-view.login-balanced-v76f h3,
+    #modal-login-view.login-polish-v76e h3 {
+        font-size: clamp(23px, 6vw, 28px) !important;
+        line-height: 1.05 !important;
+        letter-spacing: -0.85px !important;
+        margin-bottom: 10px !important;
+    }
+
+    #auth-modal #modal-login-view p,
+    #modal-login-view.login-balanced-v76f > p,
+    #modal-login-view.login-polish-v76e > p {
+        font-size: 15px !important;
+        line-height: 1.25 !important;
+        margin-bottom: 14px !important;
+    }
+
+    #auth-modal .form-group label {
+        font-size: 11.5px !important;
+        letter-spacing: 2.2px !important;
+        margin-bottom: 7px !important;
+    }
+
+    #auth-modal .form-group input,
+    #auth-modal input[type="email"],
+    #auth-modal input[type="password"] {
+        min-height: 50px !important;
+        height: 50px !important;
+        padding: 0 18px !important;
+        font-size: 15px !important;
+        border-radius: 18px !important;
+    }
+}
