@@ -1,0 +1,7 @@
+V78E Login Close + Branding Fix
+
+- Header/translation subtitle restored to: Von Schützen für Schützen.
+- Removed the old Live-Marktplatz subtitle text from auth translations and manifest description.
+- Passkey, Apple, Google and password login now close the modal in the app shell without hard reload.
+- Provider buttons are reset after successful login so they do not stay on Erfolgreich / Apple wird geöffnet / Google wird geöffnet.
+- Auth completion is broadcast to already-loaded app frames.

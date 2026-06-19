@@ -774,6 +774,7 @@ document.addEventListener("change", (e) => {
     if (e.target && e.target.id === "language-select") {
         localStorage.setItem("selectedLanguage", e.target.value);
         window.translatePortalPage();
+        try { window.dispatchEvent(new CustomEvent("ipsc:language-change-v78d", { detail: { lang: e.target.value } })); } catch (_) {}
     }
 });
 

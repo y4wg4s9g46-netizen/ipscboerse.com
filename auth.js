@@ -92,8 +92,16 @@ window.loginWithPasskey = async function() {
         alert("Passkey-Login fehlgeschlagen oder abgebrochen: " + error.message);
     } else {
         if (data?.session?.user) cacheHeaderUser(data.session.user);
+        const loggedInUser = data?.session?.user || window.currentUser || null;
         if (btn) btn.innerHTML = "✅ Erfolgreich!";
-        if (document.body && document.body.classList.contains("page-native-shell")) { try { if (typeof updateAuthUI === "function") updateAuthUI(window.currentUser || data?.session?.user || null); } catch (_) {} } else { location.reload(); }
+        if (document.body && (document.body.classList.contains("page-native-shell") || document.body.classList.contains("page-app-spa"))) {
+            try {
+                closeAuthModalAfterLoginV78e(loggedInUser);
+                window.dispatchEvent(new CustomEvent("ipsc:oauth-login-complete", { detail: { user: loggedInUser } }));
+            } catch (_) {}
+        } else {
+            location.reload();
+        }
     }
 };
 
@@ -197,6 +205,7 @@ async function updateUiAfterOAuthV66(session) {
         if (typeof updateAuthUI === "function") updateAuthUI(session?.user || window.currentUser || null);
         if (typeof window.onAuthChange === "function") window.onAuthChange(session?.user || window.currentUser || null);
         if (typeof syncHeaderAuthState === "function") syncHeaderAuthState();
+        if (typeof closeAuthModalAfterLoginV78e === "function") closeAuthModalAfterLoginV78e(session?.user || window.currentUser || null);
 
         const returnPath = localStorage.getItem(OAUTH_RETURN_KEY);
         localStorage.removeItem(OAUTH_RETURN_KEY);
@@ -577,6 +586,7 @@ window.toggleTheme = function() {
     localStorage.setItem('theme', newTheme);
     localStorage.setItem('ipsc_effective_theme', newTheme);
     try { sessionStorage.setItem('ipsc_effective_theme', newTheme); sessionStorage.setItem('ipsc_nav_theme_v76s', newTheme); } catch (_) {}
+    try { window.dispatchEvent(new CustomEvent('ipsc:theme-change-v78d', { detail: { theme: newTheme } })); } catch (_) {}
     updateThemeToggleIcon(newTheme);
 
     requestAnimationFrame(() => {
@@ -611,7 +621,7 @@ function initTheme() {
 window.translations = {
   de: {
     "main-title": "IPSC STARTPLATZ-BÖRSE",
-    "sub-title": "Von Schützen für Schützen – Live Marktplatz",
+    "sub-title": "Von Schützen für Schützen",
     "btn-login-reg": "Login / Registrieren",
     "logout": "Abmelden",
     "btn-logout": "Abmelden",
@@ -719,7 +729,7 @@ window.translations = {
   },
   en: {
     "main-title": "IPSC SLOT MARKETPLACE",
-    "sub-title": "By Shooters for Shooters – Live Marketplace",
+    "sub-title": "By Shooters for Shooters",
     "btn-login-reg": "Login / Register",
     "logout": "Logout",
     "btn-logout": "Logout",
@@ -961,6 +971,72 @@ function toggleAuthView(view) {
 }
 window.toggleAuthView = toggleAuthView;
 
+
+// V78E: Central app-login completion cleanup.
+// In the remote app shell (https://ipscboerse.com/app.html) OAuth/Passkey may complete without a hard reload.
+// The modal must close reliably and provider buttons must not remain in "wird geöffnet" / "Erfolgreich" states.
+function resetAuthProviderButtonsV78e() {
+    try {
+        const lang = window.currentLang === "en" ? "en" : "de";
+        const labels = {
+            passkey: lang === "en" ? "Continue with FaceID / Passkey" : "Mit FaceID / Passkey fortfahren",
+            apple: lang === "en" ? "Sign in with Apple" : "Mit Apple anmelden",
+            google: lang === "en" ? "Sign in with Google" : "Mit Google anmelden"
+        };
+        const passkeyBtn = document.querySelector('#auth-modal .btn-social-passkey, #modal-login-view button[onclick="loginWithPasskey()"]');
+        const appleBtn = document.querySelector('#auth-modal .btn-social-apple, #modal-login-view button[onclick="loginWithApple()"]');
+        const googleBtn = document.querySelector('#auth-modal .btn-social-google, #modal-login-view button[onclick="loginWithGoogle()"]');
+        [[passkeyBtn, labels.passkey], [appleBtn, labels.apple], [googleBtn, labels.google]].forEach(([btn, label]) => {
+            if (!btn) return;
+            btn.disabled = false;
+            btn.classList.remove("loading", "is-loading", "is-oauth-loading");
+            btn.style.removeProperty("background-color");
+            btn.style.removeProperty("color");
+            const span = btn.querySelector("span[data-txt]");
+            if (span) span.textContent = label;
+            else if (btn.dataset.oldHtml) btn.innerHTML = btn.dataset.oldHtml;
+            if (btn.dataset.oldHtml) delete btn.dataset.oldHtml;
+        });
+        const submitBtn = document.querySelector('#login-form button[type="submit"]');
+        if (submitBtn) submitBtn.textContent = (window.translations?.[lang]?.["modal-btn-login"] || (lang === "en" ? "Login" : "Einloggen"));
+        try { if (typeof translatePortalPage === "function") translatePortalPage(); } catch (_) {}
+    } catch (_) {}
+}
+
+function closeAuthModalAfterLoginV78e(user) {
+    try {
+        if (user) {
+            window.currentUser = user;
+            if (typeof cacheHeaderUser === "function") cacheHeaderUser(user);
+        }
+        resetAuthProviderButtonsV78e();
+        const modal = document.getElementById("auth-modal");
+        if (modal) {
+            modal.style.setProperty("display", "none", "important");
+            modal.style.setProperty("visibility", "hidden", "important");
+            modal.style.setProperty("opacity", "0", "important");
+            modal.style.setProperty("pointer-events", "none", "important");
+            modal.classList.remove("open", "active", "show", "is-open");
+            modal.setAttribute("aria-hidden", "true");
+        }
+        document.body.classList.remove("auth-open", "modal-open");
+        document.documentElement.classList.remove("auth-open", "modal-open");
+        if (typeof updateAuthUI === "function") updateAuthUI(user || window.currentUser || null);
+        if (typeof window.onAuthChange === "function") window.onAuthChange(user || window.currentUser || null);
+        if (typeof syncHeaderAuthState === "function") syncHeaderAuthState();
+        if (window.IPSCAppV78 && typeof window.IPSCAppV78.broadcastAuth === "function") window.IPSCAppV78.broadcastAuth("SIGNED_IN");
+        setTimeout(function(){
+            try {
+                const modalAgain = document.getElementById("auth-modal");
+                if (modalAgain) modalAgain.style.setProperty("display", "none", "important");
+                resetAuthProviderButtonsV78e();
+            } catch (_) {}
+        }, 250);
+    } catch (_) {}
+}
+window.resetAuthProviderButtonsV78e = resetAuthProviderButtonsV78e;
+window.closeAuthModalAfterLoginV78e = closeAuthModalAfterLoginV78e;
+
 document.addEventListener("click", async (e) => {
     if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
         const modal = document.getElementById("auth-modal");
@@ -976,9 +1052,18 @@ document.addEventListener("click", async (e) => {
     }
 
     if (e.target.id === "btn-logout" || e.target.closest("#btn-logout")) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
         clearHeaderUserCache();
         await window.supabaseClient.auth.signOut();
-        location.reload();
+        window.currentUser = null;
+        try { if (typeof updateAuthUI === "function") updateAuthUI(null); } catch (_) {}
+        try { if (typeof window.onAuthChange === "function") window.onAuthChange(null); } catch (_) {}
+        try { window.dispatchEvent(new CustomEvent("ipsc:auth-logout-v78d")); } catch (_) {}
+        if (!(document.body && (document.body.classList.contains("page-app-spa") || document.body.classList.contains("page-native-shell")))) {
+            location.reload();
+        }
     }
 
     if (e.target.id === "btn-open-settings" || e.target.closest("#btn-open-settings")) {
@@ -1016,7 +1101,8 @@ document.addEventListener("click", async (e) => {
         await window.supabaseClient.auth.signOut();
 
         alert("Dein Konto und deine Inserate wurden erfolgreich entfernt.");
-        location.reload();
+        try { window.dispatchEvent(new CustomEvent("ipsc:auth-logout-v78d")); } catch (_) {}
+        if (!(document.body && (document.body.classList.contains("page-app-spa") || document.body.classList.contains("page-native-shell")))) location.reload();
     }
 });
 
@@ -1054,7 +1140,13 @@ document.addEventListener("submit", async (e) => {
             alert("Login fehlgeschlagen: " + error.message);
         } else {
             if (data?.session?.user) cacheHeaderUser(data.session.user);
-            location.reload();
+            if (document.body && (document.body.classList.contains("page-native-shell") || document.body.classList.contains("page-app-spa"))) {
+                const loggedInUser = data?.session?.user || window.currentUser || null;
+                closeAuthModalAfterLoginV78e(loggedInUser);
+                window.dispatchEvent(new CustomEvent("ipsc:oauth-login-complete", { detail: { user: loggedInUser } }));
+            } else {
+                location.reload();
+            }
         }
     }
 
@@ -1318,7 +1410,12 @@ setTimeout(async () => {
 
             await checkUserStatus();
 
-            if (event === "SIGNED_IN" && window.currentUser) cleanOAuthUrlIfNeeded();
+            if (event === "SIGNED_IN" && window.currentUser) {
+                cleanOAuthUrlIfNeeded();
+                if (document.body && (document.body.classList.contains("page-native-shell") || document.body.classList.contains("page-app-spa"))) {
+                    closeAuthModalAfterLoginV78e(window.currentUser);
+                }
+            }
 
             if (typeof window.onAuthChange === "function") {
                 window.onAuthChange(window.currentUser);

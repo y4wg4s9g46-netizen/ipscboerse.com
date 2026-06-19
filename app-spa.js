@@ -1,14 +1,14 @@
-/* V78C Full-Page Frame SPA Shell
+/* V78E Full-Page Frame SPA Shell
    Goal: keep the browser website exactly as-is while the iOS app gets zero-flash navigation.
    Instead of extracting/replaying page DOM, every app view is the original page inside a same-origin iframe.
    This preserves layout, translations, data loading and page-specific scripts from the backup line.
 */
-(function IPSCAppFrameSpaV78C(){
-  if (window.__IPSC_APP_FRAME_SPA_V78C) return;
-  window.__IPSC_APP_FRAME_SPA_V78C = true;
+(function IPSCAppFrameSpaV78D(){
+  if (window.__IPSC_APP_FRAME_SPA_V78D) return;
+  window.__IPSC_APP_FRAME_SPA_V78D = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
 
-  const VERSION = '78c';
+  const VERSION = '78e';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -43,9 +43,9 @@
 
   function markApp(){
     try {
-      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78c');
-      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78c');
-      document.body.classList.remove('app-v78b');
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78e');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78e');
+      document.body.classList.remove('app-v78b','app-v78c','app-v78d');
     } catch (_) {}
   }
 
@@ -56,6 +56,92 @@
       try { theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; } catch (_) { theme = 'light'; }
     }
     return theme === 'dark' ? 'dark' : 'light';
+  }
+
+
+  function getLang(){
+    try { return localStorage.getItem('selectedLanguage') || window.currentLang || 'de'; } catch (_) { return 'de'; }
+  }
+
+  function setFrameTheme(frame, theme){
+    if (!frame) return;
+    theme = theme === 'dark' ? 'dark' : 'light';
+    const surface = theme === 'dark' ? '#0f172a' : '#f6f8fc';
+    try {
+      const doc = frame.contentDocument;
+      if (doc && doc.documentElement) {
+        doc.documentElement.setAttribute('data-theme', theme);
+        doc.documentElement.style.backgroundColor = surface;
+        doc.documentElement.style.colorScheme = theme;
+        if (doc.body) doc.body.style.backgroundColor = surface;
+        const meta = doc.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', surface);
+      }
+      frame.style.backgroundColor = surface;
+      frame.contentWindow && frame.contentWindow.postMessage({ type: 'ipsc-theme-v78d', theme }, window.location.origin);
+    } catch (_) {}
+  }
+
+  function setFrameLang(frame, lang){
+    if (!frame) return;
+    lang = lang === 'en' ? 'en' : 'de';
+    try {
+      frame.contentWindow && frame.contentWindow.postMessage({ type: 'ipsc-language-v78d', lang }, window.location.origin);
+      const win = frame.contentWindow;
+      if (win) {
+        try { win.localStorage.setItem('selectedLanguage', lang); } catch (_) {}
+        win.currentLang = lang;
+        if (typeof win.translatePortalPage === 'function') win.translatePortalPage();
+        else if (typeof win.applyLanguage === 'function') win.applyLanguage(lang);
+      }
+    } catch (_) {}
+  }
+
+  function broadcastTheme(theme){
+    state.frames.forEach(frame => setFrameTheme(frame, theme));
+    broadcast({ type: 'ipsc-theme-v78d', theme });
+  }
+
+  function syncLanguage(lang){
+    lang = lang === 'en' ? 'en' : 'de';
+    try {
+      localStorage.setItem('selectedLanguage', lang);
+      window.currentLang = lang;
+      const selector = document.getElementById('language-select');
+      if (selector) selector.value = lang;
+    } catch (_) {}
+    state.frames.forEach(frame => setFrameLang(frame, lang));
+    broadcast({ type: 'ipsc-language-v78d', lang });
+    try { updateChrome(normalizeView(state.activeKey || state.activeFile || 'index.html')); } catch (_) {}
+  }
+
+  function handleLogout(){
+    try {
+      window.currentUser = null;
+      localStorage.removeItem('headerUserCache');
+      localStorage.removeItem('headerAvatar');
+      const modal = document.getElementById('auth-modal');
+      if (modal) modal.style.display = 'none';
+      if (typeof window.onAuthChange === 'function') window.onAuthChange(null);
+    } catch (_) {}
+    broadcast({ type: 'ipsc-auth-logout-v78d' });
+    setTimeout(function(){
+      try { if (state.activeFrame && state.activeFrame.contentWindow) state.activeFrame.contentWindow.location.reload(); } catch (_) {}
+    }, 80);
+  }
+
+  function wrapShellControls(){
+    try {
+      if (typeof window.toggleTheme === 'function' && !window.toggleTheme.__ipscV78dWrapped) {
+        const originalToggleTheme = window.toggleTheme;
+        window.toggleTheme = function(){
+          const result = originalToggleTheme.apply(this, arguments);
+          setTimeout(function(){ applyTheme(getTheme()); }, 0);
+          return result;
+        };
+        window.toggleTheme.__ipscV78dWrapped = true;
+      }
+    } catch (_) {}
   }
 
   function applyTheme(theme){
@@ -74,7 +160,7 @@
     } catch (_) {}
     let meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', surface);
-    broadcast({ type: 'ipsc-theme-v78c', theme });
+    broadcastTheme(theme);
   }
 
   function normalizeView(raw){
@@ -161,12 +247,17 @@
     const main = ensureRoot();
     if (!main) return null;
     const frame = document.createElement('iframe');
-    frame.className = 'app-frame-layer-v78c';
+    frame.className = 'app-frame-layer-v78c app-frame-layer-v78d';
     frame.setAttribute('title', view.title);
     frame.setAttribute('data-view', view.file);
     frame.setAttribute('data-key', view.key);
     frame.setAttribute('allow', 'publickey-credentials-get *; publickey-credentials-create *; clipboard-read; clipboard-write; fullscreen');
     frame.src = frameUrlFor(view);
+    frame.addEventListener('load', function(){
+      const theme = getTheme();
+      setFrameTheme(frame, theme);
+      setFrameLang(frame, getLang());
+    });
     main.appendChild(frame);
     state.frames.set(view.key, frame);
     return frame;
@@ -198,6 +289,8 @@
     try {
       await waitFrameLoaded(frame, view);
       if (serial !== state.navSerial) return true;
+      setFrameTheme(frame, getTheme());
+      setFrameLang(frame, getLang());
       frame.classList.add('is-active');
       frame.classList.remove('is-previous');
       if (previous && previous !== frame) {
@@ -207,10 +300,10 @@
       state.activeKey = view.key;
       state.activeFrame = frame;
       if (!opts.replace && history.pushState) history.pushState({ view: view.file + (view.search || '') + (view.hash || '') }, '', appUrlFor(view));
-      try { frame.contentWindow && frame.contentWindow.postMessage({ type: 'ipsc-app-active-v78c', view: view.file, theme: getTheme() }, window.location.origin); } catch (_) {}
+      try { frame.contentWindow && frame.contentWindow.postMessage({ type: 'ipsc-app-active-v78d', view: view.file, theme: getTheme(), lang: getLang() }, window.location.origin); } catch (_) {}
       return true;
     } catch (err) {
-      console.error('v78c navigation failed', view, err);
+      console.error('v78d navigation failed', view, err);
       if (previous) previous.classList.add('is-active');
       return false;
     }
@@ -255,8 +348,8 @@
     window.addEventListener('message', function(event){
       if (event.origin !== window.location.origin) return;
       const data = event.data || {};
-      if (data.type === 'ipsc-navigate-v78c' && data.href) navigate(data.href);
-      if (data.type === 'ipsc-open-login-v78c') openLogin();
+      if ((data.type === 'ipsc-navigate-v78c' || data.type === 'ipsc-navigate-v78d') && data.href) navigate(data.href);
+      if (data.type === 'ipsc-open-login-v78c' || data.type === 'ipsc-open-login-v78d') openLogin();
     });
   }
 
@@ -298,8 +391,15 @@
     interceptClicks();
     listenMessages();
     installPopstate();
-    window.addEventListener('storage', () => applyTheme(getTheme()));
-    window.addEventListener('ipsc:oauth-login-complete', () => broadcast({ type: 'ipsc-auth-refresh-v78c' }));
+    window.addEventListener('storage', () => { applyTheme(getTheme()); syncLanguage(getLang()); });
+    window.addEventListener('ipsc:oauth-login-complete', function(e){
+      try { if (typeof window.closeAuthModalAfterLoginV78e === 'function') window.closeAuthModalAfterLoginV78e(e && e.detail && e.detail.user); } catch (_) {}
+      broadcast({ type: 'ipsc-auth-refresh-v78d' });
+    });
+    window.addEventListener('ipsc:auth-logout-v78d', handleLogout);
+    window.addEventListener('ipsc:theme-change-v78d', function(e){ applyTheme((e && e.detail && e.detail.theme) || getTheme()); });
+    document.addEventListener('change', function(e){ if (e.target && e.target.id === 'language-select') setTimeout(function(){ syncLanguage(e.target.value || getLang()); }, 0); }, true);
+    wrapShellControls();
     const params = new URLSearchParams(window.location.search || '');
     const initial = params.get('view') || 'index.html';
     if (history.replaceState) history.replaceState({ view: initial }, '', appUrlFor(normalizeView(initial)));
@@ -307,7 +407,7 @@
     prewarm();
   }
 
-  window.IPSCAppV78 = { navigate, refresh, getCurrentView: () => state.activeFile, version: VERSION };
+  window.IPSCAppV78 = { navigate, refresh, getCurrentView: () => state.activeFile, version: VERSION, applyTheme, syncLanguage, broadcastAuth: function(){ broadcast({ type: 'ipsc-auth-refresh-v78d' }); }, handleLogout };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();
