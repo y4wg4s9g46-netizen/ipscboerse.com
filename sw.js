@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v78e';
+const CACHE_NAME = 'ipscboerse-v78f';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',

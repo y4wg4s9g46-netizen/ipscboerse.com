@@ -1,14 +1,14 @@
-/* V78E Full-Page Frame SPA Shell
+/* V78F Full-Page Frame SPA Shell
    Goal: keep the browser website exactly as-is while the iOS app gets zero-flash navigation.
    Instead of extracting/replaying page DOM, every app view is the original page inside a same-origin iframe.
    This preserves layout, translations, data loading and page-specific scripts from the backup line.
 */
-(function IPSCAppFrameSpaV78D(){
-  if (window.__IPSC_APP_FRAME_SPA_V78D) return;
-  window.__IPSC_APP_FRAME_SPA_V78D = true;
+(function IPSCAppFrameSpaV78F(){
+  if (window.__IPSC_APP_FRAME_SPA_V78F) return;
+  window.__IPSC_APP_FRAME_SPA_V78F = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
 
-  const VERSION = '78e';
+  const VERSION = '78f';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -43,9 +43,9 @@
 
   function markApp(){
     try {
-      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78e');
-      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78e');
-      document.body.classList.remove('app-v78b','app-v78c','app-v78d');
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78f');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78f');
+      document.body.classList.remove('app-v78b','app-v78c','app-v78d','app-v78e');
     } catch (_) {}
   }
 
@@ -247,7 +247,7 @@
     const main = ensureRoot();
     if (!main) return null;
     const frame = document.createElement('iframe');
-    frame.className = 'app-frame-layer-v78c app-frame-layer-v78d';
+    frame.className = 'app-frame-layer-v78c app-frame-layer-v78d app-frame-layer-v78f';
     frame.setAttribute('title', view.title);
     frame.setAttribute('data-view', view.file);
     frame.setAttribute('data-key', view.key);

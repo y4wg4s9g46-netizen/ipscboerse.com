@@ -13588,7 +13588,9 @@ body.page-app-spa.app-v78d {
   padding-bottom: 0 !important;
 }
 body.page-app-spa.app-v78c #app-shell-root-v78,
-body.page-app-spa.app-v78d #app-shell-root-v78 {
+body.page-app-spa.app-v78d #app-shell-root-v78,
+body.page-app-spa.app-v78e #app-shell-root-v78,
+body.page-app-spa.app-v78f #app-shell-root-v78 {
   height: 100dvh !important;
   overflow: hidden !important;
   display: flex !important;
@@ -13596,13 +13598,17 @@ body.page-app-spa.app-v78d #app-shell-root-v78 {
   background: var(--bg-color, #f6f8fc) !important;
 }
 body.page-app-spa.app-v78c #main-header,
-body.page-app-spa.app-v78d #main-header {
+body.page-app-spa.app-v78d #main-header,
+body.page-app-spa.app-v78e #main-header,
+body.page-app-spa.app-v78f #main-header {
   flex: 0 0 auto !important;
   position: relative !important;
   z-index: 50 !important;
 }
 body.page-app-spa.app-v78c #app-spa-view-v78,
-body.page-app-spa.app-v78d #app-spa-view-v78 {
+body.page-app-spa.app-v78d #app-spa-view-v78,
+body.page-app-spa.app-v78e #app-spa-view-v78,
+body.page-app-spa.app-v78f #app-spa-view-v78 {
   position: relative !important;
   flex: 1 1 auto !important;
   min-height: 0 !important;
@@ -13612,7 +13618,12 @@ body.page-app-spa.app-v78d #app-spa-view-v78 {
 }
 body.page-app-spa.app-v78c .app-frame-layer-v78c,
 body.page-app-spa.app-v78d .app-frame-layer-v78c,
-body.page-app-spa.app-v78d .app-frame-layer-v78d {
+body.page-app-spa.app-v78d .app-frame-layer-v78d,
+body.page-app-spa.app-v78e .app-frame-layer-v78c,
+body.page-app-spa.app-v78e .app-frame-layer-v78d,
+body.page-app-spa.app-v78f .app-frame-layer-v78c,
+body.page-app-spa.app-v78f .app-frame-layer-v78d,
+body.page-app-spa.app-v78f .app-frame-layer-v78f {
   position: absolute !important;
   inset: 0 !important;
   width: 100% !important;
@@ -13627,7 +13638,12 @@ body.page-app-spa.app-v78d .app-frame-layer-v78d {
 }
 body.page-app-spa.app-v78c .app-frame-layer-v78c.is-active,
 body.page-app-spa.app-v78d .app-frame-layer-v78c.is-active,
-body.page-app-spa.app-v78d .app-frame-layer-v78d.is-active {
+body.page-app-spa.app-v78d .app-frame-layer-v78d.is-active,
+body.page-app-spa.app-v78e .app-frame-layer-v78c.is-active,
+body.page-app-spa.app-v78e .app-frame-layer-v78d.is-active,
+body.page-app-spa.app-v78f .app-frame-layer-v78c.is-active,
+body.page-app-spa.app-v78f .app-frame-layer-v78d.is-active,
+body.page-app-spa.app-v78f .app-frame-layer-v78f.is-active {
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
@@ -13635,11 +13651,18 @@ body.page-app-spa.app-v78d .app-frame-layer-v78d.is-active {
 }
 body.page-app-spa.app-v78c .app-frame-layer-v78c.is-previous,
 body.page-app-spa.app-v78d .app-frame-layer-v78c.is-previous,
-body.page-app-spa.app-v78d .app-frame-layer-v78d.is-previous {
+body.page-app-spa.app-v78d .app-frame-layer-v78d.is-previous,
+body.page-app-spa.app-v78e .app-frame-layer-v78c.is-previous,
+body.page-app-spa.app-v78e .app-frame-layer-v78d.is-previous,
+body.page-app-spa.app-v78f .app-frame-layer-v78c.is-previous,
+body.page-app-spa.app-v78f .app-frame-layer-v78d.is-previous,
+body.page-app-spa.app-v78f .app-frame-layer-v78f.is-previous {
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: none !important;
   z-index: 1 !important;
 }
 body.page-app-spa.app-v78c #spa-loader-v78,
-body.page-app-spa.app-v78d #spa-loader-v78 { display: none !important; }
+body.page-app-spa.app-v78d #spa-loader-v78,
+body.page-app-spa.app-v78e #spa-loader-v78,
+body.page-app-spa.app-v78f #spa-loader-v78 { display: none !important; }
