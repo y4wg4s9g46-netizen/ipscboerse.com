@@ -12487,7 +12487,7 @@ html.is-native-navigating-v74:not([data-theme="dark"]) body {
     #auth-modal .auth-modal-content {
         max-height: calc(100dvh - 76px) !important;
         padding-top: 18px !important;
-        padding-bottom: 18px !important;
+        padding-bottom: calc(114px + env(safe-area-inset-bottom)) !important;
     }
 
     #modal-login-view.login-balanced-v76f h3,
@@ -13552,3 +13552,83 @@ html.ipsc-embedded-native-shell-v76t #more-menu-overlay {
         text-overflow: ellipsis !important;
     }
 }
+
+
+/* V78C App iframe shell: preserve original pages in frames, hide only duplicated chrome. */
+html.ipsc-app-frame, html.ipsc-app-frame body {
+  background: var(--bg-color, #f6f8fc) !important;
+  min-height: 100% !important;
+}
+html.ipsc-app-frame body {
+  padding-top: 0 !important;
+  padding-bottom: 18px !important;
+  overflow-x: hidden !important;
+}
+html.ipsc-app-frame #main-header,
+html.ipsc-app-frame header#main-header,
+html.ipsc-app-frame #bottom-tab-bar,
+html.ipsc-app-frame #more-menu-overlay,
+html.ipsc-app-frame .main-nav,
+html.ipsc-app-frame .bottom-tab-bar,
+html.ipsc-app-frame .desktop-only.main-nav {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+html.ipsc-app-frame .container,
+html.ipsc-app-frame main,
+html.ipsc-app-frame .page-shell,
+html.ipsc-app-frame .app-container {
+  max-width: var(--app-max-width, 1120px);
+}
+body.page-app-spa.app-v78c {
+  overflow: hidden !important;
+  height: 100dvh !important;
+  padding-bottom: 0 !important;
+}
+body.page-app-spa.app-v78c #app-shell-root-v78 {
+  height: 100dvh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: var(--bg-color, #f6f8fc) !important;
+}
+body.page-app-spa.app-v78c #main-header {
+  flex: 0 0 auto !important;
+  position: relative !important;
+  z-index: 50 !important;
+}
+body.page-app-spa.app-v78c #app-spa-view-v78 {
+  position: relative !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  overflow: hidden !important;
+  opacity: 1 !important;
+}
+body.page-app-spa.app-v78c .app-frame-layer-v78c {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+  background: var(--bg-color, #f6f8fc) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateZ(0) !important;
+  transition: opacity .14s ease-out !important;
+}
+body.page-app-spa.app-v78c .app-frame-layer-v78c.is-active {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  z-index: 2 !important;
+}
+body.page-app-spa.app-v78c .app-frame-layer-v78c.is-previous {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+body.page-app-spa.app-v78c #spa-loader-v78 { display: none !important; }

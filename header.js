@@ -1,4 +1,50 @@
 (function() {
+
+    // V78C App-Frame Guard: pages displayed inside app.html iframe keep their original content/styles,
+    // but do not build their own header/bottom navigation. Internal links are routed by the parent app shell.
+    (function(){
+      var qs = null;
+      try { qs = new URLSearchParams(window.location.search || ""); } catch (_) { qs = null; }
+      var isFrame = !!(qs && qs.get("appframe") === "1");
+      if (!isFrame) return;
+      window.__IPSC_APP_FRAME_V78C = true;
+      try {
+        document.documentElement.classList.add("ipsc-app-frame", "ipsc-app-frame-v78c");
+        if (document.body) document.body.classList.add("ipsc-app-frame-body");
+      } catch (_) {}
+      function cleanFrameChrome(){
+        try {
+          document.documentElement.classList.add("ipsc-app-frame", "ipsc-app-frame-v78c");
+          if (document.body) document.body.classList.add("ipsc-app-frame-body");
+          document.querySelectorAll("#main-header, header#main-header, #bottom-tab-bar, #more-menu-overlay, .main-nav, .bottom-tab-bar").forEach(function(el){ el.remove(); });
+        } catch (_) {}
+      }
+      cleanFrameChrome();
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", cleanFrameChrome, { once: true });
+      else setTimeout(cleanFrameChrome, 0);
+      document.addEventListener("click", function(ev){
+        try {
+          var loginTarget = ev.target && ev.target.closest && ev.target.closest("#btn-open-login, .btn-primary-auth, button[onclick*='auth-modal'], button[onclick*='toggleAuthView']");
+          if (loginTarget && window.parent && window.parent !== window) {
+            ev.preventDefault(); ev.stopImmediatePropagation();
+            window.parent.postMessage({ type: "ipsc-open-login-v78c" }, window.location.origin);
+            return;
+          }
+          var a = ev.target && ev.target.closest && ev.target.closest("a[href]");
+          if (!a || a.hasAttribute("download")) return;
+          var href = a.getAttribute("href") || "";
+          if (!href || href === "#" || href.indexOf("javascript:") === 0 || href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0) return;
+          var url = new URL(href, window.location.href);
+          if (url.origin !== window.location.origin) return;
+          var file = (url.pathname.split('/').pop() || 'index.html');
+          var known = /^(index|marktplatz|mein-planer|community|freie-matches|schiessbuch|sg-timer-live|tools|analytics|wiederladen|ipsc-hub|doppel-aa|performance|impressum|reset|schiessbuch-confirm|schiessbuch-verify)\.html$/i.test(file);
+          if (!known) return;
+          ev.preventDefault(); ev.stopImmediatePropagation();
+          window.parent.postMessage({ type: "ipsc-navigate-v78c", href: file + (url.search || "") + (url.hash || "") }, window.location.origin);
+        } catch (_) {}
+      }, true);
+    })();
+    if (typeof window !== "undefined" && window.__IPSC_APP_FRAME_V78C) return;
     // V76D DOUBLE AA RETRY FIX
     // V76C DOUBLE AA MENU GATE: club links are hidden until Supabase confirms profiles.is_doppel_aa === true
     const __headerLogoPreload = new Image();

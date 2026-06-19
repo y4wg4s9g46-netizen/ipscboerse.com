@@ -1,14 +1,14 @@
-/* V78 Unified Remote SPA Shell
-   Purpose: keep ipscboerse.com as the browser/passkey origin while removing hard HTML page changes in the iOS app.
-   Browser website remains unchanged; only app.html uses this router.
+/* V78C Full-Page Frame SPA Shell
+   Goal: keep the browser website exactly as-is while the iOS app gets zero-flash navigation.
+   Instead of extracting/replaying page DOM, every app view is the original page inside a same-origin iframe.
+   This preserves layout, translations, data loading and page-specific scripts from the backup line.
 */
-(function IPSCUnifiedSpaV78(){
-  if (window.__IPSC_UNIFIED_SPA_V78) return;
-  window.__IPSC_UNIFIED_SPA_V78 = true;
+(function IPSCAppFrameSpaV78C(){
+  if (window.__IPSC_APP_FRAME_SPA_V78C) return;
+  window.__IPSC_APP_FRAME_SPA_V78C = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
-  try { document.documentElement.classList.add('is-native-shell','is-app-spa-v78'); if (document.body) document.body.classList.add('page-native-shell'); } catch (_) {}
 
-  const VERSION = '78b';
+  const VERSION = '78c';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -29,26 +29,24 @@
     'schiessbuch-verify.html': { title: 'Schießbuch prüfen' }
   };
   const MORE_PAGES = new Set(['freie-matches.html','schiessbuch.html','sg-timer-live.html','tools.html','analytics.html','wiederladen.html','ipsc-hub.html','doppel-aa.html','performance.html']);
-  const SHARED_SCRIPT_RE = /(?:^|\/)(?:header|auth|app|lang|native-shell|app-spa)\.js(?:\?|$)|@supabase\/supabase-js/i;
-  const SKIP_INLINE_ID_RE = /native-shell-redirect|theme-instant|theme-prepaint|native-page-transition|native-app-experience|surface-bridge|prepaint/i;
-  const SKIP_STYLE_ID_RE = /native-app-prepaint|native-page-transition|theme-prepaint|instant-bg|surface-bridge/i;
-  const THIRD_PARTY_LOADED = new Set();
+  const CORE_PRELOAD = ['index.html','marktplatz.html','mein-planer.html','community.html','freie-matches.html','schiessbuch.html','tools.html','wiederladen.html'];
 
   const state = {
     activeFile: null,
     activeKey: null,
-    activeEl: null,
+    activeFrame: null,
+    frames: new Map(),
+    pending: new Map(),
     navSerial: 0,
-    htmlCache: new Map(),
-    fetchPromises: new Map(),
-    originalBodyClass: document.body ? document.body.className : '',
-    lastScrollByKey: new Map()
+    booted: false
   };
 
-  function isNativeApp(){
+  function markApp(){
     try {
-      return !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
-    } catch (_) { return false; }
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78c');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78c');
+      document.body.classList.remove('app-v78b');
+    } catch (_) {}
   }
 
   function getTheme(){
@@ -63,16 +61,20 @@
   function applyTheme(theme){
     theme = theme === 'dark' ? 'dark' : 'light';
     const surface = theme === 'dark' ? '#0f172a' : '#f6f8fc';
-    document.documentElement.setAttribute('data-theme', theme);
-    document.documentElement.style.backgroundColor = surface;
-    document.documentElement.style.colorScheme = theme;
-    if (document.body) document.body.style.backgroundColor = surface;
+    try {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.style.backgroundColor = surface;
+      document.documentElement.style.colorScheme = theme;
+      document.body.style.backgroundColor = surface;
+      localStorage.setItem('ipsc_effective_theme', theme);
+      sessionStorage.setItem('ipsc_effective_theme', theme);
+      window.__IPSC_ACTIVE_THEME_V78 = theme;
+      window.__IPSC_ACTIVE_THEME_V76S = theme;
+      window.__IPSC_ACTIVE_THEME_V74 = theme;
+    } catch (_) {}
     let meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', surface);
-    try { localStorage.setItem('ipsc_effective_theme', theme); sessionStorage.setItem('ipsc_effective_theme', theme); } catch (_) {}
-    window.__IPSC_ACTIVE_THEME_V78 = theme;
-    window.__IPSC_ACTIVE_THEME_V76S = theme;
-    window.__IPSC_ACTIVE_THEME_V74 = theme;
+    broadcast({ type: 'ipsc-theme-v78c', theme });
   }
 
   function normalizeView(raw){
@@ -83,171 +85,22 @@
     try { url = new URL(raw, window.location.origin + '/'); } catch (_) { url = new URL('index.html', window.location.origin + '/'); }
     let file = (url.pathname.split('/').pop() || 'index.html');
     if (!VIEW_MAP[file]) file = 'index.html';
-    const search = url.search || '';
-    const hash = url.hash || '';
-    return { file, search, hash, key: file + search + hash, title: VIEW_MAP[file].title || file };
+    return { file, search: url.search || '', hash: url.hash || '', key: file + (url.search || '') + (url.hash || ''), title: VIEW_MAP[file].title || file };
   }
 
   function appUrlFor(view){
     return 'app.html?shell=1&view=' + encodeURIComponent(view.file + (view.search || '') + (view.hash || ''));
   }
 
-  function sourceUrlFor(view){
-    const join = view.search ? '&' : '?';
-    return view.file + (view.search || '') + join + 'spa=1&v=' + VERSION + (view.hash || '');
+  function frameUrlFor(view){
+    const params = new URLSearchParams(view.search || '');
+    params.set('appframe', '1');
+    params.set('shell', '1');
+    params.set('v', VERSION);
+    return view.file + '?' + params.toString() + (view.hash || '');
   }
 
-  async function fetchViewHtml(view){
-    const cacheKey = view.file + (view.search || '');
-    if (state.htmlCache.has(cacheKey)) return state.htmlCache.get(cacheKey);
-    if (state.fetchPromises.has(cacheKey)) return state.fetchPromises.get(cacheKey);
-    const promise = fetch(sourceUrlFor(view), { credentials: 'same-origin', cache: 'force-cache' })
-      .then(resp => {
-        if (!resp.ok) throw new Error('HTTP ' + resp.status + ' für ' + view.file);
-        return resp.text();
-      })
-      .then(html => { state.htmlCache.set(cacheKey, html); state.fetchPromises.delete(cacheKey); return html; })
-      .catch(err => { state.fetchPromises.delete(cacheKey); throw err; });
-    state.fetchPromises.set(cacheKey, promise);
-    return promise;
-  }
-
-  function ensureLoader(){
-    let loader = document.getElementById('spa-loader-v78');
-    if (!loader) {
-      loader = document.createElement('div');
-      loader.id = 'spa-loader-v78';
-      loader.textContent = 'Lade …';
-      document.body.appendChild(loader);
-    }
-    return loader;
-  }
-
-  function setLoading(on){
-    const loader = ensureLoader();
-    loader.classList.toggle('is-visible', !!on);
-  }
-
-  function safeTitle(view){
-    return (VIEW_MAP[view.file]?.title || 'IPSC Börse') + ' | IPSC Börse';
-  }
-
-  function stripHeaderAndScripts(doc){
-    const scripts = [];
-    const styles = [];
-
-    doc.querySelectorAll('style').forEach(style => {
-      const id = style.id || '';
-      if (SKIP_STYLE_ID_RE.test(id)) return;
-      const css = style.textContent || '';
-      if (!css.trim()) return;
-      styles.push(css);
-    });
-
-    doc.querySelectorAll('script').forEach(script => {
-      const id = script.id || '';
-      const src = script.getAttribute('src') || '';
-      if (SKIP_INLINE_ID_RE.test(id)) { script.remove(); return; }
-      if (src && SHARED_SCRIPT_RE.test(src)) { script.remove(); return; }
-      if (src && /sw\.js/i.test(src)) { script.remove(); return; }
-      if (id && /native-app-experience/i.test(id)) { script.remove(); return; }
-      scripts.push({ src, code: src ? '' : (script.textContent || ''), id });
-      script.remove();
-    });
-
-    doc.querySelectorAll('header').forEach(h => h.remove());
-    doc.querySelectorAll('#app-page-transition-cover,#native-page-curtain-v72,#native-page-curtain-v73,#native-page-curtain-v74,#ipsc-surface-bridge-v76s').forEach(el => el.remove());
-
-    return {
-      bodyClass: doc.body ? doc.body.className : '',
-      html: doc.body ? doc.body.innerHTML : '',
-      scripts,
-      styles
-    };
-  }
-
-  function setViewStyles(styles){
-    let styleEl = document.getElementById('spa-view-styles-v78');
-    if (!styleEl) {
-      styleEl = document.createElement('style');
-      styleEl.id = 'spa-view-styles-v78';
-      document.head.appendChild(styleEl);
-    }
-    styleEl.textContent = (styles || []).join('\n\n');
-  }
-
-  function transformScript(code){
-    // The old pages were standalone documents. In the SPA they share one JS global scope.
-    // Downgrade lexical top-level declarations so revisiting/switching pages does not crash with redeclare SyntaxErrors.
-    return String(code || '')
-      .replace(/\bconst\b/g, 'var')
-      .replace(/\blet\b/g, 'var')
-      .replace(/window\.location\.reload\s*\(\s*\)\s*;?/g, 'window.IPSCAppV78 && window.IPSCAppV78.refresh();')
-      .replace(/location\.reload\s*\(\s*\)\s*;?/g, 'window.IPSCAppV78 && window.IPSCAppV78.refresh();');
-  }
-
-  function loadExternalScript(src){
-    if (!src) return Promise.resolve();
-    const clean = src.split('#')[0];
-    const already = Array.from(document.scripts).some(s => (s.src || '').split('#')[0] === new URL(clean, window.location.href).href);
-    if (already || THIRD_PARTY_LOADED.has(clean)) return Promise.resolve();
-    return new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = clean;
-      s.async = false;
-      s.onload = () => { THIRD_PARTY_LOADED.add(clean); resolve(); };
-      s.onerror = () => reject(new Error('Script konnte nicht geladen werden: ' + clean));
-      document.head.appendChild(s);
-    });
-  }
-
-  async function runPageScripts(scripts, view){
-    const oldAdd = document.addEventListener;
-    const pendingDomReady = [];
-    document.addEventListener = function(type, listener, options){
-      if (String(type).toLowerCase() === 'domcontentloaded' && typeof listener === 'function') {
-        pendingDomReady.push(listener);
-        return;
-      }
-      return oldAdd.call(document, type, listener, options);
-    };
-
-    try {
-      for (const item of scripts) {
-        if (item.src) {
-          if (!SHARED_SCRIPT_RE.test(item.src)) await loadExternalScript(item.src);
-          continue;
-        }
-        const code = transformScript(item.code || '');
-        if (!code.trim()) continue;
-        const s = document.createElement('script');
-        s.setAttribute('data-spa-view', view.file);
-        s.textContent = '\n;try{\n' + code + '\n}catch(e){console.error("SPA view script error ' + view.file.replace(/[^a-z0-9_.-]/gi,'') + '", e);}\n';
-        document.body.appendChild(s);
-      }
-    } finally {
-      document.addEventListener = oldAdd;
-    }
-
-    pendingDomReady.forEach(fn => {
-      try { setTimeout(() => fn.call(document, new Event('DOMContentLoaded')), 0); } catch (e) { console.warn('DOMContentLoaded shim error', e); }
-    });
-  }
-
-  function cloneOutgoing(){
-    if (!state.activeEl) return null;
-    const clone = state.activeEl.cloneNode(true);
-    clone.id = 'spa-outgoing-clone-v78';
-    clone.classList.add('spa-outgoing-clone-v78');
-    clone.querySelectorAll('[id]').forEach((el, idx) => {
-      el.setAttribute('data-old-id', el.id);
-      el.removeAttribute('id');
-    });
-    clone.querySelectorAll('input, textarea, select, button, a').forEach(el => {
-      try { el.tabIndex = -1; } catch (_) {}
-    });
-    return clone;
-  }
+  function safeTitle(view){ return (VIEW_MAP[view.file]?.title || 'IPSC Börse') + ' | IPSC Börse'; }
 
   function updateChrome(view){
     try {
@@ -260,7 +113,7 @@
         const target = normalizeView(href).file;
         const active = target === view.file;
         a.classList.toggle('active', active);
-        if (a.closest('#bottom-tab-bar, .main-nav, header nav')) a.classList.toggle('inactive', !active);
+        a.classList.toggle('inactive', !active);
       });
       const moreBtn = document.getElementById('btn-more-menu');
       if (moreBtn) moreBtn.classList.toggle('active', MORE_PAGES.has(view.file));
@@ -270,93 +123,95 @@
     } catch (_) {}
   }
 
-  function applyBodyClass(bodyClass){
-    const keep = 'page-app-spa page-native-shell app-v78 app-v78-spa app-v78b';
-    document.body.className = (keep + ' ' + (bodyClass || '')).replace(/\s+/g, ' ').trim();
+  function ensureRoot(){
+    markApp();
+    const main = document.getElementById('app-spa-view-v78');
+    if (!main) return null;
+    main.classList.add('is-ready');
+    return main;
   }
 
-  async function notifyAuthAndLang(view){
-    try { if (typeof window.applyTranslations === 'function') window.applyTranslations(); } catch (_) {}
-    try { if (typeof window.syncHeaderAuthState === 'function') window.syncHeaderAuthState(); } catch (_) {}
-    try {
-      const { data } = await window.supabaseClient.auth.getSession();
-      window.currentUser = data?.session?.user || null;
-      if (typeof window.updateAuthUI === 'function') window.updateAuthUI(window.currentUser);
-      if (typeof window.onAuthChange === 'function') window.onAuthChange(window.currentUser);
-    } catch (_) {
-      try { if (typeof window.onAuthChange === 'function') window.onAuthChange(window.currentUser || null); } catch (_) {}
-    }
-    try { window.dispatchEvent(new CustomEvent('ipsc:spa-view-mounted', { detail: { file: view.file, key: view.key } })); } catch (_) {}
+  function waitFrameLoaded(frame, view){
+    const existing = state.pending.get(view.key);
+    if (existing) return existing;
+    const promise = new Promise((resolve, reject) => {
+      let done = false;
+      const timeout = setTimeout(() => finish(true), 9000);
+      function finish(fromTimeout){
+        if (done) return;
+        done = true;
+        clearTimeout(timeout);
+        frame.removeEventListener('load', onload);
+        // If a heavy page takes long, still resolve: outgoing view remains until the frame has a real paint cycle.
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve(frame)));
+      }
+      function onload(){ finish(false); }
+      frame.addEventListener('load', onload, { once: true });
+      // cached frames may already be ready
+      try {
+        const doc = frame.contentDocument;
+        if (doc && doc.readyState && doc.readyState !== 'loading') finish(false);
+      } catch (_) {}
+    }).finally(() => state.pending.delete(view.key));
+    state.pending.set(view.key, promise);
+    return promise;
   }
 
-  async function waitForPaint(el){
-    let tries = 0;
-    while (tries < 12) {
-      tries++;
-      const h = Math.max(el.scrollHeight || 0, el.offsetHeight || 0);
-      const txt = (el.innerText || '').trim();
-      if (h > 160 || txt.length > 20) break;
-      await new Promise(r => setTimeout(r, 35));
-    }
-    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  function createFrame(view){
+    const main = ensureRoot();
+    if (!main) return null;
+    const frame = document.createElement('iframe');
+    frame.className = 'app-frame-layer-v78c';
+    frame.setAttribute('title', view.title);
+    frame.setAttribute('data-view', view.file);
+    frame.setAttribute('data-key', view.key);
+    frame.setAttribute('allow', 'publickey-credentials-get *; publickey-credentials-create *; clipboard-read; clipboard-write; fullscreen');
+    frame.src = frameUrlFor(view);
+    main.appendChild(frame);
+    state.frames.set(view.key, frame);
+    return frame;
+  }
+
+  function getFrame(view){
+    const existing = state.frames.get(view.key);
+    if (existing && existing.isConnected) return existing;
+    return createFrame(view);
   }
 
   async function navigate(raw, opts){
     opts = opts || {};
     const view = normalizeView(raw);
-    if (!VIEW_MAP[view.file]) return false;
     if (state.activeKey === view.key && !opts.force) return true;
     const serial = ++state.navSerial;
-    const main = document.getElementById('app-spa-view-v78');
-    if (!main) return false;
+    const frame = getFrame(view);
+    if (!frame) return false;
 
-    try {
-      if (state.activeKey) state.lastScrollByKey.set(state.activeKey, window.scrollY || 0);
-    } catch (_) {}
-
-    setLoading(true);
     applyTheme(getTheme());
+    updateChrome(view);
 
-    const outgoing = cloneOutgoing();
-    if (outgoing) document.body.appendChild(outgoing);
+    const previous = state.activeFrame;
+    if (previous && previous !== frame) {
+      previous.classList.add('is-previous');
+      previous.classList.remove('is-active');
+    }
 
     try {
-      const html = await fetchViewHtml(view);
+      await waitFrameLoaded(frame, view);
       if (serial !== state.navSerial) return true;
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      const parsed = stripHeaderAndScripts(doc);
-      setViewStyles(parsed.styles);
-      applyBodyClass(parsed.bodyClass);
-      updateChrome(view);
-
-      main.classList.remove('is-ready');
-      main.innerHTML = parsed.html;
-      state.activeEl = main;
+      frame.classList.add('is-active');
+      frame.classList.remove('is-previous');
+      if (previous && previous !== frame) {
+        setTimeout(() => previous.classList.remove('is-previous'), 180);
+      }
       state.activeFile = view.file;
       state.activeKey = view.key;
-
-      await runPageScripts(parsed.scripts, view);
-      await notifyAuthAndLang(view);
-      await waitForPaint(main);
-
-      if (serial !== state.navSerial) return true;
-      main.classList.add('is-ready');
+      state.activeFrame = frame;
       if (!opts.replace && history.pushState) history.pushState({ view: view.file + (view.search || '') + (view.hash || '') }, '', appUrlFor(view));
-      setTimeout(() => { if (outgoing) outgoing.classList.add('is-gone'); }, 20);
-      setTimeout(() => { try { if (outgoing) outgoing.remove(); } catch (_) {} }, 260);
-      setLoading(false);
-
-      try {
-        const y = opts.restoreScroll ? (state.lastScrollByKey.get(view.key) || 0) : 0;
-        window.scrollTo({ top: y, behavior: 'instant' });
-      } catch (_) { window.scrollTo(0, 0); }
+      try { frame.contentWindow && frame.contentWindow.postMessage({ type: 'ipsc-app-active-v78c', view: view.file, theme: getTheme() }, window.location.origin); } catch (_) {}
       return true;
     } catch (err) {
-      console.error('SPA navigation failed', view, err);
-      setLoading(false);
-      main.innerHTML = '<div class="container"><div class="info-box" style="border-left-color:#ef4444"><strong>Seite konnte nicht geladen werden.</strong><br>Bitte kurz zurück und erneut öffnen.<br><small>' + String(err.message || err).replace(/[<>&]/g, '') + '</small></div></div>';
-      main.classList.add('is-ready');
-      if (outgoing) setTimeout(() => outgoing.remove(), 400);
+      console.error('v78c navigation failed', view, err);
+      if (previous) previous.classList.add('is-active');
       return false;
     }
   }
@@ -376,8 +231,6 @@
 
   function interceptClicks(){
     document.addEventListener('click', function(ev){
-      const moreButton = ev.target && ev.target.closest && ev.target.closest('#btn-more-menu');
-      if (moreButton && !moreButton.matches('a[href]')) return;
       const a = ev.target && ev.target.closest && ev.target.closest('a[href]');
       const target = shouldHandleLink(a);
       if (!target) return;
@@ -387,38 +240,74 @@
     }, true);
   }
 
+  function openLogin(){
+    try {
+      const modal = document.getElementById('auth-modal');
+      if (modal) {
+        modal.style.display = 'flex';
+        modal.removeAttribute('aria-hidden');
+        if (typeof window.toggleAuthView === 'function') window.toggleAuthView('login');
+      }
+    } catch (_) {}
+  }
+
+  function listenMessages(){
+    window.addEventListener('message', function(event){
+      if (event.origin !== window.location.origin) return;
+      const data = event.data || {};
+      if (data.type === 'ipsc-navigate-v78c' && data.href) navigate(data.href);
+      if (data.type === 'ipsc-open-login-v78c') openLogin();
+    });
+  }
+
   function installPopstate(){
     window.addEventListener('popstate', function(){
       const p = new URLSearchParams(window.location.search || '');
-      navigate(p.get('view') || 'index.html', { replace: true, restoreScroll: true });
+      navigate(p.get('view') || 'index.html', { replace: true });
+    });
+  }
+
+  function broadcast(payload){
+    state.frames.forEach(frame => {
+      try { frame.contentWindow && frame.contentWindow.postMessage(payload, window.location.origin); } catch (_) {}
     });
   }
 
   function prewarm(){
-    ['index.html','marktplatz.html','mein-planer.html','community.html','freie-matches.html','schiessbuch.html','tools.html','wiederladen.html','analytics.html','performance.html'].forEach((file, i) => {
-      setTimeout(() => fetchViewHtml(normalizeView(file)).catch(()=>{}), 300 + i * 220);
+    CORE_PRELOAD.forEach((file, i) => {
+      setTimeout(() => {
+        const view = normalizeView(file);
+        if (!state.frames.has(view.key)) {
+          const frame = createFrame(view);
+          if (frame) frame.classList.add('is-previous');
+        }
+      }, 250 + i * 350);
     });
   }
 
+  function refresh(){
+    try {
+      if (state.activeFrame && state.activeFrame.contentWindow) state.activeFrame.contentWindow.location.reload();
+    } catch (_) {}
+    updateChrome(normalizeView(state.activeKey || state.activeFile || 'index.html'));
+  }
+
   async function init(){
+    markApp();
     applyTheme(getTheme());
     interceptClicks();
+    listenMessages();
     installPopstate();
-
-    // Let header/auth initialize once, then route the first app view.
+    window.addEventListener('storage', () => applyTheme(getTheme()));
+    window.addEventListener('ipsc:oauth-login-complete', () => broadcast({ type: 'ipsc-auth-refresh-v78c' }));
     const params = new URLSearchParams(window.location.search || '');
     const initial = params.get('view') || 'index.html';
     if (history.replaceState) history.replaceState({ view: initial }, '', appUrlFor(normalizeView(initial)));
-    await navigate(initial, { replace: true });
+    await navigate(initial, { replace: true, force: true });
     prewarm();
   }
 
-  window.IPSCAppV78 = {
-    navigate,
-    refresh: () => navigate(state.activeKey || 'index.html', { force: true, replace: true }),
-    getCurrentView: () => state.activeFile,
-    version: VERSION
-  };
+  window.IPSCAppV78 = { navigate, refresh, getCurrentView: () => state.activeFile, version: VERSION };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();

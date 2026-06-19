@@ -1,0 +1,1 @@
+V78C: Remote app.html keeps ipscboerse.com origin/passkey and uses same-origin full-page iframe layers. Original pages keep their layout/scripts like backup; appframe mode hides duplicate header/bottom and routes internal links to the parent shell.

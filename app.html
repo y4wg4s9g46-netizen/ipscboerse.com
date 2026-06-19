@@ -22,11 +22,11 @@
   <title>IPSC Startplatz-Börse</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="preload" href="global.css?v=78b" as="style">
-  <link rel="stylesheet" href="global.css?v=78b">
+  <link rel="preload" href="global.css?v=78c" as="style">
+  <link rel="stylesheet" href="global.css?v=78c">
   <style id="app-spa-shell-v78">
     html, body { min-height: 100%; background: var(--bg-color, #f6f8fc); }
-    body.page-app-spa { margin: 0; overflow-x: hidden; padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
+    body.page-app-spa { margin: 0; overflow-x: hidden; padding-bottom: 0; }
     #app-shell-root-v78 { min-height: 100vh; background: var(--bg-color, #f6f8fc); color: var(--text-color, #0f172a); }
     #app-spa-view-v78 { min-height: calc(100vh - 92px - env(safe-area-inset-bottom)); opacity: 0; transform: translateZ(0); transition: opacity .12s ease-out; }
     #app-spa-view-v78.is-ready { opacity: 1; }
@@ -43,7 +43,7 @@
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="page-app-spa page-native-shell app-v78 app-v78b">
+<body class="page-app-spa page-native-shell app-v78 app-v78c">
   <div id="app-shell-root-v78">
     <header id="main-header"></header>
     <main id="app-spa-view-v78" aria-live="polite"></main>
@@ -52,10 +52,10 @@
     window.__IPSC_UNIFIED_SPA_ACTIVE = true;
     try { document.documentElement.classList.add('is-native-shell','is-app-spa-v78'); document.body.classList.add('page-native-shell'); } catch (_) {}
   </script>
-  <script src="header.js?v=78b"></script>
-  <script src="lang.js?v=78b"></script>
-  <script src="app.js?v=78b"></script>
-  <script src="auth.js?v=78b"></script>
-  <script src="app-spa.js?v=78b"></script>
+  <script src="header.js?v=78c"></script>
+  <script src="lang.js?v=78c"></script>
+  <script src="app.js?v=78c"></script>
+  <script src="auth.js?v=78c"></script>
+  <script src="app-spa.js?v=78c"></script>
 </body>
 </html>
