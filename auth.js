@@ -141,6 +141,7 @@ function getOAuthRedirectUrl() {
 // NATIVE OAUTH CALLBACK BRIDGE v66
 const NATIVE_OAUTH_CALLBACK_URL = "ipscboerse://auth-callback";
 const WEB_OAUTH_CALLBACK_URL = "https://ipscboerse.com/auth-callback.html";
+const WEB_APP_SPA_URL_V78 = "https://ipscboerse.com/app.html";
 
 function isNativeShellV66() {
     try {
@@ -199,6 +200,7 @@ async function updateUiAfterOAuthV66(session) {
 
         const returnPath = localStorage.getItem(OAUTH_RETURN_KEY);
         localStorage.removeItem(OAUTH_RETURN_KEY);
+        try { if (window.IPSCAppV78 && typeof window.IPSCAppV78.refresh === "function") setTimeout(function(){ window.IPSCAppV78.refresh(); }, 120); } catch (_) {}
 
         const currentPath = `${window.location.pathname || "/index.html"}${window.location.search || ""}`;
         const isCallbackPage = /auth-callback\.html/i.test(window.location.pathname || "");

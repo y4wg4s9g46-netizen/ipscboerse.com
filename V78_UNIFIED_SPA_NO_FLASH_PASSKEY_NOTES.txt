@@ -1,0 +1,23 @@
+IPSC Börse v78 – Unified Remote SPA No-Flash Passkey
+
+Ziel:
+- Browser-Webseite bleibt unverändert: index.html und alle Einzel-HTML-Seiten bleiben erreichbar und sehen wie bisher aus.
+- Native App startet gezielt app.html auf https://ipscboerse.com/app.html.
+- Dadurch bleibt der Origin https://ipscboerse.com erhalten: Passkey/WebAuthn, Apple und Google bleiben auf derselben Domain.
+- App-Navigation nutzt eine zentrale SPA-Shell ohne iframe und ohne harte HTML-Seitenwechsel.
+
+Architektur:
+- app.html ist nur für die App-Shell gedacht.
+- app-spa.js lädt bestehende Seiteninhalte per fetch, entfernt doppelten Header/shared Scripts und führt die seitenlokalen Scripts innerhalb der App-Shell aus.
+- Beim Wechsel bleibt ein visueller Clone der alten Ansicht sichtbar, bis die neue Ansicht gemalt ist.
+- Keine iframe-Mehr-Seiten, keine about:blank-Frames, keine lokalen capacitor://localhost-Passkey-Probleme.
+
+Capacitor:
+- server.url zeigt bewusst auf https://ipscboerse.com/app.html.
+- Vor lokalem App-Test muss die public/www-Version mit app.html und app-spa.js auf ipscboerse.com deployed sein.
+
+Test:
+1. Public auf ipscboerse.com deployen.
+2. Im App-Projekt npx cap copy ios ausführen.
+3. Xcode Clean Build Folder und Run.
+4. Test: alle Tabs, alle Mehr-Seiten, Passkey, Apple, Google, E-Mail/Passwort.

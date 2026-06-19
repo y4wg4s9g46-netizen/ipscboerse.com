@@ -2,6 +2,8 @@ const CACHE_NAME = 'ipscboerse-v77e';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
+  'app.html',
+  'app-spa.js',
     'native-shell.html',
     'native-shell.js?v=77e',
     'global.css?v=77e',

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <script id="ipsc-v78-theme-prepaint">
+    (function(){
+      try {
+        var theme = localStorage.getItem('selectedTheme') || localStorage.getItem('theme') || localStorage.getItem('ipsc_effective_theme') || 'light';
+        if (theme === 'auto') theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        theme = theme === 'dark' ? 'dark' : 'light';
+        var bg = theme === 'dark' ? '#0f172a' : '#f6f8fc';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.style.backgroundColor = bg;
+        document.documentElement.style.colorScheme = theme;
+        localStorage.setItem('ipsc_effective_theme', theme);
+      } catch (_) {}
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f6f8fc">
+  <title>IPSC Startplatz-Börse</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="preload" href="global.css?v=78" as="style">
+  <link rel="stylesheet" href="global.css?v=78">
+  <style id="app-spa-shell-v78">
+    html, body { min-height: 100%; background: var(--bg-color, #f6f8fc); }
+    body.page-app-spa { margin: 0; overflow-x: hidden; padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
+    #app-shell-root-v78 { min-height: 100vh; background: var(--bg-color, #f6f8fc); color: var(--text-color, #0f172a); }
+    #app-spa-view-v78 { min-height: calc(100vh - 92px - env(safe-area-inset-bottom)); opacity: 0; transform: translateZ(0); transition: opacity .12s ease-out; }
+    #app-spa-view-v78.is-ready { opacity: 1; }
+    .spa-outgoing-clone-v78 { position: fixed !important; inset: 0 0 0 0 !important; overflow: hidden !important; z-index: 2147480000 !important; background: var(--bg-color, #f6f8fc) !important; pointer-events: none !important; opacity: 1; transition: opacity .18s ease-out; transform: translateZ(0); }
+    .spa-outgoing-clone-v78.is-gone { opacity: 0; }
+    #spa-loader-v78 { position: fixed; left: 50%; bottom: calc(94px + env(safe-area-inset-bottom)); z-index: 2147480100; transform: translateX(-50%) translateY(8px); padding: 8px 12px; border-radius: 999px; font-size: 12px; font-weight: 800; background: rgba(255,159,67,.13); color: var(--accent-color,#ff7a1a); border: 1px solid rgba(255,159,67,.22); box-shadow: 0 14px 32px rgba(15,23,42,.14); opacity: 0; pointer-events: none; transition: opacity .14s ease, transform .14s ease; }
+    #spa-loader-v78.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+    body.page-app-spa #app-page-transition-cover,
+    body.page-app-spa #native-page-curtain-v72,
+    body.page-app-spa #native-page-curtain-v73,
+    body.page-app-spa #native-page-curtain-v74,
+    body.page-app-spa #native-page-curtain-v75,
+    body.page-app-spa #ipsc-surface-bridge-v76s { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="page-app-spa app-v78">
+  <div id="app-shell-root-v78">
+    <header id="main-header"></header>
+    <main id="app-spa-view-v78" aria-live="polite"></main>
+  </div>
+  <script src="header.js?v=78"></script>
+  <script src="lang.js?v=78"></script>
+  <script src="app.js?v=78"></script>
+  <script src="auth.js?v=78"></script>
+  <script src="app-spa.js?v=78"></script>
+</body>
+</html>
