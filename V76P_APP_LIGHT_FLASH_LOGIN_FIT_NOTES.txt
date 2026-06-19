@@ -1,0 +1,9 @@
+V76P APP LIGHT FLASH + LOGIN FIT
+
+- Native/App Light-Mode Prepaint stabilisiert: Navigation trägt effektives Theme per sessionStorage/localStorage weiter.
+- Page-Transition-Cover hat im Zweifel Light als Default, statt kurz Dark zu zeigen.
+- Alte Auto-Dark-Sofortskripte entschärft.
+- color-scheme initial auf light gesetzt; Dark wird explizit per data-theme gesetzt.
+- Login-Modal mobil oben kompakter: Titel, Subtitle, Labels und Eingaben etwas kleiner; Schnell-Login-Bereich bleibt stabil.
+
+Xcode: nur npx cap copy ios, nicht sync.

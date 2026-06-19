@@ -12366,3 +12366,139 @@ html[data-theme="dark"].is-page-leaving #native-page-curtain-v74 {
     }
 }
 
+
+
+/* ========================================================================== 
+   V76P APP LIGHT FLASH + LOGIN FIT
+   - Light Mode darf beim nativen Seitenwechsel nie kurz dunkel vorblitzen.
+   - Login-Dialog oben kompakter, unterer Schnell-Login bleibt ruhig.
+   ========================================================================== */
+html:not([data-theme="dark"]),
+html:not([data-theme="dark"]) body {
+    background-color: #f6f8fc !important;
+    color-scheme: light !important;
+}
+
+html:not([data-theme="dark"]) #app-page-transition-cover,
+html:not([data-theme="dark"]) #native-page-curtain-v74 {
+    background: #f6f8fc !important;
+    background-color: #f6f8fc !important;
+    transition: none !important;
+}
+
+html[data-theme="dark"] #app-page-transition-cover,
+html[data-theme="dark"] #native-page-curtain-v74 {
+    background: #0f172a !important;
+    background-color: #0f172a !important;
+}
+
+html.is-page-leaving:not([data-theme="dark"]) body,
+html.is-native-navigating-v76o:not([data-theme="dark"]) body,
+html.is-native-navigating-v74:not([data-theme="dark"]) body {
+    background-color: #f6f8fc !important;
+}
+
+@media (max-width: 600px) {
+    #auth-modal .modal-content,
+    #auth-modal .auth-modal-content {
+        width: calc(100vw - 30px) !important;
+        max-width: 430px !important;
+        max-height: calc(100dvh - 102px) !important;
+        padding: 22px 20px 20px !important;
+        border-radius: 28px !important;
+    }
+
+    #modal-login-view.login-balanced-v76f h3,
+    #modal-login-view.login-polish-v76e h3 {
+        font-size: clamp(34px, 9.2vw, 38px) !important;
+        line-height: 1.02 !important;
+        letter-spacing: -1.15px !important;
+        margin: 2px 0 8px !important;
+        padding-right: 46px !important;
+    }
+
+    .login-balanced-v76f .auth-subtitle-v76e,
+    .login-polish-v76e .auth-subtitle-v76e {
+        font-size: 14.5px !important;
+        line-height: 1.28 !important;
+        margin-bottom: 12px !important;
+        max-width: 94% !important;
+    }
+
+    .login-balanced-v76f #login-form .form-group,
+    .login-polish-v76e #login-form .form-group {
+        margin-bottom: 11px !important;
+    }
+
+    .login-balanced-v76f #login-form label,
+    .login-polish-v76e #login-form label,
+    #auth-modal .form-group label {
+        font-size: 10.5px !important;
+        letter-spacing: .18em !important;
+        line-height: 1.15 !important;
+    }
+
+    .login-balanced-v76f #login-form input,
+    .login-polish-v76e #login-form input,
+    #auth-modal input {
+        min-height: 52px !important;
+        height: 52px !important;
+        border-radius: 17px !important;
+        font-size: 15px !important;
+    }
+
+    body #modal-login-view #login-form button[type="submit"],
+    body #auth-modal #modal-login-view form#login-form > button[type="submit"],
+    body #auth-modal #modal-login-view #login-form .btn-primary-auth {
+        min-height: 52px !important;
+        height: 52px !important;
+        border-radius: 17px !important;
+        font-size: 15px !important;
+        margin-top: 2px !important;
+    }
+
+    .login-balanced-v76f .quick-login-balanced-v76f,
+    .login-polish-v76e .quick-login-panel-v76e,
+    #auth-modal #modal-login-view .social-login-separator {
+        margin-top: 13px !important;
+        padding: 14px !important;
+        border-radius: 22px !important;
+    }
+
+    .login-balanced-v76f .auth-provider-btn-v76e,
+    .login-balanced-v76f .btn-social-passkey,
+    .login-balanced-v76f .btn-social-apple,
+    .login-balanced-v76f .btn-social-google,
+    .login-polish-v76e .btn-social-passkey,
+    .login-polish-v76e .btn-social-apple,
+    .login-polish-v76e .btn-social-google {
+        min-height: 50px !important;
+        font-size: 15px !important;
+        border-radius: 16px !important;
+    }
+
+    #auth-modal .modal-footer {
+        margin-top: 12px !important;
+    }
+}
+
+@media (max-width: 600px) and (max-height: 760px) {
+    #auth-modal .modal-content,
+    #auth-modal .auth-modal-content {
+        max-height: calc(100dvh - 76px) !important;
+        padding-top: 18px !important;
+        padding-bottom: 18px !important;
+    }
+
+    #modal-login-view.login-balanced-v76f h3,
+    #modal-login-view.login-polish-v76e h3 {
+        font-size: clamp(31px, 8.4vw, 35px) !important;
+        margin-bottom: 6px !important;
+    }
+
+    .login-balanced-v76f .auth-subtitle-v76e,
+    .login-polish-v76e .auth-subtitle-v76e {
+        font-size: 13.5px !important;
+        margin-bottom: 10px !important;
+    }
+}

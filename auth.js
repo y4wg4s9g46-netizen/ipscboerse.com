@@ -552,6 +552,7 @@ window.toggleTheme = function() {
 
     localStorage.setItem('selectedTheme', newTheme);
     localStorage.setItem('theme', newTheme);
+    localStorage.setItem('ipsc_effective_theme', newTheme);
     updateThemeToggleIcon(newTheme);
 
     requestAnimationFrame(() => {
@@ -562,18 +563,23 @@ window.toggleTheme = function() {
 };
 
 function initTheme() {
-    const savedTheme = localStorage.getItem('selectedTheme') || localStorage.getItem('theme');
+    const savedThemeRaw = localStorage.getItem('selectedTheme') || localStorage.getItem('theme') || localStorage.getItem('ipsc_effective_theme');
+    let effectiveTheme = savedThemeRaw || 'light';
 
-    if (savedTheme) {
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        document.documentElement.style.backgroundColor = savedTheme === 'dark' ? '#0f172a' : '#f6f8fc';
-        document.documentElement.style.colorScheme = savedTheme === 'dark' ? 'dark' : 'light';
-        if (document.body) document.body.style.backgroundColor = savedTheme === 'dark' ? '#0f172a' : '#f6f8fc';
-        window.__IPSC_ACTIVE_THEME_V70 = savedTheme;
-        updateThemeToggleIcon(savedTheme);
-    } else {
-        updateThemeToggleIcon('auto');
+    if (effectiveTheme === 'auto') {
+        // V76P: In der nativen App nicht zuerst dunkel rendern und danach hell korrigieren.
+        effectiveTheme = localStorage.getItem('ipsc_effective_theme') || 'light';
     }
+    if (effectiveTheme !== 'dark') effectiveTheme = 'light';
+
+    document.documentElement.setAttribute('data-theme', effectiveTheme);
+    document.documentElement.style.backgroundColor = effectiveTheme === 'dark' ? '#0f172a' : '#f6f8fc';
+    document.documentElement.style.colorScheme = effectiveTheme;
+    if (document.body) document.body.style.backgroundColor = effectiveTheme === 'dark' ? '#0f172a' : '#f6f8fc';
+    window.__IPSC_ACTIVE_THEME_V70 = effectiveTheme;
+    window.__IPSC_ACTIVE_THEME_V74 = effectiveTheme;
+    try { localStorage.setItem('ipsc_effective_theme', effectiveTheme); } catch (_) {}
+    updateThemeToggleIcon(savedThemeRaw || effectiveTheme);
 }
 
 // ==========================================

@@ -1668,9 +1668,13 @@ header .header-logo-img {
                 html, body { background-color: #f6f8fc !important; }
                 html[data-theme="light"], html[data-theme="light"] body { background-color: #f6f8fc !important; }
                 html[data-theme="dark"], html[data-theme="dark"] body { background-color: #0f172a !important; }
-                #app-page-transition-cover { position: fixed !important; inset: 0 !important; z-index: 2147483000 !important; pointer-events: none !important; opacity: 0 !important; background: #0f172a !important; transition: opacity 25ms linear !important; transform: translateZ(0) !important; will-change: opacity !important; }
+                #app-page-transition-cover { position: fixed !important; inset: 0 !important; z-index: 2147483000 !important; pointer-events: none !important; opacity: 0 !important; background: #f6f8fc !important; transition: opacity 0ms linear !important; transform: translateZ(0) !important; will-change: opacity !important; }
                 html[data-theme="light"] #app-page-transition-cover { background: #f6f8fc !important; }
                 html.is-page-leaving #app-page-transition-cover { opacity: 1 !important; }
+                /* V76P_NATIVE_LIGHT_DEFAULT_COVER: ohne data-theme nie dunkel vorblitzen */
+                html:not([data-theme="dark"]) #app-page-transition-cover,
+                html:not([data-theme="dark"]) #native-page-curtain-v74 { background: #f6f8fc !important; }
+
                 @media (max-width: 768px) {
                     html.is-native-shell #bottom-tab-bar, html.is-standalone-app #bottom-tab-bar, body.is-app-shell #bottom-tab-bar { bottom: 0px !important; width: calc(100% - 16px) !important; max-width: 520px !important; height: 72px !important; border-radius: 28px !important; transform: translate3d(-50%, 0, 0) !important; }
                     html.is-browser-mode #bottom-tab-bar { bottom: 0px !important; width: calc(100% - 16px) !important; max-width: 520px !important; height: 64px !important; border-radius: 24px !important; transform: translate3d(-50%, 0, 0) !important; }
@@ -2044,7 +2048,7 @@ window.toggleMoreMenu = function() {
     var navTimer = null;
 
     function activeThemeV76o() {
-        var t = document.documentElement.getAttribute("data-theme") || window.__IPSC_ACTIVE_THEME_V74 || window.__IPSC_ACTIVE_THEME_V70 || localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || "light";
+        var t = null; try { t = sessionStorage.getItem("ipsc_effective_theme"); } catch (_) {} t = t || document.documentElement.getAttribute("data-theme") || window.__IPSC_ACTIVE_THEME_V74 || window.__IPSC_ACTIVE_THEME_V70 || localStorage.getItem("ipsc_effective_theme") || localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || "light";
         if (t === "auto") {
             try { t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; } catch (_) { t = "light"; }
         }
@@ -2113,6 +2117,11 @@ window.toggleMoreMenu = function() {
         ensureCoverV76o();
         paintSurfaceV76o();
         try {
+            var theme = activeThemeV76o();
+            sessionStorage.setItem("ipsc_effective_theme", theme);
+            localStorage.setItem("ipsc_effective_theme", theme);
+        } catch (_) {}
+        try {
             document.documentElement.classList.add("is-page-leaving", "is-native-navigating-v74", "is-native-navigating-v76o");
         } catch (_) {}
     };
@@ -2161,7 +2170,7 @@ window.toggleMoreMenu = function() {
         if (navTimer) clearTimeout(navTimer);
         navTimer = setTimeout(function () {
             window.location.href = url.href;
-        }, activeThemeV76o() === "light" ? 92 : 54);
+        }, activeThemeV76o() === "light" ? 36 : 54);
     }, true);
 })();
 

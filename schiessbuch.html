@@ -2,7 +2,15 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="color-scheme" content="light dark">
+    <style id="native-app-prepaint-v76p">
+      :root { background: #f6f8fc !important; color-scheme: light; }
+      html, body { background: #f6f8fc !important; min-height: 100%; }
+      html[data-theme="dark"], html[data-theme="dark"] body { background: #0f172a !important; color-scheme: dark; }
+      html[data-theme="light"], html[data-theme="light"] body { background: #f6f8fc !important; color-scheme: light; }
+      #app-page-transition-cover, #native-page-curtain-v74 { background: #f6f8fc; }
+      html[data-theme="dark"] #app-page-transition-cover, html[data-theme="dark"] #native-page-curtain-v74 { background: #0f172a; }
+    </style>
+    <meta name="color-scheme" content="light">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 
     <meta name="theme-color" content="#f6f8fc">
@@ -34,17 +42,29 @@
       (function () {
         try {
           var root = document.documentElement;
-          var theme = localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || root.getAttribute("data-theme") || "light";
+          var carried = null;
+          try { carried = sessionStorage.getItem("ipsc_effective_theme"); } catch (_) {}
+          var effective = localStorage.getItem("ipsc_effective_theme");
+          var selected = localStorage.getItem("selectedTheme");
+          var legacy = localStorage.getItem("theme");
+          var theme = carried || effective || selected || legacy || "light";
           if (theme === "auto") {
-            theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+            // In der nativen App verhindert das den dunklen Zwischenframe bei Light-Mode-Navigation.
+            theme = effective || carried || "light";
           }
           if (theme !== "dark") theme = "light";
           root.setAttribute("data-theme", theme);
-          root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc"; if (document.body) document.body.style.backgroundColor = root.style.backgroundColor;
+          root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
           root.style.colorScheme = theme;
+          var bg = root.style.backgroundColor;
+          if (document.body) document.body.style.backgroundColor = bg;
           var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute("content", theme === "dark" ? "#0f172a" : "#f6f8fc");
+          if (meta) meta.setAttribute("content", bg);
+          var cs = document.querySelector('meta[name="color-scheme"]');
+          if (cs) cs.setAttribute("content", theme);
           window.__IPSC_ACTIVE_THEME_V74 = theme;
+          window.__IPSC_ACTIVE_THEME_V70 = theme;
+          try { localStorage.setItem("ipsc_effective_theme", theme); } catch (_) {}
           root.classList.add("is-native-arriving-v74");
           window.addEventListener("pageshow", function () {
             setTimeout(function () {
@@ -110,12 +130,13 @@
       (function () {
         var theme = "light";
         try {
+          var carried = null;
+          try { carried = sessionStorage.getItem("ipsc_effective_theme"); } catch (_) {}
+          var effective = localStorage.getItem("ipsc_effective_theme");
           var selected = localStorage.getItem("selectedTheme");
           var legacy = localStorage.getItem("theme");
-          theme = selected || legacy || "light";
-          if (theme === "auto") {
-            theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-          }
+          theme = carried || effective || selected || legacy || "light";
+          if (theme === "auto") theme = effective || carried || "light";
           if (theme !== "light" && theme !== "dark") theme = "light";
         } catch (_) {
           theme = "light";
@@ -123,18 +144,22 @@
 
         try {
           var root = document.documentElement;
+          var surface = theme === "dark" ? "#0f172a" : "#f6f8fc";
           root.setAttribute("data-theme", theme);
-          root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc"; if (document.body) document.body.style.backgroundColor = root.style.backgroundColor;
-          root.style.colorScheme = theme === "dark" ? "dark" : "light";
+          root.style.backgroundColor = surface;
+          root.style.colorScheme = theme;
+          if (document.body) document.body.style.backgroundColor = surface;
           window.__IPSC_ACTIVE_THEME_V70 = theme;
+          window.__IPSC_ACTIVE_THEME_V74 = theme;
 
           try {
-            localStorage.setItem("selectedTheme", theme);
-            localStorage.setItem("theme", theme);
+            localStorage.setItem("ipsc_effective_theme", theme);
           } catch (_) {}
 
           var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute("content", theme === "dark" ? "#0f172a" : "#f6f8fc");
+          if (meta) meta.setAttribute("content", surface);
+          var cs = document.querySelector('meta[name="color-scheme"]');
+          if (cs) cs.setAttribute("content", theme);
         } catch (_) {}
       })();
     </script>
@@ -142,18 +167,24 @@
 <title>Digitale Schießkladde | IPSC Börse</title>
     
     <script>
-        // Setzt das Theme SOFORT, bevor die Seite gerendert wird
+        // V76P: Theme vor global.css nochmals stabilisieren, ohne Auto-Dark-Zwischenframe.
         (function() {
-            var theme = localStorage.getItem("selectedTheme") || "auto";
-            if (theme === "dark" || (theme === "auto" && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.setAttribute("data-theme", "dark");
-            }
+            try {
+                var carried = null;
+                try { carried = sessionStorage.getItem("ipsc_effective_theme"); } catch (_) {}
+                var theme = carried || localStorage.getItem("ipsc_effective_theme") || localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || "light";
+                if (theme === "auto") theme = localStorage.getItem("ipsc_effective_theme") || "light";
+                theme = theme === "dark" ? "dark" : "light";
+                document.documentElement.setAttribute("data-theme", theme);
+                document.documentElement.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
+                document.documentElement.style.colorScheme = theme;
+            } catch (_) {}
         })();
     </script><link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="preload" href="icon-192.png" as="image">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=76o">
+<link rel="stylesheet" href="global.css?v=76p">
 
 
     <style id="schiessbuch-integrity-v56">
@@ -337,11 +368,11 @@
     <!-- PDF APP SHARE FIX v61 -->
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
-<body class="page-schiessbuch app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m">
+<body class="page-schiessbuch app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p">
 
     <header id="main-header"></header>
   
-   <script src="header.js?v=76o"></script>
+   <script src="header.js?v=76p"></script>
 
     <div class="container">
         
@@ -445,9 +476,9 @@
             <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-<script src="auth.js?v=76o"></script>
+<script src="auth.js?v=76p"></script>
     <script src="lang.js?v=76m"></script>
-    <script src="app.js?v=76o"></script>
+    <script src="app.js?v=76p"></script>
 
     <script>
         let logs = [];
