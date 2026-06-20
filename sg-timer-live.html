@@ -228,14 +228,14 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="preload" href="icon-192.png" as="image">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=76v">
+<link rel="stylesheet" href="global.css?v=78l">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
 <body class="page-sg-timer-live app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v">
 
     <header id="main-header"></header>
-    <script src="header.js?v=76v"></script>
+    <script src="header.js?v=78l"></script>
 
     <div class="main-container">
         
@@ -404,11 +404,25 @@
             }
         };
 
+
+        function resetConnectButtonV78l() {
+            const btn = document.getElementById('btn-connect');
+            const badge = document.getElementById('bt-status-badge');
+            const isEn = (window.currentLang === 'en');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<span data-txt="v76-timer-pair">${isEn ? 'Pair device' : 'Gerät koppeln'}</span>`;
+            }
+            if (badge) badge.innerHTML = `<span style="width:8px; height:8px; background:var(--danger-color); border-radius:50%;"></span> ${isEn ? 'Disconnected' : 'Getrennt'}`;
+        }
+
         // 1. ANKOPPELN & AUTOMATISCHE HARDWARE-ERKENNUNG (HYBRID FÜR PC & IOS-APP)
         async function connectSGTimer() {
             const badge = document.getElementById('bt-status-badge');
+            const btn = document.getElementById('btn-connect');
             const isEn = (window.currentLang === 'en');
             try {
+                if (btn) { btn.disabled = true; btn.textContent = isEn ? 'Searching…' : 'Suche…'; }
                 badge.innerHTML = `<span>⏳ ${isEn ? 'Scanning...' : 'Scan läuft...'}</span>`;
 
                 const ble = window.CapacitorBluetoothLE || (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.BluetoothLe);
@@ -417,6 +431,7 @@
                     isNativeBLE = false;
                     if (!navigator.bluetooth) {
                         alert(isEn ? "Your current browser blocks Web-Bluetooth or does not support it." : "Dein aktueller Browser blockiert Web-Bluetooth oder unterstützt es nicht.");
+                        resetConnectButtonV78l();
                         return;
                     }
                     bluetoothDevice = await navigator.bluetooth.requestDevice({
@@ -502,7 +517,7 @@
                 updateUIConnected(device.name || "SG Timer");
 
             } catch (error) {
-                badge.innerHTML = `<span style="width:8px; height:8px; background:var(--danger-color); border-radius:50%;"></span> ${isEn ? 'Disconnected' : 'Getrennt'}`;
+                resetConnectButtonV78l();
                 console.error(error);
                 alert((isEn ? "Connection error: " : "Verbindungsfehler: ") + error.message);
             }
@@ -756,9 +771,9 @@
             loadLeaderboard();
         }
     </script>
-<script src="auth.js?v=76v"></script>
-    <script src="lang.js?v=76v"></script>
-    <script src="app.js?v=76v"></script>
+<script src="auth.js?v=78l"></script>
+    <script src="lang.js?v=78l"></script>
+    <script src="app.js?v=78l"></script>
     <script>
         window.onAuthChange = () => { 
             if(typeof updateHeaderChatBadge === 'function') {

@@ -793,7 +793,7 @@ async function openChatSystem(matchId, receiverEmail, matchName) {
   window.activeChatRoom = { matchId, receiverEmail, matchName };
 
   const chatModal = document.getElementById("chat-modal");
-  if (chatModal) chatModal.style.display = "flex";
+  if (chatModal) { if (window.ipscShowModalV78l) window.ipscShowModalV78l("chat-modal"); else chatModal.style.display = "flex"; }
 
   document.getElementById("chat-title-match").innerText = "Match: " + matchName;
   document.getElementById("chat-title-partner").innerText = (window.currentLang === "en" ? "Chat partner: " : "Gesprächspartner: ") + receiverEmail;
@@ -892,7 +892,7 @@ window.reportChatMessage = function(id) {
 
 function closeChatSystem() {
   window.activeChatRoom = null;
-  document.getElementById("chat-modal").style.display = "none";
+  if (window.ipscHideModalV78l) window.ipscHideModalV78l("chat-modal"); else document.getElementById("chat-modal").style.display = "none";
 }
 window.closeChatSystem = closeChatSystem;
 
@@ -1002,11 +1002,11 @@ async function toggleGlobalInbox() {
   if (!modal) return;
   
   if (modal.style.display === "flex") {
-    modal.style.display = "none";
+    if (window.ipscHideModalV78l) window.ipscHideModalV78l("global-inbox-modal"); else modal.style.display = "none";
     return;
   }
   
-  modal.style.display = "flex";
+  if (window.ipscShowModalV78l) window.ipscShowModalV78l("global-inbox-modal"); else modal.style.display = "flex";
 
   const previousChatChecked = window.lastChatCheckedTimestamp || localStorage.getItem("lastChatChecked") || new Date(0).toISOString();
   const openedAt = new Date().toISOString();
@@ -1658,4 +1658,27 @@ fetchMatches();
         ensureTranslationsV76f();
         translateV76f(document.getElementById("auth-modal") || document);
     };
+})();
+
+
+// V78L app modal polish: keep chat/inbox above fixed app header and restore shell chrome after close.
+(function(){
+  if (window.__IPSC_APP_MODAL_POLISH_V78L) return;
+  window.__IPSC_APP_MODAL_POLISH_V78L = true;
+  window.ipscShowModalV78l = function(id){
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.style.setProperty('display','flex','important');
+    modal.style.setProperty('visibility','visible','important');
+    modal.style.setProperty('opacity','1','important');
+    modal.style.setProperty('pointer-events','auto','important');
+    modal.classList.add('is-open','show');
+  };
+  window.ipscHideModalV78l = function(id){
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.classList.remove('is-open','show');
+    modal.style.display = 'none';
+    try { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'ipsc-restore-chrome-v78l' }, window.location.origin); } catch (_) {}
+  };
 })();

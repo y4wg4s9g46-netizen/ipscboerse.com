@@ -9,12 +9,12 @@
       if (!isFrame) return;
       window.__IPSC_APP_FRAME_V78D = true;
       try {
-        document.documentElement.classList.add("ipsc-app-frame", "ipsc-app-frame-v78c", "ipsc-app-frame-v78d", "ipsc-app-frame-v78g", "ipsc-app-frame-v78h");
+        document.documentElement.classList.add("ipsc-app-frame", "ipsc-app-frame-v78c", "ipsc-app-frame-v78d", "ipsc-app-frame-v78g", "ipsc-app-frame-v78h", "ipsc-app-frame-v78l");
         if (document.body) document.body.classList.add("ipsc-app-frame-body");
       } catch (_) {}
       function cleanFrameChrome(){
         try {
-          document.documentElement.classList.add("ipsc-app-frame", "ipsc-app-frame-v78c", "ipsc-app-frame-v78d", "ipsc-app-frame-v78g", "ipsc-app-frame-v78h");
+          document.documentElement.classList.add("ipsc-app-frame", "ipsc-app-frame-v78c", "ipsc-app-frame-v78d", "ipsc-app-frame-v78g", "ipsc-app-frame-v78h", "ipsc-app-frame-v78l");
           if (document.body) document.body.classList.add("ipsc-app-frame-body");
           document.querySelectorAll("#main-header, header#main-header, #bottom-tab-bar, #more-menu-overlay, .main-nav, .bottom-tab-bar").forEach(function(el){ el.remove(); });
         } catch (_) {}
@@ -27,13 +27,13 @@
           var settingsTarget = ev.target && ev.target.closest && ev.target.closest("#btn-open-settings, .header-avatar-btn, #header-avatar");
           if (settingsTarget && window.parent && window.parent !== window) {
             ev.preventDefault(); ev.stopImmediatePropagation();
-            window.parent.postMessage({ type: "ipsc-open-settings-v78h" }, window.location.origin);
+            window.parent.postMessage({ type: "ipsc-open-settings-v78l" }, window.location.origin);
             return;
           }
           var closeTarget = ev.target && ev.target.closest && ev.target.closest(".modal-close-trigger, #btn-close-modal, button[onclick*='closePostModal']");
           if (closeTarget && window.parent && window.parent !== window) {
-            setTimeout(function(){ window.parent.postMessage({ type: "ipsc-restore-chrome-v78h" }, window.location.origin); }, 80);
-            setTimeout(function(){ window.parent.postMessage({ type: "ipsc-restore-chrome-v78h" }, window.location.origin); }, 260);
+            setTimeout(function(){ window.parent.postMessage({ type: "ipsc-restore-chrome-v78l" }, window.location.origin); }, 80);
+            setTimeout(function(){ window.parent.postMessage({ type: "ipsc-restore-chrome-v78l" }, window.location.origin); }, 260);
           }
           var loginTarget = ev.target && ev.target.closest && ev.target.closest("#btn-open-login, .btn-primary-auth, button[onclick*='auth-modal'], button[onclick*='toggleAuthView']");
           if (loginTarget && window.parent && window.parent !== window) {
@@ -93,12 +93,28 @@
         run(); setTimeout(run, 80); setTimeout(run, 350);
       }
 
+
+      // V78L: after frame modals/composers close, tell the shell to restore the fixed header/bottom chrome.
+      if (!window.__IPSC_FRAME_CLOSE_RESTORE_V78L) {
+        window.__IPSC_FRAME_CLOSE_RESTORE_V78L = true;
+        document.addEventListener("click", function(ev){
+          try {
+            var t = ev.target && ev.target.closest && ev.target.closest(".modal-close-trigger, .close, [data-close], button[onclick*='close'], button[onclick*='Post']");
+            if (t && window.parent && window.parent !== window) {
+              setTimeout(function(){ window.parent.postMessage({ type: "ipsc-restore-chrome-v78l" }, window.location.origin); }, 80);
+              setTimeout(function(){ window.parent.postMessage({ type: "ipsc-restore-chrome-v78l" }, window.location.origin); }, 280);
+            }
+          } catch (_) {}
+        }, true);
+      }
+
       window.addEventListener("message", function(event){
         if (event.origin !== window.location.origin) return;
         var data = event.data || {};
         if (data.type === "ipsc-theme-v78c" || data.type === "ipsc-theme-v78d" || data.type === "ipsc-app-active-v78d") applyFrameThemeV78d(data.theme || localStorage.getItem("ipsc_effective_theme") || "light");
         if (data.type === "ipsc-language-v78d" || data.type === "ipsc-app-active-v78d") applyFrameLanguageV78d(data.lang || localStorage.getItem("selectedLanguage") || "de");
-        if (data.type === "ipsc-auth-refresh-v78d") { try { if (window.supabaseClient && window.supabaseClient.auth) window.supabaseClient.auth.getSession().then(function(){ if (typeof window.onAuthChange === "function") window.onAuthChange(window.currentUser || null); }); } catch (_) {} }
+        if (data.type === "ipsc-auth-refresh-v78d") { try { if (window.supabaseClient && window.supabaseClient.auth) window.supabaseClient.auth.getSession().then(function(result){ var user = result && result.data && result.data.session && result.data.session.user; window.currentUser = user || null; if (typeof window.onAuthChange === "function") window.onAuthChange(window.currentUser || null); }); } catch (_) {} }
+        if (data.type === "ipsc-auth-session-v78l" && data.user) { try { window.currentUser = data.user; if (typeof window.onAuthChange === "function") window.onAuthChange(window.currentUser); } catch (_) {} }
         if (data.type === "ipsc-auth-logout-v78d") { try { window.currentUser = null; if (typeof window.onAuthChange === "function") window.onAuthChange(null); } catch (_) {} }
       });
     })();

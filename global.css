@@ -13925,3 +13925,117 @@ body.page-app-spa.app-v78h #auth-modal.show,
 body.page-app-spa.app-v78h #auth-modal.is-open {
   display: flex !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important;
 }
+
+
+/* ======================================================================
+   V78L Endkontrolle Polish
+   - Modals above app header, not behind it
+   - Auth state in frames, top-scroll on page switch supported by JS
+   - Marktplatz card spacing fixed on mobile
+   - SG timer button reset and HF Battle Procedure UI
+   ====================================================================== */
+html.is-app-spa-v78l body.page-app-spa.app-v78l #main-header {
+  z-index: 4000 !important;
+}
+html.is-app-spa-v78l body.page-app-spa.app-v78l #auth-modal,
+html.is-app-spa-v78l body.page-app-spa.app-v78l .modal,
+html.is-app-spa-v78l body.page-app-spa.app-v78l .modal-overlay,
+html.is-app-spa-v78l body.page-app-spa.app-v78l #chat-modal,
+html.is-app-spa-v78l body.page-app-spa.app-v78l #global-inbox-modal {
+  z-index: 2147483200 !important;
+  padding-top: calc(env(safe-area-inset-top) + 18px) !important;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 18px) !important;
+}
+html.is-app-spa-v78l body.page-app-spa.app-v78l #auth-modal .modal-content,
+html.is-app-spa-v78l body.page-app-spa.app-v78l #global-inbox-modal .modal-content,
+html.is-app-spa-v78l body.page-app-spa.app-v78l #chat-modal .modal-content {
+  max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 42px) !important;
+}
+html.ipsc-app-frame #chat-modal,
+html.ipsc-app-frame #global-inbox-modal,
+html.ipsc-app-frame .modal,
+html.ipsc-app-frame .modal-overlay {
+  z-index: 2147483000 !important;
+  padding-top: 18px !important;
+  align-items: center !important;
+}
+html.ipsc-app-frame #chat-modal .chat-modal-content,
+html.ipsc-app-frame #global-inbox-modal .modal-content,
+html.ipsc-app-frame .modal-content {
+  max-height: calc(100dvh - 36px) !important;
+}
+
+/* Marktplatz owner card: reserve space and avoid price/settings overlap */
+@media (max-width: 768px) {
+  html.ipsc-app-frame body.page-marktplatz .match-card {
+    overflow: hidden !important;
+    padding: 18px 18px 20px !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .match-header-flex {
+    display: grid !important;
+    grid-template-columns: 44px minmax(0, 1fr) !important;
+    column-gap: 12px !important;
+    row-gap: 8px !important;
+    padding-right: 0 !important;
+    align-items: start !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .match-summary {
+    grid-column: 2 !important;
+    min-width: 0 !important;
+    padding-right: 0 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .badge-container {
+    max-width: 100% !important;
+    flex-wrap: wrap !important;
+    padding-right: 0 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .match-price-head-v76k {
+    position: static !important;
+    grid-column: 2 !important;
+    justify-self: start !important;
+    width: auto !important;
+    max-width: 150px !important;
+    min-width: 110px !important;
+    height: 42px !important;
+    margin: 6px 54px 0 0 !important;
+    font-size: 16px !important;
+    z-index: 2 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .owner-menu {
+    position: absolute !important;
+    top: 18px !important;
+    right: 18px !important;
+    z-index: 6 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .owner-menu-trigger {
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px !important;
+    min-height: 46px !important;
+  }
+}
+
+/* Hit-Factor Battle: keep stepper rows clean and make room for Procedure */
+html.ipsc-app-frame body.page-tools .hit-stepper-grid {
+  gap: 14px !important;
+}
+html.ipsc-app-frame body.page-tools .hit-stepper-card {
+  min-width: 0 !important;
+}
+html.ipsc-app-frame body.page-tools .hit-stepper-card .hit-stepper {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+html.ipsc-app-frame body.page-tools .overall-note {
+  font-size: 15px !important;
+  line-height: 1.45 !important;
+}
+
+/* Bluetooth fallback: keep action controls readable after blocked WebBluetooth alert */
+html.ipsc-app-frame body.page-sg-timer-live #btn-connect,
+body.page-sg-timer-live #btn-connect {
+  min-width: 150px !important;
+  justify-content: center !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}

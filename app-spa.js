@@ -3,12 +3,12 @@
    Instead of extracting/replaying page DOM, every app view is the original page inside a same-origin iframe.
    This preserves layout, translations, data loading and page-specific scripts from the backup line.
 */
-(function IPSCAppFrameSpaV78H(){
-  if (window.__IPSC_APP_FRAME_SPA_V78H) return;
-  window.__IPSC_APP_FRAME_SPA_V78H = true;
+(function IPSCAppFrameSpaV78L(){
+  if (window.__IPSC_APP_FRAME_SPA_V78L) return;
+  window.__IPSC_APP_FRAME_SPA_V78L = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
 
-  const VERSION = '78h';
+  const VERSION = '78l';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -61,8 +61,8 @@
 
   function restoreShellChrome(){
     try {
-      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h');
-      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h');
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l');
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
       window.scrollTo(0, 0);
@@ -102,9 +102,9 @@
 
   function markApp(){
     try {
-      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h');
-      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h');
-      document.body.classList.remove('app-v78b','app-v78c','app-v78d','app-v78e','app-v78f');
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l');
+      document.body.classList.remove('app-v78b','app-v78c','app-v78d','app-v78e','app-v78f','app-v78g');
     } catch (_) {}
   }
 
@@ -233,6 +233,36 @@
     return { file, search: url.search || '', hash: url.hash || '', key: file + (url.search || '') + (url.hash || ''), title: VIEW_MAP[file].title || file };
   }
 
+
+  function scrollFrameToTop(frame){
+    try {
+      if (!frame || !frame.contentWindow) return;
+      const win = frame.contentWindow;
+      win.scrollTo(0, 0);
+      const doc = frame.contentDocument;
+      if (doc) {
+        if (doc.scrollingElement) doc.scrollingElement.scrollTop = 0;
+        if (doc.documentElement) doc.documentElement.scrollTop = 0;
+        if (doc.body) doc.body.scrollTop = 0;
+      }
+    } catch (_) {}
+  }
+
+  function broadcastAuthRefresh(){
+    broadcastAuthRefresh();
+    try {
+      if (window.supabaseClient && window.supabaseClient.auth) {
+        window.supabaseClient.auth.getSession().then(function(result){
+          const user = result && result.data && result.data.session && result.data.session.user;
+          if (user) {
+            window.currentUser = user;
+            broadcast({ type: 'ipsc-auth-session-v78l', user: { id: user.id, email: user.email, user_metadata: user.user_metadata || {} } });
+          }
+        });
+      }
+    } catch (_) {}
+  }
+
   function appUrlFor(view){
     return 'app.html?shell=1&view=' + encodeURIComponent(view.file + (view.search || '') + (view.hash || ''));
   }
@@ -306,7 +336,7 @@
     const main = ensureRoot();
     if (!main) return null;
     const frame = document.createElement('iframe');
-    frame.className = 'app-frame-layer-v78c app-frame-layer-v78d app-frame-layer-v78f app-frame-layer-v78g app-frame-layer-v78h';
+    frame.className = 'app-frame-layer-v78c app-frame-layer-v78d app-frame-layer-v78f app-frame-layer-v78g app-frame-layer-v78h app-frame-layer-v78l';
     frame.setAttribute('title', view.title);
     frame.setAttribute('data-view', view.file);
     frame.setAttribute('data-key', view.key);
@@ -351,6 +381,7 @@
       if (serial !== state.navSerial) return true;
       setFrameTheme(frame, getTheme());
       setFrameLang(frame, getLang());
+      if (!view.hash) scrollFrameToTop(frame);
       frame.classList.add('is-active');
       frame.classList.remove('is-previous');
       if (previous && previous !== frame) {
@@ -362,6 +393,7 @@
       restoreShellChrome();
       if (!opts.replace && history.pushState) history.pushState({ view: view.file + (view.search || '') + (view.hash || '') }, '', appUrlFor(view));
       try { frame.contentWindow && frame.contentWindow.postMessage({ type: 'ipsc-app-active-v78d', view: view.file, theme: getTheme(), lang: getLang() }, window.location.origin); } catch (_) {}
+      setTimeout(broadcastAuthRefresh, 40);
       return true;
     } catch (err) {
       console.error('v78d navigation failed', view, err);
@@ -414,8 +446,8 @@
       const data = event.data || {};
       if ((data.type === 'ipsc-navigate-v78c' || data.type === 'ipsc-navigate-v78d') && data.href) navigate(data.href);
       if (data.type === 'ipsc-open-login-v78c' || data.type === 'ipsc-open-login-v78d' || data.type === 'ipsc-open-login-v78h') openLogin();
-      if (data.type === 'ipsc-open-settings-v78g' || data.type === 'ipsc-open-settings-v78h') openShellSettings();
-      if (data.type === 'ipsc-restore-chrome-v78g' || data.type === 'ipsc-restore-chrome-v78h') restoreShellChrome();
+      if (data.type === 'ipsc-open-settings-v78g' || data.type === 'ipsc-open-settings-v78h' || data.type === 'ipsc-open-settings-v78l') openShellSettings();
+      if (data.type === 'ipsc-restore-chrome-v78g' || data.type === 'ipsc-restore-chrome-v78h' || data.type === 'ipsc-restore-chrome-v78l') restoreShellChrome();
     });
   }
 
@@ -461,7 +493,7 @@
     window.addEventListener('storage', () => { applyTheme(getTheme()); syncLanguage(getLang()); });
     window.addEventListener('ipsc:oauth-login-complete', function(e){
       try { if (typeof window.closeAuthModalAfterLoginV78e === 'function') window.closeAuthModalAfterLoginV78e(e && e.detail && e.detail.user); } catch (_) {}
-      broadcast({ type: 'ipsc-auth-refresh-v78d' });
+      broadcastAuthRefresh();
     });
     window.addEventListener('ipsc:auth-logout-v78d', handleLogout);
     window.addEventListener('ipsc:theme-change-v78d', function(e){ applyTheme((e && e.detail && e.detail.theme) || getTheme()); });
@@ -474,7 +506,7 @@
     prewarm();
   }
 
-  window.IPSCAppV78 = { navigate, refresh, getCurrentView: () => state.activeFile, version: VERSION, applyTheme, syncLanguage, broadcastAuth: function(){ broadcast({ type: 'ipsc-auth-refresh-v78d' }); }, handleLogout, restoreShellChrome, openShellSettings, openLogin, showAuthModal: showShellAuthModalV78h };
+  window.IPSCAppV78 = { navigate, refresh, getCurrentView: () => state.activeFile, version: VERSION, applyTheme, syncLanguage, broadcastAuth: broadcastAuthRefresh, handleLogout, restoreShellChrome, openShellSettings, openLogin, showAuthModal: showShellAuthModalV78h };
   window.openSettingsModal = openShellSettings;
   window.openLoginModal = openLogin;
   window.showAuthModalV78h = showShellAuthModalV78h;
