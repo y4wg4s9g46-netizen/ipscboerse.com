@@ -8,7 +8,7 @@
   window.__IPSC_APP_FRAME_SPA_V78N = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
 
-  const VERSION = '78n';
+  const VERSION = '78p';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -30,6 +30,70 @@
   };
   const MORE_PAGES = new Set(['freie-matches.html','schiessbuch.html','sg-timer-live.html','tools.html','analytics.html','wiederladen.html','ipsc-hub.html','doppel-aa.html','performance.html']);
   const CORE_PRELOAD = ['index.html','marktplatz.html','mein-planer.html','community.html','freie-matches.html','schiessbuch.html','tools.html','wiederladen.html'];
+
+  const SIDEBAR_SECTIONS = [
+    { title: { de: 'Hauptbereiche', en: 'Main' }, items: [
+      { file: 'index.html', icon: '🏠', de: 'Startseite', en: 'Home' },
+      { file: 'marktplatz.html', icon: '🛒', de: 'Marktplatz', en: 'Market' },
+      { file: 'freie-matches.html', icon: '🎟️', de: 'Freie Match-Plätze', en: 'Available Slots' },
+      { file: 'mein-planer.html', icon: '📅', de: 'Mein Planer', en: 'Planner' },
+      { file: 'community.html', icon: '👥', de: 'Community', en: 'Community' }
+    ]},
+    { title: { de: 'Training & Analyse', en: 'Training & Analytics' }, items: [
+      { file: 'schiessbuch.html', icon: '📋', de: 'Schießbuch', en: 'Shooting Log' },
+      { file: 'sg-timer-live.html', icon: '⏱️', de: 'SG-Timer Live', en: 'SG-Timer Live' },
+      { file: 'tools.html', icon: '🛠️', de: 'Tools & Training', en: 'Tools & Training' },
+      { file: 'analytics.html', icon: '📊', de: 'Statistiken', en: 'Statistics' },
+      { file: 'wiederladen.html', icon: '📦', de: 'Wiederladen', en: 'Reloading' }
+    ]},
+    { title: { de: 'Extras', en: 'Extras' }, items: [
+      { file: 'ipsc-hub.html', icon: '⭐', de: 'IPSC Hub', en: 'IPSC Hub' },
+      { file: 'doppel-aa.html', icon: '🎯', de: 'Startplatz-Bot', en: 'Slot Bot' },
+      { file: 'performance.html', icon: '📈', de: 'ELO-Vergleich', en: 'ELO Compare' }
+    ]}
+  ];
+
+  function buildIpadSidebarV78p(){
+    try {
+      const sidebar = document.getElementById('ipad-sidebar-v78p');
+      if (!sidebar || sidebar.__ipscBuiltV78p) return;
+      sidebar.__ipscBuiltV78p = true;
+      sidebar.innerHTML = SIDEBAR_SECTIONS.map(function(section, sectionIndex){
+        const items = section.items.map(function(item){
+          return '<a class="ipad-sidebar-link-v78p" href="' + item.file + '" data-file="' + item.file + '">' +
+            '<span class="ipad-sidebar-icon-v78p">' + item.icon + '</span>' +
+            '<span class="ipad-sidebar-label-v78p" data-de="' + item.de.replace(/"/g,'&quot;') + '" data-en="' + item.en.replace(/"/g,'&quot;') + '">' + item.de + '</span>' +
+          '</a>';
+        }).join('');
+        return '<section class="ipad-sidebar-section-v78p">' +
+          '<div class="ipad-sidebar-title-v78p" data-de="' + section.title.de + '" data-en="' + section.title.en + '">' + section.title.de + '</div>' +
+          items +
+        '</section>' + (sectionIndex < SIDEBAR_SECTIONS.length - 1 ? '<div class="ipad-sidebar-divider-v78p"></div>' : '');
+      }).join('');
+      updateSidebarLanguageV78p(getLang());
+    } catch (_) {}
+  }
+
+  function updateSidebarLanguageV78p(lang){
+    try {
+      lang = lang === 'en' ? 'en' : 'de';
+      document.querySelectorAll('#ipad-sidebar-v78p [data-de][data-en]').forEach(function(el){
+        el.textContent = el.getAttribute(lang === 'en' ? 'data-en' : 'data-de') || el.textContent;
+      });
+    } catch (_) {}
+  }
+
+  function updateSidebarActiveV78p(file){
+    try {
+      document.querySelectorAll('#ipad-sidebar-v78p a[data-file]').forEach(function(a){
+        const active = a.getAttribute('data-file') === file;
+        a.classList.toggle('active', active);
+        if (active) a.setAttribute('aria-current', 'page');
+        else a.removeAttribute('aria-current');
+      });
+    } catch (_) {}
+  }
+
 
   const state = {
     activeFile: null,
@@ -82,8 +146,8 @@
 
   function restoreShellChrome(){
     try {
-      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l','is-app-spa-v78m','is-app-spa-v78n');
-      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l','app-v78m','app-v78n');
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l','is-app-spa-v78m','is-app-spa-v78n','is-app-spa-v78p');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l','app-v78m','app-v78n','app-v78o','app-v78p');
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
       window.scrollTo(0, 0);
@@ -123,8 +187,8 @@
 
   function markApp(){
     try {
-      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l','is-app-spa-v78m','is-app-spa-v78n');
-      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l','app-v78m','app-v78n');
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l','is-app-spa-v78m','is-app-spa-v78n','is-app-spa-v78p');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l','app-v78m','app-v78n','app-v78o','app-v78p');
       document.body.classList.remove('app-v78b','app-v78c','app-v78d','app-v78e','app-v78f','app-v78g');
     } catch (_) {}
   }
@@ -190,6 +254,7 @@
       const selector = document.getElementById('language-select');
       if (selector) selector.value = lang;
     } catch (_) {}
+    updateSidebarLanguageV78p(lang);
     state.frames.forEach(frame => setFrameLang(frame, lang));
     broadcast({ type: 'ipsc-language-v78d', lang });
     try { updateChrome(normalizeView(state.activeKey || state.activeFile || 'index.html')); } catch (_) {}
@@ -310,7 +375,7 @@
       document.documentElement.dataset.appView = view.file;
       document.body.dataset.appView = view.file;
       document.body.classList.toggle('is-more-view', MORE_PAGES.has(view.file));
-      document.querySelectorAll('header a[href], #bottom-tab-bar a[href], #more-menu-overlay a[href], .main-nav a[href]').forEach(a => {
+      document.querySelectorAll('header a[href], #bottom-tab-bar a[href], #more-menu-overlay a[href], .main-nav a[href], #ipad-sidebar-v78p a[href]').forEach(a => {
         const href = a.getAttribute('href') || '';
         const target = normalizeView(href).file;
         const active = target === view.file;
@@ -322,11 +387,13 @@
       const menu = document.getElementById('more-menu-overlay');
       if (menu) menu.classList.remove('show');
       if (moreBtn) moreBtn.classList.remove('open');
+      updateSidebarActiveV78p(view.file);
     } catch (_) {}
   }
 
   function ensureRoot(){
     markApp();
+    buildIpadSidebarV78p();
     const main = document.getElementById('app-spa-view-v78');
     if (!main) return null;
     main.classList.add('is-ready');
@@ -543,7 +610,7 @@
     prewarm();
   }
 
-  window.IPSCAppV78 = { navigate, refresh, getCurrentView: () => state.activeFile, version: VERSION, applyTheme, syncLanguage, broadcastAuth: broadcastAuthRefresh, handleLogout, restoreShellChrome, openShellSettings, openLogin, showAuthModal: showShellAuthModalV78h, closeModal: closeShellModalV78m };
+  window.IPSCAppV78 = { navigate, refresh, getCurrentView: () => state.activeFile, version: VERSION, applyTheme, syncLanguage, broadcastAuth: broadcastAuthRefresh, handleLogout, restoreShellChrome, openShellSettings, openLogin, showAuthModal: showShellAuthModalV78h, closeModal: closeShellModalV78m, buildIpadSidebar: buildIpadSidebarV78p };
   window.openSettingsModal = openShellSettings;
   window.openLoginModal = openLogin;
   window.showAuthModalV78h = showShellAuthModalV78h;

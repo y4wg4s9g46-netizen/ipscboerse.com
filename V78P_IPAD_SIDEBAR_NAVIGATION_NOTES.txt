@@ -1,0 +1,7 @@
+v78p iPad Sidebar Navigation
+
+- iPhone bleibt bei Bottom-Tabbar.
+- iPad nutzt eine linke Sidebar mit allen Haupt- und Mehr-Bereichen.
+- Header auf iPad bleibt schlank: Logo und Controls, keine doppelte Pill-Navigation.
+- Browser-Hauptwebsite bleibt unverändert.
+- v78n/v78o Fixes bleiben enthalten.

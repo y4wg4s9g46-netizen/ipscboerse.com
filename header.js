@@ -2496,3 +2496,289 @@ window.toggleMoreMenu = function() {
         } catch (_) {}
     }, { passive: true });
 })();
+
+// ========================================================================== 
+// V78O iPad Header + Login Modal Layout Polish
+// Fixes iPad/tablet header control placement and login modal sizing without
+// changing iPhone layout or desktop browser navigation.
+// ========================================================================== 
+(function ipscTabletHeaderLoginPolishV78O() {
+    if (window.__IPSC_TABLET_HEADER_LOGIN_POLISH_V78O) return;
+    window.__IPSC_TABLET_HEADER_LOGIN_POLISH_V78O = true;
+
+    function inject() {
+        if (document.getElementById('ipsc-tablet-header-login-polish-v78o')) return;
+        var style = document.createElement('style');
+        style.id = 'ipsc-tablet-header-login-polish-v78o';
+        style.textContent = `
+            @media (min-width: 769px) and (max-width: 1180px) {
+                /* iPad/tablet: logo, controls and nav get their own clean rows */
+                #main-header,
+                header#main-header {
+                    min-height: 204px !important;
+                    padding: calc(env(safe-area-inset-top) + 14px) 24px 18px 24px !important;
+                    display: grid !important;
+                    grid-template-columns: 1fr !important;
+                    grid-template-rows: auto auto auto !important;
+                    justify-items: center !important;
+                    align-items: center !important;
+                    row-gap: 9px !important;
+                    box-sizing: border-box !important;
+                }
+
+                header .header-logo-link {
+                    grid-row: 1 !important;
+                    width: auto !important;
+                    max-width: min(720px, calc(100vw - 64px)) !important;
+                    margin: 0 auto !important;
+                    justify-content: center !important;
+                    align-items: center !important;
+                    gap: 13px !important;
+                    text-align: left !important;
+                }
+
+                header .header-logo-frame {
+                    width: 50px !important;
+                    height: 50px !important;
+                    min-width: 50px !important;
+                    min-height: 50px !important;
+                    flex: 0 0 50px !important;
+                }
+
+                header .header-logo-img {
+                    width: 42px !important;
+                    height: 42px !important;
+                    min-width: 42px !important;
+                    min-height: 42px !important;
+                    flex: 0 0 42px !important;
+                }
+
+                header .logo-text-group h1 {
+                    font-size: clamp(26px, 3.25vw, 34px) !important;
+                    line-height: 1.04 !important;
+                    letter-spacing: 0.9px !important;
+                    white-space: nowrap !important;
+                }
+
+                header .logo-text-group p {
+                    font-size: clamp(11px, 1.25vw, 14px) !important;
+                    line-height: 1.15 !important;
+                    letter-spacing: 2.4px !important;
+                    margin-top: 4px !important;
+                    white-space: nowrap !important;
+                }
+
+                header .header-controls {
+                    grid-row: 2 !important;
+                    position: static !important;
+                    top: auto !important;
+                    right: auto !important;
+                    width: 100% !important;
+                    max-width: min(760px, calc(100vw - 72px)) !important;
+                    margin: 0 auto !important;
+                    display: flex !important;
+                    flex-direction: row !important;
+                    flex-wrap: nowrap !important;
+                    justify-content: center !important;
+                    align-items: center !important;
+                    gap: 10px !important;
+                    min-height: 44px !important;
+                    z-index: 5 !important;
+                }
+
+                header #auth-status-container {
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    gap: 10px !important;
+                    flex: 0 0 auto !important;
+                    min-height: 44px !important;
+                }
+
+                header .theme-toggle-btn,
+                header .lang-select,
+                header .btn-auth {
+                    height: 44px !important;
+                    min-height: 44px !important;
+                    border-radius: 14px !important;
+                    box-sizing: border-box !important;
+                }
+
+                header .theme-toggle-btn {
+                    width: 44px !important;
+                    min-width: 44px !important;
+                    max-width: 44px !important;
+                    flex: 0 0 44px !important;
+                }
+
+                header .lang-select {
+                    min-width: 72px !important;
+                    max-width: 82px !important;
+                    padding: 0 12px !important;
+                    font-size: 14px !important;
+                }
+
+                header .btn-auth {
+                    padding: 0 22px !important;
+                    font-size: 14px !important;
+                    font-weight: 800 !important;
+                    white-space: nowrap !important;
+                }
+
+                header #btn-open-settings.header-avatar-btn {
+                    width: 54px !important;
+                    height: 54px !important;
+                    min-width: 54px !important;
+                    min-height: 54px !important;
+                    max-width: 54px !important;
+                    max-height: 54px !important;
+                    flex: 0 0 54px !important;
+                }
+
+                header #btn-open-settings.header-avatar-btn img,
+                header #header-avatar {
+                    width: 46px !important;
+                    height: 46px !important;
+                    min-width: 46px !important;
+                    min-height: 46px !important;
+                    max-width: 46px !important;
+                    max-height: 46px !important;
+                }
+
+                header #btn-logout {
+                    min-width: 176px !important;
+                    padding: 0 26px !important;
+                    border-radius: 999px !important;
+                    letter-spacing: 1.3px !important;
+                }
+
+                header .main-nav.desktop-only,
+                header .main-nav {
+                    grid-row: 3 !important;
+                    width: min(940px, calc(100vw - 48px)) !important;
+                    margin: 2px auto 0 auto !important;
+                    padding-top: 10px !important;
+                    padding-bottom: 4px !important;
+                    justify-content: center !important;
+                    gap: 8px !important;
+                    row-gap: 8px !important;
+                    align-self: end !important;
+                }
+
+                header .main-nav a {
+                    font-size: 12px !important;
+                    padding: 8px 15px !important;
+                }
+            }
+
+            @media (min-width: 769px) and (max-width: 1180px) {
+                /* iPad/tablet login: balanced card, not oversized, not too low */
+                #auth-modal.modal,
+                #auth-modal,
+                .auth-modal,
+                .modal.auth-modal {
+                    align-items: center !important;
+                    justify-content: center !important;
+                    padding: calc(env(safe-area-inset-top) + 28px) 44px calc(env(safe-area-inset-bottom) + 32px) 44px !important;
+                    overflow: hidden !important;
+                }
+
+                #auth-modal .modal-content,
+                #auth-modal .auth-modal-content {
+                    position: fixed !important;
+                    top: 50% !important;
+                    left: 50% !important;
+                    right: auto !important;
+                    bottom: auto !important;
+                    transform: translate(-50%, -50%) !important;
+                    width: min(620px, calc(100vw - 104px)) !important;
+                    max-width: 620px !important;
+                    max-height: calc(100dvh - 116px) !important;
+                    margin: 0 !important;
+                    padding: 30px 34px 28px 34px !important;
+                    border-radius: 30px !important;
+                    overflow: auto !important;
+                    box-sizing: border-box !important;
+                }
+
+                #auth-modal .modal-content h3,
+                #auth-modal .auth-modal-content h3 {
+                    font-size: clamp(34px, 4.3vw, 46px) !important;
+                    line-height: .98 !important;
+                    letter-spacing: -1px !important;
+                    margin: 0 54px 10px 0 !important;
+                    padding-right: 0 !important;
+                }
+
+                #auth-modal .modal-subtitle,
+                #auth-modal #modal-login-view > p,
+                #auth-modal .auth-subtitle {
+                    font-size: 16px !important;
+                    line-height: 1.35 !important;
+                    margin-bottom: 18px !important;
+                }
+
+                #auth-modal .form-group {
+                    margin-bottom: 13px !important;
+                }
+
+                #auth-modal .form-group label {
+                    font-size: 12px !important;
+                    letter-spacing: 1.9px !important;
+                    margin-bottom: 7px !important;
+                }
+
+                #auth-modal input,
+                #auth-modal select,
+                #auth-modal textarea {
+                    min-height: 56px !important;
+                    height: 56px !important;
+                    font-size: 16px !important;
+                    border-radius: 18px !important;
+                    padding: 0 20px !important;
+                }
+
+                #auth-modal .btn-primary-auth,
+                #auth-modal #login-form button[type='submit'],
+                #auth-modal .btn-submit {
+                    min-height: 52px !important;
+                    height: 52px !important;
+                    min-width: 300px !important;
+                    max-width: 360px !important;
+                    border-radius: 16px !important;
+                    font-size: 16px !important;
+                    margin: 12px auto 0 auto !important;
+                }
+
+                #auth-modal .quick-login-panel-v76e,
+                #auth-modal .social-login-separator {
+                    margin-top: 20px !important;
+                }
+
+                #auth-modal .btn-social-passkey,
+                #auth-modal .btn-social-apple,
+                #auth-modal .btn-social-google {
+                    min-height: 46px !important;
+                    height: 46px !important;
+                    min-width: 330px !important;
+                    max-width: 380px !important;
+                    border-radius: 16px !important;
+                    font-size: 15px !important;
+                    margin-left: auto !important;
+                    margin-right: auto !important;
+                }
+
+                #auth-modal .modal-close-container,
+                #auth-modal .modal-close-trigger {
+                    top: 20px !important;
+                    right: 20px !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inject, { once: true });
+    else inject();
+})();
+

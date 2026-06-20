@@ -1,0 +1,1 @@
+V78N: Planner Unterkunft/Übernachtung speichert jetzt in Supabase Tabelle planner_accommodations. Accountgebunden, geräteübergreifend, App- und Browser-kompatibel.

@@ -22,8 +22,8 @@
   <title>IPSC Startplatz-Börse</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="preload" href="global.css?v=78n" as="style">
-  <link rel="stylesheet" href="global.css?v=78n">
+  <link rel="preload" href="global.css?v=78p" as="style">
+  <link rel="stylesheet" href="global.css?v=78p">
   <style id="app-spa-shell-v78">
     html, body { min-height: 100%; background: var(--bg-color, #f6f8fc); }
     body.page-app-spa { margin: 0; overflow-x: hidden; padding-bottom: 0; }
@@ -41,21 +41,178 @@
     body.page-app-spa #native-page-curtain-v75,
     body.page-app-spa #ipsc-surface-bridge-v76s { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
   </style>
+
+
+  <style id="app-spa-ipad-sidebar-v78p">
+    #ipad-sidebar-v78p { display: none; }
+
+    @media (min-width: 820px) and (min-height: 600px) {
+      body.page-app-spa.app-v78p,
+      html.is-app-spa-v78p body.page-app-spa {
+        overflow: hidden !important;
+        height: 100dvh !important;
+      }
+
+      body.page-app-spa.app-v78p #app-shell-root-v78 {
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+        overflow: hidden !important;
+        display: grid !important;
+        grid-template-columns: 252px minmax(0, 1fr) !important;
+        grid-template-rows: auto minmax(0, 1fr) !important;
+        background: var(--bg-color, #f6f8fc) !important;
+      }
+
+      body.page-app-spa.app-v78p #main-header {
+        grid-column: 1 / -1 !important;
+        grid-row: 1 !important;
+        position: relative !important;
+        z-index: 2147482000 !important;
+        border-bottom: 1px solid var(--border-color, rgba(148, 163, 184, .22)) !important;
+        box-shadow: 0 12px 34px rgba(15,23,42,.07) !important;
+      }
+
+      body.page-app-spa.app-v78p #main-header .main-nav,
+      body.page-app-spa.app-v78p #main-header nav.main-nav.desktop-only {
+        display: none !important;
+      }
+
+      body.page-app-spa.app-v78p #bottom-tab-bar,
+      body.page-app-spa.app-v78p #more-menu-overlay {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+
+      body.page-app-spa.app-v78p #ipad-sidebar-v78p {
+        display: flex !important;
+        grid-column: 1 !important;
+        grid-row: 2 !important;
+        min-height: 0 !important;
+        height: 100% !important;
+        overflow-y: auto !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 18px 14px calc(24px + env(safe-area-inset-bottom)) !important;
+        box-sizing: border-box !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        background: color-mix(in srgb, var(--card-bg, #fff) 88%, var(--bg-color, #f6f8fc) 12%) !important;
+        border-right: 1px solid var(--border-color, rgba(148, 163, 184, .22)) !important;
+        box-shadow: 12px 0 34px rgba(15,23,42,.045) !important;
+        z-index: 20 !important;
+      }
+
+      body.page-app-spa.app-v78p #app-spa-view-v78 {
+        grid-column: 2 !important;
+        grid-row: 2 !important;
+        position: relative !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+        opacity: 1 !important;
+        z-index: 1 !important;
+      }
+
+      body.page-app-spa.app-v78p .ipad-sidebar-section-v78p {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 7px !important;
+      }
+
+      body.page-app-spa.app-v78p .ipad-sidebar-title-v78p {
+        padding: 4px 10px 2px !important;
+        font-size: 11px !important;
+        line-height: 1 !important;
+        font-weight: 950 !important;
+        letter-spacing: .13em !important;
+        text-transform: uppercase !important;
+        color: var(--muted-color, #64748b) !important;
+      }
+
+      body.page-app-spa.app-v78p .ipad-sidebar-link-v78p {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        min-height: 48px !important;
+        padding: 11px 12px !important;
+        border-radius: 18px !important;
+        text-decoration: none !important;
+        border: 1px solid transparent !important;
+        background: transparent !important;
+        color: var(--muted-color, #64748b) !important;
+        font-weight: 900 !important;
+        font-size: 14px !important;
+        line-height: 1.16 !important;
+        transition: background .14s ease, color .14s ease, border-color .14s ease, transform .12s ease !important;
+      }
+
+      body.page-app-spa.app-v78p .ipad-sidebar-link-v78p:hover,
+      body.page-app-spa.app-v78p .ipad-sidebar-link-v78p:active {
+        background: rgba(255, 122, 26, .08) !important;
+        color: var(--text-color, #0f172a) !important;
+      }
+
+      body.page-app-spa.app-v78p .ipad-sidebar-link-v78p.active {
+        color: var(--accent-color, #ff7a1a) !important;
+        background: linear-gradient(135deg, rgba(255,159,67,.18), rgba(255,122,26,.09)) !important;
+        border-color: rgba(255,122,26,.24) !important;
+        box-shadow: 0 10px 26px rgba(255,122,26,.10) !important;
+      }
+
+      body.page-app-spa.app-v78p .ipad-sidebar-icon-v78p {
+        width: 24px !important;
+        min-width: 24px !important;
+        text-align: center !important;
+        font-size: 17px !important;
+        line-height: 1 !important;
+      }
+
+      body.page-app-spa.app-v78p .ipad-sidebar-label-v78p {
+        min-width: 0 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+      }
+
+      body.page-app-spa.app-v78p .ipad-sidebar-divider-v78p {
+        height: 1px !important;
+        margin: 4px 8px !important;
+        background: var(--border-color, rgba(148, 163, 184, .22)) !important;
+      }
+
+      html[data-theme="dark"] body.page-app-spa.app-v78p #ipad-sidebar-v78p {
+        background: color-mix(in srgb, var(--card-bg, #111827) 82%, var(--bg-color, #0f172a) 18%) !important;
+        box-shadow: 12px 0 34px rgba(0,0,0,.18) !important;
+      }
+    }
+
+    @media (min-width: 1180px) and (min-height: 700px) {
+      body.page-app-spa.app-v78p #app-shell-root-v78 {
+        grid-template-columns: 276px minmax(0, 1fr) !important;
+      }
+      body.page-app-spa.app-v78p #ipad-sidebar-v78p {
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+      }
+    }
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="page-app-spa page-native-shell app-v78 app-v78h app-v78l app-v78m app-v78n">
+<body class="page-app-spa page-native-shell app-v78 app-v78h app-v78l app-v78m app-v78n app-v78o app-v78p">
   <div id="app-shell-root-v78">
     <header id="main-header"></header>
+    <aside id="ipad-sidebar-v78p" aria-label="iPad Navigation"></aside>
     <main id="app-spa-view-v78" aria-live="polite"></main>
   </div>
   <script id="app-spa-native-guard-v78b">
     window.__IPSC_UNIFIED_SPA_ACTIVE = true;
     try { document.documentElement.classList.add('is-native-shell','is-app-spa-v78'); document.body.classList.add('page-native-shell'); } catch (_) {}
   </script>
-  <script src="header.js?v=78n"></script>
-  <script src="lang.js?v=78n"></script>
-  <script src="app.js?v=78n"></script>
-  <script src="auth.js?v=78n"></script>
-  <script src="app-spa.js?v=78n"></script>
+  <script src="header.js?v=78p"></script>
+  <script src="lang.js?v=78p"></script>
+  <script src="app.js?v=78p"></script>
+  <script src="auth.js?v=78p"></script>
+  <script src="app-spa.js?v=78p"></script>
 </body>
 </html>
