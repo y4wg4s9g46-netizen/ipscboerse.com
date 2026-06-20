@@ -1203,18 +1203,40 @@ async function buildClientSchiessbuchPDF(event) {
 
 
 
+
+        window.addEventListener('message', function(event){
+            try {
+                if (event.origin !== window.location.origin) return;
+                const data = event.data || {};
+                if (data.type === 'ipsc-auth-session-v78l' && data.user) {
+                    window.currentUser = data.user;
+                    if (typeof window.onAuthChange === 'function') window.onAuthChange(window.currentUser);
+                }
+                if (data.type === 'ipsc-auth-logout-v78d') {
+                    window.currentUser = null;
+                    if (typeof window.onAuthChange === 'function') window.onAuthChange(null);
+                }
+            } catch (_) {}
+        });
+
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('entry-date').valueAsDate = new Date();
             initCanvas();
             checkIntegritySchema();
 
+            try {
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'ipsc-request-auth-v78m' }, window.location.origin);
+                    setTimeout(() => window.parent.postMessage({ type: 'ipsc-request-auth-v78m' }, window.location.origin), 220);
+                }
+            } catch (_) {}
             setTimeout(() => {
                 if (window.currentUser) {
                     window.onAuthChange(window.currentUser);
                 } else {
                     document.getElementById('auth-guard').style.display = 'block';
                 }
-            }, 300);
+            }, 850);
         });
 
         window.onAuthChange = (user) => { 
@@ -1478,7 +1500,7 @@ async function buildClientSchiessbuchPDF(event) {
         function stopDrawing() { isDrawing = false; }
         function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
-        function openAddModal() { document.getElementById('modal-add-entry').style.display = 'flex'; }
+        function openAddModal() { if (!window.currentUser) { try { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'ipsc-request-auth-v78m' }, window.location.origin); } catch (_) {} setTimeout(function(){ if (window.currentUser) document.getElementById('modal-add-entry').style.display = 'flex'; else { const g=document.getElementById('auth-guard'); if(g) g.style.display='block'; } }, 250); return; } document.getElementById('modal-add-entry').style.display = 'flex'; }
 
         async function openSignModal(id) {
             document.getElementById('sign-entry-id').value = id;

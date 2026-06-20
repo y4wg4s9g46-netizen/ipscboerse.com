@@ -14039,3 +14039,57 @@ body.page-sg-timer-live #btn-connect {
   text-align: center !important;
   white-space: nowrap !important;
 }
+
+
+/* ======================================================================
+   V78M Endkontrolle Hotfix
+   ====================================================================== */
+html.is-app-spa-v78m body.page-app-spa.app-v78m #auth-modal,
+html.is-app-spa-v78m body.page-app-spa.app-v78m #chat-modal,
+html.is-app-spa-v78m body.page-app-spa.app-v78m #global-inbox-modal,
+html.is-app-spa-v78m body.page-app-spa.app-v78m .modal,
+html.is-app-spa-v78m body.page-app-spa.app-v78m .modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483600 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: calc(env(safe-area-inset-top) + 14px) 14px calc(env(safe-area-inset-bottom) + 14px) !important;
+  pointer-events: auto;
+}
+html.is-app-spa-v78m body.page-app-spa.app-v78m #auth-modal[aria-hidden="true"] {
+  display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important;
+}
+html.is-app-spa-v78m body.page-app-spa.app-v78m #auth-modal .modal-content,
+html.is-app-spa-v78m body.page-app-spa.app-v78m #chat-modal .modal-content,
+html.is-app-spa-v78m body.page-app-spa.app-v78m #global-inbox-modal .modal-content {
+  position: relative !important; z-index: 2147483601 !important;
+  max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 42px) !important;
+}
+html.is-app-spa-v78m body.page-app-spa.app-v78m .modal-close-container,
+html.is-app-spa-v78m body.page-app-spa.app-v78m .modal-close-trigger { z-index: 2147483602 !important; pointer-events: auto !important; }
+html.is-app-spa-v78m body.page-app-spa.app-v78m #main-header { z-index: 5000 !important; }
+html.is-app-spa-v78m body.page-app-spa.app-v78m #more-menu-list { scroll-behavior: auto !important; }
+html.ipsc-app-frame .modal, html.ipsc-app-frame .modal-overlay, html.ipsc-app-frame #chat-modal, html.ipsc-app-frame #global-inbox-modal { align-items: center !important; justify-content: center !important; padding-top: 18px !important; padding-bottom: calc(env(safe-area-inset-bottom) + 18px) !important; }
+html.ipsc-app-frame .modal-content, html.ipsc-app-frame #chat-modal .chat-modal-content, html.ipsc-app-frame #global-inbox-modal .modal-content { margin-top: 0 !important; max-height: calc(100dvh - 40px) !important; }
+
+html.ipsc-app-frame body.page-mein-planer .planner-complete-btn, body.page-mein-planer .planner-complete-btn { border: 1px solid rgba(16,185,129,.28) !important; background: rgba(16,185,129,.10) !important; color: #10b981 !important; border-radius: 14px !important; font-weight: 900 !important; padding: 10px 14px !important; min-height: 42px !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-complete-btn.is-done, body.page-mein-planer .planner-complete-btn.is-done { background: linear-gradient(135deg,#10b981,#059669) !important; color: #fff !important; border-color: transparent !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-stay-details, body.page-mein-planer .planner-stay-details { margin-top: 12px !important; border: 1px solid var(--border-color) !important; border-radius: 16px !important; background: rgba(148,163,184,.06) !important; overflow: hidden !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-stay-details summary, body.page-mein-planer .planner-stay-details summary { list-style: none !important; cursor: pointer !important; padding: 12px 14px !important; font-weight: 900 !important; color: var(--text-color) !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-stay-details summary::-webkit-details-marker, body.page-mein-planer .planner-stay-details summary::-webkit-details-marker { display: none !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-stay-details textarea, body.page-mein-planer .planner-stay-details textarea { width: calc(100% - 28px) !important; margin: 0 14px 14px !important; min-height: 82px !important; border-radius: 14px !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-past-block, body.page-mein-planer .planner-past-block { margin-top: 18px !important; border: 1px solid var(--border-color) !important; border-radius: 20px !important; background: var(--card-bg) !important; box-shadow: var(--shadow-sm) !important; overflow: hidden !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-past-block summary, body.page-mein-planer .planner-past-block summary { list-style: none !important; padding: 16px 18px !important; font-size: 18px !important; font-weight: 950 !important; cursor: pointer !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-past-block summary::-webkit-details-marker, body.page-mein-planer .planner-past-block summary::-webkit-details-marker { display:none !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-past-inner, body.page-mein-planer .planner-past-inner { padding: 0 12px 12px !important; }
+
+@media (max-width: 768px) {
+  html.ipsc-app-frame body.page-marktplatz .match-card, body.page-marktplatz .match-card { padding: 18px 14px 20px 18px !important; overflow: hidden !important; }
+  html.ipsc-app-frame body.page-marktplatz .match-header-flex, body.page-marktplatz .match-header-flex { display: grid !important; grid-template-columns: 44px minmax(0, 1fr) !important; column-gap: 12px !important; row-gap: 8px !important; align-items: start !important; padding-right: 0 !important; }
+  html.ipsc-app-frame body.page-marktplatz .match-summary, body.page-marktplatz .match-summary { grid-column: 2 !important; min-width: 0 !important; padding-right: 58px !important; }
+  html.ipsc-app-frame body.page-marktplatz .badge-container, body.page-marktplatz .badge-container { padding-right: 0 !important; max-width: 100% !important; flex-wrap: wrap !important; }
+  html.ipsc-app-frame body.page-marktplatz .match-price-head-v76k, body.page-marktplatz .match-price-head-v76k { position: static !important; grid-column: 2 !important; justify-self: start !important; align-self: start !important; margin: 8px 62px 0 0 !important; min-width: 116px !important; max-width: calc(100% - 64px) !important; height: 42px !important; font-size: 15px !important; text-align: center !important; z-index: 2 !important; }
+  html.ipsc-app-frame body.page-marktplatz .owner-menu, body.page-marktplatz .owner-menu { position: absolute !important; top: 20px !important; right: 16px !important; z-index: 8 !important; }
+  html.ipsc-app-frame body.page-marktplatz .owner-menu-trigger, body.page-marktplatz .owner-menu-trigger { width: 46px !important; height: 46px !important; min-width: 46px !important; min-height: 46px !important; }
+}

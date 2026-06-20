@@ -3,12 +3,12 @@
    Instead of extracting/replaying page DOM, every app view is the original page inside a same-origin iframe.
    This preserves layout, translations, data loading and page-specific scripts from the backup line.
 */
-(function IPSCAppFrameSpaV78L(){
-  if (window.__IPSC_APP_FRAME_SPA_V78L) return;
-  window.__IPSC_APP_FRAME_SPA_V78L = true;
+(function IPSCAppFrameSpaV78M(){
+  if (window.__IPSC_APP_FRAME_SPA_V78M) return;
+  window.__IPSC_APP_FRAME_SPA_V78M = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
 
-  const VERSION = '78l';
+  const VERSION = '78m';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -59,10 +59,31 @@
     } catch (_) { return false; }
   }
 
+
+  function closeShellModalV78m(which){
+    try {
+      const ids = which === 'chat' ? ['chat-modal','global-inbox-modal'] : ['auth-modal','chat-modal','global-inbox-modal'];
+      ids.forEach(function(id){
+        const modal = document.getElementById(id);
+        if (!modal) return;
+        modal.style.setProperty('display', 'none', 'important');
+        modal.style.setProperty('visibility', 'hidden', 'important');
+        modal.style.setProperty('opacity', '0', 'important');
+        modal.style.setProperty('pointer-events', 'none', 'important');
+        modal.classList.remove('open','active','show','is-open');
+        modal.setAttribute('aria-hidden','true');
+      });
+      document.body.classList.remove('auth-open','modal-open','chat-open');
+      document.documentElement.classList.remove('auth-open','modal-open','chat-open');
+      restoreShellChrome();
+      return true;
+    } catch (_) { return false; }
+  }
+
   function restoreShellChrome(){
     try {
-      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l');
-      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l');
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l','is-app-spa-v78m');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l','app-v78m');
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
       window.scrollTo(0, 0);
@@ -102,8 +123,8 @@
 
   function markApp(){
     try {
-      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l');
-      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l');
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l','is-app-spa-v78m');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l','app-v78m');
       document.body.classList.remove('app-v78b','app-v78c','app-v78d','app-v78e','app-v78f','app-v78g');
     } catch (_) {}
   }
@@ -249,14 +270,20 @@
   }
 
   function broadcastAuthRefresh(){
-    broadcastAuthRefresh();
+    try { broadcast({ type: 'ipsc-auth-refresh-v78d' }); } catch (_) {}
     try {
       if (window.supabaseClient && window.supabaseClient.auth) {
         window.supabaseClient.auth.getSession().then(function(result){
-          const user = result && result.data && result.data.session && result.data.session.user;
+          const session = result && result.data && result.data.session;
+          const user = session && session.user;
           if (user) {
             window.currentUser = user;
-            broadcast({ type: 'ipsc-auth-session-v78l', user: { id: user.id, email: user.email, user_metadata: user.user_metadata || {} } });
+            const payloadUser = { id: user.id, email: user.email, user_metadata: user.user_metadata || {} };
+            window.__IPSC_SHELL_USER_V78M = payloadUser;
+            broadcast({ type: 'ipsc-auth-session-v78l', user: payloadUser });
+          } else {
+            window.__IPSC_SHELL_USER_V78M = null;
+            broadcast({ type: 'ipsc-auth-logout-v78d' });
           }
         });
       }
@@ -336,7 +363,7 @@
     const main = ensureRoot();
     if (!main) return null;
     const frame = document.createElement('iframe');
-    frame.className = 'app-frame-layer-v78c app-frame-layer-v78d app-frame-layer-v78f app-frame-layer-v78g app-frame-layer-v78h app-frame-layer-v78l';
+    frame.className = 'app-frame-layer-v78c app-frame-layer-v78d app-frame-layer-v78f app-frame-layer-v78g app-frame-layer-v78h app-frame-layer-v78l app-frame-layer-v78m';
     frame.setAttribute('title', view.title);
     frame.setAttribute('data-view', view.file);
     frame.setAttribute('data-key', view.key);
@@ -381,7 +408,7 @@
       if (serial !== state.navSerial) return true;
       setFrameTheme(frame, getTheme());
       setFrameLang(frame, getLang());
-      if (!view.hash) scrollFrameToTop(frame);
+      if (!view.hash) { scrollFrameToTop(frame); try { const main = document.getElementById('app-spa-view-v78'); if (main) main.scrollTop = 0; window.scrollTo(0,0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; } catch (_) {} setTimeout(function(){ scrollFrameToTop(frame); }, 120); setTimeout(function(){ scrollFrameToTop(frame); }, 420); }
       frame.classList.add('is-active');
       frame.classList.remove('is-previous');
       if (previous && previous !== frame) {
@@ -417,6 +444,14 @@
 
   function interceptClicks(){
     document.addEventListener('click', function(ev){
+      const closeBtn = ev.target && ev.target.closest && ev.target.closest('#btn-close-modal, #btn-close-chat, .modal-close-trigger, [data-modal-close]');
+      if (closeBtn) {
+        closeShellModalV78m();
+        try { if (typeof ev.preventDefault === 'function') ev.preventDefault(); if (typeof ev.stopImmediatePropagation === 'function') ev.stopImmediatePropagation(); } catch (_) {}
+        return;
+      }
+      const modalBg = ev.target && ev.target.id && ['auth-modal','chat-modal','global-inbox-modal'].includes(ev.target.id) ? ev.target : null;
+      if (modalBg) { closeShellModalV78m(); try { ev.preventDefault(); ev.stopImmediatePropagation(); } catch (_) {} return; }
       const settingsBtn = ev.target && ev.target.closest && ev.target.closest('#btn-open-settings, .header-avatar-btn, #header-avatar');
       if (settingsBtn) {
         ev.preventDefault();
@@ -446,7 +481,9 @@
       const data = event.data || {};
       if ((data.type === 'ipsc-navigate-v78c' || data.type === 'ipsc-navigate-v78d') && data.href) navigate(data.href);
       if (data.type === 'ipsc-open-login-v78c' || data.type === 'ipsc-open-login-v78d' || data.type === 'ipsc-open-login-v78h') openLogin();
-      if (data.type === 'ipsc-open-settings-v78g' || data.type === 'ipsc-open-settings-v78h' || data.type === 'ipsc-open-settings-v78l') openShellSettings();
+      if (data.type === 'ipsc-open-settings-v78g' || data.type === 'ipsc-open-settings-v78h' || data.type === 'ipsc-open-settings-v78l' || data.type === 'ipsc-open-settings-v78m') openShellSettings();
+      if (data.type === 'ipsc-close-shell-modal-v78m') closeShellModalV78m(data.which);
+      if (data.type === 'ipsc-request-auth-v78m') broadcastAuthRefresh();
       if (data.type === 'ipsc-restore-chrome-v78g' || data.type === 'ipsc-restore-chrome-v78h' || data.type === 'ipsc-restore-chrome-v78l') restoreShellChrome();
     });
   }
@@ -506,10 +543,11 @@
     prewarm();
   }
 
-  window.IPSCAppV78 = { navigate, refresh, getCurrentView: () => state.activeFile, version: VERSION, applyTheme, syncLanguage, broadcastAuth: broadcastAuthRefresh, handleLogout, restoreShellChrome, openShellSettings, openLogin, showAuthModal: showShellAuthModalV78h };
+  window.IPSCAppV78 = { navigate, refresh, getCurrentView: () => state.activeFile, version: VERSION, applyTheme, syncLanguage, broadcastAuth: broadcastAuthRefresh, handleLogout, restoreShellChrome, openShellSettings, openLogin, showAuthModal: showShellAuthModalV78h, closeModal: closeShellModalV78m };
   window.openSettingsModal = openShellSettings;
   window.openLoginModal = openLogin;
   window.showAuthModalV78h = showShellAuthModalV78h;
+  window.closeShellModalV78m = closeShellModalV78m;
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();

@@ -9,12 +9,12 @@
       if (!isFrame) return;
       window.__IPSC_APP_FRAME_V78D = true;
       try {
-        document.documentElement.classList.add("ipsc-app-frame", "ipsc-app-frame-v78c", "ipsc-app-frame-v78d", "ipsc-app-frame-v78g", "ipsc-app-frame-v78h", "ipsc-app-frame-v78l");
+        document.documentElement.classList.add("ipsc-app-frame", "ipsc-app-frame-v78c", "ipsc-app-frame-v78d", "ipsc-app-frame-v78g", "ipsc-app-frame-v78h", "ipsc-app-frame-v78l", "ipsc-app-frame-v78m");
         if (document.body) document.body.classList.add("ipsc-app-frame-body");
       } catch (_) {}
       function cleanFrameChrome(){
         try {
-          document.documentElement.classList.add("ipsc-app-frame", "ipsc-app-frame-v78c", "ipsc-app-frame-v78d", "ipsc-app-frame-v78g", "ipsc-app-frame-v78h", "ipsc-app-frame-v78l");
+          document.documentElement.classList.add("ipsc-app-frame", "ipsc-app-frame-v78c", "ipsc-app-frame-v78d", "ipsc-app-frame-v78g", "ipsc-app-frame-v78h", "ipsc-app-frame-v78l", "ipsc-app-frame-v78m");
           if (document.body) document.body.classList.add("ipsc-app-frame-body");
           document.querySelectorAll("#main-header, header#main-header, #bottom-tab-bar, #more-menu-overlay, .main-nav, .bottom-tab-bar").forEach(function(el){ el.remove(); });
         } catch (_) {}
@@ -27,7 +27,7 @@
           var settingsTarget = ev.target && ev.target.closest && ev.target.closest("#btn-open-settings, .header-avatar-btn, #header-avatar");
           if (settingsTarget && window.parent && window.parent !== window) {
             ev.preventDefault(); ev.stopImmediatePropagation();
-            window.parent.postMessage({ type: "ipsc-open-settings-v78l" }, window.location.origin);
+            window.parent.postMessage({ type: "ipsc-open-settings-v78m" }, window.location.origin);
             return;
           }
           var closeTarget = ev.target && ev.target.closest && ev.target.closest(".modal-close-trigger, #btn-close-modal, button[onclick*='closePostModal']");
@@ -35,7 +35,7 @@
             setTimeout(function(){ window.parent.postMessage({ type: "ipsc-restore-chrome-v78l" }, window.location.origin); }, 80);
             setTimeout(function(){ window.parent.postMessage({ type: "ipsc-restore-chrome-v78l" }, window.location.origin); }, 260);
           }
-          var loginTarget = ev.target && ev.target.closest && ev.target.closest("#btn-open-login, .btn-primary-auth, button[onclick*='auth-modal'], button[onclick*='toggleAuthView']");
+          var loginTarget = ev.target && ev.target.closest && ev.target.closest("#btn-open-login, [data-auth-trigger], button[onclick*='auth-modal'], button[onclick*='toggleAuthView']");
           if (loginTarget && window.parent && window.parent !== window) {
             ev.preventDefault(); ev.stopImmediatePropagation();
             window.parent.postMessage({ type: "ipsc-open-login-v78h" }, window.location.origin);
@@ -107,6 +107,15 @@
           } catch (_) {}
         }, true);
       }
+
+
+      // V78M: ask parent shell for the current auth session immediately.
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: "ipsc-request-auth-v78m" }, window.location.origin);
+          setTimeout(function(){ window.parent.postMessage({ type: "ipsc-request-auth-v78m" }, window.location.origin); }, 250);
+        }
+      } catch (_) {}
 
       window.addEventListener("message", function(event){
         if (event.origin !== window.location.origin) return;
@@ -2002,6 +2011,11 @@ window.toggleMoreMenu = function() {
                     try {
                         const list = document.getElementById("more-menu-list");
                         if (!list) return;
+                        const inAppSpa = !!(window.__IPSC_UNIFIED_SPA_ACTIVE || document.body?.classList?.contains("page-app-spa") || document.documentElement?.classList?.contains("is-app-spa-v78"));
+                        if (inAppSpa) {
+                            list.scrollTop = 0;
+                            return;
+                        }
                         const storedScroll = Number(localStorage.getItem("ipsc.moreMenu.scrollTop.v76k") || "0");
                         const activeLink = list.querySelector("a.active");
                         if (storedScroll > 8) {

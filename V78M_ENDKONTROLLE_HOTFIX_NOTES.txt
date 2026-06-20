@@ -1,0 +1,9 @@
+V78M Endkontrolle Hotfix
+
+- Modal close robustness for login/settings/chat in app shell.
+- Fixed over-broad frame login click interception that caused Schießbuch +Eintrag/PDF to open login.
+- Fixed auth broadcast recursion in app-spa.js and refreshed auth state into frames.
+- More menu opens at top in app shell.
+- Planner: done checkmark, collapsible past matches 2026, collapsible accommodation/overnight notes per match (local device storage).
+- SG Timer connect button resets after unsupported WebBluetooth alert/error.
+- Marketplace owner card price/settings spacing tightened.

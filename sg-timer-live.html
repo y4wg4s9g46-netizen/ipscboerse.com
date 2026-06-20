@@ -517,9 +517,12 @@
                 updateUIConnected(device.name || "SG Timer");
 
             } catch (error) {
+                badge.innerHTML = `<span style="width:8px; height:8px; background:var(--danger-color); border-radius:50%;"></span> ${isEn ? 'Disconnected' : 'Getrennt'}`;
                 resetConnectButtonV78l();
                 console.error(error);
-                alert((isEn ? "Connection error: " : "Verbindungsfehler: ") + error.message);
+                alert((isEn ? "Connection error: " : "Verbindungsfehler: ") + (error && error.message ? error.message : error));
+                setTimeout(resetConnectButtonV78l, 50);
+                setTimeout(resetConnectButtonV78l, 300);
             }
         }
 

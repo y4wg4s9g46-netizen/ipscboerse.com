@@ -526,65 +526,79 @@
         }
 
 
+        function plannerMetaKey(id, type) { return `planner:v78m:${type}:${id}`; }
+        function isPlannerDone(id) { return localStorage.getItem(plannerMetaKey(id, 'done')) === '1'; }
+        function togglePlannerDone(id) {
+            const key = plannerMetaKey(id, 'done');
+            const next = localStorage.getItem(key) === '1' ? '0' : '1';
+            localStorage.setItem(key, next);
+            renderMatches();
+        }
+        function savePlannerStay(id, value) { localStorage.setItem(plannerMetaKey(id, 'stay'), String(value || '')); }
+        function getPlannerStay(id) { return localStorage.getItem(plannerMetaKey(id, 'stay')) || ''; }
+        function plannerYear(match) { try { return new Date(match.match_date).getFullYear(); } catch (_) { return null; } }
+        function isPastPlannerMatch(match) { try { return new Date(match.match_date + 'T23:59:59').getTime() < Date.now(); } catch (_) { return false; } }
+
+        function renderPlannerCard(match, isArchived = false) {
+            const dateObj = new Date(match.match_date);
+            const displayDate = dateObj.toLocaleDateString('de-DE');
+            const safeName = encodeURIComponent(match.match_name);
+            const safeLocation = encodeURIComponent(match.match_location || '');
+            const done = isPlannerDone(match.id);
+            const stay = escapeHtml(getPlannerStay(match.id));
+            let matchTitleHtml = escapeHtml(match.match_name);
+            if (match.match_url) matchTitleHtml = `<a href="${escapeHtml(match.match_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(match.match_name)} 🔗</a>`;
+            let badgesHtml = '';
+            if (match.auto_imported) badgesHtml += `<span class="badge badge-bot">🤖 Auto-Import</span>`;
+            if (match.status) {
+                const statusLower = match.status.toLowerCase();
+                if (statusLower.includes('approved') || statusLower.includes('bestätigt')) badgesHtml += `<span class="badge badge-approved">Approved</span>`;
+                else if (statusLower.includes('warteliste') || statusLower.includes('waiting')) badgesHtml += `<span class="badge badge-warteliste">Warteliste</span>`;
+                else badgesHtml += `<span class="badge badge-pending">${escapeHtml(match.status)}</span>`;
+            }
+            if (match.squad && match.squad !== 'TBD') badgesHtml += `<span class="badge badge-squad">${escapeHtml(match.squad)}</span>`;
+            if (done) badgesHtml += `<span class="badge badge-approved">✓ Erledigt</span>`;
+            return `
+                <div class="match-item planner-match-card-v78m ${done ? 'is-done' : ''}">
+                    <div>
+                        <h4>${matchTitleHtml} ${badgesHtml}</h4>
+                        <p>📅 ${displayDate}</p>
+                        <div class="planner-location-row">
+                            <span class="planner-location-text">📍 ${escapeHtml(formatPlannerLocation(match.match_location))}</span>
+                            ${buildPlannerMapButtonsV64(match.match_location, match.match_name)}
+                        </div>
+                        <details class="planner-stay-details">
+                            <summary>🏨 Unterkunft / Übernachtung</summary>
+                            <textarea placeholder="Adresse der Unterkunft, Buchungsnummer oder Notizen eintragen..." oninput="savePlannerStay(${match.id}, this.value)">${stay}</textarea>
+                        </details>
+                    </div>
+                    <div class="planner-card-actions">
+                        <button type="button" class="planner-complete-btn ${done ? 'is-done' : ''}" onclick="togglePlannerDone(${match.id})">${done ? '✓ Erledigt' : '✓ Als erledigt markieren'}</button>
+                        <button class="planner-insert-btn" onclick="inserierenAufMarktplatz('${safeName}', '${match.match_date}', '${safeLocation}')">📢 Inserieren</button>
+                        <button onclick="deleteMatch(${match.id})" class="delete-btn planner-delete-btn">Löschen</button>
+                    </div>
+                </div>`;
+        }
+
         function renderMatches() {
             const container = document.getElementById('match-list');
             if (!container) return;
             container.innerHTML = '';
-
             if (myMatches.length === 0) {
                 container.innerHTML = '<p style="color: var(--text-muted); font-style: italic; font-weight: 600;" data-txt="planner-no-matches">Noch keine Matches eingetragen.</p>';
                 return;
             }
-
+            const upcoming = [];
+            const past2026 = [];
             myMatches.forEach(match => {
-                const dateObj = new Date(match.match_date);
-                const displayDate = dateObj.toLocaleDateString('de-DE');
-                const safeName = encodeURIComponent(match.match_name);
-                const safeLocation = encodeURIComponent(match.match_location || '');
-                
-                let matchTitleHtml = escapeHtml(match.match_name);
-                if (match.match_url) {
-                    matchTitleHtml = `<a href="${escapeHtml(match.match_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(match.match_name)} 🔗</a>`;
-                }
-
-                let badgesHtml = '';
-                if (match.auto_imported) {
-                    badgesHtml += `<span class="badge badge-bot">🤖 Auto-Import</span>`;
-                }
-
-                if (match.status) {
-                    const statusLower = match.status.toLowerCase();
-                    if (statusLower.includes('approved') || statusLower.includes('bestätigt')) {
-                        badgesHtml += `<span class="badge badge-approved">Approved</span>`;
-                    } else if (statusLower.includes('warteliste') || statusLower.includes('waiting')) {
-                        badgesHtml += `<span class="badge badge-warteliste">Warteliste</span>`;
-                    } else {
-                        badgesHtml += `<span class="badge badge-pending">${escapeHtml(match.status)}</span>`;
-                    }
-                }
-
-                if (match.squad && match.squad !== 'TBD') {
-                    badgesHtml += `<span class="badge badge-squad">${escapeHtml(match.squad)}</span>`;
-                }
-
-                // Inline-Styles für Inserieren-Button für Premium-Look leicht angepasst
-                container.innerHTML += `
-                    <div class="match-item">
-                        <div>
-                            <h4>${matchTitleHtml} ${badgesHtml}</h4>
-                            <p>📅 ${displayDate}</p>
-                            <div class="planner-location-row">
-                                <span class="planner-location-text">📍 ${escapeHtml(formatPlannerLocation(match.match_location))}</span>
-                                ${buildPlannerMapButtonsV64(match.match_location, match.match_name)}
-                            </div>
-                        </div>
-                        <div class="planner-card-actions">
-                            <button class="planner-insert-btn" onclick="inserierenAufMarktplatz('${safeName}', '${match.match_date}', '${safeLocation}')">📢 Inserieren</button>
-                            <button onclick="deleteMatch(${match.id})" class="delete-btn planner-delete-btn">Löschen</button>
-                        </div>
-                    </div>
-                `;
+                const archived = isPlannerDone(match.id) || isPastPlannerMatch(match);
+                if (archived && plannerYear(match) === 2026) past2026.push(match); else upcoming.push(match);
             });
+            if (upcoming.length) upcoming.forEach(match => { container.innerHTML += renderPlannerCard(match, false); });
+            else container.innerHTML += '<p style="color: var(--text-muted); font-style: italic; font-weight: 600;">Keine offenen Matches.</p>';
+            if (past2026.length) {
+                container.innerHTML += `<details class="planner-past-block"><summary>Vergangene Matches 2026 (${past2026.length})</summary><div class="planner-past-inner">${past2026.map(match => renderPlannerCard(match, true)).join('')}</div></details>`;
+            }
         }
         
         function inserierenAufMarktplatz(name, date, location) {

@@ -1057,6 +1057,27 @@ function closeAuthModalAfterLoginV78e(user) {
 window.resetAuthProviderButtonsV78e = resetAuthProviderButtonsV78e;
 window.closeAuthModalAfterLoginV78e = closeAuthModalAfterLoginV78e;
 
+
+// V78M: one reliable close path for login/settings modal in app shell.
+function closeAuthModalV78m(){
+  try {
+    const modal = document.getElementById("auth-modal");
+    if (modal) {
+      modal.style.setProperty("display", "none", "important");
+      modal.style.setProperty("visibility", "hidden", "important");
+      modal.style.setProperty("opacity", "0", "important");
+      modal.style.setProperty("pointer-events", "none", "important");
+      modal.classList.remove("open", "active", "show", "is-open");
+      modal.setAttribute("aria-hidden", "true");
+    }
+    document.body.classList.remove("auth-open", "modal-open");
+    document.documentElement.classList.remove("auth-open", "modal-open");
+    if (window.IPSCAppV78 && typeof window.IPSCAppV78.restoreShellChrome === "function") window.IPSCAppV78.restoreShellChrome();
+    return true;
+  } catch (_) { return false; }
+}
+window.closeAuthModalV78m = closeAuthModalV78m;
+
 document.addEventListener("click", async (e) => {
     if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
         if (typeof showAuthModalV78h === "function") {
@@ -1073,9 +1094,11 @@ document.addEventListener("click", async (e) => {
         }
     }
 
-    if (e.target.id === "btn-close-modal" || e.target.closest("#btn-close-modal")) {
-        const modal = document.getElementById("auth-modal");
-        if (modal) modal.style.display = "none";
+    if (e.target.id === "btn-close-modal" || e.target.closest("#btn-close-modal") || e.target.closest(".modal-close-trigger")) {
+        e.preventDefault();
+        if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
+        closeAuthModalV78m();
+        return;
     }
 
     if (e.target.id === "btn-logout" || e.target.closest("#btn-logout")) {
