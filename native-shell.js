@@ -28,11 +28,48 @@
     };
 
     var CORE_SHELL_PAGES = PAGES;
+    var CLUB_PAGES_V78V = { "doppel-aa.html": 1, "performance.html": 1 };
+    var clubAccessV78v = { allowed: false, checked: false, checking: false };
     var CORE_FILES = { "index.html": 1, "marktplatz.html": 1, "mein-planer.html": 1, "community.html": 1 };
     var MAX_LIVE_FRAMES = 5;
 
     function shouldEmbedInShell(file) {
         return !!PAGES[file];
+    }
+
+    function isDoubleAAValueV78v(value) {
+        return value === true || value === 1 || value === "1" || String(value).toLowerCase() === "true" || String(value).toLowerCase() === "yes";
+    }
+
+    function setClubAccessV78v(allowed) {
+        clubAccessV78v.allowed = !!allowed;
+        clubAccessV78v.checked = true;
+        try {
+            document.documentElement.classList.toggle("ipsc-club-access-v78v", clubAccessV78v.allowed);
+            if (document.body) document.body.classList.toggle("ipsc-club-access-v78v", clubAccessV78v.allowed);
+            document.querySelectorAll('[data-club-link-v76d="1"], #club-links-placeholder-v76c .club-links-v76').forEach(function(el){ if (!clubAccessV78v.allowed) el.remove(); });
+        } catch (_) {}
+    }
+
+    async function checkClubAccessV78v() {
+        if (clubAccessV78v.checking) return clubAccessV78v.allowed;
+        clubAccessV78v.checking = true;
+        try {
+            if (!window.supabaseClient || !window.supabaseClient.auth) { setClubAccessV78v(false); return false; }
+            var sessionResult = await window.supabaseClient.auth.getSession();
+            var user = sessionResult && sessionResult.data && sessionResult.data.session && sessionResult.data.session.user;
+            if (!user) { setClubAccessV78v(false); return false; }
+            var result = await window.supabaseClient.from("profiles").select("is_doppel_aa").eq("id", user.id).maybeSingle();
+            var allowed = !result.error && result.data && isDoubleAAValueV78v(result.data.is_doppel_aa);
+            setClubAccessV78v(allowed);
+            return !!allowed;
+        } catch (err) {
+            console.warn("Double Alpha Native-Shell Prüfung fehlgeschlagen:", err);
+            setClubAccessV78v(false);
+            return false;
+        } finally {
+            clubAccessV78v.checking = false;
+        }
     }
 
     function fullPageUrlFor(view) {
@@ -189,7 +226,7 @@
                 a.classList.toggle("active", active);
                 a.classList.toggle("inactive", !active && a.closest("header nav, .main-nav"));
             });
-            var morePages = ["freie-matches.html", "schiessbuch.html", "sg-timer-live.html", "tools.html", "analytics.html", "wiederladen.html", "ipsc-hub.html", "doppel-aa.html", "performance.html"];
+            var morePages = ["freie-matches.html", "schiessbuch.html", "sg-timer-live.html", "tools.html", "analytics.html", "wiederladen.html", "ipsc-hub.html"]; if (clubAccessV78v.allowed) morePages.push("doppel-aa.html", "performance.html");
             var moreActive = morePages.indexOf(file) >= 0;
             var moreBtn = document.getElementById("btn-more-menu");
             if (moreBtn) moreBtn.classList.toggle("active", moreActive);
@@ -447,9 +484,16 @@
         return frame;
     }
 
-    function routeTo(rawView, opts) {
+    async function routeTo(rawView, opts) {
         opts = opts || {};
         var view = normalizeView(rawView);
+        if (CLUB_PAGES_V78V[view.file] && !clubAccessV78v.allowed) {
+            var allowed = await checkClubAccessV78v();
+            if (!allowed) {
+                view = normalizeView('index.html');
+                opts.replace = true;
+            }
+        }
         var theme = getTheme();
         applyShellTheme(theme);
 
@@ -541,7 +585,7 @@
         var i = 0;
         function next() {
             if (i >= warm.length) {
-                ["freie-matches.html", "schiessbuch.html", "sg-timer-live.html", "tools.html", "analytics.html", "wiederladen.html", "ipsc-hub.html", "doppel-aa.html", "performance.html"].forEach(function (f) {
+                ["freie-matches.html", "schiessbuch.html", "sg-timer-live.html", "tools.html", "analytics.html", "wiederladen.html", "ipsc-hub.html"].forEach(function (f) {
                     try { fetch(f + "?shell=1", { cache: "force-cache" }).catch(function () {}); } catch (_) {}
                 });
                 return;
@@ -658,4 +702,6 @@
     window.IPSCNativeShellV77e = window.IPSCNativeShellV76v;
     window.IPSCNativeShellV77f = window.IPSCNativeShellV76v;
     window.IPSCNativeShellV76u = window.IPSCNativeShellV76v;
+
+    try { setTimeout(checkClubAccessV78v, 250); setTimeout(checkClubAccessV78v, 1500); } catch (_) {}
 })();

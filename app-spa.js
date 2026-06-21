@@ -3,12 +3,12 @@
    Instead of extracting/replaying page DOM, every app view is the original page inside a same-origin iframe.
    This preserves layout, translations, data loading and page-specific scripts from the backup line.
 */
-(function IPSCAppFrameSpaV78Q(){
-  if (window.__IPSC_APP_FRAME_SPA_V78Q) return;
-  window.__IPSC_APP_FRAME_SPA_V78Q = true;
+(function IPSCAppFrameSpaV78V(){
+  if (window.__IPSC_APP_FRAME_SPA_V78V) return;
+  window.__IPSC_APP_FRAME_SPA_V78V = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
 
-  const VERSION = '78r';
+  const VERSION = '78v';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -28,7 +28,9 @@
     'schiessbuch-confirm.html': { title: 'Schießbuch bestätigen' },
     'schiessbuch-verify.html': { title: 'Schießbuch prüfen' }
   };
+  const CLUB_PAGES = new Set(['doppel-aa.html','performance.html']);
   const MORE_PAGES = new Set(['freie-matches.html','schiessbuch.html','sg-timer-live.html','tools.html','analytics.html','wiederladen.html','ipsc-hub.html','doppel-aa.html','performance.html']);
+  const clubAccessV78v = { allowed: false, checked: false, checking: false };
   const CORE_PRELOAD = ['index.html','marktplatz.html','mein-planer.html','community.html','freie-matches.html','schiessbuch.html','tools.html','wiederladen.html'];
 
   const SIDEBAR_SECTIONS = [
@@ -48,8 +50,8 @@
     ]},
     { title: { de: 'Extras', en: 'Extras' }, items: [
       { file: 'ipsc-hub.html', icon: '⭐', de: 'IPSC Hub', en: 'IPSC Hub' },
-      { file: 'doppel-aa.html', icon: '🎯', de: 'Startplatz-Bot', en: 'Slot Bot' },
-      { file: 'performance.html', icon: '📈', de: 'ELO-Vergleich', en: 'ELO Compare' }
+      { file: 'doppel-aa.html', icon: '🎯', de: 'Startplatz-Bot', en: 'Slot Bot', club: true },
+      { file: 'performance.html', icon: '📈', de: 'ELO-Vergleich', en: 'ELO Compare', club: true }
     ]}
   ];
 
@@ -58,9 +60,13 @@
       const sidebar = document.getElementById('ipad-sidebar-v78p');
       if (!sidebar || sidebar.__ipscBuiltV78p) return;
       sidebar.__ipscBuiltV78p = true;
-      sidebar.innerHTML = SIDEBAR_SECTIONS.map(function(section, sectionIndex){
+      const visibleSections = SIDEBAR_SECTIONS.map(function(section){
+        const visibleItems = section.items.filter(function(item){ return !item.club || clubAccessV78v.allowed; });
+        return { title: section.title, items: visibleItems };
+      }).filter(function(section){ return section.items.length > 0; });
+      sidebar.innerHTML = visibleSections.map(function(section, sectionIndex){
         const items = section.items.map(function(item){
-          return '<a class="ipad-sidebar-link-v78p" href="' + item.file + '" data-file="' + item.file + '">' +
+          return '<a class="ipad-sidebar-link-v78p" href="' + item.file + '" data-file="' + item.file + '"' + (item.club ? ' data-club-link-v78v="1"' : '') + '>' +
             '<span class="ipad-sidebar-icon-v78p">' + item.icon + '</span>' +
             '<span class="ipad-sidebar-label-v78p" data-de="' + item.de.replace(/"/g,'&quot;') + '" data-en="' + item.en.replace(/"/g,'&quot;') + '">' + item.de + '</span>' +
           '</a>';
@@ -68,9 +74,10 @@
         return '<section class="ipad-sidebar-section-v78p">' +
           '<div class="ipad-sidebar-title-v78p" data-de="' + section.title.de + '" data-en="' + section.title.en + '">' + section.title.de + '</div>' +
           items +
-        '</section>' + (sectionIndex < SIDEBAR_SECTIONS.length - 1 ? '<div class="ipad-sidebar-divider-v78p"></div>' : '');
+        '</section>' + (sectionIndex < visibleSections.length - 1 ? '<div class="ipad-sidebar-divider-v78p"></div>' : '');
       }).join('');
       updateSidebarLanguageV78p(getLang());
+      updateSidebarActiveV78p(state.activeFile || 'index.html');
     } catch (_) {}
   }
 
@@ -92,6 +99,61 @@
         else a.removeAttribute('aria-current');
       });
     } catch (_) {}
+  }
+
+  function isDoubleAAValueV78v(value){
+    return value === true || value === 1 || value === '1' || String(value).toLowerCase() === 'true' || String(value).toLowerCase() === 'yes';
+  }
+
+  function rebuildSidebarAfterClubCheckV78v(){
+    try {
+      const sidebar = document.getElementById('ipad-sidebar-v78p');
+      if (sidebar) sidebar.__ipscBuiltV78p = false;
+      buildIpadSidebarV78p();
+      updateSidebarActiveV78p(state.activeFile || 'index.html');
+    } catch (_) {}
+  }
+
+  function setClubAccessV78v(allowed){
+    allowed = !!allowed;
+    const changed = clubAccessV78v.allowed !== allowed;
+    clubAccessV78v.allowed = allowed;
+    clubAccessV78v.checked = true;
+    if (changed) rebuildSidebarAfterClubCheckV78v();
+    try {
+      document.documentElement.classList.toggle('ipsc-club-access-v78v', allowed);
+      document.body && document.body.classList.toggle('ipsc-club-access-v78v', allowed);
+    } catch (_) {}
+    if (!allowed && CLUB_PAGES.has(state.activeFile || '')) {
+      setTimeout(function(){ navigate('index.html', { replace: true, force: true }); }, 0);
+    }
+  }
+
+  async function checkClubAccessV78v(){
+    if (clubAccessV78v.checking) return clubAccessV78v.allowed;
+    clubAccessV78v.checking = true;
+    try {
+      if (!window.supabaseClient || !window.supabaseClient.auth) { setClubAccessV78v(false); return false; }
+      const sessionResult = await window.supabaseClient.auth.getSession();
+      const user = sessionResult && sessionResult.data && sessionResult.data.session && sessionResult.data.session.user;
+      if (!user) { setClubAccessV78v(false); return false; }
+      const result = await window.supabaseClient.from('profiles').select('is_doppel_aa').eq('id', user.id).maybeSingle();
+      const allowed = !result.error && result.data && isDoubleAAValueV78v(result.data.is_doppel_aa);
+      setClubAccessV78v(allowed);
+      return !!allowed;
+    } catch (err) {
+      console.warn('Double Alpha App-Shell Prüfung fehlgeschlagen:', err);
+      setClubAccessV78v(false);
+      return false;
+    } finally {
+      clubAccessV78v.checking = false;
+    }
+  }
+
+  async function ensureClubRouteAllowedV78v(view){
+    if (!CLUB_PAGES.has(view.file)) return true;
+    if (clubAccessV78v.allowed) return true;
+    return await checkClubAccessV78v();
   }
 
 
@@ -268,6 +330,7 @@
       const modal = document.getElementById('auth-modal');
       if (modal) modal.style.display = 'none';
       if (typeof window.onAuthChange === 'function') window.onAuthChange(null);
+      setClubAccessV78v(false);
     } catch (_) {}
     broadcast({ type: 'ipsc-auth-logout-v78d' });
     setTimeout(function(){
@@ -346,9 +409,11 @@
             const payloadUser = { id: user.id, email: user.email, user_metadata: user.user_metadata || {} };
             window.__IPSC_SHELL_USER_V78M = payloadUser;
             broadcast({ type: 'ipsc-auth-session-v78l', user: payloadUser });
+            setTimeout(checkClubAccessV78v, 50);
           } else {
             window.__IPSC_SHELL_USER_V78M = null;
             broadcast({ type: 'ipsc-auth-logout-v78d' });
+            setClubAccessV78v(false);
           }
         });
       }
@@ -454,7 +519,11 @@
 
   async function navigate(raw, opts){
     opts = opts || {};
-    const view = normalizeView(raw);
+    let view = normalizeView(raw);
+    if (CLUB_PAGES.has(view.file) && !(await ensureClubRouteAllowedV78v(view))) {
+      view = normalizeView('index.html');
+      opts.replace = true;
+    }
     if (state.activeKey === view.key && !opts.force) return true;
     const serial = ++state.navSerial;
     const frame = getFrame(view);
@@ -606,6 +675,7 @@
     const params = new URLSearchParams(window.location.search || '');
     const initial = params.get('view') || 'index.html';
     if (history.replaceState) history.replaceState({ view: initial }, '', appUrlFor(normalizeView(initial)));
+    await checkClubAccessV78v();
     await navigate(initial, { replace: true, force: true });
     prewarm();
   }
@@ -677,7 +747,7 @@
     } catch (_) {}
   });
 
-  window.IPSCAppV78 = { navigate, refresh, getCurrentView: () => state.activeFile, version: VERSION, applyTheme, syncLanguage, broadcastAuth: broadcastAuthRefresh, handleLogout, restoreShellChrome, openShellSettings, openLogin, showAuthModal: showShellAuthModalV78h, closeModal: closeShellModalV78m, buildIpadSidebar: buildIpadSidebarV78p };
+  window.IPSCAppV78 = { navigate, refresh, getCurrentView: () => state.activeFile, version: VERSION, applyTheme, syncLanguage, broadcastAuth: broadcastAuthRefresh, handleLogout, restoreShellChrome, openShellSettings, openLogin, showAuthModal: showShellAuthModalV78h, closeModal: closeShellModalV78m, buildIpadSidebar: buildIpadSidebarV78p, checkClubAccess: checkClubAccessV78v };
   window.openSettingsModal = openShellSettings;
   window.openLoginModal = openLogin;
   window.showAuthModalV78h = showShellAuthModalV78h;

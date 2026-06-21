@@ -1,0 +1,8 @@
+v78v Doppel-AA Gate Fix
+
+- Startplatz-Bot und ELO-Vergleich werden in iPad-Sidebar/App-Shell nicht mehr statisch angezeigt.
+- Anzeige erst nach Supabase-Prüfung von profiles.is_doppel_aa.
+- Direkte Navigation auf doppel-aa.html/performance.html wird im App-Shell geblockt, wenn nicht freigegeben.
+- iPhone-More-Menü bleibt wie Website: Clublinks erst nach Double-Alpha-Prüfung.
+- doppel-aa.html akzeptiert is_doppel_aa auch als true/1/'1'/'yes'.
+- Basis: v78u i18n/ELO/Planner final.
