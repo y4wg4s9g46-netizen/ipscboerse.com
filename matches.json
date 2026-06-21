@@ -11,29 +11,38 @@
     {
         "name": "Bracara Augusta Match 2026",
         "datum": "11.07.2026",
-        "auslastung": "83%",
+        "auslastung": "84%",
         "region": "POR",
         "level": "3",
         "disziplin": "HG",
         "url": "https://www.ipscmatch.de/index.pl?match=Bracara_Augusta_Match_-_2026"
     },
     {
+        "name": "2. PengPeng Parchim  PCC",
+        "datum": "19.07.2026",
+        "auslastung": "19%",
+        "region": "GER",
+        "level": "1",
+        "disziplin": "PCC",
+        "url": "https://www.ipscmatch.de/index.pl?match=2026_1._PengPeng_Parchim_PCC"
+    },
+    {
+        "name": "3. PengPeng Parchim  HG",
+        "datum": "19.07.2026",
+        "auslastung": "25%",
+        "region": "GER",
+        "level": "1",
+        "disziplin": "HG",
+        "url": "https://www.ipscmatch.de/index.pl?match=2026_3._PengPeng_Parchim_HG"
+    },
+    {
         "name": "RLP Shotgun Cup 2026",
         "datum": "26.07.2026",
-        "auslastung": "77%",
+        "auslastung": "76%",
         "region": "GER",
         "level": "3",
         "disziplin": "SG",
         "url": "https://www.ipscmatch.de/index.pl?match=2026_LV5_LM_IPSC_SG"
-    },
-    {
-        "name": "Siegerland Challenge part I",
-        "datum": "26.07.2026",
-        "auslastung": "92%",
-        "region": "GER",
-        "level": "2",
-        "disziplin": "HG",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_Siegerland_Challenge"
     },
     {
         "name": "Bracara Action Air 2026",
@@ -47,7 +56,7 @@
     {
         "name": "Hubertus Summercup 2026 PCC",
         "datum": "31.08.2026",
-        "auslastung": "87%",
+        "auslastung": "89%",
         "region": "GER",
         "level": "2",
         "disziplin": "PCC",
@@ -101,7 +110,7 @@
     {
         "name": "360° PCC powered by 3G",
         "datum": "18.10.2026",
-        "auslastung": "92%",
+        "auslastung": "94%",
         "region": "POL",
         "level": "3",
         "disziplin": "PCC",
@@ -110,7 +119,7 @@
     {
         "name": "11. Karlstadt Cup powered by Frankonia",
         "datum": "01.11.2026",
-        "auslastung": "91%",
+        "auslastung": "98%",
         "region": "GER",
         "level": "3",
         "disziplin": "HG",
@@ -121,14 +130,14 @@
         "datum": "13.12.2026",
         "auslastung": "40%",
         "region": "ESP",
-        "level": "3",
+        "level": "2",
         "disziplin": "HG, PCC, MR",
         "url": "https://www.ipscmatch.de/index.pl?match=TENERIFE_OPEN_2026"
     },
     {
         "name": "LM LV4 2027 Prd, PdO",
         "datum": "10.01.2027",
-        "auslastung": "90%",
+        "auslastung": "91%",
         "region": "GER",
         "level": "3",
         "disziplin": "HG",
@@ -139,7 +148,7 @@
         "datum": "24.01.2027",
         "auslastung": "9%",
         "region": "ESP",
-        "level": "3",
+        "level": "2",
         "disziplin": "HG, PCC, MR",
         "url": "https://www.ipscmatch.de/index.pl?match=2027_TENERIFE_MASTERS_FRONTERA"
     }
