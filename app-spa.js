@@ -8,7 +8,7 @@
   window.__IPSC_APP_FRAME_SPA_V78Q = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
 
-  const VERSION = '78q';
+  const VERSION = '78r';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -627,20 +627,38 @@
       const Directory = (plugins && plugins.Directory) || (window.Capacitor && window.Capacitor.FilesystemDirectory) || { Cache: 'CACHE', Documents: 'DOCUMENTS' };
 
       if (Filesystem && Share && typeof Filesystem.writeFile === 'function' && typeof Share.share === 'function') {
-        const result = await Filesystem.writeFile({
-          path: filename,
-          data: base64,
-          directory: Directory.Cache || 'CACHE',
-          recursive: true
-        });
-        await Share.share({
-          title: title,
-          text: 'PDF wurde erstellt.',
-          url: result && result.uri ? result.uri : undefined,
-          dialogTitle: title
-        });
-        reply(true);
-        return;
+        let lastError = null;
+        const dirs = [Directory.Cache || 'CACHE', Directory.Documents || 'DOCUMENTS'];
+        for (const dir of dirs) {
+          try {
+            const result = await Filesystem.writeFile({
+              path: filename,
+              data: base64,
+              directory: dir,
+              recursive: true
+            });
+            let shareUrl = result && result.uri ? result.uri : undefined;
+            if (!shareUrl && typeof Filesystem.getUri === 'function') {
+              try {
+                const uriResult = await Filesystem.getUri({ path: filename, directory: dir });
+                shareUrl = uriResult && uriResult.uri ? uriResult.uri : undefined;
+              } catch (_) {}
+            }
+            if (!shareUrl) throw new Error('PDF-Datei geschrieben, aber keine Datei-URI erhalten.');
+            await Share.share({
+              title: title,
+              text: 'PDF wurde erstellt.',
+              url: shareUrl,
+              dialogTitle: title
+            });
+            reply(true);
+            return;
+          } catch (e) {
+            lastError = e;
+            console.warn('PDF share attempt failed for directory', dir, e);
+          }
+        }
+        throw lastError || new Error('PDF konnte nicht geteilt werden.');
       }
       throw new Error('Native Share/Filesystem ist nicht verfügbar.');
     } catch (err) {

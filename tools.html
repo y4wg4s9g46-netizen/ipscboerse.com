@@ -1063,6 +1063,36 @@
                 document.documentElement.classList.contains("is-native-shell") ||
                 document.body.classList.contains("is-app-shell");
 
+            // v78r: In der App läuft Tools als iFrame. Der Parent hat die Capacitor-Plugins.
+            // Deshalb erst Parent-Shell bitten, die PDF als echte Datei zu schreiben und Share-Sheet zu öffnen.
+            if ((isNativeShell || document.documentElement.classList.contains('is-app-frame-v78')) && window.parent && window.parent !== window) {
+                try {
+                    const dataUri = doc.output("datauristring");
+                    const base64 = base64FromDataUri(dataUri);
+                    const sharedByParent = await new Promise(resolve => {
+                        let done = false;
+                        const timeout = setTimeout(() => { if (!done) { done = true; cleanup(); resolve(false); } }, 7000);
+                        function cleanup(){ clearTimeout(timeout); window.removeEventListener('message', onMessage); }
+                        function onMessage(event){
+                            try {
+                                if (event.origin !== window.location.origin) return;
+                                const msg = event.data || {};
+                                if (msg.type !== 'ipsc-share-pdf-v78q-result') return;
+                                if (done) return;
+                                done = true;
+                                cleanup();
+                                resolve(!!msg.ok);
+                            } catch (_) {}
+                        }
+                        window.addEventListener('message', onMessage);
+                        window.parent.postMessage({ type: 'ipsc-share-pdf-v78q', filename: safeFilename, title, base64 }, window.location.origin);
+                    });
+                    if (sharedByParent) return true;
+                } catch (err) {
+                    console.warn('Parent PDF share request failed, falling back.', err);
+                }
+            }
+
             // Native Capacitor/iOS: downloads via <a download> often do nothing.
             // Prefer Filesystem + Share Sheet when the plugins exist.
             if (isNativeShell && window.Capacitor && window.Capacitor.Plugins) {

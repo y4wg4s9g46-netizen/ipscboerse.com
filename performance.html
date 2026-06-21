@@ -469,7 +469,7 @@
     
     <script>
         let currentShooters = [];
-        let userPersonalElo = 1700; 
+        let userPersonalElo = null; // v78r: kein falscher 1700-Fallback; wird nur aus Supabase/ELO-Daten gesetzt 
 
         const countryCodes = {
             "germany": "de", "ger": "de", "deu": "de",
@@ -1047,20 +1047,9 @@
 
                 if (profile.real_name) {
                     document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>${tPerfV76("v76-elo-welcome-title", "ELO-Vergleich")}</strong> ${tPerfV76("v76-elo-welcome-desc", "Wähle ein bestätigtes Match aus deinem Planer aus oder füge einen IPSCMatch-Link mit Division ein. Die Analyse startet erst per Klick und wird danach unten gespeichert.")}`;
-                    
-                    const nameParts = profile.real_name.split(" ");
-                    if (nameParts.length >= 2) {
-                        const dbSearchName = `${nameParts[1]}, ${nameParts[0]}`;
-                        const { data: userEloData } = await window.supabaseClient
-                            .from("elo_rankings")
-                            .select("elo_rating")
-                            .eq("lastname", dbSearchName)
-                            .maybeSingle();
-                            
-                        if (userEloData && userEloData.elo_rating) {
-                            userPersonalElo = parseFloat(userEloData.elo_rating);
-                        }
-                    }
+                    await loadOwnEloV78r(profile);
+                } else {
+                    userPersonalElo = null;
                 }
                 
                 const plannedMatches = await loadPlannerMatchesForEloV76n(user);
@@ -1079,6 +1068,65 @@
             }
         }
 
+
+
+        function normalizeEloNameV78r(value) {
+            return String(value || "")
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, " ")
+                .trim();
+        }
+
+        async function loadOwnEloV78r(profile) {
+            userPersonalElo = null;
+            try {
+                const rawName = (profile && profile.real_name) || "";
+                const parts = rawName.trim().split(/\s+/).filter(Boolean);
+                const candidates = [];
+                if (rawName) candidates.push(rawName.trim());
+                if (parts.length >= 2) {
+                    const first = parts[0];
+                    const last = parts.slice(1).join(" ");
+                    candidates.push(`${last}, ${first}`);
+                    candidates.push(`${last} ${first}`);
+                    candidates.push(`${first} ${last}`);
+                }
+                const cleaned = [...new Set(candidates.map(c => c.trim()).filter(c => c && !/^\d+$/.test(c)))];
+                for (const cand of cleaned) {
+                    const { data } = await window.supabaseClient
+                        .from("elo_rankings")
+                        .select("elo_rating, lastname")
+                        .eq("lastname", cand)
+                        .limit(1);
+                    if (data && data.length && data[0].elo_rating !== null && data[0].elo_rating !== undefined) {
+                        userPersonalElo = Number(data[0].elo_rating);
+                        return userPersonalElo;
+                    }
+                }
+                if (parts.length >= 2) {
+                    const lastRaw = parts.slice(1).join(" ");
+                    const lastNorm = normalizeEloNameV78r(lastRaw);
+                    const firstNorm = normalizeEloNameV78r(parts[0]);
+                    const { data } = await window.supabaseClient
+                        .from("elo_rankings")
+                        .select("elo_rating, lastname")
+                        .ilike("lastname", `%${lastRaw}%`)
+                        .limit(25);
+                    const row = (data || []).find(r => {
+                        const n = normalizeEloNameV78r(r.lastname);
+                        return n.includes(lastNorm) && n.includes(firstNorm);
+                    });
+                    if (row && row.elo_rating !== null && row.elo_rating !== undefined) {
+                        userPersonalElo = Number(row.elo_rating);
+                        return userPersonalElo;
+                    }
+                }
+            } catch (e) {
+                console.warn("Eigenes ELO konnte nicht geladen werden:", e);
+            }
+            return null;
+        }
 
         function getPlannerFieldV76n(match, names) {
             if (!match) return "";
@@ -2750,29 +2798,30 @@
         }
 
         function calculateStats(shooters) {
-            document.getElementById('stat-user-elo').textContent = userPersonalElo;
+            const hasUserElo = typeof userPersonalElo === 'number' && !isNaN(userPersonalElo);
+            document.getElementById('stat-user-elo').textContent = hasUserElo ? Math.round(userPersonalElo) : "-";
 
             const totalCompetitors = shooters.length;
             const rankedCompetitors = shooters.filter(s => typeof s.elo === 'number' && !isNaN(s.elo));
             const rankedCount = rankedCompetitors.length;
 
-            const strongerCompetitors = rankedCompetitors.filter(s => s.elo > userPersonalElo);
+            const strongerCompetitors = hasUserElo ? rankedCompetitors.filter(s => s.elo > userPersonalElo) : [];
             const strongerCount = strongerCompetitors.length;
 
-            document.getElementById('stat-stronger-count').textContent = strongerCount;
+            document.getElementById('stat-stronger-count').textContent = hasUserElo ? strongerCount : "-";
 
-            const percentageStronger = totalCompetitors > 0 ? (strongerCount / totalCompetitors) * 100 : 0;
+            const percentageStronger = (hasUserElo && totalCompetitors > 0) ? (strongerCount / totalCompetitors) * 100 : 0;
 
-            let level = "Gering";
-            let color = "var(--success-color)";
+            let level = hasUserElo ? "Gering" : "ELO fehlt";
+            let color = hasUserElo ? "var(--success-color)" : "var(--text-muted)";
 
-            if (percentageStronger > 50) {
+            if (hasUserElo && percentageStronger > 50) {
                 level = "Sehr Hoch";
                 color = "var(--danger-color)";
-            } else if (percentageStronger > 20) {
+            } else if (hasUserElo && percentageStronger > 20) {
                 level = "Hoch";
                 color = "var(--accent-color)";
-            } else if (percentageStronger > 5) {
+            } else if (hasUserElo && percentageStronger > 5) {
                 level = "Mittel";
                 color = "var(--info-color)";
             }
@@ -2781,7 +2830,9 @@
             levelStat.textContent = totalCompetitors > 0 ? level : "-";
             levelStat.style.color = totalCompetitors > 0 ? color : "var(--text-color)";
             levelStat.title = totalCompetitors > 0
-                ? `${strongerCount} von ${totalCompetitors} Teilnehmern sind \u00FCber deinem ELO (${percentageStronger.toFixed(1)}%). ${rankedCount} Teilnehmer hatten ein bekanntes ELO.`
+                ? (hasUserElo
+                    ? `${strongerCount} von ${totalCompetitors} Teilnehmern sind \u00FCber deinem ELO (${percentageStronger.toFixed(1)}%). ${rankedCount} Teilnehmer hatten ein bekanntes ELO.`
+                    : `Dein eigenes ELO wurde nicht eindeutig in elo_rankings gefunden. Feldst\u00E4rke wird trotzdem unabh\u00E4ngig berechnet. ${rankedCount} Teilnehmer hatten ein bekanntes ELO.`)
                 : "";
 
             const sortedElos = rankedCompetitors.map(s => s.elo).sort((a, b) => b - a);
@@ -2838,7 +2889,8 @@
                 let eloDisplay = s.elo !== "-" ? s.elo : "Kein Eintrag";
                 
                 let nameStyle = "";
-                if (typeof s.elo === 'number' && s.elo > userPersonalElo) {
+                const hasUserElo = typeof userPersonalElo === 'number' && !isNaN(userPersonalElo);
+                if (hasUserElo && typeof s.elo === 'number' && s.elo > userPersonalElo) {
                     nameStyle = 'style="color: var(--danger-color);" title="Dieser Sch\u00FCtze hat ein h\u00F6heres ELO als du!"';
                 }
 
@@ -2849,7 +2901,7 @@
                 html += `
                     <div class="competitor-row">
                         <div class="competitor-info">
-                            <span class="competitor-name" ${nameStyle}>${escapeHtml(s.name)} ${typeof s.elo === 'number' && s.elo > userPersonalElo ? '\u{1F525}' : ''}</span>
+                            <span class="competitor-name" ${nameStyle}>${escapeHtml(s.name)} ${hasUserElo && typeof s.elo === 'number' && s.elo > userPersonalElo ? '\u{1F525}' : ''}</span>
                             <span class="competitor-meta">${flagHtml} ${escapeHtml(s.region)} | ${escapeHtml(s.division)}</span>
                         </div>
                         <div class="competitor-elo">
