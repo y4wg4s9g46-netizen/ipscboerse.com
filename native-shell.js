@@ -6,6 +6,7 @@
     if (window.__IPSC_NATIVE_APP_SHELL_V77) return;
     window.__IPSC_NATIVE_APP_SHELL_V77 = true;
     window.__IPSC_NATIVE_APP_SHELL_V77F = true;
+    window.__IPSC_NATIVE_APP_SHELL_V78W_PERF = true;
 
     var PAGES = {
         "index.html": { title: "Start" },
@@ -31,7 +32,7 @@
     var CLUB_PAGES_V78V = { "doppel-aa.html": 1, "performance.html": 1 };
     var clubAccessV78v = { allowed: false, checked: false, checking: false };
     var CORE_FILES = { "index.html": 1, "marktplatz.html": 1, "mein-planer.html": 1, "community.html": 1 };
-    var MAX_LIVE_FRAMES = 5;
+    var MAX_LIVE_FRAMES = 3;
 
     function shouldEmbedInShell(file) {
         return !!PAGES[file];
@@ -191,7 +192,7 @@
         try {
             var frame = frames[key];
             if (!frame) return;
-            if (heightTimers[key]) { try { clearInterval(heightTimers[key]); } catch (_) {} delete heightTimers[key]; }
+            if (heightTimers[key]) { try { if (heightTimers[key].cancel) heightTimers[key].cancel(); else clearInterval(heightTimers[key]); } catch (_) {} delete heightTimers[key]; }
             try { frame.src = "about:blank"; } catch (_) {}
             try { frame.remove(); } catch (_) {}
             delete frames[key];
@@ -430,23 +431,29 @@
     function scheduleHeightWatch(frame) {
         var key = frame.dataset.pageKey;
         if (!key || heightTimers[key]) return;
-        // V77E: no ResizeObserver here. WKWebView logs ResizeObserver loop as startup errors
-        // and can quarantine noisy pages. A light interval + load/transition resize is safer.
-        heightTimers[key] = window.setInterval(function () {
-            if (frame.classList.contains("is-active")) resizeFrame(frame);
-        }, 900);
+        // V78W: Performance-Hotfix. Keine globalen MutationObserver pro iframe und kein permanentes
+        // 900ms-Polling mehr. Das hat auf iPhone/iPad nach mehreren Seitenwechseln spürbar gebremst.
+        var resizePending = false;
+        function requestResize() {
+            if (resizePending || !frame.classList.contains("is-active")) return;
+            resizePending = true;
+            window.requestAnimationFrame(function () {
+                resizePending = false;
+                resizeFrame(frame);
+            });
+        }
+        heightTimers[key] = { cancel: function () {} };
         try {
             var doc = frame.contentDocument;
-            if (doc && doc.body && !doc.body.__ipscMutationObserverV77d && window.MutationObserver) {
-                var pending = false;
-                doc.body.__ipscMutationObserverV77d = new MutationObserver(function () {
-                    if (pending || !frame.classList.contains("is-active")) return;
-                    pending = true;
-                    window.requestAnimationFrame(function(){ pending = false; resizeFrame(frame); });
-                });
-                doc.body.__ipscMutationObserverV77d.observe(doc.body, { childList: true, subtree: true, attributes: true });
+            if (doc) {
+                doc.addEventListener("load", requestResize, true);
+                doc.addEventListener("transitionend", requestResize, true);
+                doc.addEventListener("input", requestResize, true);
+                doc.addEventListener("click", function () { window.setTimeout(requestResize, 80); }, true);
             }
         } catch (_) {}
+        window.setTimeout(requestResize, 120);
+        window.setTimeout(requestResize, 420);
     }
 
     function ensureFrame(view) {
@@ -533,6 +540,7 @@
             } catch (_) {}
         }
 
+        try { evictOldFrames(view.key, null); } catch (_) {}
         var url = "native-shell.html?view=" + encodeURIComponent(view.file + (view.search || "") + (view.hash || ""));
         if (opts.replace) history.replaceState({ view: view.file }, "", url);
         else history.pushState({ view: view.file }, "", url);
@@ -579,25 +587,18 @@
     function warmHtmlCache() {
         if (prewarmStarted) return;
         prewarmStarted = true;
-        // V77E: only keep the four main tabs warm as live iframes.
-        // More-pages are loaded on demand while the old page remains visible; this avoids WKWebView memory pressure and white screens.
-        var warm = ["index.html", "marktplatz.html", "mein-planer.html", "community.html"];
-        var i = 0;
-        function next() {
-            if (i >= warm.length) {
-                ["freie-matches.html", "schiessbuch.html", "sg-timer-live.html", "tools.html", "analytics.html", "wiederladen.html", "ipsc-hub.html"].forEach(function (f) {
-                    try { fetch(f + "?shell=1", { cache: "force-cache" }).catch(function () {}); } catch (_) {}
-                });
-                return;
+        // V78W: Launch-Performance. Kein Vorladen von Live-iframes mehr.
+        // Die Seite, die der Nutzer öffnet, wird geladen; alte aktive Seite bleibt bis zur ersten Paint sichtbar.
+        // Dadurch deutlich weniger RAM/CPU in WKWebView auf iPhone/iPad.
+        try {
+            if ("requestIdleCallback" in window) {
+                window.requestIdleCallback(function () {
+                    ["index.html", "marktplatz.html", "mein-planer.html", "community.html"].forEach(function (f) {
+                        try { fetch(f + "?shell=1", { cache: "force-cache" }).catch(function () {}); } catch (_) {}
+                    });
+                }, { timeout: 5000 });
             }
-            var f = warm[i++];
-            if (!currentKey || currentKey.indexOf(f) !== 0) {
-                try { fetch(f + "?shell=1", { cache: "force-cache" }).catch(function () {}); } catch (_) {}
-                try { ensureFrame(normalizeView(f)); } catch (_) {}
-            }
-            setTimeout(next, 640);
-        }
-        setTimeout(next, 1400);
+        } catch (_) {}
     }
 
     function broadcastAuthToFrames(eventName) {

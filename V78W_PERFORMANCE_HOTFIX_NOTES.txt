@@ -1,0 +1,9 @@
+V78W Performance Hotfix
+
+- Native App Shell lädt keine 4 Live-Iframes mehr im Hintergrund vor.
+- Mehr-Seiten werden nur noch bei Bedarf geladen.
+- MutationObserver pro eingebetteter Seite entfernt.
+- Permanentes 900ms-Iframe-Resize-Polling entfernt.
+- Live-Frames von 5 auf 3 reduziert.
+- Double-Alpha-Gating aus v78v bleibt erhalten.
+- Basis: v78u/v78v i18n, ELO-Planer und Impressum-Fixes bleiben drin.
