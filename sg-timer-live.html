@@ -306,7 +306,7 @@
 
                 <div class="panel-card" style="display: flex; flex-direction: column;">
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
-                        <h2 id="stage-card-title" style="margin: 0;">🎯 Aktueller Durchgang</h2>
+                        <h2 id="stage-card-title" style="margin: 0;" data-txt="sg-timer-current-run">🎯 Aktueller Durchgang</h2>
                         <span id="total-shots-counter" style="font-size: 14px; background: rgba(255,159,67,0.1); color: var(--accent-color); padding: 4px 10px; border-radius: 6px; font-weight: bold;"><span id="js-var-shot-count">0</span> Schüsse</span>
                     </div>
                     <div style="flex: 1; overflow-y: auto; max-height: 560px; margin-top: 15px;">
@@ -315,7 +315,7 @@
                                 <tr><th data-txt="tools-th-name">Schuss-Nr.</th><th data-txt="tools-th-time">Gesamtzeit</th><th>Splitzeit</th></tr>
                             </thead>
                             <tbody id="shot-table-body">
-                                <tr><td colspan="3" style="color: var(--text-muted); padding: 40px 0;" id="js-txt-table-placeholder">Keine Schussdaten active. Warte auf Signal...</td></tr>
+                                <tr><td colspan="3" style="color: var(--text-muted); padding: 40px 0;" id="js-txt-table-placeholder" data-txt="sg-timer-no-data">Keine Schussdaten aktiv. Warte auf Signal...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -339,7 +339,7 @@
 
                 <table class="shot-table" style="margin-top: 20px;">
                     <thead>
-                        <tr><th>Platz</th><th data-txt="tools-hf-name">Schütze</th><th data-txt="tools-hf-pf">Faktor</th><th>Verifizierte Zeit</th></tr>
+                        <tr><th data-txt="sg-timer-rank">Platz</th><th data-txt="tools-hf-name">Schütze</th><th data-txt="tools-hf-pf">Faktor</th><th data-txt="sg-timer-verified-time">Verifizierte Zeit</th></tr>
                     </thead>
                     <tbody id="leaderboard-body">
                         </tbody>
@@ -416,28 +416,6 @@
             if (badge) badge.innerHTML = `<span style="width:8px; height:8px; background:var(--danger-color); border-radius:50%;"></span> ${isEn ? 'Disconnected' : 'Getrennt'}`;
         }
 
-        function showTimerNoticeV78r(message, tone = 'info') {
-            let box = document.getElementById('sg-timer-notice-v78r');
-            const connectBtn = document.getElementById('btn-connect');
-            if (!box) {
-                box = document.createElement('div');
-                box.id = 'sg-timer-notice-v78r';
-                box.style.cssText = 'margin-top:12px;padding:12px 14px;border-radius:16px;font-weight:800;font-size:13px;line-height:1.35;border:1px solid rgba(148,163,184,.28);background:rgba(148,163,184,.10);color:var(--text-color,#0f172a);';
-                if (connectBtn && connectBtn.parentElement) connectBtn.parentElement.appendChild(box);
-            }
-            box.textContent = message;
-            if (tone === 'warn') {
-                box.style.background = 'rgba(255,159,67,.12)';
-                box.style.borderColor = 'rgba(255,159,67,.34)';
-            }
-            box.style.display = 'block';
-        }
-
-        function isAppleMobileV78r() {
-            return /iPad|iPhone|iPod/.test(navigator.userAgent || '') ||
-                   ((navigator.platform || '') === 'MacIntel' && navigator.maxTouchPoints > 1);
-        }
-
         // 1. ANKOPPELN & AUTOMATISCHE HARDWARE-ERKENNUNG (HYBRID FÜR PC & IOS-APP)
         async function connectSGTimer() {
             const badge = document.getElementById('bt-status-badge');
@@ -452,11 +430,7 @@
                 if (!ble) {
                     isNativeBLE = false;
                     if (!navigator.bluetooth) {
-                        const msg = isAppleMobileV78r()
-                            ? (isEn ? "Bluetooth pairing is not available in iPhone/iPad WebView/Safari yet. Drill presets and manual timer functions remain usable." : "Bluetooth-Kopplung ist in iPhone/iPad-WebView/Safari aktuell nicht verfügbar. Drill-Presets und manuelle Timer-Funktionen bleiben nutzbar.")
-                            : (isEn ? "This browser does not support Web-Bluetooth. Use Chrome/Edge on desktop for SG Timer pairing." : "Dieser Browser unterstützt Web-Bluetooth nicht. Für SG-Timer-Kopplung bitte Chrome/Edge am Desktop nutzen.");
-                        showTimerNoticeV78r(msg, 'warn');
-                        if (badge) badge.innerHTML = `<span style="width:8px; height:8px; background:var(--accent-color); border-radius:50%;"></span> ${isEn ? 'Not available here' : 'Hier nicht verfügbar'}`;
+                        alert(isEn ? "Your current browser blocks Web-Bluetooth or does not support it." : "Dein aktueller Browser blockiert Web-Bluetooth oder unterstützt es nicht.");
                         resetConnectButtonV78l();
                         return;
                     }
@@ -546,11 +520,7 @@
                 badge.innerHTML = `<span style="width:8px; height:8px; background:var(--danger-color); border-radius:50%;"></span> ${isEn ? 'Disconnected' : 'Getrennt'}`;
                 resetConnectButtonV78l();
                 console.error(error);
-                const msg = (error && error.message ? error.message : String(error || ''));
-                const cancelled = /cancel|cancelled|user|abbruch|canceled/i.test(msg);
-                showTimerNoticeV78r(cancelled
-                    ? (isEn ? 'Pairing cancelled.' : 'Kopplung abgebrochen.')
-                    : (isEn ? 'SG Timer could not be paired here. Manual drills still work.' : 'SG Timer konnte hier nicht gekoppelt werden. Manuelle Drills funktionieren weiter.'), cancelled ? 'info' : 'warn');
+                alert((isEn ? "Connection error: " : "Verbindungsfehler: ") + (error && error.message ? error.message : error));
                 setTimeout(resetConnectButtonV78l, 50);
                 setTimeout(resetConnectButtonV78l, 300);
             }
@@ -875,5 +845,6 @@
 })();
 </script>
 
+    <script src="release-i18n-v78s.js?v=78s"></script>
 </body>
 </html>

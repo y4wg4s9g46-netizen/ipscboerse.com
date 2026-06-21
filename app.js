@@ -165,7 +165,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
 
                         <div class="settings-alias-card" style="background-color: rgba(59, 130, 246, 0.06); padding: 16px; border-radius: 6px; border-left: 4px solid var(--info-color); margin-bottom: 20px; display: flex; flex-direction: column;">
                             <label for="settings-ipsc-alias" class="settings-alias-title" style="color: var(--info-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-ipsc-alias">🔢 Mitglieds-/Lizenznummer</label>
-                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-ipsc-alias-desc">Nicht öffentlich. Wird nur für Startplatz-Bot, Vereins-/Mitgliedsfunktionen und interne Zuordnung verwendet.</p>
+                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-ipsc-alias-desc">Optional. Nicht öffentlich. Nur für interne Zuordnung und geschützte Vereinsfunktionen.</p>
                             <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. 20911 oder GER1234">
                         </div>
 
@@ -1513,7 +1513,7 @@ fetchMatches();
             "v76f-login-subtitle": "Melde dich mit E-Mail, Passkey, Apple oder Google an.",
             "v76f-login-quick": "Oder Schnell-Login nutzen",
             "v76f-profile-edit": "Profil bearbeiten",
-            "v76f-profile-edit-help": "Name, Mitgliedsnummer, Profilbild und Passwort ändern.",
+            "v76f-profile-edit-help": "Name, Alias, Lizenznummer, Profilbild und Passwort ändern.",
             "v76f-profile-title": "Profilübersicht",
             "lbl-real-name": "🔒 Echter Name (für automatische Zuordnung)",
             "lbl-real-name-desc": "Trage deinen Namen so ein, wie er in Starterlisten erscheint. Der Name wird nicht öffentlich angezeigt und hilft der App, öffentlich verfügbare Matchdaten korrekt zuzuordnen.",
@@ -1521,7 +1521,7 @@ fetchMatches();
             "lbl-public-alias-desc": "Wird in Community und Marktplatz angezeigt. Keine Mitgliedsnummer eintragen.",
             "ph-public-alias": "z.B. AlphaShooter",
             "lbl-ipsc-alias": "🔢 Mitglieds-/Lizenznummer",
-            "lbl-ipsc-alias-desc": "Nicht öffentlich. Wird nur für Startplatz-Bot, Vereins-/Mitgliedsfunktionen und interne Zuordnung verwendet.",
+            "lbl-ipsc-alias-desc": "Optional. Nicht öffentlich. Nur für interne Zuordnung und geschützte Vereinsfunktionen.",
             "ph-ipsc-alias": "z.B. 20911 oder GER1234",
             "lbl-change-password": "Neues Passwort (optional)"
         });
@@ -1531,7 +1531,7 @@ fetchMatches();
             "v76f-login-subtitle": "Sign in with email, passkey, Apple or Google.",
             "v76f-login-quick": "Or use quick sign-in",
             "v76f-profile-edit": "Edit profile",
-            "v76f-profile-edit-help": "Change name, member number, profile photo and password.",
+            "v76f-profile-edit-help": "Change name, alias, license number, profile photo and password.",
             "v76f-profile-title": "Profile overview",
             "lbl-real-name": "🔒 Real name (for automatic matching)",
             "lbl-real-name-desc": "Enter your name exactly as it appears on start lists. It is not shown publicly and helps the app match publicly available match data correctly.",
@@ -1539,7 +1539,7 @@ fetchMatches();
             "lbl-public-alias-desc": "Shown in community and marketplace. Do not enter your member number here.",
             "ph-public-alias": "e.g. AlphaShooter",
             "lbl-ipsc-alias": "🔢 Member/license number",
-            "lbl-ipsc-alias-desc": "Not public. Used only for Slot Bot, club/member functions and internal matching.",
+            "lbl-ipsc-alias-desc": "Optional. Not public. Used only for internal matching and protected club features.",
             "ph-ipsc-alias": "e.g. 20911 or GER1234",
             "lbl-change-password": "New password (optional)"
         });
@@ -1637,7 +1637,7 @@ fetchMatches();
             summary.innerHTML = `
                 <span>
                     <strong data-txt="v76f-profile-edit">${textV76f("v76f-profile-edit", "Profil bearbeiten")}</strong>
-                    <small data-txt="v76f-profile-edit-help">${textV76f("v76f-profile-edit-help", "Name, Mitgliedsnummer, Profilbild und Passwort ändern.")}</small>
+                    <small data-txt="v76f-profile-edit-help">${textV76f("v76f-profile-edit-help", "Name, Alias, Lizenznummer, Profilbild und Passwort ändern.")}</small>
                 </span>
                 <em>⌄</em>
             `;

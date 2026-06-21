@@ -583,9 +583,9 @@
                 </div>
                 <div class="hf-saved-name-row">
                     <select id="hf-saved-name-select" aria-label="Gespeicherte Namen auswählen" onchange="selectSavedHFName(this.value)">
-                        <option value="">Gespeicherten Namen wählen...</option>
+                        <option value="" data-txt="tools-name-select">Gespeicherten Namen wählen...</option>
                     </select>
-                    <button type="button" class="hf-save-name-btn" onclick="saveCurrentHFName()">Namen speichern</button>
+                    <button type="button" class="hf-save-name-btn" onclick="saveCurrentHFName()" data-txt="tools-name-save">Namen speichern</button>
                 </div>
                 <div class="form-group" style="flex: 1; min-width: 120px;">
                     <label data-txt="tools-hf-pf">Wertung</label>
@@ -837,7 +837,7 @@
             if (!select) return;
             const current = select.value;
             const names = getSavedHFNames();
-            select.innerHTML = '<option value="">Gespeicherten Namen wählen...</option>' + names.map(name => `<option value="${escapeHtmlHF(name)}">${escapeHtmlHF(name)}</option>`).join("");
+            select.innerHTML = '<option value="" data-txt="tools-name-select">Gespeicherten Namen wählen...</option>' + names.map(name => `<option value="${escapeHtmlHF(name)}">${escapeHtmlHF(name)}</option>`).join("");
             if (names.includes(current)) select.value = current;
         }
 
@@ -1062,36 +1062,6 @@
                 !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform()) ||
                 document.documentElement.classList.contains("is-native-shell") ||
                 document.body.classList.contains("is-app-shell");
-
-            // v78r: In der App läuft Tools als iFrame. Der Parent hat die Capacitor-Plugins.
-            // Deshalb erst Parent-Shell bitten, die PDF als echte Datei zu schreiben und Share-Sheet zu öffnen.
-            if ((isNativeShell || document.documentElement.classList.contains('is-app-frame-v78')) && window.parent && window.parent !== window) {
-                try {
-                    const dataUri = doc.output("datauristring");
-                    const base64 = base64FromDataUri(dataUri);
-                    const sharedByParent = await new Promise(resolve => {
-                        let done = false;
-                        const timeout = setTimeout(() => { if (!done) { done = true; cleanup(); resolve(false); } }, 7000);
-                        function cleanup(){ clearTimeout(timeout); window.removeEventListener('message', onMessage); }
-                        function onMessage(event){
-                            try {
-                                if (event.origin !== window.location.origin) return;
-                                const msg = event.data || {};
-                                if (msg.type !== 'ipsc-share-pdf-v78q-result') return;
-                                if (done) return;
-                                done = true;
-                                cleanup();
-                                resolve(!!msg.ok);
-                            } catch (_) {}
-                        }
-                        window.addEventListener('message', onMessage);
-                        window.parent.postMessage({ type: 'ipsc-share-pdf-v78q', filename: safeFilename, title, base64 }, window.location.origin);
-                    });
-                    if (sharedByParent) return true;
-                } catch (err) {
-                    console.warn('Parent PDF share request failed, falling back.', err);
-                }
-            }
 
             // Native Capacitor/iOS: downloads via <a download> often do nothing.
             // Prefer Filesystem + Share Sheet when the plugins exist.
@@ -1513,5 +1483,6 @@ async function downloadHitFactorPDF() {
 })();
 </script>
 
+    <script src="release-i18n-v78s.js?v=78s"></script>
 </body>
 </html>

@@ -449,7 +449,7 @@
         </section>
 <div class="page-section" id="auth-guard" style="display: none; text-align: center; padding: 40px 20px;">
             <span style="font-size: 40px; display: block; margin-bottom: 16px;">💾</span>
-            <p style="color: var(--text-color); font-weight: 800; font-size: 18px; margin-top: 0; margin-bottom: 8px;">Digitale Schießkladde</p>
+            <p style="color: var(--text-color); font-weight: 800; font-size: 18px; margin-top: 0; margin-bottom: 8px;" data-txt="v74-log-title">Schießbuch</p>
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; line-height: 1.5; max-width: 400px; margin-left: auto; margin-right: auto;" data-txt="tools-db-logged-out">Bitte logge dich ein, um deine digitale Schießkladde zu nutzen.</p>
             <button type="button" class="btn-primary-auth" style="width: auto; padding: 14px 32px;" onclick="document.getElementById('auth-modal').style.display = 'flex'; if(typeof toggleAuthView === 'function') toggleAuthView('login');" data-txt="planner-logged-out-btn">Jetzt einloggen</button>
         </div>
@@ -473,7 +473,7 @@
                     <h2 style="margin: 0; border: none; padding: 0;" data-txt="planner-title-my-matches">📋 Meine Trainings</h2>
                     <div style="display: flex; gap: 8px;">
                         <button class="btn-primary-auth" style="width: auto; padding: 8px 14px; margin: 0; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); box-shadow: none;" onclick="exportToPDF(event)">📄 PDF Export</button>
-                        <button class="btn-primary-auth" style="width: auto; padding: 8px 14px; margin: 0; box-shadow: none;" onclick="openAddModal()">+ Eintrag</button>
+                        <button class="btn-primary-auth" style="width: auto; padding: 8px 14px; margin: 0; box-shadow: none;" onclick="openAddModal()" data-txt="v74-log-action-add">+ Eintrag</button>
                     </div>
                 </div>
 
@@ -832,7 +832,7 @@
                     const base64 = base64FromDataUri(dataUri);
                     const sharedByParent = await new Promise(resolve => {
                         let done = false;
-                        const timeout = setTimeout(() => { if (!done) { done = true; cleanup(); resolve(false); } }, 7000);
+                        const timeout = setTimeout(() => { if (!done) { done = true; cleanup(); resolve(false); } }, 4200);
                         function cleanup(){
                             clearTimeout(timeout);
                             window.removeEventListener('message', onMessage);
@@ -1721,5 +1721,6 @@ async function buildClientSchiessbuchPDF(event) {
 })();
 </script>
 
+    <script src="release-i18n-v78s.js?v=78s"></script>
 </body>
 </html>

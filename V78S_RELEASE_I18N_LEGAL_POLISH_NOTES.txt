@@ -1,0 +1,7 @@
+v78s Release i18n/legal polish
+- Added release-i18n-v78s.js and loaded it on all HTML pages.
+- Fixed mixed German/English strings on Start, Shooting Log, SG-Timer, Tools, Analytics, Reloading and Hub.
+- Impressum/Legal page now switches full content between German and English.
+- Impressum reference kept on § 5 DDG.
+- Settings license/member number copy no longer mentions Startplatz-Bot; it is described as non-public internal/club data.
+- Public alias and member/license number remain semantically separated.

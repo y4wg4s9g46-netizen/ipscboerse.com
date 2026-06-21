@@ -469,7 +469,7 @@
     
     <script>
         let currentShooters = [];
-        let userPersonalElo = null; // v78r: kein falscher 1700-Fallback; wird nur aus Supabase/ELO-Daten gesetzt 
+        let userPersonalElo = null; 
 
         const countryCodes = {
             "germany": "de", "ger": "de", "deu": "de",
@@ -732,14 +732,16 @@
         }
 
         function normalizeNameForMatching(value) {
+            // v78t: zuerst deutsche Umlaute transliterieren, danach Diakritika entfernen.
+            // Sonst wurde "Schöps" zu "schops" und passte nicht zu "Schoeps" aus IPSC ELO.
             return cleanText(value)
                 .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
                 .replace(/ä/g, "ae")
                 .replace(/ö/g, "oe")
                 .replace(/ü/g, "ue")
                 .replace(/ß/g, "ss")
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
                 .replace(/[^a-z0-9]+/g, " ")
                 .replace(/(.)\1+/g, "$1")
                 .replace(/\s+/g, " ")
@@ -1047,9 +1049,9 @@
 
                 if (profile.real_name) {
                     document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>${tPerfV76("v76-elo-welcome-title", "ELO-Vergleich")}</strong> ${tPerfV76("v76-elo-welcome-desc", "Wähle ein bestätigtes Match aus deinem Planer aus oder füge einen IPSCMatch-Link mit Division ein. Die Analyse startet erst per Klick und wird danach unten gespeichert.")}`;
-                    await loadOwnEloV78r(profile);
-                } else {
-                    userPersonalElo = null;
+                    
+                    // v78t: ELO robust ermitteln. Exact Match war bei Umlaut/Schoeps/Schoeps-Schöps zu streng.
+                    await hydrateOwnEloFromProfile("Optics");
                 }
                 
                 const plannedMatches = await loadPlannerMatchesForEloV76n(user);
@@ -1068,65 +1070,6 @@
             }
         }
 
-
-
-        function normalizeEloNameV78r(value) {
-            return String(value || "")
-                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, " ")
-                .trim();
-        }
-
-        async function loadOwnEloV78r(profile) {
-            userPersonalElo = null;
-            try {
-                const rawName = (profile && profile.real_name) || "";
-                const parts = rawName.trim().split(/\s+/).filter(Boolean);
-                const candidates = [];
-                if (rawName) candidates.push(rawName.trim());
-                if (parts.length >= 2) {
-                    const first = parts[0];
-                    const last = parts.slice(1).join(" ");
-                    candidates.push(`${last}, ${first}`);
-                    candidates.push(`${last} ${first}`);
-                    candidates.push(`${first} ${last}`);
-                }
-                const cleaned = [...new Set(candidates.map(c => c.trim()).filter(c => c && !/^\d+$/.test(c)))];
-                for (const cand of cleaned) {
-                    const { data } = await window.supabaseClient
-                        .from("elo_rankings")
-                        .select("elo_rating, lastname")
-                        .eq("lastname", cand)
-                        .limit(1);
-                    if (data && data.length && data[0].elo_rating !== null && data[0].elo_rating !== undefined) {
-                        userPersonalElo = Number(data[0].elo_rating);
-                        return userPersonalElo;
-                    }
-                }
-                if (parts.length >= 2) {
-                    const lastRaw = parts.slice(1).join(" ");
-                    const lastNorm = normalizeEloNameV78r(lastRaw);
-                    const firstNorm = normalizeEloNameV78r(parts[0]);
-                    const { data } = await window.supabaseClient
-                        .from("elo_rankings")
-                        .select("elo_rating, lastname")
-                        .ilike("lastname", `%${lastRaw}%`)
-                        .limit(25);
-                    const row = (data || []).find(r => {
-                        const n = normalizeEloNameV78r(r.lastname);
-                        return n.includes(lastNorm) && n.includes(firstNorm);
-                    });
-                    if (row && row.elo_rating !== null && row.elo_rating !== undefined) {
-                        userPersonalElo = Number(row.elo_rating);
-                        return userPersonalElo;
-                    }
-                }
-            } catch (e) {
-                console.warn("Eigenes ELO konnte nicht geladen werden:", e);
-            }
-            return null;
-        }
 
         function getPlannerFieldV76n(match, names) {
             if (!match) return "";
@@ -1789,9 +1732,9 @@
         function normalizeNameSearchText(value) {
             return cleanText(value)
                 .toLowerCase()
+                .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
-                .replace(/\u00E4/g, "ae").replace(/\u00F6/g, "oe").replace(/\u00FC/g, "ue").replace(/\u00DF/g, "ss")
                 .replace(/[^a-z0-9]+/g, " ")
                 .replace(/\s+/g, " ")
                 .trim();
@@ -1799,12 +1742,56 @@
 
         function getOwnNameCandidates() {
             const profile = window.userProfileData || {};
-            return uniqueArray([
-                profile.real_name,
-                profile.ipsc_alias,
-                profile.username,
-                "Fabian Schöps"
-            ].map(cleanText).filter(Boolean));
+            const candidates = [profile.real_name, profile.username]
+                .map(cleanText)
+                .filter(Boolean);
+            // Lizenznummer/Mitgliedsnummer nicht als öffentlicher Namens-Match verwenden.
+            // Sie darf nicht dazu führen, dass eine Nummer als Community-/ELO-Name interpretiert wird.
+            return uniqueArray(candidates);
+        }
+
+        function renderedShooterMatchesCurrentUser(shooter) {
+            if (!shooter || !shooter.name) return false;
+            const candidates = getOwnNameCandidates();
+            if (!candidates.length) return false;
+            const shooterNorm = normalizeNameSearchText(shooter.name);
+            if (!shooterNorm) return false;
+
+            return candidates.some(candidate => {
+                const parts = normalizeNameSearchText(candidate).split(/\s+/).filter(Boolean);
+                if (parts.length < 2) return false;
+                return parts.every(part => shooterNorm.includes(part));
+            });
+        }
+
+        function findOwnRenderedShooter(shooters) {
+            const list = Array.isArray(shooters) ? shooters : [];
+            return list.find(s => renderedShooterMatchesCurrentUser(s)) || null;
+        }
+
+        async function hydrateOwnEloFromProfile(divisionHint) {
+            if (!window.supabaseClient || typeof userPersonalElo === "number") return;
+            const candidates = getOwnNameCandidates();
+            if (!candidates.length) return;
+            const divisions = uniqueArray([normalizeDivisionName(divisionHint || ""), "Optics", "Production Optics", "Production", "Standard", "Open", "Classic", "Revolver", "PCC"].filter(d => d && d !== "Unknown"));
+
+            for (const candidate of candidates) {
+                const parts = normalizeNameSearchText(candidate).split(/\s+/).filter(Boolean);
+                if (parts.length < 2) continue;
+                const first = parts[0];
+                const last = parts[parts.length - 1];
+                for (const division of divisions) {
+                    const rows = await fetchEloRowsByDivisionAndNamePart(division, last.slice(0, Math.min(5, last.length)), 200);
+                    const best = rows.find(row => {
+                        const rowNorm = normalizeNameSearchText(row.lastname);
+                        return parts.every(part => rowNorm.includes(part));
+                    });
+                    if (best && best.elo_rating !== null && best.elo_rating !== undefined) {
+                        userPersonalElo = Number(best.elo_rating);
+                        return;
+                    }
+                }
+            }
         }
 
         function lineContainsName(line, nameCandidates) {
@@ -2798,30 +2785,35 @@
         }
 
         function calculateStats(shooters) {
-            const hasUserElo = typeof userPersonalElo === 'number' && !isNaN(userPersonalElo);
-            document.getElementById('stat-user-elo').textContent = hasUserElo ? Math.round(userPersonalElo) : "-";
+            const ownShooter = findOwnRenderedShooter(shooters);
+            if (ownShooter && typeof ownShooter.elo === 'number' && !isNaN(ownShooter.elo)) {
+                userPersonalElo = ownShooter.elo;
+            }
+
+            const hasOwnElo = typeof userPersonalElo === 'number' && !isNaN(userPersonalElo);
+            document.getElementById('stat-user-elo').textContent = hasOwnElo ? userPersonalElo : '-';
 
             const totalCompetitors = shooters.length;
             const rankedCompetitors = shooters.filter(s => typeof s.elo === 'number' && !isNaN(s.elo));
             const rankedCount = rankedCompetitors.length;
 
-            const strongerCompetitors = hasUserElo ? rankedCompetitors.filter(s => s.elo > userPersonalElo) : [];
-            const strongerCount = strongerCompetitors.length;
+            const strongerCompetitors = hasOwnElo ? rankedCompetitors.filter(s => s.elo > userPersonalElo) : [];
+            const strongerCount = hasOwnElo ? strongerCompetitors.length : null;
 
-            document.getElementById('stat-stronger-count').textContent = hasUserElo ? strongerCount : "-";
+            document.getElementById('stat-stronger-count').textContent = hasOwnElo ? strongerCount : '-';
 
-            const percentageStronger = (hasUserElo && totalCompetitors > 0) ? (strongerCount / totalCompetitors) * 100 : 0;
+            const percentageStronger = (hasOwnElo && totalCompetitors > 0) ? (strongerCount / totalCompetitors) * 100 : 0;
 
-            let level = hasUserElo ? "Gering" : "ELO fehlt";
-            let color = hasUserElo ? "var(--success-color)" : "var(--text-muted)";
+            let level = hasOwnElo ? "Gering" : "ELO fehlt";
+            let color = hasOwnElo ? "var(--success-color)" : "var(--text-muted)";
 
-            if (hasUserElo && percentageStronger > 50) {
-                level = "Sehr Hoch";
+            if (hasOwnElo && percentageStronger > 50) {
+                level = "Sehr Hoch"
                 color = "var(--danger-color)";
-            } else if (hasUserElo && percentageStronger > 20) {
+            } else if (hasOwnElo && percentageStronger > 20) {
                 level = "Hoch";
                 color = "var(--accent-color)";
-            } else if (hasUserElo && percentageStronger > 5) {
+            } else if (hasOwnElo && percentageStronger > 5) {
                 level = "Mittel";
                 color = "var(--info-color)";
             }
@@ -2830,9 +2822,9 @@
             levelStat.textContent = totalCompetitors > 0 ? level : "-";
             levelStat.style.color = totalCompetitors > 0 ? color : "var(--text-color)";
             levelStat.title = totalCompetitors > 0
-                ? (hasUserElo
-                    ? `${strongerCount} von ${totalCompetitors} Teilnehmern sind \u00FCber deinem ELO (${percentageStronger.toFixed(1)}%). ${rankedCount} Teilnehmer hatten ein bekanntes ELO.`
-                    : `Dein eigenes ELO wurde nicht eindeutig in elo_rankings gefunden. Feldst\u00E4rke wird trotzdem unabh\u00E4ngig berechnet. ${rankedCount} Teilnehmer hatten ein bekanntes ELO.`)
+                ? (hasOwnElo
+                    ? `${strongerCount} von ${totalCompetitors} Teilnehmern sind über deinem ELO (${percentageStronger.toFixed(1)}%). ${rankedCount} Teilnehmer hatten ein bekanntes ELO.`
+                    : `Dein ELO wurde im Starterfeld oder in der ELO-Tabelle nicht eindeutig erkannt. ${rankedCount} Teilnehmer hatten ein bekanntes ELO.`)
                 : "";
 
             const sortedElos = rankedCompetitors.map(s => s.elo).sort((a, b) => b - a);
@@ -2879,6 +2871,7 @@
 
         function renderList(shooters) {
             const listContainer = document.getElementById('competitor-list');
+            const hasOwnElo = typeof userPersonalElo === 'number' && !isNaN(userPersonalElo);
             if (shooters.length === 0) {
                 listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Keine Sch\u00FCtzen gefunden.</div>';
                 return;
@@ -2889,8 +2882,7 @@
                 let eloDisplay = s.elo !== "-" ? s.elo : "Kein Eintrag";
                 
                 let nameStyle = "";
-                const hasUserElo = typeof userPersonalElo === 'number' && !isNaN(userPersonalElo);
-                if (hasUserElo && typeof s.elo === 'number' && s.elo > userPersonalElo) {
+                if (hasOwnElo && typeof s.elo === 'number' && s.elo > userPersonalElo) {
                     nameStyle = 'style="color: var(--danger-color);" title="Dieser Sch\u00FCtze hat ein h\u00F6heres ELO als du!"';
                 }
 
@@ -2901,7 +2893,7 @@
                 html += `
                     <div class="competitor-row">
                         <div class="competitor-info">
-                            <span class="competitor-name" ${nameStyle}>${escapeHtml(s.name)} ${hasUserElo && typeof s.elo === 'number' && s.elo > userPersonalElo ? '\u{1F525}' : ''}</span>
+                            <span class="competitor-name" ${nameStyle}>${escapeHtml(s.name)} ${hasOwnElo && typeof s.elo === 'number' && s.elo > userPersonalElo ? '\u{1F525}' : ''}</span>
                             <span class="competitor-meta">${flagHtml} ${escapeHtml(s.region)} | ${escapeHtml(s.division)}</span>
                         </div>
                         <div class="competitor-elo">
@@ -2976,5 +2968,6 @@
 })();
 </script>
 
+    <script src="release-i18n-v78s.js?v=78s"></script>
 </body>
 </html>

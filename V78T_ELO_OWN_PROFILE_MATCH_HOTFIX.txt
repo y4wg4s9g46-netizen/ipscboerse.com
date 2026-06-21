@@ -1,0 +1,7 @@
+v78t ELO Own Profile Match Hotfix
+
+- ELO-Vergleich erkennt den eigenen Schützen jetzt aus der geladenen Starterliste.
+- Umlaut-/Transliteration-Fix: Fabian Schöps passt zu Schoeps, Fabian.
+- Kein 1700-Fallback; falls kein eigener ELO gefunden wird, bleibt '-'.
+- Höhere-Gegner-Markierung wird nur gesetzt, wenn eigener ELO wirklich bekannt ist.
+- Basis: v78s i18n / Impressum / Lizenztext Polish.

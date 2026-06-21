@@ -111,7 +111,7 @@ window.portalTranslations = {
         "modal-settings-passkey-btn": "Gerät als Passkey registrieren",
         "lbl-username": "Schützenname / Anzeigename",
         "lbl-ipsc-alias": "🛡️ IPSC Alias / Mitgliedsnummer",
-        "lbl-ipsc-alias-desc": "Optional: Hinterlege deine IPSC-Alias- oder Mitgliedsnummer für mehr Vertrauen im Marktplatz.",
+        "lbl-ipsc-alias-desc": "Optional. Nicht öffentlich. Nur für interne Zuordnung und geschützte Vereinsfunktionen.",
         "lbl-real-name": "🔒 Echter Name (für automatische Zuordnung)",
         "lbl-real-name-desc": "Trage deinen Namen so ein, wie er in Starterlisten erscheint. Der Name wird nicht öffentlich angezeigt und hilft der App, öffentlich verfügbare Matchdaten korrekt zuzuordnen.",
         "ph-real-name": "z.B. Max Mustermann",
@@ -1195,3 +1195,6 @@ if (document.readyState === 'loading') {
     "v76-timer-stop": "Stop"
 });
 })();
+
+
+// V78S: late release translation keys are supplied by release-i18n-v78s.js.
