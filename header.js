@@ -2151,7 +2151,8 @@ window.toggleMoreMenu = function() {
                     return;
                 }
 
-                const allowed = profile?.is_doppel_aa === true;
+                const allowedRaw = profile && profile.is_doppel_aa;
+                const allowed = allowedRaw === true || allowedRaw === 1 || allowedRaw === '1' || String(allowedRaw).toLowerCase() === 'true' || String(allowedRaw).toLowerCase() === 'yes';
                 renderDoubleAAClubLinksV76d(allowed);
 
                 // Bei bestätigtem Zugriff noch einmal nach kurzer Zeit rendern,

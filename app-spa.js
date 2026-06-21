@@ -3,12 +3,12 @@
    Instead of extracting/replaying page DOM, every app view is the original page inside a same-origin iframe.
    This preserves layout, translations, data loading and page-specific scripts from the backup line.
 */
-(function IPSCAppFrameSpaV78N(){
-  if (window.__IPSC_APP_FRAME_SPA_V78N) return;
-  window.__IPSC_APP_FRAME_SPA_V78N = true;
+(function IPSCAppFrameSpaV78Q(){
+  if (window.__IPSC_APP_FRAME_SPA_V78Q) return;
+  window.__IPSC_APP_FRAME_SPA_V78Q = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
 
-  const VERSION = '78p';
+  const VERSION = '78q';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -609,6 +609,55 @@
     await navigate(initial, { replace: true, force: true });
     prewarm();
   }
+
+
+  async function sharePdfFromChildV78q(payload, sourceWindow){
+    const reply = (ok, error) => {
+      try { sourceWindow && sourceWindow.postMessage({ type: 'ipsc-share-pdf-v78q-result', ok: !!ok, error: error || '' }, window.location.origin); } catch (_) {}
+    };
+    try {
+      const filename = String(payload && payload.filename || 'IPSC_Schiessbuch.pdf').replace(/[\\/:*?"<>|]+/g, '_');
+      const title = String(payload && payload.title || 'Schießbuch PDF');
+      const base64 = String(payload && payload.base64 || '').replace(/^data:application\/pdf;base64,/, '');
+      if (!base64) throw new Error('Keine PDF-Daten empfangen.');
+
+      const plugins = window.Capacitor && window.Capacitor.Plugins ? window.Capacitor.Plugins : null;
+      const Filesystem = plugins && plugins.Filesystem;
+      const Share = plugins && plugins.Share;
+      const Directory = (plugins && plugins.Directory) || (window.Capacitor && window.Capacitor.FilesystemDirectory) || { Cache: 'CACHE', Documents: 'DOCUMENTS' };
+
+      if (Filesystem && Share && typeof Filesystem.writeFile === 'function' && typeof Share.share === 'function') {
+        const result = await Filesystem.writeFile({
+          path: filename,
+          data: base64,
+          directory: Directory.Cache || 'CACHE',
+          recursive: true
+        });
+        await Share.share({
+          title: title,
+          text: 'PDF wurde erstellt.',
+          url: result && result.uri ? result.uri : undefined,
+          dialogTitle: title
+        });
+        reply(true);
+        return;
+      }
+      throw new Error('Native Share/Filesystem ist nicht verfügbar.');
+    } catch (err) {
+      console.warn('Parent PDF share failed', err);
+      reply(false, err && err.message ? err.message : String(err));
+    }
+  }
+
+  window.addEventListener('message', function(event){
+    try {
+      if (event.origin !== window.location.origin) return;
+      const data = event.data || {};
+      if (data.type === 'ipsc-share-pdf-v78q') {
+        sharePdfFromChildV78q(data, event.source);
+      }
+    } catch (_) {}
+  });
 
   window.IPSCAppV78 = { navigate, refresh, getCurrentView: () => state.activeFile, version: VERSION, applyTheme, syncLanguage, broadcastAuth: broadcastAuthRefresh, handleLogout, restoreShellChrome, openShellSettings, openLogin, showAuthModal: showShellAuthModalV78h, closeModal: closeShellModalV78m, buildIpadSidebar: buildIpadSidebarV78p };
   window.openSettingsModal = openShellSettings;

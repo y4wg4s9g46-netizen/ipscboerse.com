@@ -1130,6 +1130,11 @@ document.addEventListener("click", async (e) => {
             }
         }
 
+        const settingsPublicAlias = document.getElementById("settings-public-alias");
+        if (settingsPublicAlias && window.currentUser) {
+            settingsPublicAlias.value = window.currentUser.user_metadata?.username || "";
+        }
+
         const settingsIpsc = document.getElementById("settings-ipsc-alias");
         if (settingsIpsc && window.currentUser) {
             settingsIpsc.value = window.currentUser.user_metadata?.ipsc_alias || "";
@@ -1217,11 +1222,12 @@ document.addEventListener("submit", async (e) => {
         }
 
         const realName = document.getElementById("register-real-name") ? document.getElementById("register-real-name").value.trim() : "";
-        const ipscAlias = document.getElementById("register-ipsc-alias") ? document.getElementById("register-ipsc-alias").value.trim() : "";
+        const publicAlias = document.getElementById("register-ipsc-alias") ? document.getElementById("register-ipsc-alias").value.trim() : "";
+        const memberNumber = document.getElementById("register-member-number") ? document.getElementById("register-member-number").value.trim() : "";
         const emailValue = document.getElementById("register-email").value;
         const passwordValue = document.getElementById("register-password").value;
 
-        const publicUsername = ipscAlias !== "" ? ipscAlias : emailValue.split('@')[0];
+        const publicUsername = publicAlias !== "" ? publicAlias : emailValue.split('@')[0];
 
         const { error } = await window.supabaseClient.auth.signUp({
             email: emailValue,
@@ -1229,7 +1235,7 @@ document.addEventListener("submit", async (e) => {
             options: {
                 data: {
                     real_name: realName,
-                    ipsc_alias: ipscAlias,
+                    ipsc_alias: memberNumber,
                     username: publicUsername
                 }
             }
@@ -1279,10 +1285,11 @@ document.addEventListener("submit", async (e) => {
 
         try {
             const newPassword = document.getElementById("settings-password") ? document.getElementById("settings-password").value : "";
+            const newPublicAlias = document.getElementById("settings-public-alias") ? document.getElementById("settings-public-alias").value.trim() : "";
             const newIpscAlias = document.getElementById("settings-ipsc-alias") ? document.getElementById("settings-ipsc-alias").value.trim() : "";
             const newRealName = document.getElementById("settings-real-name") ? document.getElementById("settings-real-name").value.trim() : "";
 
-            const publicUsername = newIpscAlias !== "" ? newIpscAlias : window.currentUser.email.split('@')[0];
+            const publicUsername = newPublicAlias !== "" ? newPublicAlias : window.currentUser.email.split('@')[0];
 
             const avatarInput = document.getElementById("settings-avatar");
             const avatarFile = avatarInput && avatarInput.files.length > 0 ? avatarInput.files[0] : null;

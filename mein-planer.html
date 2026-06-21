@@ -414,7 +414,7 @@
 
     <header id="main-header"></header>
 
-    <script src="header.js?v=78o"></script>
+    <script src="header.js?v=78q"></script>
     <div class="container">
         
         
@@ -489,11 +489,11 @@
             <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-<script src="auth.js?v=78o"></script>
+<script src="auth.js?v=78q"></script>
 
-<script src="lang.js?v=78o"></script>
+<script src="lang.js?v=78q"></script>
 
-<script src="app.js?v=78o"></script>
+<script src="app.js?v=78q"></script>
     <script>
         let myMatches = [];
         let plannerAccommodationsV78n = {};
@@ -715,13 +715,10 @@
                             <span class="planner-location-text">📍 ${escapeHtml(formatPlannerLocation(match.match_location))}</span>
                             ${buildPlannerMapButtonsV64(match.match_location, match.match_name)}
                         </div>
-                        <details class="planner-stay-details">
-                            <summary>🏨 Unterkunft / Übernachtung</summary>
-                            <textarea placeholder="Adresse der Unterkunft, Buchungsnummer oder Notizen eintragen..." oninput="savePlannerStay(${match.id}, this.value)">${stay}</textarea>
-                        </details>
+                        ${buildPlannerAccommodationBoxV78n(match)}
                     </div>
                     <div class="planner-card-actions">
-                        <button type="button" class="planner-complete-btn ${done ? 'is-done' : ''}" onclick="togglePlannerDone(${match.id})">${done ? '✓ Erledigt' : '✓ Als erledigt markieren'}</button>
+                        <button type="button" class="planner-complete-btn ${done ? 'is-done' : ''}" onclick="togglePlannerDone(${match.id})">${done ? '✓ Erledigt' : '✓ Erledigt markieren'}</button>
                         <button class="planner-insert-btn" onclick="inserierenAufMarktplatz('${safeName}', '${match.match_date}', '${safeLocation}')">📢 Inserieren</button>
                         <button onclick="deleteMatch(${match.id})" class="delete-btn planner-delete-btn">Löschen</button>
                     </div>

@@ -14093,3 +14093,92 @@ html.ipsc-app-frame body.page-mein-planer .planner-past-inner, body.page-mein-pl
   html.ipsc-app-frame body.page-marktplatz .owner-menu, body.page-marktplatz .owner-menu { position: absolute !important; top: 20px !important; right: 16px !important; z-index: 8 !important; }
   html.ipsc-app-frame body.page-marktplatz .owner-menu-trigger, body.page-marktplatz .owner-menu-trigger { width: 46px !important; height: 46px !important; min-width: 46px !important; min-height: 46px !important; }
 }
+
+
+/* V78Q Launch Hotfix: planner card actions + cloud accommodation mobile polish */
+body.page-mein-planer .planner-card-actions {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  margin-top: 16px !important;
+}
+body.page-mein-planer .planner-complete-btn {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 46px !important;
+  height: auto !important;
+  border-radius: 18px !important;
+  padding: 12px 14px !important;
+  white-space: normal !important;
+  line-height: 1.15 !important;
+}
+body.page-mein-planer .planner-insert-btn,
+body.page-mein-planer .planner-delete-btn {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 44px !important;
+  height: auto !important;
+  border-radius: 18px !important;
+  padding: 11px 12px !important;
+  white-space: nowrap !important;
+}
+body.page-mein-planer .planner-accommodation-box-v78n {
+  margin-top: 14px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+body.page-mein-planer .planner-accommodation-box-v78n summary {
+  min-width: 0 !important;
+}
+body.page-mein-planer .planner-accommodation-box-v78n summary span:first-child {
+  min-width: 0 !important;
+  overflow-wrap: anywhere !important;
+}
+body.page-mein-planer .planner-accommodation-actions-v78n {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+}
+body.page-mein-planer .planner-accommodation-save-v78n {
+  width: 100% !important;
+  min-height: 46px !important;
+}
+@media (max-width: 760px) {
+  body.page-mein-planer .match-item,
+  html.ipsc-app-frame body.page-mein-planer .match-item {
+    display: block !important;
+    padding: 18px 16px !important;
+    overflow: hidden !important;
+  }
+  body.page-mein-planer .planner-card-actions,
+  html.ipsc-app-frame body.page-mein-planer .planner-card-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    width: 100% !important;
+    justify-self: stretch !important;
+    margin-top: 16px !important;
+  }
+  body.page-mein-planer .planner-complete-btn,
+  html.ipsc-app-frame body.page-mein-planer .planner-complete-btn {
+    grid-column: 1 / -1 !important;
+    font-size: 15px !important;
+  }
+  body.page-mein-planer .planner-insert-btn,
+  body.page-mein-planer .planner-delete-btn,
+  html.ipsc-app-frame body.page-mein-planer .planner-insert-btn,
+  html.ipsc-app-frame body.page-mein-planer .planner-delete-btn {
+    font-size: 14px !important;
+  }
+}
+@media (min-width: 900px) {
+  body.page-mein-planer .match-item {
+    grid-template-columns: minmax(0, 1fr) 230px !important;
+  }
+  body.page-mein-planer .planner-card-actions {
+    width: 230px !important;
+    grid-template-columns: 1fr !important;
+    margin-top: 0 !important;
+  }
+}

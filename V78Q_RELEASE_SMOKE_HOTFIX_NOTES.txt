@@ -1,0 +1,14 @@
+IPSC Börse v78q Release Smoke Hotfix
+
+Fixes:
+- Planer: Erledigt-Button auf iPhone sauber als ganze Zeile, kein Überlappen mit Inserieren.
+- Planer: Unterkunft/Übernachtung nutzt jetzt wirklich die Supabase-Box aus planner_accommodations statt altem localStorage-Textarea.
+- Planer: mobile Cloud-Speichern-UI kompakter und vollbreit.
+- Schießbuch: PDF-Export sendet aus dem App-iframe an die native Capacitor-Shell und öffnet die echte iOS-Share-Sheet mit PDF-Datei.
+- Schießbuch: zusätzlicher Web-Share-Datei-Fallback.
+- Einstellungen: öffentlicher Alias/Schützenname und Mitglieds-/Lizenznummer getrennt.
+- Community: Anzeige nutzt profiles.username als öffentlichen Alias und zeigt nicht mehr ipsc_alias/Mitgliedsnummer.
+- Startplatz-Bot: nutzt weiterhin ipsc_alias als Mitglieds-/Lizenznummer.
+- Double-Alpha/Geheimseiten: is_doppel_aa wird tolerant geprüft (true/1/'true'/'yes'), damit Startplatz-Bot und ELO wieder im Mehr-Menü erscheinen.
+
+No database migration needed beyond existing profiles fields (username, ipsc_alias, real_name) and planner_accommodations table from v78n.

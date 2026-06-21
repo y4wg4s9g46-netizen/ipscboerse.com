@@ -824,6 +824,56 @@
                 document.documentElement.classList.contains("is-native-shell") ||
                 document.body.classList.contains("is-app-shell");
 
+            // V78Q: If this page runs inside the app iframe, ask the parent Capacitor shell
+            // to write a real PDF file and open the native iOS share sheet.
+            if (isNativeShell && window.parent && window.parent !== window) {
+                try {
+                    const dataUri = doc.output("datauristring");
+                    const base64 = base64FromDataUri(dataUri);
+                    const sharedByParent = await new Promise(resolve => {
+                        let done = false;
+                        const timeout = setTimeout(() => { if (!done) { done = true; cleanup(); resolve(false); } }, 4200);
+                        function cleanup(){
+                            clearTimeout(timeout);
+                            window.removeEventListener('message', onMessage);
+                        }
+                        function onMessage(event){
+                            try {
+                                if (event.origin !== window.location.origin) return;
+                                const msg = event.data || {};
+                                if (msg.type !== 'ipsc-share-pdf-v78q-result') return;
+                                if (done) return;
+                                done = true;
+                                cleanup();
+                                resolve(!!msg.ok);
+                            } catch (_) {}
+                        }
+                        window.addEventListener('message', onMessage);
+                        window.parent.postMessage({
+                            type: 'ipsc-share-pdf-v78q',
+                            filename: safeFilename,
+                            title,
+                            base64
+                        }, window.location.origin);
+                    });
+                    if (sharedByParent) return true;
+                } catch (err) {
+                    console.warn('Parent PDF share request failed, falling back.', err);
+                }
+            }
+
+            // Web Share API with real file, useful on iOS/Safari when available.
+            try {
+                const blob = doc.output("blob");
+                const file = new File([blob], safeFilename, { type: "application/pdf" });
+                if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+                    await navigator.share({ title, text: "PDF wurde erstellt.", files: [file] });
+                    return true;
+                }
+            } catch (err) {
+                console.warn("File share fallback failed", err);
+            }
+
             // Native Capacitor/iOS: downloads via <a download> often do nothing.
             // Prefer Filesystem + Share Sheet when the plugins exist.
             if (isNativeShell && window.Capacitor && window.Capacitor.Plugins) {
