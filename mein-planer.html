@@ -499,6 +499,9 @@
         let plannerAccommodationsV78n = {};
 
         function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
+        function plannerLangV78u() { return (localStorage.getItem('selectedLanguage') || window.currentLang || 'de').toLowerCase() === 'en' ? 'en' : 'de'; }
+        function plannerIsEnV78u() { return plannerLangV78u() === 'en'; }
+        function plannerTxtV78u(de, en) { return plannerIsEnV78u() ? en : de; }
 
         window.onAuthChange = (user) => {
             if (user) {
@@ -667,7 +670,7 @@
 
             return `
                 <span class="planner-map-actions">
-                    <button type="button" class="planner-map-btn apple" onclick="openPlannerMapV64(decodeURIComponent('${safeRaw}'), 'apple', decodeURIComponent('${safeName}'))"> Karten</button>
+                    <button type="button" class="planner-map-btn apple" onclick="openPlannerMapV64(decodeURIComponent('${safeRaw}'), 'apple', decodeURIComponent('${safeName}'))">${plannerTxtV78u(' Karten',' Apple Maps')}</button>
                     <button type="button" class="planner-map-btn" onclick="openPlannerMapV64(decodeURIComponent('${safeRaw}'), 'google', decodeURIComponent('${safeName}'))">Google Maps</button>
                 </span>
             `;
@@ -701,11 +704,11 @@
             if (match.status) {
                 const statusLower = match.status.toLowerCase();
                 if (statusLower.includes('approved') || statusLower.includes('bestätigt')) badgesHtml += `<span class="badge badge-approved">Approved</span>`;
-                else if (statusLower.includes('warteliste') || statusLower.includes('waiting')) badgesHtml += `<span class="badge badge-warteliste">Warteliste</span>`;
+                else if (statusLower.includes('warteliste') || statusLower.includes('waiting')) badgesHtml += `<span class="badge badge-warteliste">${plannerTxtV78u('Warteliste','Waitlist')}</span>`;
                 else badgesHtml += `<span class="badge badge-pending">${escapeHtml(match.status)}</span>`;
             }
             if (match.squad && match.squad !== 'TBD') badgesHtml += `<span class="badge badge-squad">${escapeHtml(match.squad)}</span>`;
-            if (done) badgesHtml += `<span class="badge badge-approved">✓ Erledigt</span>`;
+            if (done) badgesHtml += `<span class="badge badge-approved">${plannerTxtV78u('✓ Erledigt','✓ Done')}</span>`;
             return `
                 <div class="match-item planner-match-card-v78m ${done ? 'is-done' : ''}">
                     <div>
@@ -718,9 +721,9 @@
                         ${buildPlannerAccommodationBoxV78n(match)}
                     </div>
                     <div class="planner-card-actions">
-                        <button type="button" class="planner-complete-btn ${done ? 'is-done' : ''}" onclick="togglePlannerDone(${match.id})">${done ? '✓ Erledigt' : '✓ Erledigt markieren'}</button>
-                        <button class="planner-insert-btn" onclick="inserierenAufMarktplatz('${safeName}', '${match.match_date}', '${safeLocation}')">📢 Inserieren</button>
-                        <button onclick="deleteMatch(${match.id})" class="delete-btn planner-delete-btn">Löschen</button>
+                        <button type="button" class="planner-complete-btn ${done ? 'is-done' : ''}" onclick="togglePlannerDone(${match.id})">${done ? plannerTxtV78u('✓ Erledigt','✓ Done') : plannerTxtV78u('✓ Erledigt markieren','✓ Mark done')}</button>
+                        <button class="planner-insert-btn" onclick="inserierenAufMarktplatz('${safeName}', '${match.match_date}', '${safeLocation}')">${plannerTxtV78u('📢 Inserieren','📢 Create listing')}</button>
+                        <button onclick="deleteMatch(${match.id})" class="delete-btn planner-delete-btn">${plannerTxtV78u('Löschen','Delete')}</button>
                     </div>
                 </div>`;
         }
@@ -740,9 +743,9 @@
                 if (archived && plannerYear(match) === 2026) past2026.push(match); else upcoming.push(match);
             });
             if (upcoming.length) upcoming.forEach(match => { container.innerHTML += renderPlannerCard(match, false); });
-            else container.innerHTML += '<p style="color: var(--text-muted); font-style: italic; font-weight: 600;">Keine offenen Matches.</p>';
+            else container.innerHTML += `<p style="color: var(--text-muted); font-style: italic; font-weight: 600;">${plannerTxtV78u('Keine offenen Matches.','No open matches.')}</p>`;
             if (past2026.length) {
-                container.innerHTML += `<details class="planner-past-block"><summary>Vergangene Matches 2026 (${past2026.length})</summary><div class="planner-past-inner">${past2026.map(match => renderPlannerCard(match, true)).join('')}</div></details>`;
+                container.innerHTML += `<details class="planner-past-block"><summary>${plannerTxtV78u('Vergangene Matches 2026','Past matches 2026')} (${past2026.length})</summary><div class="planner-past-inner">${past2026.map(match => renderPlannerCard(match, true)).join('')}</div></details>`;
             }
         }
         
@@ -751,22 +754,22 @@
             const key = plannerMatchKeyV78n(match);
             const acc = plannerAccommodationsV78n[key] || {};
             const hasData = !!(acc.accommodation_name || acc.accommodation_address || acc.check_in || acc.check_out || acc.notes || acc.is_booked);
-            const status = acc.is_booked ? '✓ Gebucht' : (hasData ? '✓ Gespeichert' : '');
+            const status = acc.is_booked ? plannerTxtV78u('✓ Gebucht','✓ Booked') : (hasData ? plannerTxtV78u('✓ Gespeichert','✓ Saved') : '');
             const safeKey = escapeHtml(key);
             return `
                 <details class="planner-accommodation-box-v78n" data-match-key="${safeKey}">
                     <summary>
-                        <span>🏨 Unterkunft / Übernachtung</span>
+                        <span>${plannerTxtV78u('🏨 Unterkunft / Übernachtung','🏨 Accommodation / Overnight')}</span>
                         <span class="planner-accommodation-status-v78n" id="acc-status-${safeKey}">${escapeHtml(status)}</span>
                     </summary>
                     <div class="planner-accommodation-inner-v78n">
                         <div>
-                            <label for="acc-name-${safeKey}">Unterkunft</label>
-                            <input id="acc-name-${safeKey}" type="text" value="${escapeHtml(acc.accommodation_name || '')}" placeholder="z.B. Hotel, Pension, Ferienwohnung">
+                            <label for="acc-name-${safeKey}">${plannerTxtV78u('Unterkunft','Accommodation')}</label>
+                            <input id="acc-name-${safeKey}" type="text" value="${escapeHtml(acc.accommodation_name || '')}" placeholder="${plannerTxtV78u('z.B. Hotel, Pension, Ferienwohnung','e.g. hotel, guesthouse, apartment')}">
                         </div>
                         <div>
-                            <label for="acc-address-${safeKey}">Adresse</label>
-                            <input id="acc-address-${safeKey}" type="text" value="${escapeHtml(acc.accommodation_address || '')}" placeholder="Straße, PLZ Ort">
+                            <label for="acc-address-${safeKey}">${plannerTxtV78u('Adresse','Address')}</label>
+                            <input id="acc-address-${safeKey}" type="text" value="${escapeHtml(acc.accommodation_address || '')}" placeholder="${plannerTxtV78u('Straße, PLZ Ort','Street, ZIP city')}">
                         </div>
                         <div class="planner-accommodation-grid-v78n">
                             <div>
@@ -779,16 +782,16 @@
                             </div>
                         </div>
                         <div>
-                            <label for="acc-notes-${safeKey}">Notizen</label>
-                            <textarea id="acc-notes-${safeKey}" placeholder="Buchungsnummer, Parken, Frühstück, Kontakt…">${escapeHtml(acc.notes || '')}</textarea>
+                            <label for="acc-notes-${safeKey}">${plannerTxtV78u('Notizen','Notes')}</label>
+                            <textarea id="acc-notes-${safeKey}" placeholder="${plannerTxtV78u('Buchungsnummer, Parken, Frühstück, Kontakt…','Booking number, parking, breakfast, contact…')}">${escapeHtml(acc.notes || '')}</textarea>
                         </div>
                         <label class="planner-accommodation-booked-v78n">
                             <input id="acc-booked-${safeKey}" type="checkbox" ${acc.is_booked ? 'checked' : ''}>
-                            Unterkunft gebucht / erledigt
+                            ${plannerTxtV78u('Unterkunft gebucht / erledigt','Accommodation booked / done')}
                         </label>
                         <div class="planner-accommodation-actions-v78n">
-                            <button type="button" class="planner-accommodation-save-v78n" onclick="savePlannerAccommodationV78n('${encodeURIComponent(key)}')">In Cloud speichern</button>
-                            <span class="planner-accommodation-hint-v78n" id="acc-hint-${safeKey}">Wird in deinem Account gespeichert.</span>
+                            <button type="button" class="planner-accommodation-save-v78n" onclick="savePlannerAccommodationV78n('${encodeURIComponent(key)}')">${plannerTxtV78u('In Cloud speichern','Save to cloud')}</button>
+                            <span class="planner-accommodation-hint-v78n" id="acc-hint-${safeKey}">${plannerTxtV78u('Wird in deinem Account gespeichert.','Saved to your account.')}</span>
                         </div>
                     </div>
                 </details>
@@ -797,7 +800,7 @@
 
         async function savePlannerAccommodationV78n(encodedKey) {
             if (!window.currentUser || !window.supabaseClient) {
-                alert('Bitte einloggen, um die Unterkunft zu speichern.');
+                alert(plannerTxtV78u('Bitte einloggen, um die Unterkunft zu speichern.','Please log in to save the accommodation.'));
                 return;
             }
             const key = decodeURIComponent(encodedKey);
@@ -970,5 +973,6 @@
 </script>
 
     <script src="release-i18n-v78s.js?v=78s"></script>
+    <script src="release-i18n-v78u.js?v=78u"></script>
 </body>
 </html>

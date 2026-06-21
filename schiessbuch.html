@@ -681,10 +681,10 @@
                 if (!integrity.signature_hash || !integrity.confirmation_hash) {
                     return { state: "warn", text: "Signiert, aber alter Signatur-Hash fehlt" };
                 }
-                return { state: "ok", text: integrity.local_only ? "Lokal geprüft & gesperrt" : "Hash geprüft & gesperrt" };
+                return { state: "ok", text: integrity.local_only ? (isEn ? "Locally verified & locked" : "Lokal geprüft & gesperrt") : (isEn ? "Hash verified & locked" : "Hash geprüft & gesperrt") };
             }
 
-            return { state: "pending", text: integrity.local_only ? "Lokaler Entwurfs-Hash" : "Entwurfs-Hash erstellt" };
+            return { state: "pending", text: integrity.local_only ? (isEn ? "Local draft hash" : "Lokaler Entwurfs-Hash") : (isEn ? "Draft hash created" : "Entwurfs-Hash erstellt") };
         }
 
         async function refreshIntegrityBadges() {
@@ -1416,20 +1416,20 @@ async function buildClientSchiessbuchPDF(event) {
                     <div class="integrity-mini">
                         <div class="hash-line"><strong>Entry-Hash:</strong> <code>${shortHash(integrity.entry_hash)}</code></div>
                         <div class="hash-line"><strong>Chain-Hash:</strong> <code>${shortHash(integrity.chain_hash)}</code></div>
-                        ${integrity.previous_hash ? `<div class="hash-line"><strong>Vorheriger Hash:</strong> <code>${shortHash(integrity.previous_hash)}</code></div>` : ""}
-                        <span class="integrity-badge pending" data-integrity-id="${log.id}">🔍 Prüfe Hash...</span>
+                        ${integrity.previous_hash ? `<div class="hash-line"><strong>${isEn ? 'Previous hash:' : 'Vorheriger Hash:'}</strong> <code>${shortHash(integrity.previous_hash)}</code></div>` : ""}
+                        <span class="integrity-badge pending" data-integrity-id="${log.id}">${isEn ? '🔍 Checking hash...' : '🔍 Prüfe Hash...'}</span>
                     </div>
                 `;
 
                 let actionArea = log.is_verified 
-                    ? `<div class="locked-info">🔒 ${isEn ? 'Locked securely' : 'Bestätigt durch'} '${escapeHtml(log.external_confirmer_name || log.aufsicht_name)}' ${log.external_license ? ` · Lizenz: ${escapeHtml(log.external_license)}` : ""}</div>
+                    ? `<div class="locked-info">🔒 ${isEn ? 'Confirmed by' : 'Bestätigt durch'} '${escapeHtml(log.external_confirmer_name || log.aufsicht_name)}' ${log.external_license ? ` · Lizenz: ${escapeHtml(log.external_license)}` : ""}</div>
                        ${log.signature_data ? `<img class="signature-preview-img" src="${log.signature_data}" alt="Unterschrift">` : ""}
-                       ${integrity.verify_code ? `<span class="verify-code-chip">QR-Prüfcode aktiv</span>` : ""}
-                       <button class="btn-share-verify" onclick="shareIntegrityProof('${log.id}')">🔗 Prüfdaten teilen/kopieren</button>`
+                       ${integrity.verify_code ? `<span class="verify-code-chip">${isEn ? 'QR verification code active' : 'QR-Prüfcode aktiv'}</span>` : ""}
+                       <button class="btn-share-verify" onclick="shareIntegrityProof('${log.id}')">${isEn ? '🔗 Share/copy verification data' : '🔗 Prüfdaten teilen/kopieren'}</button>`
                     : `<div class="external-confirm-actions">
                            <button class="btn-sign" onclick="openSignModal('${log.id}')">✍️ ${isEn ? 'Sign locally' : 'Direkt unterschreiben lassen'}</button>
                            <button class="btn-external-confirm" onclick="createExternalConfirmation('${log.id}')">📲 ${isEn ? 'Send external confirmation' : 'Extern bestätigen lassen'}</button>
-                           <div class="external-confirm-note">Erzeugt einen Einmal-Link. Dein Kumpel sieht nur diesen Eintrag und unterschreibt auf seinem Handy.</div>
+                           <div class="external-confirm-note">${isEn ? 'Creates a one-time link. The other person only sees this entry and signs on their phone.' : 'Erzeugt einen Einmal-Link. Dein Kumpel sieht nur diesen Eintrag und unterschreibt auf seinem Handy.'}</div>
                        </div>`;
 
                 list.innerHTML += `
@@ -1722,5 +1722,6 @@ async function buildClientSchiessbuchPDF(event) {
 </script>
 
     <script src="release-i18n-v78s.js?v=78s"></script>
+    <script src="release-i18n-v78u.js?v=78u"></script>
 </body>
 </html>

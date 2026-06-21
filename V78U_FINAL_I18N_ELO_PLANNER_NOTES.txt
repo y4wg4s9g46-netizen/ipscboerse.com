@@ -1,0 +1,7 @@
+V78U FINAL i18n/ELO planner hotfix
+- Extra translation polish for EN/DE on home dashboard, planner, shooting log, SG-Timer, ELO and settings.
+- Planner accommodation/done/list/delete/map buttons render localized labels.
+- Shooting log dynamic hash/PDF/status text localized.
+- SG-Timer archive and current-run labels localized.
+- ELO comparison loads approved/future planner matches more robustly from user_matches/planner tables, falls back to RLS-visible rows, and renders one-click analysis buttons.
+- License number description remains neutral and does not mention Slot Bot/Startplatz-Bot.
