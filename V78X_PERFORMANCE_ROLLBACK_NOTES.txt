@@ -1,0 +1,6 @@
+V78X Performance Rollback / App Shell Stabilisierung
+- Entfernt Hintergrund-Preload aller Core-Seiten.
+- App lädt Seiten erst beim echten Antippen.
+- Bereits geöffnete Seiten bleiben gecacht, Cache wird aber auf wenige Frames begrenzt.
+- More-Menü ist entprellt und öffnet/schließt nicht mehr mehrfach bei Lag/Doppeltap.
+- Double-Alpha-Gate, i18n, ELO-Planer und Impressum-Fixes bleiben aus v78w/v78u/v78v erhalten.

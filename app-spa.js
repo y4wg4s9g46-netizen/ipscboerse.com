@@ -3,12 +3,12 @@
    Instead of extracting/replaying page DOM, every app view is the original page inside a same-origin iframe.
    This preserves layout, translations, data loading and page-specific scripts from the backup line.
 */
-(function IPSCAppFrameSpaV78V(){
-  if (window.__IPSC_APP_FRAME_SPA_V78V) return;
-  window.__IPSC_APP_FRAME_SPA_V78V = true;
+(function IPSCAppFrameSpaV78X(){
+  if (window.__IPSC_APP_FRAME_SPA_V78X) return;
+  window.__IPSC_APP_FRAME_SPA_V78X = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
 
-  const VERSION = '78v';
+  const VERSION = '78x';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -31,7 +31,7 @@
   const CLUB_PAGES = new Set(['doppel-aa.html','performance.html']);
   const MORE_PAGES = new Set(['freie-matches.html','schiessbuch.html','sg-timer-live.html','tools.html','analytics.html','wiederladen.html','ipsc-hub.html','doppel-aa.html','performance.html']);
   const clubAccessV78v = { allowed: false, checked: false, checking: false };
-  const CORE_PRELOAD = ['index.html','marktplatz.html','mein-planer.html','community.html','freie-matches.html','schiessbuch.html','tools.html','wiederladen.html'];
+  const CORE_PRELOAD = []; // v78x: kein Hintergrund-Preload; Seiten laden erst bei echtem Tap und bleiben dann gecacht
 
   const SIDEBAR_SECTIONS = [
     { title: { de: 'Hauptbereiche', en: 'Main' }, items: [
@@ -162,10 +162,67 @@
     activeKey: null,
     activeFrame: null,
     frames: new Map(),
+    frameAccess: new Map(),
     pending: new Map(),
     navSerial: 0,
     booted: false
   };
+
+  const MAX_CACHED_FRAMES_V78X = 4;
+  function touchFrameV78x(view){
+    try { state.frameAccess.set(view.key, Date.now()); } catch (_) {}
+  }
+  function pruneFramesV78x(){
+    try {
+      const activeKey = state.activeKey;
+      const entries = Array.from(state.frames.entries()).filter(function(entry){ return entry[0] !== activeKey; });
+      if (state.frames.size <= MAX_CACHED_FRAMES_V78X) return;
+      entries.sort(function(a,b){ return (state.frameAccess.get(a[0]) || 0) - (state.frameAccess.get(b[0]) || 0); });
+      while (state.frames.size > MAX_CACHED_FRAMES_V78X && entries.length) {
+        const entry = entries.shift();
+        const key = entry[0];
+        const frame = entry[1];
+        if (key === activeKey) continue;
+        try { frame.remove(); } catch (_) {}
+        state.frames.delete(key);
+        state.pending.delete(key);
+        state.frameAccess.delete(key);
+      }
+    } catch (_) {}
+  }
+
+  function installMoreMenuGuardV78x(){
+    try {
+      let lastToggle = 0;
+      window.toggleMoreMenu = function(ev){
+        try { if (ev && ev.preventDefault) ev.preventDefault(); if (ev && ev.stopPropagation) ev.stopPropagation(); } catch (_) {}
+        const now = Date.now();
+        if (now - lastToggle < 260) return false;
+        lastToggle = now;
+        const menu = document.getElementById('more-menu-overlay');
+        const btn = document.getElementById('btn-more-menu');
+        if (!menu || !btn) return false;
+        const willOpen = !menu.classList.contains('show');
+        menu.classList.toggle('show', willOpen);
+        btn.classList.toggle('open', willOpen);
+        btn.classList.toggle('active', willOpen || document.body.classList.contains('is-more-view'));
+        if (willOpen) {
+          requestAnimationFrame(function(){
+            try {
+              const list = document.getElementById('more-menu-list');
+              if (list) list.scrollTop = 0;
+            } catch (_) {}
+          });
+        }
+        return false;
+      };
+      const btn = document.getElementById('btn-more-menu');
+      if (btn && !btn.__ipscMoreGuardV78x) {
+        btn.__ipscMoreGuardV78x = true;
+        btn.onclick = window.toggleMoreMenu;
+      }
+    } catch (_) {}
+  }
 
   function showShellAuthModalV78h(view){
     try {
@@ -208,8 +265,8 @@
 
   function restoreShellChrome(){
     try {
-      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l','is-app-spa-v78m','is-app-spa-v78n','is-app-spa-v78p');
-      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l','app-v78m','app-v78n','app-v78o','app-v78p');
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l','is-app-spa-v78m','is-app-spa-v78n','is-app-spa-v78p','is-app-spa-v78x');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l','app-v78m','app-v78n','app-v78o','app-v78p','app-v78x');
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
       window.scrollTo(0, 0);
@@ -249,8 +306,8 @@
 
   function markApp(){
     try {
-      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l','is-app-spa-v78m','is-app-spa-v78n','is-app-spa-v78p');
-      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l','app-v78m','app-v78n','app-v78o','app-v78p');
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l','is-app-spa-v78m','is-app-spa-v78n','is-app-spa-v78p','is-app-spa-v78x');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l','app-v78m','app-v78n','app-v78o','app-v78p','app-v78x');
       document.body.classList.remove('app-v78b','app-v78c','app-v78d','app-v78e','app-v78f','app-v78g');
     } catch (_) {}
   }
@@ -508,12 +565,13 @@
     });
     main.appendChild(frame);
     state.frames.set(view.key, frame);
+    touchFrameV78x(view);
     return frame;
   }
 
   function getFrame(view){
     const existing = state.frames.get(view.key);
-    if (existing && existing.isConnected) return existing;
+    if (existing && existing.isConnected) { touchFrameV78x(view); return existing; }
     return createFrame(view);
   }
 
@@ -553,6 +611,9 @@
       state.activeFile = view.file;
       state.activeKey = view.key;
       state.activeFrame = frame;
+      touchFrameV78x(view);
+      setTimeout(pruneFramesV78x, 250);
+      setTimeout(installMoreMenuGuardV78x, 0);
       restoreShellChrome();
       if (!opts.replace && history.pushState) history.pushState({ view: view.file + (view.search || '') + (view.hash || '') }, '', appUrlFor(view));
       try { frame.contentWindow && frame.contentWindow.postMessage({ type: 'ipsc-app-active-v78d', view: view.file, theme: getTheme(), lang: getLang() }, window.location.origin); } catch (_) {}
@@ -638,15 +699,8 @@
   }
 
   function prewarm(){
-    CORE_PRELOAD.forEach((file, i) => {
-      setTimeout(() => {
-        const view = normalizeView(file);
-        if (!state.frames.has(view.key)) {
-          const frame = createFrame(view);
-          if (frame) frame.classList.add('is-previous');
-        }
-      }, 250 + i * 350);
-    });
+    // v78x: bewusst deaktiviert. Das Vorladen mehrerer Live-Seiten hat auf iPhone/iPad CPU, Netzwerk und UI blockiert.
+    return;
   }
 
   function refresh(){
@@ -677,7 +731,9 @@
     if (history.replaceState) history.replaceState({ view: initial }, '', appUrlFor(normalizeView(initial)));
     await checkClubAccessV78v();
     await navigate(initial, { replace: true, force: true });
-    prewarm();
+    installMoreMenuGuardV78x();
+    setTimeout(installMoreMenuGuardV78x, 250);
+    // prewarm() bleibt in v78x deaktiviert
   }
 
 

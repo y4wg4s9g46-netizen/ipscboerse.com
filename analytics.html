@@ -303,13 +303,18 @@
                         <div id="kpi-division" style="font-size: 20px; font-weight: 900; margin-top: 6px; color: var(--info-color);">Optics</div>
                     </div>
                     <div style="background: var(--input-bg); border: 1px solid var(--border-color); padding: 16px 8px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm);">
-                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 0.5px;" data-txt="analytics-kpi-avg-hf">Ø Hit Factor</div>
-                        <div id="kpi-avg-hf" style="font-size: 20px; font-weight: 900; color: var(--text-color); margin-top: 6px;">0.00</div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 0.5px;" data-txt="analytics-kpi-avg-hf">Ø Stage %</div>
+                        <div id="kpi-avg-hf" style="font-size: 20px; font-weight: 900; color: var(--text-color); margin-top: 6px;">0%</div>
                     </div>
                     <div style="background: var(--input-bg); border: 1px solid var(--border-color); padding: 16px 8px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm);">
                         <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 0.5px;">Konstanz</div>
                         <div id="kpi-variance" style="font-size: 20px; font-weight: 900; color: var(--text-color); margin-top: 6px;">0%</div>
                     </div>
+                </div>
+
+                <div style="background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.18); padding: 14px 16px; border-radius: var(--radius); margin: -14px 0 24px 0; color: var(--text-muted); font-size: 13px; line-height: 1.45;">
+                    <strong style="color: var(--text-color);">ℹ️ Was bedeutet Konstanz?</strong><br>
+                    Konstanz zeigt die Spannweite zwischen deiner besten und schlechtesten Stage-Leistung. Niedriger ist besser: ±0–15% sehr gleichmäßig, ±16–34% mittel, ab ±35% stark schwankend.
                 </div>
 
                 <div style="background: var(--input-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 32px; box-shadow: var(--shadow-sm);">
@@ -329,6 +334,13 @@
                         <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; background: var(--text-muted); border-radius: 50%;"></div> M: <span id="count-misses" style="font-weight: 800; color: var(--text-color);">0</span></div>
                     </div>
                 </div>
+
+                <div style="background: rgba(255, 159, 67, 0.07); border: 1px solid rgba(255, 159, 67, 0.22); border-left: 4px solid var(--accent-color); padding: 14px 16px; border-radius: var(--radius); margin: -12px 0 28px 0; color: var(--text-muted); font-size: 13px; line-height: 1.5;">
+                    <strong style="color: var(--text-color);">📧 Treffer-Details ergänzen</strong><br>
+                    Alpha, Charlie, Delta, Misses, Procedures und die exakte Punktewertung können nur angezeigt werden, wenn die Stage-Berichte aus PractiScore per E-Mail an <a href="mailto:info@ipscboerse.com" style="color: var(--accent-color); font-weight: 800; text-decoration: none;">info@ipscboerse.com</a> weitergeleitet wurden. Ohne diese Mail nutzt die Analyse nur die offiziellen Ergebnislisten.
+                </div>
+
+                <div id="analytics-insights-panel" style="margin-bottom: 32px;"></div>
 
                 <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 12px; letter-spacing: -0.5px;" data-txt="analytics-chart-title">📊 Stage Benchmark Vergleich</h3>
                 
@@ -420,6 +432,8 @@
     let allUserStages = [];
     let allSquadStages = []; 
     let uniqueMatches = [];
+    let divisionBenchmarkCache = {};
+    let analyticsRenderRunId = 0;
     let currentEditStage = null;
     let selectedBuddyId = null; 
 
@@ -482,6 +496,8 @@
                     });
                     return;
                 }
+
+                window.__analyticsUserId = session.user.id;
 
                 // --- AUTOMATISCHE NAMENSPRÜFUNG: NUR BEI REGISTRIERTEM & AKTIVEM USER ---
                 const { data: currentProfile, error: profileErr } = await supabase
@@ -608,15 +624,208 @@
         renderSelectedMatch();
     };
 
-    window.renderSelectedMatch = function() {
+
+    function analyticsCard(title, value, desc, icon) {
+        return `
+            <div style="background: var(--input-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow-sm); min-height: 104px;">
+                <div style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: 900; letter-spacing: .5px; margin-bottom: 8px;">${icon || "📌"} ${title}</div>
+                <div style="font-size: 21px; font-weight: 950; color: var(--text-color); line-height: 1.15; margin-bottom: 8px;">${value}</div>
+                <div style="font-size: 13px; color: var(--text-muted); line-height: 1.45;">${desc}</div>
+            </div>`;
+    }
+
+    function average(values) {
+        const nums = (values || []).filter(v => Number.isFinite(v));
+        return nums.length ? nums.reduce((a,b) => a + b, 0) / nums.length : 0;
+    }
+
+    function formatPercent(v) {
+        return Number.isFinite(v) ? `${v.toFixed(1)}%` : "-";
+    }
+
+    function normalizeDivisionValue(v) {
+        return String(v || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    function safeStagePercent(row) {
+        const sp = parseFloat(row.stage_percent || 0);
+        if (sp > 0) return sp;
+        const hf = parseFloat(row.hit_factor || 0);
+        const whf = parseFloat(row.winner_hit_factor || 0);
+        if (hf > 0 && whf > 0) return (hf / whf) * 100;
+        return 0;
+    }
+
+    function buildLocalInsightsHtml(analysisStages, stagePercents, divisionBenchmarkHtml, isEn) {
+        if (!analysisStages || analysisStages.length === 0) return "";
+
+        const avgStagePercent = average(stagePercents);
+        const worstStage = [...analysisStages].filter(s => s.percent > 0).sort((a,b) => a.percent - b.percent)[0];
+        const bestStage = [...analysisStages].filter(s => s.percent > 0).sort((a,b) => b.percent - a.percent)[0];
+        const totalMisses = analysisStages.reduce((sum, s) => sum + (s.misses || 0), 0);
+        const totalProcedures = analysisStages.reduce((sum, s) => sum + (s.procedures || 0), 0);
+        const totalLoss = analysisStages.reduce((sum, s) => sum + (s.pointLoss || 0), 0);
+        const mpLoss = analysisStages.reduce((sum, s) => sum + ((s.misses || 0) + (s.procedures || 0)) * 10, 0);
+        const timeStages = analysisStages.filter(s => s.timeLoss > 0.1 && s.winHf > 0 && s.points > 0);
+        const biggestTimeLoss = timeStages.sort((a,b) => b.timeLoss - a.timeLoss)[0];
+        const biggestPointLoss = [...analysisStages].sort((a,b) => (b.pointLoss || 0) - (a.pointLoss || 0))[0];
+
+        const byCourse = {};
+        analysisStages.forEach(s => {
+            if (!s.courseType || !s.percent) return;
+            if (!byCourse[s.courseType]) byCourse[s.courseType] = [];
+            byCourse[s.courseType].push(s.percent);
+        });
+        const courseOrder = ["Short", "Medium", "Long"];
+        const courseHtml = courseOrder.map(type => {
+            const val = byCourse[type] ? average(byCourse[type]) : 0;
+            const count = byCourse[type] ? byCourse[type].length : 0;
+            return `<span style="display:inline-flex; justify-content:space-between; gap:8px; min-width:92px; background:var(--card-bg); border:1px solid var(--border-color); padding:8px 10px; border-radius:999px; font-size:12px; font-weight:800;"><span>${type}</span><span style="color:var(--info-color);">${count ? val.toFixed(0) + '%' : '-'}</span></span>`;
+        }).join(' ');
+
+        let focusText = isEn ? "Keep building clean data." : "Sammle weiter saubere Stage-Daten.";
+        if (biggestPointLoss && biggestPointLoss.pointLoss >= 30 && (!biggestTimeLoss || biggestPointLoss.pointLoss >= biggestTimeLoss.timeLoss * 4)) {
+            focusText = isEn
+                ? `${biggestPointLoss.name}: most potential is accuracy/penalties (${biggestPointLoss.pointLoss.toFixed(0)} pts lost).`
+                : `${biggestPointLoss.name}: größtes Potenzial liegt bei Treffern/Penalties (${biggestPointLoss.pointLoss.toFixed(0)} Punkte Verlust).`;
+        } else if (biggestTimeLoss) {
+            focusText = isEn
+                ? `${biggestTimeLoss.name}: biggest time gap to winner target time (${biggestTimeLoss.timeLoss.toFixed(1)}s).`
+                : `${biggestTimeLoss.name}: größter Zeitabstand zur Sieger-Target-Time (${biggestTimeLoss.timeLoss.toFixed(1)}s).`;
+        }
+
+        let whatIfText = isEn ? "No major miss/procedure scenario detected." : "Kein großer Miss-/Procedure-Hebel erkannt.";
+        if (mpLoss > 0) {
+            const totalTime = analysisStages.reduce((sum, s) => sum + (s.time || 0), 0);
+            const totalPts = analysisStages.reduce((sum, s) => sum + (s.points || 0), 0);
+            const currentHf = totalTime > 0 ? totalPts / totalTime : 0;
+            const noMpHf = totalTime > 0 ? (totalPts + mpLoss) / totalTime : 0;
+            whatIfText = isEn
+                ? `Without misses/procedures: about ${noMpHf.toFixed(2)} combined HF instead of ${currentHf.toFixed(2)}.`
+                : `Ohne Misses/Procedures: ca. ${noMpHf.toFixed(2)} kombinierter HF statt ${currentHf.toFixed(2)}.`;
+        }
+
+        const cards = [
+            analyticsCard(isEn ? "Match performance" : "Matchleistung", formatPercent(avgStagePercent), isEn ? "Average of your official stage percentages, not raw HF." : "Durchschnitt deiner offiziellen Stage-Prozente, nicht der rohe HF.", "📊"),
+            analyticsCard(isEn ? "Best / weakest" : "Beste / schwächste Stage", `${bestStage ? bestStage.name + ' ' + formatPercent(bestStage.percent) : '-'}<br><span style="font-size:14px;color:var(--text-muted);">${worstStage ? worstStage.name + ' ' + formatPercent(worstStage.percent) : ''}</span>`, isEn ? "Shows the spread behind your consistency value." : "Zeigt, woher deine Konstanz-Spannweite kommt.", "🎯"),
+            analyticsCard(isEn ? "Point loss" : "Punkteverlust", `-${totalLoss.toFixed(0)} PTS`, isEn ? `${totalMisses} misses, ${totalProcedures} procedures. Includes C/D point loss.` : `${totalMisses} Misses, ${totalProcedures} Procedures. Inkl. C/D-Punkteverlust.`, "⚠️"),
+            analyticsCard(isEn ? "Course types" : "Stage-Typen", `<div style="display:flex; flex-wrap:wrap; gap:6px;">${courseHtml}</div>`, isEn ? "Average performance by Short/Medium/Long courses." : "Durchschnittliche Leistung nach Short/Medium/Long Courses.", "🧩"),
+            analyticsCard(isEn ? "Training focus" : "Trainingsfokus", focusText, isEn ? "Largest actionable gap in this match." : "Größter direkt trainierbarer Hebel in diesem Match.", "🚀"),
+            analyticsCard(isEn ? "What if" : "Was wäre wenn?", whatIfText, isEn ? "Approximation using available stage data." : "Näherung auf Basis der vorhandenen Stage-Daten.", "🧠")
+        ].join('');
+
+        return `
+            <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm);">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:16px;">
+                    <div>
+                        <h3 style="font-size:18px; font-weight:900; margin:0 0 4px 0; letter-spacing:-.4px;">🧠 Coach-Analyse</h3>
+                        <p style="margin:0; color:var(--text-muted); font-size:13px; line-height:1.45;">${isEn ? "Fast diagnosis of speed, points, penalties and consistency." : "Schnelle Diagnose aus Tempo, Punkten, Penalties und Konstanz."}</p>
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
+                    ${cards}
+                </div>
+                ${divisionBenchmarkHtml || ""}
+            </div>`;
+    }
+
+    async function buildDivisionBenchmarkHtml(client, matchId, division, currentUserId, isEn) {
+        try {
+            if (!client || !matchId || !division || normalizeDivisionValue(division).includes('unknown') || normalizeDivisionValue(division).includes('unbekannt')) return "";
+            if (!divisionBenchmarkCache[matchId]) {
+                const { data, error } = await client
+                    .from('user_match_analytics')
+                    .select('user_id, stage_name, division, hit_factor, winner_hit_factor, stage_percent')
+                    .eq('match_id', matchId);
+                if (error) throw error;
+                divisionBenchmarkCache[matchId] = data || [];
+            }
+
+            const rows = divisionBenchmarkCache[matchId].filter(r => {
+                const name = String(r.stage_name || '');
+                if (name.toLowerCase().includes('overall')) return false;
+                return normalizeDivisionValue(r.division) === normalizeDivisionValue(division);
+            });
+            const grouped = new Map();
+            rows.forEach(r => {
+                const pct = safeStagePercent(r);
+                if (!pct || pct <= 0) return;
+                if (!grouped.has(r.user_id)) grouped.set(r.user_id, []);
+                grouped.get(r.user_id).push(pct);
+            });
+
+            const board = Array.from(grouped, ([user_id, vals]) => ({
+                user_id,
+                count: vals.length,
+                avg: average(vals)
+            })).filter(x => x.count >= 2).sort((a,b) => b.avg - a.avg);
+
+            const current = board.find(x => x.user_id === currentUserId);
+            if (!current || board.length < 2) {
+                return `<div style="margin-top:14px; background:rgba(59,130,246,.06); border:1px solid rgba(59,130,246,.18); border-radius:var(--radius); padding:13px 14px; font-size:13px; color:var(--text-muted); line-height:1.45;"><strong style="color:var(--text-color);">👥 Division-Benchmark</strong><br>${isEn ? "Not enough app users with comparable division data for this match yet." : "Noch zu wenig App-Nutzer mit vergleichbaren Division-Daten für dieses Match."}</div>`;
+            }
+
+            const rank = board.findIndex(x => x.user_id === currentUserId) + 1;
+            const percentile = board.length > 1 ? Math.round(((board.length - rank) / (board.length - 1)) * 100) : 0;
+            return `<div style="margin-top:14px; background:rgba(16,185,129,.07); border:1px solid rgba(16,185,129,.20); border-radius:var(--radius); padding:13px 14px; font-size:13px; color:var(--text-muted); line-height:1.45;"><strong style="color:var(--text-color);">👥 Division-Benchmark</strong><br>${isEn ? `Among stored ${division} app data: rank <b>${rank}</b> of <b>${board.length}</b>, better than about <b>${percentile}%</b> of comparable entries.` : `Unter den gespeicherten ${division}-App-Daten: Platz <b>${rank}</b> von <b>${board.length}</b>, besser als ca. <b>${percentile}%</b> der vergleichbaren Einträge.`}<br><span style="font-size:12px;">${isEn ? "This uses only shooters already stored in IPSC Börse, not the full official division field." : "Das nutzt nur Schützen, die bereits in der IPSC Börse gespeichert sind, nicht das komplette offizielle Division-Starterfeld."}</span></div>`;
+        } catch (err) {
+            console.warn('Division benchmark unavailable', err);
+            return "";
+        }
+    }
+
+    window.renderSelectedMatch = async function() {
+        const renderRunId = ++analyticsRenderRunId;
+        const client = window.supabaseClient || window.supabase;
         const matchId = document.getElementById("match-selector").value;
-        const matchStages = allUserStages.filter(s => s.match_id === matchId);
+        const rawMatchStages = allUserStages.filter(s => s.match_id === matchId);
+
+        function normalizeStageLabel(name) {
+            const s = String(name || '').trim();
+            if (!s) return s;
+            if (s.toLowerCase().includes('overall')) return 'Overall Match Results (PDF)';
+            const m = s.match(/\bstage\s*(\d+)\b/i);
+            if (m) return `Stage ${parseInt(m[1], 10)}`;
+            return s;
+        }
+
+        function stageDisplayKey(stage) {
+            const label = normalizeStageLabel(stage.stage_name);
+            if (label.toLowerCase().includes('overall')) return 'overall';
+            const m = label.match(/\bstage\s*(\d+)\b/i);
+            if (m) return `stage_${parseInt(m[1], 10)}`;
+            return label.toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+
+        function analyticsRowScore(stage) {
+            const fields = ['stage_time','hit_factor','winner_hit_factor','pts','alphas','charlies','deltas','misses','procedures','stage_percent'];
+            return fields.reduce((sum, f) => {
+                const v = stage[f];
+                return sum + ((v !== null && v !== undefined && String(v).trim() !== '' && Number(v) !== 0) ? 1 : 0);
+            }, 0);
+        }
+
+        // Sicherheitsnetz: Falls alte Scraper bereits kaputte Stage-Namen erzeugt haben
+        // (z.B. "Stage 1 -- Stage 1 - Range 1Stage 1 ..."), im Frontend nur
+        // eine kanonische Stage anzeigen und die reichste Zeile bevorzugen.
+        const stageMap = new Map();
+        rawMatchStages.forEach(s => {
+            const key = stageDisplayKey(s);
+            const copy = { ...s, _displayStageName: normalizeStageLabel(s.stage_name) };
+            const prev = stageMap.get(key);
+            if (!prev || analyticsRowScore(copy) > analyticsRowScore(prev)) {
+                stageMap.set(key, copy);
+            }
+        });
+        const matchStages = Array.from(stageMap.values());
+
         const isEn = localStorage.getItem("selectedLanguage") === "en";
         let sumHf = 0, tA = 0, tC = 0, tD = 0, tM = 0;
         let division = isEn ? "Unknown" : "Unbekannt";
         let stagePercents = [];
+        let analysisStages = [];
 
-        matchStages.sort((a,b) => a.stage_name.localeCompare(b.stage_name, undefined, {numeric: true, sensitivity: 'base'}));
+        matchStages.sort((a,b) => (a._displayStageName || a.stage_name).localeCompare((b._displayStageName || b.stage_name), undefined, {numeric: true, sensitivity: 'base'}));
         const stagesHtml = matchStages.map(stage => {
             const hf = stage.hit_factor ? parseFloat(stage.hit_factor) : 0;
             const winHf = stage.winner_hit_factor ? parseFloat(stage.winner_hit_factor) : 0;
@@ -650,7 +859,7 @@
                 tM += misses;
             }
 
-            const buddyStage = allSquadStages.find(bs => bs.stage_name === stage.stage_name);
+            const buddyStage = allSquadStages.find(bs => stageDisplayKey(bs) === stageDisplayKey(stage));
             const buddyHf = buddyStage ? parseFloat(buddyStage.hit_factor) : 0;
 
             // Stage-Prozent kommt, wenn vorhanden, direkt aus der offiziellen IPSCMatch-Compact-PDF.
@@ -685,16 +894,47 @@
             if(widthMe >= 85) myColorClass += " high"; 
 
             let courseTag = "";
+            let courseType = "";
             if (!isOverall) {
                 // IPSC Course Type wird über Mindestschüsse/Rounds bestimmt, nicht über Punkte.
                 // Short: bis 12 Rounds, Medium: 13-24 Rounds, Long: 25+ Rounds.
                 if (minRounds > 0) {
-                    if (minRounds <= 12) courseTag = '<span class="course-badge">Short</span>';
-                    else if (minRounds <= 24) courseTag = '<span class="course-badge">Medium</span>';
-                    else courseTag = '<span class="course-badge">Long</span>';
+                    if (minRounds <= 12) courseType = "Short";
+                    else if (minRounds <= 24) courseType = "Medium";
+                    else courseType = "Long";
+                    courseTag = `<span class="course-badge">${courseType}</span>`;
                 }
             } else {
                 courseTag = `<span class="course-badge" style="background:var(--accent-color); color:#fff;">${isEn ? "Match Result" : "Match Ergebnis"}</span>`;
+            }
+
+            const possiblePoints = !isOverall ? (minRounds * 5) : 0;
+            const pointLoss = !isOverall ? Math.max(0, (charlies * 2) + (deltas * 4) + (misses * 10) + (procedures * 10)) : 0;
+            const targetTimeRaw = (!isOverall && displayWinHf > 0 && time > 0 && stagePoints > 0) ? (stagePoints / displayWinHf) : 0;
+            const timeLossRaw = targetTimeRaw > 0 ? (time - targetTimeRaw) : 0;
+
+            if (!isOverall) {
+                analysisStages.push({
+                    name: stage._displayStageName || stage.stage_name,
+                    courseType,
+                    percent: myPerc,
+                    hf,
+                    winHf: displayWinHf,
+                    rank,
+                    time,
+                    points: stagePoints,
+                    possiblePoints,
+                    pointLoss,
+                    misses,
+                    procedures,
+                    alphas,
+                    charlies,
+                    deltas,
+                    stagePercent,
+                    targetTime: targetTimeRaw,
+                    timeLoss: timeLossRaw,
+                    minRounds
+                });
             }
 
             let insightHtml = "";
@@ -726,7 +966,7 @@
             return `
                 <div class="stage-card">
                     <div class="stage-header">
-                        <span class="stage-title">${stage.stage_name} ${courseTag}</span>
+                        <span class="stage-title">${stage._displayStageName || stage.stage_name} ${courseTag}</span>
                         <span class="stage-rank">${isEn ? "Rank" : "Platz"} ${rank}</span>
                     </div>
                     
@@ -759,12 +999,17 @@
             `;
         }).join('');
 
+        if (renderRunId !== analyticsRenderRunId) return;
         document.getElementById("stages-container").innerHTML = stagesHtml;
 
-        const realStages = matchStages.filter(s => !s.stage_name.includes("Overall Match Results"));
-        const avgHf = realStages.length > 0 ? (sumHf / realStages.length).toFixed(2) : "0.00";
+        const realStages = matchStages.filter(s => !(s._displayStageName || s.stage_name).includes("Overall Match Results"));
+        const avgStagePercent = stagePercents.length > 0 ? average(stagePercents) : 0;
+        const divisionBenchmarkHtml = await buildDivisionBenchmarkHtml(client, matchId, division, window.__analyticsUserId, isEn);
+        if (renderRunId !== analyticsRenderRunId) return;
+        const insightsPanel = document.getElementById("analytics-insights-panel");
+        if (insightsPanel) insightsPanel.innerHTML = buildLocalInsightsHtml(analysisStages, stagePercents, divisionBenchmarkHtml, isEn);
         
-        document.getElementById("kpi-avg-hf").innerText = avgHf;
+        document.getElementById("kpi-avg-hf").innerText = avgStagePercent > 0 ? `${avgStagePercent.toFixed(0)}%` : "-";
         document.getElementById("kpi-division").innerText = division;
         
         if (stagePercents.length > 1) {
