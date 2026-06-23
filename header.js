@@ -1,133 +1,4 @@
 (function() {
-
-    // V78D App-Frame Guard: pages displayed inside app.html iframe keep their original content/styles,
-    // but do not build their own header/bottom navigation. Internal links are routed by the parent app shell.
-    (function(){
-      var qs = null;
-      try { qs = new URLSearchParams(window.location.search || ""); } catch (_) { qs = null; }
-      var isFrame = !!(qs && qs.get("appframe") === "1");
-      if (!isFrame) return;
-      window.__IPSC_APP_FRAME_V78D = true;
-      try {
-        document.documentElement.classList.add("ipsc-app-frame", "ipsc-app-frame-v78c", "ipsc-app-frame-v78d", "ipsc-app-frame-v78g", "ipsc-app-frame-v78h", "ipsc-app-frame-v78l", "ipsc-app-frame-v78m");
-        if (document.body) document.body.classList.add("ipsc-app-frame-body");
-      } catch (_) {}
-      function cleanFrameChrome(){
-        try {
-          document.documentElement.classList.add("ipsc-app-frame", "ipsc-app-frame-v78c", "ipsc-app-frame-v78d", "ipsc-app-frame-v78g", "ipsc-app-frame-v78h", "ipsc-app-frame-v78l", "ipsc-app-frame-v78m");
-          if (document.body) document.body.classList.add("ipsc-app-frame-body");
-          document.querySelectorAll("#main-header, header#main-header, #bottom-tab-bar, #more-menu-overlay, .main-nav, .bottom-tab-bar").forEach(function(el){ el.remove(); });
-        } catch (_) {}
-      }
-      cleanFrameChrome();
-      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", cleanFrameChrome, { once: true });
-      else setTimeout(cleanFrameChrome, 0);
-      document.addEventListener("click", function(ev){
-        try {
-          var settingsTarget = ev.target && ev.target.closest && ev.target.closest("#btn-open-settings, .header-avatar-btn, #header-avatar");
-          if (settingsTarget && window.parent && window.parent !== window) {
-            ev.preventDefault(); ev.stopImmediatePropagation();
-            window.parent.postMessage({ type: "ipsc-open-settings-v78m" }, window.location.origin);
-            return;
-          }
-          var closeTarget = ev.target && ev.target.closest && ev.target.closest(".modal-close-trigger, #btn-close-modal, button[onclick*='closePostModal']");
-          if (closeTarget && window.parent && window.parent !== window) {
-            setTimeout(function(){ window.parent.postMessage({ type: "ipsc-restore-chrome-v78l" }, window.location.origin); }, 80);
-            setTimeout(function(){ window.parent.postMessage({ type: "ipsc-restore-chrome-v78l" }, window.location.origin); }, 260);
-          }
-          var loginTarget = ev.target && ev.target.closest && ev.target.closest("#btn-open-login, [data-auth-trigger], button[onclick*='auth-modal'], button[onclick*='toggleAuthView']");
-          if (loginTarget && window.parent && window.parent !== window) {
-            ev.preventDefault(); ev.stopImmediatePropagation();
-            window.parent.postMessage({ type: "ipsc-open-login-v78h" }, window.location.origin);
-            return;
-          }
-          var a = ev.target && ev.target.closest && ev.target.closest("a[href]");
-          if (!a || a.hasAttribute("download")) return;
-          var href = a.getAttribute("href") || "";
-          if (!href || href === "#" || href.indexOf("javascript:") === 0 || href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0) return;
-          var url = new URL(href, window.location.href);
-          if (url.origin !== window.location.origin) return;
-          var file = (url.pathname.split('/').pop() || 'index.html');
-          var known = /^(index|marktplatz|mein-planer|community|freie-matches|schiessbuch|sg-timer-live|tools|analytics|wiederladen|ipsc-hub|doppel-aa|performance|impressum|reset|schiessbuch-confirm|schiessbuch-verify)\.html$/i.test(file);
-          if (!known) return;
-          ev.preventDefault(); ev.stopImmediatePropagation();
-          window.parent.postMessage({ type: "ipsc-navigate-v78d", href: file + (url.search || "") + (url.hash || "") }, window.location.origin);
-        } catch (_) {}
-      }, true);
-
-      function applyFrameThemeV78d(theme){
-        theme = theme === "dark" ? "dark" : "light";
-        var surface = theme === "dark" ? "#0f172a" : "#f6f8fc";
-        try {
-          document.documentElement.setAttribute("data-theme", theme);
-          document.documentElement.style.backgroundColor = surface;
-          document.documentElement.style.colorScheme = theme;
-          if (document.body) document.body.style.backgroundColor = surface;
-          localStorage.setItem("selectedTheme", theme);
-          localStorage.setItem("theme", theme);
-          localStorage.setItem("ipsc_effective_theme", theme);
-          var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute("content", surface);
-        } catch (_) {}
-      }
-
-      function applyFrameLanguageV78d(lang){
-        lang = lang === "en" ? "en" : "de";
-        try {
-          localStorage.setItem("selectedLanguage", lang);
-          window.currentLang = lang;
-          var sel = document.getElementById("language-select");
-          if (sel) sel.value = lang;
-        } catch (_) {}
-        function run(){
-          try {
-            if (typeof window.translatePortalPage === "function") window.translatePortalPage();
-            else if (typeof window.applyLanguage === "function") window.applyLanguage(lang);
-            else document.querySelectorAll("[data-txt]").forEach(function(el){
-              var key = el.getAttribute("data-txt");
-              var dict = (window.portalTranslations || window.translations || {})[lang] || {};
-              if (dict[key]) el.innerHTML = dict[key];
-            });
-          } catch (_) {}
-        }
-        run(); setTimeout(run, 80); setTimeout(run, 350);
-      }
-
-
-      // V78L: after frame modals/composers close, tell the shell to restore the fixed header/bottom chrome.
-      if (!window.__IPSC_FRAME_CLOSE_RESTORE_V78L) {
-        window.__IPSC_FRAME_CLOSE_RESTORE_V78L = true;
-        document.addEventListener("click", function(ev){
-          try {
-            var t = ev.target && ev.target.closest && ev.target.closest(".modal-close-trigger, .close, [data-close], button[onclick*='close'], button[onclick*='Post']");
-            if (t && window.parent && window.parent !== window) {
-              setTimeout(function(){ window.parent.postMessage({ type: "ipsc-restore-chrome-v78l" }, window.location.origin); }, 80);
-              setTimeout(function(){ window.parent.postMessage({ type: "ipsc-restore-chrome-v78l" }, window.location.origin); }, 280);
-            }
-          } catch (_) {}
-        }, true);
-      }
-
-
-      // V78M: ask parent shell for the current auth session immediately.
-      try {
-        if (window.parent && window.parent !== window) {
-          window.parent.postMessage({ type: "ipsc-request-auth-v78m" }, window.location.origin);
-          setTimeout(function(){ window.parent.postMessage({ type: "ipsc-request-auth-v78m" }, window.location.origin); }, 250);
-        }
-      } catch (_) {}
-
-      window.addEventListener("message", function(event){
-        if (event.origin !== window.location.origin) return;
-        var data = event.data || {};
-        if (data.type === "ipsc-theme-v78c" || data.type === "ipsc-theme-v78d" || data.type === "ipsc-app-active-v78d") applyFrameThemeV78d(data.theme || localStorage.getItem("ipsc_effective_theme") || "light");
-        if (data.type === "ipsc-language-v78d" || data.type === "ipsc-app-active-v78d") applyFrameLanguageV78d(data.lang || localStorage.getItem("selectedLanguage") || "de");
-        if (data.type === "ipsc-auth-refresh-v78d") { try { if (window.supabaseClient && window.supabaseClient.auth) window.supabaseClient.auth.getSession().then(function(result){ var user = result && result.data && result.data.session && result.data.session.user; window.currentUser = user || null; if (typeof window.onAuthChange === "function") window.onAuthChange(window.currentUser || null); }); } catch (_) {} }
-        if (data.type === "ipsc-auth-session-v78l" && data.user) { try { window.currentUser = data.user; if (typeof window.onAuthChange === "function") window.onAuthChange(window.currentUser); } catch (_) {} }
-        if (data.type === "ipsc-auth-logout-v78d") { try { window.currentUser = null; if (typeof window.onAuthChange === "function") window.onAuthChange(null); } catch (_) {} }
-      });
-    })();
-    if (typeof window !== "undefined" && window.__IPSC_APP_FRAME_V78D) return;
     // V76D DOUBLE AA RETRY FIX
     // V76C DOUBLE AA MENU GATE: club links are hidden until Supabase confirms profiles.is_doppel_aa === true
     const __headerLogoPreload = new Image();
@@ -177,17 +48,10 @@
                     return;
                 }
 
-                if (typeof window.openLoginModal === "function") {
-                    window.openLoginModal();
-                    return;
-                }
                 const modal = document.getElementById("auth-modal");
                 if (modal) {
-                    modal.style.setProperty("display", "flex", "important");
-                    modal.style.setProperty("visibility", "visible", "important");
-                    modal.style.setProperty("opacity", "1", "important");
-                    modal.style.setProperty("pointer-events", "auto", "important");
-                    modal.removeAttribute("aria-hidden");
+                    modal.style.display = "flex";
+
                     if (typeof window.toggleAuthView === "function") {
                         window.toggleAuthView("login");
                     }
@@ -206,11 +70,8 @@
 
                 const modal = document.getElementById("auth-modal");
                 if (modal) {
-                    modal.style.setProperty("display", "flex", "important");
-                    modal.style.setProperty("visibility", "visible", "important");
-                    modal.style.setProperty("opacity", "1", "important");
-                    modal.style.setProperty("pointer-events", "auto", "important");
-                    modal.removeAttribute("aria-hidden");
+                    modal.style.display = "flex";
+
                     if (typeof window.toggleAuthView === "function") {
                         window.toggleAuthView("settings");
                     }
@@ -260,7 +121,7 @@
         const links = [
             { href: "index.html", text: "Startseite", key: "nav-startseite" },
             { href: "marktplatz.html", text: "Marktplatz", key: "card-title-market" },
-            { href: "freie-matches.html", text: "Freie Match-Plätze", key: "card-title-free" },
+            { href: "freie-matches.html", text: "Matches", key: "nav-matches" },
             { href: "mein-planer.html", text: "Mein Planer", key: "card-title-planer" },
             { href: "community.html", text: "Community", key: "card-title-comm" },
             { href: "schiessbuch.html", text: "Schießbuch", key: "card-title-schießbuch" },
@@ -370,7 +231,7 @@
                 <div class="more-menu-content" id="more-menu-list">
                     <div id="club-links-placeholder-v76c"></div>
                     <div class="more-scroll-hint-v76">${savedLanguageSetting === "en" ? "More sections below" : "Weitere Bereiche unten"}</div>
-                    <a href="freie-matches.html" class="${page === "freie-matches.html" ? "active" : ""}" data-txt="card-title-free">Freie Match-Plätze</a>
+                    <a href="freie-matches.html" class="${page === "freie-matches.html" ? "active" : ""}" data-txt="nav-matches">Matches</a>
                     <a href="schiessbuch.html" class="${page === "schiessbuch.html" ? "active" : ""}" data-txt="card-title-schiessbuch">Schießbuch</a>
                     <a href="sg-timer-live.html" class="${page === "sg-timer-live.html" ? "active" : ""}" data-txt="nav-sgtimer">⏱️ SG-Timer Live</a>
                     <a href="tools.html" class="${page === "tools.html" ? "active" : ""}" data-txt="card-title-tools">Tools & Training</a>
@@ -1981,7 +1842,7 @@ header .header-logo-img {
                 const btn = document.getElementById("btn-more-menu");
                 if (menu) menu.classList.remove("show");
                 if (btn) btn.classList.remove("open");
-                if (!(window.__IPSC_UNIFIED_SPA_ACTIVE || document.body?.classList?.contains("page-app-spa")) && typeof window.showPageTransitionCover === "function") {
+                if (typeof window.showPageTransitionCover === "function") {
                     window.showPageTransitionCover();
                 }
             }, true);
@@ -2011,11 +1872,6 @@ window.toggleMoreMenu = function() {
                     try {
                         const list = document.getElementById("more-menu-list");
                         if (!list) return;
-                        const inAppSpa = !!(window.__IPSC_UNIFIED_SPA_ACTIVE || document.body?.classList?.contains("page-app-spa") || document.documentElement?.classList?.contains("is-app-spa-v78"));
-                        if (inAppSpa) {
-                            list.scrollTop = 0;
-                            return;
-                        }
                         const storedScroll = Number(localStorage.getItem("ipsc.moreMenu.scrollTop.v76k") || "0");
                         const activeLink = list.querySelector("a.active");
                         if (storedScroll > 8) {
@@ -2151,8 +2007,7 @@ window.toggleMoreMenu = function() {
                     return;
                 }
 
-                const allowedRaw = profile && profile.is_doppel_aa;
-                const allowed = allowedRaw === true || allowedRaw === 1 || allowedRaw === '1' || String(allowedRaw).toLowerCase() === 'true' || String(allowedRaw).toLowerCase() === 'yes';
+                const allowed = profile?.is_doppel_aa === true;
                 renderDoubleAAClubLinksV76d(allowed);
 
                 // Bei bestätigtem Zugriff noch einmal nach kurzer Zeit rendern,
@@ -2455,8 +2310,6 @@ window.toggleMoreMenu = function() {
     window.showPageTransitionCover = showBridge;
 
     function shouldBridgeLink(link) {
-        // V78B: unified SPA owns routing; never use old bridge/hard reload in app.html.
-        try { if (window.__IPSC_UNIFIED_SPA_ACTIVE || document.body?.classList?.contains("page-app-spa")) return false; } catch (_) {}
         // V76T: native shell owns routing; no colored bridge or hard reload while inside shell/embedded frames.
         try { if (new URLSearchParams(window.location.search || "").get("shell") === "1") return false; } catch (_) {}
         if (document.body && document.body.classList && document.body.classList.contains("page-native-shell")) return false;
@@ -2497,289 +2350,3 @@ window.toggleMoreMenu = function() {
         } catch (_) {}
     }, { passive: true });
 })();
-
-// ========================================================================== 
-// V78O iPad Header + Login Modal Layout Polish
-// Fixes iPad/tablet header control placement and login modal sizing without
-// changing iPhone layout or desktop browser navigation.
-// ========================================================================== 
-(function ipscTabletHeaderLoginPolishV78O() {
-    if (window.__IPSC_TABLET_HEADER_LOGIN_POLISH_V78O) return;
-    window.__IPSC_TABLET_HEADER_LOGIN_POLISH_V78O = true;
-
-    function inject() {
-        if (document.getElementById('ipsc-tablet-header-login-polish-v78o')) return;
-        var style = document.createElement('style');
-        style.id = 'ipsc-tablet-header-login-polish-v78o';
-        style.textContent = `
-            @media (min-width: 769px) and (max-width: 1180px) {
-                /* iPad/tablet: logo, controls and nav get their own clean rows */
-                #main-header,
-                header#main-header {
-                    min-height: 204px !important;
-                    padding: calc(env(safe-area-inset-top) + 14px) 24px 18px 24px !important;
-                    display: grid !important;
-                    grid-template-columns: 1fr !important;
-                    grid-template-rows: auto auto auto !important;
-                    justify-items: center !important;
-                    align-items: center !important;
-                    row-gap: 9px !important;
-                    box-sizing: border-box !important;
-                }
-
-                header .header-logo-link {
-                    grid-row: 1 !important;
-                    width: auto !important;
-                    max-width: min(720px, calc(100vw - 64px)) !important;
-                    margin: 0 auto !important;
-                    justify-content: center !important;
-                    align-items: center !important;
-                    gap: 13px !important;
-                    text-align: left !important;
-                }
-
-                header .header-logo-frame {
-                    width: 50px !important;
-                    height: 50px !important;
-                    min-width: 50px !important;
-                    min-height: 50px !important;
-                    flex: 0 0 50px !important;
-                }
-
-                header .header-logo-img {
-                    width: 42px !important;
-                    height: 42px !important;
-                    min-width: 42px !important;
-                    min-height: 42px !important;
-                    flex: 0 0 42px !important;
-                }
-
-                header .logo-text-group h1 {
-                    font-size: clamp(26px, 3.25vw, 34px) !important;
-                    line-height: 1.04 !important;
-                    letter-spacing: 0.9px !important;
-                    white-space: nowrap !important;
-                }
-
-                header .logo-text-group p {
-                    font-size: clamp(11px, 1.25vw, 14px) !important;
-                    line-height: 1.15 !important;
-                    letter-spacing: 2.4px !important;
-                    margin-top: 4px !important;
-                    white-space: nowrap !important;
-                }
-
-                header .header-controls {
-                    grid-row: 2 !important;
-                    position: static !important;
-                    top: auto !important;
-                    right: auto !important;
-                    width: 100% !important;
-                    max-width: min(760px, calc(100vw - 72px)) !important;
-                    margin: 0 auto !important;
-                    display: flex !important;
-                    flex-direction: row !important;
-                    flex-wrap: nowrap !important;
-                    justify-content: center !important;
-                    align-items: center !important;
-                    gap: 10px !important;
-                    min-height: 44px !important;
-                    z-index: 5 !important;
-                }
-
-                header #auth-status-container {
-                    display: inline-flex !important;
-                    align-items: center !important;
-                    justify-content: center !important;
-                    gap: 10px !important;
-                    flex: 0 0 auto !important;
-                    min-height: 44px !important;
-                }
-
-                header .theme-toggle-btn,
-                header .lang-select,
-                header .btn-auth {
-                    height: 44px !important;
-                    min-height: 44px !important;
-                    border-radius: 14px !important;
-                    box-sizing: border-box !important;
-                }
-
-                header .theme-toggle-btn {
-                    width: 44px !important;
-                    min-width: 44px !important;
-                    max-width: 44px !important;
-                    flex: 0 0 44px !important;
-                }
-
-                header .lang-select {
-                    min-width: 72px !important;
-                    max-width: 82px !important;
-                    padding: 0 12px !important;
-                    font-size: 14px !important;
-                }
-
-                header .btn-auth {
-                    padding: 0 22px !important;
-                    font-size: 14px !important;
-                    font-weight: 800 !important;
-                    white-space: nowrap !important;
-                }
-
-                header #btn-open-settings.header-avatar-btn {
-                    width: 54px !important;
-                    height: 54px !important;
-                    min-width: 54px !important;
-                    min-height: 54px !important;
-                    max-width: 54px !important;
-                    max-height: 54px !important;
-                    flex: 0 0 54px !important;
-                }
-
-                header #btn-open-settings.header-avatar-btn img,
-                header #header-avatar {
-                    width: 46px !important;
-                    height: 46px !important;
-                    min-width: 46px !important;
-                    min-height: 46px !important;
-                    max-width: 46px !important;
-                    max-height: 46px !important;
-                }
-
-                header #btn-logout {
-                    min-width: 176px !important;
-                    padding: 0 26px !important;
-                    border-radius: 999px !important;
-                    letter-spacing: 1.3px !important;
-                }
-
-                header .main-nav.desktop-only,
-                header .main-nav {
-                    grid-row: 3 !important;
-                    width: min(940px, calc(100vw - 48px)) !important;
-                    margin: 2px auto 0 auto !important;
-                    padding-top: 10px !important;
-                    padding-bottom: 4px !important;
-                    justify-content: center !important;
-                    gap: 8px !important;
-                    row-gap: 8px !important;
-                    align-self: end !important;
-                }
-
-                header .main-nav a {
-                    font-size: 12px !important;
-                    padding: 8px 15px !important;
-                }
-            }
-
-            @media (min-width: 769px) and (max-width: 1180px) {
-                /* iPad/tablet login: balanced card, not oversized, not too low */
-                #auth-modal.modal,
-                #auth-modal,
-                .auth-modal,
-                .modal.auth-modal {
-                    align-items: center !important;
-                    justify-content: center !important;
-                    padding: calc(env(safe-area-inset-top) + 28px) 44px calc(env(safe-area-inset-bottom) + 32px) 44px !important;
-                    overflow: hidden !important;
-                }
-
-                #auth-modal .modal-content,
-                #auth-modal .auth-modal-content {
-                    position: fixed !important;
-                    top: 50% !important;
-                    left: 50% !important;
-                    right: auto !important;
-                    bottom: auto !important;
-                    transform: translate(-50%, -50%) !important;
-                    width: min(620px, calc(100vw - 104px)) !important;
-                    max-width: 620px !important;
-                    max-height: calc(100dvh - 116px) !important;
-                    margin: 0 !important;
-                    padding: 30px 34px 28px 34px !important;
-                    border-radius: 30px !important;
-                    overflow: auto !important;
-                    box-sizing: border-box !important;
-                }
-
-                #auth-modal .modal-content h3,
-                #auth-modal .auth-modal-content h3 {
-                    font-size: clamp(34px, 4.3vw, 46px) !important;
-                    line-height: .98 !important;
-                    letter-spacing: -1px !important;
-                    margin: 0 54px 10px 0 !important;
-                    padding-right: 0 !important;
-                }
-
-                #auth-modal .modal-subtitle,
-                #auth-modal #modal-login-view > p,
-                #auth-modal .auth-subtitle {
-                    font-size: 16px !important;
-                    line-height: 1.35 !important;
-                    margin-bottom: 18px !important;
-                }
-
-                #auth-modal .form-group {
-                    margin-bottom: 13px !important;
-                }
-
-                #auth-modal .form-group label {
-                    font-size: 12px !important;
-                    letter-spacing: 1.9px !important;
-                    margin-bottom: 7px !important;
-                }
-
-                #auth-modal input,
-                #auth-modal select,
-                #auth-modal textarea {
-                    min-height: 56px !important;
-                    height: 56px !important;
-                    font-size: 16px !important;
-                    border-radius: 18px !important;
-                    padding: 0 20px !important;
-                }
-
-                #auth-modal .btn-primary-auth,
-                #auth-modal #login-form button[type='submit'],
-                #auth-modal .btn-submit {
-                    min-height: 52px !important;
-                    height: 52px !important;
-                    min-width: 300px !important;
-                    max-width: 360px !important;
-                    border-radius: 16px !important;
-                    font-size: 16px !important;
-                    margin: 12px auto 0 auto !important;
-                }
-
-                #auth-modal .quick-login-panel-v76e,
-                #auth-modal .social-login-separator {
-                    margin-top: 20px !important;
-                }
-
-                #auth-modal .btn-social-passkey,
-                #auth-modal .btn-social-apple,
-                #auth-modal .btn-social-google {
-                    min-height: 46px !important;
-                    height: 46px !important;
-                    min-width: 330px !important;
-                    max-width: 380px !important;
-                    border-radius: 16px !important;
-                    font-size: 15px !important;
-                    margin-left: auto !important;
-                    margin-right: auto !important;
-                }
-
-                #auth-modal .modal-close-container,
-                #auth-modal .modal-close-trigger {
-                    top: 20px !important;
-                    right: 20px !important;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inject, { once: true });
-    else inject();
-})();
-

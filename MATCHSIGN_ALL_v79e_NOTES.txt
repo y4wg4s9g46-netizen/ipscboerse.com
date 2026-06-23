@@ -1,0 +1,7 @@
+IPSC Börse v79e Matches Update
+
+- Alle Matches lädt jetzt matches_all.json, wenn vorhanden.
+- Freie Startplätze filtert nur MatchSign-Matches mit has_free_slots=true bzw. availability_status=checked_free.
+- matches.json bleibt als Fallback/Legacy erhalten.
+- MatchSign-Karten zeigen: frei, voll/100%, Anmeldung geschlossen oder Status unbekannt.
+- ESS bleibt separat als Open Event mit unbekannter Auslastung gekennzeichnet.

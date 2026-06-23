@@ -469,7 +469,7 @@
     
     <script>
         let currentShooters = [];
-        let userPersonalElo = null; 
+        let userPersonalElo = 1700; 
 
         const countryCodes = {
             "germany": "de", "ger": "de", "deu": "de",
@@ -732,16 +732,14 @@
         }
 
         function normalizeNameForMatching(value) {
-            // v78t: zuerst deutsche Umlaute transliterieren, danach Diakritika entfernen.
-            // Sonst wurde "Schöps" zu "schops" und passte nicht zu "Schoeps" aus IPSC ELO.
             return cleanText(value)
                 .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
                 .replace(/ä/g, "ae")
                 .replace(/ö/g, "oe")
                 .replace(/ü/g, "ue")
                 .replace(/ß/g, "ss")
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
                 .replace(/[^a-z0-9]+/g, " ")
                 .replace(/(.)\1+/g, "$1")
                 .replace(/\s+/g, " ")
@@ -1050,8 +1048,19 @@
                 if (profile.real_name) {
                     document.getElementById("js-personal-welcome").innerHTML = `🎯 <strong>${tPerfV76("v76-elo-welcome-title", "ELO-Vergleich")}</strong> ${tPerfV76("v76-elo-welcome-desc", "Wähle ein bestätigtes Match aus deinem Planer aus oder füge einen IPSCMatch-Link mit Division ein. Die Analyse startet erst per Klick und wird danach unten gespeichert.")}`;
                     
-                    // v78t: ELO robust ermitteln. Exact Match war bei Umlaut/Schoeps/Schoeps-Schöps zu streng.
-                    await hydrateOwnEloFromProfile("Optics");
+                    const nameParts = profile.real_name.split(" ");
+                    if (nameParts.length >= 2) {
+                        const dbSearchName = `${nameParts[1]}, ${nameParts[0]}`;
+                        const { data: userEloData } = await window.supabaseClient
+                            .from("elo_rankings")
+                            .select("elo_rating")
+                            .eq("lastname", dbSearchName)
+                            .maybeSingle();
+                            
+                        if (userEloData && userEloData.elo_rating) {
+                            userPersonalElo = parseFloat(userEloData.elo_rating);
+                        }
+                    }
                 }
                 
                 const plannedMatches = await loadPlannerMatchesForEloV76n(user);
@@ -1732,9 +1741,9 @@
         function normalizeNameSearchText(value) {
             return cleanText(value)
                 .toLowerCase()
-                .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
+                .replace(/\u00E4/g, "ae").replace(/\u00F6/g, "oe").replace(/\u00FC/g, "ue").replace(/\u00DF/g, "ss")
                 .replace(/[^a-z0-9]+/g, " ")
                 .replace(/\s+/g, " ")
                 .trim();
@@ -1742,56 +1751,12 @@
 
         function getOwnNameCandidates() {
             const profile = window.userProfileData || {};
-            const candidates = [profile.real_name, profile.username]
-                .map(cleanText)
-                .filter(Boolean);
-            // Lizenznummer/Mitgliedsnummer nicht als öffentlicher Namens-Match verwenden.
-            // Sie darf nicht dazu führen, dass eine Nummer als Community-/ELO-Name interpretiert wird.
-            return uniqueArray(candidates);
-        }
-
-        function renderedShooterMatchesCurrentUser(shooter) {
-            if (!shooter || !shooter.name) return false;
-            const candidates = getOwnNameCandidates();
-            if (!candidates.length) return false;
-            const shooterNorm = normalizeNameSearchText(shooter.name);
-            if (!shooterNorm) return false;
-
-            return candidates.some(candidate => {
-                const parts = normalizeNameSearchText(candidate).split(/\s+/).filter(Boolean);
-                if (parts.length < 2) return false;
-                return parts.every(part => shooterNorm.includes(part));
-            });
-        }
-
-        function findOwnRenderedShooter(shooters) {
-            const list = Array.isArray(shooters) ? shooters : [];
-            return list.find(s => renderedShooterMatchesCurrentUser(s)) || null;
-        }
-
-        async function hydrateOwnEloFromProfile(divisionHint) {
-            if (!window.supabaseClient || typeof userPersonalElo === "number") return;
-            const candidates = getOwnNameCandidates();
-            if (!candidates.length) return;
-            const divisions = uniqueArray([normalizeDivisionName(divisionHint || ""), "Optics", "Production Optics", "Production", "Standard", "Open", "Classic", "Revolver", "PCC"].filter(d => d && d !== "Unknown"));
-
-            for (const candidate of candidates) {
-                const parts = normalizeNameSearchText(candidate).split(/\s+/).filter(Boolean);
-                if (parts.length < 2) continue;
-                const first = parts[0];
-                const last = parts[parts.length - 1];
-                for (const division of divisions) {
-                    const rows = await fetchEloRowsByDivisionAndNamePart(division, last.slice(0, Math.min(5, last.length)), 200);
-                    const best = rows.find(row => {
-                        const rowNorm = normalizeNameSearchText(row.lastname);
-                        return parts.every(part => rowNorm.includes(part));
-                    });
-                    if (best && best.elo_rating !== null && best.elo_rating !== undefined) {
-                        userPersonalElo = Number(best.elo_rating);
-                        return;
-                    }
-                }
-            }
+            return uniqueArray([
+                profile.real_name,
+                profile.ipsc_alias,
+                profile.username,
+                "Fabian Schöps"
+            ].map(cleanText).filter(Boolean));
         }
 
         function lineContainsName(line, nameCandidates) {
@@ -2785,35 +2750,29 @@
         }
 
         function calculateStats(shooters) {
-            const ownShooter = findOwnRenderedShooter(shooters);
-            if (ownShooter && typeof ownShooter.elo === 'number' && !isNaN(ownShooter.elo)) {
-                userPersonalElo = ownShooter.elo;
-            }
-
-            const hasOwnElo = typeof userPersonalElo === 'number' && !isNaN(userPersonalElo);
-            document.getElementById('stat-user-elo').textContent = hasOwnElo ? userPersonalElo : '-';
+            document.getElementById('stat-user-elo').textContent = userPersonalElo;
 
             const totalCompetitors = shooters.length;
             const rankedCompetitors = shooters.filter(s => typeof s.elo === 'number' && !isNaN(s.elo));
             const rankedCount = rankedCompetitors.length;
 
-            const strongerCompetitors = hasOwnElo ? rankedCompetitors.filter(s => s.elo > userPersonalElo) : [];
-            const strongerCount = hasOwnElo ? strongerCompetitors.length : null;
+            const strongerCompetitors = rankedCompetitors.filter(s => s.elo > userPersonalElo);
+            const strongerCount = strongerCompetitors.length;
 
-            document.getElementById('stat-stronger-count').textContent = hasOwnElo ? strongerCount : '-';
+            document.getElementById('stat-stronger-count').textContent = strongerCount;
 
-            const percentageStronger = (hasOwnElo && totalCompetitors > 0) ? (strongerCount / totalCompetitors) * 100 : 0;
+            const percentageStronger = totalCompetitors > 0 ? (strongerCount / totalCompetitors) * 100 : 0;
 
-            let level = hasOwnElo ? "Gering" : "ELO fehlt";
-            let color = hasOwnElo ? "var(--success-color)" : "var(--text-muted)";
+            let level = "Gering";
+            let color = "var(--success-color)";
 
-            if (hasOwnElo && percentageStronger > 50) {
-                level = "Sehr Hoch"
+            if (percentageStronger > 50) {
+                level = "Sehr Hoch";
                 color = "var(--danger-color)";
-            } else if (hasOwnElo && percentageStronger > 20) {
+            } else if (percentageStronger > 20) {
                 level = "Hoch";
                 color = "var(--accent-color)";
-            } else if (hasOwnElo && percentageStronger > 5) {
+            } else if (percentageStronger > 5) {
                 level = "Mittel";
                 color = "var(--info-color)";
             }
@@ -2822,9 +2781,7 @@
             levelStat.textContent = totalCompetitors > 0 ? level : "-";
             levelStat.style.color = totalCompetitors > 0 ? color : "var(--text-color)";
             levelStat.title = totalCompetitors > 0
-                ? (hasOwnElo
-                    ? `${strongerCount} von ${totalCompetitors} Teilnehmern sind über deinem ELO (${percentageStronger.toFixed(1)}%). ${rankedCount} Teilnehmer hatten ein bekanntes ELO.`
-                    : `Dein ELO wurde im Starterfeld oder in der ELO-Tabelle nicht eindeutig erkannt. ${rankedCount} Teilnehmer hatten ein bekanntes ELO.`)
+                ? `${strongerCount} von ${totalCompetitors} Teilnehmern sind \u00FCber deinem ELO (${percentageStronger.toFixed(1)}%). ${rankedCount} Teilnehmer hatten ein bekanntes ELO.`
                 : "";
 
             const sortedElos = rankedCompetitors.map(s => s.elo).sort((a, b) => b - a);
@@ -2871,7 +2828,6 @@
 
         function renderList(shooters) {
             const listContainer = document.getElementById('competitor-list');
-            const hasOwnElo = typeof userPersonalElo === 'number' && !isNaN(userPersonalElo);
             if (shooters.length === 0) {
                 listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Keine Sch\u00FCtzen gefunden.</div>';
                 return;
@@ -2882,7 +2838,7 @@
                 let eloDisplay = s.elo !== "-" ? s.elo : "Kein Eintrag";
                 
                 let nameStyle = "";
-                if (hasOwnElo && typeof s.elo === 'number' && s.elo > userPersonalElo) {
+                if (typeof s.elo === 'number' && s.elo > userPersonalElo) {
                     nameStyle = 'style="color: var(--danger-color);" title="Dieser Sch\u00FCtze hat ein h\u00F6heres ELO als du!"';
                 }
 
@@ -2893,7 +2849,7 @@
                 html += `
                     <div class="competitor-row">
                         <div class="competitor-info">
-                            <span class="competitor-name" ${nameStyle}>${escapeHtml(s.name)} ${hasOwnElo && typeof s.elo === 'number' && s.elo > userPersonalElo ? '\u{1F525}' : ''}</span>
+                            <span class="competitor-name" ${nameStyle}>${escapeHtml(s.name)} ${typeof s.elo === 'number' && s.elo > userPersonalElo ? '\u{1F525}' : ''}</span>
                             <span class="competitor-meta">${flagHtml} ${escapeHtml(s.region)} | ${escapeHtml(s.division)}</span>
                         </div>
                         <div class="competitor-elo">
@@ -2968,7 +2924,5 @@
 })();
 </script>
 
-    <script src="release-i18n-v78s.js?v=78s"></script>
-    <script src="release-i18n-v78u.js?v=78u"></script>
 </body>
 </html>

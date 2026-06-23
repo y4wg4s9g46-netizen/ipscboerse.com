@@ -1,0 +1,15 @@
+IPSC Börse v79c Matches Update
+
+Geändert:
+- freie-matches.html wird zur Seite "Matches" mit Tabs:
+  Alle Matches / Freie Startplätze / ESS Open Events / Meine Matches
+- Freie Startplätze bleiben nur MatchSign-Matches mit geprüfter Auslastung.
+- ESS Open Events werden getrennt markiert: Registrierung offen, Auslastung unbekannt.
+- Jedes Match kann mit Status in den Planer übernommen werden:
+  Approved / Warteliste / Interessiert / Beobachten.
+- Header-Menü zeigt "Matches" statt "Freie Match-Plätze".
+- Übersetzungen und Native-Shell-Titel angepasst.
+
+Benötigt Supabase SQL aus backend/ess_matches_schema.sql:
+- ess_matches Tabelle + Public Read Policy
+- optionale user_matches Zusatzfelder für Quelle, external_id, source_url, image_url, notes

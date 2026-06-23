@@ -1,19 +1,16 @@
-/* V77F Zero Flash More Paint Safe Native Local Bundle App Shell
-   Fixes the More-page white screen by never activating a freshly created iframe
-   until its real target document has fired load (not about:blank).
-   Old page remains visible until the new page completed first paint. */
+/* V76V Native App Shell No-Blank Layered Switch
+   Keeps the Capacitor WebView on one HTML document and swaps pages inside same-origin iframes.
+   Browser/desktop pages remain untouched. */
 (function nativeAppShellV76t() {
-    if (window.__IPSC_NATIVE_APP_SHELL_V77) return;
-    window.__IPSC_NATIVE_APP_SHELL_V77 = true;
-    window.__IPSC_NATIVE_APP_SHELL_V77F = true;
-    window.__IPSC_NATIVE_APP_SHELL_V78W_PERF = true;
+    if (window.__IPSC_NATIVE_APP_SHELL_V76V) return;
+    window.__IPSC_NATIVE_APP_SHELL_V76V = true;
 
     var PAGES = {
         "index.html": { title: "Start" },
         "marktplatz.html": { title: "Markt" },
         "mein-planer.html": { title: "Planer" },
         "community.html": { title: "Community" },
-        "freie-matches.html": { title: "Freie Match-Plätze" },
+        "freie-matches.html": { title: "Matches" },
         "schiessbuch.html": { title: "Schießbuch" },
         "sg-timer-live.html": { title: "SG-Timer Live" },
         "tools.html": { title: "Tools" },
@@ -21,66 +18,8 @@
         "wiederladen.html": { title: "Wiederladen" },
         "ipsc-hub.html": { title: "IPSC Hub" },
         "doppel-aa.html": { title: "Startplatz-Bot" },
-        "performance.html": { title: "ELO-Vergleich" },
-        "impressum.html": { title: "Impressum" },
-        "reset.html": { title: "Passwort zurücksetzen" },
-        "schiessbuch-confirm.html": { title: "Schießbuch bestätigen" },
-        "schiessbuch-verify.html": { title: "Schießbuch prüfen" }
+        "performance.html": { title: "ELO-Vergleich" }
     };
-
-    var CORE_SHELL_PAGES = PAGES;
-    var CLUB_PAGES_V78V = { "doppel-aa.html": 1, "performance.html": 1 };
-    var clubAccessV78v = { allowed: false, checked: false, checking: false };
-    var CORE_FILES = { "index.html": 1, "marktplatz.html": 1, "mein-planer.html": 1, "community.html": 1 };
-    var MAX_LIVE_FRAMES = 3;
-
-    function shouldEmbedInShell(file) {
-        return !!PAGES[file];
-    }
-
-    function isDoubleAAValueV78v(value) {
-        return value === true || value === 1 || value === "1" || String(value).toLowerCase() === "true" || String(value).toLowerCase() === "yes";
-    }
-
-    function setClubAccessV78v(allowed) {
-        clubAccessV78v.allowed = !!allowed;
-        clubAccessV78v.checked = true;
-        try {
-            document.documentElement.classList.toggle("ipsc-club-access-v78v", clubAccessV78v.allowed);
-            if (document.body) document.body.classList.toggle("ipsc-club-access-v78v", clubAccessV78v.allowed);
-            document.querySelectorAll('[data-club-link-v76d="1"], #club-links-placeholder-v76c .club-links-v76').forEach(function(el){ if (!clubAccessV78v.allowed) el.remove(); });
-        } catch (_) {}
-    }
-
-    async function checkClubAccessV78v() {
-        if (clubAccessV78v.checking) return clubAccessV78v.allowed;
-        clubAccessV78v.checking = true;
-        try {
-            if (!window.supabaseClient || !window.supabaseClient.auth) { setClubAccessV78v(false); return false; }
-            var sessionResult = await window.supabaseClient.auth.getSession();
-            var user = sessionResult && sessionResult.data && sessionResult.data.session && sessionResult.data.session.user;
-            if (!user) { setClubAccessV78v(false); return false; }
-            var result = await window.supabaseClient.from("profiles").select("is_doppel_aa").eq("id", user.id).maybeSingle();
-            var allowed = !result.error && result.data && isDoubleAAValueV78v(result.data.is_doppel_aa);
-            setClubAccessV78v(allowed);
-            return !!allowed;
-        } catch (err) {
-            console.warn("Double Alpha Native-Shell Prüfung fehlgeschlagen:", err);
-            setClubAccessV78v(false);
-            return false;
-        } finally {
-            clubAccessV78v.checking = false;
-        }
-    }
-
-    function fullPageUrlFor(view) {
-        var search = view.search || "";
-        var hasNativeFlag = /(?:^|[?&])nativeShell=0(?:&|$)/.test(search);
-        if (!hasNativeFlag) {
-            search += (search ? "&" : "?") + "nativeShell=0";
-        }
-        return view.file + search + (view.hash || "");
-    }
 
     var viewport = null;
     var loader = null;
@@ -145,77 +84,6 @@
         loader.classList.toggle("is-visible", !!visible);
     }
 
-    function markFrameLoaded(frame, view) {
-        try {
-            var href = frame.contentWindow && frame.contentWindow.location && frame.contentWindow.location.href || "";
-            if (!href || href === "about:blank" || href.indexOf("about:blank") === 0) return false;
-            var loadedFile = (frame.contentWindow.location.pathname.split("/").pop() || "index.html");
-            if (loadedFile !== view.file) return false;
-            frame.dataset.loadedKey = view.key;
-            frame.dataset.loadedFile = view.file;
-            frame.dataset.lastUsed = String(Date.now());
-            return true;
-        } catch (_) { return false; }
-    }
-
-    function isFrameReadyForView(frame, view) {
-        try {
-            return !!(frame && frame.dataset.loadedKey === view.key && frame.contentDocument && frame.contentDocument.readyState !== "loading");
-        } catch (_) { return false; }
-    }
-
-    function isFramePaintReady(frame) {
-        try {
-            var doc = frame && frame.contentDocument;
-            if (!doc || !doc.body || !doc.documentElement) return false;
-            if (doc.readyState === "loading") return false;
-            var txt = (doc.body.innerText || doc.body.textContent || "").trim();
-            var h = Math.max(doc.body.scrollHeight || 0, doc.documentElement.scrollHeight || 0, doc.body.offsetHeight || 0, doc.documentElement.offsetHeight || 0);
-            return h > 120 || txt.length > 20;
-        } catch (_) { return false; }
-    }
-
-    function afterFramePaint(frame, cb) {
-        var tries = 0;
-        function tick() {
-            tries++;
-            if (isFramePaintReady(frame) || tries > 24) {
-                window.requestAnimationFrame(function () { window.requestAnimationFrame(cb); });
-                return;
-            }
-            window.setTimeout(tick, 50);
-        }
-        tick();
-    }
-
-    function removeFrameByKey(key) {
-        try {
-            var frame = frames[key];
-            if (!frame) return;
-            if (heightTimers[key]) { try { if (heightTimers[key].cancel) heightTimers[key].cancel(); else clearInterval(heightTimers[key]); } catch (_) {} delete heightTimers[key]; }
-            try { frame.src = "about:blank"; } catch (_) {}
-            try { frame.remove(); } catch (_) {}
-            delete frames[key];
-        } catch (_) {}
-    }
-
-    function evictOldFrames(activeKey, protectedKey) {
-        try {
-            var keys = Object.keys(frames);
-            if (keys.length <= MAX_LIVE_FRAMES) return;
-            var candidates = keys.filter(function (k) {
-                var f = frames[k];
-                if (!f || k === activeKey || k === protectedKey) return false;
-                if (f.classList.contains("is-active") || f.classList.contains("is-outgoing") || f.classList.contains("is-preparing")) return false;
-                var file = f.dataset.loadedFile || (k.split("?")[0].split("#")[0]);
-                return !CORE_FILES[file];
-            }).sort(function (a, b) {
-                return Number(frames[a].dataset.lastUsed || 0) - Number(frames[b].dataset.lastUsed || 0);
-            });
-            while (Object.keys(frames).length > MAX_LIVE_FRAMES && candidates.length) removeFrameByKey(candidates.shift());
-        } catch (_) {}
-    }
-
     function setActiveChrome(file) {
         try {
             document.documentElement.dataset.nativeShellView = file;
@@ -227,62 +95,12 @@
                 a.classList.toggle("active", active);
                 a.classList.toggle("inactive", !active && a.closest("header nav, .main-nav"));
             });
-            var morePages = ["freie-matches.html", "schiessbuch.html", "sg-timer-live.html", "tools.html", "analytics.html", "wiederladen.html", "ipsc-hub.html"]; if (clubAccessV78v.allowed) morePages.push("doppel-aa.html", "performance.html");
+            var morePages = ["freie-matches.html", "schiessbuch.html", "sg-timer-live.html", "tools.html", "analytics.html", "wiederladen.html", "ipsc-hub.html", "doppel-aa.html", "performance.html"];
             var moreActive = morePages.indexOf(file) >= 0;
             var moreBtn = document.getElementById("btn-more-menu");
             if (moreBtn) moreBtn.classList.toggle("active", moreActive);
         } catch (_) {}
     }
-
-    function closeShellMoreMenu() {
-        try {
-            var menu = document.getElementById("more-menu-overlay");
-            var btn = document.getElementById("btn-more-menu");
-            if (menu) menu.classList.remove("show");
-            if (btn) btn.classList.remove("open");
-        } catch (_) {}
-    }
-
-    function toggleShellMoreMenu() {
-        try {
-            var menu = document.getElementById("more-menu-overlay");
-            var btn = document.getElementById("btn-more-menu");
-            if (!menu || !btn) return false;
-            var willOpen = !menu.classList.contains("show");
-            menu.classList.toggle("show", willOpen);
-            btn.classList.toggle("open", willOpen);
-            if (willOpen) {
-                window.requestAnimationFrame(function () {
-                    try {
-                        var list = document.getElementById("more-menu-list");
-                        if (!list) return;
-                        var stored = Number(localStorage.getItem("ipsc.moreMenu.scrollTop.v76k") || "0");
-                        if (stored > 8) list.scrollTop = stored;
-                    } catch (_) {}
-                });
-            }
-            return true;
-        } catch (_) { return false; }
-    }
-
-    function openShellAuthModal(view) {
-        view = view || "login";
-        try {
-            var modal = document.getElementById("auth-modal");
-            if (!modal) return false;
-            modal.style.display = "flex";
-            modal.classList.add("open");
-            modal.removeAttribute("aria-hidden");
-            if (document.body) document.body.classList.add("auth-open", "modal-open");
-            if (typeof window.toggleAuthView === "function") window.toggleAuthView(view);
-            var field = document.getElementById(view === "register" ? "register-email" : "login-email");
-            if (field) setTimeout(function(){ try { field.focus({ preventScroll: true }); } catch (_) {} }, 160);
-            return true;
-        } catch (_) { return false; }
-    }
-
-    window.openAuthModalV77b = openShellAuthModal;
-    window.toggleMoreMenuV77b = toggleShellMoreMenu;
 
     function activateFrame(frame, view, opts) {
         opts = opts || {};
@@ -301,7 +119,6 @@
             previousActive.classList.add("is-outgoing");
         }
 
-        frame.dataset.lastUsed = String(Date.now());
         frame.classList.remove("is-preparing", "is-cached", "is-outgoing");
         frame.classList.add("is-active");
         setActiveChrome(view.file);
@@ -323,7 +140,6 @@
                     }
                 });
                 resizeFrame(frame);
-                evictOldFrames(view.key, previousActive && previousActive.dataset ? previousActive.dataset.pageKey : null);
             }, 170);
         });
     }
@@ -380,10 +196,6 @@
                 ].join("\n");
                 (doc.head || doc.documentElement).appendChild(st);
             }
-            try {
-                frame.contentWindow.openParentAuthModalV77b = function(view) { return openShellAuthModal(view || "login"); };
-                frame.contentWindow.routeParentShellV77b = function(view) { return routeTo(view || "index.html"); };
-            } catch (_) {}
             bindFrameLinks(frame, file);
             scheduleHeightWatch(frame);
             resizeFrame(frame);
@@ -396,20 +208,7 @@
             if (!doc || doc.__ipscShellLinksBoundV76t) return;
             doc.__ipscShellLinksBoundV76t = true;
             doc.addEventListener("click", function (event) {
-                var target = event.target;
-                var loginTrigger = target && target.closest && target.closest('#btn-open-login, [onclick*="auth-modal"], [onclick*="toggleAuthView"], [data-native-login]');
-                if (loginTrigger) {
-                    var inline = String(loginTrigger.getAttribute("onclick") || "");
-                    var text = String(loginTrigger.innerText || loginTrigger.textContent || "").toLowerCase();
-                    if (loginTrigger.id === "btn-open-login" || inline.indexOf("auth-modal") >= 0 || inline.indexOf("toggleAuthView") >= 0 || /einloggen|anmelden|login/.test(text)) {
-                        event.preventDefault();
-                        event.stopImmediatePropagation();
-                        openShellAuthModal(inline.indexOf("register") >= 0 ? "register" : "login");
-                        return;
-                    }
-                }
-
-                var a = target && target.closest && target.closest("a[href]");
+                var a = event.target && event.target.closest && event.target.closest("a[href]");
                 if (!a) return;
                 if (a.target && a.target !== "_self") return;
                 if (a.hasAttribute("download")) return;
@@ -431,29 +230,16 @@
     function scheduleHeightWatch(frame) {
         var key = frame.dataset.pageKey;
         if (!key || heightTimers[key]) return;
-        // V78W: Performance-Hotfix. Keine globalen MutationObserver pro iframe und kein permanentes
-        // 900ms-Polling mehr. Das hat auf iPhone/iPad nach mehreren Seitenwechseln spürbar gebremst.
-        var resizePending = false;
-        function requestResize() {
-            if (resizePending || !frame.classList.contains("is-active")) return;
-            resizePending = true;
-            window.requestAnimationFrame(function () {
-                resizePending = false;
-                resizeFrame(frame);
-            });
-        }
-        heightTimers[key] = { cancel: function () {} };
+        heightTimers[key] = window.setInterval(function () {
+            if (frame.classList.contains("is-active")) resizeFrame(frame);
+        }, 700);
         try {
             var doc = frame.contentDocument;
-            if (doc) {
-                doc.addEventListener("load", requestResize, true);
-                doc.addEventListener("transitionend", requestResize, true);
-                doc.addEventListener("input", requestResize, true);
-                doc.addEventListener("click", function () { window.setTimeout(requestResize, 80); }, true);
+            if (doc && doc.body && !doc.body.__ipscResizeObserverV76t && window.ResizeObserver) {
+                doc.body.__ipscResizeObserverV76t = new ResizeObserver(function () { resizeFrame(frame); });
+                doc.body.__ipscResizeObserverV76t.observe(doc.body);
             }
         } catch (_) {}
-        window.setTimeout(requestResize, 120);
-        window.setTimeout(requestResize, 420);
     }
 
     function ensureFrame(view) {
@@ -461,46 +247,25 @@
         var frame = document.createElement("iframe");
         frame.className = "native-shell-frame-v76t";
         frame.dataset.pageKey = view.key;
-        frame.dataset.loadedKey = "";
-        frame.dataset.loadedFile = "";
-        frame.dataset.lastUsed = String(Date.now());
         frame.title = PAGES[view.file].title || view.file;
         frame.setAttribute("loading", "eager");
         frame.setAttribute("scrolling", "no");
-        frame.setAttribute("aria-hidden", "true");
+        frame.src = shellUrlFor(view);
         frame.addEventListener("load", function () {
-            if (!markFrameLoaded(frame, view)) return;
-            frame.setAttribute("aria-hidden", "false");
             injectIntoFrame(frame, view.file);
             resizeFrame(frame);
-            // Give WebKit one frame to paint the real document before swapping layers.
             if (currentKey === view.key) {
-                afterFramePaint(frame, function () { activateFrame(frame, view); });
+                activateFrame(frame, view);
             }
-        });
-        frame.addEventListener("error", function () {
-            frame.dataset.loadedKey = "";
-            frame.classList.remove("is-preparing");
-            frame.classList.add("is-cached");
-            setLoading(false);
         });
         viewport.appendChild(frame);
         frames[view.key] = frame;
-        // Set src only after listeners and DOM insertion, to avoid activating about:blank.
-        frame.src = shellUrlFor(view);
         return frame;
     }
 
-    async function routeTo(rawView, opts) {
+    function routeTo(rawView, opts) {
         opts = opts || {};
         var view = normalizeView(rawView);
-        if (CLUB_PAGES_V78V[view.file] && !clubAccessV78v.allowed) {
-            var allowed = await checkClubAccessV78v();
-            if (!allowed) {
-                view = normalizeView('index.html');
-                opts.replace = true;
-            }
-        }
         var theme = getTheme();
         applyShellTheme(theme);
 
@@ -509,65 +274,27 @@
             return;
         }
 
-        if (currentKey === view.key && frames[view.key]) {
-            setActiveChrome(view.file);
-            closeShellMoreMenu();
-            try { injectIntoFrame(frames[view.key], view.file); resizeFrame(frames[view.key]); } catch (_) {}
-            if (opts.replace) history.replaceState({ view: view.file }, "", "native-shell.html?view=" + encodeURIComponent(view.file + (view.search || "") + (view.hash || "")));
-            return;
-        }
-
-        // V77E: every internal page stays inside the zero-flash shell.
-        // Do not fall back to a hard document navigation for More pages.
-
         currentKey = view.key;
         setActiveChrome(view.file);
-        closeShellMoreMenu();
         try { sessionStorage.setItem("ipsc_native_shell_view_v76t", view.file); } catch (_) {}
 
         var frame = ensureFrame(view);
-        var frameReady = isFrameReadyForView(frame, view);
+        var frameReady = false;
+        try { frameReady = !!(frame.contentDocument && frame.contentDocument.readyState !== "loading"); } catch (_) { frameReady = false; }
         if (frameReady) {
             activateFrame(frame, view);
         } else {
-            // V77F: keep the old page visible, but let the new iframe be *paintable* behind it.
-            // WKWebView can leave fully hidden iframes blank; opacity .001 + visible fixes More-page white screens.
-            frame.classList.remove("is-cached", "is-active", "is-outgoing");
+            // V76V: keep the old page visible until the requested page has completed its first paint.
             frame.classList.add("is-preparing");
             setLoading(false);
-            try {
-                if (!frame.src || frame.src === "about:blank") frame.src = shellUrlFor(view);
-            } catch (_) {}
         }
 
-        try { evictOldFrames(view.key, null); } catch (_) {}
         var url = "native-shell.html?view=" + encodeURIComponent(view.file + (view.search || "") + (view.hash || ""));
         if (opts.replace) history.replaceState({ view: view.file }, "", url);
         else history.pushState({ view: view.file }, "", url);
     }
 
     function interceptShellClick(event) {
-        var moreBtn = event.target && event.target.closest && event.target.closest("#btn-more-menu");
-        if (moreBtn) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            toggleShellMoreMenu();
-            return;
-        }
-        var loginBtn = event.target && event.target.closest && event.target.closest("#btn-open-login");
-        if (loginBtn) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            openShellAuthModal("login");
-            return;
-        }
-        var settingsBtn = event.target && event.target.closest && event.target.closest("#btn-open-settings");
-        if (settingsBtn && document.getElementById("auth-modal")) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            openShellAuthModal("settings");
-            return;
-        }
         var a = event.target && event.target.closest && event.target.closest("a[href]");
         if (!a) return;
         if (a.target && a.target !== "_self") return;
@@ -587,37 +314,18 @@
     function warmHtmlCache() {
         if (prewarmStarted) return;
         prewarmStarted = true;
-        // V78W: Launch-Performance. Kein Vorladen von Live-iframes mehr.
-        // Die Seite, die der Nutzer öffnet, wird geladen; alte aktive Seite bleibt bis zur ersten Paint sichtbar.
-        // Dadurch deutlich weniger RAM/CPU in WKWebView auf iPhone/iPad.
-        try {
-            if ("requestIdleCallback" in window) {
-                window.requestIdleCallback(function () {
-                    ["index.html", "marktplatz.html", "mein-planer.html", "community.html"].forEach(function (f) {
-                        try { fetch(f + "?shell=1", { cache: "force-cache" }).catch(function () {}); } catch (_) {}
-                    });
-                }, { timeout: 5000 });
+        var warm = ["index.html", "marktplatz.html", "mein-planer.html", "community.html"];
+        var i = 0;
+        function next() {
+            if (i >= warm.length) return;
+            var f = warm[i++];
+            if (!currentKey || currentKey.indexOf(f) !== 0) {
+                try { fetch(f + "?shell=1", { cache: "force-cache" }).catch(function () {}); } catch (_) {}
+                try { ensureFrame(normalizeView(f)); } catch (_) {}
             }
-        } catch (_) {}
-    }
-
-    function broadcastAuthToFrames(eventName) {
-        Object.keys(frames).forEach(function (k) {
-            var frame = frames[k];
-            try {
-                var w = frame.contentWindow;
-                if (!w) return;
-                if (w.supabaseClient && w.supabaseClient.auth && w.supabaseClient.auth.getSession) {
-                    w.supabaseClient.auth.getSession().then(function (res) {
-                        var user = res && res.data && res.data.session && res.data.session.user;
-                        try { w.currentUser = user || null; } catch (_) {}
-                        try { if (typeof w.updateAuthUI === "function") w.updateAuthUI(user || null); } catch (_) {}
-                        try { if (typeof w.onAuthChange === "function") w.onAuthChange(user || null); } catch (_) {}
-                    }).catch(function(){});
-                }
-                try { w.dispatchEvent(new CustomEvent("ipsc:shell-auth-updated-v77e", { detail: { eventName: eventName } })); } catch (_) {}
-            } catch (_) {}
-        });
+            setTimeout(next, 520);
+        }
+        setTimeout(next, 1200);
     }
 
     function syncThemeToFrames() {
@@ -641,20 +349,6 @@
         loader = document.getElementById("native-shell-loading-v76t");
         if (!viewport) return;
         applyShellTheme(getTheme());
-        try {
-            window.showPageTransitionCover = function () { return false; };
-            window.hidePageTransitionCover = function () { return false; };
-            document.documentElement.classList.remove("is-page-leaving", "is-native-navigating-v74", "is-native-navigating-v76o");
-        } catch (_) {}
-        // V77F: passkeys are not reliable from capacitor://localhost with the web RP-ID; keep launch login clean.
-        try {
-            window.loginWithPasskey = function () { alert("Passkey ist in der lokalen App-Version noch nicht verfügbar. Bitte nutze Apple, Google oder E-Mail/Passwort."); };
-            window.registerPasskey = function () { alert("Passkey-Registrierung ist in der lokalen App-Version noch nicht verfügbar. Bitte nutze Apple, Google oder E-Mail/Passwort."); };
-            var ps = document.createElement("style");
-            ps.id = "ipsc-native-shell-passkey-hint-v77e";
-            ps.textContent = '[onclick="loginWithPasskey()"],[onclick="registerPasskey()"]{opacity:.55!important;filter:grayscale(.35);}' + '\n' + '[onclick="loginWithPasskey()"]::after{content:"  · später";font-size:11px;opacity:.75;}';
-            document.head.appendChild(ps);
-        } catch (_) {}
         document.addEventListener("click", interceptShellClick, true);
         document.addEventListener("click", function (event) {
             if (event.target && event.target.closest && event.target.closest("#theme-toggle")) {
@@ -680,13 +374,11 @@
             if (window.supabaseClient && window.supabaseClient.auth && window.supabaseClient.auth.onAuthStateChange) {
                 window.supabaseClient.auth.onAuthStateChange(function (eventName) {
                     if (eventName === "SIGNED_IN" || eventName === "SIGNED_OUT" || eventName === "TOKEN_REFRESHED") {
-                        // V77E: do not reload all embedded frames after OAuth.
-                        // Reloading cached iframes caused visible blinking and white screens.
                         setTimeout(function () {
-                            try { if (typeof window.updateAuthUI === "function") window.updateAuthUI(window.currentUser || null); } catch (_) {}
-                            try { syncThemeToFrames(); } catch (_) {}
-                            try { broadcastAuthToFrames(eventName); window.dispatchEvent(new CustomEvent("ipsc:shell-auth-updated-v77e", { detail: { eventName: eventName } })); } catch (_) {}
-                        }, 120);
+                            Object.keys(frames).forEach(function (k) {
+                                try { frames[k].contentWindow.location.reload(); } catch (_) {}
+                            });
+                        }, 350);
                     }
                 });
             }
@@ -696,13 +388,6 @@
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
     else init();
 
-    window.IPSCNativeShellV76v = { routeTo: routeTo, syncTheme: syncThemeToFrames, openAuth: openShellAuthModal, toggleMore: toggleShellMoreMenu, broadcastAuth: broadcastAuthToFrames };
-    window.IPSCNativeShellV77b = window.IPSCNativeShellV76v;
-    window.IPSCNativeShellV77c = window.IPSCNativeShellV76v;
-    window.IPSCNativeShellV77d = window.IPSCNativeShellV76v;
-    window.IPSCNativeShellV77e = window.IPSCNativeShellV76v;
-    window.IPSCNativeShellV77f = window.IPSCNativeShellV76v;
+    window.IPSCNativeShellV76v = { routeTo: routeTo, syncTheme: syncThemeToFrames };
     window.IPSCNativeShellV76u = window.IPSCNativeShellV76v;
-
-    try { setTimeout(checkClubAccessV78v, 250); setTimeout(checkClubAccessV78v, 1500); } catch (_) {}
 })();

@@ -513,27 +513,6 @@
                 return communityFilterV74 === "all" || category === communityFilterV74;
             });
 
-            // V78Q: Community zeigt nur den öffentlichen Alias (profiles.username),
-            // nie die Mitglieds-/Lizenznummer aus ipsc_alias. Alte Beiträge werden
-            // beim Rendern über author_email sauber aufgelöst.
-            const publicNameByEmailV78q = {};
-            try {
-                const emails = [...new Set(filteredPosts.map(p => String(p.author_email || '').toLowerCase().trim()).filter(Boolean))];
-                if (emails.length) {
-                    const { data: profileRows } = await window.supabaseClient
-                        .from('profiles')
-                        .select('email, username')
-                        .in('email', emails);
-                    (profileRows || []).forEach(profile => {
-                        const email = String(profile.email || '').toLowerCase().trim();
-                        const username = String(profile.username || '').trim();
-                        if (email && username) publicNameByEmailV78q[email] = username;
-                    });
-                }
-            } catch (err) {
-                console.warn('Community Alias-Lookup fehlgeschlagen:', err);
-            }
-
             container.innerHTML = '';
 
             if (filteredPosts.length === 0) {
@@ -551,10 +530,8 @@
                 const category = parseCommunityCategoryV74(post);
                 const cleanContent = stripCommunityCategoryV74(post.content);
                 const isAdmin = post.author_email && post.author_email.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim();
-                const authorEmailKeyV78q = String(post.author_email || '').toLowerCase().trim();
-                const publicAuthorNameV78q = publicNameByEmailV78q[authorEmailKeyV78q] || post.author_name || 'Schütze';
                 const avatarClass = isAdmin ? 'avatar admin-avatar' : 'avatar';
-                const initial = publicAuthorNameV78q ? publicAuthorNameV78q.charAt(0).toUpperCase() : '?';
+                const initial = post.author_name ? post.author_name.charAt(0).toUpperCase() : '?';
                 const adminBadge = isAdmin ? `<span class="badge-admin">${categoryLabelV74('admin')}</span>` : '';
 
                 const avatarHtml = post.author_avatar
@@ -579,7 +556,7 @@
                             ${avatarHtml}
 
                             <div class="post-meta">
-                                <h4>${escapeHtml(publicAuthorNameV78q)} ${adminBadge}</h4>
+                                <h4>${escapeHtml(post.author_name)} ${adminBadge}</h4>
                                 <span>${displayDate} · ${categoryLabelV74(category)}</span>
                             </div>
                         </div>
@@ -678,23 +655,6 @@
                 return;
             }
 
-            const publicNameByIdV78q = {};
-            try {
-                const ids = [...new Set((data || []).map(c => c.user_id).filter(Boolean))];
-                if (ids.length) {
-                    const { data: profileRows } = await window.supabaseClient
-                        .from('profiles')
-                        .select('id, username')
-                        .in('id', ids);
-                    (profileRows || []).forEach(profile => {
-                        const username = String(profile.username || '').trim();
-                        if (profile.id && username) publicNameByIdV78q[String(profile.id)] = username;
-                    });
-                }
-            } catch (err) {
-                console.warn('Kommentar-Alias-Lookup fehlgeschlagen:', err);
-            }
-
             container.innerHTML = data.map(c => {
                 const dObj = new Date(c.created_at);
                 const dStr = dObj.toLocaleDateString('de-DE') + ' ' + dObj.toLocaleTimeString('de-DE', {
@@ -705,7 +665,7 @@
                 return `
                     <div class="comment-item">
                         <div class="comment-meta">
-                            ${escapeHtml(publicNameByIdV78q[String(c.user_id)] || c.author_name || 'Schütze')}
+                            ${escapeHtml(c.author_name)}
                             <span>${dStr}</span>
                         </div>
                         <div style="color: var(--text-color);">${escapeHtml(c.content)}</div>
@@ -780,12 +740,6 @@
             document.getElementById('post-modal').style.display = 'none';
             document.getElementById('post-image').value = '';
             document.getElementById('post-image-preview').style.display = 'none';
-            try {
-                if (window.parent && window.parent !== window) {
-                    window.parent.postMessage({ type: 'ipsc-restore-chrome-v78h' }, window.location.origin);
-                    setTimeout(function(){ window.parent.postMessage({ type: 'ipsc-restore-chrome-v78h' }, window.location.origin); }, 220);
-                }
-            } catch (_) {}
         }
 
         async function submitPost() {
@@ -993,7 +947,5 @@
 })();
 </script>
 
-    <script src="release-i18n-v78s.js?v=78s"></script>
-    <script src="release-i18n-v78u.js?v=78u"></script>
 </body>
 </html>
