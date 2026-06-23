@@ -449,7 +449,7 @@
         </section>
 <div class="page-section" id="auth-guard" style="display: none; text-align: center; padding: 40px 20px;">
             <span style="font-size: 40px; display: block; margin-bottom: 16px;">💾</span>
-            <p style="color: var(--text-color); font-weight: 800; font-size: 18px; margin-top: 0; margin-bottom: 8px;">Digitale Schießkladde</p>
+            <p style="color: var(--text-color); font-weight: 800; font-size: 18px; margin-top: 0; margin-bottom: 8px;" data-txt="v74-log-title">Schießbuch</p>
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; line-height: 1.5; max-width: 400px; margin-left: auto; margin-right: auto;" data-txt="tools-db-logged-out">Bitte logge dich ein, um deine digitale Schießkladde zu nutzen.</p>
             <button type="button" class="btn-primary-auth" style="width: auto; padding: 14px 32px;" onclick="document.getElementById('auth-modal').style.display = 'flex'; if(typeof toggleAuthView === 'function') toggleAuthView('login');" data-txt="planner-logged-out-btn">Jetzt einloggen</button>
         </div>
@@ -473,7 +473,7 @@
                     <h2 style="margin: 0; border: none; padding: 0;" data-txt="planner-title-my-matches">📋 Meine Trainings</h2>
                     <div style="display: flex; gap: 8px;">
                         <button class="btn-primary-auth" style="width: auto; padding: 8px 14px; margin: 0; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); box-shadow: none;" onclick="exportToPDF(event)">📄 PDF Export</button>
-                        <button class="btn-primary-auth" style="width: auto; padding: 8px 14px; margin: 0; box-shadow: none;" onclick="openAddModal()">+ Eintrag</button>
+                        <button class="btn-primary-auth" style="width: auto; padding: 8px 14px; margin: 0; box-shadow: none;" onclick="openAddModal()" data-txt="v74-log-action-add">+ Eintrag</button>
                     </div>
                 </div>
 
@@ -681,10 +681,10 @@
                 if (!integrity.signature_hash || !integrity.confirmation_hash) {
                     return { state: "warn", text: "Signiert, aber alter Signatur-Hash fehlt" };
                 }
-                return { state: "ok", text: integrity.local_only ? "Lokal geprüft & gesperrt" : "Hash geprüft & gesperrt" };
+                return { state: "ok", text: integrity.local_only ? (isEn ? "Locally verified & locked" : "Lokal geprüft & gesperrt") : (isEn ? "Hash verified & locked" : "Hash geprüft & gesperrt") };
             }
 
-            return { state: "pending", text: integrity.local_only ? "Lokaler Entwurfs-Hash" : "Entwurfs-Hash erstellt" };
+            return { state: "pending", text: integrity.local_only ? (isEn ? "Local draft hash" : "Lokaler Entwurfs-Hash") : (isEn ? "Draft hash created" : "Entwurfs-Hash erstellt") };
         }
 
         async function refreshIntegrityBadges() {
@@ -823,6 +823,56 @@
                 !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform()) ||
                 document.documentElement.classList.contains("is-native-shell") ||
                 document.body.classList.contains("is-app-shell");
+
+            // V78Q: If this page runs inside the app iframe, ask the parent Capacitor shell
+            // to write a real PDF file and open the native iOS share sheet.
+            if (isNativeShell && window.parent && window.parent !== window) {
+                try {
+                    const dataUri = doc.output("datauristring");
+                    const base64 = base64FromDataUri(dataUri);
+                    const sharedByParent = await new Promise(resolve => {
+                        let done = false;
+                        const timeout = setTimeout(() => { if (!done) { done = true; cleanup(); resolve(false); } }, 4200);
+                        function cleanup(){
+                            clearTimeout(timeout);
+                            window.removeEventListener('message', onMessage);
+                        }
+                        function onMessage(event){
+                            try {
+                                if (event.origin !== window.location.origin) return;
+                                const msg = event.data || {};
+                                if (msg.type !== 'ipsc-share-pdf-v78q-result') return;
+                                if (done) return;
+                                done = true;
+                                cleanup();
+                                resolve(!!msg.ok);
+                            } catch (_) {}
+                        }
+                        window.addEventListener('message', onMessage);
+                        window.parent.postMessage({
+                            type: 'ipsc-share-pdf-v78q',
+                            filename: safeFilename,
+                            title,
+                            base64
+                        }, window.location.origin);
+                    });
+                    if (sharedByParent) return true;
+                } catch (err) {
+                    console.warn('Parent PDF share request failed, falling back.', err);
+                }
+            }
+
+            // Web Share API with real file, useful on iOS/Safari when available.
+            try {
+                const blob = doc.output("blob");
+                const file = new File([blob], safeFilename, { type: "application/pdf" });
+                if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+                    await navigator.share({ title, text: "PDF wurde erstellt.", files: [file] });
+                    return true;
+                }
+            } catch (err) {
+                console.warn("File share fallback failed", err);
+            }
 
             // Native Capacitor/iOS: downloads via <a download> often do nothing.
             // Prefer Filesystem + Share Sheet when the plugins exist.
@@ -1203,18 +1253,40 @@ async function buildClientSchiessbuchPDF(event) {
 
 
 
+
+        window.addEventListener('message', function(event){
+            try {
+                if (event.origin !== window.location.origin) return;
+                const data = event.data || {};
+                if (data.type === 'ipsc-auth-session-v78l' && data.user) {
+                    window.currentUser = data.user;
+                    if (typeof window.onAuthChange === 'function') window.onAuthChange(window.currentUser);
+                }
+                if (data.type === 'ipsc-auth-logout-v78d') {
+                    window.currentUser = null;
+                    if (typeof window.onAuthChange === 'function') window.onAuthChange(null);
+                }
+            } catch (_) {}
+        });
+
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('entry-date').valueAsDate = new Date();
             initCanvas();
             checkIntegritySchema();
 
+            try {
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'ipsc-request-auth-v78m' }, window.location.origin);
+                    setTimeout(() => window.parent.postMessage({ type: 'ipsc-request-auth-v78m' }, window.location.origin), 220);
+                }
+            } catch (_) {}
             setTimeout(() => {
                 if (window.currentUser) {
                     window.onAuthChange(window.currentUser);
                 } else {
                     document.getElementById('auth-guard').style.display = 'block';
                 }
-            }, 300);
+            }, 850);
         });
 
         window.onAuthChange = (user) => { 
@@ -1344,20 +1416,20 @@ async function buildClientSchiessbuchPDF(event) {
                     <div class="integrity-mini">
                         <div class="hash-line"><strong>Entry-Hash:</strong> <code>${shortHash(integrity.entry_hash)}</code></div>
                         <div class="hash-line"><strong>Chain-Hash:</strong> <code>${shortHash(integrity.chain_hash)}</code></div>
-                        ${integrity.previous_hash ? `<div class="hash-line"><strong>Vorheriger Hash:</strong> <code>${shortHash(integrity.previous_hash)}</code></div>` : ""}
-                        <span class="integrity-badge pending" data-integrity-id="${log.id}">🔍 Prüfe Hash...</span>
+                        ${integrity.previous_hash ? `<div class="hash-line"><strong>${isEn ? 'Previous hash:' : 'Vorheriger Hash:'}</strong> <code>${shortHash(integrity.previous_hash)}</code></div>` : ""}
+                        <span class="integrity-badge pending" data-integrity-id="${log.id}">${isEn ? '🔍 Checking hash...' : '🔍 Prüfe Hash...'}</span>
                     </div>
                 `;
 
                 let actionArea = log.is_verified 
-                    ? `<div class="locked-info">🔒 ${isEn ? 'Locked securely' : 'Bestätigt durch'} '${escapeHtml(log.external_confirmer_name || log.aufsicht_name)}' ${log.external_license ? ` · Lizenz: ${escapeHtml(log.external_license)}` : ""}</div>
+                    ? `<div class="locked-info">🔒 ${isEn ? 'Confirmed by' : 'Bestätigt durch'} '${escapeHtml(log.external_confirmer_name || log.aufsicht_name)}' ${log.external_license ? ` · Lizenz: ${escapeHtml(log.external_license)}` : ""}</div>
                        ${log.signature_data ? `<img class="signature-preview-img" src="${log.signature_data}" alt="Unterschrift">` : ""}
-                       ${integrity.verify_code ? `<span class="verify-code-chip">QR-Prüfcode aktiv</span>` : ""}
-                       <button class="btn-share-verify" onclick="shareIntegrityProof('${log.id}')">🔗 Prüfdaten teilen/kopieren</button>`
+                       ${integrity.verify_code ? `<span class="verify-code-chip">${isEn ? 'QR verification code active' : 'QR-Prüfcode aktiv'}</span>` : ""}
+                       <button class="btn-share-verify" onclick="shareIntegrityProof('${log.id}')">${isEn ? '🔗 Share/copy verification data' : '🔗 Prüfdaten teilen/kopieren'}</button>`
                     : `<div class="external-confirm-actions">
                            <button class="btn-sign" onclick="openSignModal('${log.id}')">✍️ ${isEn ? 'Sign locally' : 'Direkt unterschreiben lassen'}</button>
                            <button class="btn-external-confirm" onclick="createExternalConfirmation('${log.id}')">📲 ${isEn ? 'Send external confirmation' : 'Extern bestätigen lassen'}</button>
-                           <div class="external-confirm-note">Erzeugt einen Einmal-Link. Dein Kumpel sieht nur diesen Eintrag und unterschreibt auf seinem Handy.</div>
+                           <div class="external-confirm-note">${isEn ? 'Creates a one-time link. The other person only sees this entry and signs on their phone.' : 'Erzeugt einen Einmal-Link. Dein Kumpel sieht nur diesen Eintrag und unterschreibt auf seinem Handy.'}</div>
                        </div>`;
 
                 list.innerHTML += `
@@ -1478,7 +1550,7 @@ async function buildClientSchiessbuchPDF(event) {
         function stopDrawing() { isDrawing = false; }
         function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
-        function openAddModal() { document.getElementById('modal-add-entry').style.display = 'flex'; }
+        function openAddModal() { if (!window.currentUser) { try { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'ipsc-request-auth-v78m' }, window.location.origin); } catch (_) {} setTimeout(function(){ if (window.currentUser) document.getElementById('modal-add-entry').style.display = 'flex'; else { const g=document.getElementById('auth-guard'); if(g) g.style.display='block'; } }, 250); return; } document.getElementById('modal-add-entry').style.display = 'flex'; }
 
         async function openSignModal(id) {
             document.getElementById('sign-entry-id').value = id;
@@ -1649,5 +1721,7 @@ async function buildClientSchiessbuchPDF(event) {
 })();
 </script>
 
+    <script src="release-i18n-v78s.js?v=78s"></script>
+    <script src="release-i18n-v78u.js?v=78u"></script>
 </body>
 </html>

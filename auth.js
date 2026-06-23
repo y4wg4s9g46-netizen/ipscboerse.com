@@ -77,6 +77,10 @@ window.uploadImage = async function(file, folder) {
 
 // --- PASSKEY FUNKTIONEN ---
 window.loginWithPasskey = async function() {
+    if (isNativeShellV66() && (window.location.protocol === "capacitor:" || window.location.protocol === "ionic:")) {
+        alert("Passkey ist in der lokalen TestFlight-App mit dieser WebAuthn-Konfiguration noch nicht verfügbar. Bitte nutze Apple, Google oder E-Mail/Passwort.");
+        return;
+    }
     const btn = document.querySelector('#modal-login-view button[onclick="loginWithPasskey()"]');
     const oldHtml = btn ? btn.innerHTML : "";
     if (btn) btn.innerHTML = "⏳ Warte auf Sensor...";
@@ -88,12 +92,24 @@ window.loginWithPasskey = async function() {
         alert("Passkey-Login fehlgeschlagen oder abgebrochen: " + error.message);
     } else {
         if (data?.session?.user) cacheHeaderUser(data.session.user);
+        const loggedInUser = data?.session?.user || window.currentUser || null;
         if (btn) btn.innerHTML = "✅ Erfolgreich!";
-        location.reload();
+        if (document.body && (document.body.classList.contains("page-native-shell") || document.body.classList.contains("page-app-spa"))) {
+            try {
+                closeAuthModalAfterLoginV78e(loggedInUser);
+                window.dispatchEvent(new CustomEvent("ipsc:oauth-login-complete", { detail: { user: loggedInUser } }));
+            } catch (_) {}
+        } else {
+            location.reload();
+        }
     }
 };
 
 window.registerPasskey = async function() {
+    if (isNativeShellV66() && (window.location.protocol === "capacitor:" || window.location.protocol === "ionic:")) {
+        alert("Passkey-Registrierung ist in der lokalen TestFlight-App mit dieser WebAuthn-Konfiguration noch nicht verfügbar. Bitte nutze Apple, Google oder E-Mail/Passwort.");
+        return;
+    }
     const btn = document.querySelector('#modal-settings-view button[onclick="registerPasskey()"]');
     const oldHtml = btn ? btn.innerHTML : "";
     if (btn) btn.innerHTML = "⏳ Bitte Sensor berühren...";
@@ -133,13 +149,18 @@ function getOAuthRedirectUrl() {
 // NATIVE OAUTH CALLBACK BRIDGE v66
 const NATIVE_OAUTH_CALLBACK_URL = "ipscboerse://auth-callback";
 const WEB_OAUTH_CALLBACK_URL = "https://ipscboerse.com/auth-callback.html";
+const WEB_APP_SPA_URL_V78 = "https://ipscboerse.com/app.html";
 
 function isNativeShellV66() {
     try {
         return !!(
             (window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform()) ||
+            window.location.protocol === "capacitor:" ||
+            window.location.protocol === "ionic:" ||
             document.documentElement.classList.contains("is-native-shell") ||
-            document.body.classList.contains("is-app-shell")
+            document.documentElement.classList.contains("ipsc-native-shell-v76t") ||
+            document.body.classList.contains("is-app-shell") ||
+            document.body.classList.contains("page-native-shell")
         );
     } catch (_) {
         return false;
@@ -184,16 +205,27 @@ async function updateUiAfterOAuthV66(session) {
         if (typeof updateAuthUI === "function") updateAuthUI(session?.user || window.currentUser || null);
         if (typeof window.onAuthChange === "function") window.onAuthChange(session?.user || window.currentUser || null);
         if (typeof syncHeaderAuthState === "function") syncHeaderAuthState();
+        if (typeof closeAuthModalAfterLoginV78e === "function") closeAuthModalAfterLoginV78e(session?.user || window.currentUser || null);
 
         const returnPath = localStorage.getItem(OAUTH_RETURN_KEY);
         localStorage.removeItem(OAUTH_RETURN_KEY);
+        try { if (window.IPSCAppV78 && typeof window.IPSCAppV78.refresh === "function") setTimeout(function(){ window.IPSCAppV78.refresh(); }, 120); } catch (_) {}
 
         const currentPath = `${window.location.pathname || "/index.html"}${window.location.search || ""}`;
         const isCallbackPage = /auth-callback\.html/i.test(window.location.pathname || "");
 
-        // v69: Kein automatisches Reload mehr nach OAuth.
-        // Reload + App.getLaunchUrl kann denselben OAuth-Link erneut verarbeiten und Dauerblitzen auslösen.
-        if (returnPath && returnPath !== currentPath && !isCallbackPage) {
+        // v77d: In der lokalen Native-Shell niemals nach OAuth hart routen oder Frames neu laden.
+        // Die aktuelle Ansicht bleibt sichtbar; nur Header, Modal und geladene Frames bekommen den Auth-Status.
+        if (document.body && document.body.classList.contains("page-native-shell")) {
+            try {
+                if (history && history.replaceState && /auth-callback/i.test(window.location.href)) {
+                    history.replaceState(null, "", "native-shell.html?view=index.html");
+                }
+                const shell = window.IPSCNativeShellV77e || window.IPSCNativeShellV77d || window.IPSCNativeShellV77c || window.IPSCNativeShellV77b;
+                if (shell && typeof shell.broadcastAuth === "function") shell.broadcastAuth("SIGNED_IN");
+                if (shell && typeof shell.syncTheme === "function") shell.syncTheme();
+            } catch (_) {}
+        } else if (returnPath && returnPath !== currentPath && !isCallbackPage) {
             history.replaceState(null, "", returnPath);
         }
 
@@ -554,6 +586,7 @@ window.toggleTheme = function() {
     localStorage.setItem('theme', newTheme);
     localStorage.setItem('ipsc_effective_theme', newTheme);
     try { sessionStorage.setItem('ipsc_effective_theme', newTheme); sessionStorage.setItem('ipsc_nav_theme_v76s', newTheme); } catch (_) {}
+    try { window.dispatchEvent(new CustomEvent('ipsc:theme-change-v78d', { detail: { theme: newTheme } })); } catch (_) {}
     updateThemeToggleIcon(newTheme);
 
     requestAnimationFrame(() => {
@@ -588,7 +621,7 @@ function initTheme() {
 window.translations = {
   de: {
     "main-title": "IPSC STARTPLATZ-BÖRSE",
-    "sub-title": "Von Schützen für Schützen – Live Marktplatz",
+    "sub-title": "Von Schützen für Schützen",
     "btn-login-reg": "Login / Registrieren",
     "logout": "Abmelden",
     "btn-logout": "Abmelden",
@@ -696,7 +729,7 @@ window.translations = {
   },
   en: {
     "main-title": "IPSC SLOT MARKETPLACE",
-    "sub-title": "By Shooters for Shooters – Live Marketplace",
+    "sub-title": "By Shooters for Shooters",
     "btn-login-reg": "Login / Register",
     "logout": "Logout",
     "btn-logout": "Logout",
@@ -938,31 +971,168 @@ function toggleAuthView(view) {
 }
 window.toggleAuthView = toggleAuthView;
 
-document.addEventListener("click", async (e) => {
-    if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
+
+// V78H: Re-open auth modal robustly after v78e closes it with important hidden styles.
+function showAuthModalV78h(view) {
+    try {
+        const modal = document.getElementById("auth-modal");
+        if (!modal) return false;
+        modal.style.setProperty("display", "flex", "important");
+        modal.style.setProperty("visibility", "visible", "important");
+        modal.style.setProperty("opacity", "1", "important");
+        modal.style.setProperty("pointer-events", "auto", "important");
+        modal.removeAttribute("aria-hidden");
+        modal.classList.add("show", "is-open");
+        document.body.classList.add("auth-open", "modal-open");
+        document.documentElement.classList.add("auth-open", "modal-open");
+        if (typeof resetAuthProviderButtonsV78e === "function") resetAuthProviderButtonsV78e();
+        if (typeof toggleAuthView === "function") toggleAuthView(view || "login");
+        return true;
+    } catch (_) { return false; }
+}
+window.showAuthModalV78h = showAuthModalV78h;
+
+// V78E: Central app-login completion cleanup.
+// In the remote app shell (https://ipscboerse.com/app.html) OAuth/Passkey may complete without a hard reload.
+// The modal must close reliably and provider buttons must not remain in "wird geöffnet" / "Erfolgreich" states.
+function resetAuthProviderButtonsV78e() {
+    try {
+        const lang = window.currentLang === "en" ? "en" : "de";
+        const labels = {
+            passkey: lang === "en" ? "Continue with FaceID / Passkey" : "Mit FaceID / Passkey fortfahren",
+            apple: lang === "en" ? "Sign in with Apple" : "Mit Apple anmelden",
+            google: lang === "en" ? "Sign in with Google" : "Mit Google anmelden"
+        };
+        const passkeyBtn = document.querySelector('#auth-modal .btn-social-passkey, #modal-login-view button[onclick="loginWithPasskey()"]');
+        const appleBtn = document.querySelector('#auth-modal .btn-social-apple, #modal-login-view button[onclick="loginWithApple()"]');
+        const googleBtn = document.querySelector('#auth-modal .btn-social-google, #modal-login-view button[onclick="loginWithGoogle()"]');
+        [[passkeyBtn, labels.passkey], [appleBtn, labels.apple], [googleBtn, labels.google]].forEach(([btn, label]) => {
+            if (!btn) return;
+            btn.disabled = false;
+            btn.classList.remove("loading", "is-loading", "is-oauth-loading");
+            btn.style.removeProperty("background-color");
+            btn.style.removeProperty("color");
+            const span = btn.querySelector("span[data-txt]");
+            if (span) span.textContent = label;
+            else if (btn.dataset.oldHtml) btn.innerHTML = btn.dataset.oldHtml;
+            if (btn.dataset.oldHtml) delete btn.dataset.oldHtml;
+        });
+        const submitBtn = document.querySelector('#login-form button[type="submit"]');
+        if (submitBtn) submitBtn.textContent = (window.translations?.[lang]?.["modal-btn-login"] || (lang === "en" ? "Login" : "Einloggen"));
+        try { if (typeof translatePortalPage === "function") translatePortalPage(); } catch (_) {}
+    } catch (_) {}
+}
+
+function closeAuthModalAfterLoginV78e(user) {
+    try {
+        if (user) {
+            window.currentUser = user;
+            if (typeof cacheHeaderUser === "function") cacheHeaderUser(user);
+        }
+        resetAuthProviderButtonsV78e();
         const modal = document.getElementById("auth-modal");
         if (modal) {
-            modal.style.display = "flex";
-            toggleAuthView("login");
+            modal.style.setProperty("display", "none", "important");
+            modal.style.setProperty("visibility", "hidden", "important");
+            modal.style.setProperty("opacity", "0", "important");
+            modal.style.setProperty("pointer-events", "none", "important");
+            modal.classList.remove("open", "active", "show", "is-open");
+            modal.setAttribute("aria-hidden", "true");
+        }
+        document.body.classList.remove("auth-open", "modal-open");
+        document.documentElement.classList.remove("auth-open", "modal-open");
+        if (typeof updateAuthUI === "function") updateAuthUI(user || window.currentUser || null);
+        if (typeof window.onAuthChange === "function") window.onAuthChange(user || window.currentUser || null);
+        if (typeof syncHeaderAuthState === "function") syncHeaderAuthState();
+        if (window.IPSCAppV78 && typeof window.IPSCAppV78.broadcastAuth === "function") window.IPSCAppV78.broadcastAuth("SIGNED_IN");
+        setTimeout(function(){
+            try {
+                const modalAgain = document.getElementById("auth-modal");
+                if (modalAgain) modalAgain.style.setProperty("display", "none", "important");
+                resetAuthProviderButtonsV78e();
+            } catch (_) {}
+        }, 250);
+    } catch (_) {}
+}
+window.resetAuthProviderButtonsV78e = resetAuthProviderButtonsV78e;
+window.closeAuthModalAfterLoginV78e = closeAuthModalAfterLoginV78e;
+
+
+// V78M: one reliable close path for login/settings modal in app shell.
+function closeAuthModalV78m(){
+  try {
+    const modal = document.getElementById("auth-modal");
+    if (modal) {
+      modal.style.setProperty("display", "none", "important");
+      modal.style.setProperty("visibility", "hidden", "important");
+      modal.style.setProperty("opacity", "0", "important");
+      modal.style.setProperty("pointer-events", "none", "important");
+      modal.classList.remove("open", "active", "show", "is-open");
+      modal.setAttribute("aria-hidden", "true");
+    }
+    document.body.classList.remove("auth-open", "modal-open");
+    document.documentElement.classList.remove("auth-open", "modal-open");
+    if (window.IPSCAppV78 && typeof window.IPSCAppV78.restoreShellChrome === "function") window.IPSCAppV78.restoreShellChrome();
+    return true;
+  } catch (_) { return false; }
+}
+window.closeAuthModalV78m = closeAuthModalV78m;
+
+document.addEventListener("click", async (e) => {
+    if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
+        if (typeof showAuthModalV78h === "function") {
+            showAuthModalV78h("login");
+        } else {
+            const modal = document.getElementById("auth-modal");
+            if (modal) {
+                modal.style.setProperty("display", "flex", "important");
+                modal.style.setProperty("visibility", "visible", "important");
+                modal.style.setProperty("opacity", "1", "important");
+                modal.style.setProperty("pointer-events", "auto", "important");
+                toggleAuthView("login");
+            }
         }
     }
 
-    if (e.target.id === "btn-close-modal" || e.target.closest("#btn-close-modal")) {
-        const modal = document.getElementById("auth-modal");
-        if (modal) modal.style.display = "none";
+    if (e.target.id === "btn-close-modal" || e.target.closest("#btn-close-modal") || e.target.closest(".modal-close-trigger")) {
+        e.preventDefault();
+        if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
+        closeAuthModalV78m();
+        return;
     }
 
     if (e.target.id === "btn-logout" || e.target.closest("#btn-logout")) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
         clearHeaderUserCache();
         await window.supabaseClient.auth.signOut();
-        location.reload();
+        window.currentUser = null;
+        try { if (typeof updateAuthUI === "function") updateAuthUI(null); } catch (_) {}
+        try { if (typeof window.onAuthChange === "function") window.onAuthChange(null); } catch (_) {}
+        try { window.dispatchEvent(new CustomEvent("ipsc:auth-logout-v78d")); } catch (_) {}
+        if (!(document.body && (document.body.classList.contains("page-app-spa") || document.body.classList.contains("page-native-shell")))) {
+            location.reload();
+        }
     }
 
     if (e.target.id === "btn-open-settings" || e.target.closest("#btn-open-settings")) {
-        const modal = document.getElementById("auth-modal");
-        if (modal) {
-            modal.style.display = "flex";
-            toggleAuthView("settings");
+        if (typeof showAuthModalV78h === "function") {
+            showAuthModalV78h("settings");
+        } else {
+            const modal = document.getElementById("auth-modal");
+            if (modal) {
+                modal.style.setProperty("display", "flex", "important");
+                modal.style.setProperty("visibility", "visible", "important");
+                modal.style.setProperty("opacity", "1", "important");
+                modal.style.setProperty("pointer-events", "auto", "important");
+                toggleAuthView("settings");
+            }
+        }
+
+        const settingsPublicAlias = document.getElementById("settings-public-alias");
+        if (settingsPublicAlias && window.currentUser) {
+            settingsPublicAlias.value = window.currentUser.user_metadata?.username || "";
         }
 
         const settingsIpsc = document.getElementById("settings-ipsc-alias");
@@ -993,7 +1163,8 @@ document.addEventListener("click", async (e) => {
         await window.supabaseClient.auth.signOut();
 
         alert("Dein Konto und deine Inserate wurden erfolgreich entfernt.");
-        location.reload();
+        try { window.dispatchEvent(new CustomEvent("ipsc:auth-logout-v78d")); } catch (_) {}
+        if (!(document.body && (document.body.classList.contains("page-app-spa") || document.body.classList.contains("page-native-shell")))) location.reload();
     }
 });
 
@@ -1031,7 +1202,13 @@ document.addEventListener("submit", async (e) => {
             alert("Login fehlgeschlagen: " + error.message);
         } else {
             if (data?.session?.user) cacheHeaderUser(data.session.user);
-            location.reload();
+            if (document.body && (document.body.classList.contains("page-native-shell") || document.body.classList.contains("page-app-spa"))) {
+                const loggedInUser = data?.session?.user || window.currentUser || null;
+                closeAuthModalAfterLoginV78e(loggedInUser);
+                window.dispatchEvent(new CustomEvent("ipsc:oauth-login-complete", { detail: { user: loggedInUser } }));
+            } else {
+                location.reload();
+            }
         }
     }
 
@@ -1045,11 +1222,12 @@ document.addEventListener("submit", async (e) => {
         }
 
         const realName = document.getElementById("register-real-name") ? document.getElementById("register-real-name").value.trim() : "";
-        const ipscAlias = document.getElementById("register-ipsc-alias") ? document.getElementById("register-ipsc-alias").value.trim() : "";
+        const publicAlias = document.getElementById("register-ipsc-alias") ? document.getElementById("register-ipsc-alias").value.trim() : "";
+        const memberNumber = document.getElementById("register-member-number") ? document.getElementById("register-member-number").value.trim() : "";
         const emailValue = document.getElementById("register-email").value;
         const passwordValue = document.getElementById("register-password").value;
 
-        const publicUsername = ipscAlias !== "" ? ipscAlias : emailValue.split('@')[0];
+        const publicUsername = publicAlias !== "" ? publicAlias : emailValue.split('@')[0];
 
         const { error } = await window.supabaseClient.auth.signUp({
             email: emailValue,
@@ -1057,7 +1235,7 @@ document.addEventListener("submit", async (e) => {
             options: {
                 data: {
                     real_name: realName,
-                    ipsc_alias: ipscAlias,
+                    ipsc_alias: memberNumber,
                     username: publicUsername
                 }
             }
@@ -1107,10 +1285,11 @@ document.addEventListener("submit", async (e) => {
 
         try {
             const newPassword = document.getElementById("settings-password") ? document.getElementById("settings-password").value : "";
+            const newPublicAlias = document.getElementById("settings-public-alias") ? document.getElementById("settings-public-alias").value.trim() : "";
             const newIpscAlias = document.getElementById("settings-ipsc-alias") ? document.getElementById("settings-ipsc-alias").value.trim() : "";
             const newRealName = document.getElementById("settings-real-name") ? document.getElementById("settings-real-name").value.trim() : "";
 
-            const publicUsername = newIpscAlias !== "" ? newIpscAlias : window.currentUser.email.split('@')[0];
+            const publicUsername = newPublicAlias !== "" ? newPublicAlias : window.currentUser.email.split('@')[0];
 
             const avatarInput = document.getElementById("settings-avatar");
             const avatarFile = avatarInput && avatarInput.files.length > 0 ? avatarInput.files[0] : null;
@@ -1295,7 +1474,12 @@ setTimeout(async () => {
 
             await checkUserStatus();
 
-            if (event === "SIGNED_IN" && window.currentUser) cleanOAuthUrlIfNeeded();
+            if (event === "SIGNED_IN" && window.currentUser) {
+                cleanOAuthUrlIfNeeded();
+                if (document.body && (document.body.classList.contains("page-native-shell") || document.body.classList.contains("page-app-spa"))) {
+                    closeAuthModalAfterLoginV78e(window.currentUser);
+                }
+            }
 
             if (typeof window.onAuthChange === "function") {
                 window.onAuthChange(window.currentUser);

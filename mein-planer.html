@@ -287,12 +287,134 @@
 
     <!-- PLANNER MAPS v64 -->
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
+
+<style id="planner-accommodations-v78n">
+  .planner-accommodation-box-v78n {
+    margin-top: 16px;
+    border: 1px solid rgba(255,159,67,.22);
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(255,159,67,.055), rgba(255,255,255,.42));
+    overflow: hidden;
+  }
+  html[data-theme="dark"] .planner-accommodation-box-v78n {
+    background: rgba(15,23,42,.48);
+    border-color: rgba(255,159,67,.30);
+  }
+  .planner-accommodation-box-v78n summary {
+    list-style: none;
+    cursor: pointer;
+    min-height: 56px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-weight: 900;
+    color: var(--text-color);
+  }
+  .planner-accommodation-box-v78n summary::-webkit-details-marker { display: none; }
+  .planner-accommodation-box-v78n summary::after {
+    content: "⌄";
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,159,67,.11);
+    color: var(--accent-color);
+    font-weight: 900;
+    flex: 0 0 auto;
+  }
+  .planner-accommodation-box-v78n[open] summary::after { content: "⌃"; }
+  .planner-accommodation-status-v78n {
+    margin-left: auto;
+    font-size: 13px;
+    font-weight: 900;
+    color: #10b981;
+    white-space: nowrap;
+  }
+  .planner-accommodation-inner-v78n {
+    padding: 0 18px 18px;
+    display: grid;
+    gap: 12px;
+  }
+  .planner-accommodation-grid-v78n {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .planner-accommodation-inner-v78n label {
+    display: block;
+    margin: 0 0 6px;
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-weight: 900;
+    color: var(--text-muted);
+  }
+  .planner-accommodation-inner-v78n input,
+  .planner-accommodation-inner-v78n textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(100,116,139,.22);
+    border-radius: 16px;
+    min-height: 48px;
+    padding: 12px 14px;
+    font: inherit;
+    color: var(--text-color);
+    background: rgba(255,255,255,.76);
+  }
+  html[data-theme="dark"] .planner-accommodation-inner-v78n input,
+  html[data-theme="dark"] .planner-accommodation-inner-v78n textarea {
+    background: rgba(15,23,42,.62);
+    border-color: rgba(148,163,184,.22);
+  }
+  .planner-accommodation-inner-v78n textarea { min-height: 78px; resize: vertical; }
+  .planner-accommodation-booked-v78n {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    color: var(--text-muted);
+  }
+  .planner-accommodation-booked-v78n input {
+    width: 20px;
+    min-height: 20px;
+    height: 20px;
+    accent-color: var(--accent-color);
+  }
+  .planner-accommodation-actions-v78n {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .planner-accommodation-save-v78n {
+    border: 0;
+    border-radius: 16px;
+    padding: 12px 18px;
+    font-weight: 900;
+    color: white;
+    background: linear-gradient(135deg, #ffb15c, #ff6a00);
+    box-shadow: 0 14px 30px rgba(255,122,24,.22);
+  }
+  .planner-accommodation-hint-v78n {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  @media (max-width: 640px) {
+    .planner-accommodation-grid-v78n { grid-template-columns: 1fr; }
+    .planner-accommodation-status-v78n { display: none; }
+  }
+</style>
 </head>
 <body class="page-mein-planer app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v">
 
     <header id="main-header"></header>
 
-    <script src="header.js?v=76v"></script>
+    <script src="header.js?v=78o"></script>
     <div class="container">
         
         
@@ -367,15 +489,19 @@
             <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-<script src="auth.js?v=76v"></script>
+<script src="auth.js?v=78o"></script>
 
-<script src="lang.js?v=76v"></script>
+<script src="lang.js?v=78o"></script>
 
-<script src="app.js?v=76v"></script>
+<script src="app.js?v=78o"></script>
     <script>
         let myMatches = [];
+        let plannerAccommodationsV78n = {};
 
         function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
+        function plannerLangV78u() { return (localStorage.getItem('selectedLanguage') || window.currentLang || 'de').toLowerCase() === 'en' ? 'en' : 'de'; }
+        function plannerIsEnV78u() { return plannerLangV78u() === 'en'; }
+        function plannerTxtV78u(de, en) { return plannerIsEnV78u() ? en : de; }
 
         window.onAuthChange = (user) => {
             if (user) {
@@ -394,7 +520,32 @@
             const { data, error } = await window.supabaseClient.from('user_matches').select('*').order('match_date', { ascending: true });
             if (error) { console.error("Fehler beim Laden:", error); return; }
             myMatches = data || [];
+            await loadPlannerAccommodationsV78n();
             renderMatches();
+        }
+
+        function plannerMatchKeyV78n(match) {
+            return String(match && match.id != null ? match.id : (String(match.match_name || '') + '-' + String(match.match_date || '')));
+        }
+
+        async function loadPlannerAccommodationsV78n() {
+            plannerAccommodationsV78n = {};
+            if (!window.currentUser || !window.supabaseClient) return;
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('planner_accommodations')
+                    .select('*')
+                    .eq('user_id', window.currentUser.id);
+                if (error) {
+                    console.warn('Unterkünfte konnten nicht geladen werden:', error);
+                    return;
+                }
+                (data || []).forEach(row => {
+                    plannerAccommodationsV78n[String(row.match_key)] = row;
+                });
+            } catch (err) {
+                console.warn('Unterkünfte konnten nicht geladen werden:', err);
+            }
         }
 
         async function addMatch() {
@@ -519,74 +670,174 @@
 
             return `
                 <span class="planner-map-actions">
-                    <button type="button" class="planner-map-btn apple" onclick="openPlannerMapV64(decodeURIComponent('${safeRaw}'), 'apple', decodeURIComponent('${safeName}'))"> Karten</button>
+                    <button type="button" class="planner-map-btn apple" onclick="openPlannerMapV64(decodeURIComponent('${safeRaw}'), 'apple', decodeURIComponent('${safeName}'))">${plannerTxtV78u(' Karten',' Apple Maps')}</button>
                     <button type="button" class="planner-map-btn" onclick="openPlannerMapV64(decodeURIComponent('${safeRaw}'), 'google', decodeURIComponent('${safeName}'))">Google Maps</button>
                 </span>
             `;
         }
 
 
+        function plannerMetaKey(id, type) { return `planner:v78m:${type}:${id}`; }
+        function isPlannerDone(id) { return localStorage.getItem(plannerMetaKey(id, 'done')) === '1'; }
+        function togglePlannerDone(id) {
+            const key = plannerMetaKey(id, 'done');
+            const next = localStorage.getItem(key) === '1' ? '0' : '1';
+            localStorage.setItem(key, next);
+            renderMatches();
+        }
+        function savePlannerStay(id, value) { localStorage.setItem(plannerMetaKey(id, 'stay'), String(value || '')); }
+        function getPlannerStay(id) { return localStorage.getItem(plannerMetaKey(id, 'stay')) || ''; }
+        function plannerYear(match) { try { return new Date(match.match_date).getFullYear(); } catch (_) { return null; } }
+        function isPastPlannerMatch(match) { try { return new Date(match.match_date + 'T23:59:59').getTime() < Date.now(); } catch (_) { return false; } }
+
+        function renderPlannerCard(match, isArchived = false) {
+            const dateObj = new Date(match.match_date);
+            const displayDate = dateObj.toLocaleDateString('de-DE');
+            const safeName = encodeURIComponent(match.match_name);
+            const safeLocation = encodeURIComponent(match.match_location || '');
+            const done = isPlannerDone(match.id);
+            const stay = escapeHtml(getPlannerStay(match.id));
+            let matchTitleHtml = escapeHtml(match.match_name);
+            if (match.match_url) matchTitleHtml = `<a href="${escapeHtml(match.match_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(match.match_name)} 🔗</a>`;
+            let badgesHtml = '';
+            if (match.auto_imported) badgesHtml += `<span class="badge badge-bot">🤖 Auto-Import</span>`;
+            if (match.status) {
+                const statusLower = match.status.toLowerCase();
+                if (statusLower.includes('approved') || statusLower.includes('bestätigt')) badgesHtml += `<span class="badge badge-approved">Approved</span>`;
+                else if (statusLower.includes('warteliste') || statusLower.includes('waiting')) badgesHtml += `<span class="badge badge-warteliste">${plannerTxtV78u('Warteliste','Waitlist')}</span>`;
+                else badgesHtml += `<span class="badge badge-pending">${escapeHtml(match.status)}</span>`;
+            }
+            if (match.squad && match.squad !== 'TBD') badgesHtml += `<span class="badge badge-squad">${escapeHtml(match.squad)}</span>`;
+            if (done) badgesHtml += `<span class="badge badge-approved">${plannerTxtV78u('✓ Erledigt','✓ Done')}</span>`;
+            return `
+                <div class="match-item planner-match-card-v78m ${done ? 'is-done' : ''}">
+                    <div>
+                        <h4>${matchTitleHtml} ${badgesHtml}</h4>
+                        <p>📅 ${displayDate}</p>
+                        <div class="planner-location-row">
+                            <span class="planner-location-text">📍 ${escapeHtml(formatPlannerLocation(match.match_location))}</span>
+                            ${buildPlannerMapButtonsV64(match.match_location, match.match_name)}
+                        </div>
+                        ${buildPlannerAccommodationBoxV78n(match)}
+                    </div>
+                    <div class="planner-card-actions">
+                        <button type="button" class="planner-complete-btn ${done ? 'is-done' : ''}" onclick="togglePlannerDone(${match.id})">${done ? plannerTxtV78u('✓ Erledigt','✓ Done') : plannerTxtV78u('✓ Erledigt markieren','✓ Mark done')}</button>
+                        <button class="planner-insert-btn" onclick="inserierenAufMarktplatz('${safeName}', '${match.match_date}', '${safeLocation}')">${plannerTxtV78u('📢 Inserieren','📢 Create listing')}</button>
+                        <button onclick="deleteMatch(${match.id})" class="delete-btn planner-delete-btn">${plannerTxtV78u('Löschen','Delete')}</button>
+                    </div>
+                </div>`;
+        }
+
         function renderMatches() {
             const container = document.getElementById('match-list');
             if (!container) return;
             container.innerHTML = '';
-
             if (myMatches.length === 0) {
                 container.innerHTML = '<p style="color: var(--text-muted); font-style: italic; font-weight: 600;" data-txt="planner-no-matches">Noch keine Matches eingetragen.</p>';
                 return;
             }
-
+            const upcoming = [];
+            const past2026 = [];
             myMatches.forEach(match => {
-                const dateObj = new Date(match.match_date);
-                const displayDate = dateObj.toLocaleDateString('de-DE');
-                const safeName = encodeURIComponent(match.match_name);
-                const safeLocation = encodeURIComponent(match.match_location || '');
-                
-                let matchTitleHtml = escapeHtml(match.match_name);
-                if (match.match_url) {
-                    matchTitleHtml = `<a href="${escapeHtml(match.match_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(match.match_name)} 🔗</a>`;
-                }
-
-                let badgesHtml = '';
-                if (match.auto_imported) {
-                    badgesHtml += `<span class="badge badge-bot">🤖 Auto-Import</span>`;
-                }
-
-                if (match.status) {
-                    const statusLower = match.status.toLowerCase();
-                    if (statusLower.includes('approved') || statusLower.includes('bestätigt')) {
-                        badgesHtml += `<span class="badge badge-approved">Approved</span>`;
-                    } else if (statusLower.includes('warteliste') || statusLower.includes('waiting')) {
-                        badgesHtml += `<span class="badge badge-warteliste">Warteliste</span>`;
-                    } else {
-                        badgesHtml += `<span class="badge badge-pending">${escapeHtml(match.status)}</span>`;
-                    }
-                }
-
-                if (match.squad && match.squad !== 'TBD') {
-                    badgesHtml += `<span class="badge badge-squad">${escapeHtml(match.squad)}</span>`;
-                }
-
-                // Inline-Styles für Inserieren-Button für Premium-Look leicht angepasst
-                container.innerHTML += `
-                    <div class="match-item">
-                        <div>
-                            <h4>${matchTitleHtml} ${badgesHtml}</h4>
-                            <p>📅 ${displayDate}</p>
-                            <div class="planner-location-row">
-                                <span class="planner-location-text">📍 ${escapeHtml(formatPlannerLocation(match.match_location))}</span>
-                                ${buildPlannerMapButtonsV64(match.match_location, match.match_name)}
-                            </div>
-                        </div>
-                        <div class="planner-card-actions">
-                            <button class="planner-insert-btn" onclick="inserierenAufMarktplatz('${safeName}', '${match.match_date}', '${safeLocation}')">📢 Inserieren</button>
-                            <button onclick="deleteMatch(${match.id})" class="delete-btn planner-delete-btn">Löschen</button>
-                        </div>
-                    </div>
-                `;
+                const archived = isPlannerDone(match.id) || isPastPlannerMatch(match);
+                if (archived && plannerYear(match) === 2026) past2026.push(match); else upcoming.push(match);
             });
+            if (upcoming.length) upcoming.forEach(match => { container.innerHTML += renderPlannerCard(match, false); });
+            else container.innerHTML += `<p style="color: var(--text-muted); font-style: italic; font-weight: 600;">${plannerTxtV78u('Keine offenen Matches.','No open matches.')}</p>`;
+            if (past2026.length) {
+                container.innerHTML += `<details class="planner-past-block"><summary>${plannerTxtV78u('Vergangene Matches 2026','Past matches 2026')} (${past2026.length})</summary><div class="planner-past-inner">${past2026.map(match => renderPlannerCard(match, true)).join('')}</div></details>`;
+            }
         }
         
+
+        function buildPlannerAccommodationBoxV78n(match) {
+            const key = plannerMatchKeyV78n(match);
+            const acc = plannerAccommodationsV78n[key] || {};
+            const hasData = !!(acc.accommodation_name || acc.accommodation_address || acc.check_in || acc.check_out || acc.notes || acc.is_booked);
+            const status = acc.is_booked ? plannerTxtV78u('✓ Gebucht','✓ Booked') : (hasData ? plannerTxtV78u('✓ Gespeichert','✓ Saved') : '');
+            const safeKey = escapeHtml(key);
+            return `
+                <details class="planner-accommodation-box-v78n" data-match-key="${safeKey}">
+                    <summary>
+                        <span>${plannerTxtV78u('🏨 Unterkunft / Übernachtung','🏨 Accommodation / Overnight')}</span>
+                        <span class="planner-accommodation-status-v78n" id="acc-status-${safeKey}">${escapeHtml(status)}</span>
+                    </summary>
+                    <div class="planner-accommodation-inner-v78n">
+                        <div>
+                            <label for="acc-name-${safeKey}">${plannerTxtV78u('Unterkunft','Accommodation')}</label>
+                            <input id="acc-name-${safeKey}" type="text" value="${escapeHtml(acc.accommodation_name || '')}" placeholder="${plannerTxtV78u('z.B. Hotel, Pension, Ferienwohnung','e.g. hotel, guesthouse, apartment')}">
+                        </div>
+                        <div>
+                            <label for="acc-address-${safeKey}">${plannerTxtV78u('Adresse','Address')}</label>
+                            <input id="acc-address-${safeKey}" type="text" value="${escapeHtml(acc.accommodation_address || '')}" placeholder="${plannerTxtV78u('Straße, PLZ Ort','Street, ZIP city')}">
+                        </div>
+                        <div class="planner-accommodation-grid-v78n">
+                            <div>
+                                <label for="acc-checkin-${safeKey}">Check-in</label>
+                                <input id="acc-checkin-${safeKey}" type="date" value="${escapeHtml(acc.check_in || '')}">
+                            </div>
+                            <div>
+                                <label for="acc-checkout-${safeKey}">Check-out</label>
+                                <input id="acc-checkout-${safeKey}" type="date" value="${escapeHtml(acc.check_out || '')}">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="acc-notes-${safeKey}">${plannerTxtV78u('Notizen','Notes')}</label>
+                            <textarea id="acc-notes-${safeKey}" placeholder="${plannerTxtV78u('Buchungsnummer, Parken, Frühstück, Kontakt…','Booking number, parking, breakfast, contact…')}">${escapeHtml(acc.notes || '')}</textarea>
+                        </div>
+                        <label class="planner-accommodation-booked-v78n">
+                            <input id="acc-booked-${safeKey}" type="checkbox" ${acc.is_booked ? 'checked' : ''}>
+                            ${plannerTxtV78u('Unterkunft gebucht / erledigt','Accommodation booked / done')}
+                        </label>
+                        <div class="planner-accommodation-actions-v78n">
+                            <button type="button" class="planner-accommodation-save-v78n" onclick="savePlannerAccommodationV78n('${encodeURIComponent(key)}')">${plannerTxtV78u('In Cloud speichern','Save to cloud')}</button>
+                            <span class="planner-accommodation-hint-v78n" id="acc-hint-${safeKey}">${plannerTxtV78u('Wird in deinem Account gespeichert.','Saved to your account.')}</span>
+                        </div>
+                    </div>
+                </details>
+            `;
+        }
+
+        async function savePlannerAccommodationV78n(encodedKey) {
+            if (!window.currentUser || !window.supabaseClient) {
+                alert(plannerTxtV78u('Bitte einloggen, um die Unterkunft zu speichern.','Please log in to save the accommodation.'));
+                return;
+            }
+            const key = decodeURIComponent(encodedKey);
+            const match = myMatches.find(m => plannerMatchKeyV78n(m) === key) || {};
+            const get = (id) => document.getElementById(id)?.value || '';
+            const checked = (id) => !!document.getElementById(id)?.checked;
+            const payload = {
+                user_id: window.currentUser.id,
+                match_key: key,
+                match_name: match.match_name || '',
+                accommodation_name: get('acc-name-' + key).trim(),
+                accommodation_address: get('acc-address-' + key).trim(),
+                check_in: get('acc-checkin-' + key) || null,
+                check_out: get('acc-checkout-' + key) || null,
+                notes: get('acc-notes-' + key).trim(),
+                is_booked: checked('acc-booked-' + key)
+            };
+            const hint = document.getElementById('acc-hint-' + key);
+            const status = document.getElementById('acc-status-' + key);
+            if (hint) hint.textContent = 'Speichere…';
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('planner_accommodations')
+                    .upsert(payload, { onConflict: 'user_id,match_key' })
+                    .select()
+                    .single();
+                if (error) throw error;
+                plannerAccommodationsV78n[key] = data || payload;
+                if (hint) hint.textContent = 'Gespeichert ✓';
+                if (status) status.textContent = payload.is_booked ? '✓ Gebucht' : '✓ Gespeichert';
+            } catch (err) {
+                console.error('Unterkunft konnte nicht gespeichert werden:', err);
+                if (hint) hint.textContent = 'Fehler beim Speichern';
+                alert('Unterkunft konnte nicht gespeichert werden: ' + (err.message || err));
+            }
+        }
+
         function inserierenAufMarktplatz(name, date, location) {
             const params = new URLSearchParams({ from_planner: 'true', name: decodeURIComponent(name), date: date, location: decodeURIComponent(location) });
             window.location.href = 'marktplatz.html?' + params.toString();
@@ -721,5 +972,7 @@
 })();
 </script>
 
+    <script src="release-i18n-v78s.js?v=78s"></script>
+    <script src="release-i18n-v78u.js?v=78u"></script>
 </body>
 </html>

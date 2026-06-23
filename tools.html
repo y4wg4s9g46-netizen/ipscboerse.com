@@ -233,7 +233,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
-<link rel="stylesheet" href="global.css?v=76v">
+<link rel="stylesheet" href="global.css?v=78l">
 
 
     <style id="hit-factor-battle-v53">
@@ -548,7 +548,7 @@
 <body class="page-tools app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v">
 
     <header id="main-header"></header>
-    <script src="header.js?v=76v"></script>
+    <script src="header.js?v=78l"></script>
 
     <div class="container">
         
@@ -583,9 +583,9 @@
                 </div>
                 <div class="hf-saved-name-row">
                     <select id="hf-saved-name-select" aria-label="Gespeicherte Namen auswählen" onchange="selectSavedHFName(this.value)">
-                        <option value="">Gespeicherten Namen wählen...</option>
+                        <option value="" data-txt="tools-name-select">Gespeicherten Namen wählen...</option>
                     </select>
-                    <button type="button" class="hf-save-name-btn" onclick="saveCurrentHFName()">Namen speichern</button>
+                    <button type="button" class="hf-save-name-btn" onclick="saveCurrentHFName()" data-txt="tools-name-save">Namen speichern</button>
                 </div>
                 <div class="form-group" style="flex: 1; min-width: 120px;">
                     <label data-txt="tools-hf-pf">Wertung</label>
@@ -642,6 +642,14 @@
                         <button type="button" class="plus" onclick="changeHitValue('hf-ns', 1)">+</button>
                     </div>
                 </div>
+                <div class="hit-stepper-card penalty">
+                    <label data-txt="tools-hf-proc">Procedure</label>
+                    <div class="hit-stepper">
+                        <button type="button" onclick="changeHitValue('hf-proc', -1)">−</button>
+                        <input type="number" id="hf-proc" class="input-M" min="0" value="0" inputmode="numeric" readonly>
+                        <button type="button" class="plus" onclick="changeHitValue('hf-proc', 1)">+</button>
+                    </div>
+                </div>
             </div>
 
             <button class="btn-submit" onclick="addShooterToRanking()" data-txt="tools-hf-btn-submit">Schütze eintragen & berechnen</button>
@@ -666,7 +674,7 @@
             <div class="overall-section" id="overall-section">
                 <div class="hf-winner-card" id="hf-winner-card"></div>
                 <h3>🏁 Gesamtwertung</h3>
-                <p class="overall-note">Jede Stage wird auf 100 Punkte normiert. Der Stage-Sieger bekommt 100 Punkte, alle anderen anteilig nach Hit-Factor.</p>
+                <p class="overall-note">Battle-Modus: Jede Stage wird auf 100 Punkte normiert. Treffer werden nach IPSC-HF berechnet (Minor/Major, Miss, No-Shoot und Procedure je -10). Offizielle Match-Stagepoints können je Match abweichen.</p>
                 <div style="overflow-x: auto;">
                     <table class="leaderboard" id="overall-table">
                         <thead>
@@ -717,9 +725,9 @@
             <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-<script src="auth.js?v=76v"></script>
-    <script src="lang.js?v=76v"></script>
-    <script src="app.js?v=76v"></script>
+<script src="auth.js?v=78l"></script>
+    <script src="lang.js?v=78l"></script>
+    <script src="app.js?v=78l"></script>
     <script>
         // --- THEME LOGIK & CHAT BADGE ---
         document.addEventListener("DOMContentLoaded", () => {
@@ -771,7 +779,7 @@
         }
 
         function resetHitInputs() {
-            ["hf-a", "hf-c", "hf-d", "hf-m", "hf-ns"].forEach(id => {
+            ["hf-a", "hf-c", "hf-d", "hf-m", "hf-ns", "hf-proc"].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.value = "0";
             });
@@ -829,7 +837,7 @@
             if (!select) return;
             const current = select.value;
             const names = getSavedHFNames();
-            select.innerHTML = '<option value="">Gespeicherten Namen wählen...</option>' + names.map(name => `<option value="${escapeHtmlHF(name)}">${escapeHtmlHF(name)}</option>`).join("");
+            select.innerHTML = '<option value="" data-txt="tools-name-select">Gespeicherten Namen wählen...</option>' + names.map(name => `<option value="${escapeHtmlHF(name)}">${escapeHtmlHF(name)}</option>`).join("");
             if (names.includes(current)) select.value = current;
         }
 
@@ -864,8 +872,9 @@
             const d = getHitValue('hf-d');
             const m = getHitValue('hf-m');
             const ns = getHitValue('hf-ns');
+            const proc = getHitValue('hf-proc');
 
-            if (time <= 0 && (a + c + d + m + ns) > 0) {
+            if (time <= 0 && (a + c + d + m + ns + proc) > 0) {
                 alert(window.currentLang === 'en' ? "Please enter a valid time!" : "Bitte gib eine gültige Zeit ein!");
                 return;
             }
@@ -875,6 +884,7 @@
             pts += d * (isMajor ? 2 : 1);
             pts -= (m * 10);
             pts -= (ns * 10);
+            pts -= (proc * 10);
 
             const hf = (pts > 0 && time > 0) ? (pts / time) : 0;
 
@@ -885,7 +895,7 @@
                 time,
                 hf,
                 pf: isMajor ? 'Maj' : 'Min',
-                hits: { a, c, d, m, ns }
+                hits: { a, c, d, m, ns, proc }
             });
 
             stage.entries.sort((a, b) => b.hf - a.hf);
@@ -1257,7 +1267,7 @@ async function downloadHitFactorPDF() {
                 section(`${stage.name} - Stage-Wertung`);
                 const bestHf = Math.max(...stage.entries.map(e => e.hf || 0));
                 drawTable(
-                    ["#", "Name", "PF", "Punkte", "Zeit", "HF", "A/C/D/M/NS", "%"],
+                    ["#", "Name", "PF", "Punkte", "Zeit", "HF", "A/C/D/M/NS/P", "%"],
                     stage.entries.map((entry, index) => [
                         `${index + 1}.`,
                         entry.name,
@@ -1265,7 +1275,7 @@ async function downloadHitFactorPDF() {
                         String(entry.points),
                         `${entry.time.toFixed(2)}s`,
                         entry.hf.toFixed(4),
-                        `${entry.hits.a}/${entry.hits.c}/${entry.hits.d}/${entry.hits.m}/${entry.hits.ns}`,
+                        `${entry.hits.a}/${entry.hits.c}/${entry.hits.d}/${entry.hits.m}/${entry.hits.ns}/${entry.hits.proc || 0}`,
                         bestHf > 0 ? ((entry.hf / bestHf) * 100).toFixed(1) : "0.0"
                     ]),
                     [8, 50, 12, 19, 19, 22, 29, 9]
@@ -1473,5 +1483,7 @@ async function downloadHitFactorPDF() {
 })();
 </script>
 
+    <script src="release-i18n-v78s.js?v=78s"></script>
+    <script src="release-i18n-v78u.js?v=78u"></script>
 </body>
 </html>

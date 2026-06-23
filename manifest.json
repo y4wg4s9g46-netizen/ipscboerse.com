@@ -1,7 +1,7 @@
 {
   "name": "IPSC Startplatz-Börse",
   "short_name": "IPSC Börse",
-  "description": "Von Schützen für Schützen – Live Marktplatz & Planer",
+  "description": "Von Schützen für Schützen",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#0f172a",

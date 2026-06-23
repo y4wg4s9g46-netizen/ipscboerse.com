@@ -1,0 +1,5 @@
+v79j frontend fix
+- Free tab loads matches_free.json if available, otherwise matches.json, otherwise derives free from all.
+- Old matches.json free-only backend remains compatible.
+- Images are hydrated safely after render with fallback, no broken card HTML.
+- Level filter only shows Level I-V.

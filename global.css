@@ -12487,7 +12487,7 @@ html.is-native-navigating-v74:not([data-theme="dark"]) body {
     #auth-modal .auth-modal-content {
         max-height: calc(100dvh - 76px) !important;
         padding-top: 18px !important;
-        padding-bottom: 18px !important;
+        padding-bottom: calc(114px + env(safe-area-inset-bottom)) !important;
     }
 
     #modal-login-view.login-balanced-v76f h3,
@@ -13551,4 +13551,634 @@ html.ipsc-embedded-native-shell-v76t #more-menu-overlay {
         overflow: hidden !important;
         text-overflow: ellipsis !important;
     }
+}
+
+
+/* V78C App iframe shell: preserve original pages in frames, hide only duplicated chrome. */
+html.ipsc-app-frame, html.ipsc-app-frame body {
+  background: var(--bg-color, #f6f8fc) !important;
+  min-height: 100% !important;
+}
+html.ipsc-app-frame body {
+  padding-top: 0 !important;
+  padding-bottom: 18px !important;
+  overflow-x: hidden !important;
+}
+html.ipsc-app-frame #main-header,
+html.ipsc-app-frame header#main-header,
+html.ipsc-app-frame #bottom-tab-bar,
+html.ipsc-app-frame #more-menu-overlay,
+html.ipsc-app-frame .main-nav,
+html.ipsc-app-frame .bottom-tab-bar,
+html.ipsc-app-frame .desktop-only.main-nav {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+html.ipsc-app-frame .container,
+html.ipsc-app-frame main,
+html.ipsc-app-frame .page-shell,
+html.ipsc-app-frame .app-container {
+  max-width: var(--app-max-width, 1120px);
+}
+body.page-app-spa.app-v78c,
+body.page-app-spa.app-v78d {
+  overflow: hidden !important;
+  height: 100dvh !important;
+  padding-bottom: 0 !important;
+}
+body.page-app-spa.app-v78c #app-shell-root-v78,
+body.page-app-spa.app-v78d #app-shell-root-v78,
+body.page-app-spa.app-v78e #app-shell-root-v78,
+body.page-app-spa.app-v78h #app-shell-root-v78 {
+  height: 100dvh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: var(--bg-color, #f6f8fc) !important;
+}
+body.page-app-spa.app-v78c #main-header,
+body.page-app-spa.app-v78d #main-header,
+body.page-app-spa.app-v78e #main-header,
+body.page-app-spa.app-v78h #main-header {
+  flex: 0 0 auto !important;
+  position: relative !important;
+  z-index: 50 !important;
+}
+body.page-app-spa.app-v78c #app-spa-view-v78,
+body.page-app-spa.app-v78d #app-spa-view-v78,
+body.page-app-spa.app-v78e #app-spa-view-v78,
+body.page-app-spa.app-v78h #app-spa-view-v78 {
+  position: relative !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  overflow: hidden !important;
+  opacity: 1 !important;
+}
+body.page-app-spa.app-v78c .app-frame-layer-v78c,
+body.page-app-spa.app-v78d .app-frame-layer-v78c,
+body.page-app-spa.app-v78d .app-frame-layer-v78d,
+body.page-app-spa.app-v78e .app-frame-layer-v78c,
+body.page-app-spa.app-v78e .app-frame-layer-v78d,
+body.page-app-spa.app-v78h .app-frame-layer-v78c,
+body.page-app-spa.app-v78h .app-frame-layer-v78d,
+body.page-app-spa.app-v78h .app-frame-layer-v78f {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+  background: var(--bg-color, #f6f8fc) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateZ(0) !important;
+  transition: opacity .14s ease-out !important;
+}
+body.page-app-spa.app-v78c .app-frame-layer-v78c.is-active,
+body.page-app-spa.app-v78d .app-frame-layer-v78c.is-active,
+body.page-app-spa.app-v78d .app-frame-layer-v78d.is-active,
+body.page-app-spa.app-v78e .app-frame-layer-v78c.is-active,
+body.page-app-spa.app-v78e .app-frame-layer-v78d.is-active,
+body.page-app-spa.app-v78h .app-frame-layer-v78c.is-active,
+body.page-app-spa.app-v78h .app-frame-layer-v78d.is-active,
+body.page-app-spa.app-v78h .app-frame-layer-v78f.is-active {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  z-index: 2 !important;
+}
+body.page-app-spa.app-v78c .app-frame-layer-v78c.is-previous,
+body.page-app-spa.app-v78d .app-frame-layer-v78c.is-previous,
+body.page-app-spa.app-v78d .app-frame-layer-v78d.is-previous,
+body.page-app-spa.app-v78e .app-frame-layer-v78c.is-previous,
+body.page-app-spa.app-v78e .app-frame-layer-v78d.is-previous,
+body.page-app-spa.app-v78h .app-frame-layer-v78c.is-previous,
+body.page-app-spa.app-v78h .app-frame-layer-v78d.is-previous,
+body.page-app-spa.app-v78h .app-frame-layer-v78f.is-previous {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+body.page-app-spa.app-v78c #spa-loader-v78,
+body.page-app-spa.app-v78d #spa-loader-v78,
+body.page-app-spa.app-v78e #spa-loader-v78,
+body.page-app-spa.app-v78h #spa-loader-v78 { display: none !important; }
+
+
+/* ======================================================================
+   V78H APP LOGIN SETTINGS REOPEN FIX
+   - keep the v78 frame-shell layout intact
+   - fix favorites icon alignment, Marktplatz form sizing, owner price/settings,
+     profile click layer, and header restore after modal close.
+   ====================================================================== */
+body.page-app-spa.app-v78h,
+html.is-app-spa-v78h,
+html.is-app-spa-v78h body {
+  overflow: hidden !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  padding-bottom: 0 !important;
+}
+body.page-app-spa.app-v78h #app-shell-root-v78 {
+  height: 100dvh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: var(--bg-color, #f6f8fc) !important;
+}
+body.page-app-spa.app-v78h #main-header {
+  flex: 0 0 auto !important;
+  position: relative !important;
+  z-index: 2147482000 !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+body.page-app-spa.app-v78h #app-spa-view-v78 {
+  position: relative !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  opacity: 1 !important;
+  z-index: 1 !important;
+}
+body.page-app-spa.app-v78h .app-frame-layer-v78g,
+body.page-app-spa.app-v78h .app-frame-layer-v78f,
+body.page-app-spa.app-v78h .app-frame-layer-v78d,
+body.page-app-spa.app-v78h .app-frame-layer-v78c {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+  background: var(--bg-color, #f6f8fc) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateZ(0) !important;
+  transition: opacity .14s ease-out !important;
+}
+body.page-app-spa.app-v78h .app-frame-layer-v78g.is-active,
+body.page-app-spa.app-v78h .app-frame-layer-v78f.is-active,
+body.page-app-spa.app-v78h .app-frame-layer-v78d.is-active,
+body.page-app-spa.app-v78h .app-frame-layer-v78c.is-active {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  z-index: 2 !important;
+}
+body.page-app-spa.app-v78h .app-frame-layer-v78g.is-previous,
+body.page-app-spa.app-v78h .app-frame-layer-v78f.is-previous,
+body.page-app-spa.app-v78h .app-frame-layer-v78d.is-previous,
+body.page-app-spa.app-v78h .app-frame-layer-v78c.is-previous {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+body.page-app-spa.app-v78h #btn-open-settings,
+body.page-app-spa.app-v78h #header-avatar,
+body.page-app-spa.app-v78h .header-avatar-btn {
+  position: relative !important;
+  z-index: 2147483000 !important;
+  pointer-events: auto !important;
+}
+
+/* App-frame only: preserve browser website, polish mobile in-app pages. */
+@media (max-width: 768px) {
+  html.ipsc-app-frame body.page-index .hero-quicklinks-v76 a {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    align-items: center !important;
+    gap: 6px 12px !important;
+    min-height: 62px !important;
+    padding: 13px 16px !important;
+  }
+  html.ipsc-app-frame body.page-index .hero-quicklinks-v76 a strong {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    font-size: 15px !important;
+    line-height: 1.12 !important;
+    min-width: 0 !important;
+  }
+  html.ipsc-app-frame body.page-index .hero-quicklinks-v76 a strong > span:first-child {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    align-self: flex-start !important;
+    line-height: 1 !important;
+    font-size: 17px !important;
+    text-align: left !important;
+  }
+  html.ipsc-app-frame body.page-index .hero-quicklinks-v76 a > span:last-child {
+    text-align: right !important;
+    margin: 0 !important;
+    align-self: center !important;
+    font-size: 13px !important;
+  }
+
+  html.ipsc-app-frame body.page-marktplatz .form-section,
+  html.ipsc-app-frame body.page-marktplatz .market-form-panel {
+    padding: 20px 16px !important;
+    border-radius: 24px !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .toggle-selector {
+    padding: 14px !important;
+    gap: 10px !important;
+    border-radius: 22px !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .toggle-selector label {
+    min-height: 62px !important;
+    padding: 9px 10px !important;
+    gap: 12px !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .toggle-selector input[type="radio"] {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .toggle-selector span {
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+    letter-spacing: .02em !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .form-grid {
+    gap: 14px !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .form-group {
+    margin-bottom: 0 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .form-group label,
+  html.ipsc-app-frame body.page-marktplatz label {
+    margin-bottom: 8px !important;
+    font-size: 12px !important;
+    letter-spacing: .11em !important;
+    line-height: 1.15 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz input:not([type="radio"]):not([type="checkbox"]),
+  html.ipsc-app-frame body.page-marktplatz select {
+    min-height: 54px !important;
+    height: 54px !important;
+    padding: 0 16px !important;
+    border-radius: 18px !important;
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+    box-sizing: border-box !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz textarea {
+    min-height: 104px !important;
+    padding: 14px 16px !important;
+    border-radius: 18px !important;
+    font-size: 16px !important;
+  }
+
+  html.ipsc-app-frame body.page-marktplatz .match-card {
+    position: relative !important;
+    padding: 18px 15px 18px 18px !important;
+    overflow: visible !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .match-header-flex {
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    column-gap: 10px !important;
+    align-items: start !important;
+    padding-right: 154px !important;
+    position: relative !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .match-summary {
+    min-width: 0 !important;
+    padding-right: 0 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .match-price-head-v76k {
+    position: absolute !important;
+    top: 18px !important;
+    right: 66px !important;
+    margin: 0 !important;
+    min-width: 96px !important;
+    max-width: 112px !important;
+    height: 42px !important;
+    padding: 0 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    font-size: 13.5px !important;
+    line-height: 1 !important;
+    z-index: 3 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .owner-menu {
+    position: absolute !important;
+    top: 18px !important;
+    right: 15px !important;
+    z-index: 5 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .owner-menu-trigger {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  html.ipsc-app-frame body.page-marktplatz .match-header-flex {
+    padding-right: 0 !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .match-price-head-v76k {
+    position: static !important;
+    grid-column: 2 !important;
+    justify-self: start !important;
+    margin-top: 6px !important;
+    margin-right: 0 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .owner-menu {
+    top: 18px !important;
+    right: 15px !important;
+  }
+}
+
+/* V78H auth reopen + frame-layer compatibility */
+body.page-app-spa.app-v78h .app-frame-layer-v78h {
+  position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important;
+  border: 0 !important; background: var(--bg-color, #f6f8fc) !important; opacity: 0 !important;
+  visibility: hidden !important; pointer-events: none !important; transform: translateZ(0) !important;
+  transition: opacity .14s ease-out !important;
+}
+body.page-app-spa.app-v78h .app-frame-layer-v78h.is-active {
+  opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; z-index: 2 !important;
+}
+body.page-app-spa.app-v78h .app-frame-layer-v78h.is-previous {
+  opacity: 1 !important; visibility: visible !important; pointer-events: none !important; z-index: 1 !important;
+}
+body.page-app-spa.app-v78h #auth-modal[aria-hidden="true"] { pointer-events: none; }
+body.page-app-spa.app-v78h #auth-modal.show,
+body.page-app-spa.app-v78h #auth-modal.is-open {
+  display: flex !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important;
+}
+
+
+/* ======================================================================
+   V78L Endkontrolle Polish
+   - Modals above app header, not behind it
+   - Auth state in frames, top-scroll on page switch supported by JS
+   - Marktplatz card spacing fixed on mobile
+   - SG timer button reset and HF Battle Procedure UI
+   ====================================================================== */
+html.is-app-spa-v78l body.page-app-spa.app-v78l #main-header {
+  z-index: 4000 !important;
+}
+html.is-app-spa-v78l body.page-app-spa.app-v78l #auth-modal,
+html.is-app-spa-v78l body.page-app-spa.app-v78l .modal,
+html.is-app-spa-v78l body.page-app-spa.app-v78l .modal-overlay,
+html.is-app-spa-v78l body.page-app-spa.app-v78l #chat-modal,
+html.is-app-spa-v78l body.page-app-spa.app-v78l #global-inbox-modal {
+  z-index: 2147483200 !important;
+  padding-top: calc(env(safe-area-inset-top) + 18px) !important;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 18px) !important;
+}
+html.is-app-spa-v78l body.page-app-spa.app-v78l #auth-modal .modal-content,
+html.is-app-spa-v78l body.page-app-spa.app-v78l #global-inbox-modal .modal-content,
+html.is-app-spa-v78l body.page-app-spa.app-v78l #chat-modal .modal-content {
+  max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 42px) !important;
+}
+html.ipsc-app-frame #chat-modal,
+html.ipsc-app-frame #global-inbox-modal,
+html.ipsc-app-frame .modal,
+html.ipsc-app-frame .modal-overlay {
+  z-index: 2147483000 !important;
+  padding-top: 18px !important;
+  align-items: center !important;
+}
+html.ipsc-app-frame #chat-modal .chat-modal-content,
+html.ipsc-app-frame #global-inbox-modal .modal-content,
+html.ipsc-app-frame .modal-content {
+  max-height: calc(100dvh - 36px) !important;
+}
+
+/* Marktplatz owner card: reserve space and avoid price/settings overlap */
+@media (max-width: 768px) {
+  html.ipsc-app-frame body.page-marktplatz .match-card {
+    overflow: hidden !important;
+    padding: 18px 18px 20px !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .match-header-flex {
+    display: grid !important;
+    grid-template-columns: 44px minmax(0, 1fr) !important;
+    column-gap: 12px !important;
+    row-gap: 8px !important;
+    padding-right: 0 !important;
+    align-items: start !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .match-summary {
+    grid-column: 2 !important;
+    min-width: 0 !important;
+    padding-right: 0 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .badge-container {
+    max-width: 100% !important;
+    flex-wrap: wrap !important;
+    padding-right: 0 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .match-price-head-v76k {
+    position: static !important;
+    grid-column: 2 !important;
+    justify-self: start !important;
+    width: auto !important;
+    max-width: 150px !important;
+    min-width: 110px !important;
+    height: 42px !important;
+    margin: 6px 54px 0 0 !important;
+    font-size: 16px !important;
+    z-index: 2 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .owner-menu {
+    position: absolute !important;
+    top: 18px !important;
+    right: 18px !important;
+    z-index: 6 !important;
+  }
+  html.ipsc-app-frame body.page-marktplatz .owner-menu-trigger {
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px !important;
+    min-height: 46px !important;
+  }
+}
+
+/* Hit-Factor Battle: keep stepper rows clean and make room for Procedure */
+html.ipsc-app-frame body.page-tools .hit-stepper-grid {
+  gap: 14px !important;
+}
+html.ipsc-app-frame body.page-tools .hit-stepper-card {
+  min-width: 0 !important;
+}
+html.ipsc-app-frame body.page-tools .hit-stepper-card .hit-stepper {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+html.ipsc-app-frame body.page-tools .overall-note {
+  font-size: 15px !important;
+  line-height: 1.45 !important;
+}
+
+/* Bluetooth fallback: keep action controls readable after blocked WebBluetooth alert */
+html.ipsc-app-frame body.page-sg-timer-live #btn-connect,
+body.page-sg-timer-live #btn-connect {
+  min-width: 150px !important;
+  justify-content: center !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+
+/* ======================================================================
+   V78M Endkontrolle Hotfix
+   ====================================================================== */
+html.is-app-spa-v78m body.page-app-spa.app-v78m #auth-modal,
+html.is-app-spa-v78m body.page-app-spa.app-v78m #chat-modal,
+html.is-app-spa-v78m body.page-app-spa.app-v78m #global-inbox-modal,
+html.is-app-spa-v78m body.page-app-spa.app-v78m .modal,
+html.is-app-spa-v78m body.page-app-spa.app-v78m .modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483600 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: calc(env(safe-area-inset-top) + 14px) 14px calc(env(safe-area-inset-bottom) + 14px) !important;
+  pointer-events: auto;
+}
+html.is-app-spa-v78m body.page-app-spa.app-v78m #auth-modal[aria-hidden="true"] {
+  display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important;
+}
+html.is-app-spa-v78m body.page-app-spa.app-v78m #auth-modal .modal-content,
+html.is-app-spa-v78m body.page-app-spa.app-v78m #chat-modal .modal-content,
+html.is-app-spa-v78m body.page-app-spa.app-v78m #global-inbox-modal .modal-content {
+  position: relative !important; z-index: 2147483601 !important;
+  max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 42px) !important;
+}
+html.is-app-spa-v78m body.page-app-spa.app-v78m .modal-close-container,
+html.is-app-spa-v78m body.page-app-spa.app-v78m .modal-close-trigger { z-index: 2147483602 !important; pointer-events: auto !important; }
+html.is-app-spa-v78m body.page-app-spa.app-v78m #main-header { z-index: 5000 !important; }
+html.is-app-spa-v78m body.page-app-spa.app-v78m #more-menu-list { scroll-behavior: auto !important; }
+html.ipsc-app-frame .modal, html.ipsc-app-frame .modal-overlay, html.ipsc-app-frame #chat-modal, html.ipsc-app-frame #global-inbox-modal { align-items: center !important; justify-content: center !important; padding-top: 18px !important; padding-bottom: calc(env(safe-area-inset-bottom) + 18px) !important; }
+html.ipsc-app-frame .modal-content, html.ipsc-app-frame #chat-modal .chat-modal-content, html.ipsc-app-frame #global-inbox-modal .modal-content { margin-top: 0 !important; max-height: calc(100dvh - 40px) !important; }
+
+html.ipsc-app-frame body.page-mein-planer .planner-complete-btn, body.page-mein-planer .planner-complete-btn { border: 1px solid rgba(16,185,129,.28) !important; background: rgba(16,185,129,.10) !important; color: #10b981 !important; border-radius: 14px !important; font-weight: 900 !important; padding: 10px 14px !important; min-height: 42px !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-complete-btn.is-done, body.page-mein-planer .planner-complete-btn.is-done { background: linear-gradient(135deg,#10b981,#059669) !important; color: #fff !important; border-color: transparent !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-stay-details, body.page-mein-planer .planner-stay-details { margin-top: 12px !important; border: 1px solid var(--border-color) !important; border-radius: 16px !important; background: rgba(148,163,184,.06) !important; overflow: hidden !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-stay-details summary, body.page-mein-planer .planner-stay-details summary { list-style: none !important; cursor: pointer !important; padding: 12px 14px !important; font-weight: 900 !important; color: var(--text-color) !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-stay-details summary::-webkit-details-marker, body.page-mein-planer .planner-stay-details summary::-webkit-details-marker { display: none !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-stay-details textarea, body.page-mein-planer .planner-stay-details textarea { width: calc(100% - 28px) !important; margin: 0 14px 14px !important; min-height: 82px !important; border-radius: 14px !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-past-block, body.page-mein-planer .planner-past-block { margin-top: 18px !important; border: 1px solid var(--border-color) !important; border-radius: 20px !important; background: var(--card-bg) !important; box-shadow: var(--shadow-sm) !important; overflow: hidden !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-past-block summary, body.page-mein-planer .planner-past-block summary { list-style: none !important; padding: 16px 18px !important; font-size: 18px !important; font-weight: 950 !important; cursor: pointer !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-past-block summary::-webkit-details-marker, body.page-mein-planer .planner-past-block summary::-webkit-details-marker { display:none !important; }
+html.ipsc-app-frame body.page-mein-planer .planner-past-inner, body.page-mein-planer .planner-past-inner { padding: 0 12px 12px !important; }
+
+@media (max-width: 768px) {
+  html.ipsc-app-frame body.page-marktplatz .match-card, body.page-marktplatz .match-card { padding: 18px 14px 20px 18px !important; overflow: hidden !important; }
+  html.ipsc-app-frame body.page-marktplatz .match-header-flex, body.page-marktplatz .match-header-flex { display: grid !important; grid-template-columns: 44px minmax(0, 1fr) !important; column-gap: 12px !important; row-gap: 8px !important; align-items: start !important; padding-right: 0 !important; }
+  html.ipsc-app-frame body.page-marktplatz .match-summary, body.page-marktplatz .match-summary { grid-column: 2 !important; min-width: 0 !important; padding-right: 58px !important; }
+  html.ipsc-app-frame body.page-marktplatz .badge-container, body.page-marktplatz .badge-container { padding-right: 0 !important; max-width: 100% !important; flex-wrap: wrap !important; }
+  html.ipsc-app-frame body.page-marktplatz .match-price-head-v76k, body.page-marktplatz .match-price-head-v76k { position: static !important; grid-column: 2 !important; justify-self: start !important; align-self: start !important; margin: 8px 62px 0 0 !important; min-width: 116px !important; max-width: calc(100% - 64px) !important; height: 42px !important; font-size: 15px !important; text-align: center !important; z-index: 2 !important; }
+  html.ipsc-app-frame body.page-marktplatz .owner-menu, body.page-marktplatz .owner-menu { position: absolute !important; top: 20px !important; right: 16px !important; z-index: 8 !important; }
+  html.ipsc-app-frame body.page-marktplatz .owner-menu-trigger, body.page-marktplatz .owner-menu-trigger { width: 46px !important; height: 46px !important; min-width: 46px !important; min-height: 46px !important; }
+}
+
+
+/* V78Q Launch Hotfix: planner card actions + cloud accommodation mobile polish */
+body.page-mein-planer .planner-card-actions {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  margin-top: 16px !important;
+}
+body.page-mein-planer .planner-complete-btn {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 46px !important;
+  height: auto !important;
+  border-radius: 18px !important;
+  padding: 12px 14px !important;
+  white-space: normal !important;
+  line-height: 1.15 !important;
+}
+body.page-mein-planer .planner-insert-btn,
+body.page-mein-planer .planner-delete-btn {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 44px !important;
+  height: auto !important;
+  border-radius: 18px !important;
+  padding: 11px 12px !important;
+  white-space: nowrap !important;
+}
+body.page-mein-planer .planner-accommodation-box-v78n {
+  margin-top: 14px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+body.page-mein-planer .planner-accommodation-box-v78n summary {
+  min-width: 0 !important;
+}
+body.page-mein-planer .planner-accommodation-box-v78n summary span:first-child {
+  min-width: 0 !important;
+  overflow-wrap: anywhere !important;
+}
+body.page-mein-planer .planner-accommodation-actions-v78n {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+}
+body.page-mein-planer .planner-accommodation-save-v78n {
+  width: 100% !important;
+  min-height: 46px !important;
+}
+@media (max-width: 760px) {
+  body.page-mein-planer .match-item,
+  html.ipsc-app-frame body.page-mein-planer .match-item {
+    display: block !important;
+    padding: 18px 16px !important;
+    overflow: hidden !important;
+  }
+  body.page-mein-planer .planner-card-actions,
+  html.ipsc-app-frame body.page-mein-planer .planner-card-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    width: 100% !important;
+    justify-self: stretch !important;
+    margin-top: 16px !important;
+  }
+  body.page-mein-planer .planner-complete-btn,
+  html.ipsc-app-frame body.page-mein-planer .planner-complete-btn {
+    grid-column: 1 / -1 !important;
+    font-size: 15px !important;
+  }
+  body.page-mein-planer .planner-insert-btn,
+  body.page-mein-planer .planner-delete-btn,
+  html.ipsc-app-frame body.page-mein-planer .planner-insert-btn,
+  html.ipsc-app-frame body.page-mein-planer .planner-delete-btn {
+    font-size: 14px !important;
+  }
+}
+@media (min-width: 900px) {
+  body.page-mein-planer .match-item {
+    grid-template-columns: minmax(0, 1fr) 230px !important;
+  }
+  body.page-mein-planer .planner-card-actions {
+    width: 230px !important;
+    grid-template-columns: 1fr !important;
+    margin-top: 0 !important;
+  }
 }

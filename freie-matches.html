@@ -249,10 +249,10 @@
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
-<body class="page-freie-matches page-matches app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v app-v79i-matches">
+<body class="page-freie-matches page-matches app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v app-v79c-matches">
 
     <header id="main-header"></header>
-    <script src="header.js?v=79i"></script>
+    <script src="header.js?v=79c"></script>
 
     <style id="matches-page-v79c-style">
       .matches-shell-v79c { max-width: 1040px; margin: 0 auto; }
@@ -268,13 +268,10 @@
       .matches-filter-grid-v79c { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin: 0 0 20px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 14px; box-shadow: var(--shadow-sm); }
       .matches-filter-grid-v79c select { width: 100%; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); border-radius: 14px; font-size: 14px; font-weight: 800; padding: 12px 14px; }
       .matches-list-v79c { display: flex; flex-direction: column; gap: 14px; }
-      .match-card-v79c { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 22px; overflow: hidden; box-shadow: var(--shadow-sm); display: grid; grid-template-columns: 210px 1fr; min-height: 170px; }
-      .match-image-v79c { background: linear-gradient(135deg, rgba(255,159,67,.14), rgba(59,130,246,.12)); min-height: 170px; position: relative; overflow: hidden; }
-      .match-image-v79c img.match-image-real-v79i { width: 100%; height: 100%; min-height:170px; object-fit: cover; display:block; background: transparent; }
-      .match-image-lazy-v79i { width:100%; height:100%; min-height:170px; display:flex; align-items:center; justify-content:center; background-size:cover; background-position:center; background-repeat:no-repeat; }
-      .match-image-lazy-v79i.is-loaded .match-image-placeholder-v79c { display:none; }
-      .match-image-v79c.image-broken-v79i .match-image-placeholder-v79c { display:flex; }
-      .match-image-placeholder-v79c { width: 100%; height: 100%; min-height:170px; display:flex; align-items:center; justify-content:center; font-size: 42px; opacity:.72; }
+      .match-card-v79c { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 22px; overflow: hidden; box-shadow: var(--shadow-sm); display: grid; grid-template-columns: 220px minmax(0,1fr); min-height: 178px; }
+      .match-image-v79c { background: linear-gradient(135deg, rgba(255,159,67,.12), rgba(59,130,246,.10)); min-height: 178px; position: relative; overflow: hidden; display:flex; align-items:stretch; justify-content:stretch; }
+      .match-image-v79c img { width: 100%; height: 100%; min-height:178px; object-fit: contain; display:block; background: rgba(255,255,255,.35); }
+      .match-image-placeholder-v79c { width: 100%; height: 100%; display:flex; align-items:center; justify-content:center; font-size: 42px; opacity:.72; }
       .match-content-v79c { padding: 18px; display:flex; flex-direction:column; gap: 11px; min-width:0; }
       .match-title-v79c { margin:0; color:var(--text-color); font-size: 20px; font-weight: 950; line-height:1.16; letter-spacing:-.4px; }
       .match-meta-v79c { color: var(--text-muted); font-size: 14px; line-height: 1.45; display: flex; flex-wrap: wrap; gap: 8px 14px; }
@@ -304,7 +301,7 @@
         .matches-countbar-v79c { grid-template-columns: repeat(2, minmax(0,1fr)); }
         .matches-filter-grid-v79c { grid-template-columns: 1fr; }
         .match-card-v79c { grid-template-columns: 1fr; }
-        .match-image-v79c { min-height: 170px; max-height: 230px; }
+        .match-image-v79c { min-height: 178px; max-height: 240px; }
         .match-content-v79c { padding: 16px; }
         .match-title-v79c { font-size: 19px; }
       }
@@ -315,12 +312,12 @@
             <div class="app-page-hero-content-v72">
                 <div class="app-page-kicker-v72"><span></span><em>Match Radar</em></div>
                 <h2>Matches</h2>
-                <p>Alle IPSC-Matches an einem Ort: kompletter MatchSign-Kalender, geprüfte freie Startplätze und internationale ESS Open Events mit Planer-Anbindung.</p>
+                <p>Alle wichtigen IPSC-Matches an einem Ort: geprüfte freie Startplätze von MatchSign und internationale ESS Open Events mit Planer-Anbindung.</p>
                 <div class="app-page-actions-v72 app-page-actions-v74">
                     <a class="app-page-action-v72 primary" href="#matches-list-v79c">Matches anzeigen</a>
                     <a class="app-page-action-v72 secondary" href="mein-planer.html">Mein Planer</a>
                 </div>
-                <div class="app-page-status-v74">Alle Matches werden sauber getrennt: MatchSign mit Auslastung, freie Startplätze gefiltert, ESS mit unbekannter Auslastung.</div>
+                <div class="app-page-status-v74">Freie Plätze bleiben getrennt gekennzeichnet. ESS zeigt offene Registrierungen, aber keine geprüfte Auslastung.</div>
             </div>
         </section>
 
@@ -332,7 +329,7 @@
         </div>
 
         <div class="matches-info-v79c" id="matches-info-v79c">
-            <strong>Hinweis:</strong> „Alle Matches“ zeigt MatchSign plus ESS. „Freie Startplätze“ zeigt nur MatchSign-Matches mit erkannter Auslastung unter 100 %. ESS-Events zeigen offene Registrierungen, aber keine geprüfte Auslastung.
+            <strong>Hinweis:</strong> MatchSign-Matches werden nur angezeigt, wenn dort freie Plätze erkannt wurden. ESS-Events zeigen nur, dass die Registrierung öffentlich offen ist; ob noch Plätze frei sind, muss auf ESS nach Login geprüft werden.
         </div>
 
         <div class="matches-countbar-v79c">
@@ -394,18 +391,19 @@
         </div>
     </footer>
 
-    <script src="auth.js?v=79i"></script>
-    <script src="lang.js?v=79i"></script>
-    <script src="app.js?v=79i"></script>
+    <script src="auth.js?v=79c"></script>
+    <script src="lang.js?v=79c"></script>
+    <script src="app.js?v=79c"></script>
 
-    <script id="matches-page-v79i-script">
+    <script id="matches-page-v79c-script">
     (function(){
-      if (window.__MATCHES_PAGE_V79I) return;
-      window.__MATCHES_PAGE_V79I = true;
+      if (window.__MATCHES_PAGE_V79C) return;
+      window.__MATCHES_PAGE_V79C = true;
 
       const state = {
         activeTab: 'all',
         matchsign: [],
+        matchsignFree: [],
         ess: [],
         mine: [],
         byKey: new Map(),
@@ -420,43 +418,43 @@
       function esc(value){ const d=document.createElement('div'); d.textContent=value == null ? '' : String(value); return d.innerHTML; }
       function todayIso(){ return new Date().toISOString().slice(0,10); }
       function normalizeLevel(v){
-        if(!v) return '';
-        const raw = String(v).replace(/\s+/g,' ').trim();
+        if(v === null || v === undefined) return '';
+        const raw = String(v).trim();
         if(!raw || raw.toLowerCase() === 'null') return '';
-        // v79i: niemals Rohtext in den Level-Filter übernehmen.
-        const roman = { '1':'I', '2':'II', '3':'III', '4':'IV', '5':'V' };
-        const m = raw.match(new RegExp('(?:^|\\b)(?:Level|Lv\\.?|Lvl\\.?)\\s*(IV|III|II|V|I|[1-5])(?:\\b|$)', 'i')) || (/^[1-5]$/.test(raw) ? [raw, raw] : null);
-        if(!m) return '';
-        const val = String(m[1]).toUpperCase();
-        const clean = roman[val] || val;
-        return ['I','II','III','IV','V'].includes(clean) ? ('Level ' + clean) : '';
-      }
-      function cleanSmallText(v, max){
-        const s = String(v || '').replace(/\s+/g,' ').trim();
-        if(!s || s.toLowerCase() === 'null') return '';
-        return s.length <= (max || 80) ? s : '';
-      }
-      function safeImageUrl(v){
-        let s = String(v || '').trim().replace(/^['"]|['"]$/g,'');
-        if(!s || s.toLowerCase() === 'null' || s.toLowerCase() === 'none') return '';
-        if(s.startsWith('//')) s = 'https:' + s;
-        if(s.startsWith('/file/public/') || s.startsWith('/portal/file/') || s.startsWith('/storage/')) s = 'https://portal.ipscess.org' + s;
-        if(s.startsWith('/')) s = 'https://www.ipscmatch.de' + s;
-        if(s.startsWith('http://portal.ipscess.org')) s = s.replace('http://','https://');
-        if(s.startsWith('http://www.ipscmatch.de')) s = s.replace('http://','https://');
-        if(!/^https?:\/\//i.test(s)) return '';
-        return s;
+        const s = raw.replace(/\s+/g,' ');
+        const roman = s.match(/(?:Level|Lvl|Lv\.?|L)\s*(I{1,3}|IV|V)/i);
+        if(roman) return 'Level ' + roman[1].toUpperCase();
+        const num = s.match(/(?:Level|Lvl|Lv\.?|L)?\s*([1-5])/i);
+        if(/^\d+$/.test(s) && Number(s) >= 1 && Number(s) <= 5) return 'Level ' + s;
+        if(num && /(?:Level|Lvl|Lv\.?|L)/i.test(s)) return 'Level ' + ['','I','II','III','IV','V'][Number(num[1])];
+        return '';
       }
       function normalizeDiscipline(v){
-        const s = String(v || '').replace(/\s+/g,' ').trim();
-        if(!s || s.length > 40) return '';
-        if(/action\s*air|airsix/i.test(s)) return 'Action Air';
-        if(/mini\s*rifle|minirifle/i.test(s)) return 'Mini Rifle';
-        if(/pcc|pistol\s*calib/i.test(s)) return 'PCC';
-        if(/shotgun/i.test(s)) return 'Shotgun';
-        if(/rifle/i.test(s)) return 'Rifle';
-        if(/handgun|\bhg\b|hgn/i.test(s)) return 'Handgun';
-        return s;
+        const s = String(v || '').trim();
+        if(!s || s.toLowerCase()==='null') return '';
+        const compact = s.toLowerCase().replace(/[^a-z0-9]/g,'');
+        if(compact.includes('actionair')) return 'Action Air';
+        if(compact.includes('minirifle')) return 'Mini Rifle';
+        if(compact.includes('pcc') || compact.includes('pistolcaliber')) return 'PCC';
+        if(compact.includes('shotgun') || compact === 'sg') return 'Shotgun';
+        if(compact.includes('rifle') || compact === 'rf') return 'Rifle';
+        if(compact.includes('handgun') || compact === 'hg' || compact === 'hgn') return 'Handgun';
+        return s.length <= 30 ? s : '';
+      }
+      function isProbablyUrl(url){
+        if(!url) return false;
+        const s = String(url).trim();
+        if(!/^https?:\/\//i.test(s)) return false;
+        if(/[<>'"]/.test(s)) return false;
+        return true;
+      }
+      function hasFreeSlot(m){
+        if(!m) return false;
+        if(m.has_free_slots === true || m.free_slots === true) return true;
+        const st = String(m.availability_status || '').toLowerCase();
+        if(st === 'checked_free' || st === 'free' || st.includes('checked_free')) return true;
+        const occ = Number(m.occupancy_percent ?? m.auslastung_percent ?? String(m.auslastung || '').replace(/[^0-9.]/g,''));
+        return Number.isFinite(occ) && occ > 0 && occ < 100;
       }
       function normalizeDate(input){
         if(!input) return '';
@@ -477,59 +475,33 @@
       function locationText(m){ return [m.location, m.country || m.region].filter(Boolean).join(' · ') || m.region || '-'; }
       function itemKey(m){ return `${m.source_type || m.source || 'SRC'}:${m.external_id || m.url || m.name}`; }
       function openOriginalUrl(m){ return m.source_url || m.registration_url || m.detail_url || m.url || '#'; }
-      function imageUrl(m){ return safeImageUrl(m && (m.image_url || m.imageUrl || m.match_image_url || m.image || m.banner_url)); }
-      function imageHtml(m){
-        const u = imageUrl(m);
-        if(!u) return `<div class="match-image-placeholder-v79c">🎯</div>`;
-        return `<img src="${esc(u)}" loading="lazy" referrerpolicy="no-referrer" alt="" onerror="this.parentElement.classList.add('image-error-v79f')"><div class="match-image-placeholder-v79c image-fallback-v79f">🎯</div>`;
-      }
-      function availabilityBadgeV79e(m){
-        if(!m) return '';
-        if(m.source_type === 'ess') return `<span class="match-badge-v79c match-badge-warn-v79c">Auslastung unbekannt</span>`;
-        if(isFreeMatchSign(m)) return `<span class="match-badge-v79c match-badge-free-v79c">Freie Plätze</span>`;
-        if(m.availability_status === 'full') return `<span class="match-badge-v79c">Voll / keine freien Plätze bekannt</span>`;
-        return `<span class="match-badge-v79c">Auslastung nicht als frei markiert</span>`;
-      }
-      function sourceLineV79e(m){
-        if(!m) return '';
-        if(m.source_type === 'ess') return t('Anmeldung offen laut ESS · freie Plätze nach Login prüfen', 'Registration open according to ESS · check available slots after login');
-        if(m.source_type === 'matchsign'){
-          const occ = m.auslastung ? ` · Auslastung ${m.auslastung}` : '';
-          return isFreeMatchSign(m) ? t('Freie Startplätze geprüft', 'Open slots checked') + occ : t('MatchSign-Kalender · nicht als freier Startplatz markiert', 'MatchSign calendar · not marked as an open slot') + occ;
-        }
-        if(m.source_type === 'mine') return m.status ? `Status: ${m.status}` : t('Gespeichert im Planer', 'Saved in planner');
-        return '';
-      }
 
       function normalizeMatchSign(m){
-        const occ = Number.isFinite(Number(m.occupancy_percent)) ? Number(m.occupancy_percent) : null;
-        const status = m.availability_status || (m.has_free_slots === true ? 'checked_free' : (occ !== null && occ >= 100 ? 'full' : 'unknown'));
+        const occ = Number(m.occupancy_percent ?? m.auslastung_percent ?? String(m.auslastung || '').replace(/[^0-9.]/g,''));
+        const free = hasFreeSlot(m);
+        const image = isProbablyUrl(m.image_url || m.match_image_url || m.logo_url || '') ? String(m.image_url || m.match_image_url || m.logo_url || '').trim() : '';
         return {
           source_type: 'matchsign', source: 'MatchSign', external_id: m.id || m.url || m.name,
-          name: cleanSmallText(m.name || m.match_name, 220) || 'Match', discipline: normalizeDiscipline(m.disziplin || m.discipline || ''), level: normalizeLevel(m.level || ''),
-          event_start: normalizeDate(m.datum || m.date), event_end: '', datum: m.datum || '', location: m.ort || m.location || '', country: m.country || '', region: m.region || '',
-          url: m.url || '', source_url: m.source_url || m.url || '', image_url: safeImageUrl(m.image_url || m.match_image_url || ''), auslastung: m.auslastung || '',
-          occupancy_percent: occ, has_free_slots: m.has_free_slots === true || status === 'checked_free',
-          availability_status: status, availability_label: m.availability_label || '', registration_status: m.registration_status || ''
+          name: m.name || m.match_name || 'Match', discipline: normalizeDiscipline(m.disziplin || m.discipline || ''), level: normalizeLevel(m.level || ''),
+          event_start: normalizeDate(m.datum || m.date || m.event_start), event_end: normalizeDate(m.event_end || ''), datum: m.datum || '', location: m.ort || m.location || '', country: m.country || '', region: m.region || '',
+          url: m.url || '', source_url: m.url || m.source_url || '', image_url: image, auslastung: m.auslastung || (Number.isFinite(occ) ? occ + '%' : ''),
+          occupancy_percent: Number.isFinite(occ) ? occ : null,
+          availability_status: m.availability_status || (free ? 'checked_free' : 'unknown'),
+          has_free_slots: free
         };
       }
-      function inferKnownImageUrlV79g(m){
-        const name = String((m && (m.name || m.match_name)) || '').toLowerCase();
-        if(name.includes('german handgun part') && name.includes('walther')) return 'https://portal.ipscess.org/file/public/b40bcde7-80a5-4885-9f1f-c2fa20787b42.png';
-        return '';
-      }
       function normalizeEss(m){
-        const name = cleanSmallText(m.name || m.match_name, 220) || 'ESS Match';
+        const name = m.name || m.match_name || 'ESS Match';
+        const image = isProbablyUrl(m.image_url || '') ? String(m.image_url || '').trim() : '';
         return {
           source_type: 'ess', source: 'ESS', external_id: m.external_id || m.id || name,
           name, discipline: normalizeDiscipline(m.discipline || ''), level: normalizeLevel(m.level || ''),
-          event_start: m.event_start || '', event_end: m.event_end || '', datum: '', location: cleanSmallText(m.location, 90), country: cleanSmallText(m.country, 60), region: cleanSmallText(m.country, 60), organizer: cleanSmallText(m.organizer, 120),
+          event_start: m.event_start || '', event_end: m.event_end || '', datum: '', location: m.location || '', country: m.country || '', region: m.country || '', organizer: m.organizer || '',
           registration_start: m.registration_start || '', registration_end: m.registration_end || '',
-          detail_url: m.detail_url || '', registration_url: m.registration_url || '', source_url: m.registration_url || m.detail_url || '', image_url: safeImageUrl(m.image_url || inferKnownImageUrlV79g(m) || ''),
+          detail_url: m.detail_url || '', registration_url: m.registration_url || '', source_url: m.registration_url || m.detail_url || '', image_url: image,
           availability_status: m.availability_status || 'registration_open_unknown_capacity'
         };
       }
-
       async function waitForClient(){
         for(let i=0;i<30;i++){
           const c = window.supabaseClient || (window.supabase && window.supabase.auth ? window.supabase : null);
@@ -538,19 +510,22 @@
         }
         return null;
       }
-      async function loadFreeMatches(){
+      async function fetchJsonIfExists(url){
         try{
-          let data = null;
-          try{
-            const resAll = await fetch('matches_all.json?v=' + Date.now(), {cache:'no-store'});
-            if(resAll.ok) data = await resAll.json();
-          }catch(_){ data = null; }
-          if(!Array.isArray(data)){
-            const res = await fetch('matches.json?v=' + Date.now(), {cache:'no-store'});
-            data = await res.json();
-          }
-          state.matchsign = Array.isArray(data) ? data.map(normalizeMatchSign) : [];
-        }catch(err){ console.warn('MatchSign matches unavailable', err); state.matchsign = []; }
+          const res = await fetch(url + '?v=' + Date.now(), {cache:'no-store'});
+          if(!res.ok) return null;
+          const data = await res.json();
+          return Array.isArray(data) ? data : null;
+        }catch(_){ return null; }
+      }
+      async function loadFreeMatches(){
+        const allData = await fetchJsonIfExists('matches_all.json') || await fetchJsonIfExists('matches.json') || [];
+        const freeData = await fetchJsonIfExists('matches_free.json');
+        const all = allData.map(normalizeMatchSign).filter(m => m.name && m.name !== 'Match');
+        const free = (freeData ? freeData.map(normalizeMatchSign) : all.filter(m => m.has_free_slots || m.availability_status === 'checked_free'));
+        // Alte Backends hatten matches.json schon als reine Freie-Matches-Datei. Dann darf der Free-Tab nicht leer sein.
+        state.matchsign = all;
+        state.matchsignFree = free.length ? free : all;
         state.loadedFree = true;
       }
       async function loadEssMatches(){
@@ -578,15 +553,14 @@
           state.mine = (data || []).map(m => ({
             source_type: 'mine', source: m.match_source || 'Planer', external_id: m.external_id || m.id,
             name: m.match_name || 'Match', discipline: m.division || '', level: '', event_start: m.match_date || '', event_end: '',
-            location: m.match_location || '', country: '', region: '', image_url: safeImageUrl(m.image_url || m.image || ''), source_url: m.source_url || m.match_url || '', status: m.status || '', squad: m.squad || '', notes: m.notes || ''
+            location: m.match_location || '', country: '', region: '', image_url: m.image_url || '', source_url: m.source_url || m.match_url || '', status: m.status || '', squad: m.squad || '', notes: m.notes || ''
           }));
           renderCounts();
         }catch(err){ console.warn('Planner matches unavailable', err); }
       }
 
-      function isFreeMatchSign(m){ return m && m.source_type === 'matchsign' && (m.has_free_slots === true || m.availability_status === 'checked_free'); }
       function currentBaseItems(){
-        if(state.activeTab === 'free') return state.matchsign.filter(isFreeMatchSign);
+        if(state.activeTab === 'free') return state.matchsignFree || [];
         if(state.activeTab === 'ess') return state.ess;
         if(state.activeTab === 'mine') return state.mine;
         return [...state.matchsign, ...state.ess];
@@ -597,15 +571,14 @@
         const level = el('filter-level-v79c')?.value || 'all';
         return items.filter(m => {
           const c = m.country || m.region || '';
-          return (country==='all' || c === country) && (disc==='all' || (m.discipline || '') === disc) && (level==='all' || normalizeLevel(m.level) === level);
+          return (country==='all' || c === country) && (disc==='all' || (m.discipline || '') === disc) && (level==='all' || (m.level || '') === level);
         });
       }
       function setupFilters(){
         const items = currentBaseItems();
         const countries = [...new Set(items.map(m => m.country || m.region).filter(Boolean))].sort();
-        const discs = [...new Set(items.map(m => normalizeDiscipline(m.discipline, m.name)).filter(Boolean))].sort();
-        const allowedLevels = ['Level I','Level II','Level III','Level IV','Level V'];
-        const levels = allowedLevels.filter(l => items.some(m => normalizeLevel(m.level) === l));
+        const discs = [...new Set(items.map(m => m.discipline).filter(Boolean))].sort();
+        const levels = [...new Set(items.map(m => normalizeLevel(m.level)).filter(Boolean))].filter(v => /^Level (I|II|III|IV|V)$/.test(v)).sort((a,b)=>['Level I','Level II','Level III','Level IV','Level V'].indexOf(a)-['Level I','Level II','Level III','Level IV','Level V'].indexOf(b));
         const sets = [
           [el('filter-country-v79c'), t('Alle Länder','All countries'), countries],
           [el('filter-discipline-v79c'), t('Alle Disziplinen','All disciplines'), discs],
@@ -619,9 +592,8 @@
         });
       }
       function renderCounts(){
-        const freeCount = state.matchsign.filter(isFreeMatchSign).length;
         if(el('count-all-v79c')) el('count-all-v79c').textContent = state.matchsign.length + state.ess.length;
-        if(el('count-free-v79c')) el('count-free-v79c').textContent = freeCount;
+        if(el('count-free-v79c')) el('count-free-v79c').textContent = (state.matchsignFree || []).length;
         if(el('count-ess-v79c')) el('count-ess-v79c').textContent = state.ess.length;
         if(el('count-mine-v79c')) el('count-mine-v79c').textContent = state.mine.length;
       }
@@ -629,56 +601,7 @@
         if(state.activeTab === 'free') return t('<strong>Freie Startplätze:</strong> Hier erscheinen nur MatchSign/ipscmatch.de-Matches, bei denen eine Auslastung unter 100 % erkannt wurde.', '<strong>Open slots:</strong> Only MatchSign/ipscmatch.de matches where occupancy below 100% was detected are shown here.');
         if(state.activeTab === 'ess') return t('<strong>ESS Open Events:</strong> ESS zeigt öffentlich offene Registrierungen. Ob noch Startplätze verfügbar sind, kann erst nach Login auf ESS geprüft werden.', '<strong>ESS Open Events:</strong> ESS publicly shows open registrations. Actual slot availability can only be checked after logging in to ESS.');
         if(state.activeTab === 'mine') return t('<strong>Meine Matches:</strong> Deine gespeicherten Matches aus dem Planer – inklusive Approved, Warteliste, Interessiert oder Beobachten.', '<strong>My matches:</strong> Your saved planner matches, including approved, waitlist, interested or watching.');
-        return t('<strong>Match Radar:</strong> Alle MatchSign-Matches plus ESS Open Events. Freie Plätze sind grün markiert; ESS bedeutet nicht automatisch freier Startplatz.', '<strong>Match radar:</strong> All MatchSign matches plus ESS Open Events. Free slots are marked green; ESS does not automatically mean a free slot is available.');
-      }
-      function availabilityBadgeV79e(m){
-        if(!m) return '';
-        if(m.source_type === 'ess') return `<span class="match-badge-v79c match-badge-warn-v79c">Auslastung unbekannt</span>`;
-        if(m.source_type === 'matchsign' && isFreeMatchSign(m)) return `<span class="match-badge-v79c match-badge-free-v79c">Freie Plätze</span>`;
-        if(m.source_type === 'matchsign' && m.occupancy_percent !== null && m.occupancy_percent >= 100) return `<span class="match-badge-v79c">Voll / Warteliste möglich</span>`;
-        return '';
-      }
-      function sourceLineV79e(m){
-        if(!m) return '';
-        if(m.source_type === 'ess') return t('Anmeldung offen laut ESS · freie Plätze nach Login prüfen', 'Registration open according to ESS · check slot availability after login');
-        if(m.source_type === 'matchsign' && isFreeMatchSign(m)){
-          return m.auslastung ? `Auslastung: ${m.auslastung}` : t('Freie Plätze laut MatchSign erkannt.', 'Open slots detected via MatchSign.');
-        }
-        if(m.source_type === 'matchsign') return t('MatchSign-Match · Auslastung nicht als frei markiert.', 'MatchSign match · not marked as open capacity.');
-        if(m.source_type === 'mine') return m.status ? `Status: ${m.status}` : '';
-        return '';
-      }
-
-      function matchImageMarkupV79i(url){
-        const u = safeImageUrl(url);
-        const fallback = `<div class="match-image-placeholder-v79c">🎯</div>`;
-        if(!u) return fallback;
-        // v79i: URL nicht direkt als src/background in den HTML-String schreiben.
-        // Dadurch können kaputte/komische URLs kein Markup zerstören und es gibt keine halb kaputten Karten.
-        return `<div class="match-image-lazy-v79i" data-img="${esc(u)}">${fallback}</div>`;
-      }
-      function hydrateMatchImagesV79i(){
-        document.querySelectorAll('.match-image-lazy-v79i[data-img]').forEach(node => {
-          if(node.dataset.done === '1') return;
-          node.dataset.done = '1';
-          const url = safeImageUrl(node.getAttribute('data-img') || '');
-          if(!url) return;
-          const img = new Image();
-          img.referrerPolicy = 'no-referrer';
-          img.onload = function(){
-            const cssUrl = url.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-            node.style.backgroundImage = 'url("' + cssUrl + '")';
-            node.classList.add('is-loaded');
-            const wrap = node.closest('.match-image-v79c');
-            if(wrap) wrap.classList.remove('image-broken-v79i');
-          };
-          img.onerror = function(){
-            node.classList.remove('is-loaded');
-            const wrap = node.closest('.match-image-v79c');
-            if(wrap) wrap.classList.add('image-broken-v79i');
-          };
-          img.src = url;
-        });
+        return t('<strong>Match Radar:</strong> Freie Plätze und ESS Open Events zusammen. ESS bedeutet nicht automatisch freier Startplatz.', '<strong>Match radar:</strong> Open slots and ESS Open Events combined. ESS does not automatically mean a free slot is available.');
       }
       function render(){
         setupFilters(); renderCounts(); state.byKey.clear();
@@ -689,20 +612,19 @@
         if(!state.loadedFree && !state.loadedEss){ list.innerHTML = `<p class="loading-msg">${t('Lade Match Radar …','Loading match radar …')}</p>`; return; }
         if(items.length === 0){ list.innerHTML = `<div class="matches-empty-v79c">${t('Keine Matches für diese Auswahl gefunden.','No matches found for this selection.')}</div>`; return; }
         list.innerHTML = items.map(cardHtml).join('');
-        requestAnimationFrame(hydrateMatchImagesV79i);
+        hydrateMatchImagesV79j(list);
       }
       function cardHtml(m){
         const key = itemKey(m); state.byKey.set(key, m);
-        const isEss = m.source_type === 'ess'; const isMatchSign = m.source_type === 'matchsign'; const isFree = isFreeMatchSign(m); const isMine = m.source_type === 'mine';
+        const isEss = m.source_type === 'ess'; const isFree = m.source_type === 'matchsign'; const isMine = m.source_type === 'mine';
         const date = displayDate(m.event_start, m.event_end, m.datum);
         const loc = locationText(m);
         const original = openOriginalUrl(m);
-        const imgUrl = safeImageUrl(m.image_url);
-        const displayLevel = normalizeLevel(m.level);
-        const img = matchImageMarkupV79i(imgUrl);
-        const sourceBadge = isMatchSign ? (isFree ? `<span class="match-badge-v79c match-badge-free-v79c">✅ MatchSign · freie Plätze geprüft</span>` : `<span class="match-badge-v79c">📅 MatchSign</span>`) : (isEss ? `<span class="match-badge-v79c match-badge-ess-v79c">🌍 ESS Open Event</span>` : (isMine ? `<span class="match-badge-v79c">📌 Planer</span>` : `<span class="match-badge-v79c">📅 Match</span>`));
-        const availability = availabilityBadgeV79e(m);
-        const sourceLine = sourceLineV79e(m);
+        const imgUrl = isProbablyUrl(m.image_url) ? m.image_url : '';
+        const img = `<div class="match-image-box-v79j" data-img="${esc(imgUrl)}"><div class="match-image-placeholder-v79c">🎯</div></div>`;
+        const sourceBadge = isFree ? `<span class="match-badge-v79c match-badge-free-v79c">✅ MatchSign · freie Plätze geprüft</span>` : (isEss ? `<span class="match-badge-v79c match-badge-ess-v79c">🌍 ESS Open Event</span>` : `<span class="match-badge-v79c">📌 Planer</span>`);
+        const availability = isEss ? `<span class="match-badge-v79c match-badge-warn-v79c">Auslastung unbekannt</span>` : (isFree ? `<span class="match-badge-v79c match-badge-free-v79c">${m.has_free_slots ? 'Freie Plätze' : 'MatchSign'}${m.auslastung ? ' · ' + esc(m.auslastung) : ''}</span>` : (m.status ? `<span class="match-badge-v79c">${esc(m.status)}</span>` : ''));
+        const sourceLine = isEss ? t('Anmeldung offen laut ESS · freie Plätze nach Login prüfen', 'Registration open according to ESS · check slot availability after login') : (isFree ? (m.auslastung ? `Auslastung: ${esc(m.auslastung)}` : t('Freie Plätze laut MatchSign erkannt', 'Open slots detected by MatchSign')) : t('Gespeichert im Planer', 'Saved in planner'));
         return `
           <article class="match-card-v79c">
             <div class="match-image-v79c">${img}</div>
@@ -717,10 +639,10 @@
                 ${sourceBadge}
                 ${availability}
                 ${m.discipline ? `<span class="match-badge-v79c">🔫 ${esc(m.discipline)}</span>` : ''}
-                ${displayLevel ? `<span class="match-badge-v79c">🏆 ${esc(displayLevel)}</span>` : ''}
+                ${m.level ? `<span class="match-badge-v79c">🏆 ${esc(m.level)}</span>` : ''}
                 ${m.squad ? `<span class="match-badge-v79c">Squad: ${esc(m.squad)}</span>` : ''}
               </div>
-              ${sourceLine ? `<div class="match-meta-v79c">${esc(sourceLine)}</div>` : ''}
+              <div class="match-meta-v79c">${sourceLine}</div>
               <div class="match-actions-v79c">
                 ${!isMine ? `<button class="match-action-v79c match-action-primary-v79c" onclick="openPlannerModalV79c('${esc(key)}')">+ Zum Planer</button>` : `<a class="match-action-v79c match-action-primary-v79c" href="mein-planer.html">Planer öffnen</a>`}
                 ${original && original !== '#' ? `<a class="match-action-v79c match-action-secondary-v79c" href="${esc(original)}" target="_blank" rel="noopener noreferrer">Original öffnen</a>` : ''}
@@ -728,7 +650,25 @@
             </div>
           </article>`;
       }
-
+      function hydrateMatchImagesV79j(scope){
+        (scope || document).querySelectorAll('.match-image-box-v79j[data-img]').forEach(box => {
+          const url = box.getAttribute('data-img');
+          if(!isProbablyUrl(url) || box.dataset.done === '1') return;
+          box.dataset.done = '1';
+          const im = new Image();
+          im.loading = 'lazy';
+          im.decoding = 'async';
+          im.alt = '';
+          im.onload = function(){
+            if(im.naturalWidth < 12 || im.naturalHeight < 12) return;
+            box.innerHTML = '';
+            box.appendChild(im);
+            box.classList.add('has-image-v79j');
+          };
+          im.onerror = function(){ box.classList.add('image-failed-v79j'); };
+          im.src = url;
+        });
+      }
       window.setMatchesTabV79c = function(tab){
         state.activeTab = tab || 'all';
         document.querySelectorAll('.matches-tab-v79c').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === state.activeTab));

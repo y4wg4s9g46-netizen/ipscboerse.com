@@ -66,8 +66,13 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                             <input type="text" id="register-real-name" required placeholder="z.B. Max Mustermann">
                         </div>
                         <div class="form-group">
-                            <label for="register-ipsc-alias" style="color: var(--success-color);">🛡️ IPSC Alias / Schützenname *</label>
-                            <input type="text" id="register-ipsc-alias" required placeholder="z.B. GER1234 oder AlphaShooter">
+                            <label for="register-ipsc-alias" style="color: var(--success-color);">🛡️ Öffentlicher Alias / Schützenname *</label>
+                            <input type="text" id="register-ipsc-alias" required placeholder="z.B. AlphaShooter">
+                            <p class="help-text" style="font-size: 11px; margin: 6px 0 0; color: var(--text-muted);">Wird in Community und Marktplatz angezeigt.</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-member-number" style="color: var(--info-color);">🔢 Mitglieds-/Lizenznummer (nicht öffentlich)</label>
+                            <input type="text" id="register-member-number" placeholder="z.B. 20911 oder GER1234">
                         </div>
                         <div class="form-group">
                             <label for="register-email" data-txt="lbl-email">E-Mail *</label>
@@ -152,10 +157,16 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                             <input type="text" id="settings-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann">
                         </div>
 
-                        <div class="settings-alias-card" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: 6px; border-left: 4px solid var(--success-color); margin-bottom: 20px; display: flex; flex-direction: column;">
-                            <label for="settings-ipsc-alias" class="settings-alias-title" style="color: var(--success-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-ipsc-alias">🛡️ IPSC Alias / Schützenname</label>
-                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-ipsc-alias-desc">Optional: Hinterlege deine IPSC-Alias- oder Mitgliedsnummer für mehr Vertrauen im Marktplatz.</p>
-                            <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. GER1234 oder AlphaShooter">
+                        <div class="settings-public-alias-card" style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: 6px; border-left: 4px solid var(--success-color); margin-bottom: 20px; display: flex; flex-direction: column;">
+                            <label for="settings-public-alias" class="settings-public-alias-title" style="color: var(--success-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-public-alias">🛡️ Öffentlicher Alias / Schützenname</label>
+                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-public-alias-desc">Wird in Community und Marktplatz angezeigt. Keine Mitgliedsnummer eintragen.</p>
+                            <input type="text" id="settings-public-alias" data-txt-ph="ph-public-alias" placeholder="z.B. AlphaShooter">
+                        </div>
+
+                        <div class="settings-alias-card" style="background-color: rgba(59, 130, 246, 0.06); padding: 16px; border-radius: 6px; border-left: 4px solid var(--info-color); margin-bottom: 20px; display: flex; flex-direction: column;">
+                            <label for="settings-ipsc-alias" class="settings-alias-title" style="color: var(--info-color); font-weight: 700; margin-bottom: 4px;" data-txt="lbl-ipsc-alias">🔢 Mitglieds-/Lizenznummer</label>
+                            <p class="help-text" style="font-size: 11px; margin-top: 0; margin-bottom: 8px; color: var(--text-muted); line-height: 1.4;" data-txt="lbl-ipsc-alias-desc">Optional. Nicht öffentlich. Nur für interne Zuordnung und geschützte Vereinsfunktionen.</p>
+                            <input type="text" id="settings-ipsc-alias" data-txt-ph="ph-ipsc-alias" placeholder="z.B. 20911 oder GER1234">
                         </div>
 
                         <div class="form-group">
@@ -380,8 +391,8 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
 
         const user = window.currentUser || null;
         const meta = user?.user_metadata || {};
-        const name = meta.real_name || meta.full_name || meta.name || meta.ipsc_alias || user?.email?.split("@")[0] || "Profil";
-        const alias = meta.ipsc_alias || "";
+        const name = meta.real_name || meta.full_name || meta.name || meta.username || user?.email?.split("@")[0] || "Profil";
+        const alias = meta.username || "";
         const email = user?.email || "";
         const avatar = meta.avatar_url || meta.picture || meta.profile_picture || "icon-192.png";
 
@@ -392,7 +403,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
 
         if (img) img.src = avatar;
         if (nameEl) nameEl.textContent = name;
-        if (metaEl) metaEl.textContent = alias ? alias : tV76e("lbl-ipsc-alias", "IPSC Alias / Schützenname");
+        if (metaEl) metaEl.textContent = alias ? alias : tV76e("lbl-public-alias", "Öffentlicher Alias");
         if (emailEl) emailEl.textContent = email;
     }
 
@@ -441,6 +452,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
         const stats = view.querySelector(".settings-stats-card");
         const passkey = view.querySelector(".settings-passkey-card");
         const realCard = view.querySelector(".settings-realname-card");
+        const publicAliasCard = view.querySelector(".settings-public-alias-card");
         const aliasCard = view.querySelector(".settings-alias-card");
         const avatarInput = document.getElementById("settings-avatar");
         const avatarGroup = avatarInput?.closest(".form-group");
@@ -793,7 +805,7 @@ async function openChatSystem(matchId, receiverEmail, matchName) {
   window.activeChatRoom = { matchId, receiverEmail, matchName };
 
   const chatModal = document.getElementById("chat-modal");
-  if (chatModal) chatModal.style.display = "flex";
+  if (chatModal) { if (window.ipscShowModalV78l) window.ipscShowModalV78l("chat-modal"); else chatModal.style.display = "flex"; }
 
   document.getElementById("chat-title-match").innerText = "Match: " + matchName;
   document.getElementById("chat-title-partner").innerText = (window.currentLang === "en" ? "Chat partner: " : "Gesprächspartner: ") + receiverEmail;
@@ -892,7 +904,7 @@ window.reportChatMessage = function(id) {
 
 function closeChatSystem() {
   window.activeChatRoom = null;
-  document.getElementById("chat-modal").style.display = "none";
+  if (window.ipscHideModalV78l) window.ipscHideModalV78l("chat-modal"); else document.getElementById("chat-modal").style.display = "none";
 }
 window.closeChatSystem = closeChatSystem;
 
@@ -1002,11 +1014,11 @@ async function toggleGlobalInbox() {
   if (!modal) return;
   
   if (modal.style.display === "flex") {
-    modal.style.display = "none";
+    if (window.ipscHideModalV78l) window.ipscHideModalV78l("global-inbox-modal"); else modal.style.display = "none";
     return;
   }
   
-  modal.style.display = "flex";
+  if (window.ipscShowModalV78l) window.ipscShowModalV78l("global-inbox-modal"); else modal.style.display = "flex";
 
   const previousChatChecked = window.lastChatCheckedTimestamp || localStorage.getItem("lastChatChecked") || new Date(0).toISOString();
   const openedAt = new Date().toISOString();
@@ -1453,16 +1465,18 @@ async function loadUserSettingsProfile() {
     .single();
 
   if (!error && profile) {
+    const publicAliasInput = document.getElementById("settings-public-alias");
     const aliasInput = document.getElementById("settings-ipsc-alias");
     const rnInput = document.getElementById("settings-real-name");
 
-    if (!aliasInput || !rnInput) {
+    if (!publicAliasInput || !aliasInput || !rnInput) {
         setTimeout(loadUserSettingsProfile, 100);
         return;
     }
 
-    aliasInput.value = profile.ipsc_alias || "";
-    rnInput.value = profile.real_name || "";
+    publicAliasInput.value = profile.username || window.currentUser.user_metadata?.username || "";
+    aliasInput.value = profile.ipsc_alias || window.currentUser.user_metadata?.ipsc_alias || "";
+    rnInput.value = profile.real_name || window.currentUser.user_metadata?.real_name || "";
   }
 }
 
@@ -1499,11 +1513,16 @@ fetchMatches();
             "v76f-login-subtitle": "Melde dich mit E-Mail, Passkey, Apple oder Google an.",
             "v76f-login-quick": "Oder Schnell-Login nutzen",
             "v76f-profile-edit": "Profil bearbeiten",
-            "v76f-profile-edit-help": "Name, Mitgliedsnummer, Profilbild und Passwort ändern.",
+            "v76f-profile-edit-help": "Name, Alias, Lizenznummer, Profilbild und Passwort ändern.",
             "v76f-profile-title": "Profilübersicht",
             "lbl-real-name": "🔒 Echter Name (für automatische Zuordnung)",
             "lbl-real-name-desc": "Trage deinen Namen so ein, wie er in Starterlisten erscheint. Der Name wird nicht öffentlich angezeigt und hilft der App, öffentlich verfügbare Matchdaten korrekt zuzuordnen.",
-            "lbl-ipsc-alias-desc": "Optional: Hinterlege deine IPSC-Alias- oder Mitgliedsnummer für mehr Vertrauen im Marktplatz.",
+            "lbl-public-alias": "🛡️ Öffentlicher Alias / Schützenname",
+            "lbl-public-alias-desc": "Wird in Community und Marktplatz angezeigt. Keine Mitgliedsnummer eintragen.",
+            "ph-public-alias": "z.B. AlphaShooter",
+            "lbl-ipsc-alias": "🔢 Mitglieds-/Lizenznummer",
+            "lbl-ipsc-alias-desc": "Optional. Nicht öffentlich. Nur für interne Zuordnung und geschützte Vereinsfunktionen.",
+            "ph-ipsc-alias": "z.B. 20911 oder GER1234",
             "lbl-change-password": "Neues Passwort (optional)"
         });
 
@@ -1512,11 +1531,16 @@ fetchMatches();
             "v76f-login-subtitle": "Sign in with email, passkey, Apple or Google.",
             "v76f-login-quick": "Or use quick sign-in",
             "v76f-profile-edit": "Edit profile",
-            "v76f-profile-edit-help": "Change name, member number, profile photo and password.",
+            "v76f-profile-edit-help": "Change name, alias, license number, profile photo and password.",
             "v76f-profile-title": "Profile overview",
             "lbl-real-name": "🔒 Real name (for automatic matching)",
             "lbl-real-name-desc": "Enter your name exactly as it appears on start lists. It is not shown publicly and helps the app match publicly available match data correctly.",
-            "lbl-ipsc-alias-desc": "Optional: Save your IPSC alias or member number to add more trust to marketplace listings.",
+            "lbl-public-alias": "🛡️ Public alias / shooter name",
+            "lbl-public-alias-desc": "Shown in community and marketplace. Do not enter your member number here.",
+            "ph-public-alias": "e.g. AlphaShooter",
+            "lbl-ipsc-alias": "🔢 Member/license number",
+            "lbl-ipsc-alias-desc": "Optional. Not public. Used only for internal matching and protected club features.",
+            "ph-ipsc-alias": "e.g. 20911 or GER1234",
             "lbl-change-password": "New password (optional)"
         });
     }
@@ -1613,7 +1637,7 @@ fetchMatches();
             summary.innerHTML = `
                 <span>
                     <strong data-txt="v76f-profile-edit">${textV76f("v76f-profile-edit", "Profil bearbeiten")}</strong>
-                    <small data-txt="v76f-profile-edit-help">${textV76f("v76f-profile-edit-help", "Name, Mitgliedsnummer, Profilbild und Passwort ändern.")}</small>
+                    <small data-txt="v76f-profile-edit-help">${textV76f("v76f-profile-edit-help", "Name, Alias, Lizenznummer, Profilbild und Passwort ändern.")}</small>
                 </span>
                 <em>⌄</em>
             `;
@@ -1658,4 +1682,27 @@ fetchMatches();
         ensureTranslationsV76f();
         translateV76f(document.getElementById("auth-modal") || document);
     };
+})();
+
+
+// V78L app modal polish: keep chat/inbox above fixed app header and restore shell chrome after close.
+(function(){
+  if (window.__IPSC_APP_MODAL_POLISH_V78L) return;
+  window.__IPSC_APP_MODAL_POLISH_V78L = true;
+  window.ipscShowModalV78l = function(id){
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.style.setProperty('display','flex','important');
+    modal.style.setProperty('visibility','visible','important');
+    modal.style.setProperty('opacity','1','important');
+    modal.style.setProperty('pointer-events','auto','important');
+    modal.classList.add('is-open','show');
+  };
+  window.ipscHideModalV78l = function(id){
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.classList.remove('is-open','show');
+    modal.style.display = 'none';
+    try { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'ipsc-restore-chrome-v78l' }, window.location.origin); } catch (_) {}
+  };
 })();
