@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79l-image-direct';
+const CACHE_NAME = 'ipscboerse-v79o-sharecard';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
