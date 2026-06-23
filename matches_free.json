@@ -238,10 +238,11 @@
     "discipline": "HG, PCC, MR",
     "url": "https://www.ipscmatch.de/index.pl?match=2026_V_Adeje_Shooters_Cup",
     "source_url": "https://www.ipscmatch.de/index.pl?match=2026_V_Adeje_Shooters_Cup",
-    "image_url": "https://ipscmatch.de/wiki/images/e/e2/Logo_ASC.jpg",
+    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/adeje-shooters-cup-f439b512bce7.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-23T17:32:09Z"
+    "scraped_at": "2026-06-23T17:32:09Z",
+    "original_image_url": "https://ipscmatch.de/wiki/images/e/e2/Logo_ASC.jpg"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=BUL_Germany_Cup_2026",
@@ -350,10 +351,11 @@
     "discipline": "HG",
     "url": "https://www.ipscmatch.de/index.pl?match=2027_LM_Prd",
     "source_url": "https://www.ipscmatch.de/index.pl?match=2027_LM_Prd",
-    "image_url": "https://ipscmatch.de/wiki/images/b/b1/Logo_Oliver_Winkler.png",
+    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/lm-lv4-2027-prd-pdo-e9896fc3c648.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-23T17:32:43Z"
+    "scraped_at": "2026-06-23T17:32:43Z",
+    "original_image_url": "https://ipscmatch.de/wiki/images/b/b1/Logo_Oliver_Winkler.png"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2027_TENERIFE_MASTERS_FRONTERA",
