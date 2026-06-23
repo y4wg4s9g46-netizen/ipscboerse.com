@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <script id="ipsc-native-shell-redirect-v76t">
+      (function () {
+        try {
+          var p = new URLSearchParams(window.location.search || "");
+          if (p.get("shell") === "1" || p.get("nativeShell") === "0") return;
+          if (window.top !== window.self) return;
+          var proto = window.location.protocol;
+          var isNative = proto === "capacitor:" || proto === "ionic:";
+          if (!isNative) return;
+          var file = (window.location.pathname.split("/").pop() || "index.html");
+          if (!file || file === "") file = "index.html";
+          var allowed = {'index.html':1,'marktplatz.html':1,'mein-planer.html':1,'community.html':1,'freie-matches.html':1,'schiessbuch.html':1,'sg-timer-live.html':1,'tools.html':1,'analytics.html':1,'wiederladen.html':1,'ipsc-hub.html':1,'doppel-aa.html':1,'performance.html':1};
+          if (!allowed[file]) return;
+          var view = file + (window.location.search || "") + (window.location.hash || "");
+          var target = "native-shell.html?view=" + encodeURIComponent(view);
+          if ((window.location.pathname || "").endsWith("/native-shell.html")) return;
+          window.location.replace(target);
+        } catch (_) {}
+      })();
+    </script>
+
+    <script id="ipsc-theme-instant-v76s">
+      (function () {
+        try {
+          var root = document.documentElement;
+          var nav = null, selected = null, legacy = null, effective = null;
+          try { nav = sessionStorage.getItem("ipsc_nav_theme_v76s"); } catch (_) {}
+          try {
+            selected = localStorage.getItem("selectedTheme");
+            legacy = localStorage.getItem("theme");
+            effective = localStorage.getItem("ipsc_effective_theme");
+          } catch (_) {}
+          var theme = nav || selected || legacy || effective || "light";
+          if (theme === "auto") {
+            theme = (effective && effective !== "auto") ? effective : ((window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light");
+          }
+          theme = theme === "dark" ? "dark" : "light";
+          var surface = theme === "dark" ? "#0f172a" : "#f6f8fc";
+          root.setAttribute("data-theme", theme);
+          root.style.background = surface;
+          root.style.backgroundColor = surface;
+          root.style.colorScheme = theme;
+          window.__IPSC_ACTIVE_THEME_V70 = theme;
+          window.__IPSC_ACTIVE_THEME_V74 = theme;
+          window.__IPSC_ACTIVE_THEME_V76S = theme;
+          try {
+            localStorage.setItem("ipsc_effective_theme", theme);
+            sessionStorage.setItem("ipsc_effective_theme", theme);
+          } catch (_) {}
+          var st = document.createElement("style");
+          st.id = "ipsc-instant-bg-v76s";
+          st.textContent = "html,body{min-height:100%;background:" + surface + "!important;background-color:" + surface + "!important;color-scheme:" + theme + "!important;}html[data-theme=\"light\"],html[data-theme=\"light\"] body{background:#f6f8fc!important;background-color:#f6f8fc!important;color-scheme:light!important;}html[data-theme=\"dark\"],html[data-theme=\"dark\"] body{background:#0f172a!important;background-color:#0f172a!important;color-scheme:dark!important;}#app-page-transition-cover,#native-page-curtain-v74{display:none!important;opacity:0!important;visibility:hidden!important;}#ipsc-surface-bridge-v76s{background:" + surface + "!important;}";
+          document.head.appendChild(st);
+          document.addEventListener("DOMContentLoaded", function () {
+            try { document.body.style.backgroundColor = surface; } catch (_) {}
+          }, { once: true });
+        } catch (_) {}
+      })();
+    </script>
+    <meta charset="UTF-8">
+    <style id="native-app-prepaint-v76r">
+      :root { background: #f6f8fc !important; color-scheme: light; }
+      html, body { background: #f6f8fc !important; min-height: 100%; }
+      html[data-theme="dark"], html[data-theme="dark"] body { background: #0f172a !important; color-scheme: dark; }
+      html[data-theme="light"], html[data-theme="light"] body { background: #f6f8fc !important; color-scheme: light; }
+      #app-page-transition-cover, #native-page-curtain-v74 { background: #f6f8fc; }
+      html[data-theme="dark"] #app-page-transition-cover, html[data-theme="dark"] #native-page-curtain-v74 { background: #0f172a; }
+      /* V76R: no early body fade/colored curtain during navigation */
+</style>
+    <meta name="color-scheme" content="light dark">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+
+    <meta name="theme-color" content="#f6f8fc">
+    <style id="native-page-transition-v74">
+      #native-page-curtain-v74 {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483300;
+        pointer-events: none;
+        opacity: 0;
+        background: #f6f8fc;
+        transition: opacity .15s ease;
+        transform: translateZ(0);
+        will-change: opacity;
+      }
+      html[data-theme="dark"] #native-page-curtain-v74 { background: #0f172a; }
+      html.is-native-navigating-v74 #native-page-curtain-v74 { opacity: 0 !important; display: none !important; transition: none !important; }
+      html.is-native-arriving-v74 body { opacity: 1; }
+      html[data-theme="light"],
+      html[data-theme="light"] body {
+        background: #f6f8fc !important;
+      }
+      html[data-theme="dark"],
+      html[data-theme="dark"] body {
+        background: #0f172a !important;
+      }
+    </style>
+    <script id="native-page-transition-script-v74">
+      (function () {
+        try {
+          var root = document.documentElement;
+          var carried = null;
+          try { carried = sessionStorage.getItem("ipsc_effective_theme"); } catch (_) {}
+          var effective = localStorage.getItem("ipsc_effective_theme");
+          var selected = localStorage.getItem("selectedTheme");
+          var legacy = localStorage.getItem("theme");
+          var navV76s = null; try { navV76s = sessionStorage.getItem("ipsc_nav_theme_v76s"); } catch (_) {} var theme = navV76s || selected || legacy || effective || carried || "light";
+          if (theme === "auto") {
+            // In der nativen App verhindert das den dunklen Zwischenframe bei Light-Mode-Navigation.
+            theme = effective || carried || "light";
+          }
+          if (theme !== "dark") theme = "light";
+          root.setAttribute("data-theme", theme);
+          root.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
+          root.style.colorScheme = theme;
+          var bg = root.style.backgroundColor;
+          if (document.body) document.body.style.backgroundColor = bg;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", bg);
+          var cs = document.querySelector('meta[name="color-scheme"]');
+          if (cs) cs.setAttribute("content", theme);
+          window.__IPSC_ACTIVE_THEME_V74 = theme;
+          window.__IPSC_ACTIVE_THEME_V70 = theme;
+          try { localStorage.setItem("ipsc_effective_theme", theme); } catch (_) {}
+          root.classList.add("is-native-arriving-v74");
+          window.addEventListener("pageshow", function () {
+            setTimeout(function () {
+              root.classList.remove("is-native-arriving-v72", "is-native-navigating-v72", "is-native-arriving-v73", "is-native-navigating-v73", "is-native-arriving-v74", "is-native-navigating-v74");
+            }, 48);
+          });
+        } catch (_) {}
+      })();
+    </script>
+
+<style id="theme-prepaint-v70">
+      :root {
+        background: #f6f8fc;
+        color-scheme: light;
+      }
+      html {
+        min-height: 100%;
+        background: #f6f8fc !important;
+        color-scheme: light;
+      }
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background: #f6f8fc !important;
+        overscroll-behavior: none;
+      }
+      html[data-theme="dark"] {
+        background: #0f172a !important;
+        color-scheme: dark;
+      }
+      html[data-theme="dark"] body {
+        background: #0f172a !important;
+      }
+      html[data-theme="light"], html[data-theme="light"] body {
+        background: #f6f8fc !important;
+        color-scheme: light;
+      }
+      #app-page-transition-cover {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483000;
+        pointer-events: none;
+        opacity: 0;
+        background: #f6f8fc;
+        transition: opacity 18ms linear;
+        transform: translateZ(0);
+        will-change: opacity;
+      }
+      html[data-theme="dark"] #app-page-transition-cover {
+        background: #0f172a;
+      }
+      html.is-page-leaving #app-page-transition-cover { opacity: 0 !important; display: none !important; }
+      html.is-theme-switching-v70 *,
+      html.is-theme-switching-v70 *::before,
+      html.is-theme-switching-v70 *::after {
+        transition: none !important;
+        animation: none !important;
+      }
+    </style>
+    <script id="theme-prepaint-script-v70">
+      (function () {
+        var theme = "light";
+        try {
+          var carried = null;
+          try { carried = sessionStorage.getItem("ipsc_effective_theme"); } catch (_) {}
+          var effective = localStorage.getItem("ipsc_effective_theme");
+          var selected = localStorage.getItem("selectedTheme");
+          var legacy = localStorage.getItem("theme");
+          var navV76s = null; try { navV76s = sessionStorage.getItem("ipsc_nav_theme_v76s"); } catch (_) {} theme = navV76s || selected || legacy || effective || carried || "light";
+          if (theme === "auto") theme = effective || carried || "light";
+          if (theme !== "light" && theme !== "dark") theme = "light";
+        } catch (_) {
+          theme = "light";
+        }
+
+        try {
+          var root = document.documentElement;
+          var surface = theme === "dark" ? "#0f172a" : "#f6f8fc";
+          root.setAttribute("data-theme", theme);
+          root.style.backgroundColor = surface;
+          root.style.colorScheme = theme;
+          if (document.body) document.body.style.backgroundColor = surface;
+          window.__IPSC_ACTIVE_THEME_V70 = theme;
+          window.__IPSC_ACTIVE_THEME_V74 = theme;
+
+          try {
+            localStorage.setItem("ipsc_effective_theme", theme);
+          } catch (_) {}
+
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", surface);
+          var cs = document.querySelector('meta[name="color-scheme"]');
+          if (cs) cs.setAttribute("content", theme);
+        } catch (_) {}
+      })();
+    </script>
+
+<title>Matches | IPSC Börse</title>
+    
+    <link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="IPSC Börse">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="preload" href="icon-192.png" as="image">
+
+   <script>
+        // V76P: Theme vor global.css nochmals stabilisieren, ohne Auto-Dark-Zwischenframe.
+        (function() {
+            try {
+                var carried = null;
+                try { carried = sessionStorage.getItem("ipsc_effective_theme"); } catch (_) {}
+                var navV76s = null; try { navV76s = sessionStorage.getItem("ipsc_nav_theme_v76s"); } catch (_) {} var theme = navV76s || localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || localStorage.getItem("ipsc_effective_theme") || carried || "light";
+                if (theme === "auto") theme = localStorage.getItem("ipsc_effective_theme") || "light";
+                theme = theme === "dark" ? "dark" : "light";
+                document.documentElement.setAttribute("data-theme", theme);
+                document.documentElement.style.backgroundColor = theme === "dark" ? "#0f172a" : "#f6f8fc";
+                document.documentElement.style.colorScheme = theme;
+            } catch (_) {}
+        })();
+    </script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="global.css?v=76v">
+
+    <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
+</head>
+<body class="page-freie-matches page-matches app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v app-v79c-matches">
+
+    <header id="main-header"></header>
+    <script src="header.js?v=79c"></script>
+
+    <style id="matches-page-v79c-style">
+      .matches-shell-v79c { max-width: 1040px; margin: 0 auto; }
+      .matches-tabs-v79c { display: flex; gap: 10px; overflow-x: auto; padding: 4px 0 12px; margin: 8px 0 16px; -webkit-overflow-scrolling: touch; }
+      .matches-tab-v79c { border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); border-radius: 999px; padding: 11px 16px; font-weight: 900; font-size: 14px; white-space: nowrap; cursor: pointer; box-shadow: var(--shadow-sm); }
+      .matches-tab-v79c.active { background: var(--accent-gradient, linear-gradient(135deg,#ff9f43,#f97316)); color: #fff; border-color: transparent; box-shadow: 0 10px 24px rgba(249,115,22,.22); }
+      .matches-info-v79c { border: 1px solid rgba(59,130,246,.18); background: rgba(59,130,246,.07); color: var(--text-muted); border-radius: var(--radius-lg); padding: 14px 16px; font-size: 14px; line-height: 1.5; margin: 8px 0 18px; }
+      .matches-info-v79c strong { color: var(--text-color); }
+      .matches-countbar-v79c { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin: 0 0 16px; }
+      .matches-count-v79c { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 18px; padding: 12px; box-shadow: var(--shadow-sm); }
+      .matches-count-v79c b { display:block; font-size: 22px; line-height:1; color: var(--text-color); }
+      .matches-count-v79c span { display:block; margin-top:6px; font-size: 11px; text-transform:uppercase; font-weight:900; color:var(--text-muted); letter-spacing:.04em; }
+      .matches-filter-grid-v79c { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin: 0 0 20px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 14px; box-shadow: var(--shadow-sm); }
+      .matches-filter-grid-v79c select { width: 100%; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); border-radius: 14px; font-size: 14px; font-weight: 800; padding: 12px 14px; }
+      .matches-list-v79c { display: flex; flex-direction: column; gap: 14px; }
+      .match-card-v79c { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 22px; overflow: hidden; box-shadow: var(--shadow-sm); display: grid; grid-template-columns: 210px 1fr; min-height: 170px; }
+      .match-image-v79c { background: linear-gradient(135deg, rgba(255,159,67,.14), rgba(59,130,246,.12)); min-height: 170px; position: relative; overflow: hidden; }
+      .match-image-v79c img { width: 100%; height: 100%; object-fit: cover; display:block; }
+      .match-image-placeholder-v79c { width: 100%; height: 100%; display:flex; align-items:center; justify-content:center; font-size: 42px; opacity:.72; }
+      .match-content-v79c { padding: 18px; display:flex; flex-direction:column; gap: 11px; min-width:0; }
+      .match-title-v79c { margin:0; color:var(--text-color); font-size: 20px; font-weight: 950; line-height:1.16; letter-spacing:-.4px; }
+      .match-meta-v79c { color: var(--text-muted); font-size: 14px; line-height: 1.45; display: flex; flex-wrap: wrap; gap: 8px 14px; }
+      .match-badges-v79c { display:flex; flex-wrap:wrap; gap: 7px; }
+      .match-badge-v79c { display:inline-flex; align-items:center; gap:5px; border-radius:999px; padding: 6px 10px; font-size: 12px; font-weight: 900; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-muted); }
+      .match-badge-free-v79c { background: rgba(16,185,129,.10); border-color: rgba(16,185,129,.18); color: var(--success-color); }
+      .match-badge-ess-v79c { background: rgba(59,130,246,.10); border-color: rgba(59,130,246,.18); color: var(--info-color); }
+      .match-badge-warn-v79c { background: rgba(255,159,67,.11); border-color: rgba(255,159,67,.22); color: var(--accent-color); }
+      .match-actions-v79c { display:flex; gap:10px; flex-wrap:wrap; margin-top:auto; }
+      .match-action-v79c { border:none; text-decoration:none; border-radius: 14px; padding: 10px 13px; font-size: 13px; font-weight: 900; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+      .match-action-primary-v79c { background: var(--accent-gradient, linear-gradient(135deg,#ff9f43,#f97316)); color:#fff; }
+      .match-action-secondary-v79c { background: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color); }
+      .matches-empty-v79c { background: var(--card-bg); border: 1px dashed var(--border-color); border-radius: var(--radius-lg); padding: 28px; color: var(--text-muted); font-weight: 700; text-align:center; }
+      .planner-modal-v79c { position: fixed; inset: 0; background: rgba(15,23,42,.62); backdrop-filter: blur(8px); z-index: 2147483200; display:none; align-items:center; justify-content:center; padding: 20px; box-sizing: border-box; }
+      .planner-modal-card-v79c { width: 100%; max-width: 520px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 24px; box-shadow: 0 24px 70px rgba(15,23,42,.28); padding: 22px; color: var(--text-color); }
+      .planner-modal-card-v79c h3 { margin: 0 0 6px; font-size: 22px; font-weight: 950; }
+      .planner-modal-card-v79c p { margin: 0 0 16px; color: var(--text-muted); line-height:1.45; }
+      .planner-form-v79c { display:grid; gap: 12px; }
+      .planner-form-v79c label { font-size: 12px; font-weight:900; text-transform: uppercase; letter-spacing:.04em; color: var(--text-muted); }
+      .planner-form-v79c input, .planner-form-v79c select, .planner-form-v79c textarea { width:100%; box-sizing:border-box; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color); border-radius:14px; padding: 12px 13px; font-size: 14px; font-weight: 700; }
+      .planner-form-v79c textarea { min-height: 76px; resize: vertical; font-weight: 600; }
+      .planner-modal-actions-v79c { display:flex; justify-content:flex-end; gap: 10px; margin-top: 16px; }
+      .planner-modal-actions-v79c button { border: none; border-radius: 14px; padding: 11px 16px; font-weight: 900; cursor: pointer; }
+      .planner-cancel-v79c { background: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color) !important; }
+      .planner-save-v79c { background: var(--accent-gradient, linear-gradient(135deg,#ff9f43,#f97316)); color:#fff; }
+      @media (max-width: 760px) {
+        .matches-countbar-v79c { grid-template-columns: repeat(2, minmax(0,1fr)); }
+        .matches-filter-grid-v79c { grid-template-columns: 1fr; }
+        .match-card-v79c { grid-template-columns: 1fr; }
+        .match-image-v79c { min-height: 170px; max-height: 230px; }
+        .match-content-v79c { padding: 16px; }
+        .match-title-v79c { font-size: 19px; }
+      }
+    </style>
+
+    <div class="container matches-shell-v79c">
+        <section class="app-page-hero-v72 app-page-hero-v74" data-page-hero-v72>
+            <div class="app-page-hero-content-v72">
+                <div class="app-page-kicker-v72"><span></span><em>Match Radar</em></div>
+                <h2>Matches</h2>
+                <p>Alle wichtigen IPSC-Matches an einem Ort: geprüfte freie Startplätze von MatchSign und internationale ESS Open Events mit Planer-Anbindung.</p>
+                <div class="app-page-actions-v72 app-page-actions-v74">
+                    <a class="app-page-action-v72 primary" href="#matches-list-v79c">Matches anzeigen</a>
+                    <a class="app-page-action-v72 secondary" href="mein-planer.html">Mein Planer</a>
+                </div>
+                <div class="app-page-status-v74">Freie Plätze bleiben getrennt gekennzeichnet. ESS zeigt offene Registrierungen, aber keine geprüfte Auslastung.</div>
+            </div>
+        </section>
+
+        <div class="matches-tabs-v79c" role="tablist" aria-label="Match-Filter">
+            <button class="matches-tab-v79c active" data-tab="all" onclick="setMatchesTabV79c('all')">Alle Matches</button>
+            <button class="matches-tab-v79c" data-tab="free" onclick="setMatchesTabV79c('free')">Freie Startplätze</button>
+            <button class="matches-tab-v79c" data-tab="ess" onclick="setMatchesTabV79c('ess')">ESS Open Events</button>
+            <button class="matches-tab-v79c" data-tab="mine" onclick="setMatchesTabV79c('mine')">Meine Matches</button>
+        </div>
+
+        <div class="matches-info-v79c" id="matches-info-v79c">
+            <strong>Hinweis:</strong> MatchSign-Matches werden nur angezeigt, wenn dort freie Plätze erkannt wurden. ESS-Events zeigen nur, dass die Registrierung öffentlich offen ist; ob noch Plätze frei sind, muss auf ESS nach Login geprüft werden.
+        </div>
+
+        <div class="matches-countbar-v79c">
+            <div class="matches-count-v79c"><b id="count-all-v79c">–</b><span>Alle</span></div>
+            <div class="matches-count-v79c"><b id="count-free-v79c">–</b><span>Freie Plätze</span></div>
+            <div class="matches-count-v79c"><b id="count-ess-v79c">–</b><span>ESS</span></div>
+            <div class="matches-count-v79c"><b id="count-mine-v79c">–</b><span>Meine</span></div>
+        </div>
+
+        <div class="matches-filter-grid-v79c" id="matches-filters-v79c">
+            <select id="filter-country-v79c" onchange="applyMatchesFiltersV79c()"><option value="all">Alle Länder</option></select>
+            <select id="filter-discipline-v79c" onchange="applyMatchesFiltersV79c()"><option value="all">Alle Disziplinen</option></select>
+            <select id="filter-level-v79c" onchange="applyMatchesFiltersV79c()"><option value="all">Alle Level</option></select>
+        </div>
+
+        <div class="matches-list-v79c" id="matches-list-v79c">
+            <p class="loading-msg">Lade Match Radar …</p>
+        </div>
+    </div>
+
+    <div class="planner-modal-v79c" id="planner-modal-v79c" role="dialog" aria-modal="true" aria-labelledby="planner-modal-title-v79c">
+      <div class="planner-modal-card-v79c">
+        <h3 id="planner-modal-title-v79c">Zum Planer hinzufügen</h3>
+        <p id="planner-modal-subtitle-v79c">Wähle deinen Status für dieses Match.</p>
+        <div class="planner-form-v79c">
+          <div>
+            <label for="planner-status-v79c">Status</label>
+            <select id="planner-status-v79c">
+              <option value="Approved">Approved / Startplatz bestätigt</option>
+              <option value="Warteliste">Warteliste</option>
+              <option value="Interessiert">Interessiert</option>
+              <option value="Beobachten">Beobachten</option>
+            </select>
+          </div>
+          <div>
+            <label for="planner-division-v79c">Division / Disziplin</label>
+            <input id="planner-division-v79c" placeholder="z.B. Production Optics">
+          </div>
+          <div>
+            <label for="planner-squad-v79c">Squad / Hinweis</label>
+            <input id="planner-squad-v79c" placeholder="z.B. Squad 7 oder TBD">
+          </div>
+          <div>
+            <label for="planner-notes-v79c">Notiz</label>
+            <textarea id="planner-notes-v79c" placeholder="Optional: Hotel, Fahrgemeinschaft, Startzeiten, ESS Login geprüft …"></textarea>
+          </div>
+        </div>
+        <div class="planner-modal-actions-v79c">
+          <button class="planner-cancel-v79c" onclick="closePlannerModalV79c()">Abbrechen</button>
+          <button class="planner-save-v79c" id="planner-save-v79c" onclick="saveMatchToPlannerV79c()">Speichern</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
+            <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Rechtliche Hinweise</a>
+            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+        </div>
+    </footer>
+
+    <script src="auth.js?v=79c"></script>
+    <script src="lang.js?v=79c"></script>
+    <script src="app.js?v=79c"></script>
+
+    <script id="matches-page-v79c-script">
+    (function(){
+      if (window.__MATCHES_PAGE_V79C) return;
+      window.__MATCHES_PAGE_V79C = true;
+
+      const state = {
+        activeTab: 'all',
+        matchsign: [],
+        ess: [],
+        mine: [],
+        byKey: new Map(),
+        selected: null,
+        loadedEss: false,
+        loadedFree: false
+      };
+
+      function lang(){ return (localStorage.getItem('selectedLanguage') || window.currentLang || 'de') === 'en' ? 'en' : 'de'; }
+      function t(de, en){ return lang() === 'en' ? en : de; }
+      function el(id){ return document.getElementById(id); }
+      function esc(value){ const d=document.createElement('div'); d.textContent=value == null ? '' : String(value); return d.innerHTML; }
+      function todayIso(){ return new Date().toISOString().slice(0,10); }
+      function normalizeLevel(v){ if(!v) return ''; const s=String(v); if(/^\d+$/.test(s)) return 'Level ' + s; return s; }
+      function normalizeDate(input){
+        if(!input) return '';
+        const s=String(input).trim();
+        const iso=s.match(/20\d{2}-\d{2}-\d{2}/); if(iso) return iso[0];
+        const de=s.match(/(\d{1,2})\.(\d{1,2})\.(20\d{2})/); if(de) return `${de[3]}-${String(de[2]).padStart(2,'0')}-${String(de[1]).padStart(2,'0')}`;
+        return '';
+      }
+      function displayDate(start,end, fallback){
+        const a = start || normalizeDate(fallback);
+        const b = end || '';
+        try{
+          const ad = a ? new Date(a+'T00:00:00').toLocaleDateString(lang()==='en'?'en-GB':'de-DE') : '';
+          const bd = b && b !== a ? new Date(b+'T00:00:00').toLocaleDateString(lang()==='en'?'en-GB':'de-DE') : '';
+          return bd ? `${ad} – ${bd}` : (ad || fallback || '-');
+        }catch(_){ return fallback || a || '-'; }
+      }
+      function locationText(m){ return [m.location, m.country || m.region].filter(Boolean).join(' · ') || m.region || '-'; }
+      function itemKey(m){ return `${m.source_type || m.source || 'SRC'}:${m.external_id || m.url || m.name}`; }
+      function openOriginalUrl(m){ return m.source_url || m.registration_url || m.detail_url || m.url || '#'; }
+
+      function normalizeMatchSign(m){
+        return {
+          source_type: 'matchsign', source: 'MatchSign', external_id: m.id || m.url || m.name,
+          name: m.name || m.match_name || 'Match', discipline: m.disziplin || m.discipline || '', level: normalizeLevel(m.level || ''),
+          event_start: normalizeDate(m.datum || m.date), event_end: '', datum: m.datum || '', location: m.ort || m.location || '', country: m.country || '', region: m.region || '',
+          url: m.url || '', source_url: m.url || '', image_url: m.image_url || m.match_image_url || '', auslastung: m.auslastung || '',
+          availability_status: 'checked_free'
+        };
+      }
+      function normalizeEss(m){
+        const name = m.name || m.match_name || 'ESS Match';
+        return {
+          source_type: 'ess', source: 'ESS', external_id: m.external_id || m.id || name,
+          name, discipline: m.discipline || '', level: normalizeLevel(m.level || ''),
+          event_start: m.event_start || '', event_end: m.event_end || '', datum: '', location: m.location || '', country: m.country || '', region: m.country || '', organizer: m.organizer || '',
+          registration_start: m.registration_start || '', registration_end: m.registration_end || '',
+          detail_url: m.detail_url || '', registration_url: m.registration_url || '', source_url: m.registration_url || m.detail_url || '', image_url: m.image_url || '',
+          availability_status: m.availability_status || 'registration_open_unknown_capacity'
+        };
+      }
+
+      async function waitForClient(){
+        for(let i=0;i<30;i++){
+          const c = window.supabaseClient || (window.supabase && window.supabase.auth ? window.supabase : null);
+          if(c) return c;
+          await new Promise(r=>setTimeout(r,120));
+        }
+        return null;
+      }
+      async function loadFreeMatches(){
+        try{
+          const res = await fetch('matches.json?v=' + Date.now(), {cache:'no-store'});
+          const data = await res.json();
+          state.matchsign = Array.isArray(data) ? data.map(normalizeMatchSign) : [];
+        }catch(err){ console.warn('MatchSign matches unavailable', err); state.matchsign = []; }
+        state.loadedFree = true;
+      }
+      async function loadEssMatches(){
+        const client = await waitForClient();
+        if(!client || !client.from){ state.ess = []; return; }
+        try{
+          const { data, error } = await client.from('ess_matches')
+            .select('external_id,source,name,match_name,discipline,level,event_start,event_end,registration_start,registration_end,organizer,location,country,image_url,detail_url,registration_url,availability_status,scraped_at')
+            .gte('event_end', todayIso())
+            .order('event_start', { ascending: true })
+            .limit(300);
+          if(error) throw error;
+          state.ess = (data || []).map(normalizeEss);
+        }catch(err){ console.warn('ESS matches unavailable', err); state.ess = []; }
+        state.loadedEss = true;
+      }
+      async function loadMine(){
+        const client = await waitForClient();
+        if(!client || !client.auth) return;
+        try{
+          const { data:{session} } = await client.auth.getSession();
+          if(!session){ state.mine = []; renderCounts(); return; }
+          const { data, error } = await client.from('user_matches').select('*').order('match_date', { ascending:true }).limit(200);
+          if(error) throw error;
+          state.mine = (data || []).map(m => ({
+            source_type: 'mine', source: m.match_source || 'Planer', external_id: m.external_id || m.id,
+            name: m.match_name || 'Match', discipline: m.division || '', level: '', event_start: m.match_date || '', event_end: '',
+            location: m.match_location || '', country: '', region: '', image_url: m.image_url || '', source_url: m.source_url || m.match_url || '', status: m.status || '', squad: m.squad || '', notes: m.notes || ''
+          }));
+          renderCounts();
+        }catch(err){ console.warn('Planner matches unavailable', err); }
+      }
+
+      function currentBaseItems(){
+        if(state.activeTab === 'free') return state.matchsign;
+        if(state.activeTab === 'ess') return state.ess;
+        if(state.activeTab === 'mine') return state.mine;
+        return [...state.matchsign, ...state.ess];
+      }
+      function filterItems(items){
+        const country = el('filter-country-v79c')?.value || 'all';
+        const disc = el('filter-discipline-v79c')?.value || 'all';
+        const level = el('filter-level-v79c')?.value || 'all';
+        return items.filter(m => {
+          const c = m.country || m.region || '';
+          return (country==='all' || c === country) && (disc==='all' || (m.discipline || '') === disc) && (level==='all' || (m.level || '') === level);
+        });
+      }
+      function setupFilters(){
+        const items = currentBaseItems();
+        const countries = [...new Set(items.map(m => m.country || m.region).filter(Boolean))].sort();
+        const discs = [...new Set(items.map(m => m.discipline).filter(Boolean))].sort();
+        const levels = [...new Set(items.map(m => m.level).filter(Boolean))].sort();
+        const sets = [
+          [el('filter-country-v79c'), t('Alle Länder','All countries'), countries],
+          [el('filter-discipline-v79c'), t('Alle Disziplinen','All disciplines'), discs],
+          [el('filter-level-v79c'), t('Alle Level','All levels'), levels]
+        ];
+        sets.forEach(([select, label, values]) => {
+          if(!select) return;
+          const old = select.value;
+          select.innerHTML = `<option value="all">${esc(label)}</option>` + values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
+          select.value = values.includes(old) ? old : 'all';
+        });
+      }
+      function renderCounts(){
+        if(el('count-all-v79c')) el('count-all-v79c').textContent = state.matchsign.length + state.ess.length;
+        if(el('count-free-v79c')) el('count-free-v79c').textContent = state.matchsign.length;
+        if(el('count-ess-v79c')) el('count-ess-v79c').textContent = state.ess.length;
+        if(el('count-mine-v79c')) el('count-mine-v79c').textContent = state.mine.length;
+      }
+      function tabInfo(){
+        if(state.activeTab === 'free') return t('<strong>Freie Startplätze:</strong> Hier erscheinen nur MatchSign/ipscmatch.de-Matches, bei denen eine Auslastung unter 100 % erkannt wurde.', '<strong>Open slots:</strong> Only MatchSign/ipscmatch.de matches where occupancy below 100% was detected are shown here.');
+        if(state.activeTab === 'ess') return t('<strong>ESS Open Events:</strong> ESS zeigt öffentlich offene Registrierungen. Ob noch Startplätze verfügbar sind, kann erst nach Login auf ESS geprüft werden.', '<strong>ESS Open Events:</strong> ESS publicly shows open registrations. Actual slot availability can only be checked after logging in to ESS.');
+        if(state.activeTab === 'mine') return t('<strong>Meine Matches:</strong> Deine gespeicherten Matches aus dem Planer – inklusive Approved, Warteliste, Interessiert oder Beobachten.', '<strong>My matches:</strong> Your saved planner matches, including approved, waitlist, interested or watching.');
+        return t('<strong>Match Radar:</strong> Freie Plätze und ESS Open Events zusammen. ESS bedeutet nicht automatisch freier Startplatz.', '<strong>Match radar:</strong> Open slots and ESS Open Events combined. ESS does not automatically mean a free slot is available.');
+      }
+      function render(){
+        setupFilters(); renderCounts(); state.byKey.clear();
+        const items = filterItems(currentBaseItems());
+        const list = el('matches-list-v79c');
+        if(el('matches-info-v79c')) el('matches-info-v79c').innerHTML = tabInfo();
+        if(!list) return;
+        if(!state.loadedFree && !state.loadedEss){ list.innerHTML = `<p class="loading-msg">${t('Lade Match Radar …','Loading match radar …')}</p>`; return; }
+        if(items.length === 0){ list.innerHTML = `<div class="matches-empty-v79c">${t('Keine Matches für diese Auswahl gefunden.','No matches found for this selection.')}</div>`; return; }
+        list.innerHTML = items.map(cardHtml).join('');
+      }
+      function cardHtml(m){
+        const key = itemKey(m); state.byKey.set(key, m);
+        const isEss = m.source_type === 'ess'; const isFree = m.source_type === 'matchsign'; const isMine = m.source_type === 'mine';
+        const date = displayDate(m.event_start, m.event_end, m.datum);
+        const loc = locationText(m);
+        const original = openOriginalUrl(m);
+        const img = m.image_url ? `<img src="${esc(m.image_url)}" loading="lazy" alt="">` : `<div class="match-image-placeholder-v79c">🎯</div>`;
+        const sourceBadge = isFree ? `<span class="match-badge-v79c match-badge-free-v79c">✅ MatchSign · freie Plätze geprüft</span>` : (isEss ? `<span class="match-badge-v79c match-badge-ess-v79c">🌍 ESS Open Event</span>` : `<span class="match-badge-v79c">📌 Planer</span>`);
+        const availability = isEss ? `<span class="match-badge-v79c match-badge-warn-v79c">Auslastung unbekannt</span>` : (isFree ? `<span class="match-badge-v79c match-badge-free-v79c">Auslastung: ${esc(m.auslastung || '<100%')}</span>` : (m.status ? `<span class="match-badge-v79c">${esc(m.status)}</span>` : ''));
+        const sourceLine = isEss ? t('Anmeldung offen laut ESS · freie Plätze nach Login prüfen', 'Registration open according to ESS · check slot availability after login') : (isFree ? t('Freie Plätze laut MatchSign erkannt', 'Open slots detected by MatchSign') : t('Gespeichert im Planer', 'Saved in planner'));
+        return `
+          <article class="match-card-v79c">
+            <div class="match-image-v79c">${img}</div>
+            <div class="match-content-v79c">
+              <h3 class="match-title-v79c">${esc(m.name)}</h3>
+              <div class="match-meta-v79c">
+                <span>📅 ${esc(date)}</span>
+                <span>📍 ${esc(loc)}</span>
+                ${m.organizer ? `<span>👥 ${esc(m.organizer)}</span>` : ''}
+              </div>
+              <div class="match-badges-v79c">
+                ${sourceBadge}
+                ${availability}
+                ${m.discipline ? `<span class="match-badge-v79c">🔫 ${esc(m.discipline)}</span>` : ''}
+                ${m.level ? `<span class="match-badge-v79c">🏆 ${esc(m.level)}</span>` : ''}
+                ${m.squad ? `<span class="match-badge-v79c">Squad: ${esc(m.squad)}</span>` : ''}
+              </div>
+              <div class="match-meta-v79c">${esc(sourceLine)}</div>
+              <div class="match-actions-v79c">
+                ${!isMine ? `<button class="match-action-v79c match-action-primary-v79c" onclick="openPlannerModalV79c('${esc(key)}')">+ Zum Planer</button>` : `<a class="match-action-v79c match-action-primary-v79c" href="mein-planer.html">Planer öffnen</a>`}
+                ${original && original !== '#' ? `<a class="match-action-v79c match-action-secondary-v79c" href="${esc(original)}" target="_blank" rel="noopener noreferrer">Original öffnen</a>` : ''}
+              </div>
+            </div>
+          </article>`;
+      }
+
+      window.setMatchesTabV79c = function(tab){
+        state.activeTab = tab || 'all';
+        document.querySelectorAll('.matches-tab-v79c').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === state.activeTab));
+        render();
+        if(tab === 'mine') loadMine().then(render);
+      };
+      window.applyMatchesFiltersV79c = render;
+      window.openPlannerModalV79c = async function(key){
+        const m = state.byKey.get(key); if(!m) return;
+        const client = await waitForClient();
+        const session = client && client.auth ? (await client.auth.getSession()).data.session : null;
+        if(!session){
+          const modal = el('auth-modal'); if(modal){ modal.style.display='flex'; if(typeof toggleAuthView === 'function') toggleAuthView('login'); }
+          else alert(t('Bitte zuerst einloggen.','Please log in first.'));
+          return;
+        }
+        state.selected = m;
+        el('planner-modal-title-v79c').textContent = m.name;
+        el('planner-modal-subtitle-v79c').textContent = isEssLike(m) ? t('ESS: Auslastung unbekannt. Speichere deinen persönlichen Status im Planer.', 'ESS: Capacity unknown. Save your personal status in the planner.') : t('Speichere dieses Match in deinem Planer.', 'Save this match to your planner.');
+        el('planner-division-v79c').value = m.discipline || '';
+        el('planner-squad-v79c').value = '';
+        el('planner-notes-v79c').value = isEssLike(m) ? t('ESS-Auslastung nach Login prüfen.', 'Check ESS capacity after login.') : '';
+        el('planner-modal-v79c').style.display = 'flex';
+      };
+      function isEssLike(m){ return m && m.source_type === 'ess'; }
+      window.closePlannerModalV79c = function(){ el('planner-modal-v79c').style.display = 'none'; state.selected = null; };
+      window.saveMatchToPlannerV79c = async function(){
+        const m = state.selected; if(!m) return;
+        const btn = el('planner-save-v79c'); if(btn){ btn.disabled=true; btn.textContent=t('Speichere …','Saving …'); }
+        try{
+          const client = await waitForClient();
+          const { data:{session} } = await client.auth.getSession();
+          if(!session) throw new Error('not logged in');
+          const date = m.event_start || normalizeDate(m.datum);
+          if(!date) throw new Error(t('Dieses Match hat kein gültiges Datum.', 'This match has no valid date.'));
+          const status = el('planner-status-v79c').value;
+          const squad = el('planner-squad-v79c').value.trim();
+          const notes = el('planner-notes-v79c').value.trim();
+          const sourceUrl = openOriginalUrl(m);
+          const payloadFull = {
+            user_id: session.user.id,
+            match_name: m.name,
+            match_date: date,
+            match_location: locationText(m),
+            status: status,
+            squad: squad || null,
+            match_url: sourceUrl,
+            auto_imported: true,
+            match_source: m.source || m.source_type,
+            external_id: m.external_id || null,
+            source_url: sourceUrl,
+            image_url: m.image_url || null,
+            notes: notes || null
+          };
+          let res = await client.from('user_matches').insert([payloadFull]);
+          if(res.error){
+            console.warn('Full planner insert failed, retrying basic payload', res.error);
+            const payloadBasic = { user_id: session.user.id, match_name: m.name, match_date: date, match_location: locationText(m), status: status, squad: squad || null, match_url: sourceUrl, auto_imported: true };
+            res = await client.from('user_matches').insert([payloadBasic]);
+          }
+          if(res.error) throw res.error;
+          closePlannerModalV79c();
+          await loadMine(); render();
+          alert(t('Match wurde deinem Planer hinzugefügt.', 'Match added to your planner.'));
+        }catch(err){ alert((err && err.message) ? err.message : t('Fehler beim Speichern.', 'Error while saving.')); }
+        finally{ if(btn){ btn.disabled=false; btn.textContent=t('Speichern','Save'); } }
+      };
+
+      window.onLanguageChanged = function(){ render(); };
+      document.addEventListener('DOMContentLoaded', async function(){
+        render();
+        await Promise.all([loadFreeMatches(), loadEssMatches(), loadMine()]);
+        render();
+      });
+    })();
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('PWA Service Worker registriert!', reg.scope))
+                    .catch(err => console.error('PWA Fehler:', err));
+            });
+        }
+    </script>
+
+<script id="native-app-experience-script-v74">
+(function () {
+  if (window.__IPSC_NATIVE_EXPERIENCE_V74) return;
+  window.__IPSC_NATIVE_EXPERIENCE_V74 = true;
+
+  function activeTheme() {
+    var t = document.documentElement.getAttribute("data-theme") || window.__IPSC_ACTIVE_THEME_V74 || window.__IPSC_ACTIVE_THEME_V70 || "light";
+    return t === "dark" ? "dark" : "light";
+  }
+
+  function ensureCurtain() {
+    ["native-page-curtain-v72", "native-page-curtain-v73"].forEach(function(id){
+      var old = document.getElementById(id);
+      if (old && old.parentNode) old.parentNode.removeChild(old);
+    });
+
+    var curtain = document.getElementById("native-page-curtain-v74");
+    if (!curtain) {
+      curtain = document.createElement("div");
+      curtain.id = "native-page-curtain-v74";
+      document.body.appendChild(curtain);
+    }
+    curtain.style.background = activeTheme() === "dark" ? "#0f172a" : "#f6f8fc";
+    return curtain;
+  }
+
+  function markLoaded() {
+    document.documentElement.classList.remove("is-native-arriving-v72", "is-native-navigating-v72", "is-native-arriving-v73", "is-native-navigating-v73", "is-native-arriving-v74", "is-native-navigating-v74");
+    ensureCurtain();
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    markLoaded();
+
+    document.addEventListener("click", function (event) {
+      try { if (new URLSearchParams(window.location.search || "").get("shell") === "1") return; } catch (_) {}
+      var a = event.target.closest && event.target.closest("a[href]");
+      if (!a) return;
+
+      var href = a.getAttribute("href") || "";
+      if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:") || href.startsWith("javascript:")) return;
+      if (a.target && a.target !== "_self") return;
+      if (a.hasAttribute("download")) return;
+
+      var url;
+      try { url = new URL(href, window.location.href); } catch (_) { return; }
+      if (url.origin !== window.location.origin) return;
+      if (url.pathname === window.location.pathname && url.search === window.location.search) return;
+
+      event.preventDefault();
+      ensureCurtain();
+      document.documentElement.classList.add("is-native-navigating-v74");
+      setTimeout(function () { window.location.href = url.href; }, activeTheme() === "light" ? 92 : 54);
+    }, true);
+  });
+
+  window.addEventListener("pageshow", markLoaded);
+})();
+</script>
+
+</body>
+</html>
