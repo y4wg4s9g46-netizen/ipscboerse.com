@@ -22,8 +22,8 @@
   <title>IPSC Startplatz-Börse</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="preload" href="global.css?v=78x" as="style">
-  <link rel="stylesheet" href="global.css?v=78x">
+  <link rel="preload" href="global.css?v=79a" as="style">
+  <link rel="stylesheet" href="global.css?v=79a">
   <style id="app-spa-shell-v78">
     html, body { min-height: 100%; background: var(--bg-color, #f6f8fc); }
     body.page-app-spa { margin: 0; overflow-x: hidden; padding-bottom: 0; }
@@ -198,8 +198,59 @@
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style id="app-spa-v79a-navigation-stability">
+    body.page-app-spa.app-v79a #app-spa-view-v78 {
+      transition: none !important;
+      opacity: 1 !important;
+      will-change: auto !important;
+      contain: layout paint style !important;
+    }
+    body.page-app-spa.app-v79a .app-frame-layer-v78c,
+    body.page-app-spa.app-v79a .app-frame-layer-v78d,
+    body.page-app-spa.app-v79a .app-frame-layer-v78f,
+    body.page-app-spa.app-v79a .app-frame-layer-v78g,
+    body.page-app-spa.app-v79a .app-frame-layer-v78h,
+    body.page-app-spa.app-v79a .app-frame-layer-v78l,
+    body.page-app-spa.app-v79a .app-frame-layer-v78m {
+      transition: none !important;
+      animation: none !important;
+      will-change: auto !important;
+      transform: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      z-index: 0 !important;
+    }
+    body.page-app-spa.app-v79a .app-frame-layer-v78c.is-active,
+    body.page-app-spa.app-v79a .app-frame-layer-v78d.is-active,
+    body.page-app-spa.app-v79a .app-frame-layer-v78f.is-active,
+    body.page-app-spa.app-v79a .app-frame-layer-v78g.is-active,
+    body.page-app-spa.app-v79a .app-frame-layer-v78h.is-active,
+    body.page-app-spa.app-v79a .app-frame-layer-v78l.is-active,
+    body.page-app-spa.app-v79a .app-frame-layer-v78m.is-active {
+      opacity: 1 !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
+      z-index: 2 !important;
+    }
+    body.page-app-spa.app-v79a .app-frame-layer-v78c.is-previous,
+    body.page-app-spa.app-v79a .app-frame-layer-v78d.is-previous,
+    body.page-app-spa.app-v79a .app-frame-layer-v78f.is-previous,
+    body.page-app-spa.app-v79a .app-frame-layer-v78g.is-previous,
+    body.page-app-spa.app-v79a .app-frame-layer-v78h.is-previous,
+    body.page-app-spa.app-v79a .app-frame-layer-v78l.is-previous,
+    body.page-app-spa.app-v79a .app-frame-layer-v78m.is-previous {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      z-index: 0 !important;
+    }
+    body.page-app-spa.app-v79a #more-menu-overlay { backface-visibility: hidden !important; }
+  </style>
+
 </head>
-<body class="page-app-spa page-native-shell app-v78 app-v78h app-v78l app-v78m app-v78n app-v78o app-v78p app-v78x">
+<body class="page-app-spa page-native-shell app-v78 app-v78h app-v78l app-v78m app-v78n app-v78o app-v78p app-v78x app-v79a">
   <div id="app-shell-root-v78">
     <header id="main-header"></header>
     <aside id="ipad-sidebar-v78p" aria-label="iPad Navigation"></aside>
@@ -209,11 +260,11 @@
     window.__IPSC_UNIFIED_SPA_ACTIVE = true;
     try { document.documentElement.classList.add('is-native-shell','is-app-spa-v78'); document.body.classList.add('page-native-shell'); } catch (_) {}
   </script>
-  <script src="header.js?v=78x"></script>
-  <script src="lang.js?v=78x"></script>
-  <script src="app.js?v=78x"></script>
-  <script src="auth.js?v=78x"></script>
-  <script src="app-spa.js?v=78x"></script>
+  <script src="header.js?v=79a"></script>
+  <script src="lang.js?v=79a"></script>
+  <script src="app.js?v=79a"></script>
+  <script src="auth.js?v=79a"></script>
+  <script src="app-spa.js?v=79a"></script>
     <script src="release-i18n-v78s.js?v=78s"></script>
     <script src="release-i18n-v78u.js?v=78u"></script>
 </body>

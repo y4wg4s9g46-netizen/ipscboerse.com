@@ -233,6 +233,59 @@
 <link rel="stylesheet" href="global.css?v=76v">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
+
+<style id="home-season-style-v79a">
+.home-season-widget-v79a{
+  margin: -4px auto 28px auto;
+  padding: 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(255,159,67,.25);
+  background:
+    radial-gradient(circle at top left, rgba(255,159,67,.18), transparent 34%),
+    linear-gradient(135deg, rgba(15,23,42,.96), rgba(30,41,59,.92));
+  color:#fff;
+  box-shadow: 0 18px 45px rgba(15,23,42,.22);
+  overflow:hidden;
+  position:relative;
+}
+html[data-theme="light"] .home-season-widget-v79a{
+  background: radial-gradient(circle at top left, rgba(255,159,67,.16), transparent 34%), linear-gradient(135deg, #111827, #1f2937);
+}
+.home-season-widget-v79a::after{
+  content:"";
+  position:absolute;
+  right:-60px;
+  top:-70px;
+  width:180px;
+  height:180px;
+  border-radius:50%;
+  background:rgba(255,159,67,.18);
+  filter:blur(2px);
+  pointer-events:none;
+}
+.home-season-top-v79a{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;position:relative;z-index:1}
+.home-season-kicker-v79a{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#ffb86b;margin-bottom:6px}
+.home-season-widget-v79a h3{margin:0;font-size:24px;line-height:1.1;font-weight:950;letter-spacing:-.6px;color:#fff}
+.home-season-widget-v79a p{margin:8px 0 0 0;color:rgba(255,255,255,.72);font-size:14px;line-height:1.45;max-width:520px}
+.home-season-share-v79a{border:none;border-radius:999px;background:linear-gradient(135deg,#ff9f43,#f97316);color:#fff;font-weight:900;padding:10px 14px;white-space:nowrap;box-shadow:0 10px 24px rgba(249,115,22,.28);cursor:pointer;position:relative;z-index:1}
+.home-season-share-v79a:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+.home-season-stats-v79a{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px;position:relative;z-index:1}
+.home-season-stat-v79a{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.075);border-radius:18px;padding:14px 10px;text-align:center;backdrop-filter:blur(8px)}
+.home-season-stat-v79a strong{display:block;font-size:24px;line-height:1;font-weight:950;color:#fff;letter-spacing:-.4px}
+.home-season-stat-v79a span{display:block;margin-top:7px;font-size:11px;text-transform:uppercase;font-weight:900;letter-spacing:.05em;color:rgba(255,255,255,.65)}
+.home-season-footer-v79a{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;position:relative;z-index:1;color:rgba(255,255,255,.66);font-size:13px;line-height:1.4}
+.home-season-links-v79a{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+.home-season-links-v79a a{color:#ffb86b;text-decoration:none;font-weight:900;white-space:nowrap}
+@media (max-width: 700px){
+  .home-season-widget-v79a{border-radius:22px;padding:18px;margin-top:-8px}
+  .home-season-top-v79a{display:block}
+  .home-season-share-v79a{margin-top:14px;width:100%}
+  .home-season-stats-v79a{grid-template-columns:repeat(2,1fr)}
+  .home-season-footer-v79a{display:block}
+  .home-season-links-v79a{justify-content:flex-start;margin-top:10px}
+}
+</style>
+
 </head>
 
 <body class="page-index app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v">
@@ -271,6 +324,32 @@
                 </div>
             </section>
         </div>
+
+
+
+        <section class="home-season-widget-v79a" id="home-season-widget-v79a" hidden aria-live="polite">
+            <div class="home-season-top-v79a">
+                <div>
+                    <span class="home-season-kicker-v79a" id="home-season-kicker-v79a">🏆 Meine Saison</span>
+                    <h3 id="home-season-title-v79a">Meine Saison 2026</h3>
+                    <p id="home-season-subtitle-v79a">Deine wichtigsten Match- und Analytics-Werte auf einen Blick.</p>
+                </div>
+                <button type="button" class="home-season-share-v79a" id="home-season-share-v79a">Saison teilen</button>
+            </div>
+            <div class="home-season-stats-v79a">
+                <div class="home-season-stat-v79a"><strong id="season-matches-v79a">–</strong><span id="season-label-matches-v79a">Matches</span></div>
+                <div class="home-season-stat-v79a"><strong id="season-top10-v79a">–</strong><span id="season-label-top10-v79a">Top 10</span></div>
+                <div class="home-season-stat-v79a"><strong id="season-wins-v79a">–</strong><span id="season-label-wins-v79a">Siege</span></div>
+                <div class="home-season-stat-v79a"><strong id="season-avg-v79a">–</strong><span id="season-label-avg-v79a">Ø Platzierung</span></div>
+            </div>
+            <div class="home-season-footer-v79a">
+                <span id="home-season-status-v79a">Lade Saisonwerte …</span>
+                <div class="home-season-links-v79a">
+                    <a href="analytics.html" id="home-season-analytics-link-v79a">Zu Analytics →</a>
+                    <a href="schiessbuch.html" id="home-season-log-link-v79a">Zum Schießbuch →</a>
+                </div>
+            </div>
+        </section>
 
         <div class="home-section-separator-v76"></div>
 
@@ -555,6 +634,198 @@
   window.onLanguageChanged=function(){ if(typeof oldLangHook==='function') oldLangHook(); renderFavs(); renderOptions(); };
   document.addEventListener('DOMContentLoaded', renderFavs);
   renderFavs();
+})();
+</script>
+
+
+<script id="home-season-script-v79a">
+(function(){
+  if (window.__IPSC_HOME_SEASON_V79A) return;
+  window.__IPSC_HOME_SEASON_V79A = true;
+
+  var YEAR = new Date().getFullYear();
+  var latestSummary = null;
+  var I18N = {
+    de: {
+      kicker:'🏆 Meine Saison', title:'Meine Saison ' + YEAR, subtitle:'Deine wichtigsten Match- und Analytics-Werte auf einen Blick.',
+      share:'Saison teilen', matches:'Matches', top10:'Top 10', wins:'Siege', avg:'Ø Platzierung', loading:'Lade Saisonwerte …',
+      noData:'Noch keine Auswertung vorhanden. Sobald Match-Ergebnisse importiert sind, erscheint hier dein Saisonstand.',
+      noOverall:'Matches gefunden. Top 10, Siege und Ø Platzierung werden angezeigt, sobald Overall-Ergebnisse vorhanden sind.',
+      ok:'Aktualisiert aus deinen gespeicherten Match-Analysen.', analytics:'Zu Analytics →', log:'Zum Schießbuch →',
+      shareTitle:'Meine IPSC Saison ' + YEAR, shareMade:'Erstellt mit IPSC Börse', shareCta:'IPSC Börse entdecken', shareError:'Teilen wird auf diesem Gerät nicht unterstützt.'
+    },
+    en: {
+      kicker:'🏆 My season', title:'My season ' + YEAR, subtitle:'Your most important match and analytics stats at a glance.',
+      share:'Share season', matches:'Matches', top10:'Top 10', wins:'Wins', avg:'Avg. placement', loading:'Loading season stats …',
+      noData:'No analytics yet. Once match results are imported, your season summary will appear here.',
+      noOverall:'Matches found. Top 10, wins and average placement appear once overall results are available.',
+      ok:'Updated from your stored match analytics.', analytics:'Go to analytics →', log:'Go to logbook →',
+      shareTitle:'My IPSC season ' + YEAR, shareMade:'Created with IPSC Börse', shareCta:'Discover IPSC Börse', shareError:'Sharing is not supported on this device.'
+    }
+  };
+  function lang(){ return (localStorage.getItem('selectedLanguage') || window.currentLang || 'de') === 'en' ? 'en' : 'de'; }
+  function txt(k){ return (I18N[lang()] && I18N[lang()][k]) || I18N.de[k] || k; }
+  function el(id){ return document.getElementById(id); }
+  function set(id, value){ var x=el(id); if(x) x.textContent = value; }
+  function applyTexts(){
+    set('home-season-kicker-v79a', txt('kicker'));
+    set('home-season-title-v79a', txt('title'));
+    set('home-season-subtitle-v79a', txt('subtitle'));
+    set('home-season-share-v79a', txt('share'));
+    set('season-label-matches-v79a', txt('matches'));
+    set('season-label-top10-v79a', txt('top10'));
+    set('season-label-wins-v79a', txt('wins'));
+    set('season-label-avg-v79a', txt('avg'));
+    set('home-season-analytics-link-v79a', txt('analytics'));
+    set('home-season-log-link-v79a', txt('log'));
+    if(!latestSummary) set('home-season-status-v79a', txt('loading'));
+  }
+  function waitForClient(){
+    return new Promise(function(resolve){
+      var attempts=0;
+      (function tick(){
+        var c = window.supabaseClient || ((window.supabase && window.supabase.auth) ? window.supabase : null);
+        if(c) return resolve(c);
+        if(++attempts > 24) return resolve(null);
+        setTimeout(tick, 125);
+      })();
+    });
+  }
+  function numRank(v){
+    if(v === null || v === undefined) return null;
+    var n = parseInt(String(v).replace(/[^0-9]/g,''),10);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  }
+  function rowYear(row){
+    var fields = ['match_date','event_date','date','created_at','updated_at'];
+    for(var i=0;i<fields.length;i++){
+      var v = row[fields[i]];
+      if(!v) continue;
+      var d = new Date(v);
+      if(!isNaN(d.getTime())) return d.getFullYear();
+      var m = String(v).match(/(20\d{2})/);
+      if(m) return parseInt(m[1],10);
+    }
+    var name = String(row.match_name || '');
+    var n = name.match(/(20\d{2})/);
+    return n ? parseInt(n[1],10) : null;
+  }
+  function computeSummary(rows){
+    rows = rows || [];
+    var dated = rows.some(function(r){ return rowYear(r); });
+    var seasonRows = dated ? rows.filter(function(r){ return rowYear(r) === YEAR; }) : rows;
+    var matchMap = new Map();
+    seasonRows.forEach(function(r){
+      var key = r.match_id || r.match_name;
+      if(key) matchMap.set(key, r.match_name || key);
+    });
+    var overallMap = new Map();
+    seasonRows.forEach(function(r){
+      var name = String(r.stage_name || '').toLowerCase();
+      if(name.indexOf('overall') === -1 && name.indexOf('match results') === -1) return;
+      var rank = numRank(r.stage_rank || r.rank || r.overall_rank || r.placement || r.place);
+      if(!rank) return;
+      var key = r.match_id || r.match_name || name;
+      var prev = overallMap.get(key);
+      if(!prev || rank < prev.rank) overallMap.set(key, {rank:rank, name:r.match_name || key});
+    });
+    var ranks = Array.from(overallMap.values()).map(function(x){return x.rank;});
+    var avg = ranks.length ? (ranks.reduce(function(a,b){return a+b;},0) / ranks.length) : null;
+    return {
+      matches: matchMap.size,
+      top10: ranks.length ? ranks.filter(function(r){return r<=10;}).length : null,
+      wins: ranks.length ? ranks.filter(function(r){return r===1;}).length : null,
+      avg: avg,
+      overallCount: ranks.length,
+      hasAny: seasonRows.length > 0
+    };
+  }
+  function renderSummary(summary){
+    latestSummary = summary;
+    var box = el('home-season-widget-v79a');
+    if(!box) return;
+    box.hidden = false;
+    set('season-matches-v79a', summary.matches || 0);
+    set('season-top10-v79a', summary.top10 === null ? '–' : summary.top10);
+    set('season-wins-v79a', summary.wins === null ? '–' : summary.wins);
+    set('season-avg-v79a', summary.avg === null ? '–' : summary.avg.toFixed(1).replace('.', ','));
+    var status = !summary.hasAny ? txt('noData') : (summary.overallCount ? txt('ok') : txt('noOverall'));
+    set('home-season-status-v79a', status);
+    var btn=el('home-season-share-v79a'); if(btn) btn.disabled = !summary.hasAny;
+  }
+  async function init(){
+    applyTexts();
+    var box = el('home-season-widget-v79a');
+    if(!box) return;
+    var client = await waitForClient();
+    if(!client || !client.auth) return;
+    try{
+      var res = await client.auth.getSession();
+      var session = res && res.data && res.data.session;
+      if(!session || !session.user) return;
+      box.hidden = false;
+      set('home-season-status-v79a', txt('loading'));
+      var q = await client.from('user_match_analytics')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .limit(1500);
+      if(q.error) throw q.error;
+      renderSummary(computeSummary(q.data || []));
+    }catch(err){
+      console.warn('season summary unavailable', err);
+      if(box) box.hidden = true;
+    }
+  }
+  function roundRect(ctx, x, y, w, h, r){
+    ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+  }
+  async function shareSeason(){
+    if(!latestSummary || !latestSummary.hasAny) return;
+    var l = lang();
+    var c = document.createElement('canvas'); c.width = 1200; c.height = 1200;
+    var ctx = c.getContext('2d');
+    var g = ctx.createLinearGradient(0,0,1200,1200); g.addColorStop(0,'#0f172a'); g.addColorStop(.55,'#111827'); g.addColorStop(1,'#431407');
+    ctx.fillStyle = g; ctx.fillRect(0,0,1200,1200);
+    ctx.fillStyle='rgba(255,159,67,.18)'; ctx.beginPath(); ctx.arc(1040,120,260,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.06)'; roundRect(ctx,90,90,1020,1020,54); ctx.fill();
+    ctx.strokeStyle='rgba(255,159,67,.45)'; ctx.lineWidth=3; ctx.stroke();
+    ctx.fillStyle='#ff9f43'; ctx.font='900 54px system-ui, -apple-system, Segoe UI, sans-serif'; ctx.fillText('IPSC Börse',120,180);
+    ctx.fillStyle='#fff'; ctx.font='950 78px system-ui, -apple-system, Segoe UI, sans-serif'; ctx.fillText(txt('shareTitle'),120,300);
+    ctx.fillStyle='rgba(255,255,255,.72)'; ctx.font='600 30px system-ui, -apple-system, Segoe UI, sans-serif'; ctx.fillText(l==='en'?'My current match analytics summary':'Mein aktueller Saisonstand aus den Match-Analysen',120,350);
+    var stats = [
+      [txt('matches'), latestSummary.matches || 0],
+      [txt('top10'), latestSummary.top10 === null ? '–' : latestSummary.top10],
+      [txt('wins'), latestSummary.wins === null ? '–' : latestSummary.wins],
+      [txt('avg'), latestSummary.avg === null ? '–' : latestSummary.avg.toFixed(1).replace('.', ',')]
+    ];
+    stats.forEach(function(s,i){
+      var x = 120 + (i%2)*500, y = 440 + Math.floor(i/2)*240;
+      ctx.fillStyle='rgba(255,255,255,.10)'; roundRect(ctx,x,y,450,180,32); ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,.14)'; ctx.lineWidth=2; ctx.stroke();
+      ctx.fillStyle='#fff'; ctx.font='950 72px system-ui, -apple-system, Segoe UI, sans-serif'; ctx.fillText(String(s[1]), x+34, y+88);
+      ctx.fillStyle='rgba(255,255,255,.72)'; ctx.font='900 30px system-ui, -apple-system, Segoe UI, sans-serif'; ctx.fillText(s[0], x+34, y+135);
+    });
+    ctx.fillStyle='#ff9f43'; ctx.font='900 34px system-ui, -apple-system, Segoe UI, sans-serif'; ctx.fillText(txt('shareMade'),120,1025);
+    ctx.fillStyle='rgba(255,255,255,.72)'; ctx.font='700 28px system-ui, -apple-system, Segoe UI, sans-serif'; ctx.fillText(txt('shareCta'),120,1070);
+    c.toBlob(async function(blob){
+      try{
+        var file = new File([blob], 'ipsc-boerse-saison-' + YEAR + '.png', {type:'image/png'});
+        if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+          await navigator.share({title:txt('shareTitle'), text:txt('shareMade'), files:[file]});
+        } else {
+          var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=file.name; a.click(); setTimeout(function(){URL.revokeObjectURL(a.href);},1500);
+        }
+      }catch(e){ alert(txt('shareError')); }
+    }, 'image/png', .92);
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    applyTexts();
+    var b = el('home-season-share-v79a'); if(b) b.addEventListener('click', shareSeason);
+    init();
+  });
+  window.addEventListener('storage', function(e){ if(e && e.key === 'selectedLanguage') applyTexts(); });
+  var oldLangHook = window.onLanguageChanged;
+  window.onLanguageChanged = function(){ if(typeof oldLangHook === 'function') oldLangHook(); applyTexts(); };
 })();
 </script>
 

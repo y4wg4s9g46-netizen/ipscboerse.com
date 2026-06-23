@@ -3,12 +3,12 @@
    Instead of extracting/replaying page DOM, every app view is the original page inside a same-origin iframe.
    This preserves layout, translations, data loading and page-specific scripts from the backup line.
 */
-(function IPSCAppFrameSpaV78X(){
-  if (window.__IPSC_APP_FRAME_SPA_V78X) return;
-  window.__IPSC_APP_FRAME_SPA_V78X = true;
+(function IPSCAppFrameSpaV78Z(){
+  if (window.__IPSC_APP_FRAME_SPA_V78Z) return;
+  window.__IPSC_APP_FRAME_SPA_V78Z = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
 
-  const VERSION = '78x';
+  const VERSION = '78z';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -165,10 +165,11 @@
     frameAccess: new Map(),
     pending: new Map(),
     navSerial: 0,
+    navLockedUntil: 0,
     booted: false
   };
 
-  const MAX_CACHED_FRAMES_V78X = 4;
+  const MAX_CACHED_FRAMES_V78X = 3;
   function touchFrameV78x(view){
     try { state.frameAccess.set(view.key, Date.now()); } catch (_) {}
   }
@@ -265,8 +266,8 @@
 
   function restoreShellChrome(){
     try {
-      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l','is-app-spa-v78m','is-app-spa-v78n','is-app-spa-v78p','is-app-spa-v78x');
-      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l','app-v78m','app-v78n','app-v78o','app-v78p','app-v78x');
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l','is-app-spa-v78m','is-app-spa-v78n','is-app-spa-v78p','is-app-spa-v78x','is-app-spa-v78z');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l','app-v78m','app-v78n','app-v78o','app-v78p','app-v78x','app-v78z');
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
       window.scrollTo(0, 0);
@@ -306,8 +307,8 @@
 
   function markApp(){
     try {
-      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l','is-app-spa-v78m','is-app-spa-v78n','is-app-spa-v78p','is-app-spa-v78x');
-      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l','app-v78m','app-v78n','app-v78o','app-v78p','app-v78x');
+      document.documentElement.classList.add('is-native-shell','is-app-spa-v78','is-app-spa-v78h','is-app-spa-v78l','is-app-spa-v78m','is-app-spa-v78n','is-app-spa-v78p','is-app-spa-v78x','is-app-spa-v78z');
+      document.body.classList.add('page-native-shell','page-app-spa','app-v78','app-v78h','app-v78l','app-v78m','app-v78n','app-v78o','app-v78p','app-v78x','app-v78z');
       document.body.classList.remove('app-v78b','app-v78c','app-v78d','app-v78e','app-v78f','app-v78g');
     } catch (_) {}
   }
@@ -454,7 +455,11 @@
     } catch (_) {}
   }
 
+  let lastAuthRefreshV78z = 0;
   function broadcastAuthRefresh(){
+    const nowV78z = Date.now();
+    if (nowV78z - lastAuthRefreshV78z < 1200) return;
+    lastAuthRefreshV78z = nowV78z;
     try { broadcast({ type: 'ipsc-auth-refresh-v78d' }); } catch (_) {}
     try {
       if (window.supabaseClient && window.supabaseClient.auth) {
@@ -583,11 +588,15 @@
       opts.replace = true;
     }
     if (state.activeKey === view.key && !opts.force) return true;
+    const nowNavV78z = Date.now();
+    if (!opts.force && state.navLockedUntil && nowNavV78z < state.navLockedUntil) return false;
+    state.navLockedUntil = nowNavV78z + 340;
     const serial = ++state.navSerial;
     const frame = getFrame(view);
     if (!frame) return false;
 
-    applyTheme(getTheme());
+    // v78z: Navigation selbst löst keinen Theme-Broadcast mehr aus.
+    // Theme wird nur auf den aktiven Frame gesetzt, dadurch weniger Repaints/Akku-Last.
     restoreShellChrome();
     updateChrome(view);
 
@@ -602,7 +611,11 @@
       if (serial !== state.navSerial) return true;
       setFrameTheme(frame, getTheme());
       setFrameLang(frame, getLang());
-      if (!view.hash) { scrollFrameToTop(frame); try { const main = document.getElementById('app-spa-view-v78'); if (main) main.scrollTop = 0; window.scrollTo(0,0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; } catch (_) {} setTimeout(function(){ scrollFrameToTop(frame); }, 120); setTimeout(function(){ scrollFrameToTop(frame); }, 420); }
+      if (!view.hash) {
+        scrollFrameToTop(frame);
+        try { const main = document.getElementById('app-spa-view-v78'); if (main) main.scrollTop = 0; window.scrollTo(0,0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; } catch (_) {}
+        setTimeout(function(){ scrollFrameToTop(frame); }, 90);
+      }
       frame.classList.add('is-active');
       frame.classList.remove('is-previous');
       if (previous && previous !== frame) {
@@ -617,7 +630,7 @@
       restoreShellChrome();
       if (!opts.replace && history.pushState) history.pushState({ view: view.file + (view.search || '') + (view.hash || '') }, '', appUrlFor(view));
       try { frame.contentWindow && frame.contentWindow.postMessage({ type: 'ipsc-app-active-v78d', view: view.file, theme: getTheme(), lang: getLang() }, window.location.origin); } catch (_) {}
-      setTimeout(broadcastAuthRefresh, 40);
+      // v78z: kein Auth-Broadcast nach jedem Seitenwechsel; Seiten fragen bei Bedarf selbst an.
       return true;
     } catch (err) {
       console.error('v78d navigation failed', view, err);
@@ -641,6 +654,12 @@
 
   function interceptClicks(){
     document.addEventListener('click', function(ev){
+      const moreBtnTap = ev.target && ev.target.closest && ev.target.closest('#btn-more-menu');
+      if (moreBtnTap) {
+        try { ev.preventDefault(); ev.stopImmediatePropagation(); } catch (_) {}
+        if (typeof window.toggleMoreMenu === 'function') window.toggleMoreMenu(ev);
+        return;
+      }
       const closeBtn = ev.target && ev.target.closest && ev.target.closest('#btn-close-modal, #btn-close-chat, .modal-close-trigger, [data-modal-close]');
       if (closeBtn) {
         closeShellModalV78m();
@@ -731,6 +750,7 @@
     if (history.replaceState) history.replaceState({ view: initial }, '', appUrlFor(normalizeView(initial)));
     await checkClubAccessV78v();
     await navigate(initial, { replace: true, force: true });
+    setTimeout(broadcastAuthRefresh, 250);
     installMoreMenuGuardV78x();
     setTimeout(installMoreMenuGuardV78x, 250);
     // prewarm() bleibt in v78x deaktiviert

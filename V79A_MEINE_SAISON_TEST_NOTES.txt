@@ -1,0 +1,16 @@
+IPSC Börse v79a Meine Saison Test
+
+Basis: v78z Navigation Stability Hotfix.
+
+Neu:
+- Startseite zeigt eingeloggten Nutzern eine kompakte Karte "Meine Saison <Jahr>".
+- Leichte Supabase-Abfrage auf user_match_analytics, blockiert die Startseite nicht.
+- Werte: Matches, Top 10, Siege, Ø Platzierung.
+- Top 10/Siege/Ø Platzierung nutzen Overall-Zeilen, wenn vorhanden.
+- Button "Saison teilen" erzeugt eine PNG-Share-Card via Canvas und öffnet, wenn möglich, das native Teilen-Menü.
+- Bei fehlenden Analytics-Daten bleibt die Karte ausgeblendet oder zeigt einen neutralen Hinweis.
+- iOS Marketing-Version 1.0.1, Build 34.
+
+Hinweis:
+- Für produktive Performance später besser Supabase View/RPC user_season_summary nutzen.
+- ESS-Portal-Import sollte als Backend-Job/Edge Function umgesetzt werden, nicht clientseitig in der App.
