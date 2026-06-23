@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79m-future-only';
+const CACHE_NAME = 'ipscboerse-v79l-image-direct';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
