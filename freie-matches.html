@@ -249,13 +249,6 @@
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 
-
-<style id="match-image-direct-v79l">
-.match-image-v79c{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(255,159,67,.10),rgba(59,130,246,.08));}
-.match-image-v79c img.match-img-v79l{width:100%;height:100%;min-height:178px;object-fit:contain;display:block;background:#f8fafc;}
-.match-image-v79c.has-img-v79l .match-image-placeholder-v79c{display:none!important;}
-.match-image-v79c .match-image-placeholder-v79c{min-height:178px;}
-</style>
 <style id="match-image-storage-v79k">
 .match-image-v79c{background:linear-gradient(135deg,rgba(255,159,67,.10),rgba(59,130,246,.08));display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .match-image-box-v79j{width:100%;height:100%;min-height:178px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(135deg,rgba(255,159,67,.08),rgba(59,130,246,.08));}
@@ -265,7 +258,7 @@
 </style>
 
 </head>
-<body class="page-freie-matches page-matches app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v app-v79c-matches">
+<body class="page-freie-matches page-matches app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v app-v79c-matches app-v79m-future-matches">
 
     <header id="main-header"></header>
     <script src="header.js?v=79c"></script>
@@ -457,38 +450,11 @@
         if(compact.includes('handgun') || compact === 'hg' || compact === 'hgn') return 'Handgun';
         return s.length <= 30 ? s : '';
       }
-      function normalizeImageUrl(url){
-        if(url === null || url === undefined) return '';
-        let s = String(url).trim();
-        if(!s || s.toLowerCase() === 'null' || s.toLowerCase() === 'undefined') return '';
-        // Repariert typische Copy/DB-Formatfehler: Leerzeichen/Zeilenbruch in Storage-URLs, https:|/ usw.
-        s = s.replace(/\s+/g, '');
-        s = s.replace(/^https:\|\//i, 'https://').replace(/^http:\|\//i, 'http://');
-        s = s.replace(/^https:\/([^/])/i, 'https://$1').replace(/^http:\/([^/])/i, 'http://$1');
-        return s;
-      }
-      function imageFromRecord(m){
-        if(!m) return '';
-        const candidates = [
-          m.image_url,
-          m.storage_image_url,
-          m.image_storage_url,
-          m.public_image_url,
-          m.original_image_url,
-          m.match_image_url,
-          m.logo_url
-        ];
-        for(const c of candidates){
-          const u = normalizeImageUrl(c);
-          if(isProbablyUrl(u)) return u;
-        }
-        return '';
-      }
       function isProbablyUrl(url){
         if(!url) return false;
-        const s = normalizeImageUrl(url);
+        const s = String(url).trim();
         if(!/^https?:\/\//i.test(s)) return false;
-        if(/[<>'"]/ .test(s)) return false;
+        if(/[<>'"]/.test(s)) return false;
         return true;
       }
       function hasFreeSlot(m){
@@ -506,6 +472,16 @@
         const de=s.match(/(\d{1,2})\.(\d{1,2})\.(20\d{2})/); if(de) return `${de[3]}-${String(de[2]).padStart(2,'0')}-${String(de[1]).padStart(2,'0')}`;
         return '';
       }
+      function matchEndOrStartDate(m){
+        if(!m) return '';
+        return normalizeDate(m.event_end || m.end_date || m.datum_bis || m.date_end || '')
+            || normalizeDate(m.event_start || m.match_date || m.date || m.datum || '');
+      }
+      function isUpcomingMatch(m){
+        const d = matchEndOrStartDate(m);
+        if(!d) return false;
+        return d >= todayIso();
+      }
       function displayDate(start,end, fallback){
         const a = start || normalizeDate(fallback);
         const b = end || '';
@@ -522,7 +498,7 @@
       function normalizeMatchSign(m){
         const occ = Number(m.occupancy_percent ?? m.auslastung_percent ?? String(m.auslastung || '').replace(/[^0-9.]/g,''));
         const free = hasFreeSlot(m);
-        const image = imageFromRecord(m);
+        const image = isProbablyUrl(m.image_url || m.match_image_url || m.logo_url || '') ? String(m.image_url || m.match_image_url || m.logo_url || '').trim() : '';
         return {
           source_type: 'matchsign', source: 'MatchSign', external_id: m.id || m.url || m.name,
           name: m.name || m.match_name || 'Match', discipline: normalizeDiscipline(m.disziplin || m.discipline || ''), level: normalizeLevel(m.level || ''),
@@ -535,7 +511,7 @@
       }
       function normalizeEss(m){
         const name = m.name || m.match_name || 'ESS Match';
-        const image = imageFromRecord(m);
+        const image = isProbablyUrl(m.image_url || '') ? String(m.image_url || '').trim() : '';
         return {
           source_type: 'ess', source: 'ESS', external_id: m.external_id || m.id || name,
           name, discipline: normalizeDiscipline(m.discipline || ''), level: normalizeLevel(m.level || ''),
@@ -564,8 +540,8 @@
       async function loadFreeMatches(){
         const allData = await fetchJsonIfExists('matches_all.json') || await fetchJsonIfExists('matches.json') || [];
         const freeData = await fetchJsonIfExists('matches_free.json');
-        const all = allData.map(normalizeMatchSign).filter(m => m.name && m.name !== 'Match');
-        const free = (freeData ? freeData.map(normalizeMatchSign) : all.filter(m => m.has_free_slots || m.availability_status === 'checked_free'));
+        const all = allData.map(normalizeMatchSign).filter(m => m.name && m.name !== 'Match').filter(isUpcomingMatch);
+        const free = (freeData ? freeData.map(normalizeMatchSign).filter(isUpcomingMatch) : all.filter(m => m.has_free_slots || m.availability_status === 'checked_free'));
         // Alte Backends hatten matches.json schon als reine Freie-Matches-Datei. Dann darf der Free-Tab nicht leer sein.
         state.matchsign = all;
         state.matchsignFree = free.length ? free : all;
@@ -576,12 +552,12 @@
         if(!client || !client.from){ state.ess = []; return; }
         try{
           const { data, error } = await client.from('ess_matches')
-            .select('external_id,source,name,match_name,discipline,level,event_start,event_end,registration_start,registration_end,organizer,location,country,image_url,original_image_url,detail_url,registration_url,availability_status,scraped_at')
+            .select('external_id,source,name,match_name,discipline,level,event_start,event_end,registration_start,registration_end,organizer,location,country,image_url,detail_url,registration_url,availability_status,scraped_at')
             .gte('event_end', todayIso())
             .order('event_start', { ascending: true })
             .limit(300);
           if(error) throw error;
-          state.ess = (data || []).map(normalizeEss);
+          state.ess = (data || []).map(normalizeEss).filter(isUpcomingMatch);
         }catch(err){ console.warn('ESS matches unavailable', err); state.ess = []; }
         state.loadedEss = true;
       }
@@ -596,8 +572,8 @@
           state.mine = (data || []).map(m => ({
             source_type: 'mine', source: m.match_source || 'Planer', external_id: m.external_id || m.id,
             name: m.match_name || 'Match', discipline: m.division || '', level: '', event_start: m.match_date || '', event_end: '',
-            location: m.match_location || '', country: '', region: '', image_url: imageFromRecord(m), source_url: m.source_url || m.match_url || '', status: m.status || '', squad: m.squad || '', notes: m.notes || ''
-          }));
+            location: m.match_location || '', country: '', region: '', image_url: m.image_url || '', source_url: m.source_url || m.match_url || '', status: m.status || '', squad: m.squad || '', notes: m.notes || ''
+          })).filter(isUpcomingMatch);
           renderCounts();
         }catch(err){ console.warn('Planner matches unavailable', err); }
       }
@@ -613,6 +589,7 @@
         const disc = el('filter-discipline-v79c')?.value || 'all';
         const level = el('filter-level-v79c')?.value || 'all';
         return items.filter(m => {
+          if(!isUpcomingMatch(m)) return false;
           const c = m.country || m.region || '';
           return (country==='all' || c === country) && (disc==='all' || (m.discipline || '') === disc) && (level==='all' || (m.level || '') === level);
         });
@@ -655,7 +632,7 @@
         if(!state.loadedFree && !state.loadedEss){ list.innerHTML = `<p class="loading-msg">${t('Lade Match Radar …','Loading match radar …')}</p>`; return; }
         if(items.length === 0){ list.innerHTML = `<div class="matches-empty-v79c">${t('Keine Matches für diese Auswahl gefunden.','No matches found for this selection.')}</div>`; return; }
         list.innerHTML = items.map(cardHtml).join('');
-        // v79l: Bilder werden direkt gerendert; kein nachträglicher Hydrator nötig.
+        hydrateMatchImagesV79j(list);
       }
       function cardHtml(m){
         const key = itemKey(m); state.byKey.set(key, m);
@@ -663,10 +640,8 @@
         const date = displayDate(m.event_start, m.event_end, m.datum);
         const loc = locationText(m);
         const original = openOriginalUrl(m);
-        const imgUrl = imageFromRecord(m);
-        const img = imgUrl
-          ? `<img class="match-img-v79l" src="${esc(imgUrl)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="" onload="this.parentElement.classList.add('has-img-v79l')" onerror="this.remove()"><div class="match-image-placeholder-v79c">🎯</div>`
-          : `<div class="match-image-placeholder-v79c">🎯</div>`;
+        const imgUrl = isProbablyUrl(m.image_url) ? m.image_url : '';
+        const img = `<div class="match-image-box-v79j" data-img="${esc(imgUrl)}"><div class="match-image-placeholder-v79c">🎯</div></div>`;
         const sourceBadge = isFree ? `<span class="match-badge-v79c match-badge-free-v79c">✅ MatchSign · freie Plätze geprüft</span>` : (isEss ? `<span class="match-badge-v79c match-badge-ess-v79c">🌍 ESS Open Event</span>` : `<span class="match-badge-v79c">📌 Planer</span>`);
         const availability = isEss ? `<span class="match-badge-v79c match-badge-warn-v79c">Auslastung unbekannt</span>` : (isFree ? `<span class="match-badge-v79c match-badge-free-v79c">${m.has_free_slots ? 'Freie Plätze' : 'MatchSign'}${m.auslastung ? ' · ' + esc(m.auslastung) : ''}</span>` : (m.status ? `<span class="match-badge-v79c">${esc(m.status)}</span>` : ''));
         const sourceLine = isEss ? t('Anmeldung offen laut ESS · freie Plätze nach Login prüfen', 'Registration open according to ESS · check slot availability after login') : (isFree ? (m.auslastung ? `Auslastung: ${esc(m.auslastung)}` : t('Freie Plätze laut MatchSign erkannt', 'Open slots detected by MatchSign')) : t('Gespeichert im Planer', 'Saved in planner'));
@@ -783,7 +758,6 @@
       };
 
       window.onLanguageChanged = function(){ render(); };
-      console.log('MATCHES_IMAGE_DIRECT_V79L');
       document.addEventListener('DOMContentLoaded', async function(){
         render();
         await Promise.all([loadFreeMatches(), loadEssMatches(), loadMine()]);
