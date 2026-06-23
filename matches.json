@@ -1,146 +1,189 @@
 [
     {
-        "name": "Allauch Crow Cup 2026",
+        "name": "Allauch Crow Cup 2026",
         "datum": "05.07.2026",
         "auslastung": "79%",
         "region": "FRA",
         "level": "2",
         "disziplin": "HG",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_Allauch_Crow_Cup"
+        "url": "https://www.ipscmatch.de/index.pl?match=2026_Allauch_Crow_Cup",
+        "image_url": null,
+        "source": "MatchSign"
     },
     {
-        "name": "Bracara Augusta Match 2026",
+        "name": "Bracara Augusta Match 2026",
         "datum": "11.07.2026",
         "auslastung": "84%",
         "region": "POR",
         "level": "3",
         "disziplin": "HG",
-        "url": "https://www.ipscmatch.de/index.pl?match=Bracara_Augusta_Match_-_2026"
+        "url": "https://www.ipscmatch.de/index.pl?match=Bracara_Augusta_Match_-_2026",
+        "image_url": null,
+        "source": "MatchSign"
     },
     {
-        "name": "2. PengPeng Parchim  PCC",
+        "name": "2. PengPeng Parchim PCC",
         "datum": "19.07.2026",
         "auslastung": "33%",
         "region": "GER",
         "level": "1",
         "disziplin": "PCC",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_1._PengPeng_Parchim_PCC"
+        "url": "https://www.ipscmatch.de/index.pl?match=2026_1._PengPeng_Parchim_PCC",
+        "image_url": null,
+        "source": "MatchSign"
     },
     {
-        "name": "3. PengPeng Parchim  HG",
+        "name": "3. PengPeng Parchim HG",
         "datum": "19.07.2026",
         "auslastung": "78%",
         "region": "GER",
         "level": "1",
         "disziplin": "HG",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_3._PengPeng_Parchim_HG"
+        "url": "https://www.ipscmatch.de/index.pl?match=2026_3._PengPeng_Parchim_HG",
+        "image_url": null,
+        "source": "MatchSign"
     },
     {
-        "name": "RLP Shotgun Cup 2026",
+        "name": "RLP Shotgun Cup 2026",
         "datum": "26.07.2026",
         "auslastung": "76%",
         "region": "GER",
         "level": "3",
         "disziplin": "SG",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_LV5_LM_IPSC_SG"
+        "url": "https://www.ipscmatch.de/index.pl?match=2026_LV5_LM_IPSC_SG",
+        "image_url": "https://ipscmatch.de/wiki/images/6/60/LV5_Logo.png",
+        "source": "MatchSign"
     },
     {
-        "name": "Bracara Action Air 2026",
+        "name": "Bracara Action Air 2026",
         "datum": "09.08.2026",
         "auslastung": "1%",
         "region": "POR",
         "level": "",
         "disziplin": "Action Air",
-        "url": "https://www.ipscmatch.de/index.pl?match=Bracara_Action_Air_-_2026"
+        "url": "https://www.ipscmatch.de/index.pl?match=Bracara_Action_Air_-_2026",
+        "image_url": null,
+        "source": "MatchSign"
     },
     {
-        "name": "Hubertus Summercup 2026 PCC",
+        "name": "Hubertus Summercup 2026 PCC",
         "datum": "31.08.2026",
         "auslastung": "89%",
         "region": "GER",
         "level": "2",
         "disziplin": "PCC",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_Hubertus_Summercup_PCC"
+        "url": "https://www.ipscmatch.de/index.pl?match=2026_Hubertus_Summercup_PCC",
+        "image_url": "https://ipscmatch.de/wiki/images/d/df/Hubertus_WND.jpg",
+        "source": "MatchSign"
     },
     {
-        "name": "Racan Shotgun Trophy 2026",
+        "name": "Racan Shotgun Trophy 2026",
         "datum": "05.09.2026",
         "auslastung": "77%",
         "region": "FRA",
         "level": "3",
         "disziplin": "SG",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_Racan_Shotgun_Trophy_2026"
+        "url": "https://www.ipscmatch.de/index.pl?match=2026_Racan_Shotgun_Trophy_2026",
+        "image_url": null,
+        "source": "MatchSign"
     },
     {
-        "name": "11. Heidberg-Cup",
+        "name": "11. Heidberg-Cup",
         "datum": "26.09.2026",
         "auslastung": "20%",
         "region": "GER",
         "level": "2",
         "disziplin": "HG",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_11._Heidberg_Cup"
+        "url": "https://www.ipscmatch.de/index.pl?match=2026_11._Heidberg_Cup",
+        "image_url": null,
+        "source": "MatchSign"
     },
     {
-        "name": "11. Heidberg-Cup KK",
+        "name": "11. Heidberg-Cup KK",
         "datum": "27.09.2026",
         "auslastung": "40%",
         "region": "GER",
         "level": "2",
         "disziplin": ".22LR HG",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_11._Heidberg_Cup_KK"
+        "url": "https://www.ipscmatch.de/index.pl?match=2026_11._Heidberg_Cup_KK",
+        "image_url": null,
+        "source": "MatchSign"
     },
     {
-        "name": "Adeje Shooters Cup",
+        "name": "Adeje Shooters Cup",
         "datum": "03.10.2026",
         "auslastung": "11%",
         "region": "ESP",
         "level": "2",
         "disziplin": "HG, PCC, MR",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_V_Adeje_Shooters_Cup"
+        "url": "https://www.ipscmatch.de/index.pl?match=2026_V_Adeje_Shooters_Cup",
+        "image_url": "https://ipscmatch.de/wiki/images/e/e2/Logo_ASC.jpg",
+        "source": "MatchSign"
     },
     {
-        "name": "V Extreme Adeje Shooters",
+        "name": "BUL Germany Cup 2026",
+        "datum": "11.10.2026",
+        "auslastung": "99%",
+        "region": "GER",
+        "level": "3",
+        "disziplin": "HG",
+        "url": "https://www.ipscmatch.de/index.pl?match=BUL_Germany_Cup_2026",
+        "image_url": null,
+        "source": "MatchSign"
+    },
+    {
+        "name": "V Extreme Adeje Shooters",
         "datum": "11.10.2026",
         "auslastung": "15%",
         "region": "ESP",
         "level": "3",
         "disziplin": "HG, PCC, MR",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_V_Extreme_Adeje_Shooters"
+        "url": "https://www.ipscmatch.de/index.pl?match=2026_V_Extreme_Adeje_Shooters",
+        "image_url": "https://ipscmatch.de/wiki/images/e/e2/Logo_ASC.jpg",
+        "source": "MatchSign"
     },
     {
-        "name": "360° PCC powered by 3G",
+        "name": "360° PCC powered by 3G",
         "datum": "18.10.2026",
         "auslastung": "93%",
         "region": "POL",
         "level": "3",
         "disziplin": "PCC",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_360_PCC_by_3G"
+        "url": "https://www.ipscmatch.de/index.pl?match=2026_360_PCC_by_3G",
+        "image_url": "https://ipscmatch.de/wiki/images/9/9d/CLE_-_360_Logo.jpg",
+        "source": "MatchSign"
     },
     {
-        "name": "Tenerife Open 2026",
+        "name": "Tenerife Open 2026",
         "datum": "13.12.2026",
         "auslastung": "40%",
         "region": "ESP",
         "level": "2",
         "disziplin": "HG, PCC, MR",
-        "url": "https://www.ipscmatch.de/index.pl?match=TENERIFE_OPEN_2026"
+        "url": "https://www.ipscmatch.de/index.pl?match=TENERIFE_OPEN_2026",
+        "image_url": null,
+        "source": "MatchSign"
     },
     {
-        "name": "LM LV4 2027 Prd, PdO",
+        "name": "LM LV4 2027 Prd, PdO",
         "datum": "10.01.2027",
         "auslastung": "91%",
         "region": "GER",
         "level": "3",
         "disziplin": "HG",
-        "url": "https://www.ipscmatch.de/index.pl?match=2027_LM_Prd"
+        "url": "https://www.ipscmatch.de/index.pl?match=2027_LM_Prd",
+        "image_url": "https://ipscmatch.de/wiki/images/b/b1/Logo_Oliver_Winkler.png",
+        "source": "MatchSign"
     },
     {
-        "name": "Tenerife Masters Frontera 2027",
+        "name": "Tenerife Masters Frontera 2027",
         "datum": "24.01.2027",
         "auslastung": "9%",
         "region": "ESP",
         "level": "2",
         "disziplin": "HG, PCC, MR",
-        "url": "https://www.ipscmatch.de/index.pl?match=2027_TENERIFE_MASTERS_FRONTERA"
+        "url": "https://www.ipscmatch.de/index.pl?match=2027_TENERIFE_MASTERS_FRONTERA",
+        "image_url": null,
+        "source": "MatchSign"
     }
 ]
