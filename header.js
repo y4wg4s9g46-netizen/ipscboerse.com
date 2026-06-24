@@ -2783,3 +2783,16 @@ window.toggleMoreMenu = function() {
     else inject();
 })();
 
+
+
+// V79R: Login/Register button tap target polish.
+(function loginTapFixV79r(){
+  function addCss(){
+    if(document.getElementById('ipsc-login-tapfix-v79r')) return;
+    var st=document.createElement('style'); st.id='ipsc-login-tapfix-v79r';
+    st.textContent = '#btn-open-login,.btn-auth,[data-auth-trigger]{min-height:44px!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important;cursor:pointer!important;}';
+    document.head.appendChild(st);
+  }
+  document.addEventListener('DOMContentLoaded', addCss);
+  if(document.readyState!=='loading') addCss();
+})();

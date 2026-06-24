@@ -635,6 +635,25 @@
         });
     }
 
+    function syncLanguageToFramesV79r(lang) {
+        try {
+            lang = lang || localStorage.getItem("selectedLanguage") || "de";
+            localStorage.setItem("selectedLanguage", lang);
+        } catch (_) {}
+        Object.keys(frames).forEach(function (k) {
+            var frame = frames[k];
+            try {
+                var w = frame.contentWindow;
+                if (!w) return;
+                try { w.localStorage.setItem("selectedLanguage", lang); } catch (_) {}
+                try { w.currentLang = lang; } catch (_) {}
+                try { if (typeof w.translatePortalPage === "function") w.translatePortalPage(); } catch (_) {}
+                try { if (typeof w.onLanguageChanged === "function") w.onLanguageChanged(); } catch (_) {}
+                try { w.dispatchEvent(new CustomEvent("ipsc:language-change-v79r", { detail: { lang: lang } })); } catch (_) {}
+            } catch (_) {}
+        });
+    }
+
     function init() {
         document.documentElement.classList.add("ipsc-native-shell-v76t");
         viewport = document.getElementById("native-shell-viewport-v76t");
@@ -646,13 +665,15 @@
             window.hidePageTransitionCover = function () { return false; };
             document.documentElement.classList.remove("is-page-leaving", "is-native-navigating-v74", "is-native-navigating-v76o");
         } catch (_) {}
-        // V77F: passkeys are not reliable from capacitor://localhost with the web RP-ID; keep launch login clean.
+        // V79R: Passkey/Face ID nicht mehr im nativen Shell blockieren.
+        // Die echte Funktion aus auth.js bleibt aktiv; kein "später"-Hinweis mehr.
         try {
-            window.loginWithPasskey = function () { alert("Passkey ist in der lokalen App-Version noch nicht verfügbar. Bitte nutze Apple, Google oder E-Mail/Passwort."); };
-            window.registerPasskey = function () { alert("Passkey-Registrierung ist in der lokalen App-Version noch nicht verfügbar. Bitte nutze Apple, Google oder E-Mail/Passwort."); };
             var ps = document.createElement("style");
-            ps.id = "ipsc-native-shell-passkey-hint-v77e";
-            ps.textContent = ''; // v79q: Passkey/Face ID bleibt aktiv, kein 'später'-Badge
+            ps.id = "ipsc-native-shell-passkey-active-v79r";
+            ps.textContent = [
+              "#auth-modal .btn-social-passkey{opacity:1!important;filter:none!important;pointer-events:auto!important;}",
+              "#auth-modal .btn-social-passkey [class*='later'],#auth-modal .btn-social-passkey .passkey-later{display:none!important;}"
+            ].join("\n");
             document.head.appendChild(ps);
         } catch (_) {}
         document.addEventListener("click", interceptShellClick, true);
@@ -660,6 +681,16 @@
             if (event.target && event.target.closest && event.target.closest("#theme-toggle")) {
                 setTimeout(syncThemeToFrames, 60);
                 setTimeout(syncThemeToFrames, 240);
+            }
+        }, true);
+        document.addEventListener("change", function (event) {
+            var target = event.target;
+            if (target && target.id === "language-select") {
+                var lang = target.value || "de";
+                try { localStorage.setItem("selectedLanguage", lang); } catch (_) {}
+                setTimeout(function(){ syncLanguageToFramesV79r(lang); }, 0);
+                setTimeout(function(){ syncLanguageToFramesV79r(lang); }, 120);
+                setTimeout(function(){ syncLanguageToFramesV79r(lang); }, 500);
             }
         }, true);
         window.addEventListener("popstate", function () {
@@ -696,7 +727,7 @@
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
     else init();
 
-    window.IPSCNativeShellV76v = { routeTo: routeTo, syncTheme: syncThemeToFrames, openAuth: openShellAuthModal, toggleMore: toggleShellMoreMenu, broadcastAuth: broadcastAuthToFrames };
+    window.IPSCNativeShellV76v = { routeTo: routeTo, syncTheme: syncThemeToFrames, syncLanguage: syncLanguageToFramesV79r, openAuth: openShellAuthModal, toggleMore: toggleShellMoreMenu, broadcastAuth: broadcastAuthToFrames };
     window.IPSCNativeShellV77b = window.IPSCNativeShellV76v;
     window.IPSCNativeShellV77c = window.IPSCNativeShellV76v;
     window.IPSCNativeShellV77d = window.IPSCNativeShellV76v;

@@ -270,8 +270,13 @@
   .season-btn-v79o{border:none;border-radius:999px;min-height:52px;padding:12px 16px;font-weight:950;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:9px;font-size:14px;line-height:1.1;}
   .app-cta-v71,.fav-edit-btn-v76,.hero-quicklinks-v76 a{display:flex;align-items:center;}
   .app-cta-v71{justify-content:center;gap:9px;line-height:1.1;}
-  .hero-quicklinks-v76 a{gap:10px;}
-  .hero-quicklinks-v76 a strong{display:flex;align-items:center;gap:8px;line-height:1.15;}
+  .hero-quicklinks-v76 a{gap:12px;}
+  .hero-quicklinks-v76 a strong{display:flex;align-items:center;gap:10px;line-height:1.15;}
+  .fav-symbol-v79r{width:28px;height:28px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 28px;background:linear-gradient(135deg,rgba(255,159,67,.20),rgba(59,130,246,.12));border:1px solid rgba(148,163,184,.24);box-shadow:inset 0 1px 0 rgba(255,255,255,.18);}
+  .fav-symbol-v79r::before{font-size:12px;font-weight:950;color:#ff8a1f;letter-spacing:-.02em;}
+  html[data-theme="dark"] .fav-symbol-v79r{background:linear-gradient(135deg,rgba(255,159,67,.22),rgba(37,99,235,.16));border-color:rgba(148,163,184,.20);}
+  .fav-symbol-market::before{content:"M"}.fav-symbol-planner::before{content:"P"}.fav-symbol-log::before{content:"L"}.fav-symbol-comm::before{content:"C"}.fav-symbol-match::before{content:"M"}.fav-symbol-tools::before{content:"T"}.fav-symbol-reload::before{content:"R"}.fav-symbol-stats::before{content:"%"}.fav-symbol-hub::before{content:"H"}.fav-symbol-timer::before{content:"S"}
+  .favorites-options-v76 .fav-symbol-v79r{margin-right:4px;}
   .season-btn-primary-v79o{background:linear-gradient(135deg,#ff9f43,#ff6b00);color:#fff;box-shadow:0 12px 26px rgba(255,107,0,.20);}
   .season-btn-secondary-v79o{background:rgba(255,255,255,.72);border:1px solid rgba(148,163,184,.25);color:var(--text-color);}
   html[data-theme="dark"] .season-btn-secondary-v79o{background:rgba(15,23,42,.62);}
@@ -746,30 +751,31 @@
 (function(){
   const STORAGE = 'ipsc_favorites_v76';
   const choices = [
-    {id:'market', href:'marktplatz.html', title:'v76-fav-market', sub:'v76-fav-market-sub', icon:'🛒'},
-    {id:'planner', href:'mein-planer.html', title:'v76-fav-planner', sub:'v76-fav-planner-sub', icon:'📅'},
-    {id:'log', href:'schiessbuch.html', title:'v76-fav-log', sub:'v76-fav-log-sub', icon:'📋'},
-    {id:'community', href:'community.html', title:'v76-fav-community', sub:'v76-fav-community-sub', icon:'👥'},
-    {id:'free', href:'freie-matches.html', title:'v76-fav-free', sub:'v76-fav-free-sub', icon:'🎯'},
-    {id:'tools', href:'tools.html', title:'v76-fav-tools', sub:'v76-fav-tools-sub', icon:'🏆'},
-    {id:'reload', href:'wiederladen.html', title:'v76-fav-reload', sub:'v76-fav-reload-sub', icon:'📦'},
-    {id:'analytics', href:'analytics.html', title:'v76-fav-analytics', sub:'v76-fav-analytics-sub', icon:'📊'},
-    {id:'hub', href:'ipsc-hub.html', title:'v76-fav-hub', sub:'v76-fav-hub-sub', icon:'🔗'},
-    {id:'timer', href:'sg-timer-live.html', title:'v76-fav-timer', sub:'v76-fav-timer-sub', icon:'⏱️'}
+    {id:'market', href:'marktplatz.html', title:'v76-fav-market', sub:'v76-fav-market-sub', icon:'market'},
+    {id:'planner', href:'mein-planer.html', title:'v76-fav-planner', sub:'v76-fav-planner-sub', icon:'planner'},
+    {id:'log', href:'schiessbuch.html', title:'v76-fav-log', sub:'v76-fav-log-sub', icon:'log'},
+    {id:'community', href:'community.html', title:'v76-fav-community', sub:'v76-fav-community-sub', icon:'comm'},
+    {id:'free', href:'matches.html', title:'v76-fav-free', sub:'v76-fav-free-sub', icon:'match'},
+    {id:'tools', href:'tools.html', title:'v76-fav-tools', sub:'v76-fav-tools-sub', icon:'tools'},
+    {id:'reload', href:'wiederladen.html', title:'v76-fav-reload', sub:'v76-fav-reload-sub', icon:'reload'},
+    {id:'analytics', href:'analytics.html', title:'v76-fav-analytics', sub:'v76-fav-analytics-sub', icon:'stats'},
+    {id:'hub', href:'ipsc-hub.html', title:'v76-fav-hub', sub:'v76-fav-hub-sub', icon:'hub'},
+    {id:'timer', href:'sg-timer-live.html', title:'v76-fav-timer', sub:'v76-fav-timer-sub', icon:'timer'}
   ];
   const defaults = ['market','log','tools'];
-  function t(k){ const lang=window.currentLang || localStorage.getItem('selectedLanguage') || 'de'; return window.portalTranslations?.[lang]?.[k] || k; }
+  function t(k){ const lang=localStorage.getItem('selectedLanguage') || window.currentLang || 'de'; return window.portalTranslations?.[lang]?.[k] || k; }
+  function iconHtml(c){ return `<span class="fav-symbol-v79r fav-symbol-${c.icon}" aria-hidden="true"></span>`; }
   function getFavs(){ try{ const a=JSON.parse(localStorage.getItem(STORAGE)||'null'); if(Array.isArray(a)&&a.length) return a.slice(0,3); }catch(e){} return defaults; }
   function setFavs(a){ localStorage.setItem(STORAGE, JSON.stringify(a.slice(0,3))); }
   function renderFavs(){
     const box=document.getElementById('favorite-links-v76'); if(!box) return;
     const favs=getFavs();
-    box.innerHTML=favs.map(id=>choices.find(c=>c.id===id)).filter(Boolean).map(c=>`<a href="${c.href}"><strong><span>${c.icon}</span> ${t(c.title)}</strong><span>${t(c.sub)}</span></a>`).join('');
+    box.innerHTML=favs.map(id=>choices.find(c=>c.id===id)).filter(Boolean).map(c=>`<a href="${c.href}"><strong>${iconHtml(c)}<span>${t(c.title)}</span></strong><span>${t(c.sub)}</span></a>`).join('');
   }
   function renderOptions(){
     const box=document.getElementById('favorites-options-v76'); if(!box) return;
     const favs=getFavs();
-    box.innerHTML=choices.map(c=>`<button type="button" class="${favs.includes(c.id)?'selected':''}" data-id="${c.id}" onclick="toggleFavoriteV76('${c.id}')"><span>${c.icon}</span><div><strong>${t(c.title)}</strong><small>${t(c.sub)}</small></div></button>`).join('');
+    box.innerHTML=choices.map(c=>`<button type="button" class="${favs.includes(c.id)?'selected':''}" data-id="${c.id}" onclick="toggleFavoriteV76('${c.id}')">${iconHtml(c)}<div><strong>${t(c.title)}</strong><small>${t(c.sub)}</small></div></button>`).join('');
   }
   window.openFavoritesV76=function(){ renderOptions(); document.getElementById('favorites-modal-v76')?.classList.add('show'); };
   window.closeFavoritesV76=function(){ document.getElementById('favorites-modal-v76')?.classList.remove('show'); };
@@ -786,6 +792,25 @@
 })();
 </script>
 
+
+<script id="home-i18n-favorites-v79r">
+(function(){
+  function add(){
+    window.portalTranslations = window.portalTranslations || {de:{},en:{}};
+    window.portalTranslations.de = Object.assign(window.portalTranslations.de || {}, {
+      "v74-home-kicker":"IPSC Startplatz-Börse", "v74-home-title":"Deine IPSC-Zentrale.", "v74-home-desc":"Startplätze finden, Matches planen, Schießbuch führen und Training auswerten — alles an einem Ort.", "v74-home-action-market":"Startplatz finden", "v74-home-action-planner":"Saison planen", "v76-fav-title":"Meine Favoriten", "v76-fav-subtitle":"Deine drei Schnellzugriffe", "v76-fav-edit":"Favoriten bearbeiten", "v76-fav-market":"Marktplatz", "v76-fav-market-sub":"Startplätze finden", "v76-fav-log":"Schießbuch", "v76-fav-log-sub":"Einträge & PDF", "v76-fav-tools":"Tools", "v76-fav-tools-sub":"Training auswerten", "v76-fav-free":"Matches", "v76-fav-free-sub":"buchbare Plätze"
+    });
+    window.portalTranslations.en = Object.assign(window.portalTranslations.en || {}, {
+      "v74-home-kicker":"IPSC Slot Marketplace", "v74-home-title":"Your IPSC hub.", "v74-home-desc":"Find slots, plan matches, keep your shooting log and analyze training — all in one place.", "v74-home-action-market":"Find a slot", "v74-home-action-planner":"Plan season", "v76-fav-title":"My favorites", "v76-fav-subtitle":"Your three shortcuts", "v76-fav-edit":"Edit favorites", "v76-fav-market":"Marketplace", "v76-fav-market-sub":"Find slots", "v76-fav-log":"Shooting Log", "v76-fav-log-sub":"Entries & PDF", "v76-fav-tools":"Tools", "v76-fav-tools-sub":"Score training", "v76-fav-free":"Matches", "v76-fav-free-sub":"available slots"
+    });
+  }
+  function apply(){ add(); try { if (typeof window.translatePortalPage === 'function') window.translatePortalPage(); } catch(_){} try { if (typeof window.onLanguageChanged === 'function') window.onLanguageChanged(); } catch(_){} }
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(apply,0); setTimeout(apply,120); setTimeout(apply,600); });
+  window.addEventListener('ipsc:language-change-v79r', function(){ setTimeout(apply,0); setTimeout(apply,120); });
+  document.addEventListener('change', function(e){ if(e.target && e.target.id==='language-select') setTimeout(apply,0); }, true);
+  setTimeout(apply,200); setTimeout(apply,1000);
+})();
+</script>
     <script src="release-i18n-v78s.js?v=78s"></script>
     <script src="release-i18n-v78u.js?v=78u"></script>
 </body>
