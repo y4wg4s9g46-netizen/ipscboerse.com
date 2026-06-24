@@ -1,7 +1,0 @@
-V78D App SPA Auth/Theme/Language Fix
-
-- Logout in the app shell no longer performs a hard reload or leaves the app context.
-- Theme changes are propagated from the app header to all loaded page frames.
-- Language changes are propagated from the app header to all loaded page frames and re-run page translations.
-- Frame pages listen for shell theme/language/auth messages while preserving original page layout.
-- Browser website remains unchanged; app shell only is affected.
