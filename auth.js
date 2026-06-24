@@ -312,6 +312,58 @@ async function openNativeImageInputV79s(input) {
 window.openNativeImageInputV79s = openNativeImageInputV79s;
 
 
+
+// V79AE: final App Store bugfix. In WKWebView the async Camera plugin bridge can lose
+// the user gesture before the fallback file picker opens. For profile photos we now open
+// the native iOS file/photo picker synchronously from the button tap. The existing change
+// handler and save code keep uploading the selected image.
+function openAvatarFilePickerSyncV79ae(input) {
+    if (!input) return false;
+    try {
+        input.removeAttribute('disabled');
+        input.setAttribute('accept', 'image/*,.jpg,.jpeg,.png,.webp');
+        const old = {
+            position: input.style.position,
+            left: input.style.left,
+            top: input.style.top,
+            width: input.style.width,
+            height: input.style.height,
+            opacity: input.style.opacity,
+            pointerEvents: input.style.pointerEvents,
+            display: input.style.display,
+            zIndex: input.style.zIndex
+        };
+        input.style.position = 'fixed';
+        input.style.left = '8px';
+        input.style.top = '8px';
+        input.style.width = '2px';
+        input.style.height = '2px';
+        input.style.opacity = '0.01';
+        input.style.pointerEvents = 'auto';
+        input.style.display = 'block';
+        input.style.zIndex = '2147483647';
+        input.click();
+        setTimeout(function(){
+            try {
+                input.style.position = old.position;
+                input.style.left = old.left;
+                input.style.top = old.top;
+                input.style.width = old.width;
+                input.style.height = old.height;
+                input.style.opacity = old.opacity;
+                input.style.pointerEvents = old.pointerEvents;
+                input.style.display = old.display;
+                input.style.zIndex = old.zIndex;
+            } catch(_) {}
+        }, 1600);
+        return true;
+    } catch (err) {
+        console.warn('V79AE profile image picker failed:', err);
+        return false;
+    }
+}
+window.openAvatarFilePickerSyncV79ae = openAvatarFilePickerSyncV79ae;
+
 window.previewSettingsAvatarFromFileV79ad = function(file) {
     try {
         if (!file) return;
@@ -345,45 +397,11 @@ window.previewSettingsAvatarFromFileV79ad = function(file) {
         event.preventDefault();
         event.stopPropagation();
         if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-        try {
-            if (window.openNativeImageInputV79s) {
-                const handled = await window.openNativeImageInputV79s(input);
-                if (handled) return;
-            }
-        } catch (err) {
-            console.warn('Avatar native picker failed, falling back to file input:', err);
-        }
-        // Web fallback: temporarily make the hidden input clickable for Safari/WebView.
-        try {
-            const old = {
-                position: input.style.position,
-                width: input.style.width,
-                height: input.style.height,
-                opacity: input.style.opacity,
-                pointerEvents: input.style.pointerEvents,
-                display: input.style.display
-            };
-            input.style.position = 'fixed';
-            input.style.width = '1px';
-            input.style.height = '1px';
-            input.style.opacity = '0.01';
-            input.style.pointerEvents = 'auto';
-            input.style.display = 'block';
-            input.removeAttribute('disabled');
-            input.click();
-            setTimeout(function(){
-                try {
-                    input.style.position = old.position;
-                    input.style.width = old.width;
-                    input.style.height = old.height;
-                    input.style.opacity = old.opacity;
-                    input.style.pointerEvents = old.pointerEvents;
-                    input.style.display = old.display;
-                } catch(_) {}
-            }, 700);
-        } catch (_) {
-            try { input.click(); } catch(__) {}
-        }
+        // V79AE: Use the synchronous file/photo picker for profile photo changes.
+        // This avoids the iOS WKWebView issue where an async bridge can consume the tap
+        // before the fallback picker opens. Website behaviour remains unchanged.
+        if (window.openAvatarFilePickerSyncV79ae && window.openAvatarFilePickerSyncV79ae(input)) return;
+        try { input.click(); } catch(_) {}
     }, true);
 })();
 
@@ -1866,3 +1884,5 @@ setTimeout(async () => {
         await checkUserStatus();
     }
 }, 150);
+
+// v79ae-final-apple-two-bugfix

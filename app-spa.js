@@ -683,7 +683,9 @@
         openLogin();
         return;
       }
-      const settingsBtn = ev.target && ev.target.closest && ev.target.closest('#btn-open-settings, .header-avatar-btn, #header-avatar, #auth-status-container[data-auth-state="in"]');
+      const logoutBtnV79ae = ev.target && ev.target.closest && ev.target.closest('#btn-logout');
+      if (logoutBtnV79ae) return;
+      const settingsBtn = ev.target && ev.target.closest && ev.target.closest('#btn-open-settings, .header-avatar-btn, #header-avatar');
       if (settingsBtn) {
         ev.preventDefault();
         ev.stopImmediatePropagation();
@@ -892,9 +894,13 @@
     try{
       var login = ev.target && ev.target.closest && ev.target.closest('#btn-open-login, [data-native-login]');
       if(login){ ev.preventDefault(); ev.stopImmediatePropagation(); show('login'); return; }
+      var logoutV79ae = ev.target && ev.target.closest && ev.target.closest('#btn-logout');
+      if(logoutV79ae) return;
       var settings = ev.target && ev.target.closest && ev.target.closest('#btn-open-settings, .header-avatar-btn, #header-avatar');
       if(settings){ ev.preventDefault(); ev.stopImmediatePropagation(); show('settings'); return; }
     }catch(_){ }
   }, true);
   setTimeout(function(){ try{ if(window.currentUser) resetIn(); else window.supabaseClient?.auth?.getSession().then(function(r){ if(r?.data?.session?.user){ window.currentUser=r.data.session.user; resetIn(); } else resetOut(); }); }catch(_){ } }, 600);
 })();
+
+// V79AE logout/settings separation: logout clicks are no longer captured as settings.
