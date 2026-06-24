@@ -14463,3 +14463,142 @@ html.is-app-spa-v78m header #header-avatar {
     box-sizing: border-box !important;
   }
 }
+
+
+/* V79V UI AUTH SEASON FIX
+   - keine rechten Untertitel in Favoritenkarten
+   - CTA-Buttons überlappen nicht mehr
+   - Saisonbuttons kompakter und zentriert
+   - Marktplatzpreis robust mittig
+*/
+body.page-index .hero-actions-v71,
+html.ipsc-app-frame body.page-index .hero-actions-v71 {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  gap: 14px !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  overflow: visible !important;
+}
+body.page-index .hero-actions-v71 .app-cta-v71,
+html.ipsc-app-frame body.page-index .hero-actions-v71 .app-cta-v71 {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  white-space: normal !important;
+  overflow: hidden !important;
+  line-height: 1.12 !important;
+  text-align: center !important;
+  isolation: isolate !important;
+}
+body.page-index .hero-actions-v71 .app-cta-primary-v71,
+html.ipsc-app-frame body.page-index .hero-actions-v71 .app-cta-primary-v71 {
+  z-index: 1 !important;
+  box-shadow: 0 10px 22px rgba(255,128,8,.18) !important;
+}
+body.page-index .home-favorites-v76 .hero-quicklinks-v76 a,
+html.ipsc-app-frame body.page-index .home-favorites-v76 .hero-quicklinks-v76 a {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 14px !important;
+  min-height: 78px !important;
+  padding: 14px 24px !important;
+  text-decoration: none !important;
+}
+body.page-index .home-favorites-v76 .hero-quicklinks-v76 a strong,
+html.ipsc-app-frame body.page-index .home-favorites-v76 .hero-quicklinks-v76 a strong {
+  flex: 1 1 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 16px !important;
+  min-width: 0 !important;
+  line-height: 1.1 !important;
+}
+body.page-index .home-favorites-v76 .hero-quicklinks-v76 a > span:last-child,
+html.ipsc-app-frame body.page-index .home-favorites-v76 .hero-quicklinks-v76 a > span:last-child,
+body.page-index .home-favorites-v76 .fav-sub-v79v,
+html.ipsc-app-frame body.page-index .home-favorites-v76 .fav-sub-v79v {
+  display: none !important;
+}
+body.page-index .fav-emoji-v79u,
+body.page-index .fav-emoji-v79v,
+html.ipsc-app-frame body.page-index .fav-emoji-v79u,
+html.ipsc-app-frame body.page-index .fav-emoji-v79v {
+  flex: 0 0 38px !important;
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 30px !important;
+  line-height: 1 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+body.page-index .season-card-v79o,
+html.ipsc-app-frame body.page-index .season-card-v79o {
+  padding: 20px !important;
+}
+body.page-index .season-actions-v79o,
+html.ipsc-app-frame body.page-index .season-actions-v79o {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+}
+body.page-index .season-actions-v79o .season-btn-v79o,
+html.ipsc-app-frame body.page-index .season-actions-v79o .season-btn-v79o {
+  width: min(100%, 330px) !important;
+  max-width: 330px !important;
+  min-height: 50px !important;
+  padding: 12px 20px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+body.page-index .season-actions-v79o .season-btn-secondary-v79o,
+html.ipsc-app-frame body.page-index .season-actions-v79o .season-btn-secondary-v79o {
+  width: min(100%, 360px) !important;
+  max-width: 360px !important;
+}
+body.page-index .season-empty-v79o .season-sub-v79o,
+html.ipsc-app-frame body.page-index .season-empty-v79o .season-sub-v79o {
+  margin-bottom: 0 !important;
+}
+body.page-marktplatz .match-price-head-v76k,
+html.ipsc-app-frame body.page-marktplatz .match-price-head-v76k {
+  justify-self: center !important;
+  align-self: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  text-align: center !important;
+}
+@media (max-width: 420px) {
+  body.page-index .hero-actions-v71,
+  html.ipsc-app-frame body.page-index .hero-actions-v71 { gap: 12px !important; }
+  body.page-index .hero-actions-v71 .app-cta-v71,
+  html.ipsc-app-frame body.page-index .hero-actions-v71 .app-cta-v71 {
+    min-height: 54px !important;
+    font-size: 14px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+  body.page-index .home-favorites-v76 .hero-quicklinks-v76 a,
+  html.ipsc-app-frame body.page-index .home-favorites-v76 .hero-quicklinks-v76 a {
+    min-height: 70px !important;
+    padding: 13px 20px !important;
+  }
+}

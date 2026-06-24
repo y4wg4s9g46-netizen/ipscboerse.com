@@ -4,13 +4,13 @@
     <script id="ipsc-build-cache-reset-v79u">
 (function(){
   try {
-    window.__IPSC_BUILD_ID = "v79u-auth-ui-season-cache-reset";
-    document.documentElement.setAttribute("data-ipsc-build", "v79u");
-    try { localStorage.setItem("ipsc_active_build", "v79u-auth-ui-season-cache-reset"); } catch (_) {}
+    window.__IPSC_BUILD_ID = "v79v-ui-auth-season-fix";
+    document.documentElement.setAttribute("data-ipsc-build", "v79v");
+    try { localStorage.setItem("ipsc_active_build", "v79v-ui-auth-season-fix"); } catch (_) {}
     var isNative = /^(capacitor|ionic):$/i.test(location.protocol || "") || /(^|[?&])(shell=1|appframe=1)(?:&|$)/.test(location.search || "");
     if ("caches" in window) {
       caches.keys().then(function(keys){
-        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79u-cache-reset"; }).map(function(k){ return caches.delete(k); }));
+        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79v-ui-auth-season-fix"; }).map(function(k){ return caches.delete(k); }));
       }).catch(function(){});
     }
     if (isNative && "serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
@@ -220,7 +220,7 @@
     </script>
 
 <title>Schießbuch bestätigen | IPSC Börse</title>
-    <link rel="stylesheet" href="global.css?v=79u">
+    <link rel="stylesheet" href="global.css?v=79v">
     <script>
       (function () {
         try {
@@ -487,7 +487,7 @@ loadConfirmation();
 })();
 </script>
 
-    <script src="release-i18n-v78s.js?v=79u"></script>
-    <script src="release-i18n-v78u.js?v=79u"></script>
+    <script src="release-i18n-v78s.js?v=79v"></script>
+    <script src="release-i18n-v78u.js?v=79v"></script>
 </body>
 </html>

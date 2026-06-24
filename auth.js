@@ -1316,6 +1316,8 @@ document.addEventListener("click", async (e) => {
             if (typeof resetAuthProviderButtonsV78e === 'function') resetAuthProviderButtonsV78e();
         } catch (_) {}
         try { window.dispatchEvent(new CustomEvent("ipsc:auth-logout-v78d")); } catch (_) {}
+        // AUTH LOGOUT BUTTON V79V: Login-Button sofort wieder antippbar machen.
+        try { if (window.showAuthModalV79v) setTimeout(function(){ var b=document.getElementById("btn-open-login"); if(b){ b.style.setProperty("display","inline-flex","important"); b.disabled=false; b.removeAttribute("disabled"); b.removeAttribute("aria-disabled"); b.style.setProperty("pointer-events","auto","important"); } }, 50); } catch (_) {}
         if (!(document.body && (document.body.classList.contains("page-app-spa") || document.body.classList.contains("page-native-shell")))) {
             location.reload();
         }
