@@ -1,5 +1,0 @@
-V78Y Analytics + Performance Final
-- Based on v78x performance rollback.
-- Replaced analytics.html with uploaded analytics_coach_insights.html.
-- Keeps iframe/navigation performance rollback and Double-Alpha gate.
-- No extra background preloading added.
