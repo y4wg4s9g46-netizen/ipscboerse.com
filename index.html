@@ -4,13 +4,13 @@
     <script id="ipsc-build-cache-reset-v79u">
 (function(){
   try {
-    window.__IPSC_BUILD_ID = "v79w-pdf-photo-fav-stats-fix";
-    document.documentElement.setAttribute("data-ipsc-build", "v79w");
-    try { localStorage.setItem("ipsc_active_build", "v79w-pdf-photo-fav-stats-fix"); } catch (_) {}
+    window.__IPSC_BUILD_ID = "v79x-bugfix-pdf-stats-photo-market";
+    document.documentElement.setAttribute("data-ipsc-build", "v79x");
+    try { localStorage.setItem("ipsc_active_build", "v79x-bugfix-pdf-stats-photo-market"); } catch (_) {}
     var isNative = /^(capacitor|ionic):$/i.test(location.protocol || "") || /(^|[?&])(shell=1|appframe=1)(?:&|$)/.test(location.search || "");
     if ("caches" in window) {
       caches.keys().then(function(keys){
-        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79w-pdf-photo-fav-stats-fix"; }).map(function(k){ return caches.delete(k); }));
+        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79x-bugfix-pdf-stats-photo-market"; }).map(function(k){ return caches.delete(k); }));
       }).catch(function(){});
     }
     if (isNative && "serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
@@ -248,7 +248,7 @@
     <link rel="preload" href="icon-192.png" as="image">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=79w">
+<link rel="stylesheet" href="global.css?v=79x">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 
@@ -332,7 +332,7 @@
   }
 </style>
 
-<style id="index-v79w-pdf-photo-fav-stats-fix">
+<style id="index-v79x-bugfix-pdf-stats-photo-market">
   .hero-actions-v71{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:14px!important;width:100%!important;align-items:stretch!important;}
   .hero-actions-v71 .app-cta-v71{width:100%!important;min-width:0!important;box-sizing:border-box!important;white-space:normal!important;overflow:hidden!important;text-align:center!important;padding-left:10px!important;padding-right:10px!important;}
   .home-favorites-v76 .hero-quicklinks-v76 a{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:14px!important;min-height:78px!important;padding:14px 24px!important;}
@@ -349,13 +349,20 @@
   .favorites-modal-v76.show .favorites-sheet-v76{margin:auto!important;width:min(calc(100vw - 36px),520px)!important;max-height:min(72dvh,620px)!important;border-radius:28px!important;transform:none!important;}
   .favorites-options-v76{max-height:50dvh!important;overflow:auto!important;-webkit-overflow-scrolling:touch!important;}
 </style>
+
+<style id="index-v79x-bugfix-ui">
+  .favorites-modal-v76.show{display:flex!important;align-items:center!important;justify-content:center!important;padding:max(16px,env(safe-area-inset-top)) 18px calc(126px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important;}
+  .favorites-modal-v76.show .favorites-sheet-v76{width:min(calc(100vw - 36px),520px)!important;max-height:calc(100dvh - 170px - env(safe-area-inset-bottom))!important;margin:0 auto!important;border-radius:30px!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;}
+  .favorites-options-v76{overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;max-height:none!important;}
+</style>
+
 </head>
 
 <body class="page-index app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v">
 
     <header id="main-header"></header>
 
-    <script src="header.js?v=79w"></script>
+    <script src="header.js?v=79x"></script>
 
     <div class="container">
 
@@ -550,9 +557,9 @@
             <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-<script src="auth.js?v=79w"></script>
-    <script src="lang.js?v=79w"></script>
-    <script src="app.js?v=79w"></script>
+<script src="auth.js?v=79x"></script>
+    <script src="lang.js?v=79x"></script>
+    <script src="app.js?v=79x"></script>
     
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -625,18 +632,19 @@
   function isOverallRow(r){ return /overall|match result|gesamt|ergebnis/i.test(String(r.stage_name||'')); }
   function displayStageName(r){ return String(r._displayStageName || r.display_stage_name || r.stage_name || '').trim(); }
   function stageIndex(r){ const name=displayStageName(r); const m=name.match(/(?:stage|stufe|station)\s*0*(\d+)/i) || name.match(/^\s*0*(\d+)\b/); return m ? parseInt(m[1],10) : null; }
-  function rowPercent(r){ if(isOverallRow(r)) return parsePercent(r.match_percent ?? r.overall_percent ?? r.percent ?? r.stage_percent ?? r.pts); return parsePercent(r.match_percent ?? r.overall_percent ?? r.stage_percent ?? r.percent); }
-  function stagePercent(r){ let p=parsePercent(r.stage_percent ?? r.percent); if(p) return p; const hf=parseNumber(r.hit_factor); const whf=parseNumber(r.winner_hit_factor); if(hf>0 && whf>0) return Math.min(100, (hf/whf)*100); return null; }
-  function matchKey(r){ const y=rowYear(r)||YEAR; const name=String(r.match_name || r.event_name || '').trim(); return r.match_id || r.match_uuid || (name ? `${name}|${y}|${String(r.division||'').trim()}` : r.id); }
-  function bestOverallRow(rows){
-    const overall = rows.filter(isOverallRow).sort((a,b)=>{
-      const pa=rowPercent(a)||0, pb=rowPercent(b)||0;
-      const ra=parseRank(a.stage_rank ?? a.rank ?? a.overall_rank) || 99999;
-      const rb=parseRank(b.stage_rank ?? b.rank ?? b.overall_rank) || 99999;
-      return (pb-pa) || (ra-rb);
-    });
-    if(overall.length) return overall[0];
-    return rows.find(r=>rowPercent(r)) || rows[0] || null;
+  function rowPercent(r){
+    const direct = parsePercent(r.match_percent ?? r.overall_percent ?? r.percent);
+    if(direct) return direct;
+    if(isOverallRow(r)){
+      const hf = parsePercent(r.hit_factor);
+      const whf = parseNumber(r.winner_hit_factor);
+      const t = parseNumber(r.stage_time);
+      if(hf && ((whf && Math.abs(whf-100) < 0.001) || !t || t === 0)) return hf;
+      const sp = parsePercent(r.stage_percent);
+      if(sp) return sp;
+      return null;
+    }
+    return parsePercent(r.stage_percent);
   }
   function computeStats(rows){
     const yearRows = rows.filter(r => rowYear(r) === YEAR);
@@ -708,17 +716,30 @@
     const st=state.stats||{year:YEAR,matchCount:0,top10:0,wins:0,avgPercent:null,bestPercent:null,bestName:''};
     const fmt = v => Number.isFinite(v) ? v.toFixed(1).replace('.', ',') + '%' : '–';
     const canvas=document.createElement('canvas'); canvas.width=1080; canvas.height=1080; const ctx=canvas.getContext('2d');
-    const grad=ctx.createLinearGradient(0,0,1080,1080); grad.addColorStop(0,'#fff7ed'); grad.addColorStop(.52,'#eef6ff'); grad.addColorStop(1,'#ffffff'); ctx.fillStyle=grad; ctx.fillRect(0,0,1080,1080);
-    ctx.fillStyle='rgba(255,122,24,.18)'; ctx.beginPath(); ctx.arc(910,118,190,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='rgba(59,130,246,.12)'; ctx.beginPath(); ctx.arc(130,940,250,0,Math.PI*2); ctx.fill();
-    roundedRect(ctx,58,58,964,964,56); ctx.fillStyle='rgba(255,255,255,.72)'; ctx.fill(); ctx.strokeStyle='rgba(148,163,184,.30)'; ctx.lineWidth=2; ctx.stroke();
-    ctx.fillStyle='#0f172a'; ctx.font='950 54px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif'; ctx.fillText('IPSC Börse',108,145);
-    ctx.fillStyle='#f97316'; ctx.font='950 25px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif'; ctx.fillText((tr('title',{year:st.year})).toUpperCase(),108,197);
-    ctx.fillStyle='#0f172a'; ctx.font='950 76px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif'; drawText(ctx,tr('shareHeadline'),108,305,780,84);
-    const cards=[[tr('kMatches'),st.matchCount,'#0f172a'],[tr('kTop10'),st.top10,'#0f172a'],[tr('kWins'),st.wins,'#0f172a'],[tr('kBest'),fmt(st.bestPercent),'#0f172a'],[tr('kAvg'),fmt(st.avgPercent),'#f97316']];
-    cards.forEach((c,i)=>{ const wide=i===4; const x=wide?108:(108+(i%2)*436); const y=430+Math.floor(i/2)*154; const w=wide?836:392; const h=124; roundedRect(ctx,x,y,w,h,28); ctx.fillStyle='rgba(255,255,255,.88)'; ctx.fill(); ctx.strokeStyle='rgba(148,163,184,.34)'; ctx.lineWidth=2; ctx.stroke(); ctx.fillStyle=c[2]; ctx.font='950 54px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif'; ctx.fillText(String(c[1]),x+30,y+62); ctx.fillStyle='#64748b'; ctx.font='900 21px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif'; ctx.fillText(String(c[0]).toUpperCase(),x+30,y+98); });
-    if(st.bestName){ ctx.fillStyle='#0f172a'; ctx.font='900 27px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif'; drawText(ctx,tr('best',{name:st.bestName}),108,864,836,37); }
-    roundedRect(ctx,108,920,360,58,29); ctx.fillStyle='#0f172a'; ctx.fill(); ctx.fillStyle='#fff'; ctx.font='900 25px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif'; ctx.fillText('ipscboerse.com',136,957);
+    const font='-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif';
+    const grad=ctx.createLinearGradient(0,0,1080,1080); grad.addColorStop(0,'#fff7ed'); grad.addColorStop(.55,'#eef6ff'); grad.addColorStop(1,'#ffffff'); ctx.fillStyle=grad; ctx.fillRect(0,0,1080,1080);
+    ctx.fillStyle='rgba(255,122,24,.16)'; ctx.beginPath(); ctx.arc(910,124,188,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(59,130,246,.11)'; ctx.beginPath(); ctx.arc(130,940,250,0,Math.PI*2); ctx.fill();
+    roundedRect(ctx,58,58,964,964,56); ctx.fillStyle='rgba(255,255,255,.78)'; ctx.fill(); ctx.strokeStyle='rgba(148,163,184,.30)'; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle='#0f172a'; ctx.font='950 54px '+font; ctx.fillText('IPSC Börse',108,145);
+    ctx.fillStyle='#f97316'; ctx.font='950 24px '+font; ctx.fillText((tr('title',{year:st.year})).toUpperCase(),108,198);
+    ctx.fillStyle='#0f172a'; ctx.font='950 72px '+font; drawText(ctx,tr('shareHeadline'),108,292,790,78);
+    const cards=[
+      [tr('kMatches'),st.matchCount,'#0f172a'],[tr('kTop10'),st.top10,'#0f172a'],
+      [tr('kWins'),st.wins,'#0f172a'],[tr('kBest'),fmt(st.bestPercent),'#0f172a'],
+      [tr('kAvg'),fmt(st.avgPercent),'#f97316']
+    ];
+    cards.forEach((c,i)=>{
+      const wide=i===4; const x=wide?108:(108+(i%2)*436); const y=410+Math.floor(i/2)*148; const w=wide?836:392; const h=122;
+      roundedRect(ctx,x,y,w,h,28); ctx.fillStyle='rgba(255,255,255,.90)'; ctx.fill(); ctx.strokeStyle='rgba(148,163,184,.34)'; ctx.lineWidth=2; ctx.stroke();
+      ctx.fillStyle=c[2]; ctx.font='950 52px '+font; ctx.fillText(String(c[1]),x+30,y+60);
+      ctx.fillStyle='#64748b'; ctx.font='900 20px '+font; ctx.fillText(String(c[0]).toUpperCase(),x+30,y+96);
+    });
+    if(st.bestName){
+      roundedRect(ctx,108,840,836,72,24); ctx.fillStyle='#0f172a'; ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='900 24px '+font; drawText(ctx,tr('best',{name:st.bestName}),138,883,780,30);
+    }
+    roundedRect(ctx,108,938,360,58,29); ctx.fillStyle='#0f172a'; ctx.fill(); ctx.fillStyle='#fff'; ctx.font='900 25px '+font; ctx.fillText('ipscboerse.com',136,975);
     return new Promise(resolve=>canvas.toBlob(resolve,'image/png',.95));
   }
   window.shareSeasonCardV79O = async function(){
@@ -736,7 +757,7 @@
     <script>
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {
-                navigator.serviceWorker.register("sw.js?v=79w")
+                navigator.serviceWorker.register("sw.js?v=79x")
                     .then(reg => console.log("PWA Service Worker registriert!", reg.scope))
                     .catch(err => console.error("PWA Fehler:", err));
             });
@@ -883,7 +904,7 @@
   setTimeout(apply,200); setTimeout(apply,1000);
 })();
 </script>
-    <script src="release-i18n-v78s.js?v=79w"></script>
-    <script src="release-i18n-v78u.js?v=79w"></script>
+    <script src="release-i18n-v78s.js?v=79x"></script>
+    <script src="release-i18n-v78u.js?v=79x"></script>
 </body>
 </html>

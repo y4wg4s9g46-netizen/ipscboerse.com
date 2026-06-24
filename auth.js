@@ -157,6 +157,51 @@ async function openNativePasskeyBridgeV79s(mode, btn, oldHtml) {
     }
 }
 
+
+function currentAvatarUrlV79x(user) {
+    try {
+        const meta = user?.user_metadata || window.currentUser?.user_metadata || {};
+        return meta.avatar_url || meta.picture || meta.profile_picture || localStorage.getItem(HEADER_AVATAR_CACHE_KEY) || DEFAULT_HEADER_AVATAR;
+    } catch (_) { return DEFAULT_HEADER_AVATAR; }
+}
+function syncSettingsAvatarPreviewV79x(user) {
+    try {
+        const avatar = currentAvatarUrlV79x(user);
+        const previewImg = document.getElementById("settings-avatar-preview");
+        if (previewImg) {
+            previewImg.src = avatar || DEFAULT_HEADER_AVATAR;
+            previewImg.style.display = "block";
+            previewImg.classList.add("settings-avatar-preview-v76e");
+        }
+        const headImg = document.querySelector("#settings-profile-head-v76e img");
+        if (headImg) headImg.src = avatar || DEFAULT_HEADER_AVATAR;
+    } catch (_) {}
+}
+window.syncSettingsAvatarPreviewV79x = syncSettingsAvatarPreviewV79x;
+
+async function chooseNativeImageSourceV79x() {
+    const isEn = (window.currentLang || localStorage.getItem("selectedLanguage") || "de") === "en";
+    return await new Promise(resolve => {
+        const backdrop = document.createElement("div");
+        backdrop.className = "native-photo-sheet-backdrop-v79x";
+        backdrop.innerHTML = `
+            <div class="native-photo-sheet-v79x" role="dialog" aria-modal="true">
+                <strong>${isEn ? "Profile photo" : "Profilbild ändern"}</strong>
+                <p>${isEn ? "Choose a source for your new profile photo." : "Wähle aus, woher dein neues Profilbild kommen soll."}</p>
+                <button type="button" class="primary" data-choice="PHOTOS">${isEn ? "Choose from photos" : "Aus Fotos wählen"}</button>
+                <button type="button" data-choice="CAMERA">${isEn ? "Take picture" : "Foto aufnehmen"}</button>
+                <button type="button" class="cancel" data-choice="">${isEn ? "Cancel" : "Abbrechen"}</button>
+            </div>`;
+        function cleanup(value){ try { backdrop.remove(); } catch(_){} resolve(value || null); }
+        backdrop.addEventListener("click", function(ev){
+            const btn = ev.target && ev.target.closest && ev.target.closest("button[data-choice]");
+            if (btn) { ev.preventDefault(); cleanup(btn.getAttribute("data-choice") || null); return; }
+            if (ev.target === backdrop) cleanup(null);
+        });
+        document.body.appendChild(backdrop);
+    });
+}
+
 function dataUrlToFileV79s(dataUrl, filename) {
     const parts = String(dataUrl || "").split(",");
     const meta = parts[0] || "";
@@ -204,17 +249,19 @@ async function openNativeImageInputV79s(input) {
     input.dataset.nativeImageBusyV79s = "1";
     try {
         let photo = null;
+        const choiceSourceV79x = await chooseNativeImageSourceV79x();
+        if (!choiceSourceV79x) return true;
         if (typeof Camera.getPhoto === "function") {
             photo = await Camera.getPhoto({
                 quality: 86,
                 resultType: "dataUrl",
-                source: "PROMPT",
+                source: choiceSourceV79x,
                 allowEditing: false,
                 correctOrientation: true,
                 presentationStyle: "fullscreen",
                 webUseInput: false
             });
-        } else if (typeof Camera.takePhoto === "function") {
+        } else if (typeof Camera.takePhoto === "function" && choiceSourceV79x === "CAMERA") {
             photo = await Camera.takePhoto({
                 quality: 86,
                 includeMetadata: false,
@@ -356,7 +403,17 @@ function isNativeShellV66() {
 
 function getCapacitorPluginV66(name) {
     try {
-        return window.Capacitor?.Plugins?.[name] || null;
+        const plugins = window.Capacitor?.Plugins || {};
+        const aliases = {
+            Camera: ["Camera", "CAPCameraPlugin", "CapacitorCamera"],
+            Filesystem: ["Filesystem", "FilesystemPlugin", "CapacitorFilesystem"],
+            Share: ["Share", "SharePlugin", "CapacitorShare"],
+            Browser: ["Browser", "CAPBrowserPlugin", "CapacitorBrowser"],
+            App: ["App", "AppPlugin", "CapacitorApp"]
+        };
+        const names = aliases[name] || [name];
+        for (const key of names) if (plugins[key]) return plugins[key];
+        return null;
     } catch (_) {
         return null;
     }
@@ -1352,11 +1409,7 @@ document.addEventListener("click", async (e) => {
             settingsRealName.value = window.currentUser.user_metadata?.real_name || "";
         }
 
-        const previewImg = document.getElementById("settings-avatar-preview");
-        if (previewImg && window.currentUser?.user_metadata?.avatar_url) {
-            previewImg.src = window.currentUser.user_metadata.avatar_url;
-            previewImg.style.display = 'block';
-        }
+        syncSettingsAvatarPreviewV79x(window.currentUser || null);
     }
 
     if (e.target.id === "btn-delete-account") {
@@ -1385,7 +1438,12 @@ window.previewSettingsAvatar = function(input) {
             if (img) {
                 img.src = e.target.result;
                 img.style.display = 'block';
+                img.classList.add('settings-avatar-preview-v76e');
             }
+            const headImg = document.querySelector('#settings-profile-head-v76e img');
+            if (headImg) headImg.src = e.target.result;
+            const headerImg = document.getElementById('header-avatar');
+            if (headerImg) headerImg.src = e.target.result;
         };
 
         reader.readAsDataURL(input.files[0]);

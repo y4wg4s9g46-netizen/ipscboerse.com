@@ -4,13 +4,13 @@
     <script id="ipsc-build-cache-reset-v79u">
 (function(){
   try {
-    window.__IPSC_BUILD_ID = "v79w-pdf-photo-fav-stats-fix";
-    document.documentElement.setAttribute("data-ipsc-build", "v79w");
-    try { localStorage.setItem("ipsc_active_build", "v79w-pdf-photo-fav-stats-fix"); } catch (_) {}
+    window.__IPSC_BUILD_ID = "v79x-bugfix-pdf-stats-photo-market";
+    document.documentElement.setAttribute("data-ipsc-build", "v79x");
+    try { localStorage.setItem("ipsc_active_build", "v79x-bugfix-pdf-stats-photo-market"); } catch (_) {}
     var isNative = /^(capacitor|ionic):$/i.test(location.protocol || "") || /(^|[?&])(shell=1|appframe=1)(?:&|$)/.test(location.search || "");
     if ("caches" in window) {
       caches.keys().then(function(keys){
-        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79w-pdf-photo-fav-stats-fix"; }).map(function(k){ return caches.delete(k); }));
+        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79x-bugfix-pdf-stats-photo-market"; }).map(function(k){ return caches.delete(k); }));
       }).catch(function(){});
     }
     if (isNative && "serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
@@ -363,7 +363,7 @@
 })();
 </script>
 
-    <script src="release-i18n-v78s.js?v=79w"></script>
-    <script src="release-i18n-v78u.js?v=79w"></script>
+    <script src="release-i18n-v78s.js?v=79x"></script>
+    <script src="release-i18n-v78u.js?v=79x"></script>
 </body>
 </html>

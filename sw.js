@@ -1,16 +1,16 @@
-const CACHE_NAME = 'ipscboerse-v79w-pdf-photo-fav-stats-fix';
+const CACHE_NAME = 'ipscboerse-v79x-bugfix-pdf-stats-photo-market';
 const APP_SHELL_ASSETS = [
   './',
   'index.html',
   'app.html',
-  'app-spa.js?v=79w',
+  'app-spa.js?v=79x',
   'native-shell.html',
-  'native-shell.js?v=79w',
-  'global.css?v=79w',
-  'header.js?v=79w',
-  'auth.js?v=79w',
-  'app.js?v=79w',
-  'lang.js?v=79w',
+  'native-shell.js?v=79x',
+  'global.css?v=79x',
+  'header.js?v=79x',
+  'auth.js?v=79x',
+  'app.js?v=79x',
+  'lang.js?v=79x',
   'marktplatz.html',
   'mein-planer.html',
   'community.html',
@@ -32,13 +32,20 @@ const APP_SHELL_ASSETS = [
 
 self.addEventListener('install', event => {
   self.skipWaiting();
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL_ASSETS).catch(() => undefined)));
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL_ASSETS).catch(() => undefined))
+  );
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME && /^ipscboerse-v79w-pdf-photo-fav-stats-fix'fetch', event => {
+      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME && /^ipscboerse-/i.test(key)).map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.href.includes('supabase.co') || url.href.includes('cdn.jsdelivr.net')) return;

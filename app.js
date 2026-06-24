@@ -394,7 +394,14 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
         const name = meta.real_name || meta.full_name || meta.name || meta.username || user?.email?.split("@")[0] || "Profil";
         const alias = meta.username || "";
         const email = user?.email || "";
-        const avatar = meta.avatar_url || meta.picture || meta.profile_picture || "icon-192.png";
+        const avatar = meta.avatar_url || meta.picture || meta.profile_picture || localStorage.getItem("headerAvatar") || "icon-192.png";
+
+        const preview = document.getElementById("settings-avatar-preview");
+        if (preview) {
+            preview.src = avatar || "icon-192.png";
+            preview.style.display = "block";
+            preview.classList.add("settings-avatar-preview-v76e");
+        }
 
         const img = box.querySelector("img");
         const nameEl = box.querySelector(".profile-head-name-v76e");
@@ -476,6 +483,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
 
             if (avatarPreview) {
                 avatarPreview.classList.add("settings-avatar-preview-v76e");
+                avatarPreview.src = (window.currentUser?.user_metadata?.avatar_url || window.currentUser?.user_metadata?.picture || localStorage.getItem("headerAvatar") || "icon-192.png");
                 avatarPreview.style.display = "block";
             }
 

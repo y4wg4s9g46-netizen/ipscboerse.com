@@ -4,13 +4,13 @@
     <script id="ipsc-build-cache-reset-v79u">
 (function(){
   try {
-    window.__IPSC_BUILD_ID = "v79w-pdf-photo-fav-stats-fix";
-    document.documentElement.setAttribute("data-ipsc-build", "v79w");
-    try { localStorage.setItem("ipsc_active_build", "v79w-pdf-photo-fav-stats-fix"); } catch (_) {}
+    window.__IPSC_BUILD_ID = "v79x-bugfix-pdf-stats-photo-market";
+    document.documentElement.setAttribute("data-ipsc-build", "v79x");
+    try { localStorage.setItem("ipsc_active_build", "v79x-bugfix-pdf-stats-photo-market"); } catch (_) {}
     var isNative = /^(capacitor|ionic):$/i.test(location.protocol || "") || /(^|[?&])(shell=1|appframe=1)(?:&|$)/.test(location.search || "");
     if ("caches" in window) {
       caches.keys().then(function(keys){
-        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79w-pdf-photo-fav-stats-fix"; }).map(function(k){ return caches.delete(k); }));
+        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79x-bugfix-pdf-stats-photo-market"; }).map(function(k){ return caches.delete(k); }));
       }).catch(function(){});
     }
     if (isNative && "serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
@@ -243,7 +243,7 @@
 <title>Digitale Schießkladde | IPSC Börse</title>
     
     <script>
-        // V76P: Theme vor global.css?v=79w nochmals stabilisieren, ohne Auto-Dark-Zwischenframe.
+        // V76P: Theme vor global.css?v=79x nochmals stabilisieren, ohne Auto-Dark-Zwischenframe.
         (function() {
             try {
                 var carried = null;
@@ -260,7 +260,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="preload" href="icon-192.png" as="image">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=79w">
+<link rel="stylesheet" href="global.css?v=79x">
 
 
     <style id="schiessbuch-integrity-v56">
@@ -448,7 +448,7 @@
 
     <header id="main-header"></header>
   
-   <script src="header.js?v=79w"></script>
+   <script src="header.js?v=79x"></script>
 
     <div class="container">
         
@@ -552,9 +552,9 @@
             <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-<script src="auth.js?v=79w"></script>
-    <script src="lang.js?v=79w"></script>
-    <script src="app.js?v=79w"></script>
+<script src="auth.js?v=79x"></script>
+    <script src="lang.js?v=79x"></script>
+    <script src="app.js?v=79x"></script>
 
     <script>
         let logs = [];
@@ -837,6 +837,37 @@
                 return String(dataUri || "").replace(/^data:application\/pdf(?:;[^,]*)?;base64,/i, "").split(",").pop().replace(/\s/g, "");
             }
 
+
+            async function nativeSharePdfV79x() {
+                try {
+                    const cap = window.Capacitor || (window.parent && window.parent.Capacitor) || null;
+                    const plugins = cap && cap.Plugins ? cap.Plugins : {};
+                    const Filesystem = plugins.Filesystem || plugins.FilesystemPlugin || plugins.CapacitorFilesystem;
+                    const Share = plugins.Share || plugins.SharePlugin || plugins.CapacitorShare;
+                    if (!Filesystem || !Share || typeof Filesystem.writeFile !== "function" || typeof Share.share !== "function") return false;
+                    const base64 = base64FromDataUri(doc.output("datauristring"));
+                    if (!base64) return false;
+                    const path = `ipsc-share/${Date.now()}_${safeFilename}`;
+                    const dirs = ["CACHE", "DOCUMENTS"];
+                    let lastError = null;
+                    for (const dir of dirs) {
+                        try {
+                            const result = await Filesystem.writeFile({ path, data: base64, directory: dir, recursive: true });
+                            let shareUrl = result && result.uri ? result.uri : undefined;
+                            if (!shareUrl && typeof Filesystem.getUri === "function") {
+                                const uriResult = await Filesystem.getUri({ path, directory: dir });
+                                shareUrl = uriResult && uriResult.uri ? uriResult.uri : undefined;
+                            }
+                            if (!shareUrl) throw new Error("PDF-Datei geschrieben, aber keine Datei-URI erhalten.");
+                            await Share.share({ title, text: "PDF wurde erstellt.", url: shareUrl, dialogTitle: title });
+                            return true;
+                        } catch (err) { lastError = err; console.warn("Native PDF share failed for", dir, err); }
+                    }
+                    if (lastError) throw lastError;
+                } catch (err) { console.warn("Native PDF sharing failed", err); }
+                return false;
+            }
+
             async function askParentShareV79w() {
                 if (!(window.parent && window.parent !== window)) return false;
                 try {
@@ -868,12 +899,13 @@
                 window.location.protocol === "capacitor:" ||
                 window.location.protocol === "ionic:";
 
+            if (isNativeShell && await nativeSharePdfV79x()) return true;
             if (await askParentShareV79w()) return true;
 
             try {
                 const blob = doc.output("blob");
                 const file = new File([blob], safeFilename, { type: "application/pdf" });
-                if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+                if (!isNativeShell && navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
                     await navigator.share({ title, text: "PDF wurde erstellt.", files: [file] });
                     return true;
                 }
@@ -1699,7 +1731,7 @@ async function buildClientSchiessbuchPDF(event) {
 })();
 </script>
 
-    <script src="release-i18n-v78s.js?v=79w"></script>
-    <script src="release-i18n-v78u.js?v=79w"></script>
+    <script src="release-i18n-v78s.js?v=79x"></script>
+    <script src="release-i18n-v78u.js?v=79x"></script>
 </body>
 </html>

@@ -8,7 +8,7 @@
   window.__IPSC_APP_FRAME_SPA_V78X = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
 
-  const VERSION = '79u';
+  const VERSION = '79x';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -786,13 +786,12 @@
       if (!base64) throw new Error('Keine PDF-Daten empfangen.');
 
       const plugins = window.Capacitor && window.Capacitor.Plugins ? window.Capacitor.Plugins : null;
-      const Filesystem = plugins && plugins.Filesystem;
-      const Share = plugins && plugins.Share;
-      const Directory = (plugins && plugins.Directory) || (window.Capacitor && window.Capacitor.FilesystemDirectory) || { Cache: 'CACHE', Documents: 'DOCUMENTS' };
+      const Filesystem = plugins && (plugins.Filesystem || plugins.FilesystemPlugin || plugins.CapacitorFilesystem);
+      const Share = plugins && (plugins.Share || plugins.SharePlugin || plugins.CapacitorShare);
 
       if (Filesystem && Share && typeof Filesystem.writeFile === 'function' && typeof Share.share === 'function') {
         let lastError = null;
-        const dirs = [Directory.Cache || 'CACHE', Directory.Documents || 'DOCUMENTS'];
+        const dirs = ['CACHE', 'DOCUMENTS'];
         const path = `ipsc-share/${Date.now()}_${filename}`;
         for (const dir of dirs) {
           try {
