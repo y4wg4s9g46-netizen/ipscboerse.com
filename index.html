@@ -324,7 +324,7 @@
 
 </head>
 
-<body class="page-index app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v" data-build="v79ak-fast-login-matches-sharecard-fix">
+<body class="page-index app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v" data-build="v79al-final-small-fixes">
 
     <header id="main-header"></header>
 
@@ -548,9 +548,17 @@
 <script id="season-sharecard-v79aj-script">
 (function(){
   const YEAR = new Date().getFullYear();
-  const state = { year: YEAR, stats: null };
+  const state = { year: YEAR, stats: null, status: null };
   function currentSeasonLang(){
-    const raw = (localStorage.getItem('selectedLanguage') || window.currentLang || document.documentElement.lang || 'de').toLowerCase();
+    const candidates = [];
+    try { candidates.push(document.getElementById('language-select')?.value); } catch(_){}
+    try { candidates.push(window.currentLang); } catch(_){}
+    try { candidates.push(localStorage.getItem('selectedLanguage')); } catch(_){}
+    try { candidates.push(document.documentElement.lang); } catch(_){}
+    try { if (window.parent && window.parent !== window) candidates.push(window.parent.document.getElementById('language-select')?.value); } catch(_){}
+    try { if (window.parent && window.parent !== window) candidates.push(window.parent.currentLang); } catch(_){}
+    try { if (window.parent && window.parent !== window) candidates.push(window.parent.localStorage.getItem('selectedLanguage')); } catch(_){}
+    const raw = String(candidates.find(v => v && String(v).trim()) || 'de').toLowerCase();
     return raw.startsWith('en') ? 'en' : 'de';
   }
   function tx(de,en){ return currentSeasonLang()==='en' ? en : de; }
@@ -656,15 +664,16 @@
   }
   function render(stats, status){
     state.stats=stats;
+    state.status=status || null;
     const L=seasonLabels();
     const card=$('season-card-v79o'); if(!card) return;
     applySeasonStaticTexts(stats);
     const avgEl=$('season-avgpct-v79p'); if(avgEl) avgEl.classList.add('closest-season-avg-v79aj');
     if(!stats || stats.matchCount<=0){
       card.classList.add('season-empty-v79o'); card.classList.remove('has-season-data-v79aj');
-      const statusText = status === 'Nicht angemeldet' ? L.notLoggedIn : status || L.noData;
+      const statusText = (status === 'notLoggedIn' || status === L.notLoggedIn || status === 'Nicht angemeldet') ? L.notLoggedIn : status || L.noData;
       setText('season-status-v79o', statusText);
-      setText('season-empty-text-v79o', status === 'Nicht angemeldet' ? L.emptyLoggedOut : L.emptyNoData);
+      setText('season-empty-text-v79o', (status === 'notLoggedIn' || status === L.notLoggedIn || status === 'Nicht angemeldet') ? L.emptyLoggedOut : L.emptyNoData);
       return;
     }
     card.classList.remove('season-empty-v79o'); card.classList.add('has-season-data-v79aj');
@@ -683,7 +692,7 @@
       if (!client || !client.auth) { render(null, seasonLabels().notReady); return; }
       const { data: sessionData } = await client.auth.getSession();
       const user = sessionData?.session?.user || window.currentUser;
-      if (!user) { render(null, 'Nicht angemeldet'); return; }
+      if (!user) { render(null, 'notLoggedIn'); return; }
       const { data, error } = await client.from('user_match_analytics').select('*').eq('user_id', user.id).limit(3000);
       if (error) throw error;
       render(computeStats(data || []));
@@ -712,9 +721,20 @@
   window.shareSeasonCardV79O = async function(){
     try{ await load(); const L=seasonLabels(); const st=state.stats||{matchCount:0,top10:0,wins:0,avgPercent:null}; const blob=await makeBlob(); const file=new File([blob],`IPSC_Boerse_Season_${YEAR}.png`,{type:'image/png'}); const text=L.shareText(st); if(navigator.canShare&&navigator.canShare({files:[file]})&&navigator.share){await navigator.share({title:L.shareTitle(YEAR),text,files:[file]});return;} if(navigator.share){await navigator.share({title:L.shareTitle(YEAR),text});return;} const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500); }catch(err){ console.warn('share season failed',err); alert(tx('Teilen hat nicht geklappt.','Sharing did not work.')); }
   };
-  document.addEventListener('DOMContentLoaded', function(){ setTimeout(load,450); setTimeout(()=>applySeasonStaticTexts(state.stats),60); });
-  window.addEventListener('ipsc:language-change-v79r', function(){ applySeasonStaticTexts(state.stats); setTimeout(load,80); });
-  document.addEventListener('change', function(e){ if(e.target && e.target.id==='language-select'){ setTimeout(()=>{ applySeasonStaticTexts(state.stats); load(); }, 0); } }, true);
+  function applySeasonLanguageV79AL(lang){
+    try { if (lang) { localStorage.setItem('selectedLanguage', lang); window.currentLang = lang; document.documentElement.lang = lang; } } catch(_){}
+    try { applySeasonStaticTexts(state.stats); } catch(_){}
+    try { render(state.stats, state.status); } catch(_){}
+  }
+  window.applySeasonLanguageV79AL = applySeasonLanguageV79AL;
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(load,450); setTimeout(()=>applySeasonLanguageV79AL(),60); });
+  window.addEventListener('ipsc:language-change-v79r', function(ev){ applySeasonLanguageV79AL(ev && ev.detail && ev.detail.lang); });
+  window.addEventListener('ipsc:language-change-v79al', function(ev){ applySeasonLanguageV79AL(ev && ev.detail && ev.detail.lang); });
+  window.addEventListener('storage', function(ev){ if(ev && ev.key === 'selectedLanguage') applySeasonLanguageV79AL(ev.newValue); });
+  window.addEventListener('message', function(ev){ try { if(ev.origin !== window.location.origin) return; const m=ev.data||{}; if(m.type==='ipsc-language-v79al') applySeasonLanguageV79AL(m.lang); } catch(_){} });
+  document.addEventListener('change', function(e){ if(e.target && e.target.id==='language-select'){ setTimeout(()=>{ applySeasonLanguageV79AL(e.target.value); }, 0); } }, true);
+  let __seasonLangPollV79AL = currentSeasonLang();
+  setInterval(function(){ const l=currentSeasonLang(); if(l!==__seasonLangPollV79AL){ __seasonLangPollV79AL=l; applySeasonLanguageV79AL(l); } }, 400);
   window.addEventListener('ipsc-auth-changed', function(){ setTimeout(load,80); });
   window.addEventListener('ipsc:oauth-login-complete', function(){ setTimeout(load,80); });
 })();

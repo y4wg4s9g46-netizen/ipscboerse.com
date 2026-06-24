@@ -649,7 +649,10 @@
                 try { w.currentLang = lang; } catch (_) {}
                 try { if (typeof w.translatePortalPage === "function") w.translatePortalPage(); } catch (_) {}
                 try { if (typeof w.onLanguageChanged === "function") w.onLanguageChanged(); } catch (_) {}
+                try { if (typeof w.applySeasonLanguageV79AL === "function") w.applySeasonLanguageV79AL(lang); } catch (_) {}
                 try { w.dispatchEvent(new CustomEvent("ipsc:language-change-v79r", { detail: { lang: lang } })); } catch (_) {}
+                try { w.dispatchEvent(new CustomEvent("ipsc:language-change-v79al", { detail: { lang: lang } })); } catch (_) {}
+                try { w.postMessage({ type: "ipsc-language-v79al", lang: lang }, window.location.origin); } catch (_) {}
             } catch (_) {}
         });
     }
@@ -676,6 +679,51 @@
             ].join("\n");
             document.head.appendChild(ps);
         } catch (_) {}
+
+    // pdf-share-handler-v79al: Native PDF share bridge for embedded pages only. Does not touch Auth/Login.
+    (function installPdfShareBridgeV79AL(){
+        if (window.__IPSC_PDF_SHARE_BRIDGE_V79AL) return;
+        window.__IPSC_PDF_SHARE_BRIDGE_V79AL = true;
+        function isAbortError(err){
+            var s = String((err && err.name) || '') + ' ' + String((err && err.message) || '');
+            return /abort|cancel|cancell|abbruch|dismiss/i.test(s);
+        }
+        function postResult(source, ok, aborted, error){
+            try { if (source && source.postMessage) source.postMessage({type:'ipsc-share-pdf-v79al-result', ok:!!ok, aborted:!!aborted, error:error||''}, window.location.origin); } catch(_){}
+            try { if (source && source.postMessage) source.postMessage({type:'ipsc-share-pdf-v78q-result', ok:!!ok, aborted:!!aborted, error:error||''}, window.location.origin); } catch(_){}
+        }
+        window.addEventListener('message', async function(ev){
+            try {
+                if (ev.origin !== window.location.origin) return;
+                var msg = ev.data || {};
+                if (msg.type === 'ipsc-resize-frame-v79al') {
+                    try { if (currentKey && frames[currentKey]) resizeFrame(frames[currentKey]); } catch(_){}
+                    setTimeout(function(){ try { if (currentKey && frames[currentKey]) resizeFrame(frames[currentKey]); } catch(_){} }, 120);
+                    return;
+                }
+                if (msg.type !== 'ipsc-share-pdf-v79al' && msg.type !== 'ipsc-share-pdf-v78q') return;
+                var Cap = window.Capacitor;
+                var plugins = Cap && Cap.Plugins;
+                var Filesystem = plugins && plugins.Filesystem;
+                var Share = plugins && plugins.Share;
+                if (!Filesystem || !Share || typeof Filesystem.writeFile !== 'function' || typeof Share.share !== 'function') {
+                    postResult(ev.source, false, false, 'Native Share/Filesystem plugin nicht verfügbar');
+                    return;
+                }
+                var filename = String(msg.filename || 'IPSC_Boerse.pdf').replace(/[\\/:*?"<>|]+/g, '_');
+                var result = await Filesystem.writeFile({ path: filename, data: String(msg.base64 || ''), directory: 'CACHE', recursive: true });
+                try {
+                    await Share.share({ title: msg.title || 'PDF', text: 'PDF wurde erstellt.', url: result.uri, dialogTitle: msg.title || 'PDF' });
+                    postResult(ev.source, true, false, '');
+                } catch(err) {
+                    if (isAbortError(err)) postResult(ev.source, true, true, '');
+                    else postResult(ev.source, false, false, String((err && err.message) || err || 'Share fehlgeschlagen'));
+                }
+                try { if (currentKey && frames[currentKey]) resizeFrame(frames[currentKey]); } catch(_){}
+            } catch(err) { try { postResult(ev.source, false, false, String((err && err.message) || err)); } catch(_){} }
+        });
+    })();
+
         document.addEventListener("click", interceptShellClick, true);
         document.addEventListener("click", function (event) {
             if (event.target && event.target.closest && event.target.closest("#theme-toggle")) {
