@@ -493,14 +493,11 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
             btn.setAttribute("data-avatar-upload-v79ad", "1");
             btn.setAttribute("data-txt", "v76e-avatar-change");
             btn.textContent = tV76e("v76e-avatar-change", "Profilbild ändern");
-            btn.addEventListener("click", async (event) => {
+            btn.addEventListener("click", (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                if (window.openNativeImageInputV79s) {
-                    const handled = await window.openNativeImageInputV79s(avatarInput);
-                    if (handled) return;
-                }
-                avatarInput.click();
+                if (window.openAvatarPhotoPickerDirectV79af && window.openAvatarPhotoPickerDirectV79af(avatarInput)) return;
+                try { avatarInput.click(); } catch (_) {}
             });
             avatarGroup.appendChild(btn);
         }
@@ -1723,3 +1720,5 @@ fetchMatches();
     try { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'ipsc-restore-chrome-v78l' }, window.location.origin); } catch (_) {}
   };
 })();
+
+// v79af-auth-safe-photo-fix

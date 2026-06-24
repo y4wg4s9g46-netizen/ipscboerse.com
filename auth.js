@@ -1,4 +1,4 @@
-/* v79ac-final-review-bugfix */
+/* v79af-auth-safe-photo-fix: v79ad auth restored, only profile photo button adjusted */
 // LIGHT THEME FLASH FIX v70
 // OAUTH NO RELOAD LOOP v69
 // NATIVE OAUTH APPPLUGIN FIX v68
@@ -312,16 +312,83 @@ async function openNativeImageInputV79s(input) {
 window.openNativeImageInputV79s = openNativeImageInputV79s;
 
 
+window.previewSettingsAvatarFromFileV79ad = function(file) {
+    try {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const src = e && e.target ? e.target.result : null;
+            if (!src) return;
+            const img = document.getElementById('settings-avatar-preview');
+            if (img) {
+                img.src = src;
+                img.style.display = 'block';
+                img.classList.add('settings-avatar-preview-v76e');
+            }
+            const headImg = document.querySelector('#settings-profile-head-v76e img');
+            if (headImg) headImg.src = src;
+            const headerImg = document.getElementById('header-avatar');
+            if (headerImg) headerImg.src = src;
+        };
+        reader.readAsDataURL(file);
+    } catch (_) {}
+};
 
-// V79AE: final App Store bugfix. In WKWebView the async Camera plugin bridge can lose
-// the user gesture before the fallback file picker opens. For profile photos we now open
-// the native iOS file/photo picker synchronously from the button tap. The existing change
-// handler and save code keep uploading the selected image.
-function openAvatarFilePickerSyncV79ae(input) {
+function setAvatarFileFromNativePhotoV79af(input, file) {
+    try {
+        if (!input || !file) return;
+        try { input.__nativeSelectedFileV79ad = file; } catch (_) {}
+        try { window.__settingsAvatarFileV79ad = file; } catch (_) {}
+        try {
+            if (typeof DataTransfer !== "undefined") {
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                input.files = dt.files;
+            }
+        } catch (_) {}
+        try {
+            if (typeof window.previewSettingsAvatarFromFileV79ad === "function") {
+                window.previewSettingsAvatarFromFileV79ad(file);
+            } else if (typeof window.previewSettingsAvatar === "function") {
+                window.previewSettingsAvatar(input);
+            } else {
+                input.dispatchEvent(new Event("change", { bubbles: true }));
+            }
+        } catch (_) { try { input.dispatchEvent(new Event("change", { bubbles: true })); } catch(__){} }
+    } catch (_) {}
+}
+
+function openAvatarPhotoPickerDirectV79af(input) {
     if (!input) return false;
     try {
         input.removeAttribute('disabled');
         input.setAttribute('accept', 'image/*,.jpg,.jpeg,.png,.webp');
+        const Camera = (typeof getCapacitorPluginV66 === 'function') ? getCapacitorPluginV66('Camera') : null;
+        const isNative = (typeof isNativeCapacitorRuntimeV79s === 'function') && isNativeCapacitorRuntimeV79s();
+        if (isNative && Camera && typeof Camera.getPhoto === 'function') {
+            // Wichtig: direkt aus dem Tap heraus starten, kein eigenes Zwischen-Sheet.
+            Camera.getPhoto({
+                quality: 86,
+                resultType: 'dataUrl',
+                source: 'PHOTOS',
+                allowEditing: false,
+                correctOrientation: true,
+                presentationStyle: 'fullscreen',
+                webUseInput: false
+            }).then(async function(photo){
+                const file = await cameraResultToFileV79s(photo);
+                setAvatarFileFromNativePhotoV79af(input, file);
+            }).catch(function(error){
+                const msg = String((error && error.message) || error || '');
+                if (!/cancel|user cancelled|user canceled|abort/i.test(msg)) {
+                    console.warn('Profile photo picker failed v79af:', error);
+                    try { alert('Profilbild konnte nicht geöffnet werden: ' + msg); } catch (_) {}
+                }
+            });
+            return true;
+        }
+
+        // Web/WKWebView fallback: normaler iOS-Foto-Picker direkt im Tap.
         const old = {
             position: input.style.position,
             left: input.style.left,
@@ -355,41 +422,20 @@ function openAvatarFilePickerSyncV79ae(input) {
                 input.style.display = old.display;
                 input.style.zIndex = old.zIndex;
             } catch(_) {}
-        }, 1600);
+        }, 1200);
         return true;
     } catch (err) {
-        console.warn('V79AE profile image picker failed:', err);
+        console.warn('Avatar picker failed v79af:', err);
+        try { input.click(); return true; } catch (_) {}
         return false;
     }
 }
-window.openAvatarFilePickerSyncV79ae = openAvatarFilePickerSyncV79ae;
+window.openAvatarPhotoPickerDirectV79af = openAvatarPhotoPickerDirectV79af;
 
-window.previewSettingsAvatarFromFileV79ad = function(file) {
-    try {
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const src = e && e.target ? e.target.result : null;
-            if (!src) return;
-            const img = document.getElementById('settings-avatar-preview');
-            if (img) {
-                img.src = src;
-                img.style.display = 'block';
-                img.classList.add('settings-avatar-preview-v76e');
-            }
-            const headImg = document.querySelector('#settings-profile-head-v76e img');
-            if (headImg) headImg.src = src;
-            const headerImg = document.getElementById('header-avatar');
-            if (headerImg) headerImg.src = src;
-        };
-        reader.readAsDataURL(file);
-    } catch (_) {}
-};
-
-(function installAvatarUploadButtonBridgeV79ad(){
-    if (window.__IPSC_AVATAR_UPLOAD_BUTTON_V79AD) return;
-    window.__IPSC_AVATAR_UPLOAD_BUTTON_V79AD = true;
-    document.addEventListener('click', async function(event){
+(function installAvatarUploadButtonBridgeV79af(){
+    if (window.__IPSC_AVATAR_UPLOAD_BUTTON_V79AF) return;
+    window.__IPSC_AVATAR_UPLOAD_BUTTON_V79AF = true;
+    document.addEventListener('click', function(event){
         const btn = event.target && event.target.closest && event.target.closest('.avatar-upload-btn-v76e, [data-avatar-upload-v79ad]');
         if (!btn) return;
         const input = document.getElementById('settings-avatar');
@@ -397,11 +443,7 @@ window.previewSettingsAvatarFromFileV79ad = function(file) {
         event.preventDefault();
         event.stopPropagation();
         if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-        // V79AE: Use the synchronous file/photo picker for profile photo changes.
-        // This avoids the iOS WKWebView issue where an async bridge can consume the tap
-        // before the fallback picker opens. Website behaviour remains unchanged.
-        if (window.openAvatarFilePickerSyncV79ae && window.openAvatarFilePickerSyncV79ae(input)) return;
-        try { input.click(); } catch(_) {}
+        openAvatarPhotoPickerDirectV79af(input);
     }, true);
 })();
 
@@ -1885,4 +1927,4 @@ setTimeout(async () => {
     }
 }, 150);
 
-// v79ae-final-apple-two-bugfix
+// v79af-auth-safe-photo-fix

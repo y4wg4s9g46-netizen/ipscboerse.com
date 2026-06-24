@@ -243,7 +243,7 @@
 <title>Digitale Schießkladde | IPSC Börse</title>
     
     <script>
-        // V76P: Theme vor global.css?v=79ae nochmals stabilisieren, ohne Auto-Dark-Zwischenframe.
+        // V76P: Theme vor global.css?v=79af nochmals stabilisieren, ohne Auto-Dark-Zwischenframe.
         (function() {
             try {
                 var carried = null;
@@ -260,7 +260,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="preload" href="icon-192.png" as="image">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=79ae">
+<link rel="stylesheet" href="global.css?v=79af">
 
 
     <style id="schiessbuch-integrity-v56">
@@ -460,7 +460,7 @@
 .schiessbuch-legal-hint-v79z ~ .schiessbuch-legal-hint-v79z{display:none!important;}
 </style>
 
-<meta name="ipsc-build" content="v79ae-final-apple-two-bugfix">
+<meta name="ipsc-build" content="v79af-auth-safe-photo-fix">
 
 <script id="schiessbuch-legal-hint-dedupe-v79ae">
 (function(){
@@ -499,7 +499,7 @@
 
     <header id="main-header"></header>
   
-   <script src="header.js?v=79ae"></script>
+   <script src="header.js?v=79af"></script>
 
     <div class="container">
         
@@ -605,9 +605,9 @@
             <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-<script src="auth.js?v=79ae"></script>
-    <script src="lang.js?v=79ae"></script>
-    <script src="app.js?v=79ae"></script>
+<script src="auth.js?v=79af"></script>
+    <script src="lang.js?v=79af"></script>
+    <script src="app.js?v=79af"></script>
 
     <script>
         let logs = [];
@@ -1790,7 +1790,22 @@ async function buildClientSchiessbuchPDF(event) {
 })();
 </script>
 
-    <script src="release-i18n-v78s.js?v=79ae"></script>
-    <script src="release-i18n-v78u.js?v=79ae"></script>
+    <script src="release-i18n-v78s.js?v=79af"></script>
+    <script src="release-i18n-v78u.js?v=79af"></script>
+
+<script id="schiessbuch-legal-hint-dedupe-v79af">
+(function(){
+  function run(){
+    try{
+      var all=[].slice.call(document.querySelectorAll('.schiessbuch-legal-hint-v79z,[id^="schiessbuch-legal-hint-visible"],[data-txt="schiessbuch-legal-hint-v79z"]'));
+      var hits=all.filter(function(el){var t=(el.textContent||'').replace(/\s+/g,' ').toLowerCase();return t.indexOf('digitales schießbuch')!==-1||t.indexOf('digital shooting log')!==-1||t.indexOf('erzeugte pdf')!==-1||t.indexOf('generated pdf')!==-1;});
+      hits.forEach(function(el,i){ if(i>0&&el.parentNode) el.parentNode.removeChild(el); });
+    }catch(_){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run,{once:true}); else run();
+  [50,250,800,1600,3000].forEach(function(ms){setTimeout(run,ms);});
+  try{ var obs=new MutationObserver(run); obs.observe(document.documentElement,{childList:true,subtree:true}); setTimeout(function(){try{obs.disconnect();}catch(_){}},8000); }catch(_){}
+})();
+</script>
 </body>
 </html>

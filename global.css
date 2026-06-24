@@ -14764,3 +14764,10 @@ html[data-theme="dark"] body.page-schiessbuch .schiessbuch-legal-hint-v79z{
   background: rgba(30,41,59,.62) !important;
   border-color: rgba(148,163,184,.24) !important;
 }
+
+
+/* v79af: safer app-header hitboxes. Do not let avatar/settings overlap logout/login. */
+#auth-status-container{position:relative!important;display:inline-flex!important;align-items:center!important;gap:12px!important;}
+#auth-status-container #btn-open-settings{position:relative!important;z-index:1!important;flex:0 0 auto!important;}
+#auth-status-container #btn-logout,#auth-status-container #btn-open-login{position:relative!important;z-index:3!important;flex:0 0 auto!important;}
+#auth-status-container #header-avatar{pointer-events:none!important;}
