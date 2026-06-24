@@ -1,5 +1,0 @@
-V79F Matches Display Fix
-- ESS Bilder robuster anzeigen inkl. Fallback, falls Bild-Link nicht laedt.
-- Level-Filter bereinigt: nur Level I-V, keine Raw-Texte mehr.
-- Unnoetige Raw-Text-Box in ESS-Karten entfernt.
-- MatchSign-Badge unterscheidet alle Matches vs. wirklich freie Startplaetze.
