@@ -4,13 +4,13 @@
     <script id="ipsc-build-cache-reset-v79u">
 (function(){
   try {
-    window.__IPSC_BUILD_ID = "v79y-favorites-season-auth-visual";
+    window.__IPSC_BUILD_ID = "v79z-dark-matches-logbook-fix";
     document.documentElement.setAttribute("data-ipsc-build", "v79y");
-    try { localStorage.setItem("ipsc_active_build", "v79y-favorites-season-auth-visual"); } catch (_) {}
+    try { localStorage.setItem("ipsc_active_build", "v79z-dark-matches-logbook-fix"); } catch (_) {}
     var isNative = /^(capacitor|ionic):$/i.test(location.protocol || "") || /(^|[?&])(shell=1|appframe=1)(?:&|$)/.test(location.search || "");
     if ("caches" in window) {
       caches.keys().then(function(keys){
-        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79y-favorites-season-auth-visual"; }).map(function(k){ return caches.delete(k); }));
+        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79z-dark-matches-logbook-fix"; }).map(function(k){ return caches.delete(k); }));
       }).catch(function(){});
     }
     if (isNative && "serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
@@ -253,7 +253,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
-        // V76P: Theme vor global.css?v=79y nochmals stabilisieren, ohne Auto-Dark-Zwischenframe.
+        // V76P: Theme vor global.css?v=79z nochmals stabilisieren, ohne Auto-Dark-Zwischenframe.
         (function() {
             try {
                 var carried = null;
@@ -268,7 +268,7 @@
         })();
     </script>
     <!-- HIER WURDE DIE NEUE GLOBAL.CSS VERLINKT -->
-<link rel="stylesheet" href="global.css?v=79y">
+<link rel="stylesheet" href="global.css?v=79z">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
@@ -277,7 +277,7 @@
 
     <header id="main-header"></header>
 
-    <script src="header.js?v=79y"></script>
+    <script src="header.js?v=79z"></script>
 
     <div class="container">
         
@@ -450,9 +450,9 @@
             </div>
         </div>
     </footer>
-<script src="auth.js?v=79y"></script>
-<script src="lang.js?v=79y"></script>
-<script src="app.js?v=79y"></script>
+<script src="auth.js?v=79z"></script>
+<script src="lang.js?v=79z"></script>
+<script src="app.js?v=79z"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const savedLanguageSetting = localStorage.getItem("selectedLanguage") || "de";
@@ -635,7 +635,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js?v=79y')
+                navigator.serviceWorker.register('sw.js?v=79z')
                     .then(reg => console.log('PWA Service Worker registriert!', reg.scope))
                     .catch(err => console.error('PWA Fehler:', err));
             });
@@ -702,7 +702,7 @@
 })();
 </script>
 
-    <script src="release-i18n-v78s.js?v=79y"></script>
-    <script src="release-i18n-v78u.js?v=79y"></script>
+    <script src="release-i18n-v78s.js?v=79z"></script>
+    <script src="release-i18n-v78u.js?v=79z"></script>
 </body>
 </html>

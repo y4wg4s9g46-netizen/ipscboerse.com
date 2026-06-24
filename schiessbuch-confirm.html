@@ -4,13 +4,13 @@
     <script id="ipsc-build-cache-reset-v79u">
 (function(){
   try {
-    window.__IPSC_BUILD_ID = "v79y-favorites-season-auth-visual";
+    window.__IPSC_BUILD_ID = "v79z-dark-matches-logbook-fix";
     document.documentElement.setAttribute("data-ipsc-build", "v79y");
-    try { localStorage.setItem("ipsc_active_build", "v79y-favorites-season-auth-visual"); } catch (_) {}
+    try { localStorage.setItem("ipsc_active_build", "v79z-dark-matches-logbook-fix"); } catch (_) {}
     var isNative = /^(capacitor|ionic):$/i.test(location.protocol || "") || /(^|[?&])(shell=1|appframe=1)(?:&|$)/.test(location.search || "");
     if ("caches" in window) {
       caches.keys().then(function(keys){
-        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79y-favorites-season-auth-visual"; }).map(function(k){ return caches.delete(k); }));
+        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79z-dark-matches-logbook-fix"; }).map(function(k){ return caches.delete(k); }));
       }).catch(function(){});
     }
     if (isNative && "serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
@@ -220,7 +220,7 @@
     </script>
 
 <title>Schießbuch bestätigen | IPSC Börse</title>
-    <link rel="stylesheet" href="global.css?v=79y">
+    <link rel="stylesheet" href="global.css?v=79z">
     <script>
       (function () {
         try {
@@ -487,7 +487,7 @@ loadConfirmation();
 })();
 </script>
 
-    <script src="release-i18n-v78s.js?v=79y"></script>
-    <script src="release-i18n-v78u.js?v=79y"></script>
+    <script src="release-i18n-v78s.js?v=79z"></script>
+    <script src="release-i18n-v78u.js?v=79z"></script>
 </body>
 </html>
