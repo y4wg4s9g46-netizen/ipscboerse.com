@@ -1,6 +1,24 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+    <script id="ipsc-build-cache-reset-v79u">
+(function(){
+  try {
+    window.__IPSC_BUILD_ID = "v79u-auth-ui-season-cache-reset";
+    document.documentElement.setAttribute("data-ipsc-build", "v79u");
+    try { localStorage.setItem("ipsc_active_build", "v79u-auth-ui-season-cache-reset"); } catch (_) {}
+    var isNative = /^(capacitor|ionic):$/i.test(location.protocol || "") || /(^|[?&])(shell=1|appframe=1)(?:&|$)/.test(location.search || "");
+    if ("caches" in window) {
+      caches.keys().then(function(keys){
+        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79u-cache-reset"; }).map(function(k){ return caches.delete(k); }));
+      }).catch(function(){});
+    }
+    if (isNative && "serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
+      navigator.serviceWorker.getRegistrations().then(function(regs){ regs.forEach(function(r){ try { r.unregister(); } catch (_) {} }); }).catch(function(){});
+    }
+  } catch (_) {}
+})();
+</script>
     <script id="ipsc-native-shell-redirect-v76t">
       (function () {
         try {
@@ -228,14 +246,14 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="preload" href="icon-192.png" as="image">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=79t">
+<link rel="stylesheet" href="global.css?v=79u">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
 <body class="page-sg-timer-live app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v">
 
     <header id="main-header"></header>
-    <script src="header.js?v=78l"></script>
+    <script src="header.js?v=79u"></script>
 
     <div class="main-container">
         
@@ -774,9 +792,9 @@
             loadLeaderboard();
         }
     </script>
-<script src="auth.js?v=79t"></script>
-    <script src="lang.js?v=78l"></script>
-    <script src="app.js?v=79t"></script>
+<script src="auth.js?v=79u"></script>
+    <script src="lang.js?v=79u"></script>
+    <script src="app.js?v=79u"></script>
     <script>
         window.onAuthChange = () => { 
             if(typeof updateHeaderChatBadge === 'function') {
@@ -845,7 +863,7 @@
 })();
 </script>
 
-    <script src="release-i18n-v78s.js?v=78s"></script>
-    <script src="release-i18n-v78u.js?v=78u"></script>
+    <script src="release-i18n-v78s.js?v=79u"></script>
+    <script src="release-i18n-v78u.js?v=79u"></script>
 </body>
 </html>

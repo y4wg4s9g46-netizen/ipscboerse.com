@@ -1269,7 +1269,10 @@ function closeAuthModalV78m(){
 window.closeAuthModalV78m = closeAuthModalV78m;
 
 document.addEventListener("click", async (e) => {
-    if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
+    if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login, [data-native-login]")) {
+        e.preventDefault();
+        if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+        if (typeof resetAuthProviderButtonsV78e === 'function') resetAuthProviderButtonsV78e();
         if (typeof showAuthModalV78h === "function") {
             showAuthModalV78h("login");
         } else {
@@ -1301,13 +1304,26 @@ document.addEventListener("click", async (e) => {
         emitAuthChangedV79t(null, "SIGNED_OUT");
         try { if (typeof updateAuthUI === "function") updateAuthUI(null); } catch (_) {}
         try { if (typeof window.onAuthChange === "function") window.onAuthChange(null); } catch (_) {}
+        try {
+            const c = document.getElementById('auth-status-container');
+            const login = document.getElementById('btn-open-login');
+            const settings = document.getElementById('btn-open-settings');
+            const logout = document.getElementById('btn-logout');
+            if (c) c.dataset.authState = 'out';
+            if (login) { login.style.setProperty('display','inline-flex','important'); login.disabled = false; login.removeAttribute('aria-disabled'); }
+            if (settings) settings.style.setProperty('display','none','important');
+            if (logout) logout.style.setProperty('display','none','important');
+            if (typeof resetAuthProviderButtonsV78e === 'function') resetAuthProviderButtonsV78e();
+        } catch (_) {}
         try { window.dispatchEvent(new CustomEvent("ipsc:auth-logout-v78d")); } catch (_) {}
         if (!(document.body && (document.body.classList.contains("page-app-spa") || document.body.classList.contains("page-native-shell")))) {
             location.reload();
         }
     }
 
-    if (e.target.id === "btn-open-settings" || e.target.closest("#btn-open-settings")) {
+    if (e.target.id === "btn-open-settings" || e.target.closest("#btn-open-settings, .header-avatar-btn, #header-avatar")) {
+        e.preventDefault();
+        if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
         if (typeof showAuthModalV78h === "function") {
             showAuthModalV78h("settings");
         } else {

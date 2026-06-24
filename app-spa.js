@@ -8,7 +8,7 @@
   window.__IPSC_APP_FRAME_SPA_V78X = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
 
-  const VERSION = '78x';
+  const VERSION = '79u';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -404,6 +404,15 @@
       localStorage.removeItem('headerAvatar');
       const modal = document.getElementById('auth-modal');
       if (modal) modal.style.display = 'none';
+      const c = document.getElementById('auth-status-container');
+      const login = document.getElementById('btn-open-login');
+      const settings = document.getElementById('btn-open-settings');
+      const logout = document.getElementById('btn-logout');
+      if (c) c.dataset.authState = 'out';
+      if (login) { login.style.setProperty('display','inline-flex','important'); login.disabled = false; login.removeAttribute('aria-disabled'); }
+      if (settings) settings.style.setProperty('display','none','important');
+      if (logout) logout.style.setProperty('display','none','important');
+      if (typeof window.resetAuthProviderButtonsV78e === 'function') window.resetAuthProviderButtonsV78e();
       if (typeof window.onAuthChange === 'function') window.onAuthChange(null);
       setClubAccessV78v(false);
     } catch (_) {}
@@ -674,7 +683,7 @@
         openLogin();
         return;
       }
-      const settingsBtn = ev.target && ev.target.closest && ev.target.closest('#btn-open-settings, .header-avatar-btn, #header-avatar');
+      const settingsBtn = ev.target && ev.target.closest && ev.target.closest('#btn-open-settings, .header-avatar-btn, #header-avatar, #auth-status-container[data-auth-state="in"]');
       if (settingsBtn) {
         ev.preventDefault();
         ev.stopImmediatePropagation();
@@ -692,7 +701,9 @@
 
   function openLogin(){
     try {
+      if (typeof window.resetAuthProviderButtonsV78e === 'function') window.resetAuthProviderButtonsV78e();
       showShellAuthModalV78h('login');
+      setTimeout(function(){ showShellAuthModalV78h('login'); restoreShellChrome(); }, 60);
       setTimeout(restoreShellChrome, 0);
     } catch (_) {}
   }
