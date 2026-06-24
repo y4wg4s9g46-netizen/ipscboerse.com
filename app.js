@@ -490,6 +490,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "avatar-upload-btn-v76e";
+            btn.setAttribute("data-avatar-upload-v79ad", "1");
             btn.setAttribute("data-txt", "v76e-avatar-change");
             btn.textContent = tV76e("v76e-avatar-change", "Profilbild ändern");
             btn.addEventListener("click", async (event) => {

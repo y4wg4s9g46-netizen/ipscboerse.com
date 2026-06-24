@@ -1,3 +1,4 @@
+/* v79ac-final-review-bugfix */
 // LIGHT THEME FLASH FIX v70
 // OAUTH NO RELOAD LOOP v69
 // NATIVE OAUTH APPPLUGIN FIX v68
@@ -96,13 +97,18 @@ window.uploadImage = async function(file, folder) {
 
 
 // --- V79S Native Passkey + Camera Bridge ---
+// v79ad: final review bugfix: robust profile photo button + no push/widget changes
 function isNativeCapacitorRuntimeV79s() {
     try {
-        return !!(
-            (window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform()) ||
-            window.location.protocol === "capacitor:" ||
-            window.location.protocol === "ionic:"
-        );
+        const frames = [window];
+        try { if (window.parent && window.parent !== window) frames.push(window.parent); } catch (_) {}
+        try { if (window.top && window.top !== window && !frames.includes(window.top)) frames.push(window.top); } catch (_) {}
+        for (const frame of frames) {
+            try {
+                if (frame.Capacitor && typeof frame.Capacitor.isNativePlatform === "function" && frame.Capacitor.isNativePlatform()) return true;
+            } catch (_) {}
+        }
+        return window.location.protocol === "capacitor:" || window.location.protocol === "ionic:";
     } catch (_) {
         return false;
     }
@@ -240,10 +246,12 @@ async function cameraResultToFileV79s(result) {
 
 async function openNativeImageInputV79s(input) {
     if (!input || input.dataset.nativeImageBusyV79s === "1") return false;
-    if (!isNativeCapacitorRuntimeV79s()) return false;
     const accept = String(input.getAttribute("accept") || "").toLowerCase();
     if (!(accept.includes("image") || accept.includes(".jpg") || accept.includes(".jpeg") || accept.includes(".png") || accept.includes(".webp"))) return false;
     const Camera = getCapacitorPluginV66("Camera");
+    // v79ad: In the native app this can run inside an iframe. Some pages do not report
+    // isNativePlatform(), but the parent still exposes the Camera plugin. Use the plugin
+    // as the source of truth and only fall back to the web file picker if it is absent.
     if (!Camera || (typeof Camera.takePhoto !== "function" && typeof Camera.getPhoto !== "function")) return false;
 
     input.dataset.nativeImageBusyV79s = "1";
@@ -272,20 +280,112 @@ async function openNativeImageInputV79s(input) {
         }
         const file = await cameraResultToFileV79s(photo);
         if (!file) return true;
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        input.files = dt.files;
-        input.dispatchEvent(new Event("change", { bubbles: true }));
+        // v79ad: Keep the selected file even if iOS WebView does not allow assigning input.files.
+        try { input.__nativeSelectedFileV79ad = file; } catch (_) {}
+        try { window.__settingsAvatarFileV79ad = file; } catch (_) {}
+        try {
+            if (typeof DataTransfer !== "undefined") {
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                input.files = dt.files;
+            }
+        } catch (_) {}
+        try {
+            if (typeof window.previewSettingsAvatarFromFileV79ad === "function") {
+                window.previewSettingsAvatarFromFileV79ad(file);
+            } else {
+                input.dispatchEvent(new Event("change", { bubbles: true }));
+            }
+        } catch (_) { try { input.dispatchEvent(new Event("change", { bubbles: true })); } catch(__){} }
         return true;
     } catch (error) {
         const msg = String(error?.message || error || "");
-        if (!/cancel|user cancelled|user canceled|abort/i.test(msg)) console.warn("Native image picker failed:", error);
+        if (!/cancel|user cancelled|user canceled|abort/i.test(msg)) {
+            console.warn("Native image picker failed:", error);
+            try { alert("Profilbild konnte nicht geöffnet werden: " + msg); } catch (_) {}
+        }
         return true;
     } finally {
         setTimeout(() => { try { delete input.dataset.nativeImageBusyV79s; } catch (_) {} }, 350);
     }
 }
 window.openNativeImageInputV79s = openNativeImageInputV79s;
+
+
+window.previewSettingsAvatarFromFileV79ad = function(file) {
+    try {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const src = e && e.target ? e.target.result : null;
+            if (!src) return;
+            const img = document.getElementById('settings-avatar-preview');
+            if (img) {
+                img.src = src;
+                img.style.display = 'block';
+                img.classList.add('settings-avatar-preview-v76e');
+            }
+            const headImg = document.querySelector('#settings-profile-head-v76e img');
+            if (headImg) headImg.src = src;
+            const headerImg = document.getElementById('header-avatar');
+            if (headerImg) headerImg.src = src;
+        };
+        reader.readAsDataURL(file);
+    } catch (_) {}
+};
+
+(function installAvatarUploadButtonBridgeV79ad(){
+    if (window.__IPSC_AVATAR_UPLOAD_BUTTON_V79AD) return;
+    window.__IPSC_AVATAR_UPLOAD_BUTTON_V79AD = true;
+    document.addEventListener('click', async function(event){
+        const btn = event.target && event.target.closest && event.target.closest('.avatar-upload-btn-v76e, [data-avatar-upload-v79ad]');
+        if (!btn) return;
+        const input = document.getElementById('settings-avatar');
+        if (!input) return;
+        event.preventDefault();
+        event.stopPropagation();
+        if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+        try {
+            if (window.openNativeImageInputV79s) {
+                const handled = await window.openNativeImageInputV79s(input);
+                if (handled) return;
+            }
+        } catch (err) {
+            console.warn('Avatar native picker failed, falling back to file input:', err);
+        }
+        // Web fallback: temporarily make the hidden input clickable for Safari/WebView.
+        try {
+            const old = {
+                position: input.style.position,
+                width: input.style.width,
+                height: input.style.height,
+                opacity: input.style.opacity,
+                pointerEvents: input.style.pointerEvents,
+                display: input.style.display
+            };
+            input.style.position = 'fixed';
+            input.style.width = '1px';
+            input.style.height = '1px';
+            input.style.opacity = '0.01';
+            input.style.pointerEvents = 'auto';
+            input.style.display = 'block';
+            input.removeAttribute('disabled');
+            input.click();
+            setTimeout(function(){
+                try {
+                    input.style.position = old.position;
+                    input.style.width = old.width;
+                    input.style.height = old.height;
+                    input.style.opacity = old.opacity;
+                    input.style.pointerEvents = old.pointerEvents;
+                    input.style.display = old.display;
+                } catch(_) {}
+            }, 700);
+        } catch (_) {
+            try { input.click(); } catch(__) {}
+        }
+    }, true);
+})();
 
 (function installNativeImageInputBridgeV79s(){
     if (window.__IPSC_NATIVE_IMAGE_INPUT_V79S) return;
@@ -402,21 +502,25 @@ function isNativeShellV66() {
 }
 
 function getCapacitorPluginV66(name) {
-    try {
-        const plugins = window.Capacitor?.Plugins || {};
-        const aliases = {
-            Camera: ["Camera", "CAPCameraPlugin", "CapacitorCamera"],
-            Filesystem: ["Filesystem", "FilesystemPlugin", "CapacitorFilesystem"],
-            Share: ["Share", "SharePlugin", "CapacitorShare"],
-            Browser: ["Browser", "CAPBrowserPlugin", "CapacitorBrowser"],
-            App: ["App", "AppPlugin", "CapacitorApp"]
-        };
-        const names = aliases[name] || [name];
-        for (const key of names) if (plugins[key]) return plugins[key];
-        return null;
-    } catch (_) {
-        return null;
+    const aliases = {
+        Camera: ["Camera", "CAPCameraPlugin", "CapacitorCamera"],
+        Filesystem: ["Filesystem", "FilesystemPlugin", "CapacitorFilesystem"],
+        Share: ["Share", "SharePlugin", "CapacitorShare"],
+        Browser: ["Browser", "CAPBrowserPlugin", "CapacitorBrowser"],
+        App: ["App", "AppPlugin", "CapacitorApp"],
+        BluetoothLe: ["BluetoothLe", "BluetoothLE", "CapacitorBluetoothLe"]
+    };
+    const names = aliases[name] || [name];
+    const frames = [window];
+    try { if (window.parent && window.parent !== window) frames.push(window.parent); } catch (_) {}
+    try { if (window.top && window.top !== window && !frames.includes(window.top)) frames.push(window.top); } catch (_) {}
+    for (const frame of frames) {
+        try {
+            const plugins = frame.Capacitor?.Plugins || {};
+            for (const key of names) if (plugins[key]) return plugins[key];
+        } catch (_) {}
     }
+    return null;
 }
 
 function getOAuthRedirectUrlV66() {
@@ -1430,6 +1534,7 @@ document.addEventListener("click", async (e) => {
 
 window.previewSettingsAvatar = function(input) {
     if (input.files && input.files[0]) {
+        try { input.__nativeSelectedFileV79ad = input.files[0]; window.__settingsAvatarFileV79ad = input.files[0]; } catch (_) {}
         const reader = new FileReader();
 
         reader.onload = function(e) {
@@ -1557,7 +1662,9 @@ document.addEventListener("submit", async (e) => {
             const publicUsername = newPublicAlias !== "" ? newPublicAlias : window.currentUser.email.split('@')[0];
 
             const avatarInput = document.getElementById("settings-avatar");
-            const avatarFile = avatarInput && avatarInput.files.length > 0 ? avatarInput.files[0] : null;
+            const avatarFile = avatarInput && avatarInput.files && avatarInput.files.length > 0
+                ? avatarInput.files[0]
+                : (avatarInput && avatarInput.__nativeSelectedFileV79ad ? avatarInput.__nativeSelectedFileV79ad : (window.__settingsAvatarFileV79ad || null));
 
             let updates = {
                 data: {

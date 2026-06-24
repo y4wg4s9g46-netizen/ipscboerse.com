@@ -243,7 +243,7 @@
 <title>Digitale Schießkladde | IPSC Börse</title>
     
     <script>
-        // V76P: Theme vor global.css?v=79aa nochmals stabilisieren, ohne Auto-Dark-Zwischenframe.
+        // V76P: Theme vor global.css?v=79ac nochmals stabilisieren, ohne Auto-Dark-Zwischenframe.
         (function() {
             try {
                 var carried = null;
@@ -260,7 +260,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="preload" href="icon-192.png" as="image">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=79aa">
+<link rel="stylesheet" href="global.css?v=79ac">
 
 
     <style id="schiessbuch-integrity-v56">
@@ -459,12 +459,42 @@
   html[data-theme="dark"] .schiessbuch-legal-hint-v79z{background:rgba(30,41,59,.58);border-color:rgba(148,163,184,.22);}
 </style>
 
+<meta name="ipsc-build" content="v79ad-final-two-bugfix">
+
+<script id="schiessbuch-legal-hint-dedupe-v79ad">
+(function(){
+  function dedupeSchiessbuchLegalHintV79ad(){
+    try {
+      var hints = Array.prototype.slice.call(document.querySelectorAll('.schiessbuch-legal-hint-v79z, #schiessbuch-legal-hint-visible-v79aa'));
+      if (!hints.length) return;
+      var seen = false;
+      hints.forEach(function(el){
+        if (!el || !el.parentNode) return;
+        var text = (el.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+        var isLegalHint = text.indexOf('digitales schießbuch') !== -1 || text.indexOf('digital shooting log') !== -1 || text.indexOf('erzeugte pdf') !== -1 || text.indexOf('generated pdf') !== -1;
+        if (!isLegalHint) return;
+        if (seen) {
+          el.parentNode.removeChild(el);
+        } else {
+          seen = true;
+          el.id = 'schiessbuch-legal-hint-visible-v79ad';
+        }
+      });
+    } catch(_) {}
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', dedupeSchiessbuchLegalHintV79ad, { once:true });
+  else dedupeSchiessbuchLegalHintV79ad();
+  setTimeout(dedupeSchiessbuchLegalHintV79ad, 250);
+  setTimeout(dedupeSchiessbuchLegalHintV79ad, 1000);
+})();
+</script>
+
 </head>
 <body class="page-schiessbuch app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v">
 
     <header id="main-header"></header>
   
-   <script src="header.js?v=79aa"></script>
+   <script src="header.js?v=79ac"></script>
 
     <div class="container">
         
@@ -491,7 +521,6 @@
         </div>
 
         <div id="logbook-content" style="display: none;">
-            <div id="schiessbuch-legal-hint-content-v79aa" class="schiessbuch-legal-hint-v79z" data-txt="schiessbuch-legal-hint-v79z"><strong>Hinweis:</strong> Bitte kläre vor der Nutzung als Nachweis mit deinem Verband und der zuständigen Behörde, ob ein digitales Schießbuch bzw. das erzeugte PDF akzeptiert wird.</div>
 </div>
             
             <div class="dash-1218">
@@ -571,9 +600,9 @@
             <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-<script src="auth.js?v=79aa"></script>
-    <script src="lang.js?v=79aa"></script>
-    <script src="app.js?v=79aa"></script>
+<script src="auth.js?v=79ac"></script>
+    <script src="lang.js?v=79ac"></script>
+    <script src="app.js?v=79ac"></script>
 
     <script>
         let logs = [];
@@ -1756,7 +1785,7 @@ async function buildClientSchiessbuchPDF(event) {
 })();
 </script>
 
-    <script src="release-i18n-v78s.js?v=79aa"></script>
-    <script src="release-i18n-v78u.js?v=79aa"></script>
+    <script src="release-i18n-v78s.js?v=79ac"></script>
+    <script src="release-i18n-v78u.js?v=79ac"></script>
 </body>
 </html>
