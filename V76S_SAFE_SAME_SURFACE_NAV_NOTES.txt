@@ -1,7 +1,0 @@
-V76S_SAFE_SAME_SURFACE_NAV_NOTES
-
-- Same-surface bridge for native/mobile HTML page changes: the bridge uses the currently visible theme, not stale session storage.
-- Theme boot priority fixed: navigation theme / selectedTheme / theme / effectiveTheme; old stale session value no longer wins.
-- toggleTheme now updates sessionStorage too.
-- Marketplace mobile owner layout fixed: Export + Melden, then Vermittelt full-width, then Live-Chat + Anbieter kontaktieren.
-- Login modal stays compact on mobile.
