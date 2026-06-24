@@ -4,13 +4,13 @@
     <script id="ipsc-build-cache-reset-v79u">
 (function(){
   try {
-    window.__IPSC_BUILD_ID = "v79z-dark-matches-logbook-fix";
-    document.documentElement.setAttribute("data-ipsc-build", "v79y");
-    try { localStorage.setItem("ipsc_active_build", "v79z-dark-matches-logbook-fix"); } catch (_) {}
+    window.__IPSC_BUILD_ID = "v79ab-ipad-app-view-restore";
+    document.documentElement.setAttribute("data-ipsc-build", "v79ab");
+    try { localStorage.setItem("ipsc_active_build", "v79ab-ipad-app-view-restore"); } catch (_) {}
     var isNative = /^(capacitor|ionic):$/i.test(location.protocol || "") || /(^|[?&])(shell=1|appframe=1)(?:&|$)/.test(location.search || "");
     if ("caches" in window) {
       caches.keys().then(function(keys){
-        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79z-dark-matches-logbook-fix"; }).map(function(k){ return caches.delete(k); }));
+        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79ab-ipad-app-view-restore"; }).map(function(k){ return caches.delete(k); }));
       }).catch(function(){});
     }
     if (isNative && "serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
@@ -246,15 +246,14 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="preload" href="icon-192.png" as="image">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=79aa">
+<link rel="stylesheet" href="global.css?v=79ab">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
-<meta name="ipsc-build" content="v79aa-bluetooth-fav-logbook-fix">
 </head>
 <body class="page-sg-timer-live app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v">
 
     <header id="main-header"></header>
-    <script src="header.js?v=79aa"></script>
+    <script src="header.js?v=79ab"></script>
 
     <div class="main-container">
         
@@ -436,6 +435,20 @@
         }
 
         // 1. ANKOPPELN & AUTOMATISCHE HARDWARE-ERKENNUNG (HYBRID FÜR PC & IOS-APP)
+
+        function getCapacitorBluetoothV79aa() {
+            const roots = [window];
+            try { if (window.parent && window.parent !== window) roots.push(window.parent); } catch (_) {}
+            try { if (window.top && window.top !== window && !roots.includes(window.top)) roots.push(window.top); } catch (_) {}
+            for (const r of roots) {
+                try {
+                    const plugin = r.CapacitorBluetoothLE || (r.Capacitor && r.Capacitor.Plugins && (r.Capacitor.Plugins.BluetoothLe || r.Capacitor.Plugins.BluetoothLE));
+                    if (plugin && typeof plugin.initialize === 'function') return plugin;
+                } catch (_) {}
+            }
+            return null;
+        }
+
         async function connectSGTimer() {
             const badge = document.getElementById('bt-status-badge');
             const btn = document.getElementById('btn-connect');
@@ -444,27 +457,15 @@
                 if (btn) { btn.disabled = true; btn.textContent = isEn ? 'Searching…' : 'Suche…'; }
                 badge.innerHTML = `<span>⏳ ${isEn ? 'Scanning...' : 'Scan läuft...'}</span>`;
 
-                const ble = (function(){
-                    const roots = [];
-                    try { roots.push(window); } catch(_) {}
-                    try { if (window.parent && window.parent !== window) roots.push(window.parent); } catch(_) {}
-                    for (const root of roots) {
-                        try {
-                            if (root.CapacitorBluetoothLE) return root.CapacitorBluetoothLE;
-                            if (root.BluetoothLe) return root.BluetoothLe;
-                            if (root.Capacitor && root.Capacitor.Plugins) {
-                                if (root.Capacitor.Plugins.BluetoothLe) return root.Capacitor.Plugins.BluetoothLe;
-                                if (root.Capacitor.Plugins.BluetoothLE) return root.Capacitor.Plugins.BluetoothLE;
-                            }
-                        } catch(_) {}
-                    }
-                    return null;
-                })();
+                const ble = getCapacitorBluetoothV79aa();
                 
                 if (!ble) {
                     isNativeBLE = false;
                     if (!navigator.bluetooth) {
-                        alert(isEn ? "Bluetooth is not available in this WebView. On iOS the app must use the native BLE bridge; please update the app build with the BluetoothLe plugin enabled." : "Bluetooth ist in dieser WebView nicht verfügbar. Auf iOS muss die App die native BLE-Bridge nutzen; bitte den App-Build mit aktiviertem BluetoothLe-Plugin verwenden.");
+                        const msg = isEn
+                          ? "Bluetooth is not available in this web view. In the native app the Capacitor BLE plugin must be available; on the web use a browser with Web Bluetooth support."
+                          : "Bluetooth ist in dieser WebView nicht verfügbar. In der nativen App muss das Capacitor-BLE-Plugin verfügbar sein; im Web brauchst du einen Browser mit Web-Bluetooth-Unterstützung.";
+                        alert(msg);
                         resetConnectButtonV78l();
                         return;
                     }
@@ -495,11 +496,20 @@
                 }
 
                 isNativeBLE = true;
+                try {
+                    if (typeof ble.setDisplayStrings === 'function') {
+                        await ble.setDisplayStrings({ scanning: 'Suche SG Timer…', cancel: 'Abbrechen', availableDevices: 'Verfügbare Timer', noDeviceFound: 'Kein Timer gefunden' });
+                    }
+                } catch (_) {}
                 await ble.initialize();
 
-                const device = await ble.requestDevice({
-                    services: [SG_SERVICE_UUID]
-                });
+                let device = null;
+                try {
+                    device = await ble.requestDevice({ services: [SG_SERVICE_UUID] });
+                } catch (primaryRequestError) {
+                    // Some SG Timer firmware advertises without complete service UUIDs. Fallback: let iOS show SG devices by name.
+                    device = await ble.requestDevice({ namePrefix: 'SG' });
+                }
 
                 if (!device) throw new Error("Kein Gerät ausgewählt");
                 nativeDeviceId = device.deviceId;
@@ -808,9 +818,9 @@
             loadLeaderboard();
         }
     </script>
-<script src="auth.js?v=79aa"></script>
-    <script src="lang.js?v=79aa"></script>
-    <script src="app.js?v=79aa"></script>
+<script src="auth.js?v=79ab"></script>
+    <script src="lang.js?v=79ab"></script>
+    <script src="app.js?v=79ab"></script>
     <script>
         window.onAuthChange = () => { 
             if(typeof updateHeaderChatBadge === 'function') {
@@ -879,7 +889,7 @@
 })();
 </script>
 
-    <script src="release-i18n-v78s.js?v=79aa"></script>
-    <script src="release-i18n-v78u.js?v=79aa"></script>
+    <script src="release-i18n-v78s.js?v=79ab"></script>
+    <script src="release-i18n-v78u.js?v=79ab"></script>
 </body>
 </html>

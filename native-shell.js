@@ -466,8 +466,8 @@
         frame.dataset.lastUsed = String(Date.now());
         frame.title = PAGES[view.file].title || view.file;
         frame.setAttribute("loading", "eager");
+        frame.setAttribute("allow", "bluetooth *; publickey-credentials-get *; publickey-credentials-create *; clipboard-read; clipboard-write; fullscreen");
         frame.setAttribute("scrolling", "no");
-        frame.setAttribute("allow", "publickey-credentials-get *; publickey-credentials-create *; clipboard-read; clipboard-write; bluetooth *; fullscreen");
         frame.setAttribute("aria-hidden", "true");
         frame.addEventListener("load", function () {
             if (!markFrameLoaded(frame, view)) return;

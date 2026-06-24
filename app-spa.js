@@ -8,7 +8,7 @@
   window.__IPSC_APP_FRAME_SPA_V78X = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
 
-  const VERSION = '79x';
+  const VERSION = '79ab';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -583,7 +583,7 @@
     frame.setAttribute('title', view.title);
     frame.setAttribute('data-view', view.file);
     frame.setAttribute('data-key', view.key);
-    frame.setAttribute('allow', 'publickey-credentials-get *; publickey-credentials-create *; clipboard-read; clipboard-write; bluetooth *; fullscreen');
+    frame.setAttribute('allow', 'bluetooth *; publickey-credentials-get *; publickey-credentials-create *; clipboard-read; clipboard-write; fullscreen');
     frame.src = frameUrlFor(view);
     frame.addEventListener('load', function(){
       const theme = getTheme();

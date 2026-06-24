@@ -4,13 +4,13 @@
     <script id="ipsc-build-cache-reset-v79u">
 (function(){
   try {
-    window.__IPSC_BUILD_ID = "v79z-dark-matches-logbook-fix";
-    document.documentElement.setAttribute("data-ipsc-build", "v79y");
-    try { localStorage.setItem("ipsc_active_build", "v79z-dark-matches-logbook-fix"); } catch (_) {}
+    window.__IPSC_BUILD_ID = "v79ab-ipad-app-view-restore";
+    document.documentElement.setAttribute("data-ipsc-build", "v79ab");
+    try { localStorage.setItem("ipsc_active_build", "v79ab-ipad-app-view-restore"); } catch (_) {}
     var isNative = /^(capacitor|ionic):$/i.test(location.protocol || "") || /(^|[?&])(shell=1|appframe=1)(?:&|$)/.test(location.search || "");
     if ("caches" in window) {
       caches.keys().then(function(keys){
-        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79z-dark-matches-logbook-fix"; }).map(function(k){ return caches.delete(k); }));
+        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79ab-ipad-app-view-restore"; }).map(function(k){ return caches.delete(k); }));
       }).catch(function(){});
     }
     if (isNative && "serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
@@ -444,8 +444,8 @@
     <!-- PDF APP SHARE FIX v61 -->
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 
-<style id="schiessbuch-v79aa-legal-hint-css">
-  .schiessbuch-legal-hint-v79z,.schiessbuch-legal-hint-v79aa{
+<style id="schiessbuch-v79z-legal-hint-css">
+  .schiessbuch-legal-hint-v79z{
     margin: 0 0 16px 0;
     padding: 13px 15px;
     border-radius: 18px;
@@ -455,11 +455,10 @@
     font-size: 13px;
     line-height: 1.45;
   }
-  .schiessbuch-legal-hint-v79z strong,.schiessbuch-legal-hint-v79aa strong{color:var(--text-color);}
-  html[data-theme="dark"] .schiessbuch-legal-hint-v79z,html[data-theme="dark"] .schiessbuch-legal-hint-v79aa{background:rgba(30,41,59,.58);border-color:rgba(148,163,184,.22);}
+  .schiessbuch-legal-hint-v79z strong{color:var(--text-color);}
+  html[data-theme="dark"] .schiessbuch-legal-hint-v79z{background:rgba(30,41,59,.58);border-color:rgba(148,163,184,.22);}
 </style>
 
-<meta name="ipsc-build" content="v79aa-bluetooth-fav-logbook-fix">
 </head>
 <body class="page-schiessbuch app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v">
 
@@ -480,9 +479,10 @@
 <a class="app-page-action-v72 secondary" href="#logbook-content" data-txt="v74-log-action-pdf"></a>
                 </div>
                 <div class="app-page-status-v74" data-txt="v76-log-status"></div>
-                <div class="schiessbuch-legal-hint-v79aa" data-txt="schiessbuch-legal-hint-v79aa"><strong>Wichtiger Hinweis:</strong> Bitte stimme vor dem digitalen Führen bzw. vor Nutzung des PDF-Nachweises mit deinem Verband und der zuständigen Behörde ab, ob das digitale Schießbuch in deinem Fall akzeptiert wird.</div>
             </div>
         </section>
+        <div id="schiessbuch-legal-hint-visible-v79aa" class="schiessbuch-legal-hint-v79z" data-txt="schiessbuch-legal-hint-v79z"><strong>Hinweis:</strong> Bitte kläre vor der Nutzung als Nachweis mit deinem Verband und der zuständigen Behörde, ob ein digitales Schießbuch bzw. das erzeugte PDF akzeptiert wird.</div>
+
 <div class="page-section" id="auth-guard" style="display: none; text-align: center; padding: 40px 20px;">
             <span style="font-size: 40px; display: block; margin-bottom: 16px;">💾</span>
             <p style="color: var(--text-color); font-weight: 800; font-size: 18px; margin-top: 0; margin-bottom: 8px;" data-txt="v74-log-title">Schießbuch</p>
@@ -491,6 +491,7 @@
         </div>
 
         <div id="logbook-content" style="display: none;">
+            <div id="schiessbuch-legal-hint-content-v79aa" class="schiessbuch-legal-hint-v79z" data-txt="schiessbuch-legal-hint-v79z"><strong>Hinweis:</strong> Bitte kläre vor der Nutzung als Nachweis mit deinem Verband und der zuständigen Behörde, ob ein digitales Schießbuch bzw. das erzeugte PDF akzeptiert wird.</div>
 </div>
             
             <div class="dash-1218">
@@ -514,7 +515,6 @@
                 </div>
 
                 <div id="schiessbuch-pdf-hint-v57" class="pdf-export-hint">PDF enthält bestätigte Einträge inkl. Finger-Unterschrift, Hashdaten und QR-Prüfcode.</div>
-                <div id="schiessbuch-legal-hint-inline-v79aa" class="schiessbuch-legal-hint-v79aa" data-txt="schiessbuch-legal-hint-v79aa"><strong>Wichtiger Hinweis:</strong> Bitte stimme vor dem digitalen Führen bzw. vor Nutzung des PDF-Nachweises mit deinem Verband und der zuständigen Behörde ab, ob das digitale Schießbuch in deinem Fall akzeptiert wird.</div>
                 <div id="log-list">
                     <p style="text-align: center; color: var(--text-muted); font-size: 14px;" data-txt="planner-loading">Lade Schießbuch...</p>
                 </div>
@@ -1163,7 +1163,7 @@ async function buildClientSchiessbuchPDF(event) {
                 doc.setFillColor(248, 250, 252);
                 doc.setDrawColor(226, 232, 240);
                 doc.roundedRect(margin, y, pageW - margin * 2, 14, 2.5, 2.5, "FD");
-                write("Wichtiger Hinweis: Bitte stimme vor dem digitalen Führen bzw. vor Nutzung dieses PDF-Nachweises mit deinem Verband und der zuständigen Behörde ab, ob das digitale Schießbuch in deinem Fall akzeptiert wird.", margin + 3, y + 5.5, { size: 7.2, color: [71, 85, 105] });
+                write("Hinweis: Bitte mit Verband und zuständiger Behörde klären, ob dieses digitale Schießbuch/PDF als Nachweis akzeptiert wird.", margin + 3, y + 5.5, { size: 7.2, color: [71, 85, 105] });
                 write("Die Anerkennung liegt nicht bei ipscboerse.com.", margin + 3, y + 10.5, { size: 7.2, color: [71, 85, 105] });
                 y += 22;
 

@@ -14727,3 +14727,40 @@ html[data-theme="dark"] #auth-modal #modal-settings-view .avatar-polished-v76e {
 .native-photo-sheet-v79y button { width:100%!important; min-height:50px!important; border-radius:18px!important; border:1px solid var(--border-color,rgba(148,163,184,.26))!important; background:var(--surface-soft-v71,#f8fafc)!important; color:var(--text-color,#0f172a)!important; font-weight:900!important; font-size:15px!important; margin-top:9px!important; }
 .native-photo-sheet-v79y button.primary { background:linear-gradient(135deg,#ff9f43,#ff6b00)!important; color:white!important; border-color:rgba(255,159,67,.45)!important; }
 .native-photo-sheet-v79y button.cancel { background:transparent!important; color:var(--text-muted,#64748b)!important; }
+
+
+/* v79aa: modal position follows the visible app viewport inside native iframes */
+body.favorites-open-v79aa { overflow: visible !important; }
+body.page-index .favorites-modal-v76.show,
+html.ipsc-app-frame body.page-index .favorites-modal-v76.show,
+html.is-native-shell body.page-index .favorites-modal-v76.show {
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 18px 18px 116px 18px !important;
+  background: rgba(15,23,42,.48) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+body.page-index .favorites-modal-v76.show .favorites-sheet-v76,
+html.ipsc-app-frame body.page-index .favorites-modal-v76.show .favorites-sheet-v76,
+html.is-native-shell body.page-index .favorites-modal-v76.show .favorites-sheet-v76 {
+  width: min(calc(100vw - 36px), 520px) !important;
+  border-radius: 30px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+body.page-schiessbuch .schiessbuch-legal-hint-v79z{
+  margin: 0 0 18px 0 !important;
+  padding: 14px 16px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(59,130,246,.24) !important;
+  background: linear-gradient(135deg, rgba(59,130,246,.08), rgba(255,159,67,.10)) !important;
+  color: var(--text-muted) !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+}
+body.page-schiessbuch .schiessbuch-legal-hint-v79z strong{ color: var(--text-color) !important; }
+html[data-theme="dark"] body.page-schiessbuch .schiessbuch-legal-hint-v79z{
+  background: rgba(30,41,59,.62) !important;
+  border-color: rgba(148,163,184,.24) !important;
+}
