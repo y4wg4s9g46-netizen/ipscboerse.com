@@ -230,7 +230,7 @@
     <link rel="preload" href="icon-192.png" as="image">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=76v">
+<link rel="stylesheet" href="global.css?v=79t">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 
@@ -294,6 +294,12 @@
   }
 </style>
 
+<style id="index-v79t-favorite-layout-inline">
+  .fav-symbol-v79r{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;width:30px!important;height:30px!important;min-width:30px!important;flex:0 0 30px!important;}
+  .fav-symbol-v79r::before{font-size:25px!important;font-weight:400!important;line-height:1!important;color:inherit!important;}
+  .hero-quicklinks-v76 a strong{display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:8px!important;}
+  .fav-edit-btn-v76,.app-cta-v71{justify-content:center!important;text-align:center!important;}
+</style>
 </head>
 
 <body class="page-index app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v">
@@ -495,9 +501,9 @@
             <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-<script src="auth.js?v=76v"></script>
+<script src="auth.js?v=79t"></script>
     <script src="lang.js?v=76v"></script>
-    <script src="app.js?v=76v"></script>
+    <script src="app.js?v=79t"></script>
     
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -508,10 +514,16 @@
             }
         });
         
-        window.onAuthChange = () => { 
-            if (typeof updateHeaderChatBadge === "function") {
-                updateHeaderChatBadge(); 
+        const previousIndexAuthChangeV79t = typeof window.onAuthChange === "function" ? window.onAuthChange : null;
+        window.onAuthChange = (user) => {
+            if (previousIndexAuthChangeV79t) {
+                try { previousIndexAuthChangeV79t(user); } catch (_) {}
             }
+            if (typeof updateHeaderChatBadge === "function") {
+                updateHeaderChatBadge();
+            }
+            try { window.dispatchEvent(new CustomEvent("ipsc-auth-changed", { detail: { user: user || window.currentUser || null, source: "index-v79t" } })); } catch (_) {}
+            try { window.dispatchEvent(new CustomEvent("ipsc:auth-changed-v79t", { detail: { user: user || window.currentUser || null, source: "index-v79t" } })); } catch (_) {}
         };
     </script>
     
@@ -607,7 +619,7 @@
       const client = window.supabaseClient || (window.supabase && window.SUPABASE_URL && window.SUPABASE_ANON_KEY ? window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY) : null);
       if (!client || !client.auth) { render(null, 'Nicht bereit'); return; }
       const { data: sessionData } = await client.auth.getSession();
-      const user = sessionData?.session?.user;
+      const user = sessionData?.session?.user || window.currentUser || null;
       if (!user) { render(null, 'Nicht angemeldet'); return; }
       const { data, error } = await client
         .from('user_match_analytics')
@@ -658,8 +670,26 @@
       const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500);
     }catch(err){ console.warn('share season failed',err); alert('Teilen hat nicht geklappt. Die Saisonkarte wurde vorbereitet, aber dein Browser hat das Teilen abgebrochen.'); }
   };
-  document.addEventListener('DOMContentLoaded', function(){ setTimeout(load, 450); });
-  window.addEventListener('ipsc-auth-changed', load);
+  function reloadSeasonSoonV79t(){
+    setTimeout(load, 40);
+    setTimeout(load, 650);
+  }
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(load, 350); setTimeout(load, 1300); setTimeout(load, 2600); });
+  window.addEventListener('ipsc-auth-changed', reloadSeasonSoonV79t);
+  window.addEventListener('ipsc:auth-changed-v79t', reloadSeasonSoonV79t);
+  window.addEventListener('ipsc:oauth-login-complete', reloadSeasonSoonV79t);
+  window.addEventListener('ipsc:shell-auth-updated-v77e', reloadSeasonSoonV79t);
+  window.addEventListener('message', function(event){
+    if (event.origin !== window.location.origin) return;
+    const msg = event.data || {};
+    if (msg.type === 'ipsc-auth-session-v78l' && msg.user) {
+      try { window.currentUser = msg.user; } catch (_) {}
+      reloadSeasonSoonV79t();
+    }
+    if (msg.type === 'ipsc-auth-refresh-v78d') reloadSeasonSoonV79t();
+    if (msg.type === 'ipsc-auth-logout-v78d') { try { window.currentUser = null; } catch (_) {} render(null, 'Nicht angemeldet'); }
+  });
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) reloadSeasonSoonV79t(); });
 })();
 </script>
 

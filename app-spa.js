@@ -287,19 +287,37 @@
     } catch (_) {}
   }
 
+  function fillSettingsFromUserV79t(user){
+    try {
+      user = user || window.currentUser || null;
+      const settingsPublicAlias = document.getElementById('settings-public-alias');
+      if (settingsPublicAlias && user) settingsPublicAlias.value = user.user_metadata?.username || '';
+      const settingsIpsc = document.getElementById('settings-ipsc-alias');
+      if (settingsIpsc && user) settingsIpsc.value = user.user_metadata?.ipsc_alias || '';
+      const settingsRealName = document.getElementById('settings-real-name');
+      if (settingsRealName && user) settingsRealName.value = user.user_metadata?.real_name || '';
+      const previewImg = document.getElementById('settings-avatar-preview');
+      const avatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.user_metadata?.profile_picture || '';
+      if (previewImg && avatar) { previewImg.src = avatar; previewImg.style.display = 'block'; }
+    } catch (_) {}
+  }
+
   function openShellSettings(){
     try {
       showShellAuthModalV78h('settings');
-      const settingsIpsc = document.getElementById('settings-ipsc-alias');
-      if (settingsIpsc && window.currentUser) settingsIpsc.value = window.currentUser.user_metadata?.ipsc_alias || '';
-      const settingsRealName = document.getElementById('settings-real-name');
-      if (settingsRealName && window.currentUser) settingsRealName.value = window.currentUser.user_metadata?.real_name || '';
-      const previewImg = document.getElementById('settings-avatar-preview');
-      if (previewImg && window.currentUser?.user_metadata?.avatar_url) {
-        previewImg.src = window.currentUser.user_metadata.avatar_url;
-        previewImg.style.display = 'block';
-      }
-      setTimeout(restoreShellChrome, 0);
+      fillSettingsFromUserV79t(window.currentUser || null);
+      try {
+        if (window.supabaseClient?.auth?.getSession) {
+          window.supabaseClient.auth.getSession().then(function(result){
+            const user = result && result.data && result.data.session && result.data.session.user;
+            if (user) window.currentUser = user;
+            showShellAuthModalV78h('settings');
+            fillSettingsFromUserV79t(user || window.currentUser || null);
+            setTimeout(restoreShellChrome, 0);
+          }).catch(function(){});
+        }
+      } catch (_) {}
+      setTimeout(function(){ showShellAuthModalV78h('settings'); fillSettingsFromUserV79t(window.currentUser || null); restoreShellChrome(); }, 60);
       return true;
     } catch (_) { return false; }
   }
@@ -649,6 +667,13 @@
       }
       const modalBg = ev.target && ev.target.id && ['auth-modal','chat-modal','global-inbox-modal'].includes(ev.target.id) ? ev.target : null;
       if (modalBg) { closeShellModalV78m(); try { ev.preventDefault(); ev.stopImmediatePropagation(); } catch (_) {} return; }
+      const loginBtn = ev.target && ev.target.closest && ev.target.closest('#btn-open-login, [data-native-login]');
+      if (loginBtn) {
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        openLogin();
+        return;
+      }
       const settingsBtn = ev.target && ev.target.closest && ev.target.closest('#btn-open-settings, .header-avatar-btn, #header-avatar');
       if (settingsBtn) {
         ev.preventDefault();

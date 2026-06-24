@@ -14182,3 +14182,126 @@ body.page-mein-planer .planner-accommodation-save-v78n {
     margin-top: 0 !important;
   }
 }
+
+/* ======================================================================
+   V79T Login/Layout-Fix
+   - Favoriten-Emojis wieder als echte Emojis ohne Badge-Kachel
+   - Marktplatz-Preis auf Mobile sauber mittig
+   - Login-/Profilbuttons behalten Touchfläche nach Logout
+   ====================================================================== */
+body.page-index .fav-symbol-v79r,
+html.ipsc-app-frame body.page-index .fav-symbol-v79r {
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  flex: 0 0 30px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  transform: translateY(-1px) !important;
+}
+body.page-index .fav-symbol-v79r::before,
+html.ipsc-app-frame body.page-index .fav-symbol-v79r::before {
+  font-size: 25px !important;
+  line-height: 1 !important;
+  font-weight: 400 !important;
+  color: inherit !important;
+  letter-spacing: 0 !important;
+}
+body.page-index .hero-quicklinks-v76 a strong,
+html.ipsc-app-frame body.page-index .hero-quicklinks-v76 a strong {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+  line-height: 1.1 !important;
+}
+body.page-index .hero-quicklinks-v76 a strong > span:last-child,
+html.ipsc-app-frame body.page-index .hero-quicklinks-v76 a strong > span:last-child {
+  min-width: 0 !important;
+  overflow-wrap: anywhere !important;
+}
+body.page-index .fav-edit-btn-v76,
+body.page-index .app-cta-v71,
+html.ipsc-app-frame body.page-index .fav-edit-btn-v76,
+html.ipsc-app-frame body.page-index .app-cta-v71 {
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+@media (max-width: 768px) {
+  body.page-index .hero-quicklinks-v76 a,
+  html.ipsc-app-frame body.page-index .hero-quicklinks-v76 a {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 8px 12px !important;
+  }
+  body.page-index .hero-quicklinks-v76 a > span:last-child,
+  html.ipsc-app-frame body.page-index .hero-quicklinks-v76 a > span:last-child {
+    align-self: center !important;
+    text-align: right !important;
+    margin: 0 !important;
+  }
+  body.page-marktplatz .match-header-flex,
+  html.ipsc-app-frame body.page-marktplatz .match-header-flex {
+    display: grid !important;
+    grid-template-columns: 44px minmax(0, 1fr) !important;
+    column-gap: 12px !important;
+    row-gap: 8px !important;
+    align-items: start !important;
+    padding-right: 0 !important;
+  }
+  body.page-marktplatz .match-summary,
+  html.ipsc-app-frame body.page-marktplatz .match-summary {
+    grid-column: 2 !important;
+    min-width: 0 !important;
+    padding-right: 0 !important;
+  }
+  body.page-marktplatz .match-price-head-v76k,
+  html.ipsc-app-frame body.page-marktplatz .match-price-head-v76k {
+    position: static !important;
+    grid-column: 1 / -1 !important;
+    justify-self: center !important;
+    align-self: center !important;
+    width: min(286px, 72%) !important;
+    min-width: 200px !important;
+    max-width: 286px !important;
+    height: 56px !important;
+    margin: 16px auto 6px !important;
+    padding: 0 18px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    font-size: 17px !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+  }
+  body.page-marktplatz .owner-menu,
+  html.ipsc-app-frame body.page-marktplatz .owner-menu {
+    position: absolute !important;
+    top: 18px !important;
+    right: 16px !important;
+    z-index: 8 !important;
+  }
+  body.page-app-spa #btn-open-login,
+  body.page-app-spa #btn-open-settings,
+  body.page-native-shell #btn-open-login,
+  body.page-native-shell #btn-open-settings,
+  header #btn-open-login,
+  header #btn-open-settings {
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+}
+

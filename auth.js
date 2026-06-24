@@ -19,6 +19,24 @@ window.supabaseClient = supabaseClient;
 window.currentUser = null;
 window.currentLang = "de";
 
+
+function emitAuthChangedV79t(user, eventName) {
+    try {
+        const cleanUser = user || null;
+        window.dispatchEvent(new CustomEvent("ipsc-auth-changed", { detail: { user: cleanUser, event: eventName || "AUTH_CHANGED" } }));
+        window.dispatchEvent(new CustomEvent("ipsc:auth-changed-v79t", { detail: { user: cleanUser, event: eventName || "AUTH_CHANGED" } }));
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({
+                type: cleanUser ? "ipsc-auth-session-v78l" : "ipsc-auth-logout-v78d",
+                user: cleanUser ? { id: cleanUser.id, email: cleanUser.email, user_metadata: cleanUser.user_metadata || {} } : null,
+                source: "v79t"
+            }, window.location.origin);
+        }
+    } catch (_) {}
+}
+window.emitAuthChangedV79t = emitAuthChangedV79t;
+
+
 // Header-Cache gegen Zucken beim Seitenwechsel
 const HEADER_USER_CACHE_KEY = "headerUserCache";
 const HEADER_AVATAR_CACHE_KEY = "headerAvatar";
@@ -261,6 +279,7 @@ window.loginWithPasskey = async function() {
     } else {
         if (data?.session?.user) cacheHeaderUser(data.session.user);
         const loggedInUser = data?.session?.user || window.currentUser || null;
+        emitAuthChangedV79t(loggedInUser, "SIGNED_IN");
         if (btn) btn.innerHTML = "✅ Erfolgreich!";
         if (document.body && (document.body.classList.contains("page-native-shell") || document.body.classList.contains("page-app-spa"))) {
             try {
@@ -1213,6 +1232,7 @@ function closeAuthModalAfterLoginV78e(user) {
         document.documentElement.classList.remove("auth-open", "modal-open");
         if (typeof updateAuthUI === "function") updateAuthUI(user || window.currentUser || null);
         if (typeof window.onAuthChange === "function") window.onAuthChange(user || window.currentUser || null);
+        emitAuthChangedV79t(user || window.currentUser || null, "SIGNED_IN");
         if (typeof syncHeaderAuthState === "function") syncHeaderAuthState();
         if (window.IPSCAppV78 && typeof window.IPSCAppV78.broadcastAuth === "function") window.IPSCAppV78.broadcastAuth("SIGNED_IN");
         setTimeout(function(){
@@ -1278,6 +1298,7 @@ document.addEventListener("click", async (e) => {
         clearHeaderUserCache();
         await window.supabaseClient.auth.signOut();
         window.currentUser = null;
+        emitAuthChangedV79t(null, "SIGNED_OUT");
         try { if (typeof updateAuthUI === "function") updateAuthUI(null); } catch (_) {}
         try { if (typeof window.onAuthChange === "function") window.onAuthChange(null); } catch (_) {}
         try { window.dispatchEvent(new CustomEvent("ipsc:auth-logout-v78d")); } catch (_) {}
@@ -1560,6 +1581,7 @@ setTimeout(async () => {
         const { data: { session } } = await window.supabaseClient.auth.getSession();
 
         window.currentUser = settledOAuthSession?.user || session?.user || null;
+        emitAuthChangedV79t(window.currentUser || null, window.currentUser ? "INITIAL_SESSION" : "NO_SESSION");
 
         if (window.currentUser) {
             cacheHeaderUser(window.currentUser);
@@ -1627,6 +1649,7 @@ setTimeout(async () => {
 
         window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
             window.currentUser = session?.user || null;
+            emitAuthChangedV79t(window.currentUser || null, event || "AUTH_STATE_CHANGE");
 
             if (window.currentUser) {
                 cacheHeaderUser(window.currentUser);

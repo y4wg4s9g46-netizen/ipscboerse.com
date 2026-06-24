@@ -561,11 +561,12 @@
             openShellAuthModal("login");
             return;
         }
-        var settingsBtn = event.target && event.target.closest && event.target.closest("#btn-open-settings");
-        if (settingsBtn && document.getElementById("auth-modal")) {
+        var settingsBtn = event.target && event.target.closest && event.target.closest("#btn-open-settings, .header-avatar-btn, #header-avatar");
+        if (settingsBtn) {
             event.preventDefault();
             event.stopImmediatePropagation();
             openShellAuthModal("settings");
+            setTimeout(function(){ try { openShellAuthModal("settings"); } catch (_) {} }, 60);
             return;
         }
         var a = event.target && event.target.closest && event.target.closest("a[href]");
