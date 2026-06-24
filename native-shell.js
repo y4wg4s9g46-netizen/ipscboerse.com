@@ -383,6 +383,14 @@
             try {
                 frame.contentWindow.openParentAuthModalV77b = function(view) { return openShellAuthModal(view || "login"); };
                 frame.contentWindow.routeParentShellV77b = function(view) { return routeTo(view || "index.html"); };
+                // V79AM: expose native Capacitor plugin bridge to embedded pages.
+                // SG-Timer runs inside this iframe; WKWebView does not expose Web Bluetooth,
+                // so the page must see the native Capacitor BLE plugin from the shell frame.
+                try {
+                    if (window.Capacitor) frame.contentWindow.Capacitor = window.Capacitor;
+                    var ble = window.CapacitorBluetoothLE || (window.Capacitor && window.Capacitor.Plugins && (window.Capacitor.Plugins.BluetoothLe || window.Capacitor.Plugins.BluetoothLE));
+                    if (ble) frame.contentWindow.CapacitorBluetoothLE = ble;
+                } catch (_) {}
             } catch (_) {}
             bindFrameLinks(frame, file);
             scheduleHeightWatch(frame);
@@ -467,6 +475,7 @@
         frame.title = PAGES[view.file].title || view.file;
         frame.setAttribute("loading", "eager");
         frame.setAttribute("scrolling", "no");
+        frame.setAttribute("allow", "bluetooth *; camera *; microphone *; clipboard-read *; clipboard-write *; fullscreen *");
         frame.setAttribute("aria-hidden", "true");
         frame.addEventListener("load", function () {
             if (!markFrameLoaded(frame, view)) return;

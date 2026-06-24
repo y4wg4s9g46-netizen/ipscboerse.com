@@ -417,6 +417,19 @@
         }
 
         // 1. ANKOPPELN & AUTOMATISCHE HARDWARE-ERKENNUNG (HYBRID FÜR PC & IOS-APP)
+        function getCapacitorBluetoothV79AM() {
+            const roots = [window];
+            try { if (window.parent && window.parent !== window) roots.push(window.parent); } catch (_) {}
+            try { if (window.top && window.top !== window && !roots.includes(window.top)) roots.push(window.top); } catch (_) {}
+            for (const r of roots) {
+                try {
+                    const plugin = r.CapacitorBluetoothLE || (r.Capacitor && r.Capacitor.Plugins && (r.Capacitor.Plugins.BluetoothLe || r.Capacitor.Plugins.BluetoothLE));
+                    if (plugin && typeof plugin.initialize === 'function' && typeof plugin.requestDevice === 'function') return plugin;
+                } catch (_) {}
+            }
+            return null;
+        }
+
         async function connectSGTimer() {
             const badge = document.getElementById('bt-status-badge');
             const btn = document.getElementById('btn-connect');
@@ -425,12 +438,12 @@
                 if (btn) { btn.disabled = true; btn.textContent = isEn ? 'Searching…' : 'Suche…'; }
                 badge.innerHTML = `<span>⏳ ${isEn ? 'Scanning...' : 'Scan läuft...'}</span>`;
 
-                const ble = window.CapacitorBluetoothLE || (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.BluetoothLe);
+                const ble = getCapacitorBluetoothV79AM();
                 
                 if (!ble) {
                     isNativeBLE = false;
                     if (!navigator.bluetooth) {
-                        alert(isEn ? "Your current browser blocks Web-Bluetooth or does not support it." : "Dein aktueller Browser blockiert Web-Bluetooth oder unterstützt es nicht.");
+                        alert(isEn ? "Bluetooth is not available in this web view. In the native app, please build after npm install + npx cap sync ios so the native BLE plugin is registered." : "Bluetooth ist in dieser WebView nicht verfügbar. In der nativen App bitte nach npm install mit npx cap sync ios bauen, damit das native BLE-Plugin registriert ist.");
                         resetConnectButtonV78l();
                         return;
                     }
