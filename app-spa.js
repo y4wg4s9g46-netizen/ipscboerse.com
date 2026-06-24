@@ -583,7 +583,7 @@
     frame.setAttribute('title', view.title);
     frame.setAttribute('data-view', view.file);
     frame.setAttribute('data-key', view.key);
-    frame.setAttribute('allow', 'publickey-credentials-get *; publickey-credentials-create *; clipboard-read; clipboard-write; fullscreen');
+    frame.setAttribute('allow', 'publickey-credentials-get *; publickey-credentials-create *; clipboard-read; clipboard-write; bluetooth *; fullscreen');
     frame.src = frameUrlFor(view);
     frame.addEventListener('load', function(){
       const theme = getTheme();

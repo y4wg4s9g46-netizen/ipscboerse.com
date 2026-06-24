@@ -248,7 +248,7 @@
     <link rel="preload" href="icon-192.png" as="image">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=79z">
+<link rel="stylesheet" href="global.css?v=79aa">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 
@@ -453,13 +453,14 @@
   html[data-theme="dark"] .season-btn-secondary-v79o{background:rgba(30,41,59,.88)!important;border-color:rgba(148,163,184,.24)!important;color:#f8fafc!important;}
 </style>
 
+<meta name="ipsc-build" content="v79aa-bluetooth-fav-logbook-fix">
 </head>
 
 <body class="page-index app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v">
 
     <header id="main-header"></header>
 
-    <script src="header.js?v=79z"></script>
+    <script src="header.js?v=79aa"></script>
 
     <div class="container">
 
@@ -654,9 +655,9 @@
             <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-<script src="auth.js?v=79z"></script>
-    <script src="lang.js?v=79z"></script>
-    <script src="app.js?v=79z"></script>
+<script src="auth.js?v=79aa"></script>
+    <script src="lang.js?v=79aa"></script>
+    <script src="app.js?v=79aa"></script>
     
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -892,7 +893,7 @@
     <script>
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {
-                navigator.serviceWorker.register("sw.js?v=79z")
+                navigator.serviceWorker.register("sw.js?v=79aa")
                     .then(reg => console.log("PWA Service Worker registriert!", reg.scope))
                     .catch(err => console.error("PWA Fehler:", err));
             });
@@ -1007,6 +1008,84 @@
   
 window.openFavoritesV76=function(){
     renderOptions();
+
+    function openInParentShellV79aa(){
+      let pwin=null, pdoc=null;
+      try {
+        if (!window.parent || window.parent === window) return false;
+        pwin = window.parent;
+        pdoc = pwin.document;
+        if (!pdoc || !pdoc.body) return false;
+      } catch(_) { return false; }
+
+      const old = pdoc.getElementById('ipsc-parent-favorites-overlay-v79aa');
+      if (old) old.remove();
+
+      if (!pdoc.getElementById('ipsc-parent-favorites-style-v79aa')) {
+        const style = pdoc.createElement('style');
+        style.id = 'ipsc-parent-favorites-style-v79aa';
+        style.textContent = `
+          body.ipsc-parent-favorites-open-v79aa{overflow:hidden!important;}
+          .ipsc-parent-favorites-overlay-v79aa{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147483640!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:max(18px,env(safe-area-inset-top)) 18px max(112px,calc(126px + env(safe-area-inset-bottom))) 18px!important;box-sizing:border-box!important;background:rgba(15,23,42,.48)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;overscroll-behavior:contain!important;}
+          .ipsc-parent-favorites-sheet-v79aa{width:min(calc(100vw - 36px),540px)!important;max-height:min(76dvh,660px)!important;border-radius:30px!important;background:var(--card-bg,#fff)!important;color:var(--text-color,#0f172a)!important;box-shadow:0 32px 90px rgba(15,23,42,.36)!important;border:1px solid rgba(148,163,184,.22)!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;}
+          .ipsc-parent-favorites-head-v79aa{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:16px!important;padding:24px 24px 14px!important;}
+          .ipsc-parent-favorites-head-v79aa strong{display:block!important;font-size:28px!important;line-height:1.05!important;font-weight:950!important;letter-spacing:-.03em!important;}
+          .ipsc-parent-favorites-head-v79aa span{display:block!important;margin-top:8px!important;color:var(--text-muted,#64748b)!important;font-size:16px!important;line-height:1.32!important;}
+          .ipsc-parent-favorites-close-v79aa{width:48px!important;height:48px!important;border-radius:18px!important;border:1px solid rgba(148,163,184,.25)!important;background:rgba(248,250,252,.92)!important;color:var(--text-muted,#64748b)!important;font-size:28px!important;font-weight:900!important;line-height:1!important;}
+          .ipsc-parent-favorites-options-v79aa{padding:6px 24px 16px!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;display:flex!important;flex-direction:column!important;gap:12px!important;}
+          .ipsc-parent-favorites-options-v79aa button{width:100%!important;min-height:72px!important;border-radius:22px!important;border:1px solid rgba(148,163,184,.22)!important;background:rgba(255,255,255,.74)!important;color:var(--text-color,#0f172a)!important;display:grid!important;grid-template-columns:54px 1fr!important;align-items:center!important;text-align:left!important;gap:14px!important;padding:12px 16px!important;font:inherit!important;}
+          .ipsc-parent-favorites-options-v79aa button.selected{border-color:rgba(249,115,22,.38)!important;background:rgba(255,237,213,.54)!important;}
+          .ipsc-parent-favorites-options-v79aa .fav-emoji-v79v{width:44px!important;height:44px!important;min-width:44px!important;font-size:32px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:0!important;box-shadow:none!important;}
+          .ipsc-parent-favorites-options-v79aa strong{display:block!important;font-size:20px!important;line-height:1.1!important;font-weight:950!important;}
+          .ipsc-parent-favorites-options-v79aa small{display:block!important;margin-top:4px!important;color:var(--text-muted,#64748b)!important;font-size:16px!important;line-height:1.15!important;font-weight:800!important;}
+          .ipsc-parent-favorites-save-v79aa{margin:0 24px 24px!important;min-height:54px!important;border:0!important;border-radius:20px!important;background:linear-gradient(135deg,#ff9f43,#ff6b00)!important;color:#fff!important;font-weight:950!important;font-size:17px!important;box-shadow:0 18px 36px rgba(249,115,22,.26)!important;}
+          html[data-theme="dark"] .ipsc-parent-favorites-sheet-v79aa{background:#111827!important;color:#f8fafc!important;border-color:rgba(148,163,184,.22)!important;}
+          html[data-theme="dark"] .ipsc-parent-favorites-close-v79aa{background:rgba(15,23,42,.88)!important;color:#cbd5e1!important;border-color:rgba(148,163,184,.22)!important;}
+          html[data-theme="dark"] .ipsc-parent-favorites-options-v79aa button{background:rgba(15,23,42,.78)!important;color:#f8fafc!important;border-color:rgba(148,163,184,.22)!important;}
+          html[data-theme="dark"] .ipsc-parent-favorites-options-v79aa button.selected{background:rgba(249,115,22,.12)!important;border-color:rgba(249,115,22,.48)!important;}
+        `;
+        pdoc.head.appendChild(style);
+      }
+
+      const overlay = pdoc.createElement('div');
+      overlay.id = 'ipsc-parent-favorites-overlay-v79aa';
+      overlay.className = 'ipsc-parent-favorites-overlay-v79aa';
+      overlay.innerHTML = `
+        <div class="ipsc-parent-favorites-sheet-v79aa" role="dialog" aria-modal="true">
+          <div class="ipsc-parent-favorites-head-v79aa">
+            <div><strong>${t('v76-fav-modal-title')}</strong><span>${t('v76-fav-modal-subtitle')}</span></div>
+            <button type="button" class="ipsc-parent-favorites-close-v79aa" aria-label="Schließen">×</button>
+          </div>
+          <div class="ipsc-parent-favorites-options-v79aa"></div>
+          <button type="button" class="ipsc-parent-favorites-save-v79aa">${t('btn-save') || 'Speichern'}</button>
+        </div>`;
+      pdoc.body.appendChild(overlay);
+      pdoc.body.classList.add('ipsc-parent-favorites-open-v79aa');
+
+      const opts = overlay.querySelector('.ipsc-parent-favorites-options-v79aa');
+      function renderParentOptions(){
+        const favs = getFavs();
+        opts.innerHTML = choices.map(c=>`<button type="button" class="${favs.includes(c.id)?'selected':''}" data-id="${c.id}">${iconHtml(c)}<div><strong>${t(c.title)}</strong><small>${t(c.sub)}</small></div></button>`).join('');
+      }
+      function closeParent(){
+        pdoc.body.classList.remove('ipsc-parent-favorites-open-v79aa');
+        overlay.remove();
+      }
+      renderParentOptions();
+      opts.addEventListener('click', function(ev){
+        const btn = ev.target && ev.target.closest && ev.target.closest('button[data-id]');
+        if (!btn) return;
+        window.toggleFavoriteV76(btn.getAttribute('data-id'));
+        renderParentOptions();
+      });
+      overlay.querySelector('.ipsc-parent-favorites-close-v79aa').addEventListener('click', closeParent);
+      overlay.querySelector('.ipsc-parent-favorites-save-v79aa').addEventListener('click', function(){ renderFavs(); closeParent(); });
+      overlay.addEventListener('click', function(ev){ if (ev.target === overlay) closeParent(); });
+      return true;
+    }
+
+    if (openInParentShellV79aa()) return;
+
     const modal=document.getElementById('favorites-modal-v76');
     if(modal){
       try { document.body.appendChild(modal); } catch(_) {}
@@ -1073,7 +1152,7 @@ window.openFavoritesV76=function(){
   setTimeout(apply,200); setTimeout(apply,1000);
 })();
 </script>
-    <script src="release-i18n-v78s.js?v=79z"></script>
-    <script src="release-i18n-v78u.js?v=79z"></script>
+    <script src="release-i18n-v78s.js?v=79aa"></script>
+    <script src="release-i18n-v78u.js?v=79aa"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79z-favorites-season-auth-visual';
+const CACHE_NAME = 'ipscboerse-v79aa-bluetooth-fav-logbook-fix';
 const APP_SHELL_ASSETS = [
   './',
   'index.html',

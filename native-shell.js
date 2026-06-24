@@ -467,6 +467,7 @@
         frame.title = PAGES[view.file].title || view.file;
         frame.setAttribute("loading", "eager");
         frame.setAttribute("scrolling", "no");
+        frame.setAttribute("allow", "publickey-credentials-get *; publickey-credentials-create *; clipboard-read; clipboard-write; bluetooth *; fullscreen");
         frame.setAttribute("aria-hidden", "true");
         frame.addEventListener("load", function () {
             if (!markFrameLoaded(frame, view)) return;
