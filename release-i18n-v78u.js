@@ -76,7 +76,7 @@
   var exactPairs = [
     ['Was möchtest du erledigen?', 'What would you like to do?'],
     ['Die wichtigsten Bereiche direkt griffbereit.', 'Key sections ready at your fingertips.'],
-    ['Meine Trainings', 'My trainings'], ['Meine Matches','My matches'], ['Geplante Matches','Planned matches'],
+    ['Meine Einträge', 'My entries'], ['Meine Matches','My matches'], ['Geplante Matches','Planned matches'],
     ['PDF enthält bestätigte Einträge inkl. Finger-Unterschrift, Hashdaten und QR-Prüfcode.', 'PDF contains confirmed entries incl. finger signature, hash data and QR verification code.'],
     ['Hash geprüft & gesperrt', 'Hash verified & locked'], ['Lokal geprüft & gesperrt','Locally verified & locked'],
     ['Unterkunft / Übernachtung', 'Accommodation / Overnight'], ['✓ Erledigt markieren','✓ Mark done'], ['✓ Erledigt','✓ Done'], ['Inserieren','Create listing'], ['Löschen','Delete'],

@@ -14,7 +14,7 @@
     'marktplatz.html': { title: 'Marktplatz' },
     'mein-planer.html': { title: 'Mein Planer' },
     'community.html': { title: 'Community' },
-    'freie-matches.html': { title: 'Freie Match-Plätze' },
+    'freie-matches.html': { title: 'Matches' },
     'schiessbuch.html': { title: 'Schießbuch' },
     'sg-timer-live.html': { title: 'SG-Timer Live' },
     'tools.html': { title: 'Tools & Training' },
@@ -37,7 +37,7 @@
     { title: { de: 'Hauptbereiche', en: 'Main' }, items: [
       { file: 'index.html', icon: '🏠', de: 'Startseite', en: 'Home' },
       { file: 'marktplatz.html', icon: '🛒', de: 'Marktplatz', en: 'Market' },
-      { file: 'freie-matches.html', icon: '🎟️', de: 'Freie Match-Plätze', en: 'Available Slots' },
+      { file: 'freie-matches.html', icon: '🎟️', de: 'Matches', en: 'Matches' },
       { file: 'mein-planer.html', icon: '📅', de: 'Mein Planer', en: 'Planner' },
       { file: 'community.html', icon: '👥', de: 'Community', en: 'Community' }
     ]},

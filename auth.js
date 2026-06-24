@@ -77,10 +77,7 @@ window.uploadImage = async function(file, folder) {
 
 // --- PASSKEY FUNKTIONEN ---
 window.loginWithPasskey = async function() {
-    if (isNativeShellV66() && (window.location.protocol === "capacitor:" || window.location.protocol === "ionic:")) {
-        alert("Passkey ist in der lokalen TestFlight-App mit dieser WebAuthn-Konfiguration noch nicht verfügbar. Bitte nutze Apple, Google oder E-Mail/Passwort.");
-        return;
-    }
+    // v79q: Passkey/Face ID in der App aktiv lassen. Kein lokaler "später"-Block mehr.
     const btn = document.querySelector('#modal-login-view button[onclick="loginWithPasskey()"]');
     const oldHtml = btn ? btn.innerHTML : "";
     if (btn) btn.innerHTML = "⏳ Warte auf Sensor...";
@@ -106,10 +103,7 @@ window.loginWithPasskey = async function() {
 };
 
 window.registerPasskey = async function() {
-    if (isNativeShellV66() && (window.location.protocol === "capacitor:" || window.location.protocol === "ionic:")) {
-        alert("Passkey-Registrierung ist in der lokalen TestFlight-App mit dieser WebAuthn-Konfiguration noch nicht verfügbar. Bitte nutze Apple, Google oder E-Mail/Passwort.");
-        return;
-    }
+    // v79q: Passkey-Registrierung in der App aktiv lassen. Kein lokaler "später"-Block mehr.
     const btn = document.querySelector('#modal-settings-view button[onclick="registerPasskey()"]');
     const oldHtml = btn ? btn.innerHTML : "";
     if (btn) btn.innerHTML = "⏳ Bitte Sensor berühren...";
@@ -687,7 +681,7 @@ window.translations = {
     "spam-error": "Spam-Schutz: Du hast bereits einen Eintrag für dieses Match an diesem Datum erstellt!",
 
     "nav-marketplace": "Marktplatz",
-    "nav-free-slots": "Freie Match-Plätze",
+    "nav-free-slots": "Matches",
     "nav-my-planner": "Mein Planer",
     "nav-community": "Community",
     "planner-logged-out-title": "Nicht angemeldet",
@@ -812,7 +806,7 @@ window.translations = {
     "planner-btn-export": "📅 Export to Calendar (.ics)",
 
     "free-info-box": "<strong>Info:</strong> The matches are automatically updated in the background. Only tournaments with a capacity under 100% are displayed (available slots).",
-    "free-list-title": "Available Matches on MatchSign (Capacity < 100%)",
+    "free-list-title": "Matches on MatchSign (Capacity < 100%)",
     "free-all-countries": "All Countries",
     "free-all-disciplines": "All Disciplines",
     "free-all-levels": "All Levels",
@@ -999,7 +993,7 @@ function resetAuthProviderButtonsV78e() {
     try {
         const lang = window.currentLang === "en" ? "en" : "de";
         const labels = {
-            passkey: lang === "en" ? "Continue with FaceID / Passkey" : "Mit FaceID / Passkey fortfahren",
+            passkey: lang === "en" ? "Continue with Face ID / Passkey" : "Mit Face ID / Passkey fortfahren",
             apple: lang === "en" ? "Sign in with Apple" : "Mit Apple anmelden",
             google: lang === "en" ? "Sign in with Google" : "Mit Google anmelden"
         };

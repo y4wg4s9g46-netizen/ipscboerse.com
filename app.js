@@ -40,7 +40,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
                         
                         <button type="button" onclick="loginWithPasskey()" class="btn-social-passkey" style="margin-bottom: 8px;">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><path d="M9 9h.01"></path><path d="M15 9h.01"></path></svg>
-                            <span data-txt="modal-passkey-login">Mit FaceID / Passkey</span>
+                            <span data-txt="modal-passkey-login">Mit Face ID / Passkey fortfahren</span>
                         </button>
                         <button type="button" onclick="loginWithApple()" class="btn-social-apple" style="margin-bottom: 8px;">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;"><path d="M16.36 14.16c0 3.3-2.67 5.9-6.02 5.9-2.32 0-4.32-1.32-5.32-3.23.47.05.95.07 1.43.07 1.93 0 3.69-.73 5.03-1.95a3.98 3.98 0 0 1-1.78-3.05c.34.06.69.1 1.05.1a3.9 3.9 0 0 0 1.25-.2 4.02 4.02 0 0 1-3.2-3.92v-.05c.57.32 1.22.5 1.9.52a4.01 4.01 0 0 1-1.22-5.37A11.36 11.36 0 0 0 16.5 9c-.06-.31-.08-.63-.08-.96 0-2.2 1.76-3.98 3.95-3.98a3.93 3.93 0 0 1 2.87 1.24 7.82 7.82 0 0 0 2.51-.96 3.97 3.97 0 0 1-1.75 2.19 7.96 7.96 0 0 0 2.27-.61 8.09 8.09 0 0 1-1.97 2.04c.02.21.03.43.03.65 0 6.64-5.07 14.3-14.36 14.3a11.37 11.37 0 0 1-6.17-1.8c.41.05.83.07 1.26.07 2.36 0 4.54-.8 6.27-2.16z"/></svg>
@@ -171,7 +171,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
 
                         <div class="form-group">
                             <label for="settings-avatar" data-txt="lbl-profile-pic">Profilbild (Optional)</label>
-                            <input type="file" id="settings-avatar" accept="image/*" onchange="previewSettingsAvatar(this)">
+                            <input type="file" id="settings-avatar" accept=".jpg,.jpeg,.png,.webp" onchange="previewSettingsAvatar(this)">
                             <img id="settings-avatar-preview" style="max-width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 50%; display: none;">
                         </div>
                         
@@ -261,7 +261,7 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
             "modal-settings-passkey-btn": "Passkey auf diesem Gerät aktivieren",
             "modal-apple-login": "Mit Apple anmelden",
             "modal-google-login": "Mit Google anmelden",
-            "modal-passkey-login": "Mit FaceID / Passkey fortfahren"
+            "modal-passkey-login": "Mit Face ID / Passkey fortfahren fortfahren"
         });
 
         Object.assign(window.translations.en, {

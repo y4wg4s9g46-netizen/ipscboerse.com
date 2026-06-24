@@ -83,7 +83,7 @@ window.portalTranslations = {
         "card-title-market": "Marktplatz",
         "card-desc-market": "Suche nach verfügbaren Startplätzen für ausgebuchte Matches oder biete dein eigenes Ticket zum Tausch an.",
         "card-action-market": "Zum Marktplatz &rarr;",
-        "card-title-free": "Freie Match-Plätze",
+        "card-title-free": "Matches",
         "card-desc-free": "Live-Auslastungs-Tracker für MatchSign. Finde sofort Turniere, die aktuell noch freie Plätze aufweisen.",
         "card-action-free": "Freie Plätze prüfen &rarr;",
         "card-title-planer": "Mein Planer",
@@ -234,7 +234,7 @@ window.portalTranslations = {
         "link-forgot-pwd": "Passwort vergessen?",
         "modal-btn-login": "Mit Passwort einloggen",
         "modal-social-separator": "Oder Schnell-Login nutzen:",
-        "modal-passkey-login": "Mit FaceID / Passkey",
+        "modal-passkey-login": "Mit Face ID / Passkey fortfahren",
         "modal-apple-login": "Mit Apple anmelden",
         "modal-google-login": "Mit Google anmelden",
         "lbl-password": "Passwort *",
@@ -444,7 +444,7 @@ window.portalTranslations = {
         "card-title-market": "Marketplace",
         "card-desc-market": "Search for available starting slots for fully booked matches or offer your own ticket for exchange.",
         "card-action-market": "To Marketplace &rarr;",
-        "card-title-free": "Available Match Slots",
+        "card-title-free": "Matches",
         "card-desc-free": "Live capacity tracker for MatchSign. Find tournaments instantly that currently still have free slots.",
         "card-action-free": "Check free slots &rarr;",
         "card-title-planer": "My Planner",
@@ -553,7 +553,7 @@ window.portalTranslations = {
 
         // --- AVAILABLE MATCH SLOTS (freie-matches.html) ---
         "free-info-box": "<strong>Info:</strong> Matches are updated automatically in the background. Only tournaments with a capacity under 100% are displayed (free slots available).",
-        "free-list-title": "Available Matches on MatchSign (Capacity < 100%)",
+        "free-list-title": "Matches on MatchSign (Capacity < 100%)",
         "free-loading": "Loading current matches...",
 
         // --- COMPETITION PLANNER (mein-planer.html) ---
@@ -821,7 +821,7 @@ if (document.readyState === 'loading') {
     "v74-community-action-feed": "Beiträge ansehen",
     "v74-community-status": "Moderierter Austausch für Fragen, Training, Matchberichte, Ausrüstung und Vereine.",
     "v74-free-kicker": "Freie Startplätze",
-    "v74-free-title": "Freie Matches",
+    "v74-free-title": "Matches",
     "v74-free-desc": "Finde freie Startplätze schneller und filtere verfügbare Matches nach Land, Disziplin und Level.",
     "v74-free-action-show": "Freie Startplätze anzeigen",
     "v74-free-action-market": "Zum Marktplatz",
@@ -1094,7 +1094,7 @@ if (document.readyState === 'loading') {
     "v76-fav-log-sub": "Einträge & PDF",
     "v76-fav-community": "Community",
     "v76-fav-community-sub": "Austausch",
-    "v76-fav-free": "Freie Matches",
+    "v76-fav-free": "Matches",
     "v76-fav-free-sub": "buchbare Plätze",
     "v76-fav-tools": "Tools",
     "v76-fav-tools-sub": "Training auswerten",

@@ -6749,7 +6749,7 @@ body.page-mein-planer .planned-heading {
         margin-bottom: 13px !important;
     }
 
-    /* Freie Matches / Planer: Karten weniger aufgeblasen */
+    /* Matches / Planer: Karten weniger aufgeblasen */
     body.page-freie-matches .match-card,
     body.page-mein-planer .match-card,
     body.page-mein-planer .planned-match-card,
@@ -7060,7 +7060,7 @@ body.page-marktplatz .owner-actions-top + .match-card-main .match-summary {
         border: 1px solid rgba(52, 211, 153, 0.28) !important;
     }
 
-    /* Planer/Freie Matches: Buttons wie die Marktplatz-Pills */
+    /* Planer/Matches: Buttons wie die Marktplatz-Pills */
     body.page-mein-planer .match-item button,
     body.page-freie-matches .match-card a,
     body.page-freie-matches .match-card button,
@@ -7237,7 +7237,7 @@ body.page-marktplatz .owner-actions-top + .match-card-main .match-summary {
         border-radius: 14px !important;
     }
 
-    /* Freie Matches: Link wirkt wie "zur Originalseite" statt klobiger Standardbutton */
+    /* Matches: Link wirkt wie "zur Originalseite" statt klobiger Standardbutton */
     body.page-freie-matches .card-actions {
         border-top: 1px solid var(--border-color) !important;
         padding-top: 12px !important;
@@ -12084,7 +12084,7 @@ html[data-theme="dark"] .inbox-chat-item-v76k.is-unread {
 /* ========================================================================== 
    V76M BROWSER WIDTH + ELO PLANER POLISH
    - Desktop browser: all main content cards share the same shell width.
-   - Marktplatz, Freie Matches, Planer, Community, Schießbuch, Tools,
+   - Marktplatz, Matches, Planer, Community, Schießbuch, Tools,
      Statistiken, Wiederladen and ELO no longer jump between different widths.
    - Planner action buttons cleaned up on desktop.
    ========================================================================== */

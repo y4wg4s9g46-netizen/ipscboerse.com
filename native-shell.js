@@ -13,7 +13,7 @@
         "marktplatz.html": { title: "Markt" },
         "mein-planer.html": { title: "Planer" },
         "community.html": { title: "Community" },
-        "freie-matches.html": { title: "Freie Match-Plätze" },
+        "freie-matches.html": { title: "Matches" },
         "schiessbuch.html": { title: "Schießbuch" },
         "sg-timer-live.html": { title: "SG-Timer Live" },
         "tools.html": { title: "Tools" },
@@ -652,7 +652,7 @@
             window.registerPasskey = function () { alert("Passkey-Registrierung ist in der lokalen App-Version noch nicht verfügbar. Bitte nutze Apple, Google oder E-Mail/Passwort."); };
             var ps = document.createElement("style");
             ps.id = "ipsc-native-shell-passkey-hint-v77e";
-            ps.textContent = '[onclick="loginWithPasskey()"],[onclick="registerPasskey()"]{opacity:.55!important;filter:grayscale(.35);}' + '\n' + '[onclick="loginWithPasskey()"]::after{content:"  · später";font-size:11px;opacity:.75;}';
+            ps.textContent = ''; // v79q: Passkey/Face ID bleibt aktiv, kein 'später'-Badge
             document.head.appendChild(ps);
         } catch (_) {}
         document.addEventListener("click", interceptShellClick, true);

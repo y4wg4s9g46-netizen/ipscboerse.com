@@ -260,7 +260,7 @@
         const links = [
             { href: "index.html", text: "Startseite", key: "nav-startseite" },
             { href: "marktplatz.html", text: "Marktplatz", key: "card-title-market" },
-            { href: "freie-matches.html", text: "Freie Match-Plätze", key: "card-title-free" },
+            { href: "freie-matches.html", text: "Matches", key: "card-title-free" },
             { href: "mein-planer.html", text: "Mein Planer", key: "card-title-planer" },
             { href: "community.html", text: "Community", key: "card-title-comm" },
             { href: "schiessbuch.html", text: "Schießbuch", key: "card-title-schießbuch" },
@@ -370,7 +370,7 @@
                 <div class="more-menu-content" id="more-menu-list">
                     <div id="club-links-placeholder-v76c"></div>
                     <div class="more-scroll-hint-v76">${savedLanguageSetting === "en" ? "More sections below" : "Weitere Bereiche unten"}</div>
-                    <a href="freie-matches.html" class="${page === "freie-matches.html" ? "active" : ""}" data-txt="card-title-free">Freie Match-Plätze</a>
+                    <a href="freie-matches.html" class="${page === "freie-matches.html" ? "active" : ""}" data-txt="card-title-free">Matches</a>
                     <a href="schiessbuch.html" class="${page === "schiessbuch.html" ? "active" : ""}" data-txt="card-title-schiessbuch">Schießbuch</a>
                     <a href="sg-timer-live.html" class="${page === "sg-timer-live.html" ? "active" : ""}" data-txt="nav-sgtimer">⏱️ SG-Timer Live</a>
                     <a href="tools.html" class="${page === "tools.html" ? "active" : ""}" data-txt="card-title-tools">Tools & Training</a>
