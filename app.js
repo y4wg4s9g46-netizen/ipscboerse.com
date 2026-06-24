@@ -490,14 +490,50 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "avatar-upload-btn-v76e";
-            btn.setAttribute("data-avatar-upload-v79ad", "1");
             btn.setAttribute("data-txt", "v76e-avatar-change");
             btn.textContent = tV76e("v76e-avatar-change", "Profilbild ändern");
             btn.addEventListener("click", (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                if (window.openAvatarPhotoPickerDirectV79af && window.openAvatarPhotoPickerDirectV79af(avatarInput)) return;
-                try { avatarInput.click(); } catch (_) {}
+                if (!avatarInput) return;
+                const oldStyleV79aj = {
+                    position: avatarInput.style.position,
+                    left: avatarInput.style.left,
+                    top: avatarInput.style.top,
+                    width: avatarInput.style.width,
+                    height: avatarInput.style.height,
+                    opacity: avatarInput.style.opacity,
+                    pointerEvents: avatarInput.style.pointerEvents,
+                    display: avatarInput.style.display,
+                    zIndex: avatarInput.style.zIndex
+                };
+                try {
+                    avatarInput.removeAttribute("disabled");
+                    avatarInput.setAttribute("accept", "image/*,.jpg,.jpeg,.png,.webp");
+                    avatarInput.style.setProperty("position", "fixed", "important");
+                    avatarInput.style.setProperty("left", "8px", "important");
+                    avatarInput.style.setProperty("top", "8px", "important");
+                    avatarInput.style.setProperty("width", "2px", "important");
+                    avatarInput.style.setProperty("height", "2px", "important");
+                    avatarInput.style.setProperty("opacity", "0.01", "important");
+                    avatarInput.style.setProperty("pointer-events", "auto", "important");
+                    avatarInput.style.setProperty("display", "block", "important");
+                    avatarInput.style.setProperty("z-index", "2147483647", "important");
+                    avatarInput.click();
+                } catch (_) {}
+                setTimeout(() => {
+                    try {
+                        avatarInput.style.position = oldStyleV79aj.position;
+                        avatarInput.style.left = oldStyleV79aj.left;
+                        avatarInput.style.top = oldStyleV79aj.top;
+                        avatarInput.style.width = oldStyleV79aj.width;
+                        avatarInput.style.height = oldStyleV79aj.height;
+                        avatarInput.style.opacity = oldStyleV79aj.opacity;
+                        avatarInput.style.pointerEvents = oldStyleV79aj.pointerEvents;
+                        avatarInput.style.display = oldStyleV79aj.display;
+                        avatarInput.style.zIndex = oldStyleV79aj.zIndex;
+                    } catch (_) {}
+                }, 1200);
             });
             avatarGroup.appendChild(btn);
         }
@@ -1721,4 +1757,5 @@ fetchMatches();
   };
 })();
 
-// v79af-auth-safe-photo-fix
+
+// v79aj-fast-photo-picker: plain synchronous picker only; auth untouched.

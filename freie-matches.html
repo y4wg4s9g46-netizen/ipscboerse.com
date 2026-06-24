@@ -1,24 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <script id="ipsc-build-cache-reset-v79u">
-(function(){
-  try {
-    window.__IPSC_BUILD_ID = "v79z-dark-matches-logbook-fix";
-    document.documentElement.setAttribute("data-ipsc-build", "v79ab");
-    try { localStorage.setItem("ipsc_active_build", "v79z-dark-matches-logbook-fix"); } catch (_) {}
-    var isNative = /^(capacitor|ionic):$/i.test(location.protocol || "") || /(^|[?&])(shell=1|appframe=1)(?:&|$)/.test(location.search || "");
-    if ("caches" in window) {
-      caches.keys().then(function(keys){
-        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79z-dark-matches-logbook-fix"; }).map(function(k){ return caches.delete(k); }));
-      }).catch(function(){});
-    }
-    if (isNative && "serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
-      navigator.serviceWorker.getRegistrations().then(function(regs){ regs.forEach(function(r){ try { r.unregister(); } catch (_) {} }); }).catch(function(){});
-    }
-  } catch (_) {}
-})();
-</script>
     <script id="ipsc-native-shell-redirect-v76t">
       (function () {
         try {
@@ -249,7 +231,7 @@
     <link rel="preload" href="icon-192.png" as="image">
 
    <script>
-        // V76P: Theme vor global.css?v=79af nochmals stabilisieren, ohne Auto-Dark-Zwischenframe.
+        // V76P: Theme vor global.css nochmals stabilisieren, ohne Auto-Dark-Zwischenframe.
         (function() {
             try {
                 var carried = null;
@@ -263,7 +245,7 @@
             } catch (_) {}
         })();
     </script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=79af">
+<link rel="stylesheet" href="global.css?v=76v">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 
@@ -286,7 +268,7 @@
 <body class="page-freie-matches page-matches app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v app-v79c-matches app-v79p-polish">
 
     <header id="main-header"></header>
-    <script src="header.js?v=79af"></script>
+    <script src="header.js?v=79c"></script>
 
     <style id="matches-page-v79c-style">
       .matches-shell-v79c { max-width: 1040px; margin: 0 auto; }
@@ -429,9 +411,9 @@
         </div>
     </footer>
 
-    <script src="auth.js?v=79af"></script>
-    <script src="lang.js?v=79af"></script>
-    <script src="app.js?v=79af"></script>
+    <script src="auth.js?v=79c"></script>
+    <script src="lang.js?v=79c"></script>
+    <script src="app.js?v=79c"></script>
 
     <script id="matches-page-v79c-script">
     (function(){
@@ -516,14 +498,11 @@
       }
       function hasFreeSlot(m){
         if(!m) return false;
-        const occ = Number(m.occupancy_percent ?? m.auslastung_percent ?? String(m.auslastung || '').replace(/[^0-9.]/g,''));
-        // v79s: Eine explizite Auslastung ist maßgeblich. 100 % darf nie als frei gelten,
-        // auch wenn ein älterer Import noch checked_free gesetzt hat.
-        if(Number.isFinite(occ)) return occ >= 0 && occ < 100;
         if(m.has_free_slots === true || m.free_slots === true) return true;
         const st = String(m.availability_status || '').toLowerCase();
         if(st === 'checked_free' || st === 'free' || st.includes('checked_free')) return true;
-        return false;
+        const occ = Number(m.occupancy_percent ?? m.auslastung_percent ?? String(m.auslastung || '').replace(/[^0-9.]/g,''));
+        return Number.isFinite(occ) && occ > 0 && occ < 100;
       }
       function normalizeDate(input){
         if(!input) return '';
@@ -598,8 +577,8 @@
         }catch(_){ return null; }
       }
       async function loadFreeMatches(){
-        // v79z: App-Builds enthalten nur einen statischen Snapshot. Deshalb zuerst Live-Dateien von ipscboerse.com versuchen,
-        // damit Website und native App dieselbe Match-Anzahl zeigen. Fallback bleibt der gebündelte lokale Snapshot.
+        // v79ak: In der nativen App ist der lokale Snapshot kleiner als die Live-Website.
+        // Deshalb zuerst die Live-Dateien von ipscboerse.com laden und nur bei Fehler lokal zurückfallen.
         const remoteAll = await fetchJsonIfExists('https://ipscboerse.com/matches_all.json') || await fetchJsonIfExists('https://ipscboerse.com/matches.json');
         const localAll = await fetchJsonIfExists('matches_all.json') || await fetchJsonIfExists('matches.json') || [];
         const allData = (remoteAll && Array.isArray(remoteAll) && remoteAll.length >= localAll.length) ? remoteAll : localAll;
@@ -718,23 +697,25 @@
           ? `<img class="match-img-v79l" src="${esc(imgUrl)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="" onload="this.parentElement.classList.add('has-img-v79l')" onerror="this.remove()"><div class="match-image-placeholder-v79c">🎯</div>`
           : `<div class="match-image-placeholder-v79c">🎯</div>`;
         const occ = Number(m.occupancy_percent ?? String(m.auslastung || '').replace(/[^0-9.]/g,''));
-        const hasOcc = Number.isFinite(occ) && occ >= 0;
-        const occRounded = hasOcc ? Math.max(0, Math.min(100, Math.round(occ))) : null;
-        const sourceBadge = isEss
-          ? `<span class="match-badge-v79c match-badge-ess-v79c">🔵 ESS Open Event</span>`
-          : (isMine ? `<span class="match-badge-v79c">📌 Planer</span>` : '');
+        const hasOcc = Number.isFinite(occ) && occ > 0;
+        const sourceBadge = isFree
+          ? `<span class="match-badge-v79c match-badge-source-v79p">✅ MatchSign · geprüft</span>`
+          : (isEss ? `<span class="match-badge-v79c match-badge-ess-v79c">🌍 ESS Open Event</span>` : `<span class="match-badge-v79c">📌 Planer</span>`);
         let availability = '';
-        if(isFree && hasOcc){
-          if(occRounded >= 100) availability = `<span class="match-badge-v79c match-badge-full-v79p">🔴 Ausgebucht</span>`;
-          else availability = `<span class="match-badge-v79c match-badge-ok-v79p">🟢 Freie Plätze • ${occRounded}%</span>`;
+        if(isEss){
+          availability = `<span class="match-badge-v79c match-badge-warn-v79c">Auslastung unbekannt</span>`;
+        } else if(isFree && hasOcc){
+          if(occ >= 100) availability = `<span class="match-badge-v79c match-badge-full-v79p">🔴 Voll · ${Math.round(occ)}% belegt</span>`;
+          else if(occ >= 90) availability = `<span class="match-badge-v79c match-badge-limited-v79p">🟠 Wenige Plätze · ${Math.round(occ)}% belegt</span>`;
+          else availability = `<span class="match-badge-v79c match-badge-ok-v79p">🟢 Plätze verfügbar · ${Math.round(occ)}% belegt</span>`;
         } else if(isFree){
-          availability = `<span class="match-badge-v79c match-badge-ok-v79p">🟢 Freie Plätze</span>`;
+          availability = `<span class="match-badge-v79c match-badge-ok-v79p">🟢 Plätze verfügbar</span>`;
         } else if(m.status){
           availability = `<span class="match-badge-v79c">${esc(m.status)}</span>`;
         }
         const sourceLine = isEss
-          ? t('ESS Open Event · Registrierung öffentlich offen, freie Plätze nach Login prüfen', 'ESS Open Event · public registration open, check slot availability after login')
-          : (isFree ? (hasOcc ? `MatchSign · Auslastung ${occRounded}%` : t('MatchSign · freie Plätze erkannt', 'MatchSign · open slots detected')) : t('Gespeichert im Planer', 'Saved in planner'));
+          ? t('Anmeldung offen laut ESS · freie Plätze nach Login prüfen', 'Registration open according to ESS · check slot availability after login')
+          : (isFree ? (hasOcc ? `Belegung: ${Math.round(occ)}%` : t('Verfügbarkeit laut MatchSign geprüft', 'Availability checked by MatchSign')) : t('Gespeichert im Planer', 'Saved in planner'));
         return `
           <article class="match-card-v79c">
             <div class="match-image-v79c">${img}</div>
@@ -786,8 +767,6 @@
         if(tab === 'mine') loadMine().then(render);
       };
       window.applyMatchesFiltersV79c = render;
-      window.addEventListener('ipsc:language-change-v78d', function(){ setTimeout(render,0); setTimeout(render,120); });
-      window.addEventListener('ipsc:language-change-v79r', function(){ setTimeout(render,0); setTimeout(render,120); });
       window.openPlannerModalV79c = async function(key){
         const m = state.byKey.get(key); if(!m) return;
         const client = await waitForClient();
@@ -862,7 +841,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js?v=79af')
+                navigator.serviceWorker.register('sw.js')
                     .then(reg => console.log('PWA Service Worker registriert!', reg.scope))
                     .catch(err => console.error('PWA Fehler:', err));
             });

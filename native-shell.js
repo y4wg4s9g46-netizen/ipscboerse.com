@@ -466,7 +466,6 @@
         frame.dataset.lastUsed = String(Date.now());
         frame.title = PAGES[view.file].title || view.file;
         frame.setAttribute("loading", "eager");
-        frame.setAttribute("allow", "bluetooth *; publickey-credentials-get *; publickey-credentials-create *; clipboard-read; clipboard-write; fullscreen");
         frame.setAttribute("scrolling", "no");
         frame.setAttribute("aria-hidden", "true");
         frame.addEventListener("load", function () {
@@ -562,12 +561,11 @@
             openShellAuthModal("login");
             return;
         }
-        var settingsBtn = event.target && event.target.closest && event.target.closest("#btn-open-settings, .header-avatar-btn, #header-avatar");
-        if (settingsBtn) {
+        var settingsBtn = event.target && event.target.closest && event.target.closest("#btn-open-settings");
+        if (settingsBtn && document.getElementById("auth-modal")) {
             event.preventDefault();
             event.stopImmediatePropagation();
             openShellAuthModal("settings");
-            setTimeout(function(){ try { openShellAuthModal("settings"); } catch (_) {} }, 60);
             return;
         }
         var a = event.target && event.target.closest && event.target.closest("a[href]");
@@ -738,67 +736,4 @@
     window.IPSCNativeShellV76u = window.IPSCNativeShellV76v;
 
     try { setTimeout(checkClubAccessV78v, 250); setTimeout(checkClubAccessV78v, 1500); } catch (_) {}
-})();
-
-
-// V79V: robust auth/settings opener after logout and in native app shell.
-(function ipscAuthUiHardFixV79v(){
-  if (window.__IPSC_AUTH_UI_HARD_FIX_V79V) return;
-  window.__IPSC_AUTH_UI_HARD_FIX_V79V = true;
-  function modal(){ return document.getElementById('auth-modal'); }
-  function show(view){
-    try{
-      var m = modal();
-      if (!m) return false;
-      m.style.setProperty('display','flex','important');
-      m.style.setProperty('visibility','visible','important');
-      m.style.setProperty('opacity','1','important');
-      m.style.setProperty('pointer-events','auto','important');
-      m.removeAttribute('aria-hidden');
-      m.classList.add('show','is-open','open');
-      document.documentElement.classList.add('auth-open','modal-open');
-      if (document.body) document.body.classList.add('auth-open','modal-open');
-      try { if (typeof window.resetAuthProviderButtonsV78e === 'function') window.resetAuthProviderButtonsV78e(); } catch(_){ }
-      try { if (typeof window.toggleAuthView === 'function') window.toggleAuthView(view || 'login'); } catch(_){ }
-      if (view === 'settings') {
-        try { if (typeof window.fillSettingsFromUserV79t === 'function') window.fillSettingsFromUserV79t(window.currentUser || null); } catch(_){ }
-      }
-      return true;
-    }catch(_){ return false; }
-  }
-  function resetOut(){
-    try{
-      var c=document.getElementById('auth-status-container'), login=document.getElementById('btn-open-login'), settings=document.getElementById('btn-open-settings'), logout=document.getElementById('btn-logout');
-      if(c) c.dataset.authState='out';
-      if(login){ login.style.setProperty('display','inline-flex','important'); login.disabled=false; login.removeAttribute('disabled'); login.removeAttribute('aria-disabled'); login.style.setProperty('pointer-events','auto','important'); login.style.setProperty('visibility','visible','important'); login.style.setProperty('opacity','1','important'); }
-      if(settings){ settings.style.setProperty('display','none','important'); }
-      if(logout){ logout.style.setProperty('display','none','important'); }
-    }catch(_){ }
-  }
-  function resetIn(){
-    try{
-      var c=document.getElementById('auth-status-container'), login=document.getElementById('btn-open-login'), settings=document.getElementById('btn-open-settings'), logout=document.getElementById('btn-logout');
-      if(c) c.dataset.authState='in';
-      if(login) login.style.setProperty('display','none','important');
-      if(settings){ settings.style.setProperty('display','inline-flex','important'); settings.style.setProperty('pointer-events','auto','important'); settings.style.setProperty('visibility','visible','important'); settings.style.setProperty('opacity','1','important'); }
-      if(logout) logout.style.setProperty('display','inline-flex','important');
-    }catch(_){ }
-  }
-  var oldOpenLogin = window.openLoginModal;
-  window.openLoginModal = function(){ return show('login') || (typeof oldOpenLogin === 'function' ? oldOpenLogin() : false); };
-  var oldOpenSettings = window.openSettingsModal;
-  window.openSettingsModal = function(){ return show('settings') || (typeof oldOpenSettings === 'function' ? oldOpenSettings() : false); };
-  window.showAuthModalV79v = show;
-  window.addEventListener('ipsc:auth-logout-v78d', function(){ resetOut(); setTimeout(resetOut,80); setTimeout(resetOut,350); });
-  window.addEventListener('ipsc-auth-changed', function(e){ if(e.detail && e.detail.user) resetIn(); else resetOut(); });
-  window.addEventListener('ipsc:auth-changed-v79t', function(e){ if(e.detail && e.detail.user) resetIn(); else resetOut(); });
-  document.addEventListener('click', function(ev){
-    try{
-      var login = ev.target && ev.target.closest && ev.target.closest('#btn-open-login, [data-native-login]');
-      if(login){ ev.preventDefault(); ev.stopImmediatePropagation(); show('login'); return; }
-      var settings = ev.target && ev.target.closest && ev.target.closest('#btn-open-settings, .header-avatar-btn, #header-avatar');
-      if(settings){ ev.preventDefault(); ev.stopImmediatePropagation(); show('settings'); return; }
-    }catch(_){ }
-  }, true);
-  setTimeout(function(){ try{ if(window.currentUser) resetIn(); else window.supabaseClient?.auth?.getSession().then(function(r){ if(r?.data?.session?.user){ window.currentUser=r.data.session.user; resetIn(); } else resetOut(); }); }catch(_){ } }, 600);
 })();

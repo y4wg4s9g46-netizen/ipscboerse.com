@@ -1,24 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <script id="ipsc-build-cache-reset-v79u">
-(function(){
-  try {
-    window.__IPSC_BUILD_ID = "v79z-dark-matches-logbook-fix";
-    document.documentElement.setAttribute("data-ipsc-build", "v79ab");
-    try { localStorage.setItem("ipsc_active_build", "v79z-dark-matches-logbook-fix"); } catch (_) {}
-    var isNative = /^(capacitor|ionic):$/i.test(location.protocol || "") || /(^|[?&])(shell=1|appframe=1)(?:&|$)/.test(location.search || "");
-    if ("caches" in window) {
-      caches.keys().then(function(keys){
-        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79z-dark-matches-logbook-fix"; }).map(function(k){ return caches.delete(k); }));
-      }).catch(function(){});
-    }
-    if (isNative && "serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
-      navigator.serviceWorker.getRegistrations().then(function(regs){ regs.forEach(function(r){ try { r.unregister(); } catch (_) {} }); }).catch(function(){});
-    }
-  } catch (_) {}
-})();
-</script>
     <script id="ipsc-theme-instant-v76s">
       (function () {
         try {
@@ -229,14 +211,14 @@
   </style>
 </head>
 <body class="app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s">
-
   <div class="box">
     <div class="spinner"></div>
     <h1>Login wird abgeschlossen…</h1>
     <p>Du wirst automatisch zurück zur IPSC-Börse-App geleitet.</p>
     <p id="fallback" style="margin-top:14px;display:none;"><a id="fallback-link" href="#">App öffnen</a></p>
   </div>
-  <script id="ipsc-passkey-bridge-v79s">
+
+  <script id="ipsc-passkey-bridge-v79aj">
     (async function(){
       var params = new URLSearchParams(location.search || "");
       var mode = params.get("passkey");
@@ -291,6 +273,7 @@
       }
     })();
   </script>
+
   <script>
     (function(){
       try { if (new URLSearchParams(location.search || "").has("passkey")) return; } catch (_) {}
@@ -363,7 +346,7 @@
 })();
 </script>
 
-    <script src="release-i18n-v78s.js?v=79af"></script>
-    <script src="release-i18n-v78u.js?v=79af"></script>
+    <script src="release-i18n-v78s.js?v=78s"></script>
+    <script src="release-i18n-v78u.js?v=78u"></script>
 </body>
 </html>

@@ -200,8 +200,6 @@ window.portalTranslations = {
         "planner-logged-out-desc": "Logge dich ein, um deine Matches zu verwalten und in die Cloud zu synchronisieren.",
         "planner-logged-out-btn": "Jetzt einloggen",
         "planner-title-my-matches": "Meine Matches",
-        "log-title-my-entries": "📋 Meine Einträge",
-        "schiessbuch-legal-hint-v79z": "<strong>Hinweis:</strong> Bitte kläre vor der Nutzung als Nachweis mit deinem Verband und der zuständigen Behörde, ob ein digitales Schießbuch bzw. das erzeugte PDF akzeptiert wird.",
         "planner-subtitle-new": "Neuer Eintrag",
         "log-entry-title": "Neuer Eintrag",
         "log-entry-save": "Eintrag speichern",
@@ -323,7 +321,7 @@ window.portalTranslations = {
         "analytics-title": "🏆 IPSC Performance Analytics",
         "analytics-desc": "Überwache deine sportliche Entwicklung, deine Treffer-Präzision und deine Hit-Factor-Trends der letzten Matches.",
         "analytics-kpi-matches": "Matches Gesamt",
-        "analytics-kpi-avg-hf": "Ø Stage %",
+        "analytics-kpi-avg-hf": "Ø Hit Factor",
         "analytics-chart-title": "📈 Hit-Factor Trend (Letzte 5 Stages)",
         "analytics-acc-title": "🎯 Treffer-Verteilung (Präzision)",
         "analytics-box-title": "📧 A, C, D automatisch eintragen",
@@ -563,8 +561,6 @@ window.portalTranslations = {
         "planner-logged-out-desc": "Log in to make modifications to your matches and synchronize files with the cloud.",
         "planner-logged-out-btn": "Log In Now",
         "planner-title-my-matches": "My Matches",
-        "log-title-my-entries": "📋 My entries",
-        "schiessbuch-legal-hint-v79z": "<strong>Notice:</strong> Before using this as proof, please check with your federation and the responsible authority whether a digital shooting log or the generated PDF is accepted.",
         "planner-subtitle-new": "Add New Match",
         "planner-lbl-match-name": "Match Name",
         "planner-lbl-match-date": "Date",
@@ -684,7 +680,7 @@ window.portalTranslations = {
         "analytics-title": "🏆 IPSC Performance Analytics",
         "analytics-desc": "Track your athletic progress, shooting precision, and hit factor trends across your matches.",
         "analytics-kpi-matches": "Total Matches",
-        "analytics-kpi-avg-hf": "Avg stage %",
+        "analytics-kpi-avg-hf": "Avg Hit Factor",
         "analytics-chart-title": "📈 Hit Factor Trend (Last 5 Stages)",
         "analytics-acc-title": "🎯 Hit Distribution (Accuracy)",
         "analytics-box-title": "📧 Enter A, C, D automatically",
@@ -781,7 +777,6 @@ document.addEventListener("change", (e) => {
         localStorage.setItem("selectedLanguage", e.target.value);
         window.translatePortalPage();
         try { window.dispatchEvent(new CustomEvent("ipsc:language-change-v78d", { detail: { lang: e.target.value } })); } catch (_) {}
-        try { window.dispatchEvent(new CustomEvent("ipsc:language-change-v79r", { detail: { lang: e.target.value } })); } catch (_) {}
     }
 });
 

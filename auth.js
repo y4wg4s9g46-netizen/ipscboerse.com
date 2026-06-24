@@ -1,4 +1,3 @@
-/* v79af-auth-safe-photo-fix: v79ad auth restored, only profile photo button adjusted */
 // LIGHT THEME FLASH FIX v70
 // OAUTH NO RELOAD LOOP v69
 // NATIVE OAUTH APPPLUGIN FIX v68
@@ -19,24 +18,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 window.supabaseClient = supabaseClient;
 window.currentUser = null;
 window.currentLang = "de";
-
-
-function emitAuthChangedV79t(user, eventName) {
-    try {
-        const cleanUser = user || null;
-        window.dispatchEvent(new CustomEvent("ipsc-auth-changed", { detail: { user: cleanUser, event: eventName || "AUTH_CHANGED" } }));
-        window.dispatchEvent(new CustomEvent("ipsc:auth-changed-v79t", { detail: { user: cleanUser, event: eventName || "AUTH_CHANGED" } }));
-        if (window.parent && window.parent !== window) {
-            window.parent.postMessage({
-                type: cleanUser ? "ipsc-auth-session-v78l" : "ipsc-auth-logout-v78d",
-                user: cleanUser ? { id: cleanUser.id, email: cleanUser.email, user_metadata: cleanUser.user_metadata || {} } : null,
-                source: "v79t"
-            }, window.location.origin);
-        }
-    } catch (_) {}
-}
-window.emitAuthChangedV79t = emitAuthChangedV79t;
-
 
 // Header-Cache gegen Zucken beim Seitenwechsel
 const HEADER_USER_CACHE_KEY = "headerUserCache";
@@ -95,34 +76,25 @@ window.uploadImage = async function(file, folder) {
 };
 
 
-
-// --- V79S Native Passkey + Camera Bridge ---
-// v79ad: final review bugfix: robust profile photo button + no push/widget changes
-function isNativeCapacitorRuntimeV79s() {
+// --- V79AJ isolated native Passkey bridge (keeps email/OAuth auth flow unchanged) ---
+function isNativeCapacitorRuntimeV79aj() {
     try {
-        const frames = [window];
-        try { if (window.parent && window.parent !== window) frames.push(window.parent); } catch (_) {}
-        try { if (window.top && window.top !== window && !frames.includes(window.top)) frames.push(window.top); } catch (_) {}
-        for (const frame of frames) {
-            try {
-                if (frame.Capacitor && typeof frame.Capacitor.isNativePlatform === "function" && frame.Capacitor.isNativePlatform()) return true;
-            } catch (_) {}
-        }
-        return window.location.protocol === "capacitor:" || window.location.protocol === "ionic:";
-    } catch (_) {
-        return false;
-    }
+        return !!(
+            (window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform()) ||
+            window.location.protocol === "capacitor:" ||
+            window.location.protocol === "ionic:"
+        );
+    } catch (_) { return false; }
 }
 
-function isPasskeyBridgePageV79s() {
+function isPasskeyBridgePageV79aj() {
     try {
-        return /auth-callback\.html$/i.test(window.location.pathname || "") && new URLSearchParams(window.location.search || "").has("passkey");
-    } catch (_) {
-        return false;
-    }
+        return /auth-callback\.html$/i.test(window.location.pathname || "") &&
+               new URLSearchParams(window.location.search || "").has("passkey");
+    } catch (_) { return false; }
 }
 
-function buildPasskeyBridgeUrlV79s(mode, session) {
+function buildPasskeyBridgeUrlV79aj(mode, session) {
     const url = new URL("https://ipscboerse.com/auth-callback.html");
     url.searchParams.set("passkey", mode === "register" ? "register" : "login");
     url.searchParams.set("lang", localStorage.getItem("selectedLanguage") || window.currentLang || "de");
@@ -142,7 +114,7 @@ function buildPasskeyBridgeUrlV79s(mode, session) {
     return url.toString();
 }
 
-async function openNativePasskeyBridgeV79s(mode, btn, oldHtml) {
+async function openNativePasskeyBridgeV79aj(mode, btn, oldHtml) {
     try {
         let session = null;
         if (mode === "register") {
@@ -150,7 +122,7 @@ async function openNativePasskeyBridgeV79s(mode, btn, oldHtml) {
             session = result?.data?.session || null;
             if (!session?.access_token || !session?.refresh_token) throw new Error("Bitte zuerst einloggen, dann Passkey registrieren.");
         }
-        const bridgeUrl = buildPasskeyBridgeUrlV79s(mode, session);
+        const bridgeUrl = buildPasskeyBridgeUrlV79aj(mode, session);
         const Browser = getCapacitorPluginV66("Browser");
         if (Browser && typeof Browser.open === "function") {
             await Browser.open({ url: bridgeUrl, presentationStyle: "fullscreen", windowName: "_blank" });
@@ -163,315 +135,14 @@ async function openNativePasskeyBridgeV79s(mode, btn, oldHtml) {
     }
 }
 
-
-function currentAvatarUrlV79x(user) {
-    try {
-        const meta = user?.user_metadata || window.currentUser?.user_metadata || {};
-        return meta.avatar_url || meta.picture || meta.profile_picture || localStorage.getItem(HEADER_AVATAR_CACHE_KEY) || DEFAULT_HEADER_AVATAR;
-    } catch (_) { return DEFAULT_HEADER_AVATAR; }
-}
-function syncSettingsAvatarPreviewV79x(user) {
-    try {
-        const avatar = currentAvatarUrlV79x(user);
-        const previewImg = document.getElementById("settings-avatar-preview");
-        if (previewImg) {
-            previewImg.src = avatar || DEFAULT_HEADER_AVATAR;
-            previewImg.style.display = "block";
-            previewImg.classList.add("settings-avatar-preview-v76e");
-        }
-        const headImg = document.querySelector("#settings-profile-head-v76e img");
-        if (headImg) headImg.src = avatar || DEFAULT_HEADER_AVATAR;
-    } catch (_) {}
-}
-window.syncSettingsAvatarPreviewV79x = syncSettingsAvatarPreviewV79x;
-
-async function chooseNativeImageSourceV79x() {
-    const isEn = (window.currentLang || localStorage.getItem("selectedLanguage") || "de") === "en";
-    return await new Promise(resolve => {
-        const backdrop = document.createElement("div");
-        backdrop.className = "native-photo-sheet-backdrop-v79z";
-        backdrop.innerHTML = `
-            <div class="native-photo-sheet-v79z" role="dialog" aria-modal="true">
-                <strong>${isEn ? "Profile photo" : "Profilbild ändern"}</strong>
-                <p>${isEn ? "Choose a source for your new profile photo." : "Wähle aus, woher dein neues Profilbild kommen soll."}</p>
-                <button type="button" class="primary" data-choice="PHOTOS">${isEn ? "Choose from photos" : "Aus Fotos wählen"}</button>
-                <button type="button" data-choice="CAMERA">${isEn ? "Take picture" : "Foto aufnehmen"}</button>
-                <button type="button" class="cancel" data-choice="">${isEn ? "Cancel" : "Abbrechen"}</button>
-            </div>`;
-        function cleanup(value){ try { backdrop.remove(); } catch(_){} resolve(value || null); }
-        backdrop.addEventListener("click", function(ev){
-            const btn = ev.target && ev.target.closest && ev.target.closest("button[data-choice]");
-            if (btn) { ev.preventDefault(); cleanup(btn.getAttribute("data-choice") || null); return; }
-            if (ev.target === backdrop) cleanup(null);
-        });
-        document.body.appendChild(backdrop);
-    });
-}
-
-function dataUrlToFileV79s(dataUrl, filename) {
-    const parts = String(dataUrl || "").split(",");
-    const meta = parts[0] || "";
-    const mime = (meta.match(/data:([^;]+)/) || [])[1] || "image/jpeg";
-    const bin = atob(parts[1] || "");
-    const len = bin.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
-    return new File([bytes], filename || `ipsc_photo_${Date.now()}.jpg`, { type: mime });
-}
-
-function blobToFileV79s(blob, filename) {
-    const type = blob && blob.type ? blob.type : "image/jpeg";
-    return new File([blob], filename || `ipsc_photo_${Date.now()}.jpg`, { type });
-}
-
-async function cameraResultToFileV79s(result) {
-    if (!result) return null;
-    const fmt = String(result.format || result.metadata?.format || "jpg").replace(/[^a-z0-9]/gi, "") || "jpg";
-    const filename = `ipsc_photo_${Date.now()}.${fmt === "jpeg" ? "jpg" : fmt}`;
-
-    if (result.dataUrl) return dataUrlToFileV79s(result.dataUrl, filename);
-    if (result.thumbnail) {
-        const raw = String(result.thumbnail);
-        const dataUrl = raw.startsWith("data:") ? raw : `data:image/${fmt};base64,${raw}`;
-        return dataUrlToFileV79s(dataUrl, filename);
-    }
-
-    const url = result.webPath || (window.Capacitor && result.uri && window.Capacitor.convertFileSrc ? window.Capacitor.convertFileSrc(result.uri) : result.uri);
-    if (!url) return null;
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("Foto konnte nicht gelesen werden.");
-    const blob = await response.blob();
-    return blobToFileV79s(blob, filename);
-}
-
-async function openNativeImageInputV79s(input) {
-    if (!input || input.dataset.nativeImageBusyV79s === "1") return false;
-    const accept = String(input.getAttribute("accept") || "").toLowerCase();
-    if (!(accept.includes("image") || accept.includes(".jpg") || accept.includes(".jpeg") || accept.includes(".png") || accept.includes(".webp"))) return false;
-    const Camera = getCapacitorPluginV66("Camera");
-    // v79ad: In the native app this can run inside an iframe. Some pages do not report
-    // isNativePlatform(), but the parent still exposes the Camera plugin. Use the plugin
-    // as the source of truth and only fall back to the web file picker if it is absent.
-    if (!Camera || (typeof Camera.takePhoto !== "function" && typeof Camera.getPhoto !== "function")) return false;
-
-    input.dataset.nativeImageBusyV79s = "1";
-    try {
-        let photo = null;
-        const choiceSourceV79x = await chooseNativeImageSourceV79x();
-        if (!choiceSourceV79x) return true;
-        if (typeof Camera.getPhoto === "function") {
-            photo = await Camera.getPhoto({
-                quality: 86,
-                resultType: "dataUrl",
-                source: choiceSourceV79x,
-                allowEditing: false,
-                correctOrientation: true,
-                presentationStyle: "fullscreen",
-                webUseInput: false
-            });
-        } else if (typeof Camera.takePhoto === "function" && choiceSourceV79x === "CAMERA") {
-            photo = await Camera.takePhoto({
-                quality: 86,
-                includeMetadata: false,
-                saveToGallery: false,
-                cameraDirection: "rear",
-                presentationStyle: "fullscreen"
-            });
-        }
-        const file = await cameraResultToFileV79s(photo);
-        if (!file) return true;
-        // v79ad: Keep the selected file even if iOS WebView does not allow assigning input.files.
-        try { input.__nativeSelectedFileV79ad = file; } catch (_) {}
-        try { window.__settingsAvatarFileV79ad = file; } catch (_) {}
-        try {
-            if (typeof DataTransfer !== "undefined") {
-                const dt = new DataTransfer();
-                dt.items.add(file);
-                input.files = dt.files;
-            }
-        } catch (_) {}
-        try {
-            if (typeof window.previewSettingsAvatarFromFileV79ad === "function") {
-                window.previewSettingsAvatarFromFileV79ad(file);
-            } else {
-                input.dispatchEvent(new Event("change", { bubbles: true }));
-            }
-        } catch (_) { try { input.dispatchEvent(new Event("change", { bubbles: true })); } catch(__){} }
-        return true;
-    } catch (error) {
-        const msg = String(error?.message || error || "");
-        if (!/cancel|user cancelled|user canceled|abort/i.test(msg)) {
-            console.warn("Native image picker failed:", error);
-            try { alert("Profilbild konnte nicht geöffnet werden: " + msg); } catch (_) {}
-        }
-        return true;
-    } finally {
-        setTimeout(() => { try { delete input.dataset.nativeImageBusyV79s; } catch (_) {} }, 350);
-    }
-}
-window.openNativeImageInputV79s = openNativeImageInputV79s;
-
-
-window.previewSettingsAvatarFromFileV79ad = function(file) {
-    try {
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const src = e && e.target ? e.target.result : null;
-            if (!src) return;
-            const img = document.getElementById('settings-avatar-preview');
-            if (img) {
-                img.src = src;
-                img.style.display = 'block';
-                img.classList.add('settings-avatar-preview-v76e');
-            }
-            const headImg = document.querySelector('#settings-profile-head-v76e img');
-            if (headImg) headImg.src = src;
-            const headerImg = document.getElementById('header-avatar');
-            if (headerImg) headerImg.src = src;
-        };
-        reader.readAsDataURL(file);
-    } catch (_) {}
-};
-
-function setAvatarFileFromNativePhotoV79af(input, file) {
-    try {
-        if (!input || !file) return;
-        try { input.__nativeSelectedFileV79ad = file; } catch (_) {}
-        try { window.__settingsAvatarFileV79ad = file; } catch (_) {}
-        try {
-            if (typeof DataTransfer !== "undefined") {
-                const dt = new DataTransfer();
-                dt.items.add(file);
-                input.files = dt.files;
-            }
-        } catch (_) {}
-        try {
-            if (typeof window.previewSettingsAvatarFromFileV79ad === "function") {
-                window.previewSettingsAvatarFromFileV79ad(file);
-            } else if (typeof window.previewSettingsAvatar === "function") {
-                window.previewSettingsAvatar(input);
-            } else {
-                input.dispatchEvent(new Event("change", { bubbles: true }));
-            }
-        } catch (_) { try { input.dispatchEvent(new Event("change", { bubbles: true })); } catch(__){} }
-    } catch (_) {}
-}
-
-function openAvatarPhotoPickerDirectV79af(input) {
-    if (!input) return false;
-    try {
-        input.removeAttribute('disabled');
-        input.setAttribute('accept', 'image/*,.jpg,.jpeg,.png,.webp');
-        const Camera = (typeof getCapacitorPluginV66 === 'function') ? getCapacitorPluginV66('Camera') : null;
-        const isNative = (typeof isNativeCapacitorRuntimeV79s === 'function') && isNativeCapacitorRuntimeV79s();
-        if (isNative && Camera && typeof Camera.getPhoto === 'function') {
-            // Wichtig: direkt aus dem Tap heraus starten, kein eigenes Zwischen-Sheet.
-            Camera.getPhoto({
-                quality: 86,
-                resultType: 'dataUrl',
-                source: 'PHOTOS',
-                allowEditing: false,
-                correctOrientation: true,
-                presentationStyle: 'fullscreen',
-                webUseInput: false
-            }).then(async function(photo){
-                const file = await cameraResultToFileV79s(photo);
-                setAvatarFileFromNativePhotoV79af(input, file);
-            }).catch(function(error){
-                const msg = String((error && error.message) || error || '');
-                if (!/cancel|user cancelled|user canceled|abort/i.test(msg)) {
-                    console.warn('Profile photo picker failed v79af:', error);
-                    try { alert('Profilbild konnte nicht geöffnet werden: ' + msg); } catch (_) {}
-                }
-            });
-            return true;
-        }
-
-        // Web/WKWebView fallback: normaler iOS-Foto-Picker direkt im Tap.
-        const old = {
-            position: input.style.position,
-            left: input.style.left,
-            top: input.style.top,
-            width: input.style.width,
-            height: input.style.height,
-            opacity: input.style.opacity,
-            pointerEvents: input.style.pointerEvents,
-            display: input.style.display,
-            zIndex: input.style.zIndex
-        };
-        input.style.position = 'fixed';
-        input.style.left = '8px';
-        input.style.top = '8px';
-        input.style.width = '2px';
-        input.style.height = '2px';
-        input.style.opacity = '0.01';
-        input.style.pointerEvents = 'auto';
-        input.style.display = 'block';
-        input.style.zIndex = '2147483647';
-        input.click();
-        setTimeout(function(){
-            try {
-                input.style.position = old.position;
-                input.style.left = old.left;
-                input.style.top = old.top;
-                input.style.width = old.width;
-                input.style.height = old.height;
-                input.style.opacity = old.opacity;
-                input.style.pointerEvents = old.pointerEvents;
-                input.style.display = old.display;
-                input.style.zIndex = old.zIndex;
-            } catch(_) {}
-        }, 1200);
-        return true;
-    } catch (err) {
-        console.warn('Avatar picker failed v79af:', err);
-        try { input.click(); return true; } catch (_) {}
-        return false;
-    }
-}
-window.openAvatarPhotoPickerDirectV79af = openAvatarPhotoPickerDirectV79af;
-
-(function installAvatarUploadButtonBridgeV79af(){
-    if (window.__IPSC_AVATAR_UPLOAD_BUTTON_V79AF) return;
-    window.__IPSC_AVATAR_UPLOAD_BUTTON_V79AF = true;
-    document.addEventListener('click', function(event){
-        const btn = event.target && event.target.closest && event.target.closest('.avatar-upload-btn-v76e, [data-avatar-upload-v79ad]');
-        if (!btn) return;
-        const input = document.getElementById('settings-avatar');
-        if (!input) return;
-        event.preventDefault();
-        event.stopPropagation();
-        if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-        openAvatarPhotoPickerDirectV79af(input);
-    }, true);
-})();
-
-(function installNativeImageInputBridgeV79s(){
-    if (window.__IPSC_NATIVE_IMAGE_INPUT_V79S) return;
-    window.__IPSC_NATIVE_IMAGE_INPUT_V79S = true;
-    document.addEventListener("click", function(event){
-        const input = event.target && event.target.closest && event.target.closest('input[type="file"]');
-        if (!input) return;
-        if (!isNativeCapacitorRuntimeV79s()) return;
-        const accept = String(input.getAttribute("accept") || "").toLowerCase();
-        if (!(accept.includes("image") || accept.includes(".jpg") || accept.includes(".jpeg") || accept.includes(".png") || accept.includes(".webp"))) return;
-        const Camera = getCapacitorPluginV66("Camera");
-        if (!Camera || (typeof Camera.takePhoto !== "function" && typeof Camera.getPhoto !== "function")) return;
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        openNativeImageInputV79s(input);
-    }, true);
-})();
-
 // --- PASSKEY FUNKTIONEN ---
 window.loginWithPasskey = async function() {
     // v79q: Passkey/Face ID in der App aktiv lassen. Kein lokaler "später"-Block mehr.
     const btn = document.querySelector('#modal-login-view button[onclick="loginWithPasskey()"]');
     const oldHtml = btn ? btn.innerHTML : "";
-    if (isNativeCapacitorRuntimeV79s() && !isPasskeyBridgePageV79s()) {
+    if (isNativeCapacitorRuntimeV79aj() && !isPasskeyBridgePageV79aj()) {
         if (btn) btn.innerHTML = "⏳ Face ID / Passkey wird geöffnet...";
-        await openNativePasskeyBridgeV79s("login", btn, oldHtml);
+        await openNativePasskeyBridgeV79aj("login", btn, oldHtml);
         return;
     }
     if (btn) btn.innerHTML = "⏳ Warte auf Sensor...";
@@ -484,7 +155,6 @@ window.loginWithPasskey = async function() {
     } else {
         if (data?.session?.user) cacheHeaderUser(data.session.user);
         const loggedInUser = data?.session?.user || window.currentUser || null;
-        emitAuthChangedV79t(loggedInUser, "SIGNED_IN");
         if (btn) btn.innerHTML = "✅ Erfolgreich!";
         if (document.body && (document.body.classList.contains("page-native-shell") || document.body.classList.contains("page-app-spa"))) {
             try {
@@ -501,9 +171,9 @@ window.registerPasskey = async function() {
     // v79q: Passkey-Registrierung in der App aktiv lassen. Kein lokaler "später"-Block mehr.
     const btn = document.querySelector('#modal-settings-view button[onclick="registerPasskey()"]');
     const oldHtml = btn ? btn.innerHTML : "";
-    if (isNativeCapacitorRuntimeV79s() && !isPasskeyBridgePageV79s()) {
+    if (isNativeCapacitorRuntimeV79aj() && !isPasskeyBridgePageV79aj()) {
         if (btn) btn.innerHTML = "⏳ Face ID / Passkey wird geöffnet...";
-        await openNativePasskeyBridgeV79s("register", btn, oldHtml);
+        await openNativePasskeyBridgeV79aj("register", btn, oldHtml);
         return;
     }
     if (btn) btn.innerHTML = "⏳ Bitte Sensor berühren...";
@@ -562,25 +232,11 @@ function isNativeShellV66() {
 }
 
 function getCapacitorPluginV66(name) {
-    const aliases = {
-        Camera: ["Camera", "CAPCameraPlugin", "CapacitorCamera"],
-        Filesystem: ["Filesystem", "FilesystemPlugin", "CapacitorFilesystem"],
-        Share: ["Share", "SharePlugin", "CapacitorShare"],
-        Browser: ["Browser", "CAPBrowserPlugin", "CapacitorBrowser"],
-        App: ["App", "AppPlugin", "CapacitorApp"],
-        BluetoothLe: ["BluetoothLe", "BluetoothLE", "CapacitorBluetoothLe"]
-    };
-    const names = aliases[name] || [name];
-    const frames = [window];
-    try { if (window.parent && window.parent !== window) frames.push(window.parent); } catch (_) {}
-    try { if (window.top && window.top !== window && !frames.includes(window.top)) frames.push(window.top); } catch (_) {}
-    for (const frame of frames) {
-        try {
-            const plugins = frame.Capacitor?.Plugins || {};
-            for (const key of names) if (plugins[key]) return plugins[key];
-        } catch (_) {}
+    try {
+        return window.Capacitor?.Plugins?.[name] || null;
+    } catch (_) {
+        return null;
     }
-    return null;
 }
 
 function getOAuthRedirectUrlV66() {
@@ -1451,7 +1107,6 @@ function closeAuthModalAfterLoginV78e(user) {
         document.documentElement.classList.remove("auth-open", "modal-open");
         if (typeof updateAuthUI === "function") updateAuthUI(user || window.currentUser || null);
         if (typeof window.onAuthChange === "function") window.onAuthChange(user || window.currentUser || null);
-        emitAuthChangedV79t(user || window.currentUser || null, "SIGNED_IN");
         if (typeof syncHeaderAuthState === "function") syncHeaderAuthState();
         if (window.IPSCAppV78 && typeof window.IPSCAppV78.broadcastAuth === "function") window.IPSCAppV78.broadcastAuth("SIGNED_IN");
         setTimeout(function(){
@@ -1488,10 +1143,7 @@ function closeAuthModalV78m(){
 window.closeAuthModalV78m = closeAuthModalV78m;
 
 document.addEventListener("click", async (e) => {
-    if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login, [data-native-login]")) {
-        e.preventDefault();
-        if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
-        if (typeof resetAuthProviderButtonsV78e === 'function') resetAuthProviderButtonsV78e();
+    if (e.target.id === "btn-open-login" || e.target.closest("#btn-open-login")) {
         if (typeof showAuthModalV78h === "function") {
             showAuthModalV78h("login");
         } else {
@@ -1520,31 +1172,15 @@ document.addEventListener("click", async (e) => {
         clearHeaderUserCache();
         await window.supabaseClient.auth.signOut();
         window.currentUser = null;
-        emitAuthChangedV79t(null, "SIGNED_OUT");
         try { if (typeof updateAuthUI === "function") updateAuthUI(null); } catch (_) {}
         try { if (typeof window.onAuthChange === "function") window.onAuthChange(null); } catch (_) {}
-        try {
-            const c = document.getElementById('auth-status-container');
-            const login = document.getElementById('btn-open-login');
-            const settings = document.getElementById('btn-open-settings');
-            const logout = document.getElementById('btn-logout');
-            if (c) c.dataset.authState = 'out';
-            if (login) { login.style.setProperty('display','inline-flex','important'); login.disabled = false; login.removeAttribute('aria-disabled'); }
-            if (settings) settings.style.setProperty('display','none','important');
-            if (logout) logout.style.setProperty('display','none','important');
-            if (typeof resetAuthProviderButtonsV78e === 'function') resetAuthProviderButtonsV78e();
-        } catch (_) {}
         try { window.dispatchEvent(new CustomEvent("ipsc:auth-logout-v78d")); } catch (_) {}
-        // AUTH LOGOUT BUTTON V79V: Login-Button sofort wieder antippbar machen.
-        try { if (window.showAuthModalV79v) setTimeout(function(){ var b=document.getElementById("btn-open-login"); if(b){ b.style.setProperty("display","inline-flex","important"); b.disabled=false; b.removeAttribute("disabled"); b.removeAttribute("aria-disabled"); b.style.setProperty("pointer-events","auto","important"); } }, 50); } catch (_) {}
         if (!(document.body && (document.body.classList.contains("page-app-spa") || document.body.classList.contains("page-native-shell")))) {
             location.reload();
         }
     }
 
-    if (e.target.id === "btn-open-settings" || e.target.closest("#btn-open-settings, .header-avatar-btn, #header-avatar")) {
-        e.preventDefault();
-        if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+    if (e.target.id === "btn-open-settings" || e.target.closest("#btn-open-settings")) {
         if (typeof showAuthModalV78h === "function") {
             showAuthModalV78h("settings");
         } else {
@@ -1573,7 +1209,11 @@ document.addEventListener("click", async (e) => {
             settingsRealName.value = window.currentUser.user_metadata?.real_name || "";
         }
 
-        syncSettingsAvatarPreviewV79x(window.currentUser || null);
+        const previewImg = document.getElementById("settings-avatar-preview");
+        if (previewImg && window.currentUser?.user_metadata?.avatar_url) {
+            previewImg.src = window.currentUser.user_metadata.avatar_url;
+            previewImg.style.display = 'block';
+        }
     }
 
     if (e.target.id === "btn-delete-account") {
@@ -1594,7 +1234,6 @@ document.addEventListener("click", async (e) => {
 
 window.previewSettingsAvatar = function(input) {
     if (input.files && input.files[0]) {
-        try { input.__nativeSelectedFileV79ad = input.files[0]; window.__settingsAvatarFileV79ad = input.files[0]; } catch (_) {}
         const reader = new FileReader();
 
         reader.onload = function(e) {
@@ -1603,12 +1242,7 @@ window.previewSettingsAvatar = function(input) {
             if (img) {
                 img.src = e.target.result;
                 img.style.display = 'block';
-                img.classList.add('settings-avatar-preview-v76e');
             }
-            const headImg = document.querySelector('#settings-profile-head-v76e img');
-            if (headImg) headImg.src = e.target.result;
-            const headerImg = document.getElementById('header-avatar');
-            if (headerImg) headerImg.src = e.target.result;
         };
 
         reader.readAsDataURL(input.files[0]);
@@ -1722,9 +1356,7 @@ document.addEventListener("submit", async (e) => {
             const publicUsername = newPublicAlias !== "" ? newPublicAlias : window.currentUser.email.split('@')[0];
 
             const avatarInput = document.getElementById("settings-avatar");
-            const avatarFile = avatarInput && avatarInput.files && avatarInput.files.length > 0
-                ? avatarInput.files[0]
-                : (avatarInput && avatarInput.__nativeSelectedFileV79ad ? avatarInput.__nativeSelectedFileV79ad : (window.__settingsAvatarFileV79ad || null));
+            const avatarFile = avatarInput && avatarInput.files.length > 0 ? avatarInput.files[0] : null;
 
             let updates = {
                 data: {
@@ -1822,7 +1454,6 @@ setTimeout(async () => {
         const { data: { session } } = await window.supabaseClient.auth.getSession();
 
         window.currentUser = settledOAuthSession?.user || session?.user || null;
-        emitAuthChangedV79t(window.currentUser || null, window.currentUser ? "INITIAL_SESSION" : "NO_SESSION");
 
         if (window.currentUser) {
             cacheHeaderUser(window.currentUser);
@@ -1890,7 +1521,6 @@ setTimeout(async () => {
 
         window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
             window.currentUser = session?.user || null;
-            emitAuthChangedV79t(window.currentUser || null, event || "AUTH_STATE_CHANGE");
 
             if (window.currentUser) {
                 cacheHeaderUser(window.currentUser);
@@ -1926,5 +1556,3 @@ setTimeout(async () => {
         await checkUserStatus();
     }
 }, 150);
-
-// v79af-auth-safe-photo-fix

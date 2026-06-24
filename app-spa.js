@@ -8,7 +8,7 @@
   window.__IPSC_APP_FRAME_SPA_V78X = true;
   window.__IPSC_UNIFIED_SPA_ACTIVE = true;
 
-  const VERSION = '79ab';
+  const VERSION = '78x';
   const VIEW_MAP = {
     'index.html': { title: 'Start' },
     'marktplatz.html': { title: 'Marktplatz' },
@@ -287,37 +287,19 @@
     } catch (_) {}
   }
 
-  function fillSettingsFromUserV79t(user){
-    try {
-      user = user || window.currentUser || null;
-      const settingsPublicAlias = document.getElementById('settings-public-alias');
-      if (settingsPublicAlias && user) settingsPublicAlias.value = user.user_metadata?.username || '';
-      const settingsIpsc = document.getElementById('settings-ipsc-alias');
-      if (settingsIpsc && user) settingsIpsc.value = user.user_metadata?.ipsc_alias || '';
-      const settingsRealName = document.getElementById('settings-real-name');
-      if (settingsRealName && user) settingsRealName.value = user.user_metadata?.real_name || '';
-      const previewImg = document.getElementById('settings-avatar-preview');
-      const avatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.user_metadata?.profile_picture || '';
-      if (previewImg && avatar) { previewImg.src = avatar; previewImg.style.display = 'block'; }
-    } catch (_) {}
-  }
-
   function openShellSettings(){
     try {
       showShellAuthModalV78h('settings');
-      fillSettingsFromUserV79t(window.currentUser || null);
-      try {
-        if (window.supabaseClient?.auth?.getSession) {
-          window.supabaseClient.auth.getSession().then(function(result){
-            const user = result && result.data && result.data.session && result.data.session.user;
-            if (user) window.currentUser = user;
-            showShellAuthModalV78h('settings');
-            fillSettingsFromUserV79t(user || window.currentUser || null);
-            setTimeout(restoreShellChrome, 0);
-          }).catch(function(){});
-        }
-      } catch (_) {}
-      setTimeout(function(){ showShellAuthModalV78h('settings'); fillSettingsFromUserV79t(window.currentUser || null); restoreShellChrome(); }, 60);
+      const settingsIpsc = document.getElementById('settings-ipsc-alias');
+      if (settingsIpsc && window.currentUser) settingsIpsc.value = window.currentUser.user_metadata?.ipsc_alias || '';
+      const settingsRealName = document.getElementById('settings-real-name');
+      if (settingsRealName && window.currentUser) settingsRealName.value = window.currentUser.user_metadata?.real_name || '';
+      const previewImg = document.getElementById('settings-avatar-preview');
+      if (previewImg && window.currentUser?.user_metadata?.avatar_url) {
+        previewImg.src = window.currentUser.user_metadata.avatar_url;
+        previewImg.style.display = 'block';
+      }
+      setTimeout(restoreShellChrome, 0);
       return true;
     } catch (_) { return false; }
   }
@@ -404,15 +386,6 @@
       localStorage.removeItem('headerAvatar');
       const modal = document.getElementById('auth-modal');
       if (modal) modal.style.display = 'none';
-      const c = document.getElementById('auth-status-container');
-      const login = document.getElementById('btn-open-login');
-      const settings = document.getElementById('btn-open-settings');
-      const logout = document.getElementById('btn-logout');
-      if (c) c.dataset.authState = 'out';
-      if (login) { login.style.setProperty('display','inline-flex','important'); login.disabled = false; login.removeAttribute('aria-disabled'); }
-      if (settings) settings.style.setProperty('display','none','important');
-      if (logout) logout.style.setProperty('display','none','important');
-      if (typeof window.resetAuthProviderButtonsV78e === 'function') window.resetAuthProviderButtonsV78e();
       if (typeof window.onAuthChange === 'function') window.onAuthChange(null);
       setClubAccessV78v(false);
     } catch (_) {}
@@ -583,7 +556,7 @@
     frame.setAttribute('title', view.title);
     frame.setAttribute('data-view', view.file);
     frame.setAttribute('data-key', view.key);
-    frame.setAttribute('allow', 'bluetooth *; publickey-credentials-get *; publickey-credentials-create *; clipboard-read; clipboard-write; fullscreen');
+    frame.setAttribute('allow', 'publickey-credentials-get *; publickey-credentials-create *; clipboard-read; clipboard-write; fullscreen');
     frame.src = frameUrlFor(view);
     frame.addEventListener('load', function(){
       const theme = getTheme();
@@ -676,15 +649,6 @@
       }
       const modalBg = ev.target && ev.target.id && ['auth-modal','chat-modal','global-inbox-modal'].includes(ev.target.id) ? ev.target : null;
       if (modalBg) { closeShellModalV78m(); try { ev.preventDefault(); ev.stopImmediatePropagation(); } catch (_) {} return; }
-      const loginBtn = ev.target && ev.target.closest && ev.target.closest('#btn-open-login, [data-native-login]');
-      if (loginBtn) {
-        ev.preventDefault();
-        ev.stopImmediatePropagation();
-        openLogin();
-        return;
-      }
-      const logoutBtnV79ae = ev.target && ev.target.closest && ev.target.closest('#btn-logout');
-      if (logoutBtnV79ae) return;
       const settingsBtn = ev.target && ev.target.closest && ev.target.closest('#btn-open-settings, .header-avatar-btn, #header-avatar');
       if (settingsBtn) {
         ev.preventDefault();
@@ -703,9 +667,7 @@
 
   function openLogin(){
     try {
-      if (typeof window.resetAuthProviderButtonsV78e === 'function') window.resetAuthProviderButtonsV78e();
       showShellAuthModalV78h('login');
-      setTimeout(function(){ showShellAuthModalV78h('login'); restoreShellChrome(); }, 60);
       setTimeout(restoreShellChrome, 0);
     } catch (_) {}
   }
@@ -777,52 +739,65 @@
 
   async function sharePdfFromChildV78q(payload, sourceWindow){
     const reply = (ok, error) => {
-      try { sourceWindow && sourceWindow.postMessage({ type: 'ipsc-share-pdf-v78q-result', ok: !!ok, error: error || '' }, '*'); } catch (_) {}
+      try { sourceWindow && sourceWindow.postMessage({ type: 'ipsc-share-pdf-v78q-result', ok: !!ok, error: error || '' }, window.location.origin); } catch (_) {}
     };
     try {
-      const filenameRaw = String(payload && payload.filename || 'IPSC_Schiessbuch.pdf');
-      const filename = filenameRaw.replace(/[\\/:*?"<>|]+/g, '_').replace(/\s+/g, '_');
+      const filename = String(payload && payload.filename || 'IPSC_Schiessbuch.pdf').replace(/[\\/:*?"<>|]+/g, '_');
       const title = String(payload && payload.title || 'Schießbuch PDF');
-      let base64 = String(payload && payload.base64 || '');
-      base64 = base64.replace(/^data:application\/pdf(?:;[^,]*)?;base64,/i, '').replace(/\s/g, '');
+      const base64 = String(payload && payload.base64 || '').replace(/^data:application\/pdf;base64,/, '');
       if (!base64) throw new Error('Keine PDF-Daten empfangen.');
 
       const plugins = window.Capacitor && window.Capacitor.Plugins ? window.Capacitor.Plugins : null;
-      const Filesystem = plugins && (plugins.Filesystem || plugins.FilesystemPlugin || plugins.CapacitorFilesystem);
-      const Share = plugins && (plugins.Share || plugins.SharePlugin || plugins.CapacitorShare);
+      const Filesystem = plugins && plugins.Filesystem;
+      const Share = plugins && plugins.Share;
+      const Directory = (plugins && plugins.Directory) || (window.Capacitor && window.Capacitor.FilesystemDirectory) || { Cache: 'CACHE', Documents: 'DOCUMENTS' };
 
       if (Filesystem && Share && typeof Filesystem.writeFile === 'function' && typeof Share.share === 'function') {
         let lastError = null;
-        const dirs = ['CACHE', 'DOCUMENTS'];
-        const path = `ipsc-share/${Date.now()}_${filename}`;
+        const dirs = [Directory.Cache || 'CACHE', Directory.Documents || 'DOCUMENTS'];
         for (const dir of dirs) {
           try {
-            const result = await Filesystem.writeFile({ path, data: base64, directory: dir, recursive: true });
+            const result = await Filesystem.writeFile({
+              path: filename,
+              data: base64,
+              directory: dir,
+              recursive: true
+            });
             let shareUrl = result && result.uri ? result.uri : undefined;
             if (!shareUrl && typeof Filesystem.getUri === 'function') {
-              try { const uriResult = await Filesystem.getUri({ path, directory: dir }); shareUrl = uriResult && uriResult.uri ? uriResult.uri : undefined; } catch (_) {}
+              try {
+                const uriResult = await Filesystem.getUri({ path: filename, directory: dir });
+                shareUrl = uriResult && uriResult.uri ? uriResult.uri : undefined;
+              } catch (_) {}
             }
             if (!shareUrl) throw new Error('PDF-Datei geschrieben, aber keine Datei-URI erhalten.');
-            await Share.share({ title, text: 'PDF wurde erstellt.', url: shareUrl, dialogTitle: title });
-            reply(true); return;
-          } catch (e) { lastError = e; console.warn('PDF share attempt failed for directory', dir, e); }
+            await Share.share({
+              title: title,
+              text: 'PDF wurde erstellt.',
+              url: shareUrl,
+              dialogTitle: title
+            });
+            reply(true);
+            return;
+          } catch (e) {
+            lastError = e;
+            console.warn('PDF share attempt failed for directory', dir, e);
+          }
         }
         throw lastError || new Error('PDF konnte nicht geteilt werden.');
       }
       throw new Error('Native Share/Filesystem ist nicht verfügbar.');
-    } catch (err) { console.warn('Parent PDF share failed', err); reply(false, err && err.message ? err.message : String(err)); }
-  }
-
-  function isKnownAppFrameV79w(sourceWindow) {
-    try { if (!sourceWindow) return false; for (const frame of state.frames.values()) { if (frame && frame.contentWindow === sourceWindow) return true; } } catch (_) {}
-    return false;
+    } catch (err) {
+      console.warn('Parent PDF share failed', err);
+      reply(false, err && err.message ? err.message : String(err));
+    }
   }
 
   window.addEventListener('message', function(event){
     try {
+      if (event.origin !== window.location.origin) return;
       const data = event.data || {};
       if (data.type === 'ipsc-share-pdf-v78q') {
-        if (event.origin !== window.location.origin && !isKnownAppFrameV79w(event.source)) return;
         sharePdfFromChildV78q(data, event.source);
       }
     } catch (_) {}
@@ -837,70 +812,3 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();
 })();
-
-
-// V79V: robust auth/settings opener after logout and in native app shell.
-(function ipscAuthUiHardFixV79v(){
-  if (window.__IPSC_AUTH_UI_HARD_FIX_V79V) return;
-  window.__IPSC_AUTH_UI_HARD_FIX_V79V = true;
-  function modal(){ return document.getElementById('auth-modal'); }
-  function show(view){
-    try{
-      var m = modal();
-      if (!m) return false;
-      m.style.setProperty('display','flex','important');
-      m.style.setProperty('visibility','visible','important');
-      m.style.setProperty('opacity','1','important');
-      m.style.setProperty('pointer-events','auto','important');
-      m.removeAttribute('aria-hidden');
-      m.classList.add('show','is-open','open');
-      document.documentElement.classList.add('auth-open','modal-open');
-      if (document.body) document.body.classList.add('auth-open','modal-open');
-      try { if (typeof window.resetAuthProviderButtonsV78e === 'function') window.resetAuthProviderButtonsV78e(); } catch(_){ }
-      try { if (typeof window.toggleAuthView === 'function') window.toggleAuthView(view || 'login'); } catch(_){ }
-      if (view === 'settings') {
-        try { if (typeof window.fillSettingsFromUserV79t === 'function') window.fillSettingsFromUserV79t(window.currentUser || null); } catch(_){ }
-      }
-      return true;
-    }catch(_){ return false; }
-  }
-  function resetOut(){
-    try{
-      var c=document.getElementById('auth-status-container'), login=document.getElementById('btn-open-login'), settings=document.getElementById('btn-open-settings'), logout=document.getElementById('btn-logout');
-      if(c) c.dataset.authState='out';
-      if(login){ login.style.setProperty('display','inline-flex','important'); login.disabled=false; login.removeAttribute('disabled'); login.removeAttribute('aria-disabled'); login.style.setProperty('pointer-events','auto','important'); login.style.setProperty('visibility','visible','important'); login.style.setProperty('opacity','1','important'); }
-      if(settings){ settings.style.setProperty('display','none','important'); }
-      if(logout){ logout.style.setProperty('display','none','important'); }
-    }catch(_){ }
-  }
-  function resetIn(){
-    try{
-      var c=document.getElementById('auth-status-container'), login=document.getElementById('btn-open-login'), settings=document.getElementById('btn-open-settings'), logout=document.getElementById('btn-logout');
-      if(c) c.dataset.authState='in';
-      if(login) login.style.setProperty('display','none','important');
-      if(settings){ settings.style.setProperty('display','inline-flex','important'); settings.style.setProperty('pointer-events','auto','important'); settings.style.setProperty('visibility','visible','important'); settings.style.setProperty('opacity','1','important'); }
-      if(logout) logout.style.setProperty('display','inline-flex','important');
-    }catch(_){ }
-  }
-  var oldOpenLogin = window.openLoginModal;
-  window.openLoginModal = function(){ return show('login') || (typeof oldOpenLogin === 'function' ? oldOpenLogin() : false); };
-  var oldOpenSettings = window.openSettingsModal;
-  window.openSettingsModal = function(){ return show('settings') || (typeof oldOpenSettings === 'function' ? oldOpenSettings() : false); };
-  window.showAuthModalV79v = show;
-  window.addEventListener('ipsc:auth-logout-v78d', function(){ resetOut(); setTimeout(resetOut,80); setTimeout(resetOut,350); });
-  window.addEventListener('ipsc-auth-changed', function(e){ if(e.detail && e.detail.user) resetIn(); else resetOut(); });
-  window.addEventListener('ipsc:auth-changed-v79t', function(e){ if(e.detail && e.detail.user) resetIn(); else resetOut(); });
-  document.addEventListener('click', function(ev){
-    try{
-      var login = ev.target && ev.target.closest && ev.target.closest('#btn-open-login, [data-native-login]');
-      if(login){ ev.preventDefault(); ev.stopImmediatePropagation(); show('login'); return; }
-      var logoutV79ae = ev.target && ev.target.closest && ev.target.closest('#btn-logout');
-      if(logoutV79ae) return;
-      var settings = ev.target && ev.target.closest && ev.target.closest('#btn-open-settings, .header-avatar-btn, #header-avatar');
-      if(settings){ ev.preventDefault(); ev.stopImmediatePropagation(); show('settings'); return; }
-    }catch(_){ }
-  }, true);
-  setTimeout(function(){ try{ if(window.currentUser) resetIn(); else window.supabaseClient?.auth?.getSession().then(function(r){ if(r?.data?.session?.user){ window.currentUser=r.data.session.user; resetIn(); } else resetOut(); }); }catch(_){ } }, 600);
-})();
-
-// V79AE logout/settings separation: logout clicks are no longer captured as settings.

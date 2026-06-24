@@ -1,24 +1,7 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <script id="ipsc-build-cache-reset-v79u">
-(function(){
-  try {
-    window.__IPSC_BUILD_ID = "v79ab-ipad-app-view-restore";
-    document.documentElement.setAttribute("data-ipsc-build", "v79ab");
-    try { localStorage.setItem("ipsc_active_build", "v79ab-ipad-app-view-restore"); } catch (_) {}
-    var isNative = /^(capacitor|ionic):$/i.test(location.protocol || "") || /(^|[?&])(shell=1|appframe=1)(?:&|$)/.test(location.search || "");
-    if ("caches" in window) {
-      caches.keys().then(function(keys){
-        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79ab-ipad-app-view-restore"; }).map(function(k){ return caches.delete(k); }));
-      }).catch(function(){});
-    }
-    if (isNative && "serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
-      navigator.serviceWorker.getRegistrations().then(function(regs){ regs.forEach(function(r){ try { r.unregister(); } catch (_) {} }); }).catch(function(){});
-    }
-  } catch (_) {}
-})();
-</script>
+    <!-- v79aj-fast-login-isolated-fix: fast v79r login base + isolated UI/passkey/share fixes -->
     <script id="ipsc-native-shell-redirect-v76t">
       (function () {
         try {
@@ -33,15 +16,14 @@
           var allowed = {'index.html':1,'marktplatz.html':1,'mein-planer.html':1,'community.html':1,'freie-matches.html':1,'schiessbuch.html':1,'sg-timer-live.html':1,'tools.html':1,'analytics.html':1,'wiederladen.html':1,'ipsc-hub.html':1,'doppel-aa.html':1,'performance.html':1};
           if (!allowed[file]) return;
           var view = file + (window.location.search || "") + (window.location.hash || "");
+
           var isTablet = false;
           try {
             var w = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
             var h = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
             isTablet = w >= 820 && h >= 600;
           } catch (_) {}
-          var target = isTablet
-            ? "app.html?shell=1&view=" + encodeURIComponent(view)
-            : "native-shell.html?view=" + encodeURIComponent(view);
+          var target = isTablet ? "app.html?shell=1&view=" + encodeURIComponent(view) : "native-shell.html?view=" + encodeURIComponent(view);
           if ((window.location.pathname || "").endsWith("/native-shell.html") || (window.location.pathname || "").endsWith("/app.html")) return;
           window.location.replace(target);
         } catch (_) {}
@@ -256,7 +238,7 @@
     <link rel="preload" href="icon-192.png" as="image">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=79af">
+<link rel="stylesheet" href="global.css?v=76v">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 
@@ -299,9 +281,9 @@
   .hero-quicklinks-v76 a{gap:12px;}
   .hero-quicklinks-v76 a strong{display:flex;align-items:center;gap:10px;line-height:1.15;}
   .fav-symbol-v79r{width:28px;height:28px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 28px;background:linear-gradient(135deg,rgba(255,159,67,.20),rgba(59,130,246,.12));border:1px solid rgba(148,163,184,.24);box-shadow:inset 0 1px 0 rgba(255,255,255,.18);}
-  .fav-symbol-v79r::before{font-size:18px;line-height:1;font-weight:900;color:#ff8a1f;letter-spacing:-.02em;}
+  .fav-symbol-v79r::before{font-size:12px;font-weight:950;color:#ff8a1f;letter-spacing:-.02em;}
   html[data-theme="dark"] .fav-symbol-v79r{background:linear-gradient(135deg,rgba(255,159,67,.22),rgba(37,99,235,.16));border-color:rgba(148,163,184,.20);}
-  .fav-symbol-market::before{content:"🛒"}.fav-symbol-planner::before{content:"📅"}.fav-symbol-log::before{content:"📋"}.fav-symbol-comm::before{content:"👥"}.fav-symbol-match::before{content:"🎯"}.fav-symbol-tools::before{content:"🏆"}.fav-symbol-reload::before{content:"📦"}.fav-symbol-stats::before{content:"📊"}.fav-symbol-hub::before{content:"⭐"}.fav-symbol-timer::before{content:"⏱️"}
+  .fav-symbol-market::before{content:"M"}.fav-symbol-planner::before{content:"P"}.fav-symbol-log::before{content:"L"}.fav-symbol-comm::before{content:"C"}.fav-symbol-match::before{content:"M"}.fav-symbol-tools::before{content:"T"}.fav-symbol-reload::before{content:"R"}.fav-symbol-stats::before{content:"%"}.fav-symbol-hub::before{content:"H"}.fav-symbol-timer::before{content:"S"}
   .favorites-options-v76 .fav-symbol-v79r{margin-right:4px;}
   .season-btn-primary-v79o{background:linear-gradient(135deg,#ff9f43,#ff6b00);color:#fff;box-shadow:0 12px 26px rgba(255,107,0,.20);}
   .season-btn-secondary-v79o{background:rgba(255,255,255,.72);border:1px solid rgba(148,163,184,.25);color:var(--text-color);}
@@ -320,155 +302,33 @@
   }
 </style>
 
-<style id="index-v79t-favorite-layout-inline">
+
+<style id="v79aj-isolated-ui-fixes">
   .fav-symbol-v79r{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;width:30px!important;height:30px!important;min-width:30px!important;flex:0 0 30px!important;}
   .fav-symbol-v79r::before{font-size:25px!important;font-weight:400!important;line-height:1!important;color:inherit!important;}
-  .hero-quicklinks-v76 a strong{display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:8px!important;}
-  .fav-edit-btn-v76,.app-cta-v71{justify-content:center!important;text-align:center!important;}
-</style>
-
-<style id="index-v79u-mobile-ui-hardening">
-  .fav-emoji-v79v{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:32px!important;min-width:32px!important;height:32px!important;font-size:26px!important;line-height:1!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;margin:0!important;transform:none!important;}
-  .hero-quicklinks-v76 a strong{display:inline-flex!important;align-items:center!important;gap:9px!important;line-height:1.12!important;}
-  .season-actions-v79o{justify-content:center!important;align-items:center!important;}
-  .season-actions-v79o .season-btn-v79o{margin-left:auto!important;margin-right:auto!important;text-align:center!important;}
-  @media (max-width:760px){
-    .season-actions-v79o{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;justify-items:stretch!important;}
-    .season-actions-v79o .season-btn-v79o{width:100%!important;max-width:100%!important;min-height:58px!important;display:flex!important;align-items:center!important;justify-content:center!important;}
-    .app-actions-v71,.home-actions-v74{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;align-items:stretch!important;}
-    .app-cta-v71{min-height:58px!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;padding-left:12px!important;padding-right:12px!important;}
-  }
-</style>
-
-<style id="index-v79ab-ipad-app-view-restore">
-  .hero-actions-v71{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:14px!important;width:100%!important;align-items:stretch!important;}
-  .hero-actions-v71 .app-cta-v71{width:100%!important;min-width:0!important;box-sizing:border-box!important;white-space:normal!important;overflow:hidden!important;text-align:center!important;padding-left:10px!important;padding-right:10px!important;}
-  .home-favorites-v76 .hero-quicklinks-v76 a{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:14px!important;min-height:78px!important;padding:14px 24px!important;}
-  .home-favorites-v76 .hero-quicklinks-v76 a strong{display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;gap:16px!important;min-width:0!important;}
-  .home-favorites-v76 .hero-quicklinks-v76 a>span:last-child,.home-favorites-v76 .fav-sub-v79v{display:none!important;}
-  .fav-emoji-v79v,.fav-emoji-v79v{width:38px!important;min-width:38px!important;height:38px!important;flex:0 0 38px!important;font-size:30px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:0!important;box-shadow:none!important;}
-  .season-actions-v79o{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:12px!important;}
-  .season-actions-v79o .season-btn-v79o{width:min(100%,330px)!important;max-width:330px!important;min-height:50px!important;margin-left:auto!important;margin-right:auto!important;text-align:center!important;}
-  .season-actions-v79o .season-btn-secondary-v79o{width:min(100%,360px)!important;max-width:360px!important;}
-</style>
-
-<style id="favorites-modal-v79w-visible-fix">
+  .fav-symbol-market::before{content:"🛒"}.fav-symbol-planner::before{content:"📅"}.fav-symbol-log::before{content:"📋"}.fav-symbol-comm::before{content:"👥"}.fav-symbol-match::before{content:"🎯"}.fav-symbol-tools::before{content:"🏆"}.fav-symbol-reload::before{content:"📦"}.fav-symbol-stats::before{content:"📊"}.fav-symbol-hub::before{content:"⭐"}.fav-symbol-timer::before{content:"⏱️"}
+  .home-favorites-v76 .hero-quicklinks-v76 a>span:last-child{display:none!important;}
+  .hero-quicklinks-v76 a strong{gap:12px!important;}
   .favorites-modal-v76.show{display:flex!important;align-items:center!important;justify-content:center!important;padding:18px!important;z-index:2147483600!important;}
-  .favorites-modal-v76.show .favorites-sheet-v76{margin:auto!important;width:min(calc(100vw - 36px),520px)!important;max-height:min(72dvh,620px)!important;border-radius:28px!important;transform:none!important;}
-  .favorites-options-v76{max-height:50dvh!important;overflow:auto!important;-webkit-overflow-scrolling:touch!important;}
-</style>
-
-<style id="index-v79y-bugfix-ui">
-  .favorites-modal-v76.show{display:flex!important;align-items:center!important;justify-content:center!important;padding:max(16px,env(safe-area-inset-top)) 18px calc(126px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important;}
-  .favorites-modal-v76.show .favorites-sheet-v76{width:min(calc(100vw - 36px),520px)!important;max-height:calc(100dvh - 170px - env(safe-area-inset-bottom))!important;margin:0 auto!important;border-radius:30px!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;}
-  .favorites-options-v76{overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;max-height:none!important;}
-</style>
-
-
-<style id="index-v79ab-ipad-app-view-restore">
-  /* v79y: Modal darf im App-Frame nie am Seitenende hängen. */
-  body.page-index .favorites-modal-v76,
-  html.ipsc-app-frame body.page-index .favorites-modal-v76,
-  html.is-native-shell body.page-index .favorites-modal-v76{
-    position:fixed!important;
-    inset:0!important;
-    top:0!important;
-    left:0!important;
-    right:0!important;
-    bottom:0!important;
-    width:100vw!important;
-    height:100dvh!important;
-    min-height:100dvh!important;
-    display:none!important;
-    align-items:center!important;
-    justify-content:center!important;
-    padding:max(18px,env(safe-area-inset-top)) 18px max(112px,calc(126px + env(safe-area-inset-bottom))) 18px!important;
-    box-sizing:border-box!important;
-    overflow:hidden!important;
-    overscroll-behavior:contain!important;
-    background:rgba(15,23,42,.42)!important;
-    backdrop-filter:blur(10px)!important;
-    -webkit-backdrop-filter:blur(10px)!important;
-    z-index:2147483600!important;
-    transform:translateZ(0)!important;
-  }
-  body.page-index .favorites-modal-v76.show,
-  html.ipsc-app-frame body.page-index .favorites-modal-v76.show,
-  html.is-native-shell body.page-index .favorites-modal-v76.show{display:flex!important;}
-  body.page-index .favorites-modal-v76.show .favorites-sheet-v76,
-  html.ipsc-app-frame body.page-index .favorites-modal-v76.show .favorites-sheet-v76,
-  html.is-native-shell body.page-index .favorites-modal-v76.show .favorites-sheet-v76{
-    margin:0 auto!important;
-    width:min(calc(100vw - 36px),520px)!important;
-    max-height:min(74dvh,650px)!important;
-    border-radius:30px!important;
-    overflow:hidden!important;
-    display:flex!important;
-    flex-direction:column!important;
-    transform:none!important;
-    box-shadow:0 30px 90px rgba(15,23,42,.30)!important;
-  }
-  body.page-index .favorites-options-v76{overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;max-height:none!important;}
-  body.page-index.favorites-open-v79y{overflow:hidden!important;}
-
-  /* v79y: Saisonkarte auf der Startseite optisch ruhiger und der Ø-Wert klarer. */
-  .season-card-v79o{
-    background:
-      radial-gradient(circle at 88% 6%, rgba(255,122,24,.18), transparent 34%),
-      radial-gradient(circle at 5% 95%, rgba(59,130,246,.13), transparent 38%),
-      linear-gradient(135deg,rgba(255,251,247,.96),rgba(241,247,255,.96))!important;
-  }
+  .favorites-modal-v76.show .favorites-sheet-v76{margin:auto!important;width:min(calc(100vw - 36px),520px)!important;max-height:min(76dvh,640px)!important;border-radius:28px!important;transform:none!important;}
+  .favorites-options-v76{max-height:52dvh!important;overflow:auto!important;-webkit-overflow-scrolling:touch!important;}
   .season-grid-v79o{grid-template-columns:repeat(4,minmax(0,1fr))!important;}
   .season-kpi-v79o{min-height:74px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;}
   #season-avgpct-v79p{color:#f97316!important;}
-  #season-avgpct-v79p.closest-season-avg-v79y{font-size:34px!important;}
-  #season-kpi-label-avg-v79v{color:#f97316!important;}
-  .season-card-v79o.has-season-data-v79y .season-status-v79o{color:#047857!important;background:rgba(16,185,129,.10)!important;border-color:rgba(16,185,129,.22)!important;}
-  @media(max-width:760px){
-    .season-grid-v79o{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
-    .season-kpi-v79o{padding:13px 14px!important;}
-    .season-kpi-value-v79o{font-size:30px!important;}
-    #season-avgpct-v79p.closest-season-avg-v79y{font-size:34px!important;}
-  }
+  #season-avgpct-v79p.closest-season-avg-v79aj{font-size:34px!important;}
+  .season-card-v79o.has-season-data-v79aj .season-status-v79o{color:#047857!important;background:rgba(16,185,129,.10)!important;border-color:rgba(16,185,129,.22)!important;}
+  html[data-theme="dark"] .season-card-v79o{background:radial-gradient(circle at 92% 8%, rgba(249,115,22,.22) 0 120px, transparent 260px),radial-gradient(circle at 0% 100%, rgba(59,130,246,.20) 0 150px, transparent 310px),linear-gradient(145deg, rgba(15,23,42,.96), rgba(17,24,39,.92))!important;border-color:rgba(148,163,184,.22)!important;color:#f8fafc!important;}
+  html[data-theme="dark"] .season-sub-v79o{color:#cbd5e1!important;} html[data-theme="dark"] .season-kicker-v79o{color:#fb923c!important;} html[data-theme="dark"] .season-kpi-v79o{background:linear-gradient(180deg,rgba(30,41,59,.88),rgba(15,23,42,.88))!important;border-color:rgba(148,163,184,.22)!important;} html[data-theme="dark"] .season-kpi-label-v79o{color:#cbd5e1!important;} html[data-theme="dark"] #season-avgpct-v79p{color:#fb923c!important;}
+  @media(max-width:760px){.season-grid-v79o{grid-template-columns:repeat(2,minmax(0,1fr))!important;}.season-kpi-v79o{padding:13px 14px!important;}.season-kpi-value-v79o{font-size:30px!important;}#season-avgpct-v79p.closest-season-avg-v79aj{font-size:34px!important;}.season-actions-v79o{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;}.season-actions-v79o .season-btn-v79o{width:100%!important;}}
 </style>
 
-
-<style id="index-v79z-dark-season-card-fix">
-  /* v79z: Die Saisonkarte bleibt in Light wie v79y, bekommt aber im Dark Mode eigene Kontraste. */
-  html[data-theme="dark"] .season-card-v79o{
-    background:
-      radial-gradient(circle at 92% 8%, rgba(249,115,22,.22) 0 120px, transparent 260px),
-      radial-gradient(circle at 0% 100%, rgba(59,130,246,.20) 0 150px, transparent 310px),
-      linear-gradient(145deg, rgba(15,23,42,.96), rgba(17,24,39,.92)) !important;
-    border-color: rgba(148,163,184,.22) !important;
-    box-shadow: 0 26px 80px rgba(0,0,0,.34) !important;
-    color: #f8fafc !important;
-  }
-  html[data-theme="dark"] .season-title-v79o,
-  html[data-theme="dark"] .season-card-v79o h3{color:#f8fafc!important;text-shadow:none!important;}
-  html[data-theme="dark"] .season-sub-v79o{color:#cbd5e1!important;}
-  html[data-theme="dark"] .season-kicker-v79o{color:#fb923c!important;}
-  html[data-theme="dark"] .season-status-v79o{background:rgba(16,185,129,.16)!important;border-color:rgba(16,185,129,.34)!important;color:#6ee7b7!important;}
-  html[data-theme="dark"] .season-kpi-v79o{
-    background: linear-gradient(180deg, rgba(30,41,59,.88), rgba(15,23,42,.88)) !important;
-    border-color: rgba(148,163,184,.22) !important;
-    box-shadow: 0 16px 34px rgba(0,0,0,.20) !important;
-  }
-  html[data-theme="dark"] .season-kpi-value-v79o{color:#f8fafc!important;}
-  html[data-theme="dark"] .season-kpi-label-v79o{color:#cbd5e1!important;opacity:1!important;}
-  html[data-theme="dark"] #season-avgpct-v79p{color:#fb923c!important;}
-  html[data-theme="dark"] #season-kpi-label-avg-v79v{color:#fed7aa!important;}
-  html[data-theme="dark"] .season-btn-secondary-v79o{background:rgba(30,41,59,.88)!important;border-color:rgba(148,163,184,.24)!important;color:#f8fafc!important;}
-</style>
-
-<meta name="ipsc-build" content="v79af-auth-safe-photo-fix">
 </head>
 
-<body class="page-index app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v">
+<body class="page-index app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v" data-build="v79ak-fast-login-matches-sharecard-fix">
 
     <header id="main-header"></header>
 
-    <script src="header.js?v=79af"></script>
+    <script src="header.js?v=76v"></script>
 
     <div class="container">
 
@@ -505,7 +365,7 @@
         <section class="season-card-v79o season-empty-v79o" id="season-card-v79o" aria-label="Meine Saison">
             <div class="season-head-v79o">
                 <div>
-                    <div class="season-kicker-v79o" id="season-kicker-v79v" data-txt="season-kicker-v79v">Meine Saison</div>
+                    <div class="season-kicker-v79o">Meine Saison</div>
                     <h3 class="season-title-v79o" id="season-title-v79o">Meine Saison 2026</h3>
                     <p class="season-sub-v79o" id="season-sub-v79o">Deine wichtigsten Match-Kennzahlen aus den gespeicherten Analytics-Daten.</p>
                 </div>
@@ -513,11 +373,11 @@
             </div>
             <p class="season-empty-text-v79o" id="season-empty-text-v79o">Logge dich ein oder importiere Matchdaten, dann erscheint hier deine persönliche Saisonübersicht.</p>
             <div class="season-grid-v79o">
-                <div class="season-kpi-v79o"><div class="season-kpi-value-v79o" id="season-matches-v79o">–</div><div class="season-kpi-label-v79o" id="season-kpi-label-matches-v79v">Matches</div></div>
-                <div class="season-kpi-v79o"><div class="season-kpi-value-v79o" id="season-top10-v79o">–</div><div class="season-kpi-label-v79o" id="season-kpi-label-top10-v79v">Top 10</div></div>
-                <div class="season-kpi-v79o"><div class="season-kpi-value-v79o" id="season-wins-v79o">–</div><div class="season-kpi-label-v79o" id="season-kpi-label-wins-v79v">Siege</div></div>
-                <div class="season-kpi-v79o"><div class="season-kpi-value-v79o" id="season-best-v79p">–</div><div class="season-kpi-label-v79o" id="season-kpi-label-best-v79v">Bestes Match %</div></div>
-                            <div class="season-kpi-v79o"><div class="season-kpi-value-v79o" id="season-avgpct-v79p">–</div><div class="season-kpi-label-v79o" id="season-kpi-label-avg-v79v">Ø Match %</div></div>
+                <div class="season-kpi-v79o"><div class="season-kpi-value-v79o" id="season-matches-v79o">–</div><div class="season-kpi-label-v79o">Matches</div></div>
+                <div class="season-kpi-v79o"><div class="season-kpi-value-v79o" id="season-top10-v79o">–</div><div class="season-kpi-label-v79o">Top 10</div></div>
+                <div class="season-kpi-v79o"><div class="season-kpi-value-v79o" id="season-wins-v79o">–</div><div class="season-kpi-label-v79o">Siege</div></div>
+                <div class="season-kpi-v79o"><div class="season-kpi-value-v79o" id="season-best-v79p">–</div><div class="season-kpi-label-v79o">Bestes Match %</div></div>
+                            <div class="season-kpi-v79o"><div class="season-kpi-value-v79o" id="season-avgpct-v79p">–</div><div class="season-kpi-label-v79o">Ø Match %</div></div>
             </div>
             <div class="season-actions-v79o">
                 <button type="button" class="season-btn-v79o season-btn-primary-v79o" onclick="shareSeasonCardV79O()">📤 Saisonkarte teilen</button>
@@ -663,9 +523,9 @@
             <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-<script src="auth.js?v=79af"></script>
-    <script src="lang.js?v=79af"></script>
-    <script src="app.js?v=79af"></script>
+<script src="auth.js?v=76v"></script>
+    <script src="lang.js?v=76v"></script>
+    <script src="app.js?v=76v"></script>
     
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -676,69 +536,76 @@
             }
         });
         
-        const previousIndexAuthChangeV79t = typeof window.onAuthChange === "function" ? window.onAuthChange : null;
-        window.onAuthChange = (user) => {
-            if (previousIndexAuthChangeV79t) {
-                try { previousIndexAuthChangeV79t(user); } catch (_) {}
-            }
+        window.onAuthChange = (user) => { 
             if (typeof updateHeaderChatBadge === "function") {
-                updateHeaderChatBadge();
+                updateHeaderChatBadge(); 
             }
-            try { window.dispatchEvent(new CustomEvent("ipsc-auth-changed", { detail: { user: user || window.currentUser || null, source: "index-v79t" } })); } catch (_) {}
-            try { window.dispatchEvent(new CustomEvent("ipsc:auth-changed-v79t", { detail: { user: user || window.currentUser || null, source: "index-v79t" } })); } catch (_) {}
+            try { setTimeout(() => window.dispatchEvent(new CustomEvent("ipsc-auth-changed", { detail: { user: user || window.currentUser || null, source: "v79aj" } })), 0); } catch (_) {}
         };
     </script>
     
 
-
-<script id="season-sharecard-v79y-script">
+<script id="season-sharecard-v79aj-script">
 (function(){
   const YEAR = new Date().getFullYear();
-  const state = { year: YEAR, stats: null, user: null };
+  const state = { year: YEAR, stats: null };
+  function currentSeasonLang(){
+    const raw = (localStorage.getItem('selectedLanguage') || window.currentLang || document.documentElement.lang || 'de').toLowerCase();
+    return raw.startsWith('en') ? 'en' : 'de';
+  }
+  function tx(de,en){ return currentSeasonLang()==='en' ? en : de; }
+  function pct(v){ return Number.isFinite(v) ? v.toFixed(1).replace('.', currentSeasonLang()==='en' ? '.' : ',') + '%' : '–'; }
+  function seasonLabels(){ return {
+    kicker: tx('Meine Saison','My season'),
+    title: y => tx(`Meine Saison ${y}`, `My season ${y}`),
+    subtitle: tx('Deine wichtigsten Match-Kennzahlen aus den gespeicherten Analytics-Daten.','Your key match metrics from saved analytics data.'),
+    bestPrefix: tx('Beste gespeicherte Wertung:','Best saved result:'),
+    loading: tx('Lade Daten …','Loading data …'),
+    notReady: tx('Nicht bereit','Not ready'),
+    notLoggedIn: tx('Nicht angemeldet','Not logged in'),
+    noData: tx('Noch keine Daten','No data yet'),
+    noDataLoaded: tx('Keine Daten geladen','No data loaded'),
+    emptyLoggedOut: tx('Logge dich ein, dann erscheint hier deine persönliche Saisonübersicht.','Log in to see your personal season overview here.'),
+    emptyNoData: tx('Noch keine Matchdaten gefunden. Sobald Analytics-Daten importiert sind, wird deine Saisonkarte aktiv.','No match data found yet. Your season card activates after analytics data is imported.'),
+    loggedIn: tx('Eingeloggt · Analytics aktiv','Logged in · Analytics active'),
+    matchesFound: tx('Matches gefunden','Matches found'),
+    kpiMatches: tx('Matches','Matches'),
+    kpiTop10: tx('Top 10','Top 10'),
+    kpiWins: tx('Siege','Wins'),
+    kpiBest: tx('Bestes Match %','Best match %'),
+    kpiAvg: tx('Ø Match %','Ø Match %'),
+    shareBtn: tx('📤 Saisonkarte teilen','📤 Share season card'),
+    statsBtn: tx('📊 Zu den Statistiken','📊 View statistics'),
+    brand: tx('IPSC Börse','IPSC Slot Marketplace'),
+    cardTitle: tx('Meine IPSC Saisonkarte','My IPSC Season Card'),
+    cardKicker: y => tx('MEINE SAISON '+y, 'MY SEASON '+y),
+    tagline: tx('VON SCHÜTZEN FÜR SCHÜTZEN','BY SHOOTERS FOR SHOOTERS'),
+    shareTitle: y => tx(`Meine IPSC Saison ${y}`, `My IPSC season ${y}`),
+    shareText: st => tx(`Meine IPSC Saison ${YEAR}: ${st.matchCount||0} Matches, ${st.top10||0} Top-10, ${st.wins||0} Siege, Ø Match ${pct(st.avgPercent)}. #IPSC #IPSCBoerse`, `My IPSC season ${YEAR}: ${st.matchCount||0} matches, ${st.top10||0} Top-10, ${st.wins||0} wins, Ø match ${pct(st.avgPercent)}. #IPSC #IPSCBoerse`)
+  }; }
+  function applySeasonStaticTexts(stats){
+    const L=seasonLabels();
+    const card=$('season-card-v79o');
+    const kicker=card?.querySelector('.season-kicker-v79o'); if(kicker) kicker.textContent=L.kicker;
+    setText('season-title-v79o', L.title(stats?.year || YEAR));
+    const labels=card ? Array.from(card.querySelectorAll('.season-kpi-label-v79o')) : [];
+    [L.kpiMatches,L.kpiTop10,L.kpiWins,L.kpiBest,L.kpiAvg].forEach((txt,i)=>{ if(labels[i]) labels[i].textContent=txt; });
+    const share=card?.querySelector('.season-btn-primary-v79o'); if(share) share.textContent=L.shareBtn;
+    const statsBtn=card?.querySelector('.season-btn-secondary-v79o'); if(statsBtn) statsBtn.textContent=L.statsBtn;
+  }
   function $(id){ return document.getElementById(id); }
   function setText(id, value){ const el=$(id); if(el) el.textContent = value == null ? '' : String(value); }
-  function lang(){ return (localStorage.getItem('selectedLanguage') || window.currentLang || document.documentElement.lang || 'de') === 'en' ? 'en' : 'de'; }
-  const I18N = {
-    de: {
-      kicker:'Meine Saison', title:'Meine Saison {year}',
-      sub:'Deine wichtigsten Match-Kennzahlen aus den gespeicherten Analytics-Daten.',
-      best:'Beste gespeicherte Wertung: {name}', loading:'Lade Daten …', noData:'Noch keine Daten',
-      notReady:'Nicht bereit', notLoggedIn:'Nicht angemeldet', live:'Eingeloggt · Analytics aktiv', matchesFound:'Matches gefunden',
-      emptyLoggedOut:'Du bist eingeloggt? Dann wird die Saisonkarte gleich synchronisiert. Sonst bitte anmelden.',
-      emptyNoData:'Noch keine Matchdaten gefunden. Sobald Analytics-Daten importiert sind, wird deine Saisonkarte aktiv.',
-      share:'📤 Saisonkarte teilen', stats:'📊 Zu den Statistiken',
-      kMatches:'Matches', kTop10:'Top 10', kWins:'Siege', kBest:'Bestes Match %', kAvg:'Ø Match %',
-      shareTitle:'Meine IPSC Saison', shareHeadline:'Meine IPSC Saisonkarte', shareText:'Meine IPSC Saison {year}: {matches} Matches, {top10} Top-10, {wins} Siege, Ø Match {avg}. #IPSC #IPSCBoerse'
-    },
-    en: {
-      kicker:'My season', title:'My season {year}',
-      sub:'Your key match metrics from saved analytics data.',
-      best:'Best saved result: {name}', loading:'Loading data …', noData:'No data yet',
-      notReady:'Not ready', notLoggedIn:'Not signed in', live:'Signed in · Analytics active', matchesFound:'Matches found',
-      emptyLoggedOut:'Signed in? The season card is syncing. Otherwise please sign in.',
-      emptyNoData:'No match data found yet. Once analytics data is imported, your season card becomes active.',
-      share:'📤 Share season card', stats:'📊 Go to statistics',
-      kMatches:'Matches', kTop10:'Top 10', kWins:'Wins', kBest:'Best match %', kAvg:'Ø match %',
-      shareTitle:'My IPSC season', shareHeadline:'My IPSC season card', shareText:'My IPSC season {year}: {matches} matches, {top10} top-10s, {wins} wins, Ø match {avg}. #IPSC #IPSCBoerse'
-    }
-  };
-  function tr(k, vars){ let txt=(I18N[lang()]||I18N.de)[k]||I18N.de[k]||k; if(vars) Object.keys(vars).forEach(key=>{ txt=txt.replaceAll('{'+key+'}', vars[key]); }); return txt; }
-  function translateStatic(){
-    setText('season-kicker-v79v', tr('kicker'));
-    setText('season-title-v79o', tr('title', {year: state.stats?.year || state.year || YEAR}));
-    if(!state.stats || !state.stats.bestName) setText('season-sub-v79o', tr('sub'));
-    const shareBtn=document.querySelector('.season-btn-primary-v79o'); if(shareBtn) shareBtn.textContent=tr('share');
-    const statsBtn=document.querySelector('.season-btn-secondary-v79o'); if(statsBtn) statsBtn.textContent=tr('stats');
-    [['season-kpi-label-matches-v79v','kMatches'],['season-kpi-label-top10-v79v','kTop10'],['season-kpi-label-wins-v79v','kWins'],['season-kpi-label-best-v79v','kBest'],['season-kpi-label-avg-v79v','kAvg']].forEach(([id,k])=>setText(id,tr(k)));
+  function parseNumber(v){
+    if(v===null||v===undefined) return null;
+    let s=String(v).trim(); if(!s) return null;
+    if(s.includes(',') && s.includes('.')) s=s.replace(/\./g,'').replace(',', '.'); else s=s.replace(',', '.');
+    s=s.replace(/[^0-9.\-]/g,''); const n=Number(s); return Number.isFinite(n)?n:null;
   }
+  function parsePercent(v){ const n=parseNumber(v); return Number.isFinite(n)&&n>0&&n<=100.0001?n:null; }
   function parseRank(v){ if(v===null||v===undefined) return null; const m=String(v).replace(',', '.').match(/\d+/); if(!m) return null; const n=parseInt(m[0],10); return Number.isFinite(n)&&n>0?n:null; }
   function rowYear(row){ const fields=[row.match_date,row.event_date,row.date,row.created_at,row.updated_at,row.match_name,row.stage_name,row.match_id]; for(const v of fields){ const m=String(v||'').match(/20\d{2}/); if(m) return parseInt(m[0],10); } return null; }
-  function parseNumber(v){ if(v===null||v===undefined) return null; let s=String(v).trim(); if(!s) return null; if(s.includes(',') && s.includes('.')) s=s.replace(/\./g,'').replace(',', '.'); else s=s.replace(',', '.'); s=s.replace(/[^0-9.\-]/g,''); const n=Number(s); return Number.isFinite(n)?n:null; }
-  function parsePercent(v){ const n=parseNumber(v); return Number.isFinite(n)&&n>0&&n<=100.0001?n:null; }
   function isOverallRow(r){ return /overall\s*match|match\s*results?|gesamt|ergebnis|overall/i.test(String(r.stage_name||r.display_stage_name||'')); }
-  function displayStageName(r){ return String(r._displayStageName || r.display_stage_name || r.stage_name || '').trim(); }
-  function stageIndex(r){ const name=displayStageName(r); const m=name.match(/(?:stage|stufe|station)\s*0*(\d+)/i) || name.match(/^\s*0*(\d+)\b/); return m ? parseInt(m[1],10) : null; }
-  function matchKey(r){ return String(r.match_id || r.match_name || r.event_id || '').trim(); }
+  function matchKey(r){ return String(r.match_id || r.match_name || r.event_id || r.id || '').trim(); }
   function rowPercent(r){
     const direct = parsePercent(r.match_percent ?? r.overall_percent ?? r.percent);
     if(direct) return direct;
@@ -747,27 +614,18 @@
       const hf = parsePercent(r.hit_factor);
       const st = parseNumber(r.stage_time);
       if(hf && ((whf && Math.abs(whf - 100) < 0.01) || st === 0 || !Number.isFinite(st))) return hf;
-      const sp = parsePercent(r.stage_percent);
-      if(sp) return sp;
+      const sp = parsePercent(r.stage_percent); if(sp) return sp;
       return null;
     }
-    const sp = parsePercent(r.stage_percent);
-    if(sp) return sp;
-    const hf = parseNumber(r.hit_factor);
-    const whf = parseNumber(r.winner_hit_factor);
+    const sp = parsePercent(r.stage_percent); if(sp) return sp;
+    const hf = parseNumber(r.hit_factor); const whf = parseNumber(r.winner_hit_factor);
     if(hf && whf && whf > 0) return Math.min(100, (hf / whf) * 100);
     return null;
   }
-  function stagePercent(r){ if(isOverallRow(r)) return null; return rowPercent(r); }
   function bestOverallRow(rows){
-    const overall = (rows || []).filter(isOverallRow);
+    const overall=(rows||[]).filter(isOverallRow);
     if(!overall.length) return null;
-    overall.sort((a,b)=>{
-      const ay = rowYear(a)||0, by = rowYear(b)||0;
-      if(ay !== by) return by-ay;
-      const ap = rowPercent(a)||0, bp = rowPercent(b)||0;
-      return bp-ap;
-    });
+    overall.sort((a,b)=> (rowPercent(b)||0) - (rowPercent(a)||0));
     return overall[0];
   }
   function computeStats(rows){
@@ -780,9 +638,9 @@
       const overall=bestOverallRow(rs);
       let pct = overall ? rowPercent(overall) : null;
       const nonOverall = rs.filter(r=>!isOverallRow(r));
-      const stagePercents = nonOverall.map(stagePercent).filter(n=>Number.isFinite(n)&&n>0&&n<=100.0001);
+      const stagePercents = nonOverall.map(rowPercent).filter(n=>Number.isFinite(n)&&n>0&&n<=100.0001);
       if(!pct && stagePercents.length) pct = stagePercents.reduce((a,b)=>a+b,0)/stagePercents.length;
-      const rank = parseRank(overall?.stage_rank ?? overall?.rank ?? overall?.overall_rank);
+      const rank = parseRank(overall?.stage_rank ?? overall?.rank ?? overall?.overall_rank ?? rs[0]?.stage_rank ?? rs[0]?.rank);
       const name = overall?.match_name || rs[0]?.match_name || 'Match';
       return { key, name, rank, percent:pct, stageCount:stagePercents.length, hasOverall:!!overall };
     }).filter(m => m.key && (m.hasOverall || m.stageCount || Number.isFinite(m.percent)));
@@ -797,111 +655,75 @@
     return {year:YEAR, matchCount:matches.length, top10, wins, avgPercent, bestPercent:bestPercentMatch?.percent||null, bestName:best?.name||'', rankCount:ranks.length, percentCount:percents.length};
   }
   function render(stats, status){
-    state.stats=stats; translateStatic();
+    state.stats=stats;
+    const L=seasonLabels();
     const card=$('season-card-v79o'); if(!card) return;
-    setText('season-title-v79o', tr('title',{year:stats?.year||YEAR}));
-    const avgEl=$('season-avgpct-v79p'); if(avgEl) avgEl.classList.add('closest-season-avg-v79y');
+    applySeasonStaticTexts(stats);
+    const avgEl=$('season-avgpct-v79p'); if(avgEl) avgEl.classList.add('closest-season-avg-v79aj');
     if(!stats || stats.matchCount<=0){
-      card.classList.add('season-empty-v79o'); card.classList.remove('has-season-data-v79y');
-      setText('season-sub-v79o', tr('sub'));
-      const st = status || tr('noData');
-      const normalized = st === 'Nicht angemeldet' || st === 'Not signed in' ? tr('notLoggedIn') : (st === 'Nicht bereit' || st === 'Not ready' ? tr('notReady') : (st === 'Noch keine Daten' || st === 'No data yet' ? tr('noData') : st));
-      setText('season-status-v79o', normalized);
-      setText('season-empty-text-v79o', normalized === tr('notLoggedIn') ? tr('emptyLoggedOut') : tr('emptyNoData'));
+      card.classList.add('season-empty-v79o'); card.classList.remove('has-season-data-v79aj');
+      const statusText = status === 'Nicht angemeldet' ? L.notLoggedIn : status || L.noData;
+      setText('season-status-v79o', statusText);
+      setText('season-empty-text-v79o', status === 'Nicht angemeldet' ? L.emptyLoggedOut : L.emptyNoData);
       return;
     }
-    card.classList.remove('season-empty-v79o'); card.classList.add('has-season-data-v79y');
-    setText('season-status-v79o', stats.percentCount || stats.rankCount ? tr('live') : tr('matchesFound'));
-    setText('season-sub-v79o', stats.bestName ? tr('best',{name:stats.bestName}) : tr('sub'));
+    card.classList.remove('season-empty-v79o'); card.classList.add('has-season-data-v79aj');
+    setText('season-status-v79o', stats.percentCount || stats.rankCount ? L.loggedIn : L.matchesFound);
+    setText('season-sub-v79o', stats.bestName ? `${L.bestPrefix} ${stats.bestName}` : L.subtitle);
     setText('season-empty-text-v79o','');
     setText('season-matches-v79o', String(stats.matchCount));
     setText('season-top10-v79o', String(stats.top10));
     setText('season-wins-v79o', String(stats.wins));
-    setText('season-best-v79p', stats.bestPercent ? stats.bestPercent.toFixed(1).replace('.', ',') + '%' : '–');
-    setText('season-avgpct-v79p', stats.avgPercent ? stats.avgPercent.toFixed(1).replace('.', ',') + '%' : '–');
-  }
-  function shellWindow(){ try { return window.parent && window.parent !== window ? window.parent : null; } catch(_) { return null; } }
-  async function getShellSession(){
-    const p=shellWindow();
-    try{
-      const client = p && p.supabaseClient && p.supabaseClient.auth ? p.supabaseClient : null;
-      if(client){ const res = await client.auth.getSession(); return { client, session: res?.data?.session || null, user: res?.data?.session?.user || p.currentUser || p.__IPSC_SHELL_USER_V78M || null }; }
-    }catch(_){}
-    return { client:null, session:null, user: null };
+    setText('season-best-v79p', stats.bestPercent ? pct(stats.bestPercent) : '–');
+    setText('season-avgpct-v79p', stats.avgPercent ? pct(stats.avgPercent) : '–');
   }
   async function load(){
     try{
-      const localClient = window.supabaseClient || (window.supabase && window.SUPABASE_URL && window.SUPABASE_ANON_KEY ? window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY) : null);
-      let queryClient = localClient;
-      let user = window.currentUser || state.user || window.__IPSC_SHELL_USER_V78M || null;
-      if(localClient && localClient.auth){
-        try{ const { data: sessionData } = await localClient.auth.getSession(); if(sessionData?.session?.user){ user = sessionData.session.user; queryClient = localClient; } }catch(_){}
-      }
-      const shell = await getShellSession();
-      if(shell.user){ user = shell.user; if(shell.client) queryClient = shell.client; }
-      if(!user && shellWindow()){
-        try{ shellWindow().postMessage({type:'ipsc-request-auth-v78m'}, window.location.origin); }catch(_){ }
-        await new Promise(resolve=>setTimeout(resolve,500));
-        const shell2 = await getShellSession();
-        if(shell2.user){ user = shell2.user; if(shell2.client) queryClient = shell2.client; }
-      }
-      if(!queryClient || !queryClient.from){ render(null, tr('notReady')); return; }
-      if(!user || !user.id){ render(null, tr('notLoggedIn')); return; }
-      state.user = user; window.currentUser = user;
-      const {data,error}=await queryClient.from('user_match_analytics').select('*').eq('user_id', user.id).limit(3000);
-      if(error) throw error;
+      const client = window.supabaseClient || (window.supabase && window.SUPABASE_URL && window.SUPABASE_ANON_KEY ? window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY) : null);
+      if (!client || !client.auth) { render(null, seasonLabels().notReady); return; }
+      const { data: sessionData } = await client.auth.getSession();
+      const user = sessionData?.session?.user || window.currentUser;
+      if (!user) { render(null, 'Nicht angemeldet'); return; }
+      const { data, error } = await client.from('user_match_analytics').select('*').eq('user_id', user.id).limit(3000);
+      if (error) throw error;
       render(computeStats(data || []));
-    }catch(err){ console.warn('season card load failed', err); render(null, lang()==='en'?'No data loaded':'Keine Daten geladen'); }
+    } catch(err) { console.warn('season card load failed', err); render(null, seasonLabels().noDataLoaded); }
   }
   function roundedRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
   function drawText(ctx,text,x,y,maxWidth,lineHeight){ const words=String(text||'').split(/\s+/); let line=''; for(const word of words){ const test=line?line+' '+word:word; if(ctx.measureText(test).width>maxWidth&&line){ctx.fillText(line,x,y);line=word;y+=lineHeight;} else line=test; } if(line)ctx.fillText(line,x,y); return y; }
-  function arcGauge(ctx,cx,cy,r,value){
-    const start=-Math.PI*0.78, end=Math.PI*0.78, span=end-start;
-    ctx.lineCap='round'; ctx.lineWidth=28; ctx.strokeStyle='rgba(226,232,240,.95)'; ctx.beginPath(); ctx.arc(cx,cy,r,start,end); ctx.stroke();
-    const pct=Math.max(0,Math.min(100,Number(value)||0))/100; const g=ctx.createLinearGradient(cx-r,cy,cx+r,cy); g.addColorStop(0,'#ffb45f'); g.addColorStop(1,'#ff5f00'); ctx.strokeStyle=g; ctx.beginPath(); ctx.arc(cx,cy,r,start,start+span*pct); ctx.stroke(); ctx.lineCap='butt';
-  }
+  function arcGauge(ctx,cx,cy,r,value){ const start=-Math.PI*0.78,end=Math.PI*0.78,span=end-start; ctx.lineCap='round'; ctx.lineWidth=28; ctx.strokeStyle='rgba(226,232,240,.95)'; ctx.beginPath(); ctx.arc(cx,cy,r,start,end); ctx.stroke(); const pct=Math.max(0,Math.min(100,Number(value)||0))/100; const g=ctx.createLinearGradient(cx-r,cy,cx+r,cy); g.addColorStop(0,'#ffb45f'); g.addColorStop(1,'#ff5f00'); ctx.strokeStyle=g; ctx.beginPath(); ctx.arc(cx,cy,r,start,start+span*pct); ctx.stroke(); ctx.lineCap='butt'; }
   async function makeBlob(){
     const st=state.stats||{year:YEAR,matchCount:0,top10:0,wins:0,avgPercent:null,bestPercent:null,bestName:''};
-    const fmt = v => Number.isFinite(v) ? v.toFixed(1).replace('.', ',') + '%' : '–';
-    const canvas=document.createElement('canvas'); canvas.width=1080; canvas.height=1080; const ctx=canvas.getContext('2d');
-    const font='-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif';
+    const L=seasonLabels();
+    const fmt = v => pct(v);
+    const canvas=document.createElement('canvas'); canvas.width=1080; canvas.height=1080; const ctx=canvas.getContext('2d'); const font='-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif';
     const bg=ctx.createLinearGradient(0,0,1080,1080); bg.addColorStop(0,'#fff7ed'); bg.addColorStop(.50,'#eef6ff'); bg.addColorStop(1,'#ffffff'); ctx.fillStyle=bg; ctx.fillRect(0,0,1080,1080);
-    ctx.fillStyle='rgba(255,122,24,.14)'; ctx.beginPath(); ctx.arc(910,140,210,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='rgba(59,130,246,.12)'; ctx.beginPath(); ctx.arc(112,950,265,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(255,122,24,.14)'; ctx.beginPath(); ctx.arc(910,140,210,0,Math.PI*2); ctx.fill(); ctx.fillStyle='rgba(59,130,246,.12)'; ctx.beginPath(); ctx.arc(112,950,265,0,Math.PI*2); ctx.fill();
     roundedRect(ctx,58,58,964,964,58); ctx.fillStyle='rgba(255,255,255,.82)'; ctx.fill(); ctx.strokeStyle='rgba(148,163,184,.34)'; ctx.lineWidth=2; ctx.stroke();
-    ctx.fillStyle='#0f172a'; ctx.font='950 52px '+font; ctx.fillText('IPSC Börse',108,145);
-    ctx.fillStyle='#f97316'; ctx.font='950 25px '+font; ctx.fillText(('MEINE SAISON '+(st.year||YEAR)),108,198);
-    ctx.fillStyle='#0f172a'; ctx.font='950 68px '+font; drawText(ctx,tr('shareHeadline'),108,290,510,72);
-    arcGauge(ctx,800,300,154,st.avgPercent);
-    ctx.fillStyle='#0f172a'; ctx.font='950 62px '+font; ctx.textAlign='center'; ctx.fillText(fmt(st.avgPercent),800,308);
-    ctx.fillStyle='#64748b'; ctx.font='950 22px '+font; ctx.fillText(tr('kAvg').toUpperCase(),800,346); ctx.textAlign='left';
-    const cards=[
-      [tr('kMatches'),st.matchCount,'#0f172a'],[tr('kTop10'),st.top10,'#0f172a'],
-      [tr('kWins'),st.wins,'#0f172a'],[tr('kBest'),fmt(st.bestPercent),'#0f172a']
-    ];
-    cards.forEach((c,i)=>{ const x=108+(i%2)*436, y=470+Math.floor(i/2)*140, w=392, h=112; roundedRect(ctx,x,y,w,h,26); ctx.fillStyle='rgba(255,255,255,.94)'; ctx.fill(); ctx.strokeStyle='rgba(148,163,184,.32)'; ctx.lineWidth=2; ctx.stroke(); ctx.fillStyle=c[2]; ctx.font='950 48px '+font; ctx.fillText(String(c[1]),x+30,y+55); ctx.fillStyle='#64748b'; ctx.font='900 19px '+font; ctx.fillText(String(c[0]).toUpperCase(),x+30,y+88); });
-    if(st.bestName){ roundedRect(ctx,108,780,836,88,28); ctx.fillStyle='#0f172a'; ctx.fill(); ctx.fillStyle='#fff'; ctx.font='900 24px '+font; drawText(ctx,tr('best',{name:st.bestName}),138,827,780,30); }
-    roundedRect(ctx,108,918,360,60,30); ctx.fillStyle='#0f172a'; ctx.fill(); ctx.fillStyle='#fff'; ctx.font='900 26px '+font; ctx.fillText('ipscboerse.com',136,956);
-    ctx.fillStyle='#f97316'; ctx.font='900 18px '+font; ctx.fillText('VON SCHÜTZEN FÜR SCHÜTZEN',606,956);
+    ctx.fillStyle='#0f172a'; ctx.font='950 52px '+font; ctx.fillText(L.brand,108,145); ctx.fillStyle='#f97316'; ctx.font='950 25px '+font; ctx.fillText(L.cardKicker(st.year||YEAR),108,198);
+    ctx.fillStyle='#0f172a'; ctx.font='950 68px '+font; drawText(ctx,L.cardTitle,108,290,510,72);
+    arcGauge(ctx,800,300,154,st.avgPercent); ctx.fillStyle='#0f172a'; ctx.font='950 62px '+font; ctx.textAlign='center'; ctx.fillText(fmt(st.avgPercent),800,308); ctx.fillStyle='#64748b'; ctx.font='950 22px '+font; ctx.fillText('Ø MATCH %',800,346); ctx.textAlign='left';
+    const cards=[[L.kpiMatches,st.matchCount],[L.kpiTop10,st.top10],[L.kpiWins,st.wins],[L.kpiBest,fmt(st.bestPercent)]];
+    cards.forEach((c,i)=>{ const x=108+(i%2)*436, y=470+Math.floor(i/2)*140, w=392, h=112; roundedRect(ctx,x,y,w,h,26); ctx.fillStyle='rgba(255,255,255,.94)'; ctx.fill(); ctx.strokeStyle='rgba(148,163,184,.32)'; ctx.lineWidth=2; ctx.stroke(); ctx.fillStyle='#0f172a'; ctx.font='950 48px '+font; ctx.fillText(String(c[1]),x+30,y+55); ctx.fillStyle='#64748b'; ctx.font='900 19px '+font; ctx.fillText(String(c[0]).toUpperCase(),x+30,y+88); });
+    if(st.bestName){ roundedRect(ctx,108,780,836,88,28); ctx.fillStyle='#0f172a'; ctx.fill(); ctx.fillStyle='#fff'; ctx.font='900 24px '+font; drawText(ctx,`${L.bestPrefix} ${st.bestName}`,138,827,780,30); }
+    roundedRect(ctx,108,918,360,60,30); ctx.fillStyle='#0f172a'; ctx.fill(); ctx.fillStyle='#fff'; ctx.font='900 26px '+font; ctx.fillText('ipscboerse.com',136,956); ctx.fillStyle='#f97316'; ctx.font='900 18px '+font; ctx.fillText(L.tagline,606,956);
     return new Promise(resolve=>canvas.toBlob(resolve,'image/png',.95));
   }
   window.shareSeasonCardV79O = async function(){
-    try{ await load(); const blob=await makeBlob(); const file=new File([blob],`IPSC_Boerse_Saison_${YEAR}.png`,{type:'image/png'}); const avg=state.stats?.avgPercent?state.stats.avgPercent.toFixed(1).replace('.', ',')+'%':'–'; const text=tr('shareText',{year:YEAR,matches:state.stats?.matchCount||0,top10:state.stats?.top10||0,wins:state.stats?.wins||0,avg}); if(navigator.canShare&&navigator.canShare({files:[file]})&&navigator.share){await navigator.share({title:tr('shareTitle')+' '+YEAR,text,files:[file]});return;} if(navigator.share){await navigator.share({title:tr('shareTitle')+' '+YEAR,text});return;} const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500); }catch(err){ console.warn('share season failed',err); alert(lang()==='en'?'Sharing did not work.':'Teilen hat nicht geklappt.'); }
+    try{ await load(); const L=seasonLabels(); const st=state.stats||{matchCount:0,top10:0,wins:0,avgPercent:null}; const blob=await makeBlob(); const file=new File([blob],`IPSC_Boerse_Season_${YEAR}.png`,{type:'image/png'}); const text=L.shareText(st); if(navigator.canShare&&navigator.canShare({files:[file]})&&navigator.share){await navigator.share({title:L.shareTitle(YEAR),text,files:[file]});return;} if(navigator.share){await navigator.share({title:L.shareTitle(YEAR),text});return;} const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500); }catch(err){ console.warn('share season failed',err); alert(tx('Teilen hat nicht geklappt.','Sharing did not work.')); }
   };
-  function receiveUser(user){ if(user){ state.user=user; window.currentUser=user; } }
-  function reload(){ translateStatic(); setTimeout(load,40); setTimeout(load,650); }
-  document.addEventListener('DOMContentLoaded', function(){ translateStatic(); try{ if(shellWindow()) shellWindow().postMessage({type:'ipsc-request-auth-v78m'}, window.location.origin); }catch(_){} setTimeout(load,120); setTimeout(load,700); setTimeout(load,1700); });
-  ['ipsc-auth-changed','ipsc:auth-changed-v79t','ipsc:oauth-login-complete','ipsc:shell-auth-updated-v77e','ipsc:language-change-v79r','ipsc:language-change-v78d'].forEach(ev=>window.addEventListener(ev,function(e){ receiveUser(e.detail&&e.detail.user); reload(); }));
-  window.addEventListener('message', function(event){ if(event.origin&&event.origin!==window.location.origin&&event.source!==window.parent)return; const msg=event.data||{}; if(msg.type==='ipsc-auth-session-v78l'&&msg.user){ receiveUser(msg.user); reload(); } if(msg.type==='ipsc-auth-refresh-v78d'){ reload(); } if(msg.type==='ipsc-auth-logout-v78d'){ state.user=null; window.currentUser=null; render(null,tr('notLoggedIn')); } if(msg.type==='ipsc-language-v78d'){ reload(); } });
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden) reload(); });
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(load,450); setTimeout(()=>applySeasonStaticTexts(state.stats),60); });
+  window.addEventListener('ipsc:language-change-v79r', function(){ applySeasonStaticTexts(state.stats); setTimeout(load,80); });
+  document.addEventListener('change', function(e){ if(e.target && e.target.id==='language-select'){ setTimeout(()=>{ applySeasonStaticTexts(state.stats); load(); }, 0); } }, true);
+  window.addEventListener('ipsc-auth-changed', function(){ setTimeout(load,80); });
+  window.addEventListener('ipsc:oauth-login-complete', function(){ setTimeout(load,80); });
 })();
 </script>
-
 
     <script>
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {
-                navigator.serviceWorker.register("sw.js?v=79af")
+                navigator.serviceWorker.register("sw.js")
                     .then(reg => console.log("PWA Service Worker registriert!", reg.scope))
                     .catch(err => console.error("PWA Fehler:", err));
             });
@@ -999,82 +821,21 @@
   ];
   const defaults = ['market','log','tools'];
   function t(k){ const lang=localStorage.getItem('selectedLanguage') || window.currentLang || 'de'; return window.portalTranslations?.[lang]?.[k] || k; }
-  const iconMapV79v = {market:'🛒',planner:'📅',log:'📋',comm:'👥',match:'🎯',tools:'🏆',reload:'📦',stats:'📊',hub:'⭐',timer:'⏱️'};
-  function iconHtml(c){ return `<span class="fav-emoji-v79v" aria-hidden="true">${iconMapV79v[c.icon] || '⭐'}</span>`; }
+  function iconHtml(c){ return `<span class="fav-symbol-v79r fav-symbol-${c.icon}" aria-hidden="true"></span>`; }
   function getFavs(){ try{ const a=JSON.parse(localStorage.getItem(STORAGE)||'null'); if(Array.isArray(a)&&a.length) return a.slice(0,3); }catch(e){} return defaults; }
   function setFavs(a){ localStorage.setItem(STORAGE, JSON.stringify(a.slice(0,3))); }
   function renderFavs(){
     const box=document.getElementById('favorite-links-v76'); if(!box) return;
     const favs=getFavs();
-    box.innerHTML=favs.map(id=>choices.find(c=>c.id===id)).filter(Boolean).map(c=>`<a href="${c.href}"><strong>${iconHtml(c)}<span>${t(c.title)}</span></strong></a>`).join('');
+    box.innerHTML=favs.map(id=>choices.find(c=>c.id===id)).filter(Boolean).map(c=>`<a href="${c.href}"><strong>${iconHtml(c)}<span>${t(c.title)}</span></strong><span>${t(c.sub)}</span></a>`).join('');
   }
   function renderOptions(){
     const box=document.getElementById('favorites-options-v76'); if(!box) return;
     const favs=getFavs();
     box.innerHTML=choices.map(c=>`<button type="button" class="${favs.includes(c.id)?'selected':''}" data-id="${c.id}" onclick="toggleFavoriteV76('${c.id}')">${iconHtml(c)}<div><strong>${t(c.title)}</strong><small>${t(c.sub)}</small></div></button>`).join('');
   }
-  
-function favoriteViewportV79aa(){
-    const fallbackH = Math.max(360, Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight || document.documentElement.clientHeight || 640));
-    try {
-      if (window.parent && window.parent !== window && window.parent.document) {
-        const frames = Array.from(window.parent.document.querySelectorAll('iframe'));
-        const frame = frames.find(f => f.contentWindow === window);
-        if (frame) {
-          const rect = frame.getBoundingClientRect();
-          const pv = window.parent.visualViewport;
-          const ph = Math.max(360, Math.round((pv && pv.height) || window.parent.innerHeight || fallbackH));
-          const visibleTop = Math.max(0, Math.round(-rect.top + 10));
-          return { framed:true, top:visibleTop, height:Math.max(360, ph - 118) };
-        }
-      }
-    } catch(_) {}
-    return { framed:false, top:0, height:fallbackH };
-  }
-
-  window.openFavoritesV76=function(){
-    renderOptions();
-    const modal=document.getElementById('favorites-modal-v76');
-    if(modal){
-      try { document.body.appendChild(modal); } catch(_) {}
-      document.body.classList.add('favorites-open-v79aa');
-      modal.classList.add('show');
-      modal.setAttribute('aria-hidden','false');
-      const vp = favoriteViewportV79aa();
-      modal.style.setProperty('inset','auto','important');
-      modal.style.setProperty('top', vp.top + 'px','important');
-      modal.style.setProperty('left','0','important');
-      modal.style.setProperty('right','auto','important');
-      modal.style.setProperty('bottom','auto','important');
-      modal.style.setProperty('width','100%','important');
-      modal.style.setProperty('height', vp.height + 'px','important');
-      modal.style.setProperty('display','flex','important');
-      modal.style.setProperty('align-items','center','important');
-      modal.style.setProperty('justify-content','center','important');
-      modal.style.setProperty('overflow','hidden','important');
-      modal.style.setProperty('z-index','2147483600','important');
-      modal.style.setProperty('position', vp.framed ? 'absolute' : 'fixed', 'important');
-      modal.style.setProperty('padding','18px 18px 116px 18px','important');
-      modal.style.setProperty('box-sizing','border-box','important');
-      const sheet = modal.querySelector('.favorites-sheet-v76');
-      if(sheet){
-        sheet.style.setProperty('margin','0 auto','important');
-        sheet.style.setProperty('transform','none','important');
-        sheet.style.setProperty('max-height', Math.max(300, vp.height - 154) + 'px','important');
-        sheet.style.setProperty('overflow','hidden','important');
-      }
-    }
-  };
-  window.closeFavoritesV76=function(){
-    const modal=document.getElementById('favorites-modal-v76');
-    document.body.classList.remove('favorites-open-v79aa');
-    if(modal){
-      modal.classList.remove('show');
-      modal.setAttribute('aria-hidden','true');
-      ['display','height','width','top','left','right','bottom','position','inset','padding','overflow'].forEach(k=>modal.style.removeProperty(k));
-    }
-  };
-
+  window.openFavoritesV76=function(){ renderOptions(); document.getElementById('favorites-modal-v76')?.classList.add('show'); };
+  window.closeFavoritesV76=function(){ document.getElementById('favorites-modal-v76')?.classList.remove('show'); };
   window.toggleFavoriteV76=function(id){
     let favs=getFavs();
     if(favs.includes(id)) favs=favs.filter(x=>x!==id); else { if(favs.length>=3) favs.shift(); favs.push(id); }
@@ -1103,12 +864,11 @@ function favoriteViewportV79aa(){
   function apply(){ add(); try { if (typeof window.translatePortalPage === 'function') window.translatePortalPage(); } catch(_){} try { if (typeof window.onLanguageChanged === 'function') window.onLanguageChanged(); } catch(_){} }
   document.addEventListener('DOMContentLoaded', function(){ setTimeout(apply,0); setTimeout(apply,120); setTimeout(apply,600); });
   window.addEventListener('ipsc:language-change-v79r', function(){ setTimeout(apply,0); setTimeout(apply,120); });
-  window.addEventListener('ipsc:language-change-v78d', function(){ setTimeout(apply,0); setTimeout(apply,120); });
   document.addEventListener('change', function(e){ if(e.target && e.target.id==='language-select') setTimeout(apply,0); }, true);
   setTimeout(apply,200); setTimeout(apply,1000);
 })();
 </script>
-    <script src="release-i18n-v78s.js?v=79af"></script>
-    <script src="release-i18n-v78u.js?v=79af"></script>
+    <script src="release-i18n-v78s.js?v=78s"></script>
+    <script src="release-i18n-v78u.js?v=78u"></script>
 </body>
 </html>
