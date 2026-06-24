@@ -4,13 +4,13 @@
     <script id="ipsc-build-cache-reset-v79u">
 (function(){
   try {
-    window.__IPSC_BUILD_ID = "v79v-ui-auth-season-fix";
-    document.documentElement.setAttribute("data-ipsc-build", "v79v");
-    try { localStorage.setItem("ipsc_active_build", "v79v-ui-auth-season-fix"); } catch (_) {}
+    window.__IPSC_BUILD_ID = "v79w-pdf-photo-fav-stats-fix";
+    document.documentElement.setAttribute("data-ipsc-build", "v79w");
+    try { localStorage.setItem("ipsc_active_build", "v79w-pdf-photo-fav-stats-fix"); } catch (_) {}
     var isNative = /^(capacitor|ionic):$/i.test(location.protocol || "") || /(^|[?&])(shell=1|appframe=1)(?:&|$)/.test(location.search || "");
     if ("caches" in window) {
       caches.keys().then(function(keys){
-        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79v-ui-auth-season-fix"; }).map(function(k){ return caches.delete(k); }));
+        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79w-pdf-photo-fav-stats-fix"; }).map(function(k){ return caches.delete(k); }));
       }).catch(function(){});
     }
     if (isNative && "serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
@@ -249,13 +249,13 @@
     <link rel="preload" href="icon-192.png" as="image">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=79v">
+<link rel="stylesheet" href="global.css?v=79w">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 </head>
 <body class="page-analytics app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s app-v76t app-v76u app-v76v">
     <header id="main-header"></header>
-    <script src="header.js?v=79v"></script>
+    <script src="header.js?v=79w"></script>
     
     <div class="container">
         
@@ -442,9 +442,9 @@
             <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-<script src="auth.js?v=79v"></script>
-    <script src="lang.js?v=79v"></script>
-    <script src="app.js?v=79v"></script>
+<script src="auth.js?v=79w"></script>
+    <script src="lang.js?v=79w"></script>
+    <script src="app.js?v=79w"></script>
 
     <script>
     let allUserStages = [];
@@ -667,10 +667,10 @@
 
     function safeStagePercent(row) {
         const sp = parseFloat(row.stage_percent || 0);
-        if (sp > 0) return sp;
+        if (sp > 0 && sp <= 100.0001) return sp;
         const hf = parseFloat(row.hit_factor || 0);
         const whf = parseFloat(row.winner_hit_factor || 0);
-        if (hf > 0 && whf > 0) return (hf / whf) * 100;
+        if (hf > 0 && whf > 0) return Math.min(100, (hf / whf) * 100);
         return 0;
     }
 
@@ -857,7 +857,7 @@
             const misses = parseInt(stage.misses || 0, 10) || 0;
             const procedures = parseInt(stage.procedures || 0, 10) || 0;
             const hasProcedureData = stage.procedures !== null && stage.procedures !== undefined;
-            const stagePercent = stage.stage_percent ? parseFloat(stage.stage_percent) : 0;
+            const stagePercent = safeStagePercent(stage);
             const minRounds = alphas + charlies + deltas + misses;
 
             // Punkte für Anzeige und Target-Time möglichst aus HF * Zeit berechnen.
@@ -883,7 +883,7 @@
             // Stage-Prozent kommt, wenn vorhanden, direkt aus der offiziellen IPSCMatch-Compact-PDF.
             // Gewinner-HF wird nur angezeigt/berechnet, wenn die Mail-Daten bereits inkl. Procedurals verarbeitet wurden.
             let displayWinHf = winHf;
-            if (!isOverall && (!displayWinHf || displayWinHf <= 0) && stagePercent > 0 && hf > 0 && hasProcedureData) {
+            if (!isOverall && (!displayWinHf || displayWinHf <= 0) && stagePercent > 0 && hf > 0) {
                 displayWinHf = hf / (stagePercent / 100);
             }
 
@@ -891,10 +891,10 @@
             if(maxHf === 0) maxHf = 1;
             
             let winPerc = displayWinHf > 0 ? (displayWinHf / maxHf) * 100 : 100;
-            let myPerc = stagePercent > 0 ? stagePercent : (hf / maxHf) * 100;
+            let myPerc = stagePercent > 0 ? stagePercent : ((displayWinHf > 0 && hf > 0) ? Math.min(100, (hf / displayWinHf) * 100) : 0);
             let buddyPerc = (buddyHf / maxHf) * 100;
 
-            if (!isOverall) stagePercents.push(myPerc);
+            if (!isOverall && myPerc > 0) stagePercents.push(myPerc);
             
             let labelWin = isOverall ? (isEn ? "Match Winner" : "Match Sieger") : (isEn ? "Stage Winner" : "Stage Sieger");
             let textWin = isOverall ? "100%" : (displayWinHf > 0 ? `${displayWinHf.toFixed(4)} HF` : (isEn ? "pending" : "wird ergänzt"));
@@ -902,7 +902,7 @@
             
             let labelMe = isOverall ? (isEn ? "Overall Result" : "Overall Wertung") : (isEn ? "My Hit Factor" : "Mein Hit Factor");
             let myOverallPerc = stage.pts ? parseFloat(stage.pts) : 0; 
-            let textMe = isOverall ? `${myOverallPerc.toFixed(1)}%` : `${hf.toFixed(4)} HF`;
+            let textMe = isOverall ? `${myOverallPerc.toFixed(1)}%` : (myPerc > 0 ? `${hf.toFixed(4)} HF · ${myPerc.toFixed(1)}%` : `${hf.toFixed(4)} HF`);
             let widthMe = isOverall ? myOverallPerc : myPerc;
 
             let bottomPtsText = isOverall ? `${hf.toFixed(2)} PTS` : `${stagePoints.toFixed(0)} PTS`;
@@ -1027,7 +1027,7 @@
         const insightsPanel = document.getElementById("analytics-insights-panel");
         if (insightsPanel) insightsPanel.innerHTML = buildLocalInsightsHtml(analysisStages, stagePercents, divisionBenchmarkHtml, isEn);
         
-        document.getElementById("kpi-avg-hf").innerText = avgStagePercent > 0 ? `${avgStagePercent.toFixed(0)}%` : "-";
+        document.getElementById("kpi-avg-hf").innerText = avgStagePercent > 0 ? `${avgStagePercent.toFixed(1).replace('.', ',')}%` : "-";
         document.getElementById("kpi-division").innerText = division;
         
         if (stagePercents.length > 1) {
@@ -1265,7 +1265,7 @@
 })();
 </script>
 
-    <script src="release-i18n-v78s.js?v=79v"></script>
-    <script src="release-i18n-v78u.js?v=79v"></script>
+    <script src="release-i18n-v78s.js?v=79w"></script>
+    <script src="release-i18n-v78u.js?v=79w"></script>
 </body>
 </html>

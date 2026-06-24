@@ -775,12 +775,14 @@
 
   async function sharePdfFromChildV78q(payload, sourceWindow){
     const reply = (ok, error) => {
-      try { sourceWindow && sourceWindow.postMessage({ type: 'ipsc-share-pdf-v78q-result', ok: !!ok, error: error || '' }, window.location.origin); } catch (_) {}
+      try { sourceWindow && sourceWindow.postMessage({ type: 'ipsc-share-pdf-v78q-result', ok: !!ok, error: error || '' }, '*'); } catch (_) {}
     };
     try {
-      const filename = String(payload && payload.filename || 'IPSC_Schiessbuch.pdf').replace(/[\\/:*?"<>|]+/g, '_');
+      const filenameRaw = String(payload && payload.filename || 'IPSC_Schiessbuch.pdf');
+      const filename = filenameRaw.replace(/[\\/:*?"<>|]+/g, '_').replace(/\s+/g, '_');
       const title = String(payload && payload.title || 'Schießbuch PDF');
-      const base64 = String(payload && payload.base64 || '').replace(/^data:application\/pdf;base64,/, '');
+      let base64 = String(payload && payload.base64 || '');
+      base64 = base64.replace(/^data:application\/pdf(?:;[^,]*)?;base64,/i, '').replace(/\s/g, '');
       if (!base64) throw new Error('Keine PDF-Daten empfangen.');
 
       const plugins = window.Capacitor && window.Capacitor.Plugins ? window.Capacitor.Plugins : null;
@@ -791,49 +793,35 @@
       if (Filesystem && Share && typeof Filesystem.writeFile === 'function' && typeof Share.share === 'function') {
         let lastError = null;
         const dirs = [Directory.Cache || 'CACHE', Directory.Documents || 'DOCUMENTS'];
+        const path = `ipsc-share/${Date.now()}_${filename}`;
         for (const dir of dirs) {
           try {
-            const result = await Filesystem.writeFile({
-              path: filename,
-              data: base64,
-              directory: dir,
-              recursive: true
-            });
+            const result = await Filesystem.writeFile({ path, data: base64, directory: dir, recursive: true });
             let shareUrl = result && result.uri ? result.uri : undefined;
             if (!shareUrl && typeof Filesystem.getUri === 'function') {
-              try {
-                const uriResult = await Filesystem.getUri({ path: filename, directory: dir });
-                shareUrl = uriResult && uriResult.uri ? uriResult.uri : undefined;
-              } catch (_) {}
+              try { const uriResult = await Filesystem.getUri({ path, directory: dir }); shareUrl = uriResult && uriResult.uri ? uriResult.uri : undefined; } catch (_) {}
             }
             if (!shareUrl) throw new Error('PDF-Datei geschrieben, aber keine Datei-URI erhalten.');
-            await Share.share({
-              title: title,
-              text: 'PDF wurde erstellt.',
-              url: shareUrl,
-              dialogTitle: title
-            });
-            reply(true);
-            return;
-          } catch (e) {
-            lastError = e;
-            console.warn('PDF share attempt failed for directory', dir, e);
-          }
+            await Share.share({ title, text: 'PDF wurde erstellt.', url: shareUrl, dialogTitle: title });
+            reply(true); return;
+          } catch (e) { lastError = e; console.warn('PDF share attempt failed for directory', dir, e); }
         }
         throw lastError || new Error('PDF konnte nicht geteilt werden.');
       }
       throw new Error('Native Share/Filesystem ist nicht verfügbar.');
-    } catch (err) {
-      console.warn('Parent PDF share failed', err);
-      reply(false, err && err.message ? err.message : String(err));
-    }
+    } catch (err) { console.warn('Parent PDF share failed', err); reply(false, err && err.message ? err.message : String(err)); }
+  }
+
+  function isKnownAppFrameV79w(sourceWindow) {
+    try { if (!sourceWindow) return false; for (const frame of state.frames.values()) { if (frame && frame.contentWindow === sourceWindow) return true; } } catch (_) {}
+    return false;
   }
 
   window.addEventListener('message', function(event){
     try {
-      if (event.origin !== window.location.origin) return;
       const data = event.data || {};
       if (data.type === 'ipsc-share-pdf-v78q') {
+        if (event.origin !== window.location.origin && !isKnownAppFrameV79w(event.source)) return;
         sharePdfFromChildV78q(data, event.source);
       }
     } catch (_) {}

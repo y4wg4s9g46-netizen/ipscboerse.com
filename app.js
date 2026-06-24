@@ -484,7 +484,15 @@ window.lastChatCheckedTimestamp = localStorage.getItem("lastChatChecked") || new
             btn.className = "avatar-upload-btn-v76e";
             btn.setAttribute("data-txt", "v76e-avatar-change");
             btn.textContent = tV76e("v76e-avatar-change", "Profilbild ändern");
-            btn.addEventListener("click", () => avatarInput.click());
+            btn.addEventListener("click", async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (window.openNativeImageInputV79s) {
+                    const handled = await window.openNativeImageInputV79s(avatarInput);
+                    if (handled) return;
+                }
+                avatarInput.click();
+            });
             avatarGroup.appendChild(btn);
         }
 

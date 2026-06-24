@@ -204,25 +204,23 @@ async function openNativeImageInputV79s(input) {
     input.dataset.nativeImageBusyV79s = "1";
     try {
         let photo = null;
-        if (typeof Camera.takePhoto === "function") {
-            // Capacitor Camera v8: eigener nativer Kamera-Flow statt WKWebView-Datei-Picker.
+        if (typeof Camera.getPhoto === "function") {
+            photo = await Camera.getPhoto({
+                quality: 86,
+                resultType: "dataUrl",
+                source: "PROMPT",
+                allowEditing: false,
+                correctOrientation: true,
+                presentationStyle: "fullscreen",
+                webUseInput: false
+            });
+        } else if (typeof Camera.takePhoto === "function") {
             photo = await Camera.takePhoto({
                 quality: 86,
                 includeMetadata: false,
                 saveToGallery: false,
                 cameraDirection: "rear",
                 presentationStyle: "fullscreen"
-            });
-        } else {
-            // Fallback für ältere lokale Builds, falls dort noch getPhoto vorhanden ist.
-            photo = await Camera.getPhoto({
-                quality: 86,
-                resultType: "dataUrl",
-                source: "CAMERA",
-                allowEditing: false,
-                correctOrientation: true,
-                presentationStyle: "fullscreen",
-                webUseInput: false
             });
         }
         const file = await cameraResultToFileV79s(photo);
