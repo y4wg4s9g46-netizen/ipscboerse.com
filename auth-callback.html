@@ -40,6 +40,7 @@
       })();
     </script>
   <meta charset="UTF-8">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style id="native-app-prepaint-v76r">
       :root { background: #f6f8fc !important; color-scheme: light; }
       html, body { background: #f6f8fc !important; min-height: 100%; }
@@ -210,14 +211,71 @@
   </style>
 </head>
 <body class="app-v71 app-v72 app-v73 app-v74 app-v75 app-v76 app-v76b app-v76c app-v76d app-v76e app-v76f app-v76h app-v76j app-v76k app-v76l app-v76m app-v76p app-v76q app-v76r app-v76s">
+
   <div class="box">
     <div class="spinner"></div>
     <h1>Login wird abgeschlossen…</h1>
     <p>Du wirst automatisch zurück zur IPSC-Börse-App geleitet.</p>
     <p id="fallback" style="margin-top:14px;display:none;"><a id="fallback-link" href="#">App öffnen</a></p>
   </div>
+  <script id="ipsc-passkey-bridge-v79s">
+    (async function(){
+      var params = new URLSearchParams(location.search || "");
+      var mode = params.get("passkey");
+      if (!mode) return;
+
+      function setText(title, body){
+        try { var h=document.querySelector("h1"); if(h) h.textContent=title; var p=document.querySelector(".box p"); if(p) p.textContent=body; } catch(_) {}
+      }
+      function openAppWithHash(session, type){
+        var hash = new URLSearchParams();
+        if (session && session.access_token) hash.set("access_token", session.access_token);
+        if (session && session.refresh_token) hash.set("refresh_token", session.refresh_token);
+        hash.set("type", type || "passkey");
+        location.replace("ipscboerse://auth-callback#" + hash.toString());
+      }
+      function openAppWithError(message){
+        location.replace("ipscboerse://auth-callback?error_description=" + encodeURIComponent(message || "Passkey fehlgeschlagen"));
+      }
+      try {
+        setText(mode === "register" ? "Passkey wird registriert…" : "Face ID / Passkey wird geöffnet…", "Bitte bestätige die Systemabfrage. Danach springt die App automatisch zurück.");
+        if (!window.supabase || !window.supabase.createClient) throw new Error("Supabase JS nicht geladen.");
+        var client = window.supabase.createClient("https://huprxirlthkisjngwash.supabase.co", "sb_publishable_yModrA5JZTiN5Cw7MHQqLQ_Coc04WAS", {
+          auth: { experimental: { passkey: true }, persistSession: true, detectSessionInUrl: false, flowType: "implicit" }
+        });
+
+        if (mode === "register") {
+          var h = new URLSearchParams((location.hash || "").replace(/^#/, ""));
+          var at = h.get("access_token");
+          var rt = h.get("refresh_token");
+          if (!at || !rt) throw new Error("Keine App-Session für Passkey-Registrierung gefunden.");
+          var set = await client.auth.setSession({ access_token: at, refresh_token: rt });
+          if (set.error) throw set.error;
+          var reg = await client.auth.registerPasskey();
+          if (reg.error) throw reg.error;
+          var afterReg = await client.auth.getSession();
+          openAppWithHash((afterReg.data && afterReg.data.session) || set.data.session, "passkey-register");
+          return;
+        }
+
+        var login = await client.auth.signInWithPasskey();
+        if (login.error) throw login.error;
+        var session = login.data && login.data.session;
+        if (!session) {
+          var current = await client.auth.getSession();
+          session = current.data && current.data.session;
+        }
+        if (!session) throw new Error("Passkey erfolgreich, aber keine Session erhalten.");
+        openAppWithHash(session, "passkey-login");
+      } catch (err) {
+        console.error("Passkey bridge failed", err);
+        openAppWithError(err && err.message ? err.message : String(err || "Passkey fehlgeschlagen"));
+      }
+    })();
+  </script>
   <script>
     (function(){
+      try { if (new URLSearchParams(location.search || "").has("passkey")) return; } catch (_) {}
       var appUrl = "ipscboerse://auth-callback" + (location.search || "") + (location.hash || "");
       var link = document.getElementById("fallback-link");
       if (link) link.href = appUrl;

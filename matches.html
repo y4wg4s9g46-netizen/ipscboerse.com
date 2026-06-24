@@ -498,11 +498,14 @@
       }
       function hasFreeSlot(m){
         if(!m) return false;
+        const occ = Number(m.occupancy_percent ?? m.auslastung_percent ?? String(m.auslastung || '').replace(/[^0-9.]/g,''));
+        // v79s: Eine explizite Auslastung ist maßgeblich. 100 % darf nie als frei gelten,
+        // auch wenn ein älterer Import noch checked_free gesetzt hat.
+        if(Number.isFinite(occ)) return occ >= 0 && occ < 100;
         if(m.has_free_slots === true || m.free_slots === true) return true;
         const st = String(m.availability_status || '').toLowerCase();
         if(st === 'checked_free' || st === 'free' || st.includes('checked_free')) return true;
-        const occ = Number(m.occupancy_percent ?? m.auslastung_percent ?? String(m.auslastung || '').replace(/[^0-9.]/g,''));
-        return Number.isFinite(occ) && occ > 0 && occ < 100;
+        return false;
       }
       function normalizeDate(input){
         if(!input) return '';
@@ -691,25 +694,23 @@
           ? `<img class="match-img-v79l" src="${esc(imgUrl)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="" onload="this.parentElement.classList.add('has-img-v79l')" onerror="this.remove()"><div class="match-image-placeholder-v79c">🎯</div>`
           : `<div class="match-image-placeholder-v79c">🎯</div>`;
         const occ = Number(m.occupancy_percent ?? String(m.auslastung || '').replace(/[^0-9.]/g,''));
-        const hasOcc = Number.isFinite(occ) && occ > 0;
-        const sourceBadge = isFree
-          ? `<span class="match-badge-v79c match-badge-source-v79p">✅ MatchSign · geprüft</span>`
-          : (isEss ? `<span class="match-badge-v79c match-badge-ess-v79c">🌍 ESS Open Event</span>` : `<span class="match-badge-v79c">📌 Planer</span>`);
+        const hasOcc = Number.isFinite(occ) && occ >= 0;
+        const occRounded = hasOcc ? Math.max(0, Math.min(100, Math.round(occ))) : null;
+        const sourceBadge = isEss
+          ? `<span class="match-badge-v79c match-badge-ess-v79c">🔵 ESS Open Event</span>`
+          : (isMine ? `<span class="match-badge-v79c">📌 Planer</span>` : '');
         let availability = '';
-        if(isEss){
-          availability = `<span class="match-badge-v79c match-badge-warn-v79c">Auslastung unbekannt</span>`;
-        } else if(isFree && hasOcc){
-          if(occ >= 100) availability = `<span class="match-badge-v79c match-badge-full-v79p">🔴 Voll · ${Math.round(occ)}% belegt</span>`;
-          else if(occ >= 90) availability = `<span class="match-badge-v79c match-badge-limited-v79p">🟠 Wenige Plätze · ${Math.round(occ)}% belegt</span>`;
-          else availability = `<span class="match-badge-v79c match-badge-ok-v79p">🟢 Plätze verfügbar · ${Math.round(occ)}% belegt</span>`;
+        if(isFree && hasOcc){
+          if(occRounded >= 100) availability = `<span class="match-badge-v79c match-badge-full-v79p">🔴 Ausgebucht</span>`;
+          else availability = `<span class="match-badge-v79c match-badge-ok-v79p">🟢 Freie Plätze • ${occRounded}%</span>`;
         } else if(isFree){
-          availability = `<span class="match-badge-v79c match-badge-ok-v79p">🟢 Plätze verfügbar</span>`;
+          availability = `<span class="match-badge-v79c match-badge-ok-v79p">🟢 Freie Plätze</span>`;
         } else if(m.status){
           availability = `<span class="match-badge-v79c">${esc(m.status)}</span>`;
         }
         const sourceLine = isEss
-          ? t('Anmeldung offen laut ESS · freie Plätze nach Login prüfen', 'Registration open according to ESS · check slot availability after login')
-          : (isFree ? (hasOcc ? `Belegung: ${Math.round(occ)}%` : t('Verfügbarkeit laut MatchSign geprüft', 'Availability checked by MatchSign')) : t('Gespeichert im Planer', 'Saved in planner'));
+          ? t('ESS Open Event · Registrierung öffentlich offen, freie Plätze nach Login prüfen', 'ESS Open Event · public registration open, check slot availability after login')
+          : (isFree ? (hasOcc ? `MatchSign · Auslastung ${occRounded}%` : t('MatchSign · freie Plätze erkannt', 'MatchSign · open slots detected')) : t('Gespeichert im Planer', 'Saved in planner'));
         return `
           <article class="match-card-v79c">
             <div class="match-image-v79c">${img}</div>
@@ -761,6 +762,8 @@
         if(tab === 'mine') loadMine().then(render);
       };
       window.applyMatchesFiltersV79c = render;
+      window.addEventListener('ipsc:language-change-v78d', function(){ setTimeout(render,0); setTimeout(render,120); });
+      window.addEventListener('ipsc:language-change-v79r', function(){ setTimeout(render,0); setTimeout(render,120); });
       window.openPlannerModalV79c = async function(key){
         const m = state.byKey.get(key); if(!m) return;
         const client = await waitForClient();

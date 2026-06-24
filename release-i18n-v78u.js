@@ -47,13 +47,15 @@
     Object.assign(window.portalTranslations.de, {
       'v76-elo-upcoming-title': I18N.de.eloUpcoming,
       'lbl-ipsc-alias-desc': I18N.de.licenseDesc,
-      'planner-no-open': I18N.de.plannerNoOpen
+      'planner-no-open': I18N.de.plannerNoOpen,
+      'log-title-my-entries':'📋 Meine Einträge'
     });
     Object.assign(window.portalTranslations.en, {
       'v76-elo-upcoming-title': I18N.en.eloUpcoming,
       'lbl-ipsc-alias-desc': I18N.en.licenseDesc,
       'planner-no-open': I18N.en.plannerNoOpen,
       'planner-title-my-matches':'My matches',
+      'log-title-my-entries':'📋 My entries',
       'planner-subtitle-planned':'Planned matches',
       'planner-no-matches':'No matches added yet.',
       'planner-btn-export':'📅 Export to Calendar (.ics)',

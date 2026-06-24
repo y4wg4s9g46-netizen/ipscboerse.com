@@ -75,11 +75,182 @@ window.uploadImage = async function(file, folder) {
     return data.publicUrl;
 };
 
+
+
+// --- V79S Native Passkey + Camera Bridge ---
+function isNativeCapacitorRuntimeV79s() {
+    try {
+        return !!(
+            (window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform()) ||
+            window.location.protocol === "capacitor:" ||
+            window.location.protocol === "ionic:"
+        );
+    } catch (_) {
+        return false;
+    }
+}
+
+function isPasskeyBridgePageV79s() {
+    try {
+        return /auth-callback\.html$/i.test(window.location.pathname || "") && new URLSearchParams(window.location.search || "").has("passkey");
+    } catch (_) {
+        return false;
+    }
+}
+
+function buildPasskeyBridgeUrlV79s(mode, session) {
+    const url = new URL("https://ipscboerse.com/auth-callback.html");
+    url.searchParams.set("passkey", mode === "register" ? "register" : "login");
+    url.searchParams.set("lang", localStorage.getItem("selectedLanguage") || window.currentLang || "de");
+    url.searchParams.set("theme", localStorage.getItem("selectedTheme") || localStorage.getItem("theme") || "light");
+    try {
+        const returnPath = `${window.location.pathname || "/index.html"}${window.location.search || ""}`;
+        localStorage.setItem(OAUTH_RETURN_KEY, returnPath);
+        url.searchParams.set("return", returnPath);
+    } catch (_) {}
+    if (mode === "register" && session?.access_token && session?.refresh_token) {
+        const hash = new URLSearchParams();
+        hash.set("access_token", session.access_token);
+        hash.set("refresh_token", session.refresh_token);
+        hash.set("type", "passkey-register");
+        url.hash = hash.toString();
+    }
+    return url.toString();
+}
+
+async function openNativePasskeyBridgeV79s(mode, btn, oldHtml) {
+    try {
+        let session = null;
+        if (mode === "register") {
+            const result = await window.supabaseClient.auth.getSession();
+            session = result?.data?.session || null;
+            if (!session?.access_token || !session?.refresh_token) throw new Error("Bitte zuerst einloggen, dann Passkey registrieren.");
+        }
+        const bridgeUrl = buildPasskeyBridgeUrlV79s(mode, session);
+        const Browser = getCapacitorPluginV66("Browser");
+        if (Browser && typeof Browser.open === "function") {
+            await Browser.open({ url: bridgeUrl, presentationStyle: "fullscreen", windowName: "_blank" });
+        } else {
+            window.location.href = bridgeUrl;
+        }
+    } catch (error) {
+        if (btn) btn.innerHTML = oldHtml;
+        alert((mode === "register" ? "Passkey-Registrierung" : "Passkey-Login") + " konnte nicht geöffnet werden: " + (error.message || error));
+    }
+}
+
+function dataUrlToFileV79s(dataUrl, filename) {
+    const parts = String(dataUrl || "").split(",");
+    const meta = parts[0] || "";
+    const mime = (meta.match(/data:([^;]+)/) || [])[1] || "image/jpeg";
+    const bin = atob(parts[1] || "");
+    const len = bin.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
+    return new File([bytes], filename || `ipsc_photo_${Date.now()}.jpg`, { type: mime });
+}
+
+function blobToFileV79s(blob, filename) {
+    const type = blob && blob.type ? blob.type : "image/jpeg";
+    return new File([blob], filename || `ipsc_photo_${Date.now()}.jpg`, { type });
+}
+
+async function cameraResultToFileV79s(result) {
+    if (!result) return null;
+    const fmt = String(result.format || result.metadata?.format || "jpg").replace(/[^a-z0-9]/gi, "") || "jpg";
+    const filename = `ipsc_photo_${Date.now()}.${fmt === "jpeg" ? "jpg" : fmt}`;
+
+    if (result.dataUrl) return dataUrlToFileV79s(result.dataUrl, filename);
+    if (result.thumbnail) {
+        const raw = String(result.thumbnail);
+        const dataUrl = raw.startsWith("data:") ? raw : `data:image/${fmt};base64,${raw}`;
+        return dataUrlToFileV79s(dataUrl, filename);
+    }
+
+    const url = result.webPath || (window.Capacitor && result.uri && window.Capacitor.convertFileSrc ? window.Capacitor.convertFileSrc(result.uri) : result.uri);
+    if (!url) return null;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Foto konnte nicht gelesen werden.");
+    const blob = await response.blob();
+    return blobToFileV79s(blob, filename);
+}
+
+async function openNativeImageInputV79s(input) {
+    if (!input || input.dataset.nativeImageBusyV79s === "1") return false;
+    if (!isNativeCapacitorRuntimeV79s()) return false;
+    const accept = String(input.getAttribute("accept") || "").toLowerCase();
+    if (!(accept.includes("image") || accept.includes(".jpg") || accept.includes(".jpeg") || accept.includes(".png") || accept.includes(".webp"))) return false;
+    const Camera = getCapacitorPluginV66("Camera");
+    if (!Camera || (typeof Camera.takePhoto !== "function" && typeof Camera.getPhoto !== "function")) return false;
+
+    input.dataset.nativeImageBusyV79s = "1";
+    try {
+        let photo = null;
+        if (typeof Camera.takePhoto === "function") {
+            // Capacitor Camera v8: eigener nativer Kamera-Flow statt WKWebView-Datei-Picker.
+            photo = await Camera.takePhoto({
+                quality: 86,
+                includeMetadata: false,
+                saveToGallery: false,
+                cameraDirection: "rear",
+                presentationStyle: "fullscreen"
+            });
+        } else {
+            // Fallback für ältere lokale Builds, falls dort noch getPhoto vorhanden ist.
+            photo = await Camera.getPhoto({
+                quality: 86,
+                resultType: "dataUrl",
+                source: "CAMERA",
+                allowEditing: false,
+                correctOrientation: true,
+                presentationStyle: "fullscreen",
+                webUseInput: false
+            });
+        }
+        const file = await cameraResultToFileV79s(photo);
+        if (!file) return true;
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+        return true;
+    } catch (error) {
+        const msg = String(error?.message || error || "");
+        if (!/cancel|user cancelled|user canceled|abort/i.test(msg)) console.warn("Native image picker failed:", error);
+        return true;
+    } finally {
+        setTimeout(() => { try { delete input.dataset.nativeImageBusyV79s; } catch (_) {} }, 350);
+    }
+}
+window.openNativeImageInputV79s = openNativeImageInputV79s;
+
+(function installNativeImageInputBridgeV79s(){
+    if (window.__IPSC_NATIVE_IMAGE_INPUT_V79S) return;
+    window.__IPSC_NATIVE_IMAGE_INPUT_V79S = true;
+    document.addEventListener("click", function(event){
+        const input = event.target && event.target.closest && event.target.closest('input[type="file"]');
+        if (!input) return;
+        if (!isNativeCapacitorRuntimeV79s()) return;
+        const accept = String(input.getAttribute("accept") || "").toLowerCase();
+        if (!(accept.includes("image") || accept.includes(".jpg") || accept.includes(".jpeg") || accept.includes(".png") || accept.includes(".webp"))) return;
+        const Camera = getCapacitorPluginV66("Camera");
+        if (!Camera || (typeof Camera.takePhoto !== "function" && typeof Camera.getPhoto !== "function")) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        openNativeImageInputV79s(input);
+    }, true);
+})();
+
 // --- PASSKEY FUNKTIONEN ---
 window.loginWithPasskey = async function() {
     // v79q: Passkey/Face ID in der App aktiv lassen. Kein lokaler "später"-Block mehr.
     const btn = document.querySelector('#modal-login-view button[onclick="loginWithPasskey()"]');
     const oldHtml = btn ? btn.innerHTML : "";
+    if (isNativeCapacitorRuntimeV79s() && !isPasskeyBridgePageV79s()) {
+        if (btn) btn.innerHTML = "⏳ Face ID / Passkey wird geöffnet...";
+        await openNativePasskeyBridgeV79s("login", btn, oldHtml);
+        return;
+    }
     if (btn) btn.innerHTML = "⏳ Warte auf Sensor...";
 
     const { data, error } = await window.supabaseClient.auth.signInWithPasskey();
@@ -106,6 +277,11 @@ window.registerPasskey = async function() {
     // v79q: Passkey-Registrierung in der App aktiv lassen. Kein lokaler "später"-Block mehr.
     const btn = document.querySelector('#modal-settings-view button[onclick="registerPasskey()"]');
     const oldHtml = btn ? btn.innerHTML : "";
+    if (isNativeCapacitorRuntimeV79s() && !isPasskeyBridgePageV79s()) {
+        if (btn) btn.innerHTML = "⏳ Face ID / Passkey wird geöffnet...";
+        await openNativePasskeyBridgeV79s("register", btn, oldHtml);
+        return;
+    }
     if (btn) btn.innerHTML = "⏳ Bitte Sensor berühren...";
 
     const { data, error = null } = await window.supabaseClient.auth.registerPasskey();

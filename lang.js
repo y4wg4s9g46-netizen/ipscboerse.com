@@ -200,6 +200,7 @@ window.portalTranslations = {
         "planner-logged-out-desc": "Logge dich ein, um deine Matches zu verwalten und in die Cloud zu synchronisieren.",
         "planner-logged-out-btn": "Jetzt einloggen",
         "planner-title-my-matches": "Meine Matches",
+        "log-title-my-entries": "📋 Meine Einträge",
         "planner-subtitle-new": "Neuer Eintrag",
         "log-entry-title": "Neuer Eintrag",
         "log-entry-save": "Eintrag speichern",
@@ -561,6 +562,7 @@ window.portalTranslations = {
         "planner-logged-out-desc": "Log in to make modifications to your matches and synchronize files with the cloud.",
         "planner-logged-out-btn": "Log In Now",
         "planner-title-my-matches": "My Matches",
+        "log-title-my-entries": "📋 My entries",
         "planner-subtitle-new": "Add New Match",
         "planner-lbl-match-name": "Match Name",
         "planner-lbl-match-date": "Date",
@@ -777,6 +779,7 @@ document.addEventListener("change", (e) => {
         localStorage.setItem("selectedLanguage", e.target.value);
         window.translatePortalPage();
         try { window.dispatchEvent(new CustomEvent("ipsc:language-change-v78d", { detail: { lang: e.target.value } })); } catch (_) {}
+        try { window.dispatchEvent(new CustomEvent("ipsc:language-change-v79r", { detail: { lang: e.target.value } })); } catch (_) {}
     }
 });
 

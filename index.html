@@ -273,9 +273,9 @@
   .hero-quicklinks-v76 a{gap:12px;}
   .hero-quicklinks-v76 a strong{display:flex;align-items:center;gap:10px;line-height:1.15;}
   .fav-symbol-v79r{width:28px;height:28px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 28px;background:linear-gradient(135deg,rgba(255,159,67,.20),rgba(59,130,246,.12));border:1px solid rgba(148,163,184,.24);box-shadow:inset 0 1px 0 rgba(255,255,255,.18);}
-  .fav-symbol-v79r::before{font-size:12px;font-weight:950;color:#ff8a1f;letter-spacing:-.02em;}
+  .fav-symbol-v79r::before{font-size:18px;line-height:1;font-weight:900;color:#ff8a1f;letter-spacing:-.02em;}
   html[data-theme="dark"] .fav-symbol-v79r{background:linear-gradient(135deg,rgba(255,159,67,.22),rgba(37,99,235,.16));border-color:rgba(148,163,184,.20);}
-  .fav-symbol-market::before{content:"M"}.fav-symbol-planner::before{content:"P"}.fav-symbol-log::before{content:"L"}.fav-symbol-comm::before{content:"C"}.fav-symbol-match::before{content:"M"}.fav-symbol-tools::before{content:"T"}.fav-symbol-reload::before{content:"R"}.fav-symbol-stats::before{content:"%"}.fav-symbol-hub::before{content:"H"}.fav-symbol-timer::before{content:"S"}
+  .fav-symbol-market::before{content:"🛒"}.fav-symbol-planner::before{content:"📅"}.fav-symbol-log::before{content:"📋"}.fav-symbol-comm::before{content:"👥"}.fav-symbol-match::before{content:"🎯"}.fav-symbol-tools::before{content:"🏆"}.fav-symbol-reload::before{content:"📦"}.fav-symbol-stats::before{content:"📊"}.fav-symbol-hub::before{content:"⭐"}.fav-symbol-timer::before{content:"⏱️"}
   .favorites-options-v76 .fav-symbol-v79r{margin-right:4px;}
   .season-btn-primary-v79o{background:linear-gradient(135deg,#ff9f43,#ff6b00);color:#fff;box-shadow:0 12px 26px rgba(255,107,0,.20);}
   .season-btn-secondary-v79o{background:rgba(255,255,255,.72);border:1px solid rgba(148,163,184,.25);color:var(--text-color);}
@@ -807,6 +807,7 @@
   function apply(){ add(); try { if (typeof window.translatePortalPage === 'function') window.translatePortalPage(); } catch(_){} try { if (typeof window.onLanguageChanged === 'function') window.onLanguageChanged(); } catch(_){} }
   document.addEventListener('DOMContentLoaded', function(){ setTimeout(apply,0); setTimeout(apply,120); setTimeout(apply,600); });
   window.addEventListener('ipsc:language-change-v79r', function(){ setTimeout(apply,0); setTimeout(apply,120); });
+  window.addEventListener('ipsc:language-change-v78d', function(){ setTimeout(apply,0); setTimeout(apply,120); });
   document.addEventListener('change', function(e){ if(e.target && e.target.id==='language-select') setTimeout(apply,0); }, true);
   setTimeout(apply,200); setTimeout(apply,1000);
 })();
