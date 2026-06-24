@@ -4,13 +4,13 @@
     <script id="ipsc-build-cache-reset-v79u">
 (function(){
   try {
-    window.__IPSC_BUILD_ID = "v79x-bugfix-pdf-stats-photo-market";
-    document.documentElement.setAttribute("data-ipsc-build", "v79x");
-    try { localStorage.setItem("ipsc_active_build", "v79x-bugfix-pdf-stats-photo-market"); } catch (_) {}
+    window.__IPSC_BUILD_ID = "v79y-favorites-season-auth-visual";
+    document.documentElement.setAttribute("data-ipsc-build", "v79y");
+    try { localStorage.setItem("ipsc_active_build", "v79y-favorites-season-auth-visual"); } catch (_) {}
     var isNative = /^(capacitor|ionic):$/i.test(location.protocol || "") || /(^|[?&])(shell=1|appframe=1)(?:&|$)/.test(location.search || "");
     if ("caches" in window) {
       caches.keys().then(function(keys){
-        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79x-bugfix-pdf-stats-photo-market"; }).map(function(k){ return caches.delete(k); }));
+        return Promise.all(keys.filter(function(k){ return /^ipscboerse-/i.test(k) && k !== "ipscboerse-v79y-favorites-season-auth-visual"; }).map(function(k){ return caches.delete(k); }));
       }).catch(function(){});
     }
     if (isNative && "serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
@@ -248,7 +248,7 @@
     <link rel="preload" href="icon-192.png" as="image">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="global.css?v=79x">
+<link rel="stylesheet" href="global.css?v=79y">
 
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
 
@@ -332,7 +332,7 @@
   }
 </style>
 
-<style id="index-v79x-bugfix-pdf-stats-photo-market">
+<style id="index-v79y-favorites-season-auth-visual">
   .hero-actions-v71{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:14px!important;width:100%!important;align-items:stretch!important;}
   .hero-actions-v71 .app-cta-v71{width:100%!important;min-width:0!important;box-sizing:border-box!important;white-space:normal!important;overflow:hidden!important;text-align:center!important;padding-left:10px!important;padding-right:10px!important;}
   .home-favorites-v76 .hero-quicklinks-v76 a{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:14px!important;min-height:78px!important;padding:14px 24px!important;}
@@ -350,10 +350,78 @@
   .favorites-options-v76{max-height:50dvh!important;overflow:auto!important;-webkit-overflow-scrolling:touch!important;}
 </style>
 
-<style id="index-v79x-bugfix-ui">
+<style id="index-v79y-bugfix-ui">
   .favorites-modal-v76.show{display:flex!important;align-items:center!important;justify-content:center!important;padding:max(16px,env(safe-area-inset-top)) 18px calc(126px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important;}
   .favorites-modal-v76.show .favorites-sheet-v76{width:min(calc(100vw - 36px),520px)!important;max-height:calc(100dvh - 170px - env(safe-area-inset-bottom))!important;margin:0 auto!important;border-radius:30px!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;}
   .favorites-options-v76{overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;max-height:none!important;}
+</style>
+
+
+<style id="index-v79y-favorites-season-visual-fix">
+  /* v79y: Modal darf im App-Frame nie am Seitenende hängen. */
+  body.page-index .favorites-modal-v76,
+  html.ipsc-app-frame body.page-index .favorites-modal-v76,
+  html.is-native-shell body.page-index .favorites-modal-v76{
+    position:fixed!important;
+    inset:0!important;
+    top:0!important;
+    left:0!important;
+    right:0!important;
+    bottom:0!important;
+    width:100vw!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    display:none!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:max(18px,env(safe-area-inset-top)) 18px max(112px,calc(126px + env(safe-area-inset-bottom))) 18px!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+    overscroll-behavior:contain!important;
+    background:rgba(15,23,42,.42)!important;
+    backdrop-filter:blur(10px)!important;
+    -webkit-backdrop-filter:blur(10px)!important;
+    z-index:2147483600!important;
+    transform:translateZ(0)!important;
+  }
+  body.page-index .favorites-modal-v76.show,
+  html.ipsc-app-frame body.page-index .favorites-modal-v76.show,
+  html.is-native-shell body.page-index .favorites-modal-v76.show{display:flex!important;}
+  body.page-index .favorites-modal-v76.show .favorites-sheet-v76,
+  html.ipsc-app-frame body.page-index .favorites-modal-v76.show .favorites-sheet-v76,
+  html.is-native-shell body.page-index .favorites-modal-v76.show .favorites-sheet-v76{
+    margin:0 auto!important;
+    width:min(calc(100vw - 36px),520px)!important;
+    max-height:min(74dvh,650px)!important;
+    border-radius:30px!important;
+    overflow:hidden!important;
+    display:flex!important;
+    flex-direction:column!important;
+    transform:none!important;
+    box-shadow:0 30px 90px rgba(15,23,42,.30)!important;
+  }
+  body.page-index .favorites-options-v76{overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;max-height:none!important;}
+  body.page-index.favorites-open-v79y{overflow:hidden!important;}
+
+  /* v79y: Saisonkarte auf der Startseite optisch ruhiger und der Ø-Wert klarer. */
+  .season-card-v79o{
+    background:
+      radial-gradient(circle at 88% 6%, rgba(255,122,24,.18), transparent 34%),
+      radial-gradient(circle at 5% 95%, rgba(59,130,246,.13), transparent 38%),
+      linear-gradient(135deg,rgba(255,251,247,.96),rgba(241,247,255,.96))!important;
+  }
+  .season-grid-v79o{grid-template-columns:repeat(4,minmax(0,1fr))!important;}
+  .season-kpi-v79o{min-height:74px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;}
+  #season-avgpct-v79p{color:#f97316!important;}
+  #season-avgpct-v79p.closest-season-avg-v79y{font-size:34px!important;}
+  #season-kpi-label-avg-v79v{color:#f97316!important;}
+  .season-card-v79o.has-season-data-v79y .season-status-v79o{color:#047857!important;background:rgba(16,185,129,.10)!important;border-color:rgba(16,185,129,.22)!important;}
+  @media(max-width:760px){
+    .season-grid-v79o{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+    .season-kpi-v79o{padding:13px 14px!important;}
+    .season-kpi-value-v79o{font-size:30px!important;}
+    #season-avgpct-v79p.closest-season-avg-v79y{font-size:34px!important;}
+  }
 </style>
 
 </head>
@@ -362,7 +430,7 @@
 
     <header id="main-header"></header>
 
-    <script src="header.js?v=79x"></script>
+    <script src="header.js?v=79y"></script>
 
     <div class="container">
 
@@ -557,9 +625,9 @@
             <div style="margin-top: 15px; font-size: 11px;" data-txt="footer-copyright">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
         </div>
     </footer>
-<script src="auth.js?v=79x"></script>
-    <script src="lang.js?v=79x"></script>
-    <script src="app.js?v=79x"></script>
+<script src="auth.js?v=79y"></script>
+    <script src="lang.js?v=79y"></script>
+    <script src="app.js?v=79y"></script>
     
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -584,20 +652,21 @@
     </script>
     
 
-<script id="season-sharecard-v79v-script">
+
+<script id="season-sharecard-v79y-script">
 (function(){
   const YEAR = new Date().getFullYear();
   const state = { year: YEAR, stats: null, user: null };
   function $(id){ return document.getElementById(id); }
-  function setText(id, value){ const el=$(id); if(el) el.textContent = value; }
+  function setText(id, value){ const el=$(id); if(el) el.textContent = value == null ? '' : String(value); }
   function lang(){ return (localStorage.getItem('selectedLanguage') || window.currentLang || document.documentElement.lang || 'de') === 'en' ? 'en' : 'de'; }
   const I18N = {
     de: {
       kicker:'Meine Saison', title:'Meine Saison {year}',
       sub:'Deine wichtigsten Match-Kennzahlen aus den gespeicherten Analytics-Daten.',
       best:'Beste gespeicherte Wertung: {name}', loading:'Lade Daten …', noData:'Noch keine Daten',
-      notReady:'Nicht bereit', notLoggedIn:'Nicht angemeldet', live:'Live aus Analytics', matchesFound:'Matches gefunden',
-      emptyLoggedOut:'Logge dich ein, dann erscheint hier deine persönliche Saisonübersicht.',
+      notReady:'Nicht bereit', notLoggedIn:'Nicht angemeldet', live:'Eingeloggt · Analytics aktiv', matchesFound:'Matches gefunden',
+      emptyLoggedOut:'Du bist eingeloggt? Dann wird die Saisonkarte gleich synchronisiert. Sonst bitte anmelden.',
       emptyNoData:'Noch keine Matchdaten gefunden. Sobald Analytics-Daten importiert sind, wird deine Saisonkarte aktiv.',
       share:'📤 Saisonkarte teilen', stats:'📊 Zu den Statistiken',
       kMatches:'Matches', kTop10:'Top 10', kWins:'Siege', kBest:'Bestes Match %', kAvg:'Ø Match %',
@@ -605,10 +674,10 @@
     },
     en: {
       kicker:'My season', title:'My season {year}',
-      sub:'Your key match metrics from the saved analytics data.',
+      sub:'Your key match metrics from saved analytics data.',
       best:'Best saved result: {name}', loading:'Loading data …', noData:'No data yet',
-      notReady:'Not ready', notLoggedIn:'Not signed in', live:'Live from Analytics', matchesFound:'Matches found',
-      emptyLoggedOut:'Sign in and your personal season overview will appear here.',
+      notReady:'Not ready', notLoggedIn:'Not signed in', live:'Signed in · Analytics active', matchesFound:'Matches found',
+      emptyLoggedOut:'Signed in? The season card is syncing. Otherwise please sign in.',
       emptyNoData:'No match data found yet. Once analytics data is imported, your season card becomes active.',
       share:'📤 Share season card', stats:'📊 Go to statistics',
       kMatches:'Matches', kTop10:'Top 10', kWins:'Wins', kBest:'Best match %', kAvg:'Ø match %',
@@ -622,31 +691,49 @@
     if(!state.stats || !state.stats.bestName) setText('season-sub-v79o', tr('sub'));
     const shareBtn=document.querySelector('.season-btn-primary-v79o'); if(shareBtn) shareBtn.textContent=tr('share');
     const statsBtn=document.querySelector('.season-btn-secondary-v79o'); if(statsBtn) statsBtn.textContent=tr('stats');
-    const labels=[['season-kpi-label-matches-v79v','kMatches'],['season-kpi-label-top10-v79v','kTop10'],['season-kpi-label-wins-v79v','kWins'],['season-kpi-label-best-v79v','kBest'],['season-kpi-label-avg-v79v','kAvg']];
-    labels.forEach(([id,k])=>setText(id,tr(k)));
+    [['season-kpi-label-matches-v79v','kMatches'],['season-kpi-label-top10-v79v','kTop10'],['season-kpi-label-wins-v79v','kWins'],['season-kpi-label-best-v79v','kBest'],['season-kpi-label-avg-v79v','kAvg']].forEach(([id,k])=>setText(id,tr(k)));
   }
   function parseRank(v){ if(v===null||v===undefined) return null; const m=String(v).replace(',', '.').match(/\d+/); if(!m) return null; const n=parseInt(m[0],10); return Number.isFinite(n)&&n>0?n:null; }
-  function rowYear(row){ const fields=[row.match_date,row.event_date,row.date,row.created_at,row.updated_at,row.match_name,row.stage_name]; for(const v of fields){ const m=String(v||'').match(/20\d{2}/); if(m) return parseInt(m[0],10); } return null; }
+  function rowYear(row){ const fields=[row.match_date,row.event_date,row.date,row.created_at,row.updated_at,row.match_name,row.stage_name,row.match_id]; for(const v of fields){ const m=String(v||'').match(/20\d{2}/); if(m) return parseInt(m[0],10); } return null; }
   function parseNumber(v){ if(v===null||v===undefined) return null; let s=String(v).trim(); if(!s) return null; if(s.includes(',') && s.includes('.')) s=s.replace(/\./g,'').replace(',', '.'); else s=s.replace(',', '.'); s=s.replace(/[^0-9.\-]/g,''); const n=Number(s); return Number.isFinite(n)?n:null; }
   function parsePercent(v){ const n=parseNumber(v); return Number.isFinite(n)&&n>0&&n<=100.0001?n:null; }
-  function isOverallRow(r){ return /overall|match result|gesamt|ergebnis/i.test(String(r.stage_name||'')); }
+  function isOverallRow(r){ return /overall\s*match|match\s*results?|gesamt|ergebnis|overall/i.test(String(r.stage_name||r.display_stage_name||'')); }
   function displayStageName(r){ return String(r._displayStageName || r.display_stage_name || r.stage_name || '').trim(); }
   function stageIndex(r){ const name=displayStageName(r); const m=name.match(/(?:stage|stufe|station)\s*0*(\d+)/i) || name.match(/^\s*0*(\d+)\b/); return m ? parseInt(m[1],10) : null; }
+  function matchKey(r){ return String(r.match_id || r.match_name || r.event_id || '').trim(); }
   function rowPercent(r){
     const direct = parsePercent(r.match_percent ?? r.overall_percent ?? r.percent);
     if(direct) return direct;
     if(isOverallRow(r)){
-      const hf = parsePercent(r.hit_factor);
       const whf = parseNumber(r.winner_hit_factor);
-      const t = parseNumber(r.stage_time);
-      if(hf && ((whf && Math.abs(whf-100) < 0.001) || !t || t === 0)) return hf;
+      const hf = parsePercent(r.hit_factor);
+      const st = parseNumber(r.stage_time);
+      if(hf && ((whf && Math.abs(whf - 100) < 0.01) || st === 0 || !Number.isFinite(st))) return hf;
       const sp = parsePercent(r.stage_percent);
       if(sp) return sp;
       return null;
     }
-    return parsePercent(r.stage_percent);
+    const sp = parsePercent(r.stage_percent);
+    if(sp) return sp;
+    const hf = parseNumber(r.hit_factor);
+    const whf = parseNumber(r.winner_hit_factor);
+    if(hf && whf && whf > 0) return Math.min(100, (hf / whf) * 100);
+    return null;
+  }
+  function stagePercent(r){ if(isOverallRow(r)) return null; return rowPercent(r); }
+  function bestOverallRow(rows){
+    const overall = (rows || []).filter(isOverallRow);
+    if(!overall.length) return null;
+    overall.sort((a,b)=>{
+      const ay = rowYear(a)||0, by = rowYear(b)||0;
+      if(ay !== by) return by-ay;
+      const ap = rowPercent(a)||0, bp = rowPercent(b)||0;
+      return bp-ap;
+    });
+    return overall[0];
   }
   function computeStats(rows){
+    rows = Array.isArray(rows) ? rows : [];
     const yearRows = rows.filter(r => rowYear(r) === YEAR);
     const data = yearRows.length ? yearRows : rows;
     const byMatch = new Map();
@@ -658,8 +745,9 @@
       const stagePercents = nonOverall.map(stagePercent).filter(n=>Number.isFinite(n)&&n>0&&n<=100.0001);
       if(!pct && stagePercents.length) pct = stagePercents.reduce((a,b)=>a+b,0)/stagePercents.length;
       const rank = parseRank(overall?.stage_rank ?? overall?.rank ?? overall?.overall_rank);
-      return { key, name: overall?.match_name || rs[0]?.match_name || 'Match', rank, percent:pct, stageCount:stagePercents.length };
-    });
+      const name = overall?.match_name || rs[0]?.match_name || 'Match';
+      return { key, name, rank, percent:pct, stageCount:stagePercents.length, hasOverall:!!overall };
+    }).filter(m => m.key && (m.hasOverall || m.stageCount || Number.isFinite(m.percent)));
     const ranks=matches.map(m=>m.rank).filter(n=>Number.isFinite(n));
     const top10=ranks.filter(n=>n<=10).length;
     const wins=ranks.filter(n=>n===1).length;
@@ -674,15 +762,17 @@
     state.stats=stats; translateStatic();
     const card=$('season-card-v79o'); if(!card) return;
     setText('season-title-v79o', tr('title',{year:stats?.year||YEAR}));
+    const avgEl=$('season-avgpct-v79p'); if(avgEl) avgEl.classList.add('closest-season-avg-v79y');
     if(!stats || stats.matchCount<=0){
-      card.classList.add('season-empty-v79o');
+      card.classList.add('season-empty-v79o'); card.classList.remove('has-season-data-v79y');
       setText('season-sub-v79o', tr('sub'));
       const st = status || tr('noData');
-      setText('season-status-v79o', st === 'Nicht angemeldet' || st === 'Not signed in' ? tr('notLoggedIn') : (st === 'Nicht bereit' ? tr('notReady') : (st === 'Noch keine Daten' ? tr('noData') : st)));
-      setText('season-empty-text-v79o', (st === 'Nicht angemeldet' || st === 'Not signed in') ? tr('emptyLoggedOut') : tr('emptyNoData'));
+      const normalized = st === 'Nicht angemeldet' || st === 'Not signed in' ? tr('notLoggedIn') : (st === 'Nicht bereit' || st === 'Not ready' ? tr('notReady') : (st === 'Noch keine Daten' || st === 'No data yet' ? tr('noData') : st));
+      setText('season-status-v79o', normalized);
+      setText('season-empty-text-v79o', normalized === tr('notLoggedIn') ? tr('emptyLoggedOut') : tr('emptyNoData'));
       return;
     }
-    card.classList.remove('season-empty-v79o');
+    card.classList.remove('season-empty-v79o'); card.classList.add('has-season-data-v79y');
     setText('season-status-v79o', stats.percentCount || stats.rankCount ? tr('live') : tr('matchesFound'));
     setText('season-sub-v79o', stats.bestName ? tr('best',{name:stats.bestName}) : tr('sub'));
     setText('season-empty-text-v79o','');
@@ -692,72 +782,88 @@
     setText('season-best-v79p', stats.bestPercent ? stats.bestPercent.toFixed(1).replace('.', ',') + '%' : '–');
     setText('season-avgpct-v79p', stats.avgPercent ? stats.avgPercent.toFixed(1).replace('.', ',') + '%' : '–');
   }
+  function shellWindow(){ try { return window.parent && window.parent !== window ? window.parent : null; } catch(_) { return null; } }
+  async function getShellSession(){
+    const p=shellWindow();
+    try{
+      const client = p && p.supabaseClient && p.supabaseClient.auth ? p.supabaseClient : null;
+      if(client){ const res = await client.auth.getSession(); return { client, session: res?.data?.session || null, user: res?.data?.session?.user || p.currentUser || p.__IPSC_SHELL_USER_V78M || null }; }
+    }catch(_){}
+    return { client:null, session:null, user: null };
+  }
   async function load(){
     try{
-      const client = window.supabaseClient || (window.supabase && window.SUPABASE_URL && window.SUPABASE_ANON_KEY ? window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY) : null);
-      if(!client || !client.auth){ render(null, tr('notReady')); return; }
-      const { data: sessionData } = await client.auth.getSession();
-      let user = sessionData?.session?.user || window.currentUser || state.user || window.__IPSC_SHELL_USER_V78M || null;
-      if(!user && window.parent && window.parent!==window){
-        try{ window.parent.postMessage({type:'ipsc-request-auth-v78m'}, window.location.origin); }catch(_){ }
-        await new Promise(resolve=>setTimeout(resolve,350));
-        user = window.currentUser || state.user || window.__IPSC_SHELL_USER_V78M || null;
+      const localClient = window.supabaseClient || (window.supabase && window.SUPABASE_URL && window.SUPABASE_ANON_KEY ? window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY) : null);
+      let queryClient = localClient;
+      let user = window.currentUser || state.user || window.__IPSC_SHELL_USER_V78M || null;
+      if(localClient && localClient.auth){
+        try{ const { data: sessionData } = await localClient.auth.getSession(); if(sessionData?.session?.user){ user = sessionData.session.user; queryClient = localClient; } }catch(_){}
       }
-      if(!user){ render(null, tr('notLoggedIn')); return; }
+      const shell = await getShellSession();
+      if(shell.user){ user = shell.user; if(shell.client) queryClient = shell.client; }
+      if(!user && shellWindow()){
+        try{ shellWindow().postMessage({type:'ipsc-request-auth-v78m'}, window.location.origin); }catch(_){ }
+        await new Promise(resolve=>setTimeout(resolve,500));
+        const shell2 = await getShellSession();
+        if(shell2.user){ user = shell2.user; if(shell2.client) queryClient = shell2.client; }
+      }
+      if(!queryClient || !queryClient.from){ render(null, tr('notReady')); return; }
+      if(!user || !user.id){ render(null, tr('notLoggedIn')); return; }
       state.user = user; window.currentUser = user;
-      const {data,error}=await client.from('user_match_analytics').select('*').eq('user_id', user.id).limit(2000);
+      const {data,error}=await queryClient.from('user_match_analytics').select('*').eq('user_id', user.id).limit(3000);
       if(error) throw error;
       render(computeStats(data || []));
     }catch(err){ console.warn('season card load failed', err); render(null, lang()==='en'?'No data loaded':'Keine Daten geladen'); }
   }
   function roundedRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
   function drawText(ctx,text,x,y,maxWidth,lineHeight){ const words=String(text||'').split(/\s+/); let line=''; for(const word of words){ const test=line?line+' '+word:word; if(ctx.measureText(test).width>maxWidth&&line){ctx.fillText(line,x,y);line=word;y+=lineHeight;} else line=test; } if(line)ctx.fillText(line,x,y); return y; }
+  function arcGauge(ctx,cx,cy,r,value){
+    const start=-Math.PI*0.78, end=Math.PI*0.78, span=end-start;
+    ctx.lineCap='round'; ctx.lineWidth=28; ctx.strokeStyle='rgba(226,232,240,.95)'; ctx.beginPath(); ctx.arc(cx,cy,r,start,end); ctx.stroke();
+    const pct=Math.max(0,Math.min(100,Number(value)||0))/100; const g=ctx.createLinearGradient(cx-r,cy,cx+r,cy); g.addColorStop(0,'#ffb45f'); g.addColorStop(1,'#ff5f00'); ctx.strokeStyle=g; ctx.beginPath(); ctx.arc(cx,cy,r,start,start+span*pct); ctx.stroke(); ctx.lineCap='butt';
+  }
   async function makeBlob(){
     const st=state.stats||{year:YEAR,matchCount:0,top10:0,wins:0,avgPercent:null,bestPercent:null,bestName:''};
     const fmt = v => Number.isFinite(v) ? v.toFixed(1).replace('.', ',') + '%' : '–';
     const canvas=document.createElement('canvas'); canvas.width=1080; canvas.height=1080; const ctx=canvas.getContext('2d');
     const font='-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif';
-    const grad=ctx.createLinearGradient(0,0,1080,1080); grad.addColorStop(0,'#fff7ed'); grad.addColorStop(.55,'#eef6ff'); grad.addColorStop(1,'#ffffff'); ctx.fillStyle=grad; ctx.fillRect(0,0,1080,1080);
-    ctx.fillStyle='rgba(255,122,24,.16)'; ctx.beginPath(); ctx.arc(910,124,188,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='rgba(59,130,246,.11)'; ctx.beginPath(); ctx.arc(130,940,250,0,Math.PI*2); ctx.fill();
-    roundedRect(ctx,58,58,964,964,56); ctx.fillStyle='rgba(255,255,255,.78)'; ctx.fill(); ctx.strokeStyle='rgba(148,163,184,.30)'; ctx.lineWidth=2; ctx.stroke();
-    ctx.fillStyle='#0f172a'; ctx.font='950 54px '+font; ctx.fillText('IPSC Börse',108,145);
-    ctx.fillStyle='#f97316'; ctx.font='950 24px '+font; ctx.fillText((tr('title',{year:st.year})).toUpperCase(),108,198);
-    ctx.fillStyle='#0f172a'; ctx.font='950 72px '+font; drawText(ctx,tr('shareHeadline'),108,292,790,78);
+    const bg=ctx.createLinearGradient(0,0,1080,1080); bg.addColorStop(0,'#fff7ed'); bg.addColorStop(.50,'#eef6ff'); bg.addColorStop(1,'#ffffff'); ctx.fillStyle=bg; ctx.fillRect(0,0,1080,1080);
+    ctx.fillStyle='rgba(255,122,24,.14)'; ctx.beginPath(); ctx.arc(910,140,210,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(59,130,246,.12)'; ctx.beginPath(); ctx.arc(112,950,265,0,Math.PI*2); ctx.fill();
+    roundedRect(ctx,58,58,964,964,58); ctx.fillStyle='rgba(255,255,255,.82)'; ctx.fill(); ctx.strokeStyle='rgba(148,163,184,.34)'; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle='#0f172a'; ctx.font='950 52px '+font; ctx.fillText('IPSC Börse',108,145);
+    ctx.fillStyle='#f97316'; ctx.font='950 25px '+font; ctx.fillText(('MEINE SAISON '+(st.year||YEAR)),108,198);
+    ctx.fillStyle='#0f172a'; ctx.font='950 68px '+font; drawText(ctx,tr('shareHeadline'),108,290,510,72);
+    arcGauge(ctx,800,300,154,st.avgPercent);
+    ctx.fillStyle='#0f172a'; ctx.font='950 62px '+font; ctx.textAlign='center'; ctx.fillText(fmt(st.avgPercent),800,308);
+    ctx.fillStyle='#64748b'; ctx.font='950 22px '+font; ctx.fillText(tr('kAvg').toUpperCase(),800,346); ctx.textAlign='left';
     const cards=[
       [tr('kMatches'),st.matchCount,'#0f172a'],[tr('kTop10'),st.top10,'#0f172a'],
-      [tr('kWins'),st.wins,'#0f172a'],[tr('kBest'),fmt(st.bestPercent),'#0f172a'],
-      [tr('kAvg'),fmt(st.avgPercent),'#f97316']
+      [tr('kWins'),st.wins,'#0f172a'],[tr('kBest'),fmt(st.bestPercent),'#0f172a']
     ];
-    cards.forEach((c,i)=>{
-      const wide=i===4; const x=wide?108:(108+(i%2)*436); const y=410+Math.floor(i/2)*148; const w=wide?836:392; const h=122;
-      roundedRect(ctx,x,y,w,h,28); ctx.fillStyle='rgba(255,255,255,.90)'; ctx.fill(); ctx.strokeStyle='rgba(148,163,184,.34)'; ctx.lineWidth=2; ctx.stroke();
-      ctx.fillStyle=c[2]; ctx.font='950 52px '+font; ctx.fillText(String(c[1]),x+30,y+60);
-      ctx.fillStyle='#64748b'; ctx.font='900 20px '+font; ctx.fillText(String(c[0]).toUpperCase(),x+30,y+96);
-    });
-    if(st.bestName){
-      roundedRect(ctx,108,840,836,72,24); ctx.fillStyle='#0f172a'; ctx.fill();
-      ctx.fillStyle='#fff'; ctx.font='900 24px '+font; drawText(ctx,tr('best',{name:st.bestName}),138,883,780,30);
-    }
-    roundedRect(ctx,108,938,360,58,29); ctx.fillStyle='#0f172a'; ctx.fill(); ctx.fillStyle='#fff'; ctx.font='900 25px '+font; ctx.fillText('ipscboerse.com',136,975);
+    cards.forEach((c,i)=>{ const x=108+(i%2)*436, y=470+Math.floor(i/2)*140, w=392, h=112; roundedRect(ctx,x,y,w,h,26); ctx.fillStyle='rgba(255,255,255,.94)'; ctx.fill(); ctx.strokeStyle='rgba(148,163,184,.32)'; ctx.lineWidth=2; ctx.stroke(); ctx.fillStyle=c[2]; ctx.font='950 48px '+font; ctx.fillText(String(c[1]),x+30,y+55); ctx.fillStyle='#64748b'; ctx.font='900 19px '+font; ctx.fillText(String(c[0]).toUpperCase(),x+30,y+88); });
+    if(st.bestName){ roundedRect(ctx,108,780,836,88,28); ctx.fillStyle='#0f172a'; ctx.fill(); ctx.fillStyle='#fff'; ctx.font='900 24px '+font; drawText(ctx,tr('best',{name:st.bestName}),138,827,780,30); }
+    roundedRect(ctx,108,918,360,60,30); ctx.fillStyle='#0f172a'; ctx.fill(); ctx.fillStyle='#fff'; ctx.font='900 26px '+font; ctx.fillText('ipscboerse.com',136,956);
+    ctx.fillStyle='#f97316'; ctx.font='900 18px '+font; ctx.fillText('VON SCHÜTZEN FÜR SCHÜTZEN',606,956);
     return new Promise(resolve=>canvas.toBlob(resolve,'image/png',.95));
   }
   window.shareSeasonCardV79O = async function(){
-    try{ const blob=await makeBlob(); const file=new File([blob],`IPSC_Boerse_Saison_${YEAR}.png`,{type:'image/png'}); const avg=state.stats?.avgPercent?state.stats.avgPercent.toFixed(1).replace('.', ',')+'%':'–'; const text=tr('shareText',{year:YEAR,matches:state.stats?.matchCount||0,top10:state.stats?.top10||0,wins:state.stats?.wins||0,avg}); if(navigator.canShare&&navigator.canShare({files:[file]})&&navigator.share){await navigator.share({title:tr('shareTitle')+' '+YEAR,text,files:[file]});return;} if(navigator.share){await navigator.share({title:tr('shareTitle')+' '+YEAR,text});return;} const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500); }catch(err){ console.warn('share season failed',err); alert(lang()==='en'?'Sharing did not work.':'Teilen hat nicht geklappt.'); }
+    try{ await load(); const blob=await makeBlob(); const file=new File([blob],`IPSC_Boerse_Saison_${YEAR}.png`,{type:'image/png'}); const avg=state.stats?.avgPercent?state.stats.avgPercent.toFixed(1).replace('.', ',')+'%':'–'; const text=tr('shareText',{year:YEAR,matches:state.stats?.matchCount||0,top10:state.stats?.top10||0,wins:state.stats?.wins||0,avg}); if(navigator.canShare&&navigator.canShare({files:[file]})&&navigator.share){await navigator.share({title:tr('shareTitle')+' '+YEAR,text,files:[file]});return;} if(navigator.share){await navigator.share({title:tr('shareTitle')+' '+YEAR,text});return;} const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500); }catch(err){ console.warn('share season failed',err); alert(lang()==='en'?'Sharing did not work.':'Teilen hat nicht geklappt.'); }
   };
   function receiveUser(user){ if(user){ state.user=user; window.currentUser=user; } }
   function reload(){ translateStatic(); setTimeout(load,40); setTimeout(load,650); }
-  document.addEventListener('DOMContentLoaded', function(){ translateStatic(); try{ if(window.parent&&window.parent!==window) window.parent.postMessage({type:'ipsc-request-auth-v78m'}, window.location.origin); }catch(_){} setTimeout(load,180); setTimeout(load,850); setTimeout(load,1900); });
+  document.addEventListener('DOMContentLoaded', function(){ translateStatic(); try{ if(shellWindow()) shellWindow().postMessage({type:'ipsc-request-auth-v78m'}, window.location.origin); }catch(_){} setTimeout(load,120); setTimeout(load,700); setTimeout(load,1700); });
   ['ipsc-auth-changed','ipsc:auth-changed-v79t','ipsc:oauth-login-complete','ipsc:shell-auth-updated-v77e','ipsc:language-change-v79r','ipsc:language-change-v78d'].forEach(ev=>window.addEventListener(ev,function(e){ receiveUser(e.detail&&e.detail.user); reload(); }));
   window.addEventListener('message', function(event){ if(event.origin&&event.origin!==window.location.origin&&event.source!==window.parent)return; const msg=event.data||{}; if(msg.type==='ipsc-auth-session-v78l'&&msg.user){ receiveUser(msg.user); reload(); } if(msg.type==='ipsc-auth-refresh-v78d'){ reload(); } if(msg.type==='ipsc-auth-logout-v78d'){ state.user=null; window.currentUser=null; render(null,tr('notLoggedIn')); } if(msg.type==='ipsc-language-v78d'){ reload(); } });
   document.addEventListener('visibilitychange', function(){ if(!document.hidden) reload(); });
 })();
 </script>
 
+
     <script>
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {
-                navigator.serviceWorker.register("sw.js?v=79x")
+                navigator.serviceWorker.register("sw.js?v=79y")
                     .then(reg => console.log("PWA Service Worker registriert!", reg.scope))
                     .catch(err => console.error("PWA Fehler:", err));
             });
@@ -869,8 +975,42 @@
     const favs=getFavs();
     box.innerHTML=choices.map(c=>`<button type="button" class="${favs.includes(c.id)?'selected':''}" data-id="${c.id}" onclick="toggleFavoriteV76('${c.id}')">${iconHtml(c)}<div><strong>${t(c.title)}</strong><small>${t(c.sub)}</small></div></button>`).join('');
   }
-  window.openFavoritesV76=function(){ renderOptions(); const modal=document.getElementById('favorites-modal-v76'); if(modal){ modal.classList.add('show'); modal.setAttribute('aria-hidden','false'); modal.style.display='flex'; modal.style.alignItems='center'; modal.style.justifyContent='center'; } };
-  window.closeFavoritesV76=function(){ const modal=document.getElementById('favorites-modal-v76'); if(modal){ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); modal.style.display=''; } };
+  
+window.openFavoritesV76=function(){
+    renderOptions();
+    const modal=document.getElementById('favorites-modal-v76');
+    if(modal){
+      try { document.body.appendChild(modal); } catch(_) {}
+      document.body.classList.add('favorites-open-v79y');
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden','false');
+      const vv = window.visualViewport;
+      const h = Math.max(320, Math.round((vv && vv.height) || window.innerHeight || document.documentElement.clientHeight || 640));
+      modal.style.setProperty('position','fixed','important');
+      modal.style.setProperty('inset','0','important');
+      modal.style.setProperty('top','0','important');
+      modal.style.setProperty('left','0','important');
+      modal.style.setProperty('width','100vw','important');
+      modal.style.setProperty('height', h + 'px','important');
+      modal.style.setProperty('display','flex','important');
+      modal.style.setProperty('align-items','center','important');
+      modal.style.setProperty('justify-content','center','important');
+      modal.style.setProperty('overflow','hidden','important');
+      modal.style.setProperty('z-index','2147483600','important');
+      const sheet = modal.querySelector('.favorites-sheet-v76');
+      if(sheet){
+        sheet.style.setProperty('margin','0 auto','important');
+        sheet.style.setProperty('transform','none','important');
+        sheet.style.setProperty('max-height', Math.max(320, h - 160) + 'px','important');
+      }
+    }
+  };
+  window.closeFavoritesV76=function(){
+    const modal=document.getElementById('favorites-modal-v76');
+    document.body.classList.remove('favorites-open-v79y');
+    if(modal){ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); modal.style.display=''; modal.style.height=''; }
+  };
+
   window.toggleFavoriteV76=function(id){
     let favs=getFavs();
     if(favs.includes(id)) favs=favs.filter(x=>x!==id); else { if(favs.length>=3) favs.shift(); favs.push(id); }
@@ -904,7 +1044,7 @@
   setTimeout(apply,200); setTimeout(apply,1000);
 })();
 </script>
-    <script src="release-i18n-v78s.js?v=79x"></script>
-    <script src="release-i18n-v78u.js?v=79x"></script>
+    <script src="release-i18n-v78s.js?v=79y"></script>
+    <script src="release-i18n-v78u.js?v=79y"></script>
 </body>
 </html>

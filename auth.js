@@ -183,9 +183,9 @@ async function chooseNativeImageSourceV79x() {
     const isEn = (window.currentLang || localStorage.getItem("selectedLanguage") || "de") === "en";
     return await new Promise(resolve => {
         const backdrop = document.createElement("div");
-        backdrop.className = "native-photo-sheet-backdrop-v79x";
+        backdrop.className = "native-photo-sheet-backdrop-v79y";
         backdrop.innerHTML = `
-            <div class="native-photo-sheet-v79x" role="dialog" aria-modal="true">
+            <div class="native-photo-sheet-v79y" role="dialog" aria-modal="true">
                 <strong>${isEn ? "Profile photo" : "Profilbild ändern"}</strong>
                 <p>${isEn ? "Choose a source for your new profile photo." : "Wähle aus, woher dein neues Profilbild kommen soll."}</p>
                 <button type="button" class="primary" data-choice="PHOTOS">${isEn ? "Choose from photos" : "Aus Fotos wählen"}</button>
