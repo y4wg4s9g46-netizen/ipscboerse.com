@@ -19,7 +19,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/4-hollenstedter-ipsc-match-2026-980f1063af66.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:07Z",
+    "scraped_at": "2026-06-26T17:59:51Z",
     "original_image_url": "https://hollenstedter-sv.de/wp-content/uploads/2025/09/ipsc-team-logo-2025.png"
   },
   {
@@ -42,7 +42,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:06Z"
+    "scraped_at": "2026-06-26T17:59:50Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=Pfingstmatch_Handgun_SG_Raisdorf_2026",
@@ -64,7 +64,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/pfingstmatch-sg-raisdorf-2026-a00ef66c93ae.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:07Z",
+    "scraped_at": "2026-06-26T17:59:50Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/8/8b/Logo-Raisdorf-2018-200-removebg-preview.png"
   },
   {
@@ -87,7 +87,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:07Z"
+    "scraped_at": "2026-06-26T17:59:50Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=Helmbrechts_Cup_2026",
@@ -109,7 +109,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/helmbrechts-cup-2026-terminator-i-ll-be-back-ad8b9b48f3bb.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:06Z",
+    "scraped_at": "2026-06-26T17:59:48Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/3/37/Helmbrechts.png"
   },
   {
@@ -132,7 +132,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/bodensee-thunder-in-paradise-pcc-810ef753da83.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:06Z",
+    "scraped_at": "2026-06-26T17:59:49Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/1/16/Mw_header_t.png"
   },
   {
@@ -155,7 +155,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/bodensee-thunder-in-paradise-810ef753da83.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:06Z",
+    "scraped_at": "2026-06-26T17:59:49Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/1/16/Mw_header_t.png"
   },
   {
@@ -178,7 +178,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/berlin-llz-summer-breeze-cup-3-level-ii-match-2026-9aeb23d736d0.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:06Z",
+    "scraped_at": "2026-06-26T17:59:49Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/c/ca/Lv1-2.png"
   },
   {
@@ -201,7 +201,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/schuetzenverein-floetzinger-loechl-6-26-sommermatch-dbfeb88a7b36.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:05Z",
+    "scraped_at": "2026-06-26T17:59:48Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/f/f1/Flo-Lo.jpeg"
   },
   {
@@ -224,7 +224,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:05Z"
+    "scraped_at": "2026-06-26T17:59:48Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_Level_II_Series_Hard_to_shoot_IV",
@@ -246,7 +246,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:05Z"
+    "scraped_at": "2026-06-26T17:59:48Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=VORTEX_CUP_2026_IPSC_Rifle",
@@ -265,11 +265,10 @@
     "discipline": "RF",
     "url": "https://www.ipscmatch.de/index.pl?match=VORTEX_CUP_2026_IPSC_Rifle",
     "source_url": "https://www.ipscmatch.de/index.pl?match=VORTEX_CUP_2026_IPSC_Rifle",
-    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/vortex-cup-2026-ipsc-rifle-6ff888ced3f0.jpg",
+    "image_url": "https://ipscmatch.de/wiki/images/5/5c/Vortex.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:03Z",
-    "original_image_url": "https://ipscmatch.de/wiki/images/5/5c/Vortex.jpg"
+    "scraped_at": "2026-06-26T17:59:46Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_Summer_Cup_Guyane",
@@ -291,7 +290,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:04Z"
+    "scraped_at": "2026-06-26T17:59:46Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_LV12_HG",
@@ -310,10 +309,11 @@
     "discipline": "HG",
     "url": "https://www.ipscmatch.de/index.pl?match=2026_LV12_HG",
     "source_url": "https://www.ipscmatch.de/index.pl?match=2026_LV12_HG",
-    "image_url": "https://ipscmatch.de/wiki/images/d/d7/LOGO_LV12_KE15.jpeg",
+    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/offene-lm-lv12-ipsc-handgun-2026-29e7882b1774.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:04Z"
+    "scraped_at": "2026-06-26T17:59:46Z",
+    "original_image_url": "https://ipscmatch.de/wiki/images/d/d7/LOGO_LV12_KE15.jpeg"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_IPSC_BSV_HG-3",
@@ -335,7 +335,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:04Z"
+    "scraped_at": "2026-06-26T17:59:47Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_Flosswald_Summer_Cup",
@@ -357,7 +357,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:04Z"
+    "scraped_at": "2026-06-26T17:59:47Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_FSG_Schongau_-_Quartalsmatch_2-26",
@@ -379,7 +379,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/fsg-schongau-quartalsmatch-2-26-3b2cdf811267.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:04Z",
+    "scraped_at": "2026-06-26T17:59:47Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/4/47/FSG_Logo.png"
   },
   {
@@ -402,7 +402,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/estenfeld-beginners-take-v-b4f8a3bf22e0.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:05Z",
+    "scraped_at": "2026-06-26T17:59:47Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/7/79/EstenfeldBeginnersV.png"
   },
   {
@@ -425,7 +425,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/estenfeld-pcc-take-i-6c069e8d220c.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:03Z",
+    "scraped_at": "2026-06-26T17:59:45Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/6/68/Logo_SGE.png"
   },
   {
@@ -448,7 +448,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:03Z"
+    "scraped_at": "2026-06-26T17:59:45Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_LM_M-V_Handgun",
@@ -470,7 +470,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/landesmeisterschaft-m-v-handgun-2026-9a021fb5b2cf.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:03Z",
+    "scraped_at": "2026-06-26T17:59:45Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/a/a1/BDS-LV10-Logo.png"
   },
   {
@@ -493,7 +493,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/psc-fastsummer-6-0-2235c95b0838.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:02Z",
+    "scraped_at": "2026-06-26T17:59:44Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/7/7c/PSC_Logo.jpg"
   },
   {
@@ -516,7 +516,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:02Z"
+    "scraped_at": "2026-06-26T17:59:45Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_German_Handgun_Part_I",
@@ -538,7 +538,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:02Z"
+    "scraped_at": "2026-06-26T17:58:26Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_offene_Landesmeisterschaft_IPSC_LV11",
@@ -560,7 +560,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/offene-landesmeisterschaft-lv11-ab92311680ee.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:02Z",
+    "scraped_at": "2026-06-26T17:58:27Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/1/17/Logo_BDS_LV11.png"
   },
   {
@@ -583,7 +583,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:03Z"
+    "scraped_at": "2026-06-26T17:58:27Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_GUNSANDROSES_HG",
@@ -605,7 +605,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/guns-and-roses-handgun-2026-a36d9f6abe5e.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:05Z",
+    "scraped_at": "2026-06-26T17:58:30Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/8/8c/Logo_Guns_n_Roses_2026.jpg"
   },
   {
@@ -628,7 +628,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/guns-and-roses-pcc-2026-a36d9f6abe5e.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:07Z",
+    "scraped_at": "2026-06-26T17:58:33Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/8/8c/Logo_Guns_n_Roses_2026.jpg"
   },
   {
@@ -651,7 +651,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:08Z"
+    "scraped_at": "2026-06-26T17:58:35Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=Saarpfalz_Cup_KK-Handgun_2026",
@@ -673,7 +673,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/saarpfalz-cup-kk-handgun-2026-sidematch-mr-fbda38d29d82.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:09Z",
+    "scraped_at": "2026-06-26T17:58:35Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/e/ed/Finish_SVH_IPSC_Logo_PNG.png"
   },
   {
@@ -693,10 +693,11 @@
     "discipline": "HG, PCC",
     "url": "https://www.ipscmatch.de/index.pl?match=2026_Airbase_Open_The_Grand_Slam_2025_sponsored_by",
     "source_url": "https://www.ipscmatch.de/index.pl?match=2026_Airbase_Open_The_Grand_Slam_2025_sponsored_by",
-    "image_url": "https://ipscmatch.de/wiki/images/3/34/ASR-Wiechlice-2i.png",
+    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/airbase-open-the-grand-slam-2026-hg-and-pcc-f96f26e3780f.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:11Z"
+    "scraped_at": "2026-06-26T17:58:37Z",
+    "original_image_url": "https://ipscmatch.de/wiki/images/3/34/ASR-Wiechlice-2i.png"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_Guga_Ribas_Cup",
@@ -704,9 +705,9 @@
     "datum": "12.07.2026",
     "auslastung": "84%",
     "occupancy_percent": 84,
-    "has_free_slots": false,
-    "availability_status": "closed",
-    "availability_label": "Anmeldung geschlossen",
+    "has_free_slots": true,
+    "availability_status": "checked_free",
+    "availability_label": "Freie Plätze erkannt (84 %)",
     "registration_status": "endgültig",
     "region": "FRA",
     "country": "FRA",
@@ -715,11 +716,10 @@
     "discipline": "HG, PCC",
     "url": "https://www.ipscmatch.de/index.pl?match=2026_Guga_Ribas_Cup",
     "source_url": "https://www.ipscmatch.de/index.pl?match=2026_Guga_Ribas_Cup",
-    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/guga-ribas-cup-2026-7d3361ffa48b.jpg",
+    "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:12Z",
-    "original_image_url": "https://ipscmatch.de/wiki/images/0/05/20180618-0_GR%28%C3%8DCONE%29.png"
+    "scraped_at": "2026-06-26T17:58:37Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_The_Foxs_Fourth",
@@ -741,7 +741,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:12Z"
+    "scraped_at": "2026-06-26T17:58:39Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_Level_II_Series_Moving_Targets_VII",
@@ -763,7 +763,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/level-ii-series-moving-target-vii-2026-e9896fc3c648.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:13Z",
+    "scraped_at": "2026-06-26T17:58:40Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/b/b1/Logo_Oliver_Winkler.png"
   },
   {
@@ -786,7 +786,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:13Z"
+    "scraped_at": "2026-06-26T17:58:40Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_German_Handgun_Part_II",
@@ -808,7 +808,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:14Z"
+    "scraped_at": "2026-06-26T17:58:41Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_3._PengPeng_Parchim_HG",
@@ -830,7 +830,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:14Z"
+    "scraped_at": "2026-06-26T17:58:41Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=6th_IPSC_Level_II_Match_2026",
@@ -849,11 +849,10 @@
     "discipline": "HG",
     "url": "https://www.ipscmatch.de/index.pl?match=6th_IPSC_Level_II_Match_2026",
     "source_url": "https://www.ipscmatch.de/index.pl?match=6th_IPSC_Level_II_Match_2026",
-    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/6th-ipsc-level-ii-match-22ae90a4ad1b.jpg",
+    "image_url": "https://ipscmatch.de/wiki/images/4/46/Logo_GCU_e.V._Lorbeerkranz.JPG",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:14Z",
-    "original_image_url": "https://ipscmatch.de/wiki/images/4/46/Logo_GCU_e.V._Lorbeerkranz.JPG"
+    "scraped_at": "2026-06-26T17:58:42Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_10._Target_and_Friends_Vereinsmatch",
@@ -875,7 +874,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/10-target-friends-vereinsmatch-8015d4960233.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:15Z",
+    "scraped_at": "2026-06-26T17:58:42Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/4/47/PSG-IPSC-180x200.png"
   },
   {
@@ -898,7 +897,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/summer-breeze-2026-bc981d378869.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:15Z",
+    "scraped_at": "2026-06-26T17:58:42Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/4/48/Logo_-_Eagles.jpg"
   },
   {
@@ -921,7 +920,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/rlp-shotgun-cup-2026-df9c0c570ed7.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:17Z",
+    "scraped_at": "2026-06-26T17:58:44Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/6/60/LV5_Logo.png"
   },
   {
@@ -941,11 +940,10 @@
     "discipline": "HG",
     "url": "https://www.ipscmatch.de/index.pl?match=2026_Siegerland_Challenge",
     "source_url": "https://www.ipscmatch.de/index.pl?match=2026_Siegerland_Challenge",
-    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/siegerland-challenge-part-i-2523e9e3ec61.jpg",
+    "image_url": "https://ipscmatch.de/wiki/images/7/79/Logo_Bum_Bum_Buddies.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:18Z",
-    "original_image_url": "https://ipscmatch.de/wiki/images/7/79/Logo_Bum_Bum_Buddies.jpg"
+    "scraped_at": "2026-06-26T17:58:45Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_HC_LV6",
@@ -967,7 +965,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/19-ipsc-hessen-cup-2026-d9b2a1d6a2cf.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:19Z",
+    "scraped_at": "2026-06-26T17:58:47Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/6/61/Logo-Weiss.png"
   },
   {
@@ -990,7 +988,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/svh-summerrange-minirifle-2026-fbda38d29d82.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:20Z",
+    "scraped_at": "2026-06-26T17:58:49Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/e/ed/Finish_SVH_IPSC_Logo_PNG.png"
   },
   {
@@ -1013,7 +1011,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:21Z"
+    "scraped_at": "2026-06-26T17:58:50Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_VM_Thueringen",
@@ -1032,11 +1030,10 @@
     "discipline": "HG",
     "url": "https://www.ipscmatch.de/index.pl?match=2026_VM_Thueringen",
     "source_url": "https://www.ipscmatch.de/index.pl?match=2026_VM_Thueringen",
-    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/thuringian-open-offene-lm-handgun-lv-13-2026-334d54e4703a.jpg",
+    "image_url": "https://ipscmatch.de/wiki/images/9/9f/Target-Loewe-frei.gif",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:21Z",
-    "original_image_url": "https://ipscmatch.de/wiki/images/9/9f/Target-Loewe-frei.gif"
+    "scraped_at": "2026-06-26T17:58:51Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_German_PCC",
@@ -1058,7 +1055,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:22Z"
+    "scraped_at": "2026-06-26T17:58:51Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_3oak_FaF",
@@ -1067,8 +1064,8 @@
     "auslastung": "100%",
     "occupancy_percent": 100,
     "has_free_slots": false,
-    "availability_status": "full",
-    "availability_label": "Voll / 100 %",
+    "availability_status": "closed",
+    "availability_label": "Anmeldung geschlossen",
     "registration_status": "endgültig",
     "region": "GER",
     "country": "GER",
@@ -1080,7 +1077,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/3oak-vm-2026-d08a8dd23eab.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:22Z",
+    "scraped_at": "2026-06-26T17:58:52Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/8/88/3oak_neu_Logo.png"
   },
   {
@@ -1103,7 +1100,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/power-powder-bill-baby-drill-2026-8263c91afa8c.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:22Z",
+    "scraped_at": "2026-06-26T17:58:52Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/2/24/Powerandpowderlogo.png"
   },
   {
@@ -1123,11 +1120,10 @@
     "discipline": "HG",
     "url": "https://www.ipscmatch.de/index.pl?match=2026_5_Hollenstedter-Vereinsmatch_2026",
     "source_url": "https://www.ipscmatch.de/index.pl?match=2026_5_Hollenstedter-Vereinsmatch_2026",
-    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/5-hollenstedter-ipsc-match-1st-level-2-c5b1b6fc13dc.jpg",
+    "image_url": "https://ipscmatch.de/wiki/images/7/75/Patch-ipsc.png",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:23Z",
-    "original_image_url": "https://ipscmatch.de/wiki/images/7/75/Patch-ipsc.png"
+    "scraped_at": "2026-06-26T17:58:54Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_FSG_Schongau_-_Quartalsmatch_3-26",
@@ -1149,7 +1145,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/fsg-schongau-quartalsmatch-3-26-3b2cdf811267.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:24Z",
+    "scraped_at": "2026-06-26T17:58:55Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/4/47/FSG_Logo.png"
   },
   {
@@ -1172,7 +1168,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/shotgun-cup-2026-f46b6962f0b3.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:25Z",
+    "scraped_at": "2026-06-26T17:58:56Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/1/1f/HPPC.png"
   },
   {
@@ -1195,7 +1191,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/marzipan-pokal-2026-01c03f55f27a.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:26Z",
+    "scraped_at": "2026-06-26T17:58:58Z",
     "original_image_url": "http://range-events.de/bilder/alpha4lution.png"
   },
   {
@@ -1215,11 +1211,10 @@
     "discipline": "HG",
     "url": "https://www.ipscmatch.de/index.pl?match=12._Mayence_Open_2026",
     "source_url": "https://www.ipscmatch.de/index.pl?match=12._Mayence_Open_2026",
-    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/12-mayence-open-2026-e9eb966b4e2b.jpg",
+    "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:26Z",
-    "original_image_url": "https://ipscmatch.de/wiki/images/f/f8/MSG-LOGO.jpg"
+    "scraped_at": "2026-06-26T17:58:58Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_2nd_Sportshooter_Cup",
@@ -1241,7 +1236,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/2nd-sportshooter-cup-2026-c75bac316b0f.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:27Z",
+    "scraped_at": "2026-06-26T17:59:00Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/2/2b/Sportshootercup.jpg"
   },
   {
@@ -1261,11 +1256,10 @@
     "discipline": "HG",
     "url": "https://www.ipscmatch.de/index.pl?match=ISSC_Rookie_Cup_2026",
     "source_url": "https://www.ipscmatch.de/index.pl?match=ISSC_Rookie_Cup_2026",
-    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/issc-rookie-cup-2026-00e9cc4c3c30.jpg",
+    "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:28Z",
-    "original_image_url": "https://ipscmatch.de/wiki/images/f/fa/ISSC.jpg"
+    "scraped_at": "2026-06-26T17:59:00Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_Hubertus_Summercup_Handgun",
@@ -1287,7 +1281,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/hubertus-summercup-2026-handgun-9d9f534f0fab.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:28Z",
+    "scraped_at": "2026-06-26T17:59:01Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/d/df/Hubertus_WND.jpg"
   },
   {
@@ -1310,7 +1304,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/hubertus-summercup-2026-pcc-9d9f534f0fab.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:29Z",
+    "scraped_at": "2026-06-26T17:59:01Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/d/df/Hubertus_WND.jpg"
   },
   {
@@ -1333,7 +1327,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:29Z"
+    "scraped_at": "2026-06-26T17:59:01Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_ALLSTARS_2026",
@@ -1355,7 +1349,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/psc-all-stars-2026-04ebfa37688c.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:30Z",
+    "scraped_at": "2026-06-26T17:59:02Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/d/dc/ALLstars2.jpg"
   },
   {
@@ -1375,11 +1369,10 @@
     "discipline": "PCC",
     "url": "https://www.ipscmatch.de/index.pl?match=2026_Level_II_Series_PCC_Beginners_II",
     "source_url": "https://www.ipscmatch.de/index.pl?match=2026_Level_II_Series_PCC_Beginners_II",
-    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/level-ii-series-pcc-beginners-ii-2026-e9896fc3c648.jpg",
+    "image_url": "https://ipscmatch.de/wiki/images/b/b1/Logo_Oliver_Winkler.png",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:30Z",
-    "original_image_url": "https://ipscmatch.de/wiki/images/b/b1/Logo_Oliver_Winkler.png"
+    "scraped_at": "2026-06-26T17:59:03Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=11.Muensterland-Match_2026",
@@ -1401,7 +1394,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/11-muensterland-match-1d834c592824.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:31Z",
+    "scraped_at": "2026-06-26T17:59:04Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/2/29/SG_Münster_eV.jpg"
   },
   {
@@ -1424,7 +1417,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/berlin-shotgun-cup-2026-9aeb23d736d0.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:31Z",
+    "scraped_at": "2026-06-26T17:59:04Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/c/ca/Lv1-2.png"
   },
   {
@@ -1447,7 +1440,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:32Z"
+    "scraped_at": "2026-06-26T17:59:05Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=Landesmeisterschaft_LV7_HG_2026",
@@ -1469,7 +1462,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/landesmeisterschaft-lv7-2026-handgun-b91ee092f1c6.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:32Z",
+    "scraped_at": "2026-06-26T17:59:05Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/4/45/GWVBW.jpg"
   },
   {
@@ -1492,7 +1485,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/altlaender-apfelmatch-2026-9f71dafa94ee.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:32Z",
+    "scraped_at": "2026-06-26T17:59:06Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/4/49/Logo_SV_HTw_ohne_Titel.png"
   },
   {
@@ -1515,7 +1508,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/the-hunger-games-2026-54bb8e599489.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:33Z",
+    "scraped_at": "2026-06-26T17:59:06Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/e/e6/Logo_LSG.jpg"
   },
   {
@@ -1538,7 +1531,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:33Z"
+    "scraped_at": "2026-06-26T17:59:06Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_CVL_Cup_2026",
@@ -1560,7 +1553,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/cvl-cup-2026-118dc1d2119e.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:34Z",
+    "scraped_at": "2026-06-26T17:59:07Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/9/92/Logo_CVL_Cup_2024.jpeg"
   },
   {
@@ -1583,7 +1576,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:34Z"
+    "scraped_at": "2026-06-26T17:59:07Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_NRW-Fenix-Trophy",
@@ -1605,7 +1598,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/fenix-nrw-trophy-2026-bbe38f695984.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:35Z",
+    "scraped_at": "2026-06-26T17:59:08Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/5/56/Fenix-Logo-800.jpg"
   },
   {
@@ -1628,7 +1621,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/adeje-shooters-cup-f439b512bce7.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:35Z",
+    "scraped_at": "2026-06-26T17:59:09Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/e/e2/Logo_ASC.jpg"
   },
   {
@@ -1651,7 +1644,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/15th-geco-ipsc-masters-d15631f030c4.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:37Z",
+    "scraped_at": "2026-06-26T17:59:11Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/e/e8/GECO_logo_R_freigestellt.png"
   },
   {
@@ -1674,7 +1667,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/dvc-cup-2026-a3f77b59a4fb.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:39Z",
+    "scraped_at": "2026-06-26T17:59:13Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/b/b7/Gickel.jpg"
   },
   {
@@ -1694,21 +1687,20 @@
     "discipline": "PCC",
     "url": "https://www.ipscmatch.de/index.pl?match=HCPCC-2026",
     "source_url": "https://www.ipscmatch.de/index.pl?match=HCPCC-2026",
-    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/helmbrechts-cup-pcc-herbst-2026-lm-ass-thueringen-ad8b9b48f3bb.jpg",
+    "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:39Z",
-    "original_image_url": "https://ipscmatch.de/wiki/images/3/37/Helmbrechts.png"
+    "scraped_at": "2026-06-26T17:59:13Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=BUL_Germany_Cup_2026",
     "name": "BUL Germany Cup 2026",
     "datum": "11.10.2026",
-    "auslastung": "99%",
-    "occupancy_percent": 99,
-    "has_free_slots": true,
-    "availability_status": "checked_free",
-    "availability_label": "Freie Plätze erkannt (99 %)",
+    "auslastung": "100%",
+    "occupancy_percent": 100,
+    "has_free_slots": false,
+    "availability_status": "full",
+    "availability_label": "Voll / 100 %",
     "registration_status": "endgültig",
     "region": "GER",
     "country": "GER",
@@ -1720,7 +1712,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:40Z"
+    "scraped_at": "2026-06-26T17:59:14Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_HCHL-Herbst",
@@ -1739,11 +1731,10 @@
     "discipline": "HG",
     "url": "https://www.ipscmatch.de/index.pl?match=2026_HCHL-Herbst",
     "source_url": "https://www.ipscmatch.de/index.pl?match=2026_HCHL-Herbst",
-    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/helmbrechts-cup-half-life-herbst-2026-ad8b9b48f3bb.jpg",
+    "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:40Z",
-    "original_image_url": "https://ipscmatch.de/wiki/images/3/37/Helmbrechts.png"
+    "scraped_at": "2026-06-26T17:59:14Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_Roissy_Pim_Pim_Cup",
@@ -1765,7 +1756,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:41Z"
+    "scraped_at": "2026-06-26T17:59:15Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_V_Extreme_Adeje_Shooters",
@@ -1787,7 +1778,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/v-extreme-adeje-shooters-f439b512bce7.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:41Z",
+    "scraped_at": "2026-06-26T17:59:16Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/e/e2/Logo_ASC.jpg"
   },
   {
@@ -1810,7 +1801,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/hubertus-shotguncup-2026-9d9f534f0fab.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:41Z",
+    "scraped_at": "2026-06-26T17:59:17Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/d/df/Hubertus_WND.jpg"
   },
   {
@@ -1833,7 +1824,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/level-ii-series-beginners-ix-2026-e9896fc3c648.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:42Z",
+    "scraped_at": "2026-06-26T17:59:18Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/b/b1/Logo_Oliver_Winkler.png"
   },
   {
@@ -1856,7 +1847,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/360-pcc-powered-by-3g-375b53ef9b03.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:43Z",
+    "scraped_at": "2026-06-26T17:59:18Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/9/9d/CLE_-_360_Logo.jpg"
   },
   {
@@ -1879,7 +1870,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/360-powered-by-3g-375b53ef9b03.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:43Z",
+    "scraped_at": "2026-06-26T17:59:19Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/9/9d/CLE_-_360_Logo.jpg"
   },
   {
@@ -1902,7 +1893,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/7th-ipsc-level-ii-match-f9b5c1e1dc9b.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:44Z",
+    "scraped_at": "2026-06-26T17:59:20Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/f/fa/Level_II_Match_Ulm.jpg"
   },
   {
@@ -1922,11 +1913,10 @@
     "discipline": "HG",
     "url": "https://www.ipscmatch.de/index.pl?match=2026_Transilvania",
     "source_url": "https://www.ipscmatch.de/index.pl?match=2026_Transilvania",
-    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/sds-e-v-transilvania-2cbc8473d079.jpg",
+    "image_url": "https://ipscmatch.de/wiki/images/d/dd/Sponsor_RK_400x512.png",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:44Z",
-    "original_image_url": "https://ipscmatch.de/wiki/images/d/dd/Sponsor_RK_400x512.png"
+    "scraped_at": "2026-06-26T17:59:20Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_VDS_meets_SNS_vol.9",
@@ -1948,7 +1938,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/vds-meets-sns-vol-9-918f94c091cc.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:45Z",
+    "scraped_at": "2026-06-26T17:59:21Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/c/cf/Flyer_VDS_meets_SNS_Vol._9.png"
   },
   {
@@ -1971,7 +1961,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/vertus-winter-trophy-2026-23d3bce6c0fc.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:45Z",
+    "scraped_at": "2026-06-26T17:59:22Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/9/9f/STCV_-_LOGO.png"
   },
   {
@@ -1994,7 +1984,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:46Z"
+    "scraped_at": "2026-06-26T17:59:23Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=33rd_Ironhands_2026",
@@ -2016,7 +2006,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/33rd-ironhands-4a62e1db4a35.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:47Z",
+    "scraped_at": "2026-06-26T17:59:23Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/e/e5/Logo-Farbig2-212x300.jpg"
   },
   {
@@ -2039,7 +2029,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/offene-lm-lv12-ipsc-mini-rifle-2026-29e7882b1774.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:48Z",
+    "scraped_at": "2026-06-26T17:59:25Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/d/d7/LOGO_LV12_KE15.jpeg"
   },
   {
@@ -2062,7 +2052,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:49Z"
+    "scraped_at": "2026-06-26T17:59:26Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_4_KKS_PCC_Cup",
@@ -2084,7 +2074,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/4-karlstadt-pcc-cup-bed464ec3a70.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:49Z",
+    "scraped_at": "2026-06-26T17:59:26Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/c/c0/KKS_Logo_square_750.gif"
   },
   {
@@ -2107,7 +2097,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/fort-lier-crazy-business-18th-edition-efbfe403d21a.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:50Z",
+    "scraped_at": "2026-06-26T17:59:27Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/f/f6/Fort_Lier_logo.gif"
   },
   {
@@ -2130,7 +2120,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/2nd-hel-l-vetic-challenge-a62b9f793bc2.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:50Z",
+    "scraped_at": "2026-06-26T17:59:28Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/d/d7/2nd_Hellvetic.jpeg"
   },
   {
@@ -2153,7 +2143,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/11th-psc-challenge-2026-efe946332707.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:51Z",
+    "scraped_at": "2026-06-26T17:59:29Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/7/73/Flyer_IPSC_Challenge_11.jpg"
   },
   {
@@ -2176,7 +2166,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/bodensee-vikings-810ef753da83.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:51Z",
+    "scraped_at": "2026-06-26T17:59:29Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/1/16/Mw_header_t.png"
   },
   {
@@ -2199,7 +2189,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/berlin-llz-weihnachts-cup-5-level-ii-match-9aeb23d736d0.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:52Z",
+    "scraped_at": "2026-06-26T17:59:30Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/c/ca/Lv1-2.png"
   },
   {
@@ -2222,7 +2212,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/fsc-weihnachtsmatch-2026-0479ee924114.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:52Z",
+    "scraped_at": "2026-06-26T17:59:30Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/8/8e/FSChemnitz.jpg"
   },
   {
@@ -2245,7 +2235,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:52Z"
+    "scraped_at": "2026-06-26T17:59:30Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=1st_M-Arms_Elite_Cup_2026",
@@ -2267,7 +2257,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/1st-m-arms-elite-cup-2026-0ec668a88a2c.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:54Z",
+    "scraped_at": "2026-06-26T17:59:32Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/a/ae/M-Arms-LOGO_700.png"
   },
   {
@@ -2290,7 +2280,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:54Z"
+    "scraped_at": "2026-06-26T17:59:33Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=Christkindmatch_2026",
@@ -2312,7 +2302,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/christkindmatch-2026-48d007b2a56d.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:54Z",
+    "scraped_at": "2026-06-26T17:59:33Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/9/91/FS-Logo_800.gif"
   },
   {
@@ -2335,7 +2325,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:55Z"
+    "scraped_at": "2026-06-26T17:59:34Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2026_Power_and_Powder_3",
@@ -2357,7 +2347,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/power-powder-flying-reindeer-2026-8263c91afa8c.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:55Z",
+    "scraped_at": "2026-06-26T17:59:35Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/2/24/Powerandpowderlogo.png"
   },
   {
@@ -2380,7 +2370,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/lm-lv4-2027-prd-pdo-e9896fc3c648.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:56Z",
+    "scraped_at": "2026-06-26T17:59:35Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/b/b1/Logo_Oliver_Winkler.png"
   },
   {
@@ -2403,7 +2393,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:56Z"
+    "scraped_at": "2026-06-26T17:59:36Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2027_TENERIFE_MASTERS_FRONTERA",
@@ -2425,7 +2415,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:57Z"
+    "scraped_at": "2026-06-26T17:59:36Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2027_LM_Std",
@@ -2447,7 +2437,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/lm-lv4-2027-std-clc-rev-opn-opt-e9896fc3c648.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:57Z",
+    "scraped_at": "2026-06-26T17:59:38Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/b/b1/Logo_Oliver_Winkler.png"
   },
   {
@@ -2470,7 +2460,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/lm-lv4-2027-pcc-e9896fc3c648.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:58Z",
+    "scraped_at": "2026-06-26T17:59:38Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/b/b1/Logo_Oliver_Winkler.png"
   },
   {
@@ -2493,7 +2483,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/3rd-campro-cup-2027-329dbf62d6a2.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:59Z",
+    "scraped_at": "2026-06-26T17:59:40Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/0/03/CamPro_Black_02.png"
   },
   {
@@ -2513,11 +2503,10 @@
     "discipline": "HG",
     "url": "https://www.ipscmatch.de/index.pl?match=HCHL-fruehling_2027",
     "source_url": "https://www.ipscmatch.de/index.pl?match=HCHL-fruehling_2027",
-    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/helmbrechts-cup-half-life-fruehling-2027-ad8b9b48f3bb.jpg",
+    "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:59Z",
-    "original_image_url": "https://ipscmatch.de/wiki/images/3/37/Helmbrechts.png"
+    "scraped_at": "2026-06-26T17:59:40Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2027_Selongey_Baret_Shotgun_Cup_2027",
@@ -2539,7 +2528,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:00Z"
+    "scraped_at": "2026-06-26T17:59:40Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2027_Occitan_Cup_Meauzac",
@@ -2561,7 +2550,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:00Z"
+    "scraped_at": "2026-06-26T17:59:41Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=2027_3oak_Open_HG",
@@ -2583,7 +2572,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/3oak-open-handgun-2027-d08a8dd23eab.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:01Z",
+    "scraped_at": "2026-06-26T17:59:42Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/8/88/3oak_neu_Logo.png"
   },
   {
@@ -2606,7 +2595,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/helmbrechts-cup-2027-ad8b9b48f3bb.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:01Z",
+    "scraped_at": "2026-06-26T17:59:43Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/3/37/Helmbrechts.png"
   },
   {
@@ -2626,11 +2615,10 @@
     "discipline": "PCC",
     "url": "https://www.ipscmatch.de/index.pl?match=HCPCC-2027",
     "source_url": "https://www.ipscmatch.de/index.pl?match=HCPCC-2027",
-    "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/helmbrechts-cup-pcc-herbst-2027-lm-ass-thueringen-ad8b9b48f3bb.jpg",
+    "image_url": "https://ipscmatch.de/wiki/images/3/37/Helmbrechts.png",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:02Z",
-    "original_image_url": "https://ipscmatch.de/wiki/images/3/37/Helmbrechts.png"
+    "scraped_at": "2026-06-26T17:59:44Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=HCHL-Herbst_2027",
@@ -2652,7 +2640,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/helmbrechts-cup-half-life-herbst-2027-ad8b9b48f3bb.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:20:02Z",
+    "scraped_at": "2026-06-26T17:59:44Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/3/37/Helmbrechts.png"
   },
   {
@@ -2675,7 +2663,7 @@
     "image_url": null,
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:20Z"
+    "scraped_at": "2026-06-26T17:58:49Z"
   },
   {
     "id": "https://www.ipscmatch.de/index.pl?match=11._Karlstadt-Cup_2026",
@@ -2697,7 +2685,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/11-karlstadt-cup-powered-by-frankonia-bed464ec3a70.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:47Z",
+    "scraped_at": "2026-06-26T17:59:24Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/c/c0/KKS_Logo_square_750.gif"
   },
   {
@@ -2720,7 +2708,7 @@
     "image_url": "https://huprxirlthkisjngwash.supabase.co/storage/v1/object/public/match-images/matchsign/berlin-llz-halloween-cup-4-level-iii-match-2026-691375c9ffd8.jpg",
     "source": "MatchSign",
     "source_type": "matchsign",
-    "scraped_at": "2026-06-26T12:19:48Z",
+    "scraped_at": "2026-06-26T17:59:25Z",
     "original_image_url": "https://ipscmatch.de/wiki/images/4/44/LLZHalloween.jpg"
   }
 ]
