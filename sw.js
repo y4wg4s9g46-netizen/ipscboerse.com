@@ -23,6 +23,7 @@ const APP_SHELL_ASSETS = [
     'ipsc-hub.html',
     'doppel-aa.html',
     'performance.html',
+    'elo-check.html',
     'icon-192.png',
     'icon-512.png',
     'icon.png',

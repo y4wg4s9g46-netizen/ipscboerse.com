@@ -22,6 +22,7 @@
         "ipsc-hub.html": { title: "IPSC Hub" },
         "doppel-aa.html": { title: "Startplatz-Bot" },
         "performance.html": { title: "ELO-Vergleich" },
+        "elo-check.html": { title: "ELO-Check" },
         "impressum.html": { title: "Impressum" },
         "reset.html": { title: "Passwort zurücksetzen" },
         "schiessbuch-confirm.html": { title: "Schießbuch bestätigen" },
@@ -29,7 +30,7 @@
     };
 
     var CORE_SHELL_PAGES = PAGES;
-    var CLUB_PAGES_V78V = { "doppel-aa.html": 1, "performance.html": 1 };
+    var CLUB_PAGES_V78V = { "doppel-aa.html": 1, "performance.html": 1, "elo-check.html": 1 };
     var clubAccessV78v = { allowed: false, checked: false, checking: false };
     var CORE_FILES = { "index.html": 1, "marktplatz.html": 1, "mein-planer.html": 1, "community.html": 1 };
     var MAX_LIVE_FRAMES = 3;
@@ -227,7 +228,7 @@
                 a.classList.toggle("active", active);
                 a.classList.toggle("inactive", !active && a.closest("header nav, .main-nav"));
             });
-            var morePages = ["freie-matches.html", "schiessbuch.html", "sg-timer-live.html", "tools.html", "analytics.html", "wiederladen.html", "ipsc-hub.html"]; if (clubAccessV78v.allowed) morePages.push("doppel-aa.html", "performance.html");
+            var morePages = ["freie-matches.html", "schiessbuch.html", "sg-timer-live.html", "tools.html", "analytics.html", "wiederladen.html", "ipsc-hub.html"]; if (clubAccessV78v.allowed) morePages.push("doppel-aa.html", "performance.html", "elo-check.html");
             var moreActive = morePages.indexOf(file) >= 0;
             var moreBtn = document.getElementById("btn-more-menu");
             if (moreBtn) moreBtn.classList.toggle("active", moreActive);

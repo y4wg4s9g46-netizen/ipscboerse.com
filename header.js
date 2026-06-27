@@ -48,7 +48,7 @@
           var url = new URL(href, window.location.href);
           if (url.origin !== window.location.origin) return;
           var file = (url.pathname.split('/').pop() || 'index.html');
-          var known = /^(index|marktplatz|mein-planer|community|freie-matches|schiessbuch|sg-timer-live|tools|analytics|wiederladen|ipsc-hub|doppel-aa|performance|impressum|reset|schiessbuch-confirm|schiessbuch-verify)\.html$/i.test(file);
+          var known = /^(index|marktplatz|mein-planer|community|freie-matches|schiessbuch|sg-timer-live|tools|analytics|wiederladen|ipsc-hub|doppel-aa|performance|elo-check|impressum|reset|schiessbuch-confirm|schiessbuch-verify)\.html$/i.test(file);
           if (!known) return;
           ev.preventDefault(); ev.stopImmediatePropagation();
           window.parent.postMessage({ type: "ipsc-navigate-v78d", href: file + (url.search || "") + (url.hash || "") }, window.location.origin);
@@ -245,8 +245,8 @@
         );
 
         const hasCachedLogin = !!cachedHeaderUser;
-        const isVipPage = page === "doppel-aa.html" || page === "performance.html";
-        const moreTabPagesV52 = ["freie-matches.html", "schiessbuch.html", "sg-timer-live.html", "tools.html", "analytics.html", "wiederladen.html", "ipsc-hub.html", "doppel-aa.html", "performance.html"];
+        const isVipPage = page === "doppel-aa.html" || page === "performance.html" || page === "elo-check.html";
+        const moreTabPagesV52 = ["freie-matches.html", "schiessbuch.html", "sg-timer-live.html", "tools.html", "analytics.html", "wiederladen.html", "ipsc-hub.html", "doppel-aa.html", "performance.html", "elo-check.html"];
         const isMoreTabActiveV52 = moreTabPagesV52.includes(page);
 
         const headerTitle = isVipPage
@@ -2097,6 +2097,19 @@ window.toggleMoreMenu = function() {
                 }
                 desktopNav.appendChild(eloLink);
             }
+
+            if (!desktopNav.querySelector('a[href="elo-check.html"]')) {
+                const eloCheckLink = document.createElement("a");
+                eloCheckLink.href = "elo-check.html";
+                eloCheckLink.dataset.clubLinkV76d = "1";
+                eloCheckLink.innerText = lang === "en" ? "🔎 ELO Check" : "🔎 ELO-Check";
+                eloCheckLink.className = page === "elo-check.html" ? "active" : "inactive";
+                if (page !== "elo-check.html") {
+                    eloCheckLink.style.color = "#ff9f43";
+                    eloCheckLink.style.border = "1px solid rgba(255, 159, 67, 0.3)";
+                }
+                desktopNav.appendChild(eloCheckLink);
+            }
         }
 
         if (clubPlaceholder) {
@@ -2109,6 +2122,7 @@ window.toggleMoreMenu = function() {
                     <div class="club-links-label-v76">Double Alpha e.V.</div>
                     <a href="doppel-aa.html" class="${page === "doppel-aa.html" ? "active" : "vip-link"}">${lang === "en" ? "🎯 Slot Bot" : "🎯 Startplatz-Bot"}</a>
                     <a href="performance.html" class="${page === "performance.html" ? "active" : "vip-link"}">${lang === "en" ? "📊 ELO Comparison" : "📊 ELO-Vergleich"}</a>
+                    <a href="elo-check.html" class="${page === "elo-check.html" ? "active" : "vip-link"}">${lang === "en" ? "🔎 ELO Check" : "🔎 ELO-Check"}</a>
                 </div>
             `;
         }

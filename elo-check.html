@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <script id="ipsc-native-shell-redirect-elo-check">
+      (function () {
+        try {
+          var p = new URLSearchParams(window.location.search || "");
+          if (p.get("shell") === "1" || p.get("nativeShell") === "0") return;
+          if (window.top !== window.self) return;
+          var proto = window.location.protocol;
+          var isNative = proto === "capacitor:" || proto === "ionic:";
+          if (!isNative) return;
+          var file = (window.location.pathname.split("/").pop() || "index.html");
+          if (!file || file === "") file = "index.html";
+          var allowed = {'index.html':1,'marktplatz.html':1,'mein-planer.html':1,'community.html':1,'freie-matches.html':1,'schiessbuch.html':1,'sg-timer-live.html':1,'tools.html':1,'analytics.html':1,'wiederladen.html':1,'ipsc-hub.html':1,'doppel-aa.html':1,'performance.html':1,'elo-check.html':1};
+          if (!allowed[file]) return;
+          var view = file + (window.location.search || "") + (window.location.hash || "");
+          if ((window.location.pathname || "").endsWith("/native-shell.html")) return;
+          window.location.replace("native-shell.html?view=" + encodeURIComponent(view));
+        } catch (_) {}
+      })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="light dark">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#f6f8fc">
+    <title>ELO-Check | IPSC Startplatz-Börse</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-title" content="IPSC Börse">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="stylesheet" href="global.css?v=76v">
+    <style>
+      :root {
+        --ec-bg:#f6f8fc; --ec-card:#fff; --ec-text:#0f172a; --ec-muted:#64748b;
+        --ec-line:rgba(15,23,42,.10); --ec-soft:#f8fafc; --ec-accent:#ff7a1a; --ec-good:#10b981; --ec-warn:#f59e0b; --ec-bad:#ef4444;
+      }
+      html[data-theme="dark"] {
+        --ec-bg:#0f172a; --ec-card:#111827; --ec-text:#f8fafc; --ec-muted:#94a3b8;
+        --ec-line:rgba(255,255,255,.10); --ec-soft:#172033; --ec-accent:#fb923c; --ec-good:#34d399; --ec-warn:#fbbf24; --ec-bad:#fb7185;
+      }
+      html, body { min-height:100%; background:var(--ec-bg)!important; color:var(--ec-text); }
+      body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif; padding-bottom:110px; }
+      .page-wrap { max-width:1180px; margin:0 auto; padding:26px 18px 120px; }
+      .hero {
+        border:1px solid var(--ec-line); background:linear-gradient(135deg, var(--ec-card) 0%, rgba(255,122,26,.10) 100%);
+        border-radius:30px; padding:28px; box-shadow:0 18px 45px rgba(15,23,42,.08); margin-bottom:20px;
+      }
+      .kicker { display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:999px; color:#c2410c; background:rgba(255,122,26,.12); font-weight:900; letter-spacing:.09em; text-transform:uppercase; font-size:12px; }
+      h1 { font-size:clamp(34px,6vw,58px); line-height:.95; margin:18px 0 12px; letter-spacing:-.05em; color:var(--ec-text); }
+      .lead { color:var(--ec-muted); font-size:18px; line-height:1.45; max-width:780px; margin:0; }
+      .access-box, .panel { background:var(--ec-card); border:1px solid var(--ec-line); border-radius:24px; padding:22px; box-shadow:0 14px 36px rgba(15,23,42,.07); margin:18px 0; }
+      .access-box { color:var(--ec-muted); font-weight:750; }
+      .grid { display:grid; grid-template-columns:1.1fr .9fr; gap:18px; align-items:start; }
+      .form-row { display:grid; grid-template-columns:1fr 220px; gap:12px; align-items:center; margin:14px 0; }
+      label { font-size:13px; color:var(--ec-muted); font-weight:900; letter-spacing:.08em; text-transform:uppercase; display:block; margin-bottom:8px; }
+      input[type="file"], select, textarea, input[type="text"] {
+        width:100%; box-sizing:border-box; border:1px solid var(--ec-line); border-radius:18px; background:var(--ec-soft); color:var(--ec-text);
+        padding:14px 16px; font-size:16px; outline:none;
+      }
+      textarea { min-height:210px; resize:vertical; line-height:1.45; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+      .btn-row { display:flex; flex-wrap:wrap; gap:12px; margin-top:14px; }
+      button.ec-btn {
+        border:0; border-radius:18px; padding:14px 18px; font-size:16px; font-weight:900; cursor:pointer; color:#fff;
+        background:linear-gradient(135deg,#ff9f43,#ff5e00); box-shadow:0 12px 26px rgba(255,122,26,.25);
+      }
+      button.ec-btn.secondary { color:var(--ec-text); background:var(--ec-soft); border:1px solid var(--ec-line); box-shadow:none; }
+      button.ec-btn:disabled { opacity:.55; cursor:not-allowed; }
+      .hint { color:var(--ec-muted); font-size:14px; line-height:1.45; margin-top:12px; }
+      .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:18px 0; }
+      .stat { background:var(--ec-card); border:1px solid var(--ec-line); border-radius:22px; padding:18px; min-height:80px; }
+      .stat strong { display:block; font-size:30px; color:var(--ec-text); letter-spacing:-.04em; }
+      .stat span { display:block; color:var(--ec-muted); font-weight:900; font-size:12px; letter-spacing:.08em; text-transform:uppercase; margin-top:4px; }
+      .table-wrap { overflow:auto; border:1px solid var(--ec-line); border-radius:22px; background:var(--ec-card); }
+      table { width:100%; border-collapse:collapse; min-width:760px; }
+      th, td { padding:13px 14px; border-bottom:1px solid var(--ec-line); text-align:left; vertical-align:middle; }
+      th { color:var(--ec-muted); font-size:12px; letter-spacing:.08em; text-transform:uppercase; background:var(--ec-soft); }
+      td { color:var(--ec-text); font-size:15px; }
+      tr:last-child td { border-bottom:0; }
+      .badge { display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:6px 10px; font-weight:900; font-size:12px; white-space:nowrap; }
+      .badge.found { background:rgba(16,185,129,.12); color:var(--ec-good); }
+      .badge.fuzzy { background:rgba(245,158,11,.14); color:var(--ec-warn); }
+      .badge.miss { background:rgba(239,68,68,.12); color:var(--ec-bad); }
+      .elo { font-size:20px; font-weight:950; letter-spacing:-.04em; }
+      .small { color:var(--ec-muted); font-size:13px; }
+      .drop-zone { border:2px dashed rgba(255,122,26,.35); border-radius:20px; background:rgba(255,122,26,.06); padding:18px; text-align:center; color:var(--ec-muted); }
+      .drop-zone.is-drag { background:rgba(255,122,26,.14); }
+      @media(max-width:820px){
+        .page-wrap{padding:18px 14px 110px;}
+        .grid,.form-row{grid-template-columns:1fr;}
+        .hero,.panel,.access-box{border-radius:24px;padding:20px;}
+        .stats{grid-template-columns:repeat(2,1fr);}
+      }
+    </style>
+</head>
+<body class="page-elo-check">
+    <header></header>
+    <main class="page-wrap">
+      <section class="hero">
+        <span class="kicker" data-de="Doppel-AA Vereinsbereich" data-en="Double Alpha club area">Doppel-AA Vereinsbereich</span>
+        <h1 data-de="ELO-Check für Ergebnis- & Verify-Listen" data-en="ELO check for results & verify lists">ELO-Check für Ergebnis- & Verify-Listen</h1>
+        <p class="lead" data-de="Lade eine Ergebnisliste, Verify-Liste, CSV/TXT oder PDF hoch. Die Seite erkennt Schützennamen und gleicht sie gegen deine IPSC-ELO-Datenbank ab." data-en="Upload a results list, verify list, CSV/TXT or PDF. The page detects competitor names and matches them against your IPSC ELO database.">Lade eine Ergebnisliste, Verify-Liste, CSV/TXT oder PDF hoch. Die Seite erkennt Schützennamen und gleicht sie gegen deine IPSC-ELO-Datenbank ab.</p>
+      </section>
+
+      <div id="access-denied" class="access-box">Prüfe Doppel-AA-Berechtigung...</div>
+
+      <section id="dashboard-content" style="display:none;">
+        <div class="grid">
+          <div class="panel">
+            <label for="file-input" data-de="Liste hochladen" data-en="Upload list">Liste hochladen</label>
+            <div id="drop-zone" class="drop-zone">
+              <input id="file-input" type="file" accept=".pdf,.txt,.csv,.json,text/plain,application/pdf" />
+              <div class="hint" data-de="PDF, TXT oder CSV. Alternativ Text unten einfügen." data-en="PDF, TXT or CSV. Alternatively paste text below.">PDF, TXT oder CSV. Alternativ Text unten einfügen.</div>
+            </div>
+
+            <div class="form-row">
+              <div>
+                <label for="division-select" data-de="Division" data-en="Division">Division</label>
+                <select id="division-select">
+                  <option value="Optics">Optics</option>
+                  <option value="Production Optics">Production Optics</option>
+                  <option value="Standard">Standard</option>
+                  <option value="Open">Open</option>
+                  <option value="Production">Production</option>
+                  <option value="Classic">Classic</option>
+                  <option value="Revolver">Revolver</option>
+                </select>
+              </div>
+              <div>
+                <label for="min-confidence" data-de="Treffer-Modus" data-en="Match mode">Treffer-Modus</label>
+                <select id="min-confidence">
+                  <option value="safe">Sicher</option>
+                  <option value="fuzzy">Auch unsicher</option>
+                </select>
+              </div>
+            </div>
+
+            <label for="raw-text" data-de="Text einfügen" data-en="Paste text">Text einfügen</label>
+            <textarea id="raw-text" placeholder="Ergebnisliste / Verify-Liste hier einfügen..."></textarea>
+
+            <div class="btn-row">
+              <button id="analyze-btn" class="ec-btn" type="button">🔎 ELO abgleichen</button>
+              <button id="clear-btn" class="ec-btn secondary" type="button">Zurücksetzen</button>
+              <button id="csv-btn" class="ec-btn secondary" type="button" disabled>CSV exportieren</button>
+            </div>
+            <div id="status" class="hint"></div>
+          </div>
+
+          <div class="panel">
+            <h2 style="margin-top:0;">Auswertung</h2>
+            <p class="hint" data-de="Die Treffer sind nur so gut wie die Namen in der Liste und die aktuelle ELO-Datenbank. Unsichere Treffer werden markiert." data-en="Results depend on the names in the list and the current ELO database. Uncertain matches are marked.">Die Treffer sind nur so gut wie die Namen in der Liste und die aktuelle ELO-Datenbank. Unsichere Treffer werden markiert.</p>
+            <div class="stats">
+              <div class="stat"><strong id="stat-total">0</strong><span>Schützen</span></div>
+              <div class="stat"><strong id="stat-found">0</strong><span>mit ELO</span></div>
+              <div class="stat"><strong id="stat-avg">-</strong><span>Ø ELO</span></div>
+              <div class="stat"><strong id="stat-top">-</strong><span>Top ELO</span></div>
+            </div>
+            <div class="hint" id="summary-text">Noch keine Liste analysiert.</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <h2 style="margin:0;">Schützen & ELO</h2>
+            <input id="search-input" type="text" placeholder="Namen filtern..." style="max-width:320px;">
+          </div>
+          <div class="table-wrap" style="margin-top:14px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name aus Liste</th>
+                  <th>ELO-Treffer</th>
+                  <th>Division</th>
+                  <th>ELO</th>
+                  <th>Rang</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="results-body">
+                <tr><td colspan="7" class="small">Noch keine Daten.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="header.js?v=elo-check"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="auth.js?v=elo-check"></script>
+    <script src="lang.js?v=76v"></script>
+    <script src="app.js?v=76v"></script>
+    <script>
+    (function(){
+      const DIVISIONS = ["Production Optics","Optics","Standard","Open","Production","Classic","Revolver"];
+      const COUNTRIES = ["GER","DEU","Germany","Deutschland","AUT","Austria","SUI","Switzerland","CHE","Netherlands","NED","Poland","POL","Czech","CZE","France","FRA","Belgium","BEL","Denmark","DEN","Sweden","SWE","Norway","NOR","Italy","ITA","Spain","ESP","Finland","FIN"];
+      let allResults = [];
+      let filteredResults = [];
+
+      function cleanText(v){ return String(v||"").replace(/\u00a0/g," ").replace(/\s+/g," ").trim(); }
+      function escapeHtml(v){ return String(v ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+      function normalizeName(v){
+        return cleanText(v).toLowerCase()
+          .replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss")
+          .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+          .replace(/[^a-z0-9]+/g," ").replace(/\s+/g," ").trim();
+      }
+      function uniq(arr){ return [...new Set(arr.filter(Boolean))]; }
+      function isDoubleAAValue(value){ return value === true || value === 1 || value === "1" || String(value).toLowerCase() === "true" || String(value).toLowerCase() === "yes"; }
+
+      async function waitForSupabase(timeoutMs=8000){
+        const started=Date.now();
+        while(Date.now()-started<timeoutMs){
+          if(window.supabaseClient && window.supabaseClient.auth) return window.supabaseClient;
+          await new Promise(r=>setTimeout(r,120));
+        }
+        throw new Error("Supabase/Auth konnte nicht geladen werden.");
+      }
+
+      async function verifyAccess(){
+        const denied=document.getElementById("access-denied");
+        const dash=document.getElementById("dashboard-content");
+        try{
+          const client=await waitForSupabase();
+          const { data:{ session } } = await client.auth.getSession();
+          const user=session && session.user;
+          if(!user){
+            denied.textContent="Bitte einloggen. Diese Seite ist nur für geprüfte Doppel-AA-Accounts sichtbar.";
+            dash.style.display="none";
+            return false;
+          }
+          const { data:profile, error } = await client.from("profiles").select("is_doppel_aa").eq("id", user.id).maybeSingle();
+          if(error || !profile || !isDoubleAAValue(profile.is_doppel_aa)){
+            denied.textContent="Kein Zugriff. Diese Funktion ist nur für Accounts mit Doppel-AA-Prüfung freigeschaltet.";
+            dash.style.display="none";
+            return false;
+          }
+          denied.style.display="none";
+          dash.style.display="block";
+          return true;
+        }catch(e){
+          denied.textContent="Berechtigung konnte nicht geprüft werden: " + (e.message || e);
+          dash.style.display="none";
+          return false;
+        }
+      }
+
+      function normalizeDivisionName(value){
+        const t=cleanText(value).toLowerCase();
+        if(t.includes("production optics")) return "Production Optics";
+        if(t.includes("optics") || t.includes("pcc optic")) return "Optics";
+        if(t.includes("standard")) return "Standard";
+        if(t.includes("open")) return "Open";
+        if(t.includes("classic")) return "Classic";
+        if(t.includes("revolver")) return "Revolver";
+        if(t.includes("production")) return "Production";
+        return cleanText(value) || "Unknown";
+      }
+
+      function nameVariants(name){
+        const v=cleanText(name);
+        if(!v) return [];
+        return uniq([
+          v,
+          v.replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss"),
+          v.replace(/ae/g,"ä").replace(/oe/g,"ö").replace(/ue/g,"ü")
+        ]);
+      }
+
+      function parseNameParts(displayName){
+        const text=cleanText(displayName).replace(/^[#\d\.\)\-\s]+/,"");
+        if(text.includes(",")){
+          const parts=text.split(",").map(cleanText).filter(Boolean);
+          return { display: parts.length>1 ? `${parts[0]}, ${parts.slice(1).join(" ")}` : text, last: parts[0]||"", first: parts.slice(1).join(" ")||"" };
+        }
+        const parts=text.split(/\s+/).filter(Boolean);
+        if(parts.length>=2){
+          return { display:text, first:parts.slice(0,-1).join(" "), last:parts[parts.length-1] };
+        }
+        return { display:text, first:"", last:text };
+      }
+
+      function candidateNames(parts){
+        const firsts=nameVariants(parts.first);
+        const lasts=nameVariants(parts.last);
+        const out=[];
+        for(const l of lasts){ for(const f of firsts){ out.push(`${l}, ${f}`); out.push(`${f} ${l}`); out.push(`${l} ${f}`); } }
+        if(parts.display) out.push(parts.display);
+        return uniq(out);
+      }
+
+      function levenshtein(a,b){
+        a=normalizeName(a); b=normalizeName(b);
+        if(a===b) return 0;
+        if(!a) return b.length; if(!b) return a.length;
+        const prev=Array.from({length:b.length+1},(_,i)=>i), cur=new Array(b.length+1);
+        for(let i=1;i<=a.length;i++){
+          cur[0]=i;
+          for(let j=1;j<=b.length;j++){
+            const cost=a[i-1]===b[j-1]?0:1;
+            cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+cost);
+          }
+          for(let j=0;j<=b.length;j++) prev[j]=cur[j];
+        }
+        return prev[b.length];
+      }
+
+      function parseShooters(rawText, forcedDivision){
+        const text=String(rawText||"").replace(/\r/g,"\n");
+        const lines=text.split(/\n+/).map(cleanText).filter(Boolean);
+        const found=[];
+        const badWords=/^(name|vorname|nachname|division|klasse|category|overall|rank|stage|match|verify|verification|results|result|squad|punkte|points|time|hit|factor|competitor|shooter)$/i;
+
+        function addName(name, line){
+          name=cleanText(name).replace(/[|;]+$/,"").replace(/\s{2,}/g," ");
+          name=name.replace(/\b(Overall|Lady|Senior|Junior|Super Senior|Regular|Minor|Major)\b.*$/i,"").trim();
+          if(!name || name.length<5 || name.length>70 || badWords.test(name)) return;
+          if(!/[a-zA-ZÄÖÜäöüß]/.test(name)) return;
+          const div = normalizeDivisionName(forcedDivision || DIVISIONS.find(d => line.toLowerCase().includes(d.toLowerCase())) || forcedDivision || "Unknown");
+          const parts=parseNameParts(name);
+          if(!parts.last || parts.last.length<2) return;
+          found.push({ name:parts.display, first:parts.first, last:parts.last, division:div, sourceLine:line });
+        }
+
+        for(const line of lines){
+          const commaMatches=[...line.matchAll(/([A-ZÄÖÜ][A-Za-zÄÖÜäöüß'\- ]{1,35}),\s*([A-ZÄÖÜ][A-Za-zÄÖÜäöüß'\- ]{1,35})/g)];
+          commaMatches.forEach(m=>addName(`${m[1]}, ${m[2]}`, line));
+          if(commaMatches.length) continue;
+
+          const countryRe = new RegExp("^\\s*\\d{0,4}\\s*([A-ZÄÖÜ][A-Za-zÄÖÜäöüß'\\-\\. ]{4,60}?)\\s+(" + COUNTRIES.join("|") + ")\\b", "i");
+          const m=line.match(countryRe);
+          if(m) addName(m[1], line);
+        }
+
+        const seen=new Set();
+        return found.filter(s=>{
+          const key=normalizeName(`${s.last} ${s.first}`)+"|"+s.division;
+          if(seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+      }
+
+      async function readFileAsText(file){
+        if(!file) return "";
+        if(file.type === "application/pdf" || /\.pdf$/i.test(file.name)){
+          if(!window.pdfjsLib) throw new Error("PDF-Reader konnte nicht geladen werden.");
+          pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+          const buf=await file.arrayBuffer();
+          const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+          const pages=[];
+          for(let p=1;p<=pdf.numPages;p++){
+            const page=await pdf.getPage(p);
+            const content=await page.getTextContent();
+            pages.push(content.items.map(i=>i.str).join(" "));
+          }
+          return pages.join("\n");
+        }
+        return await file.text();
+      }
+
+      async function fetchEloRowsByDivision(division){
+        const all=[];
+        for(let from=0; from<8000; from+=1000){
+          const { data, error } = await window.supabaseClient
+            .from("elo_rankings")
+            .select("elo_rating, class_style, division, lastname, rank, region")
+            .eq("division", division)
+            .range(from, from+999);
+          if(error) throw error;
+          if(!data || !data.length) break;
+          all.push(...data);
+          if(data.length<1000) break;
+        }
+        return all;
+      }
+
+      function bestEloMatch(shooter, rows, mode){
+        const candidates=candidateNames(shooter);
+        let best=null, bestDistance=999, bestExact=false;
+        for(const row of rows){
+          const db=row.lastname || "";
+          const dbNorm=normalizeName(db);
+          for(const c of candidates){
+            const cNorm=normalizeName(c);
+            if(!cNorm) continue;
+            if(dbNorm===cNorm){
+              return { row, status:"found", distance:0 };
+            }
+            const d=levenshtein(db, c);
+            if(d<bestDistance){ bestDistance=d; best=row; }
+          }
+        }
+        if(!best) return null;
+        const allowed = mode === "fuzzy" ? 4 : 2;
+        const bestLen=normalizeName(best.lastname||"").length;
+        const threshold=bestLen>18 ? allowed+1 : allowed;
+        if(bestDistance<=threshold) return { row:best, status:"fuzzy", distance:bestDistance };
+        return null;
+      }
+
+      function setStatus(msg){ document.getElementById("status").textContent=msg||""; }
+
+      async function analyze(){
+        const btn=document.getElementById("analyze-btn");
+        btn.disabled=true;
+        try{
+          const file=document.getElementById("file-input").files[0];
+          let text=document.getElementById("raw-text").value || "";
+          if(file){
+            setStatus("Datei wird gelesen...");
+            text = await readFileAsText(file);
+            document.getElementById("raw-text").value = text.slice(0, 40000);
+          }
+          const division=document.getElementById("division-select").value;
+          const mode=document.getElementById("min-confidence").value;
+          const shooters=parseShooters(text, division);
+          if(!shooters.length){
+            setStatus("Keine Schützen erkannt. Prüfe die Liste oder füge Text ein.");
+            allResults=[]; render();
+            return;
+          }
+          setStatus(`${shooters.length} Schützen erkannt. Lade ELO-Daten für ${division}...`);
+          const rows=await fetchEloRowsByDivision(division);
+          setStatus(`${rows.length} ELO-Einträge geladen. Gleiche Namen ab...`);
+          allResults=shooters.map((s, idx)=>{
+            const match=bestEloMatch(s, rows, mode);
+            return {
+              idx: idx+1,
+              name:s.name,
+              division,
+              sourceLine:s.sourceLine,
+              dbName: match?.row?.lastname || "",
+              elo: match?.row?.elo_rating ? Math.round(Number(match.row.elo_rating)) : null,
+              rank: match?.row?.rank || "",
+              classStyle: match?.row?.class_style || "",
+              status: match ? match.status : "miss",
+              distance: match?.distance ?? null
+            };
+          });
+          setStatus("Analyse fertig.");
+          render();
+        }catch(e){
+          console.error(e);
+          setStatus("Fehler: " + (e.message || e));
+        }finally{
+          btn.disabled=false;
+        }
+      }
+
+      function render(){
+        const q=normalizeName(document.getElementById("search-input").value || "");
+        filteredResults=allResults.filter(r => !q || normalizeName(r.name+" "+r.dbName).includes(q));
+        const found=allResults.filter(r=>r.elo);
+        const elos=found.map(r=>r.elo);
+        const avg=elos.length ? Math.round(elos.reduce((a,b)=>a+b,0)/elos.length) : "-";
+        const top=elos.length ? Math.max(...elos) : "-";
+        document.getElementById("stat-total").textContent=allResults.length;
+        document.getElementById("stat-found").textContent=found.length;
+        document.getElementById("stat-avg").textContent=avg;
+        document.getElementById("stat-top").textContent=top;
+        document.getElementById("summary-text").textContent = allResults.length
+          ? `${found.length} von ${allResults.length} Schützen mit ELO gefunden.`
+          : "Noch keine Liste analysiert.";
+        document.getElementById("csv-btn").disabled = allResults.length === 0;
+
+        const body=document.getElementById("results-body");
+        if(!filteredResults.length){
+          body.innerHTML='<tr><td colspan="7" class="small">Keine Treffer in der aktuellen Ansicht.</td></tr>';
+          return;
+        }
+        body.innerHTML=filteredResults.map(r=>{
+          const badge = r.status==="found" ? '<span class="badge found">✓ gefunden</span>' :
+                        r.status==="fuzzy" ? '<span class="badge fuzzy">≈ prüfen</span>' :
+                        '<span class="badge miss">– kein ELO</span>';
+          return `<tr>
+            <td>${r.idx}</td>
+            <td><strong>${escapeHtml(r.name)}</strong><div class="small">${escapeHtml((r.sourceLine||"").slice(0,120))}</div></td>
+            <td>${r.dbName ? escapeHtml(r.dbName) : '<span class="small">Kein passender Eintrag</span>'}${r.classStyle ? `<div class="small">${escapeHtml(r.classStyle)}</div>` : ''}</td>
+            <td>${escapeHtml(r.division)}</td>
+            <td class="elo">${r.elo || "-"}</td>
+            <td>${r.rank || "-"}</td>
+            <td>${badge}</td>
+          </tr>`;
+        }).join("");
+      }
+
+      function exportCsv(){
+        if(!allResults.length) return;
+        const rows=[["Name aus Liste","ELO-Name","Division","ELO","Rang","Status","Quelle"]];
+        allResults.forEach(r=>rows.push([r.name,r.dbName,r.division,r.elo||"",r.rank||"",r.status,r.sourceLine||""]));
+        const csv=rows.map(row=>row.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\n");
+        const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement("a");
+        a.href=url; a.download="elo-check.csv"; a.click();
+        setTimeout(()=>URL.revokeObjectURL(url),1000);
+      }
+
+      function resetAll(){
+        allResults=[]; filteredResults=[];
+        document.getElementById("raw-text").value="";
+        document.getElementById("file-input").value="";
+        setStatus("");
+        render();
+      }
+
+      function applyLocalLanguage(){
+        const lang=(localStorage.getItem("selectedLanguage") || window.currentLang || "de") === "en" ? "en" : "de";
+        document.querySelectorAll("[data-de][data-en]").forEach(el => {
+          el.textContent = el.getAttribute(lang === "en" ? "data-en" : "data-de") || el.textContent;
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", async function(){
+        applyLocalLanguage();
+        await verifyAccess();
+        document.getElementById("analyze-btn").addEventListener("click", analyze);
+        document.getElementById("clear-btn").addEventListener("click", resetAll);
+        document.getElementById("csv-btn").addEventListener("click", exportCsv);
+        document.getElementById("search-input").addEventListener("input", render);
+        const dz=document.getElementById("drop-zone");
+        ["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev, e=>{e.preventDefault(); dz.classList.add("is-drag");}));
+        ["dragleave","drop"].forEach(ev=>dz.addEventListener(ev, e=>{e.preventDefault(); dz.classList.remove("is-drag");}));
+        dz.addEventListener("drop", e=>{ if(e.dataTransfer.files[0]) document.getElementById("file-input").files=e.dataTransfer.files; });
+        try { if (window.supabaseClient?.auth?.onAuthStateChange) window.supabaseClient.auth.onAuthStateChange(()=>setTimeout(verifyAccess,150)); } catch(_) {}
+      });
+
+      window.addEventListener("storage", applyLocalLanguage);
+      window.eloCheckApplyLanguage = applyLocalLanguage;
+    })();
+    </script>
+</body>
+</html>

@@ -23,13 +23,14 @@
     'ipsc-hub.html': { title: 'IPSC Hub' },
     'doppel-aa.html': { title: 'Startplatz-Bot' },
     'performance.html': { title: 'ELO-Vergleich' },
+    'elo-check.html': { title: 'ELO-Check' },
     'impressum.html': { title: 'Impressum' },
     'reset.html': { title: 'Passwort zurücksetzen' },
     'schiessbuch-confirm.html': { title: 'Schießbuch bestätigen' },
     'schiessbuch-verify.html': { title: 'Schießbuch prüfen' }
   };
-  const CLUB_PAGES = new Set(['doppel-aa.html','performance.html']);
-  const MORE_PAGES = new Set(['freie-matches.html','schiessbuch.html','sg-timer-live.html','tools.html','analytics.html','wiederladen.html','ipsc-hub.html','doppel-aa.html','performance.html']);
+  const CLUB_PAGES = new Set(['doppel-aa.html','performance.html','elo-check.html']);
+  const MORE_PAGES = new Set(['freie-matches.html','schiessbuch.html','sg-timer-live.html','tools.html','analytics.html','wiederladen.html','ipsc-hub.html','doppel-aa.html','performance.html','elo-check.html']);
   const clubAccessV78v = { allowed: false, checked: false, checking: false };
   const CORE_PRELOAD = []; // v78x: kein Hintergrund-Preload; Seiten laden erst bei echtem Tap und bleiben dann gecacht
 
@@ -51,7 +52,8 @@
     { title: { de: 'Extras', en: 'Extras' }, items: [
       { file: 'ipsc-hub.html', icon: '⭐', de: 'IPSC Hub', en: 'IPSC Hub' },
       { file: 'doppel-aa.html', icon: '🎯', de: 'Startplatz-Bot', en: 'Slot Bot', club: true },
-      { file: 'performance.html', icon: '📈', de: 'ELO-Vergleich', en: 'ELO Compare', club: true }
+      { file: 'performance.html', icon: '📈', de: 'ELO-Vergleich', en: 'ELO Compare', club: true },
+      { file: 'elo-check.html', icon: '🔎', de: 'ELO-Check', en: 'ELO Check', club: true }
     ]}
   ];
 

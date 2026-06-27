@@ -1,0 +1,6 @@
+V79AN ELO Check
+- Neue Seite elo-check.html.
+- Sichtbar/aufrufbar nur fuer Accounts mit profiles.is_doppel_aa.
+- Upload/Paste von Ergebnis-, Verify-, TXT/CSV/PDF-Listen.
+- Abgleich gegen Supabase elo_rankings nach Division.
+- Integration in Doppel-AA-Menue, native-shell, iPad app-spa und Service Worker.
