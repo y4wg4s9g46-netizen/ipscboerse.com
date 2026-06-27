@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79ar-verify-pdf-fix';
+const CACHE_NAME = 'ipscboerse-v79as-verify-pdf-columns-fix';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
