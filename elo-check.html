@@ -25,9 +25,9 @@
     <meta name="color-scheme" content="light dark">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#f6f8fc">
-    <title>ELO-Check v79ar | IPSC Startplatz-BÃ¶rse</title>
+    <title>ELO-Check v79at | IPSC Startplatz-B&ouml;rse</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-title" content="IPSC BÃ¶rse">
+    <meta name="apple-mobile-web-app-title" content="IPSC B&#246;rse">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="stylesheet" href="global.css?v=76v">
     <style>
@@ -98,7 +98,7 @@
         .stats{grid-template-columns:repeat(2,1fr);}
       }
 
-      /* v79ao: Mobile Fix fÃ¼r ELO-Check */
+      /* v79ao: Mobile Fix f&#252;r ELO-Check */
       .source-line { max-width:520px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
       @media(max-width:700px){
         body.page-elo-check { overflow-x:hidden; }
@@ -140,10 +140,10 @@
         <span class="kicker" data-de="Doppel-AA Vereinsbereich" data-en="Double Alpha club area">Doppel-AA Vereinsbereich</span>
         <h1 data-de="ELO-Check f&uuml;r Ergebnis- & Verify-Listen" data-en="ELO check for results & verify lists">ELO-Check f&uuml;r Ergebnis- & Verify-Listen</h1>
         <p class="lead" data-de="Lade eine Ergebnisliste, Verify-Liste, CSV/TXT oder PDF hoch. Die Seite erkennt Sch&uuml;tzennamen und gleicht sie gegen deine IPSC-ELO-Datenbank ab." data-en="Upload a results list, verify list, CSV/TXT or PDF. The page detects competitor names and matches them against your IPSC ELO database.">Lade eine Ergebnisliste, Verify-Liste, CSV/TXT oder PDF hoch. Die Seite erkennt Sch&uuml;tzennamen und gleicht sie gegen deine IPSC-ELO-Datenbank ab.</p>
-        <div class="hint" id="elo-build-stamp" style="margin-top:12px;font-weight:900;">Build v79as Â· Verify-PDF 2-Spalten-Fix</div>
+        <div class="hint" id="elo-build-stamp" style="margin-top:12px;font-weight:900;">Build v79at &middot; Verify-PDF-Zeilenfix</div>
       </section>
 
-      <div id="access-denied" class="access-box">PrÃ¼fe Doppel-AA-Berechtigung...</div>
+      <div id="access-denied" class="access-box">Pr&#252;fe Doppel-AA-Berechtigung...</div>
 
       <section id="dashboard-content" style="display:none;">
         <div class="grid">
@@ -176,12 +176,12 @@
               </div>
             </div>
 
-            <label for="raw-text" data-de="Text einfÃ¼gen" data-en="Paste text">Text einfÃ¼gen</label>
-            <textarea id="raw-text" placeholder="Ergebnisliste / Verify-Liste hier einfÃ¼gen..."></textarea>
+            <label for="raw-text" data-de="Text einf&#252;gen" data-en="Paste text">Text einf&#252;gen</label>
+            <textarea id="raw-text" placeholder="Ergebnisliste / Verify-Liste hier einf&#252;gen..."></textarea>
 
             <div class="btn-row">
-              <button id="analyze-btn" class="ec-btn" type="button">ð ELO abgleichen</button>
-              <button id="clear-btn" class="ec-btn secondary" type="button">ZurÃ¼cksetzen</button>
+              <button id="analyze-btn" class="ec-btn" type="button">&#128270; ELO abgleichen</button>
+              <button id="clear-btn" class="ec-btn secondary" type="button">Zur&#252;cksetzen</button>
               <button id="csv-btn" class="ec-btn secondary" type="button" disabled>CSV exportieren</button>
             </div>
             <div id="status" class="hint"></div>
@@ -191,14 +191,14 @@
             <h2 style="margin-top:0;">Auswertung</h2>
             <p class="hint" data-de="Die Treffer sind nur so gut wie die Namen in der Liste und die aktuelle ELO-Datenbank. Unsichere Treffer werden markiert." data-en="Results depend on the names in the list and the current ELO database. Uncertain matches are marked.">Die Treffer sind nur so gut wie die Namen in der Liste und die aktuelle ELO-Datenbank. Unsichere Treffer werden markiert.</p>
             <div id="my-shooter-box" class="my-box" style="display:none;">
-              <label for="my-shooter-select" data-de="Mein SchÃ¼tze" data-en="My competitor">Mein SchÃ¼tze</label>
+              <label for="my-shooter-select" data-de="Mein Sch&#252;tze" data-en="My competitor">Mein Sch&#252;tze</label>
               <select id="my-shooter-select"></select>
-              <div id="my-shooter-hint" class="hint">WÃ¤hle dich aus, dann wird angezeigt, welche hÃ¶heren ELO-Gegner du geschlagen hast.</div>
+              <div id="my-shooter-hint" class="hint">W&#228;hle dich aus, dann wird angezeigt, welche h&#246;heren ELO-Gegner du geschlagen hast.</div>
             </div>
             <div class="stats">
               <div class="stat"><strong id="stat-total">0</strong><span>Sch&uuml;tzen</span></div>
               <div class="stat"><strong id="stat-found">0</strong><span>mit ELO</span></div>
-              <div class="stat"><strong id="stat-avg">-</strong><span>Ã ELO</span></div>
+              <div class="stat"><strong id="stat-avg">-</strong><span>&#216; ELO</span></div>
               <div class="stat"><strong id="stat-top">-</strong><span>Top ELO</span></div>
               <div class="stat"><strong id="stat-my-rank">-</strong><span>Mein Rang</span></div>
               <div class="stat"><strong id="stat-my-elo">-</strong><span>Mein ELO</span></div>
@@ -258,8 +258,8 @@
       function escapeHtml(v){ return String(v ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
       function normalizeName(v){
         return cleanText(v).toLowerCase()
-          .replace(/ï¬/g,"ff").replace(/ï¬/g,"fi").replace(/ï¬/g,"fl").replace(/ï¬/g,"ffi").replace(/ï¬/g,"ffl").replace(/ï¬/g,"ft").replace(/ï¬/g,"st")
-          .replace(/Ã¤/g,"ae").replace(/Ã¶/g,"oe").replace(/Ã¼/g,"ue").replace(/Ã/g,"ss")
+          .replace(/\ufb00/g,"ff").replace(/\ufb01/g,"fi").replace(/\ufb02/g,"fl").replace(/\ufb03/g,"ffi").replace(/\ufb04/g,"ffl").replace(/\ufb05/g,"ft").replace(/\ufb06/g,"st")
+          .replace(/\u00e4/g,"ae").replace(/\u00f6/g,"oe").replace(/\u00fc/g,"ue").replace(/\u00df/g,"ss")
           .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
           .replace(/[^a-z0-9]+/g," ").replace(/\s+/g," ").trim();
       }
@@ -283,14 +283,14 @@
           const { data:{ session } } = await client.auth.getSession();
           const user=session && session.user;
           if(!user){
-            denied.textContent="Bitte einloggen. Diese Seite ist nur fÃ¼r geprÃ¼fte Doppel-AA-Accounts sichtbar.";
+            denied.textContent="Bitte einloggen. Diese Seite ist nur f\u00fcr gepr\u00fcfte Doppel-AA-Accounts sichtbar.";
             dash.style.display="none";
             return false;
           }
           const { data:profile, error } = await client.from("profiles").select("is_doppel_aa, real_name").eq("id", user.id).maybeSingle();
           currentUserHints = [profile?.real_name, user?.user_metadata?.full_name, user?.user_metadata?.name, (user?.email||"").split("@")[0]].filter(Boolean);
           if(error || !profile || !isDoubleAAValue(profile.is_doppel_aa)){
-            denied.textContent="Kein Zugriff. Diese Funktion ist nur fÃ¼r Accounts mit Doppel-AA-PrÃ¼fung freigeschaltet.";
+            denied.textContent="Kein Zugriff. Diese Funktion ist nur f\u00fcr Accounts mit Doppel-AA-Pr\u00fcfung freigeschaltet.";
             dash.style.display="none";
             return false;
           }
@@ -298,7 +298,7 @@
           dash.style.display="block";
           return true;
         }catch(e){
-          denied.textContent="Berechtigung konnte nicht geprÃ¼ft werden: " + (e.message || e);
+          denied.textContent="Berechtigung konnte nicht gepr\u00fcft werden: " + (e.message || e);
           dash.style.display="none";
           return false;
         }
@@ -316,7 +316,7 @@
         return cleanText(value) || "Unknown";
       }
 
-      // v79ar: Divisionen aus Verify-PDFs kÃ¶nnen als KÃ¼rzel kommen.
+      // v79ar: Divisionen aus Verify-PDFs k\u00f6nnen als K\u00fcrzel kommen.
       // Wichtig: In den aktuellen deutschen Verify-Listen ist DIV: O = Optics, nicht Open.
       function normalizeDivisionToken(value){
         const raw=cleanText(value);
@@ -356,8 +356,8 @@
         if(!v) return [];
         return uniq([
           v,
-          v.replace(/Ã¤/g,"ae").replace(/Ã¶/g,"oe").replace(/Ã¼/g,"ue").replace(/Ã/g,"ss"),
-          v.replace(/ae/g,"Ã¤").replace(/oe/g,"Ã¶").replace(/ue/g,"Ã¼")
+          v.replace(/\u00e4/g,"ae").replace(/\u00f6/g,"oe").replace(/\u00fc/g,"ue").replace(/\u00df/g,"ss"),
+          v.replace(/ae/g,"\u00e4").replace(/oe/g,"\u00f6").replace(/ue/g,"\u00fc")
         ]);
       }
 
@@ -419,7 +419,7 @@
         const withHeadings=chunks.map(c=>({chunk:c, division:getDivisionHeadingFromChunk(c)})).filter(x=>x.division);
         if(withHeadings.length && target){
           const picked=withHeadings.filter(x=>x.division===target).map(x=>x.chunk);
-          // Stage-Results-PDF enthÃ¤lt mehrere Divisionen. Nur die gewÃ¤hlte Division analysieren.
+          // Stage-Results-PDF enth\u00e4lt mehrere Divisionen. Nur die gew\u00e4hlte Division analysieren.
           if(picked.length) return picked.join("\n");
           return "";
         }
@@ -433,9 +433,9 @@
 
         const found=[];
         const lines=String(text||"").replace(/\r/g,"\n").split(/\n+/).map(cleanText).filter(Boolean);
-        const lineRe=/^\s*(\d{1,4})\s+(.+?)\s+DIV\s*:\s*(?:DIV\s*:\s*)*([A-Za-zÃÃÃÃ¤Ã¶Ã¼Ã/\- ]{1,35}?)\s+CLASS\s*:/iu;
+        const lineRe=/^\s*(\d{1,4})\s+(.+?)\s+DIV\s*:\s*(?:DIV\s*:\s*)*([A-Za-z\u00c4\u00d6\u00dc\u00e4\u00f6\u00fc\u00df\/\- ]{1,35}?)\s+CLASS\s*:/iu;
         const globalNameClass="[\\p{L}\\uFB00-\\uFB06][\\p{L}\\uFB00-\\uFB06'\\-\\. ]{1,70},\\s*[\\p{L}\\uFB00-\\uFB06][\\p{L}\\uFB00-\\uFB06'\\-\\. ]{1,70}";
-        const globalRe=new RegExp("\\b(\\d{1,4})\\s+("+globalNameClass+")\\s+DIV\\s*:\\s*(?:DIV\\s*:\\s*)*([A-Za-zÃÃÃÃ¤Ã¶Ã¼Ã/\\- ]{1,35}?)\\s+CLASS\\s*:", "giu");
+        const globalRe=new RegExp("\\b(\\d{1,4})\\s+("+globalNameClass+")\\s+DIV\\s*:\\s*(?:DIV\\s*:\\s*)*([A-Za-z\u00c4\u00d6\u00dc\u00e4\u00f6\u00fc\u00df/\\- ]{1,35}?)\\s+CLASS\\s*:", "giu");
 
         function pushOne(competitorNo, rawName, rawDivision, sourcePrefix){
           let name=cleanText(rawName).replace(/^\d{1,4}\s+/,"");
@@ -449,7 +449,7 @@
             first:parts.first,
             last:parts.last,
             division:div,
-            sourceLine:`${sourcePrefix} Â· #${competitorNo} Â· DIV: ${cleanText(rawDivision)} â ${div}`,
+            sourceLine:`${sourcePrefix} \u00b7 #${competitorNo} \u00b7 DIV: ${cleanText(rawDivision)} \u2192 ${div}`,
             competitorNo,
             matchRank:null,
             matchPoints:null,
@@ -514,7 +514,7 @@
         arr.forEach((r,i)=>{
           r.matchRank=i+1;
           r.avgStagePct = r.stageCount ? r.stagePctSum / r.stageCount : null;
-          r.sourceLine = `${r.stageCount} Stages Â· ${r.matchPoints.toFixed(1)} Stage-Punkte`;
+          r.sourceLine = `${r.stageCount} Stages \u00b7 ${r.matchPoints.toFixed(1)} Stage-Punkte`;
         });
         return arr;
       }
@@ -533,7 +533,7 @@
           name=cleanText(name).replace(/[|;]+$/,"").replace(/\s{2,}/g," ");
           name=name.replace(/\b(Overall|Lady|Senior|Junior|Super Senior|Regular|Minor|Major)\b.*$/i,"").trim();
           if(!name || name.length<5 || name.length>70 || badWords.test(name)) return;
-          if(!/[a-zA-ZÃÃÃÃ¤Ã¶Ã¼Ã]/.test(name)) return;
+          if(!/[a-zA-Z\u00c4\u00d6\u00dc\u00e4\u00f6\u00fc\u00df]/.test(name)) return;
           const div = normalizeDivisionName(forcedDivision || DIVISIONS.find(d => line.toLowerCase().includes(d.toLowerCase())) || "Unknown");
           const parts=parseNameParts(name);
           if(!parts.last || parts.last.length<2) return;
@@ -544,12 +544,12 @@
 
         for(const line of lines){
           // ESS/PractiScore Stage-Results: ... # Competitor Name ... 328 Jochum, Max ...
-          const commaMatches=[...line.matchAll(/\b(?:\d{1,4}\s+)?([A-ZÃÃÃ][A-Za-zÃÃÃÃ¤Ã¶Ã¼Ã'\- ]{1,35}),\s*([A-ZÃÃÃ][A-Za-zÃÃÃÃ¤Ã¶Ã¼Ã'\- ]{1,35})/g)];
+          const commaMatches=[...line.matchAll(/\b(?:\d{1,4}\s+)?([A-Z\u00c4\u00d6\u00dc][A-Za-z\u00c4\u00d6\u00dc\u00e4\u00f6\u00fc\u00df'\- ]{1,35}),\s*([A-Z\u00c4\u00d6\u00dc][A-Za-z\u00c4\u00d6\u00dc\u00e4\u00f6\u00fc\u00df'\- ]{1,35})/g)];
           commaMatches.forEach(m=>addName(`${m[1]}, ${m[2]}`, line));
           if(commaMatches.length) continue;
 
           // Verify-/Starterlisten ohne Komma: Startnummer Name Land Division...
-          const countryRe = new RegExp("^\\s*\\d{0,4}\\s*([A-ZÃÃÃ][A-Za-zÃÃÃÃ¤Ã¶Ã¼Ã'\\-\\. ]{4,60}?)\\s+(" + COUNTRIES.join("|") + ")\\b", "i");
+          const countryRe = new RegExp("^\\s*\\d{0,4}\\s*([A-Z\u00c4\u00d6\u00dc][A-Za-z\u00c4\u00d6\u00dc\u00e4\u00f6\u00fc\u00df'\\-\\. ]{4,60}?)\\s+(" + COUNTRIES.join("|") + ")\\b", "i");
           const m=line.match(countryRe);
           if(m) addName(m[1], line);
         }
@@ -563,80 +563,58 @@
         });
       }
 
-      function pdfTextContentToLines(content){
-        const rawItems = Array.from(content?.items || [])
-          .map(item => ({
-            str: cleanText(item?.str || ""),
-            x: Number(item?.transform?.[4] || 0),
-            y: Number(item?.transform?.[5] || 0)
-          }))
-          .filter(item => item.str);
-        if(!rawItems.length) return "";
-
-        // Manche Verify-PDFs enthalten identische Textobjekte mehrfach.
-        // Ohne Entdoppelung wird daraus z.B. "Knaus, GÃ¼nther Knaus, GÃ¼nther ...".
-        const seenItems = new Set();
-        const items = [];
-        for(const item of rawItems){
-          const key = `${Math.round(item.x / 2)}|${Math.round(item.y / 2)}|${item.str}`;
-          if(seenItems.has(key)) continue;
-          seenItems.add(key);
-          items.push(item);
+      function dedupePdfItems(items){
+        const seen = new Set();
+        const out = [];
+        for(const item of Array.from(items || [])){
+          const str = cleanText(item && item.str || "");
+          if(!str) continue;
+          const tr = item.transform || [];
+          const x = Number(tr[4] || 0);
+          const y = Number(tr[5] || 0);
+          if(!Number.isFinite(x) || !Number.isFinite(y)) continue;
+          // Nur exakt gleiche Textobjekte entfernen. Keine Spalten-Trennung!
+          const key = `${Math.round(x * 10) / 10}|${Math.round(y * 10) / 10}|${str}`;
+          if(seen.has(key)) continue;
+          seen.add(key);
+          out.push({ str, x, y });
         }
+        return out;
+      }
+
+      function pdfTextContentToLines(content){
+        const items = dedupePdfItems(content && content.items);
+        if(!items.length) return "";
 
         items.sort((a,b)=> (b.y - a.y) || (a.x - b.x));
-        const rows=[];
+        const rows = [];
+        const yTolerance = 2.8;
+
         for(const item of items){
-          let row = rows.find(r => Math.abs(r.y - item.y) <= 2.5);
-          if(!row){ row = { y:item.y, items:[] }; rows.push(row); }
+          let row = rows.find(r => Math.abs(r.y - item.y) <= yTolerance);
+          if(!row){
+            row = { y:item.y, items:[] };
+            rows.push(row);
+          }
           row.items.push(item);
+          row.y = (row.y * (row.items.length - 1) + item.y) / row.items.length;
         }
-        rows.sort((a,b)=>b.y-a.y);
-        return rows
-          .map(row => row.items.sort((a,b)=>a.x-b.x).map(i=>i.str).join(" "))
-          .map(line => normalizeVerifyTextForParsing(line))
-          .join("\n");
-      }
 
-      function buildPdfLinesFromItems(items, xMin, xMax){
-        const arr=(items||[]).filter(i=>{
-          const s=String(i.str||"").trim();
-          const x=Number(i.transform && i.transform[4]);
-          return s && Number.isFinite(x) && x>=xMin && x<xMax;
-        }).map(i=>({
-          str:String(i.str||"").trim(),
-          x:Number(i.transform[4]||0),
-          y:Number(i.transform[5]||0)
-        }));
-        arr.sort((a,b)=>(b.y-a.y)||(a.x-b.x));
-        const lines=[];
-        const yTolerance=2.8;
-        for(const item of arr){
-          let line=lines.find(l=>Math.abs(l.y-item.y)<=yTolerance);
-          if(!line){ line={y:item.y, items:[]}; lines.push(line); }
-          line.items.push(item);
-          line.y=(line.y*(line.items.length-1)+item.y)/line.items.length;
-        }
-        lines.sort((a,b)=>b.y-a.y);
-        return lines.map(line=>{
-          line.items.sort((a,b)=>a.x-b.x);
-          return line.items.map(i=>i.str).join(" ").replace(/\s+/g," ").trim();
-        }).filter(Boolean);
-      }
-
-      function buildVerifyPdfPageText(page, content){
-        const viewport=page.getViewport({ scale:1 });
-        const width=viewport && viewport.width ? viewport.width : 595;
-        const mid=width/2;
-        const left=buildPdfLinesFromItems(content.items, -9999, mid);
-        const right=buildPdfLinesFromItems(content.items, mid, 99999);
-        // Verify-PDFs haben zwei Schuetzen-Spalten. Erst linke Spalte komplett, dann rechte Spalte.
-        return left.concat([""] , right).join("\n");
+        rows.sort((a,b)=> b.y - a.y);
+        return rows.map(row => {
+          row.items.sort((a,b)=> a.x - b.x);
+          return normalizeVerifyTextForParsing(row.items.map(i=>i.str).join(" "));
+        }).map(cleanText).filter(Boolean).join("\n");
       }
 
       function buildDefaultPdfPageText(content){
-        // Altes Verhalten bleibt als Fallback fuer Ergebnislisten/CSV-aehnliche PDFs erhalten.
-        return content.items.map(i=>i.str).join(" ");
+        // Altes Verhalten bleibt als Fallback fuer Ergebnislisten/Stage-Results erhalten.
+        return Array.from(content && content.items || []).map(i=>i.str).join(" ");
+      }
+
+      function buildReadablePdfPageText(content){
+        const lineText = pdfTextContentToLines(content);
+        return lineText || buildDefaultPdfPageText(content);
       }
 
       async function readFileAsText(file){
@@ -650,14 +628,16 @@
           let verifyDetected=false;
           for(let p=1;p<=pdf.numPages;p++){
             const page=await pdf.getPage(p);
-            const content=await page.getTextContent();
+            const content=await page.getTextContent({ normalizeWhitespace:true, disableCombineTextItems:false });
+            const lineText=buildReadablePdfPageText(content);
             const simple=buildDefaultPdfPageText(content);
-            const pageIsVerify=/Score\s+Verification\s+By\s+Competitor/i.test(simple) || (/\bDIV\s*:/i.test(simple) && /\bCLASS\s*:/i.test(simple) && /\bFACTOR\s*:/i.test(simple));
+            const pageIsVerify=/Score\s+Verification\s+By\s+Competitor/i.test(lineText + " " + simple) || (/\bDIV\s*:/i.test(lineText + " " + simple) && /\bCLASS\s*:/i.test(lineText + " " + simple) && /\bFACTOR\s*:/i.test(lineText + " " + simple));
             if(pageIsVerify) verifyDetected=true;
-            pages.push(pageIsVerify ? buildVerifyPdfPageText(page, content) : simple);
+            // Verify-PDF: Zeilen nach Y/X sortiert. Keine 2-Spalten-Aufteilung, sonst gehen Nummer/Name und DIV auseinander.
+            pages.push(pageIsVerify ? lineText : (lineText || simple));
           }
           const out=pages.join("\n");
-          if(verifyDetected) console.info("ELO-Check v79as: Verify-PDF mit 2-Spalten-Reader gelesen");
+          if(verifyDetected) console.info("ELO-Check v79at: Verify-PDF mit Zeilen-Reader gelesen");
           return out;
         }
         return await file.text();
@@ -712,7 +692,7 @@
           const file=document.getElementById("file-input").files[0];
           let text=document.getElementById("raw-text").value || "";
           if(file){
-            setStatus("Datei wird gelesen... Build v79as");
+            setStatus("Datei wird gelesen... Build v79at");
             text = await readFileAsText(file);
             document.getElementById("raw-text").value = text.slice(0, 40000);
           }
@@ -720,13 +700,13 @@
           const mode=document.getElementById("min-confidence").value;
           const shooters=parseShooters(text, division);
           if(!shooters.length){
-            setStatus("Keine Sch&uuml;tzen erkannt. PrÃ¼fe die Liste oder fÃ¼ge Text ein.");
+            setStatus("Keine Sch\u00fctzen erkannt. Pr\u00fcfe die Liste oder f\u00fcge Text ein.");
             allResults=[]; render();
             return;
           }
-          setStatus(`${shooters.length} Sch&uuml;tzen erkannt. Lade ELO-Daten fÃ¼r ${division}...`);
+          setStatus(`${shooters.length} Sch\u00fctzen erkannt. Lade ELO-Daten f\u00fcr ${division}...`);
           const rows=await fetchEloRowsByDivision(division);
-          setStatus(`${rows.length} ELO-EintrÃ¤ge geladen. Gleiche Namen ab...`);
+          setStatus(`${rows.length} ELO-Eintr\u00e4ge geladen. Gleiche Namen ab...`);
           allResults=shooters.map((s, idx)=>{
             const match=bestEloMatch(s, rows, mode);
             return {
@@ -764,9 +744,9 @@
         if(!allResults.length){ box.style.display="none"; select.innerHTML=""; return; }
         box.style.display="block";
         const previous=select.value;
-        select.innerHTML = '<option value="">Bitte wÃ¤hlen...</option>' + allResults
+        select.innerHTML = '<option value="">Bitte w\u00e4hlen...</option>' + allResults
           .slice().sort((a,b)=>(a.matchRank||9999)-(b.matchRank||9999) || a.name.localeCompare(b.name))
-          .map(r=>`<option value="${r.idx}">${r.matchRank ? r.matchRank + ". " : ""}${escapeHtml(r.name)}${r.elo ? " Â· ELO " + r.elo : ""}</option>`).join("");
+          .map(r=>`<option value="${r.idx}">${r.matchRank ? r.matchRank + ". " : ""}${escapeHtml(r.name)}${r.elo ? " \u00b7 ELO " + r.elo : ""}</option>`).join("");
         if(previous && allResults.some(r=>String(r.idx)===String(previous))){ select.value=previous; return; }
         const hints=currentUserHints.map(normalizeName).filter(Boolean);
         let auto=null;
@@ -797,11 +777,11 @@
       }
 
       function compareLabel(r,my,battle){
-        if(!my || !my.matchRank || !r.matchRank) return '<span class="compare-pill neutral">â</span>';
+        if(!my || !my.matchRank || !r.matchRank) return '<span class="compare-pill neutral">\u2013</span>';
         if(r.idx===my.idx) return '<span class="compare-pill me">Du</span>';
         if(!r.elo || !my.elo) return Number(r.matchRank)>Number(my.matchRank) ? '<span class="compare-pill neutral">hinter dir</span>' : '<span class="compare-pill neutral">vor dir</span>';
         if(Number(r.elo)>Number(my.elo)){
-          return Number(my.matchRank)<Number(r.matchRank) ? '<span class="compare-pill win">hÃ¶heres ELO geschlagen</span>' : '<span class="compare-pill neutral">hÃ¶heres ELO vor dir</span>';
+          return Number(my.matchRank)<Number(r.matchRank) ? '<span class="compare-pill win">h\u00f6heres ELO geschlagen</span>' : '<span class="compare-pill neutral">h\u00f6heres ELO vor dir</span>';
         }
         if(Number(r.elo)<Number(my.elo)){
           return Number(r.matchRank)<Number(my.matchRank) ? '<span class="compare-pill loss">niedrigeres ELO vor dir</span>' : '<span class="compare-pill neutral">niedrigeres ELO hinter dir</span>';
@@ -827,14 +807,14 @@
         document.getElementById("stat-higher").textContent=battle ? battle.higher.length : "-";
         document.getElementById("stat-beaten-higher").textContent=battle ? battle.beatenHigher.length : "-";
         document.getElementById("summary-text").textContent = allResults.length
-          ? `${found.length} von ${allResults.length} Sch&uuml;tzen mit ELO gefunden.`
+          ? `${found.length} von ${allResults.length} Sch\u00fctzen mit ELO gefunden.`
           : "Noch keine Liste analysiert.";
         const battleText=document.getElementById("battle-text");
         if(!allResults.length){ battleText.textContent=""; }
-        else if(!my){ battleText.textContent="WÃ¤hle deinen Namen aus, dann berechne ich den ELO-Vergleich gegen die Gegner."; }
-        else if(!my.matchRank){ battleText.textContent="FÃ¼r diese Liste wurde keine Match-Rangfolge erkannt. Der ELO-Vergleich ist nur mit Ergebnis-/Stage-Results sinnvoll."; }
-        else if(!my.elo){ battleText.textContent=`${my.name} hat keinen ELO-Treffer. Eine Tendenz ist nur mÃ¶glich, wenn dein ELO gefunden wird.`; }
-        else if(battle){ battleText.textContent=`${battle.opponents.length} Gegner mit ELO im Match. ${battle.higher.length} davon haben hÃ¶heres ELO als du; ${battle.beatenHigher.length} davon hast du geschlagen. ${battle.lostToLower.length} Sch&uuml;tzen mit niedrigerem ELO waren vor dir. Tendenz: ${battle.tendency}.`; }
+        else if(!my){ battleText.textContent="W\u00e4hle deinen Namen aus, dann berechne ich den ELO-Vergleich gegen die Gegner."; }
+        else if(!my.matchRank){ battleText.textContent="F\u00fcr diese Liste wurde keine Match-Rangfolge erkannt. Der ELO-Vergleich ist nur mit Ergebnis-/Stage-Results sinnvoll."; }
+        else if(!my.elo){ battleText.textContent=`${my.name} hat keinen ELO-Treffer. Eine Tendenz ist nur m\u00f6glich, wenn dein ELO gefunden wird.`; }
+        else if(battle){ battleText.textContent=`${battle.opponents.length} Gegner mit ELO im Match. ${battle.higher.length} davon haben h\u00f6heres ELO als du; ${battle.beatenHigher.length} davon hast du geschlagen. ${battle.lostToLower.length} Sch\u00fctzen mit niedrigerem ELO waren vor dir. Tendenz: ${battle.tendency}.`; }
         document.getElementById("csv-btn").disabled = allResults.length === 0;
 
         const body=document.getElementById("results-body");
@@ -843,9 +823,9 @@
           return;
         }
         body.innerHTML=filteredResults.map(r=>{
-          const badge = r.status==="found" ? '<span class="badge found">â gefunden</span>' :
-                        r.status==="fuzzy" ? '<span class="badge fuzzy">â prÃ¼fen</span>' :
-                        '<span class="badge miss">â kein ELO</span>';
+          const badge = r.status==="found" ? '<span class="badge found">\u2713 gefunden</span>' :
+                        r.status==="fuzzy" ? '<span class="badge fuzzy">\u2248 pr\u00fcfen</span>' :
+                        '<span class="badge miss">\u2013 kein ELO</span>';
           return `<tr>
             <td data-label="#"><span class="cell-value">${r.idx}</span></td>
             <td data-label="Name"><span class="cell-value"><strong>${escapeHtml(r.name)}</strong><div class="small source-line">${escapeHtml((r.sourceLine||"").slice(0,120))}</div></span></td>
