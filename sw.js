@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79ap-elo-check-battle';
+const CACHE_NAME = 'ipscboerse-v79aq-elo-check-verify-divisions';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
@@ -59,7 +59,7 @@ self.addEventListener('fetch', event => {
             .catch(async () => {
                 const cachedResponse = await caches.match(event.request, { ignoreSearch: true });
                 if (cachedResponse) return cachedResponse;
-                return new Response('Offline oder Ressource nicht verfügbar', {
+                return new Response('Offline oder Ressource nicht verfÃ¼gbar', {
                     status: 503,
                     headers: { 'Content-Type': 'text/plain; charset=utf-8' }
                 });
