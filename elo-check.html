@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <script id="ipsc-native-shell-redirect-elo-check">
       (function () {
         try {
@@ -20,11 +22,10 @@
         } catch (_) {}
       })();
     </script>
-    <meta charset="UTF-8">
     <meta name="color-scheme" content="light dark">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#f6f8fc">
-    <title>ELO-Check v79aq | IPSC Startplatz-BÃ¶rse</title>
+    <title>ELO-Check v79ar | IPSC Startplatz-BÃ¶rse</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-title" content="IPSC BÃ¶rse">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -314,7 +315,7 @@
         return cleanText(value) || "Unknown";
       }
 
-      // v79aq: Divisionen aus Verify-PDFs kÃ¶nnen als KÃ¼rzel kommen.
+      // v79ar: Divisionen aus Verify-PDFs kÃ¶nnen als KÃ¼rzel kommen.
       // Wichtig: In den aktuellen deutschen Verify-Listen ist DIV: O = Optics, nicht Open.
       function normalizeDivisionToken(value){
         const raw=cleanText(value);
@@ -333,6 +334,20 @@
       function looksLikeVerifyList(rawText){
         const text=String(rawText||"");
         return /Score\s+Verification\s+By\s+Competitor/i.test(text) || (/\bDIV\s*:/i.test(text) && /\bCLASS\s*:/i.test(text) && /\bFACTOR\s*:/i.test(text));
+      }
+
+      function normalizeVerifyTextForParsing(rawText){
+        let text = String(rawText || "").replace(/\r/g, "\n");
+        // PDF.js kann bei Verify-PDFs Textobjekte doppelt liefern, z.B.
+        // "Hofmann, Hofmann, Michael" oder "DIV: DIV: P". Das wird hier repariert.
+        text = text.replace(/\b(DIV|CLASS|FACTOR|CATEGORY)\s*:\s*(?:\1\s*:\s*)+/gi, "$1: ");
+        const duplicateNameRe = new RegExp("(\\b\\d{1,4}\\s+)([^,\\n]{2,90}),\\s*\\2,\\s*([^\\n]{2,90}?)(\\s+DIV\\s*:)", "giu");
+        let before;
+        do {
+          before = text;
+          text = text.replace(duplicateNameRe, "$1$2, $3$4");
+        } while (text !== before);
+        return text;
       }
 
       function nameVariants(name){
@@ -412,11 +427,11 @@
 
       function parseVerifyShooters(rawText, forcedDivision){
         const target=normalizeDivisionName(forcedDivision || "");
-        const text=String(rawText||"").replace(/\r/g,"\n");
+        const text=normalizeVerifyTextForParsing(rawText);
         if(!looksLikeVerifyList(text)) return [];
 
         const nameClass="[\\p{L}\\uFB00-\\uFB06][\\p{L}\\uFB00-\\uFB06'\\-\\. ]{1,70},\\s*[\\p{L}\\uFB00-\\uFB06][\\p{L}\\uFB00-\\uFB06'\\-\\. ]{1,70}";
-        const verifyRe=new RegExp("\\b(\\d{1,4})\\s+("+nameClass+")\\s+DIV\\s*:\\s*([A-Za-zÃÃÃÃ¤Ã¶Ã¼Ã/\\- ]{1,35}?)\\s+CLASS\\s*:", "giu");
+        const verifyRe=new RegExp("\\b(\\d{1,4})\\s+("+nameClass+")\\s+DIV\\s*:\\s*(?:DIV\\s*:\\s*)*([A-Za-zÃÃÃÃ¤Ã¶Ã¼Ã/\\- ]{1,35}?)\\s+CLASS\\s*:", "giu");
         const found=[];
         let m;
         while((m=verifyRe.exec(text))){
@@ -564,7 +579,10 @@
           row.items.push(item);
         }
         rows.sort((a,b)=>b.y-a.y);
-        return rows.map(row => row.items.sort((a,b)=>a.x-b.x).map(i=>i.str).join(" ")).join("\n");
+        return rows
+          .map(row => row.items.sort((a,b)=>a.x-b.x).map(i=>i.str).join(" "))
+          .map(line => normalizeVerifyTextForParsing(line))
+          .join("\n");
       }
 
       async function readFileAsText(file){
@@ -581,7 +599,7 @@
             const pageText=pdfTextContentToLines(content) || content.items.map(i=>i.str).join(" ");
             pages.push(pageText);
           }
-          return pages.join("\n");
+          return normalizeVerifyTextForParsing(pages.join("\n"));
         }
         return await file.text();
       }
