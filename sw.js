@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79at-elo-check-verify-final';
+const CACHE_NAME = 'ipscboerse-v79av-stage-pdf-matchrank';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
