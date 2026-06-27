@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79ao-elo-check-mobile-division';
+const CACHE_NAME = 'ipscboerse-v79ap-elo-check-battle';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',

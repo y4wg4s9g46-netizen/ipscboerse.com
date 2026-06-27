@@ -24,7 +24,7 @@
     <meta name="color-scheme" content="light dark">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#f6f8fc">
-    <title>ELO-Check v79ao | IPSC Startplatz-Börse</title>
+    <title>ELO-Check v79ap | IPSC Startplatz-Börse</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-title" content="IPSC Börse">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -81,6 +81,12 @@
       .badge.fuzzy { background:rgba(245,158,11,.14); color:var(--ec-warn); }
       .badge.miss { background:rgba(239,68,68,.12); color:var(--ec-bad); }
       .elo { font-size:20px; font-weight:950; letter-spacing:-.04em; }
+      .compare-pill { display:inline-flex; align-items:center; border-radius:999px; padding:6px 10px; font-weight:900; font-size:12px; white-space:nowrap; }
+      .compare-pill.me { background:rgba(59,130,246,.13); color:#3b82f6; }
+      .compare-pill.win { background:rgba(16,185,129,.13); color:var(--ec-good); }
+      .compare-pill.loss { background:rgba(239,68,68,.13); color:var(--ec-bad); }
+      .compare-pill.neutral { background:rgba(100,116,139,.12); color:var(--ec-muted); }
+      .my-box { margin:14px 0 16px; padding:14px; border:1px solid var(--ec-line); border-radius:18px; background:var(--ec-soft); }
       .small { color:var(--ec-muted); font-size:13px; }
       .drop-zone { border:2px dashed rgba(255,122,26,.35); border-radius:20px; background:rgba(255,122,26,.06); padding:18px; text-align:center; color:var(--ec-muted); }
       .drop-zone.is-drag { background:rgba(255,122,26,.14); }
@@ -121,6 +127,7 @@
         td .cell-value strong{ font-size:17px; }
         .source-line{ display:none; }
         .elo{ font-size:22px; }
+        .compare-pill{ white-space:normal; text-align:right; justify-content:flex-end; }
       }
 
     </style>
@@ -181,13 +188,23 @@
           <div class="panel">
             <h2 style="margin-top:0;">Auswertung</h2>
             <p class="hint" data-de="Die Treffer sind nur so gut wie die Namen in der Liste und die aktuelle ELO-Datenbank. Unsichere Treffer werden markiert." data-en="Results depend on the names in the list and the current ELO database. Uncertain matches are marked.">Die Treffer sind nur so gut wie die Namen in der Liste und die aktuelle ELO-Datenbank. Unsichere Treffer werden markiert.</p>
+            <div id="my-shooter-box" class="my-box" style="display:none;">
+              <label for="my-shooter-select" data-de="Mein Schütze" data-en="My competitor">Mein Schütze</label>
+              <select id="my-shooter-select"></select>
+              <div id="my-shooter-hint" class="hint">Wähle dich aus, dann wird angezeigt, welche höheren ELO-Gegner du geschlagen hast.</div>
+            </div>
             <div class="stats">
               <div class="stat"><strong id="stat-total">0</strong><span>Schützen</span></div>
               <div class="stat"><strong id="stat-found">0</strong><span>mit ELO</span></div>
               <div class="stat"><strong id="stat-avg">-</strong><span>Ø ELO</span></div>
               <div class="stat"><strong id="stat-top">-</strong><span>Top ELO</span></div>
+              <div class="stat"><strong id="stat-my-rank">-</strong><span>Mein Rang</span></div>
+              <div class="stat"><strong id="stat-my-elo">-</strong><span>Mein ELO</span></div>
+              <div class="stat"><strong id="stat-higher">-</strong><span>höhere ELO</span></div>
+              <div class="stat"><strong id="stat-beaten-higher">-</strong><span>davon geschlagen</span></div>
             </div>
             <div class="hint" id="summary-text">Noch keine Liste analysiert.</div>
+            <div class="hint" id="battle-text"></div>
           </div>
         </div>
 
@@ -203,14 +220,17 @@
                   <th>#</th>
                   <th>Name aus Liste</th>
                   <th>ELO-Treffer</th>
+                  <th>Match-Rang</th>
+                  <th>Punkte</th>
                   <th>Division</th>
                   <th>ELO</th>
                   <th>Rang</th>
                   <th>Status</th>
+                  <th>Vergleich</th>
                 </tr>
               </thead>
               <tbody id="results-body">
-                <tr><td colspan="7" class="small">Noch keine Daten.</td></tr>
+                <tr><td colspan="10" class="small">Noch keine Daten.</td></tr>
               </tbody>
             </table>
           </div>
@@ -230,11 +250,13 @@
       const COUNTRIES = ["GER","DEU","Germany","Deutschland","AUT","Austria","SUI","Switzerland","CHE","Netherlands","NED","Poland","POL","Czech","CZE","France","FRA","Belgium","BEL","Denmark","DEN","Sweden","SWE","Norway","NOR","Italy","ITA","Spain","ESP","Finland","FIN"];
       let allResults = [];
       let filteredResults = [];
+      let currentUserHints = [];
 
       function cleanText(v){ return String(v||"").replace(/\u00a0/g," ").replace(/\s+/g," ").trim(); }
       function escapeHtml(v){ return String(v ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
       function normalizeName(v){
         return cleanText(v).toLowerCase()
+          .replace(/ﬀ/g,"ff").replace(/ﬁ/g,"fi").replace(/ﬂ/g,"fl").replace(/ﬃ/g,"ffi").replace(/ﬄ/g,"ffl").replace(/ﬅ/g,"ft").replace(/ﬆ/g,"st")
           .replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss")
           .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
           .replace(/[^a-z0-9]+/g," ").replace(/\s+/g," ").trim();
@@ -263,7 +285,8 @@
             dash.style.display="none";
             return false;
           }
-          const { data:profile, error } = await client.from("profiles").select("is_doppel_aa").eq("id", user.id).maybeSingle();
+          const { data:profile, error } = await client.from("profiles").select("is_doppel_aa, real_name").eq("id", user.id).maybeSingle();
+          currentUserHints = [profile?.real_name, user?.user_metadata?.full_name, user?.user_metadata?.name, (user?.email||"").split("@")[0]].filter(Boolean);
           if(error || !profile || !isDoubleAAValue(profile.is_doppel_aa)){
             denied.textContent="Kein Zugriff. Diese Funktion ist nur für Accounts mit Doppel-AA-Prüfung freigeschaltet.";
             dash.style.display="none";
@@ -366,7 +389,51 @@
         return chunks.join("\n");
       }
 
+      function parseStageResultsShooters(rawText, forcedDivision){
+        const target=normalizeDivisionName(forcedDivision || "");
+        const chunks=splitTextIntoLogicalChunks(rawText).filter(c=>{
+          const d=getDivisionHeadingFromChunk(c);
+          return !d || !target || d===target;
+        });
+        const scoped=chunks.join("\n");
+        if(!/Overall\s+Stage\s+Results/i.test(scoped)) return [];
+        const nameClass="[\\p{L}\\uFB00-\\uFB06][\\p{L}\\uFB00-\\uFB06'\\-\\. ]{1,55},\\s*[\\p{L}\\uFB00-\\uFB06][\\p{L}\\uFB00-\\uFB06'\\-\\. ]{1,55}";
+        const rowRe=new RegExp("\\b(\\d{1,3})\\s+(-?\\d+(?:\\.\\d+)?)\\s+(\\d+(?:\\.\\d+)?)\\s+(\\d+(?:\\.\\d+)?)\\s+(\\d+(?:\\.\\d+)?)\\s+(\\d+(?:\\.\\d+)?)\\s+(\\d{1,4})\\s+("+nameClass+")", "gu");
+        const agg=new Map();
+        let m;
+        while((m=rowRe.exec(scoped))){
+          const stageRank=Number(m[1]);
+          const stagePts=Number(m[5]);
+          const stagePct=Number(m[6]);
+          const competitorNo=m[7];
+          const name=cleanText(m[8]);
+          if(!name || !name.includes(",")) continue;
+          const parts=parseNameParts(name);
+          const key=normalizeName(parts.display);
+          if(!key) continue;
+          if(!agg.has(key)){
+            agg.set(key,{ name:parts.display, first:parts.first, last:parts.last, division:target || normalizeDivisionName(forcedDivision), sourceLine:"Stage Results", competitorNo, matchPoints:0, stageCount:0, stageRanks:[], stagePctSum:0, hasScore:true });
+          }
+          const r=agg.get(key);
+          r.matchPoints += Number.isFinite(stagePts) ? stagePts : 0;
+          r.stagePctSum += Number.isFinite(stagePct) ? stagePct : 0;
+          r.stageCount += 1;
+          r.stageRanks.push(stageRank);
+        }
+        const arr=[...agg.values()];
+        if(!arr.length) return [];
+        arr.sort((a,b)=> (b.matchPoints-a.matchPoints) || a.name.localeCompare(b.name));
+        arr.forEach((r,i)=>{
+          r.matchRank=i+1;
+          r.avgStagePct = r.stageCount ? r.stagePctSum / r.stageCount : null;
+          r.sourceLine = `${r.stageCount} Stages · ${r.matchPoints.toFixed(1)} Stage-Punkte`;
+        });
+        return arr;
+      }
+
       function parseShooters(rawText, forcedDivision){
+        const stageShooters=parseStageResultsShooters(rawText, forcedDivision);
+        if(stageShooters.length) return stageShooters;
         const scopedText=scopeTextToDivision(rawText, forcedDivision);
         const lines=String(scopedText||"").replace(/\r/g,"\n").split(/\n+/).map(cleanText).filter(Boolean);
         const found=[];
@@ -495,6 +562,10 @@
               name:s.name,
               division,
               sourceLine:s.sourceLine,
+              matchRank:s.matchRank || null,
+              matchPoints:Number.isFinite(s.matchPoints) ? s.matchPoints : null,
+              stageCount:s.stageCount || null,
+              avgStagePct:Number.isFinite(s.avgStagePct) ? s.avgStagePct : null,
               dbName: match?.row?.lastname || "",
               elo: match?.row?.elo_rating ? Math.round(Number(match.row.elo_rating)) : null,
               rank: match?.row?.rank || "",
@@ -504,6 +575,7 @@
             };
           });
           setStatus("Analyse fertig.");
+          updateMyShooterOptions();
           render();
         }catch(e){
           console.error(e);
@@ -513,6 +585,58 @@
         }
       }
 
+      function updateMyShooterOptions(){
+        const box=document.getElementById("my-shooter-box");
+        const select=document.getElementById("my-shooter-select");
+        if(!box || !select) return;
+        if(!allResults.length){ box.style.display="none"; select.innerHTML=""; return; }
+        box.style.display="block";
+        const previous=select.value;
+        select.innerHTML = '<option value="">Bitte wählen...</option>' + allResults
+          .slice().sort((a,b)=>(a.matchRank||9999)-(b.matchRank||9999) || a.name.localeCompare(b.name))
+          .map(r=>`<option value="${r.idx}">${r.matchRank ? r.matchRank + ". " : ""}${escapeHtml(r.name)}${r.elo ? " · ELO " + r.elo : ""}</option>`).join("");
+        if(previous && allResults.some(r=>String(r.idx)===String(previous))){ select.value=previous; return; }
+        const hints=currentUserHints.map(normalizeName).filter(Boolean);
+        let auto=null;
+        if(hints.length){
+          auto=allResults.find(r=>hints.some(h=>normalizeName(r.name).includes(h) || h.includes(normalizeName(r.name)))) || null;
+        }
+        if(auto) select.value=String(auto.idx);
+      }
+
+      function getSelectedMyResult(){
+        const select=document.getElementById("my-shooter-select");
+        if(!select || !select.value) return null;
+        return allResults.find(r=>String(r.idx)===String(select.value)) || null;
+      }
+
+      function computeEloBattle(my){
+        if(!my || !my.elo || !my.matchRank) return null;
+        const opponents=allResults.filter(r=>r!==my && r.elo && r.matchRank);
+        const higher=opponents.filter(r=>Number(r.elo)>Number(my.elo));
+        const beatenHigher=higher.filter(r=>Number(my.matchRank)<Number(r.matchRank));
+        const lower=opponents.filter(r=>Number(r.elo)<Number(my.elo));
+        const lostToLower=lower.filter(r=>Number(r.matchRank)<Number(my.matchRank));
+        const sameOrUnknown=opponents.length-higher.length-lower.length;
+        let tendency="neutral";
+        if(beatenHigher.length>lostToLower.length) tendency="steigt wahrscheinlich";
+        else if(lostToLower.length>beatenHigher.length) tendency="sinkt wahrscheinlich";
+        return { opponents, higher, beatenHigher, lower, lostToLower, sameOrUnknown, tendency };
+      }
+
+      function compareLabel(r,my,battle){
+        if(!my || !my.matchRank || !r.matchRank) return '<span class="compare-pill neutral">–</span>';
+        if(r.idx===my.idx) return '<span class="compare-pill me">Du</span>';
+        if(!r.elo || !my.elo) return Number(r.matchRank)>Number(my.matchRank) ? '<span class="compare-pill neutral">hinter dir</span>' : '<span class="compare-pill neutral">vor dir</span>';
+        if(Number(r.elo)>Number(my.elo)){
+          return Number(my.matchRank)<Number(r.matchRank) ? '<span class="compare-pill win">höheres ELO geschlagen</span>' : '<span class="compare-pill neutral">höheres ELO vor dir</span>';
+        }
+        if(Number(r.elo)<Number(my.elo)){
+          return Number(r.matchRank)<Number(my.matchRank) ? '<span class="compare-pill loss">niedrigeres ELO vor dir</span>' : '<span class="compare-pill neutral">niedrigeres ELO hinter dir</span>';
+        }
+        return Number(my.matchRank)<Number(r.matchRank) ? '<span class="compare-pill win">gleiches ELO geschlagen</span>' : '<span class="compare-pill neutral">gleiches ELO vor dir</span>';
+      }
+
       function render(){
         const q=normalizeName(document.getElementById("search-input").value || "");
         filteredResults=allResults.filter(r => !q || normalizeName(r.name+" "+r.dbName).includes(q));
@@ -520,18 +644,30 @@
         const elos=found.map(r=>r.elo);
         const avg=elos.length ? Math.round(elos.reduce((a,b)=>a+b,0)/elos.length) : "-";
         const top=elos.length ? Math.max(...elos) : "-";
+        const my=getSelectedMyResult();
+        const battle=computeEloBattle(my);
         document.getElementById("stat-total").textContent=allResults.length;
         document.getElementById("stat-found").textContent=found.length;
         document.getElementById("stat-avg").textContent=avg;
         document.getElementById("stat-top").textContent=top;
+        document.getElementById("stat-my-rank").textContent=my?.matchRank ? my.matchRank : "-";
+        document.getElementById("stat-my-elo").textContent=my?.elo || "-";
+        document.getElementById("stat-higher").textContent=battle ? battle.higher.length : "-";
+        document.getElementById("stat-beaten-higher").textContent=battle ? battle.beatenHigher.length : "-";
         document.getElementById("summary-text").textContent = allResults.length
           ? `${found.length} von ${allResults.length} Schützen mit ELO gefunden.`
           : "Noch keine Liste analysiert.";
+        const battleText=document.getElementById("battle-text");
+        if(!allResults.length){ battleText.textContent=""; }
+        else if(!my){ battleText.textContent="Wähle deinen Namen aus, dann berechne ich den ELO-Vergleich gegen die Gegner."; }
+        else if(!my.matchRank){ battleText.textContent="Für diese Liste wurde keine Match-Rangfolge erkannt. Der ELO-Vergleich ist nur mit Ergebnis-/Stage-Results sinnvoll."; }
+        else if(!my.elo){ battleText.textContent=`${my.name} hat keinen ELO-Treffer. Eine Tendenz ist nur möglich, wenn dein ELO gefunden wird.`; }
+        else if(battle){ battleText.textContent=`${battle.opponents.length} Gegner mit ELO im Match. ${battle.higher.length} davon haben höheres ELO als du; ${battle.beatenHigher.length} davon hast du geschlagen. ${battle.lostToLower.length} Schützen mit niedrigerem ELO waren vor dir. Tendenz: ${battle.tendency}.`; }
         document.getElementById("csv-btn").disabled = allResults.length === 0;
 
         const body=document.getElementById("results-body");
         if(!filteredResults.length){
-          body.innerHTML='<tr><td colspan="7" class="small">Keine Treffer in der aktuellen Ansicht.</td></tr>';
+          body.innerHTML='<tr><td colspan="10" class="small">Keine Treffer in der aktuellen Ansicht.</td></tr>';
           return;
         }
         body.innerHTML=filteredResults.map(r=>{
@@ -542,18 +678,21 @@
             <td data-label="#"><span class="cell-value">${r.idx}</span></td>
             <td data-label="Name"><span class="cell-value"><strong>${escapeHtml(r.name)}</strong><div class="small source-line">${escapeHtml((r.sourceLine||"").slice(0,120))}</div></span></td>
             <td data-label="ELO-Treffer"><span class="cell-value">${r.dbName ? escapeHtml(r.dbName) : '<span class="small">Kein passender Eintrag</span>'}${r.classStyle ? `<div class="small">${escapeHtml(r.classStyle)}</div>` : ''}</span></td>
+            <td data-label="Match-Rang"><span class="cell-value">${r.matchRank || "-"}</span></td>
+            <td data-label="Punkte"><span class="cell-value">${Number.isFinite(r.matchPoints) ? r.matchPoints.toFixed(1) : "-"}</span></td>
             <td data-label="Division"><span class="cell-value">${escapeHtml(r.division)}</span></td>
             <td data-label="ELO"><span class="cell-value elo">${r.elo || "-"}</span></td>
             <td data-label="Rang"><span class="cell-value">${r.rank || "-"}</span></td>
             <td data-label="Status"><span class="cell-value">${badge}</span></td>
+            <td data-label="Vergleich"><span class="cell-value">${compareLabel(r,my,battle)}</span></td>
           </tr>`;
         }).join("");
       }
 
       function exportCsv(){
         if(!allResults.length) return;
-        const rows=[["Name aus Liste","ELO-Name","Division","ELO","Rang","Status","Quelle"]];
-        allResults.forEach(r=>rows.push([r.name,r.dbName,r.division,r.elo||"",r.rank||"",r.status,r.sourceLine||""]));
+        const rows=[["Name aus Liste","ELO-Name","Match-Rang","Match-Punkte","Division","ELO","Rang","Status","Quelle"]];
+        allResults.forEach(r=>rows.push([r.name,r.dbName,r.matchRank||"",Number.isFinite(r.matchPoints)?r.matchPoints.toFixed(3):"",r.division,r.elo||"",r.rank||"",r.status,r.sourceLine||""]));
         const csv=rows.map(row=>row.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\n");
         const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
         const url=URL.createObjectURL(blob);
@@ -567,6 +706,7 @@
         document.getElementById("raw-text").value="";
         document.getElementById("file-input").value="";
         setStatus("");
+        updateMyShooterOptions();
         render();
       }
 
@@ -584,6 +724,7 @@
         document.getElementById("clear-btn").addEventListener("click", resetAll);
         document.getElementById("csv-btn").addEventListener("click", exportCsv);
         document.getElementById("search-input").addEventListener("input", render);
+        document.getElementById("my-shooter-select").addEventListener("change", render);
         const dz=document.getElementById("drop-zone");
         ["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev, e=>{e.preventDefault(); dz.classList.add("is-drag");}));
         ["dragleave","drop"].forEach(ev=>dz.addEventListener(ev, e=>{e.preventDefault(); dz.classList.remove("is-drag");}));
