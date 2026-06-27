@@ -24,7 +24,7 @@
     <meta name="color-scheme" content="light dark">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#f6f8fc">
-    <title>ELO-Check | IPSC Startplatz-Börse</title>
+    <title>ELO-Check v79ao | IPSC Startplatz-Börse</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-title" content="IPSC Börse">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -90,6 +90,39 @@
         .hero,.panel,.access-box{border-radius:24px;padding:20px;}
         .stats{grid-template-columns:repeat(2,1fr);}
       }
+
+      /* v79ao: Mobile Fix für ELO-Check */
+      .source-line { max-width:520px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      @media(max-width:700px){
+        body.page-elo-check { overflow-x:hidden; }
+        .page-wrap{ padding:14px 12px calc(135px + env(safe-area-inset-bottom)); }
+        .hero{ padding:18px; margin-bottom:14px; }
+        h1{ font-size:34px; line-height:1.02; }
+        .lead{ font-size:16px; }
+        .panel{ padding:16px; margin:14px 0; border-radius:22px; overflow:hidden; }
+        .drop-zone{ padding:14px; text-align:left; }
+        .drop-zone input[type="file"]{ max-width:100%; font-size:14px; }
+        textarea{ min-height:150px; max-height:210px; font-size:14px; }
+        .btn-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .btn-row .ec-btn{ width:100%; padding:13px 10px; font-size:15px; border-radius:16px; }
+        #csv-btn{ grid-column:1 / -1; }
+        .stats{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+        .stat{ min-height:70px; padding:14px; }
+        .stat strong{ font-size:28px; }
+        .table-wrap{ overflow:visible; border:0; background:transparent; }
+        table{ min-width:0; width:100%; display:block; }
+        thead{ display:none; }
+        tbody{ display:block; }
+        tr{ display:block; margin:0 0 12px; padding:14px; border:1px solid var(--ec-line); border-radius:20px; background:var(--ec-card); box-shadow:0 10px 24px rgba(15,23,42,.06); }
+        td{ display:flex; justify-content:space-between; align-items:flex-start; gap:14px; border-bottom:1px solid var(--ec-line); padding:10px 0; font-size:15px; }
+        td:last-child{ border-bottom:0; }
+        td::before{ content:attr(data-label); flex:0 0 92px; color:var(--ec-muted); font-size:11px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+        td .cell-value{ flex:1; min-width:0; text-align:right; }
+        td .cell-value strong{ font-size:17px; }
+        .source-line{ display:none; }
+        .elo{ font-size:22px; }
+      }
+
     </style>
 </head>
 <body class="page-elo-check">
@@ -306,9 +339,36 @@
         return prev[b.length];
       }
 
+      function splitTextIntoLogicalChunks(rawText){
+        const raw=String(rawText||"").replace(/\r/g,"\n");
+        const pageChunks=raw.split(/\n+/).map(cleanText).filter(Boolean);
+        if(pageChunks.length>1) return pageChunks;
+        // Fallback, falls PDF.js ausnahmsweise alles in eine Zeile setzt.
+        return raw.split(/(?=(?:Production Optics|Optics|Standard|Open|Production|Classic|Revolver)\s*-\s*Overall Stage Results)/i)
+          .map(cleanText).filter(Boolean);
+      }
+
+      function getDivisionHeadingFromChunk(chunk){
+        const m=String(chunk||"").match(/(Production Optics|Optics|Standard|Open|Production|Classic|Revolver)\s*-\s*Overall\s+Stage\s+Results/i);
+        return m ? normalizeDivisionName(m[1]) : "";
+      }
+
+      function scopeTextToDivision(rawText, forcedDivision){
+        const target=normalizeDivisionName(forcedDivision || "");
+        const chunks=splitTextIntoLogicalChunks(rawText);
+        const withHeadings=chunks.map(c=>({chunk:c, division:getDivisionHeadingFromChunk(c)})).filter(x=>x.division);
+        if(withHeadings.length && target){
+          const picked=withHeadings.filter(x=>x.division===target).map(x=>x.chunk);
+          // Stage-Results-PDF enthält mehrere Divisionen. Nur die gewählte Division analysieren.
+          if(picked.length) return picked.join("\n");
+          return "";
+        }
+        return chunks.join("\n");
+      }
+
       function parseShooters(rawText, forcedDivision){
-        const text=String(rawText||"").replace(/\r/g,"\n");
-        const lines=text.split(/\n+/).map(cleanText).filter(Boolean);
+        const scopedText=scopeTextToDivision(rawText, forcedDivision);
+        const lines=String(scopedText||"").replace(/\r/g,"\n").split(/\n+/).map(cleanText).filter(Boolean);
         const found=[];
         const badWords=/^(name|vorname|nachname|division|klasse|category|overall|rank|stage|match|verify|verification|results|result|squad|punkte|points|time|hit|factor|competitor|shooter)$/i;
 
@@ -317,17 +377,21 @@
           name=name.replace(/\b(Overall|Lady|Senior|Junior|Super Senior|Regular|Minor|Major)\b.*$/i,"").trim();
           if(!name || name.length<5 || name.length>70 || badWords.test(name)) return;
           if(!/[a-zA-ZÄÖÜäöüß]/.test(name)) return;
-          const div = normalizeDivisionName(forcedDivision || DIVISIONS.find(d => line.toLowerCase().includes(d.toLowerCase())) || forcedDivision || "Unknown");
+          const div = normalizeDivisionName(forcedDivision || DIVISIONS.find(d => line.toLowerCase().includes(d.toLowerCase())) || "Unknown");
           const parts=parseNameParts(name);
           if(!parts.last || parts.last.length<2) return;
+          const n=normalizeName(parts.display);
+          if(n.includes("competitor name") || n.includes("stage results") || n.includes("printed jun")) return;
           found.push({ name:parts.display, first:parts.first, last:parts.last, division:div, sourceLine:line });
         }
 
         for(const line of lines){
-          const commaMatches=[...line.matchAll(/([A-ZÄÖÜ][A-Za-zÄÖÜäöüß'\- ]{1,35}),\s*([A-ZÄÖÜ][A-Za-zÄÖÜäöüß'\- ]{1,35})/g)];
+          // ESS/PractiScore Stage-Results: ... # Competitor Name ... 328 Jochum, Max ...
+          const commaMatches=[...line.matchAll(/\b(?:\d{1,4}\s+)?([A-ZÄÖÜ][A-Za-zÄÖÜäöüß'\- ]{1,35}),\s*([A-ZÄÖÜ][A-Za-zÄÖÜäöüß'\- ]{1,35})/g)];
           commaMatches.forEach(m=>addName(`${m[1]}, ${m[2]}`, line));
           if(commaMatches.length) continue;
 
+          // Verify-/Starterlisten ohne Komma: Startnummer Name Land Division...
           const countryRe = new RegExp("^\\s*\\d{0,4}\\s*([A-ZÄÖÜ][A-Za-zÄÖÜäöüß'\\-\\. ]{4,60}?)\\s+(" + COUNTRIES.join("|") + ")\\b", "i");
           const m=line.match(countryRe);
           if(m) addName(m[1], line);
@@ -475,13 +539,13 @@
                         r.status==="fuzzy" ? '<span class="badge fuzzy">≈ prüfen</span>' :
                         '<span class="badge miss">– kein ELO</span>';
           return `<tr>
-            <td>${r.idx}</td>
-            <td><strong>${escapeHtml(r.name)}</strong><div class="small">${escapeHtml((r.sourceLine||"").slice(0,120))}</div></td>
-            <td>${r.dbName ? escapeHtml(r.dbName) : '<span class="small">Kein passender Eintrag</span>'}${r.classStyle ? `<div class="small">${escapeHtml(r.classStyle)}</div>` : ''}</td>
-            <td>${escapeHtml(r.division)}</td>
-            <td class="elo">${r.elo || "-"}</td>
-            <td>${r.rank || "-"}</td>
-            <td>${badge}</td>
+            <td data-label="#"><span class="cell-value">${r.idx}</span></td>
+            <td data-label="Name"><span class="cell-value"><strong>${escapeHtml(r.name)}</strong><div class="small source-line">${escapeHtml((r.sourceLine||"").slice(0,120))}</div></span></td>
+            <td data-label="ELO-Treffer"><span class="cell-value">${r.dbName ? escapeHtml(r.dbName) : '<span class="small">Kein passender Eintrag</span>'}${r.classStyle ? `<div class="small">${escapeHtml(r.classStyle)}</div>` : ''}</span></td>
+            <td data-label="Division"><span class="cell-value">${escapeHtml(r.division)}</span></td>
+            <td data-label="ELO"><span class="cell-value elo">${r.elo || "-"}</span></td>
+            <td data-label="Rang"><span class="cell-value">${r.rank || "-"}</span></td>
+            <td data-label="Status"><span class="cell-value">${badge}</span></td>
           </tr>`;
         }).join("");
       }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79o-sharecard';
+const CACHE_NAME = 'ipscboerse-v79ao-elo-check-mobile-division';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
