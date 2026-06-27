@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79aq-elo-check-verify-divisions';
+const CACHE_NAME = 'ipscboerse-v79ar-verify-pdf-fix';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
