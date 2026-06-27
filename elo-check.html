@@ -138,8 +138,9 @@
     <main class="page-wrap">
       <section class="hero">
         <span class="kicker" data-de="Doppel-AA Vereinsbereich" data-en="Double Alpha club area">Doppel-AA Vereinsbereich</span>
-        <h1 data-de="ELO-Check fÃ¼r Ergebnis- & Verify-Listen" data-en="ELO check for results & verify lists">ELO-Check fÃ¼r Ergebnis- & Verify-Listen</h1>
-        <p class="lead" data-de="Lade eine Ergebnisliste, Verify-Liste, CSV/TXT oder PDF hoch. Die Seite erkennt SchÃ¼tzennamen und gleicht sie gegen deine IPSC-ELO-Datenbank ab." data-en="Upload a results list, verify list, CSV/TXT or PDF. The page detects competitor names and matches them against your IPSC ELO database.">Lade eine Ergebnisliste, Verify-Liste, CSV/TXT oder PDF hoch. Die Seite erkennt SchÃ¼tzennamen und gleicht sie gegen deine IPSC-ELO-Datenbank ab.</p>
+        <h1 data-de="ELO-Check f&uuml;r Ergebnis- & Verify-Listen" data-en="ELO check for results & verify lists">ELO-Check f&uuml;r Ergebnis- & Verify-Listen</h1>
+        <p class="lead" data-de="Lade eine Ergebnisliste, Verify-Liste, CSV/TXT oder PDF hoch. Die Seite erkennt Sch&uuml;tzennamen und gleicht sie gegen deine IPSC-ELO-Datenbank ab." data-en="Upload a results list, verify list, CSV/TXT or PDF. The page detects competitor names and matches them against your IPSC ELO database.">Lade eine Ergebnisliste, Verify-Liste, CSV/TXT oder PDF hoch. Die Seite erkennt Sch&uuml;tzennamen und gleicht sie gegen deine IPSC-ELO-Datenbank ab.</p>
+        <div class="hint" id="elo-build-stamp" style="margin-top:12px;font-weight:900;">Build v79as Â· Verify-PDF 2-Spalten-Fix</div>
       </section>
 
       <div id="access-denied" class="access-box">PrÃ¼fe Doppel-AA-Berechtigung...</div>
@@ -150,7 +151,7 @@
             <label for="file-input" data-de="Liste hochladen" data-en="Upload list">Liste hochladen</label>
             <div id="drop-zone" class="drop-zone">
               <input id="file-input" type="file" accept=".pdf,.txt,.csv,.json,text/plain,application/pdf" />
-              <div class="hint" data-de="PDF, TXT oder CSV. Alternativ Text unten einfÃ¼gen." data-en="PDF, TXT or CSV. Alternatively paste text below.">PDF, TXT oder CSV. Alternativ Text unten einfÃ¼gen.</div>
+              <div class="hint" data-de="PDF, TXT oder CSV. Alternativ Text unten einf&uuml;gen." data-en="PDF, TXT or CSV. Alternatively paste text below.">PDF, TXT oder CSV. Alternativ Text unten einf&uuml;gen.</div>
             </div>
 
             <div class="form-row">
@@ -195,13 +196,13 @@
               <div id="my-shooter-hint" class="hint">WÃ¤hle dich aus, dann wird angezeigt, welche hÃ¶heren ELO-Gegner du geschlagen hast.</div>
             </div>
             <div class="stats">
-              <div class="stat"><strong id="stat-total">0</strong><span>SchÃ¼tzen</span></div>
+              <div class="stat"><strong id="stat-total">0</strong><span>Sch&uuml;tzen</span></div>
               <div class="stat"><strong id="stat-found">0</strong><span>mit ELO</span></div>
               <div class="stat"><strong id="stat-avg">-</strong><span>Ã ELO</span></div>
               <div class="stat"><strong id="stat-top">-</strong><span>Top ELO</span></div>
               <div class="stat"><strong id="stat-my-rank">-</strong><span>Mein Rang</span></div>
               <div class="stat"><strong id="stat-my-elo">-</strong><span>Mein ELO</span></div>
-              <div class="stat"><strong id="stat-higher">-</strong><span>hÃ¶here ELO</span></div>
+              <div class="stat"><strong id="stat-higher">-</strong><span>h&ouml;here ELO</span></div>
               <div class="stat"><strong id="stat-beaten-higher">-</strong><span>davon geschlagen</span></div>
             </div>
             <div class="hint" id="summary-text">Noch keine Liste analysiert.</div>
@@ -211,7 +212,7 @@
 
         <div class="panel">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-            <h2 style="margin:0;">SchÃ¼tzen & ELO</h2>
+            <h2 style="margin:0;">Sch&uuml;tzen & ELO</h2>
             <input id="search-input" type="text" placeholder="Namen filtern..." style="max-width:320px;">
           </div>
           <div class="table-wrap" style="margin-top:14px;">
@@ -430,29 +431,41 @@
         const text=normalizeVerifyTextForParsing(rawText);
         if(!looksLikeVerifyList(text)) return [];
 
-        const nameClass="[\\p{L}\\uFB00-\\uFB06][\\p{L}\\uFB00-\\uFB06'\\-\\. ]{1,70},\\s*[\\p{L}\\uFB00-\\uFB06][\\p{L}\\uFB00-\\uFB06'\\-\\. ]{1,70}";
-        const verifyRe=new RegExp("\\b(\\d{1,4})\\s+("+nameClass+")\\s+DIV\\s*:\\s*(?:DIV\\s*:\\s*)*([A-Za-zÃÃÃÃ¤Ã¶Ã¼Ã/\\- ]{1,35}?)\\s+CLASS\\s*:", "giu");
         const found=[];
-        let m;
-        while((m=verifyRe.exec(text))){
-          const competitorNo=m[1];
-          const name=cleanText(m[2]);
-          const rawDivision=cleanText(m[3]);
+        const lines=String(text||"").replace(/\r/g,"\n").split(/\n+/).map(cleanText).filter(Boolean);
+        const lineRe=/^\s*(\d{1,4})\s+(.+?)\s+DIV\s*:\s*(?:DIV\s*:\s*)*([A-Za-zÃÃÃÃ¤Ã¶Ã¼Ã/\- ]{1,35}?)\s+CLASS\s*:/iu;
+        const globalNameClass="[\\p{L}\\uFB00-\\uFB06][\\p{L}\\uFB00-\\uFB06'\\-\\. ]{1,70},\\s*[\\p{L}\\uFB00-\\uFB06][\\p{L}\\uFB00-\\uFB06'\\-\\. ]{1,70}";
+        const globalRe=new RegExp("\\b(\\d{1,4})\\s+("+globalNameClass+")\\s+DIV\\s*:\\s*(?:DIV\\s*:\\s*)*([A-Za-zÃÃÃÃ¤Ã¶Ã¼Ã/\\- ]{1,35}?)\\s+CLASS\\s*:", "giu");
+
+        function pushOne(competitorNo, rawName, rawDivision, sourcePrefix){
+          let name=cleanText(rawName).replace(/^\d{1,4}\s+/,"");
           const div=normalizeDivisionToken(rawDivision);
-          if(target && div !== target) continue;
+          if(target && div !== target) return;
+          if(!name || !name.includes(",")) return;
           const parts=parseNameParts(name);
-          if(!parts.last || parts.last.length<2) continue;
+          if(!parts.last || parts.last.length<2) return;
           found.push({
             name:parts.display,
             first:parts.first,
             last:parts.last,
             division:div,
-            sourceLine:`Verify Â· #${competitorNo} Â· DIV: ${rawDivision} â ${div}`,
+            sourceLine:`${sourcePrefix} Â· #${competitorNo} Â· DIV: ${cleanText(rawDivision)} â ${div}`,
             competitorNo,
             matchRank:null,
             matchPoints:null,
             hasVerify:true
           });
+        }
+
+        for(const line of lines){
+          const m=line.match(lineRe);
+          if(m) pushOne(m[1], m[2], m[3], "Verify");
+        }
+
+        // Fallback fuer alte/komisch zusammengeklebte PDF-Texte bleibt drin.
+        let m;
+        while((m=globalRe.exec(text))){
+          pushOne(m[1], m[2], m[3], "Verify-Fallback");
         }
 
         const seen=new Set();
@@ -585,6 +598,47 @@
           .join("\n");
       }
 
+      function buildPdfLinesFromItems(items, xMin, xMax){
+        const arr=(items||[]).filter(i=>{
+          const s=String(i.str||"").trim();
+          const x=Number(i.transform && i.transform[4]);
+          return s && Number.isFinite(x) && x>=xMin && x<xMax;
+        }).map(i=>({
+          str:String(i.str||"").trim(),
+          x:Number(i.transform[4]||0),
+          y:Number(i.transform[5]||0)
+        }));
+        arr.sort((a,b)=>(b.y-a.y)||(a.x-b.x));
+        const lines=[];
+        const yTolerance=2.8;
+        for(const item of arr){
+          let line=lines.find(l=>Math.abs(l.y-item.y)<=yTolerance);
+          if(!line){ line={y:item.y, items:[]}; lines.push(line); }
+          line.items.push(item);
+          line.y=(line.y*(line.items.length-1)+item.y)/line.items.length;
+        }
+        lines.sort((a,b)=>b.y-a.y);
+        return lines.map(line=>{
+          line.items.sort((a,b)=>a.x-b.x);
+          return line.items.map(i=>i.str).join(" ").replace(/\s+/g," ").trim();
+        }).filter(Boolean);
+      }
+
+      function buildVerifyPdfPageText(page, content){
+        const viewport=page.getViewport({ scale:1 });
+        const width=viewport && viewport.width ? viewport.width : 595;
+        const mid=width/2;
+        const left=buildPdfLinesFromItems(content.items, -9999, mid);
+        const right=buildPdfLinesFromItems(content.items, mid, 99999);
+        // Verify-PDFs haben zwei Schuetzen-Spalten. Erst linke Spalte komplett, dann rechte Spalte.
+        return left.concat([""] , right).join("\n");
+      }
+
+      function buildDefaultPdfPageText(content){
+        // Altes Verhalten bleibt als Fallback fuer Ergebnislisten/CSV-aehnliche PDFs erhalten.
+        return content.items.map(i=>i.str).join(" ");
+      }
+
       async function readFileAsText(file){
         if(!file) return "";
         if(file.type === "application/pdf" || /\.pdf$/i.test(file.name)){
@@ -593,13 +647,18 @@
           const buf=await file.arrayBuffer();
           const pdf=await pdfjsLib.getDocument({data:buf}).promise;
           const pages=[];
+          let verifyDetected=false;
           for(let p=1;p<=pdf.numPages;p++){
             const page=await pdf.getPage(p);
             const content=await page.getTextContent();
-            const pageText=pdfTextContentToLines(content) || content.items.map(i=>i.str).join(" ");
-            pages.push(pageText);
+            const simple=buildDefaultPdfPageText(content);
+            const pageIsVerify=/Score\s+Verification\s+By\s+Competitor/i.test(simple) || (/\bDIV\s*:/i.test(simple) && /\bCLASS\s*:/i.test(simple) && /\bFACTOR\s*:/i.test(simple));
+            if(pageIsVerify) verifyDetected=true;
+            pages.push(pageIsVerify ? buildVerifyPdfPageText(page, content) : simple);
           }
-          return normalizeVerifyTextForParsing(pages.join("\n"));
+          const out=pages.join("\n");
+          if(verifyDetected) console.info("ELO-Check v79as: Verify-PDF mit 2-Spalten-Reader gelesen");
+          return out;
         }
         return await file.text();
       }
@@ -653,7 +712,7 @@
           const file=document.getElementById("file-input").files[0];
           let text=document.getElementById("raw-text").value || "";
           if(file){
-            setStatus("Datei wird gelesen...");
+            setStatus("Datei wird gelesen... Build v79as");
             text = await readFileAsText(file);
             document.getElementById("raw-text").value = text.slice(0, 40000);
           }
@@ -661,11 +720,11 @@
           const mode=document.getElementById("min-confidence").value;
           const shooters=parseShooters(text, division);
           if(!shooters.length){
-            setStatus("Keine SchÃ¼tzen erkannt. PrÃ¼fe die Liste oder fÃ¼ge Text ein.");
+            setStatus("Keine Sch&uuml;tzen erkannt. PrÃ¼fe die Liste oder fÃ¼ge Text ein.");
             allResults=[]; render();
             return;
           }
-          setStatus(`${shooters.length} SchÃ¼tzen erkannt. Lade ELO-Daten fÃ¼r ${division}...`);
+          setStatus(`${shooters.length} Sch&uuml;tzen erkannt. Lade ELO-Daten fÃ¼r ${division}...`);
           const rows=await fetchEloRowsByDivision(division);
           setStatus(`${rows.length} ELO-EintrÃ¤ge geladen. Gleiche Namen ab...`);
           allResults=shooters.map((s, idx)=>{
@@ -768,14 +827,14 @@
         document.getElementById("stat-higher").textContent=battle ? battle.higher.length : "-";
         document.getElementById("stat-beaten-higher").textContent=battle ? battle.beatenHigher.length : "-";
         document.getElementById("summary-text").textContent = allResults.length
-          ? `${found.length} von ${allResults.length} SchÃ¼tzen mit ELO gefunden.`
+          ? `${found.length} von ${allResults.length} Sch&uuml;tzen mit ELO gefunden.`
           : "Noch keine Liste analysiert.";
         const battleText=document.getElementById("battle-text");
         if(!allResults.length){ battleText.textContent=""; }
         else if(!my){ battleText.textContent="WÃ¤hle deinen Namen aus, dann berechne ich den ELO-Vergleich gegen die Gegner."; }
         else if(!my.matchRank){ battleText.textContent="FÃ¼r diese Liste wurde keine Match-Rangfolge erkannt. Der ELO-Vergleich ist nur mit Ergebnis-/Stage-Results sinnvoll."; }
         else if(!my.elo){ battleText.textContent=`${my.name} hat keinen ELO-Treffer. Eine Tendenz ist nur mÃ¶glich, wenn dein ELO gefunden wird.`; }
-        else if(battle){ battleText.textContent=`${battle.opponents.length} Gegner mit ELO im Match. ${battle.higher.length} davon haben hÃ¶heres ELO als du; ${battle.beatenHigher.length} davon hast du geschlagen. ${battle.lostToLower.length} SchÃ¼tzen mit niedrigerem ELO waren vor dir. Tendenz: ${battle.tendency}.`; }
+        else if(battle){ battleText.textContent=`${battle.opponents.length} Gegner mit ELO im Match. ${battle.higher.length} davon haben hÃ¶heres ELO als du; ${battle.beatenHigher.length} davon hast du geschlagen. ${battle.lostToLower.length} Sch&uuml;tzen mit niedrigerem ELO waren vor dir. Tendenz: ${battle.tendency}.`; }
         document.getElementById("csv-btn").disabled = allResults.length === 0;
 
         const body=document.getElementById("results-body");
