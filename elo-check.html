@@ -140,7 +140,7 @@
         <span class="kicker" data-de="Doppel-AA Vereinsbereich" data-en="Double Alpha club area">Doppel-AA Vereinsbereich</span>
         <h1 data-de="ELO-Check f&uuml;r Ergebnis- & Verify-Listen" data-en="ELO check for results & verify lists">ELO-Check f&uuml;r Ergebnis- & Verify-Listen</h1>
         <p class="lead" data-de="Lade eine Ergebnisliste, Verify-Liste, CSV/TXT oder PDF hoch. Die Seite erkennt Sch&uuml;tzennamen und gleicht sie gegen deine IPSC-ELO-Datenbank ab." data-en="Upload a results list, verify list, CSV/TXT or PDF. The page detects competitor names and matches them against your IPSC ELO database.">Lade eine Ergebnisliste, Verify-Liste, CSV/TXT oder PDF hoch. Die Seite erkennt Sch&uuml;tzennamen und gleicht sie gegen deine IPSC-ELO-Datenbank ab.</p>
-        <div class="hint" id="elo-build-stamp" style="margin-top:12px;font-weight:900;">Build v79aw &middot; Stage-PDF + ESS Results</div>
+        <div class="hint" id="elo-build-stamp" style="margin-top:12px;font-weight:900;">Build v79ax &middot; Stage-PDF Name-Fix</div>
       </section>
 
       <div id="access-denied" class="access-box">Pr&#252;fe Doppel-AA-Berechtigung...</div>
@@ -355,6 +355,9 @@
       function cleanVerifyCompetitorName(rawName){
         let name=cleanText(rawName)
           .replace(/^\d{1,4}\s+/, "")
+          .replace(/\s+Page(?:\s+\d+)?\b.*$/i, "")
+          .replace(/\s+Printed\b.*$/i, "")
+          .replace(/\s+PSC\b.*$/i, "")
           .replace(/\b(?:DIV|CLASS|FACTOR|CATEGORY)\s*:.*$/i, "")
           .replace(/[|;]+$/g, "")
           .replace(/\s{2,}/g, " ")
@@ -459,11 +462,14 @@
       function splitTextIntoLogicalChunks(rawText){
         const raw=String(rawText||"").replace(/\r/g,"\n");
         const stageSplitRe=/(?=^\s*(?:Production Optics|Optics|Standard|Open|Production|Classic|Revolver)\s*[-\u2013\u2014]{1,2}\s*Overall\s+Stage\s+Results)/im;
-        const stageChunks=raw.split(stageSplitRe).map(cleanText).filter(Boolean);
-        // Wichtig: Bei Stage-Results muss die Division-Ãberschrift mit den Zeilen darunter zusammenbleiben.
-        // Sonst wÃ¼rden Zeilen ohne Ãberschrift aus anderen Divisionen mitgerechnet.
+        // Bei Stage-PDFs die Zeilenumbrueche erhalten. Wenn wir hier cleanText() nutzen,
+        // wird aus "Schoeps, Fabian\nPage 3" sonst "Schoeps, Fabian Page 3".
+        // Dann landet "Page" faelschlich im Namen und der ELO-Abgleich wird wild.
+        const stageChunks=raw.split(stageSplitRe).map(c=>String(c||"").trim()).filter(Boolean);
+        // Wichtig: Bei Stage-Results muss die Division-Ueberschrift mit den Zeilen darunter zusammenbleiben.
+        // Sonst wuerden Zeilen ohne Ueberschrift aus anderen Divisionen mitgerechnet.
         if(/Overall\s+Stage\s+Results/i.test(raw) && stageChunks.length) return stageChunks;
-        const pageChunks=raw.split(/\f+|\n+\[\[ELO_PAGE_BREAK\]\]\n+/).map(cleanText).filter(Boolean);
+        const pageChunks=raw.split(/\f+|\n+\[\[ELO_PAGE_BREAK\]\]\n+/).map(c=>String(c||"").trim()).filter(Boolean);
         if(pageChunks.length>1) return pageChunks;
         return raw.split(/\n+/).map(cleanText).filter(Boolean);
       }
@@ -589,7 +595,7 @@
             const stagePts=parseLocaleNumber(m[5]);
             const stagePct=parseLocaleNumber(m[6]);
             const competitorNo=cleanText(m[7]);
-            const name=cleanText(m[8]);
+            const name=cleanVerifyCompetitorName(m[8]);
             if(!name || !name.includes(",")) continue;
             if(!Number.isFinite(stagePts)) continue;
             const parts=parseNameParts(name);
@@ -622,8 +628,8 @@
           r.avgStagePct = r.stageCount ? r.stagePctSum / r.stageCount : null;
           r.matchPercent = topPoints ? (r.matchPoints / topPoints * 100) : null;
           const stageLabel = r.stages && r.stages.size ? `${r.stages.size} Stages` : `${r.stageCount} Stage-Zeilen`;
-          const percentLabel = Number.isFinite(r.matchPercent) ? ` Â· ${r.matchPercent.toFixed(2)}% vom Besten` : "";
-          r.sourceLine = `${stageLabel} Â· ${r.matchPoints.toFixed(4)} Stage-Punkte${percentLabel}`;
+          const percentLabel = Number.isFinite(r.matchPercent) ? ` · ${r.matchPercent.toFixed(2)}% vom Besten` : "";
+          r.sourceLine = `${stageLabel} · ${r.matchPoints.toFixed(4)} Stage-Punkte${percentLabel}`;
           delete r.stages;
         });
         return arr;
@@ -721,7 +727,7 @@
               first:row.first,
               last:row.last,
               division:div,
-              sourceLine:`ESS Results Overall Â· #${row.competitorNo} Â· ${row.points.toFixed(4)} Punkte Â· ${Number.isFinite(row.percent) ? row.percent.toFixed(2) + "%" : ""}`,
+              sourceLine:`ESS Results Overall · #${row.competitorNo} · ${row.points.toFixed(4)} Punkte · ${Number.isFinite(row.percent) ? row.percent.toFixed(2) + "%" : ""}`,
               competitorNo:row.competitorNo,
               matchRank:row.rank,
               matchPoints:row.points,
@@ -785,8 +791,8 @@
           r.avgStagePct = r.stageCount ? r.stagePctSum / r.stageCount : null;
           r.matchPercent = topPoints ? (r.matchPoints / topPoints * 100) : null;
           const stageLabel = r.stages && r.stages.size ? `${r.stages.size} Stages` : `${r.stageCount} Stage-Zeilen`;
-          const percentLabel = Number.isFinite(r.matchPercent) ? ` Â· ${r.matchPercent.toFixed(2)}% vom Besten` : "";
-          r.sourceLine = `ESS Results by Stage Â· ${stageLabel} Â· ${r.matchPoints.toFixed(4)} Punkte${percentLabel}`;
+          const percentLabel = Number.isFinite(r.matchPercent) ? ` · ${r.matchPercent.toFixed(2)}% vom Besten` : "";
+          r.sourceLine = `ESS Results by Stage · ${stageLabel} · ${r.matchPoints.toFixed(4)} Punkte${percentLabel}`;
           delete r.stages;
         });
         return arr;
@@ -919,7 +925,7 @@
             pages.push(pageIsVerify ? lineText : (lineText || simple));
           }
           const out=pages.join("\n\f\n");
-          if(verifyDetected) console.info("ELO-Check v79aw: Verify-PDF mit Zeilen-Reader gelesen");
+          if(verifyDetected) console.info("ELO-Check v79ax: Verify-PDF mit Zeilen-Reader gelesen");
           return out;
         }
         return await file.text();
@@ -974,7 +980,7 @@
           const file=document.getElementById("file-input").files[0];
           let text=document.getElementById("raw-text").value || "";
           if(file){
-            setStatus("Datei wird gelesen... Build v79aw");
+            setStatus("Datei wird gelesen... Build v79ax");
             text = await readFileAsText(file);
             document.getElementById("raw-text").value = text.slice(0, 40000);
           }
