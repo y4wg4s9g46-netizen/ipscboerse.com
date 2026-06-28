@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79aw-ess-dual-parser';
+const CACHE_NAME = 'ipscboerse-v79ax-stage-pdf-namefix';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
