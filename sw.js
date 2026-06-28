@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79ba-analytics-clean-ui-manual-hits';
+const CACHE_NAME = 'ipscboerse-v79bb-analytics-clean-ui';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
