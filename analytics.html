@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+    <meta charset="UTF-8">
     <script id="ipsc-native-shell-redirect-v76t">
       (function () {
         try {
@@ -60,8 +61,7 @@
         } catch (_) {}
       })();
     </script>
-    <meta charset="UTF-8">
-    <style id="native-app-prepaint-v76r">
+<style id="native-app-prepaint-v76r">
       :root { background: #f6f8fc !important; color-scheme: light; }
       html, body { background: #f6f8fc !important; min-height: 100%; }
       html[data-theme="dark"], html[data-theme="dark"] body { background: #0f172a !important; color-scheme: dark; }
@@ -257,7 +257,7 @@
 <div class="tool-section" style="max-width: 650px; margin: 0 auto; padding: 32px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
             
             <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 10px;">
-                <h2 style="font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px;">ð Analytics Pro <span style="font-size:11px;color:var(--text-muted);font-weight:800;vertical-align:middle;">v79az</span></h2>
+                <h2 style="font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px;">ð Analytics Pro <span style="font-size:13px;color:var(--text-muted);font-weight:900;vertical-align:middle;">v79ba</span></h2>
                 <button class="btn-small" style="font-size: 13px; padding: 8px 16px; background: rgba(59, 130, 246, 0.1); color: var(--info-color); border-color: rgba(59, 130, 246, 0.2);">ð¥ Buddy Radar</button>
             </div>
             
@@ -303,7 +303,7 @@
                         <div id="kpi-division" style="font-size: 20px; font-weight: 900; margin-top: 6px; color: var(--info-color);">Optics</div>
                     </div>
                     <div style="background: var(--input-bg); border: 1px solid var(--border-color); padding: 16px 8px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm);">
-                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 0.5px;" data-txt="analytics-kpi-avg-hf">Ã Stage %</div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 0.5px;" >Ã Stage %</div>
                         <div id="kpi-avg-hf" style="font-size: 20px; font-weight: 900; color: var(--text-color); margin-top: 6px;">0%</div>
                     </div>
                     <div style="background: var(--input-bg); border: 1px solid var(--border-color); padding: 16px 8px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm);">
@@ -316,6 +316,8 @@
                     <strong style="color: var(--text-color);">â¹ï¸ Was bedeutet Konstanz?</strong><br>
                     Konstanz zeigt die Spannweite zwischen deiner besten und schlechtesten Stage-Leistung. Niedriger ist besser: Â±0â15% sehr gleichmÃ¤Ãig, Â±16â34% mittel, ab Â±35% stark schwankend.
                 </div>
+
+                <div id="analytics-source-box" style="background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.18); padding: 14px 16px; border-radius: var(--radius); margin: -10px 0 24px 0; color: var(--text-muted); font-size: 13px; line-height: 1.5; display:none;"></div>
 
                 <div style="background: var(--input-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 32px; box-shadow: var(--shadow-sm);">
                     <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px;">
@@ -332,15 +334,16 @@
                         <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; background: var(--accent-color); border-radius: 50%;"></div> C: <span id="count-charlies" style="font-weight: 800; color: var(--text-color);">0</span></div>
                         <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; background: var(--danger-color); border-radius: 50%;"></div> D: <span id="count-deltas" style="font-weight: 800; color: var(--text-color);">0</span></div>
                         <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; background: var(--text-muted); border-radius: 50%;"></div> M: <span id="count-misses" style="font-weight: 800; color: var(--text-color);">0</span></div>
+                        <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; background: var(--danger-color); border-radius: 50%;"></div> PE: <span id="count-procedures" style="font-weight: 800; color: var(--text-color);">0</span></div>
                     </div>
+                    <button id="btn-open-hit-editor-top" type="button" onclick="openFirstStageHitEditor()" style="margin-top:16px;width:100%;padding:12px 14px;border-radius:var(--radius);border:1px solid rgba(255,159,67,.35);background:rgba(255,159,67,.10);color:var(--accent-color);font-weight:900;cursor:pointer;">Treffer je Stage bearbeiten / A-C-D-M-PE eintragen</button>
+                    <div id="hit-data-status" style="margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.4;"></div>
                 </div>
 
                 <div style="background: rgba(255, 159, 67, 0.07); border: 1px solid rgba(255, 159, 67, 0.22); border-left: 4px solid var(--accent-color); padding: 14px 16px; border-radius: var(--radius); margin: -12px 0 28px 0; color: var(--text-muted); font-size: 13px; line-height: 1.5;">
                     <strong style="color: var(--text-color);">ð§ Treffer-Details ergÃ¤nzen</strong><br>
                     Alpha, Charlie, Delta, Misses, Procedures und die exakte Punktewertung kÃ¶nnen nur angezeigt werden, wenn die Stage-Berichte aus PractiScore per E-Mail an <a href="mailto:info@ipscboerse.com" style="color: var(--accent-color); font-weight: 800; text-decoration: none;">info@ipscboerse.com</a> weitergeleitet wurden. Ohne diese Mail nutzt die Analyse nur die offiziellen Ergebnislisten.
                 </div>
-
-                <div id="analytics-data-status" style="display:none; background:rgba(59,130,246,.06); border:1px solid rgba(59,130,246,.18); padding:14px 16px; border-radius:var(--radius); margin:-10px 0 24px 0; color:var(--text-muted); font-size:13px; line-height:1.5;"></div>
 
                 <div id="analytics-insights-panel" style="margin-bottom: 32px;"></div>
 
@@ -449,13 +452,11 @@
         window.translations.de["analytics-empty-desc"] = "Der Bot sucht aktuell nach deinen Stage-Ergebnissen! Das Analyse-System prÃ¼ft im Hintergrund die offiziellen IPSC-Ergebnisse.";
         window.translations.de["analytics-empty-import"] = "<strong>Match-Import:</strong> Match-Ergebnisse werden jede Nacht vollautomatisch im System aktualisiert.";
         window.translations.de["analytics-empty-email"] = "<strong>Treffer-Analyse:</strong> Per E-Mail weitergeleitete PractiScore-Daten werden nach dem ersten Datenzug ca. 3 Stunden spÃ¤ter verarbeitet.";
-        window.translations.de["analytics-kpi-avg-hf"] = "Ã Stage %";
 
         window.translations.en["analytics-empty-title"] = "No match data found yet";
         window.translations.en["analytics-empty-desc"] = "The bot is currently searching for your stage results! The analysis system checks official IPSC results in the background.";
         window.translations.en["analytics-empty-import"] = "<strong>Match Import:</strong> Full match results are updated completely automatically in the system every night.";
         window.translations.en["analytics-empty-email"] = "<strong>Hit Analysis:</strong> Forwarded PractiScore emails will be processed approximately 3 hours after the first data access.";
-        window.translations.en["analytics-kpi-avg-hf"] = "Avg. stage %";
     }
 
     (function() {
@@ -509,8 +510,6 @@
                     .select('real_name')
                     .eq('id', session.user.id)
                     .single();
-
-                window.__analyticsRealName = currentProfile?.real_name || session.user?.user_metadata?.full_name || session.user?.user_metadata?.name || '';
                     
                 if (!profileErr && currentProfile && (!currentProfile.real_name || currentProfile.real_name.trim() === "")) {
                     setTimeout(() => {
@@ -531,22 +530,19 @@
                     return;
                 }
 
-                const cleanedStages = cleanAnalyticsRowsForCurrentUser(stages, window.__analyticsRealName || "");
-                const groupedMatches = new Map();
-                cleanedStages.forEach(s => {
-                    if (!s.match_id) return;
-                    if (!groupedMatches.has(s.match_id)) groupedMatches.set(s.match_id, { id: s.match_id, name: s.match_name || "Unbekanntes Match", rows: [] });
-                    groupedMatches.get(s.match_id).rows.push(s);
-                });
-                const visibleMatchGroups = Array.from(groupedMatches.values()).filter(g => shouldDisplayAnalyticsMatch(g.rows));
-                if (!visibleMatchGroups.length) {
+                allUserStages = (stages || []).filter(isUsefulAnalyticsRow);
+                if (allUserStages.length === 0) {
                     document.getElementById("analytics-loader").style.display = "none";
                     document.getElementById("analytics-empty-state").style.display = "block";
                     return;
                 }
-
-                allUserStages = visibleMatchGroups.flatMap(g => g.rows);
-                uniqueMatches = visibleMatchGroups.map(g => ({ id: g.id, name: g.name }));
+                const matchMap = new Map();
+                allUserStages.forEach(s => {
+                    if(!matchMap.has(s.match_id)) {
+                        matchMap.set(s.match_id, s.match_name);
+                    }
+                });
+                uniqueMatches = Array.from(matchMap, ([id, name]) => ({ id, name }));
                 const selector = document.getElementById("match-selector");
                 selector.innerHTML = "";
                 uniqueMatches.forEach(m => {
@@ -670,160 +666,59 @@
         return 0;
     }
 
-    // v79az: Analytics trennt jetzt offizielle Ergebnisdaten von optionalen Trefferdetails.
-    // Dadurch zeigen wir keine irrefÃ¼hrenden 0 Alphas mehr, wenn Verify/Mail-Daten fehlen.
-    function parseAnalyticsNumber(value) {
-        if (value === null || value === undefined || value === '') return 0;
-        if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
-        let t = String(value).trim();
-        if (!t || t === '-') return 0;
-        t = t.replace(/\s/g, '');
-        if (/^-?\d{1,3}(?:\.\d{3})+(?:,\d+)?$/.test(t)) t = t.replace(/\./g, '').replace(',', '.');
-        else if (/^-?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/.test(t)) t = t.replace(/,/g, '');
-        else t = t.replace(',', '.');
-        const n = Number(t);
-        return Number.isFinite(n) ? n : 0;
-    }
-
-    function getFirstNumber(row, aliases) {
-        for (const key of aliases) {
-            if (!row || !(key in row)) continue;
-            const raw = row[key];
-            if (raw === null || raw === undefined || raw === '') continue;
-            const n = parseAnalyticsNumber(raw);
-            if (Number.isFinite(n)) return n;
+    function readNumberAny(row, names) {
+        if (!row) return 0;
+        const keys = Object.keys(row);
+        for (const name of names) {
+            if (row[name] !== undefined && row[name] !== null && String(row[name]).trim() !== '') {
+                const n = parseFloat(String(row[name]).replace(',', '.'));
+                if (Number.isFinite(n)) return n;
+            }
+            const normName = String(name).toLowerCase().replace(/[^a-z0-9]/g, '');
+            const foundKey = keys.find(k => String(k).toLowerCase().replace(/[^a-z0-9]/g, '') === normName);
+            if (foundKey && row[foundKey] !== undefined && row[foundKey] !== null && String(row[foundKey]).trim() !== '') {
+                const n = parseFloat(String(row[foundKey]).replace(',', '.'));
+                if (Number.isFinite(n)) return n;
+            }
         }
         return 0;
     }
 
-    function normalizeAnalyticsName(value) {
-        return String(value || '')
-            .toLowerCase()
-            .replace(/Ã¤/g,'ae').replace(/Ã¶/g,'oe').replace(/Ã¼/g,'ue').replace(/Ã/g,'ss')
-            .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-            .replace(/[^a-z0-9]+/g,' ')
-            .trim();
-    }
-
-    function getRowCompetitorName(row) {
-        const fields = ['competitor_name','shooter_name','competitor','shooter','name','raw_name','display_name','real_name','member_name','participant_name'];
-        for (const key of fields) {
-            const val = row && row[key];
-            if (val && String(val).trim()) return String(val).trim();
-        }
-        return '';
-    }
-
-    function rowBelongsToProfile(row, realName) {
-        const profileName = normalizeAnalyticsName(realName || '');
-        if (!profileName) return true;
-        const rowName = normalizeAnalyticsName(getRowCompetitorName(row));
-        if (!rowName) return true; // alte Scraper-DatensÃ¤tze ohne Namensfeld bleiben sichtbar
-        return rowName === profileName || rowName.includes(profileName) || profileName.includes(rowName);
-    }
-
-    function getRawAnalyticsText(row) {
-        const fields = ['raw_text','raw_source','raw_stage_text','source_text','sourceLine','source_line','email_text','mail_text','practiscore_text','verify_text','stage_text','details','payload','json','raw','notes'];
-        return fields.map(key => {
-            const val = row && row[key];
-            if (val === null || val === undefined) return '';
-            if (typeof val === 'object') {
-                try { return JSON.stringify(val); } catch (_) { return ''; }
-            }
-            return String(val);
-        }).filter(Boolean).join('\n');
-    }
-
-    function getStageNumberFromName(value) {
-        const m = String(value || '').match(/\bstage\s*0*(\d{1,2})\b/i);
-        return m ? parseInt(m[1], 10) : null;
-    }
-
-    function parseHitsFromRawText(row) {
-        const raw = getRawAnalyticsText(row);
-        if (!raw) return null;
-        const stageNo = getStageNumberFromName(row.stage_name || row.stage || row.stage_number || row._displayStageName);
-        const cleaned = raw.replace(/\u00a0/g, ' ').replace(/;/g, ' ');
-        const lines = cleaned.split(/[\r\n]+/).map(x => x.replace(/\s+/g, ' ').trim()).filter(Boolean);
-
-        // Score Verification: STG FACTOR PTS A C D Ded. MI NS PE OT Time
-        for (const line of lines) {
-            if (!/^\d{1,2}\s+[-\d,.]+\s+[-\d,.]+\s+\d+\s+\d+\s+\d+\s+\d+/i.test(line)) continue;
-            const nums = line.match(/-?\d+(?:[,.]\d+)?/g) || [];
-            if (nums.length < 8) continue;
-            const stg = parseInt(nums[0], 10);
-            if (stageNo && stg !== stageNo) continue;
-            return {
-                alphas: parseInt(nums[3], 10) || 0,
-                charlies: parseInt(nums[4], 10) || 0,
-                deltas: parseInt(nums[5], 10) || 0,
-                misses: parseInt(nums[7], 10) || 0,
-                procedures: nums.length >= 10 ? (parseInt(nums[9], 10) || 0) : 0,
-                hasData: true,
-                source: 'verify-text'
-            };
-        }
-
-        const flat = cleaned.replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim();
-        const acd = flat.match(/\bA\s+C\s+D\b[^0-9]*(\d+)\D+(\d+)\D+(\d+)/i);
-        if (acd) {
-            const miss = (flat.match(/\b(?:MI|M|Miss(?:es)?)\b[^0-9]*(\d+)/i) || [])[1] || 0;
-            const proc = (flat.match(/\b(?:PE|P|Proc(?:edure|edural)?s?|Penalt(?:y|ies))\b[^0-9]*(\d+)/i) || [])[1] || 0;
-            return {
-                alphas: parseInt(acd[1],10)||0,
-                charlies: parseInt(acd[2],10)||0,
-                deltas: parseInt(acd[3],10)||0,
-                misses: parseInt(miss,10)||0,
-                procedures: parseInt(proc,10)||0,
-                hasData: true,
-                source: 'raw-text'
-            };
-        }
-        return null;
-    }
-
-    function getStageHitCounts(stage) {
-        const direct = {
-            alphas: Math.round(getFirstNumber(stage, ['alphas','alpha','a','A','hit_a','hits_a','a_hits','score_a','stage_alphas'])),
-            charlies: Math.round(getFirstNumber(stage, ['charlies','charlie','c','C','hit_c','hits_c','c_hits','score_c','stage_charlies'])),
-            deltas: Math.round(getFirstNumber(stage, ['deltas','delta','d','D','hit_d','hits_d','d_hits','score_d','stage_deltas'])),
-            misses: Math.round(getFirstNumber(stage, ['misses','miss','m','M','mi','MI','hit_m','hits_m','m_hits','stage_misses'])),
-            procedures: Math.round(getFirstNumber(stage, ['procedures','procedure','procedurals','p','P','pe','PE','penalty','penalties','stage_procedures']))
+    function rowHitValues(row) {
+        const vals = {
+            a: Math.max(0, Math.round(readNumberAny(row, ['alphas','alpha','a','A','hit_a','hits_a','count_a']))),
+            c: Math.max(0, Math.round(readNumberAny(row, ['charlies','charlie','c','C','hit_c','hits_c','count_c']))),
+            d: Math.max(0, Math.round(readNumberAny(row, ['deltas','delta','d','D','hit_d','hits_d','count_d']))),
+            m: Math.max(0, Math.round(readNumberAny(row, ['misses','miss','m','M','mi','MI','hit_m','hits_m','count_m']))),
+            p: Math.max(0, Math.round(readNumberAny(row, ['procedures','procedure','procedurals','p','P','pe','PE','penalties','penalty','count_p']))),
+            ns: Math.max(0, Math.round(readNumberAny(row, ['no_shoots','noshoots','no_shoot','ns','NS'])))
         };
-        const hasDirect = Object.values(direct).some(v => Number.isFinite(v) && v > 0);
-        if (hasDirect) return { ...direct, hasData: true, source: 'columns' };
-        const parsed = parseHitsFromRawText(stage);
-        if (parsed) return parsed;
-        return { ...direct, hasData: false, source: 'none' };
+        vals.hasAny = (vals.a + vals.c + vals.d + vals.m + vals.p + vals.ns) > 0;
+        return vals;
     }
 
-    function isOfficialResultRow(row) {
+    function rowHasOfficialResult(row) {
         if (!row) return false;
-        const fields = ['stage_percent','hit_factor','winner_hit_factor','pts','stage_time','stage_rank'];
-        return fields.some(f => parseAnalyticsNumber(row[f]) > 0);
+        const name = String(row.stage_name || '').toLowerCase();
+        return name.includes('overall') || readNumberAny(row, ['match_percent','overall_percent']) > 0;
     }
 
-    function isMeaningfulAnalyticsRow(row) {
+    function rowHasStageResult(row) {
+        if (!row) return false;
+        const name = String(row.stage_name || '').toLowerCase();
+        const isRequestOnly = name.includes('request') || name.includes('placeholder') || name.includes('pending');
+        if (isRequestOnly) return false;
+        const hasStageName = /stage\s*\d+/i.test(String(row.stage_name || '')) || name.includes('overall match results');
+        const hasScore = safeStagePercent(row) > 0 || readNumberAny(row, ['hit_factor','winner_hit_factor','pts','stage_rank','stage_time']) > 0;
+        return hasStageName && hasScore;
+    }
+
+    function isUsefulAnalyticsRow(row) {
         if (!row) return false;
         const matchName = String(row.match_name || '').toLowerCase();
-        const stageName = String(row.stage_name || '').toLowerCase();
-        const sourceText = String(row.source || row.kind || row.type || row.status || '').toLowerCase();
-        const looksLikeRequest = /request|anfrage|placeholder|dummy|draft|planer/.test(matchName + ' ' + stageName + ' ' + sourceText);
-        if (looksLikeRequest && !isOfficialResultRow(row) && !getStageHitCounts(row).hasData) return false;
-        return isOfficialResultRow(row) || getStageHitCounts(row).hasData;
-    }
-
-    function shouldDisplayAnalyticsMatch(rows) {
-        const meaningful = (rows || []).filter(isMeaningfulAnalyticsRow);
-        if (!meaningful.length) return false;
-        const realStages = meaningful.filter(r => !String(r.stage_name || '').toLowerCase().includes('overall'));
-        return realStages.length > 0 || meaningful.some(r => String(r.stage_name || '').toLowerCase().includes('overall'));
-    }
-
-    function cleanAnalyticsRowsForCurrentUser(rows, realName) {
-        const meaningful = (rows || []).filter(isMeaningfulAnalyticsRow);
-        const own = meaningful.filter(r => rowBelongsToProfile(r, realName));
-        return own.length ? own : meaningful;
+        if (!row.match_id || !row.match_name) return false;
+        if (matchName.includes('request') || matchName.includes('placeholder') || matchName.includes('test-request')) return false;
+        return rowHasStageResult(row) || rowHasOfficialResult(row) || rowHitValues(row).hasAny;
     }
 
     function buildLocalInsightsHtml(analysisStages, stagePercents, divisionBenchmarkHtml, isEn) {
@@ -832,15 +727,13 @@
         const avgStagePercent = average(stagePercents);
         const worstStage = [...analysisStages].filter(s => s.percent > 0).sort((a,b) => a.percent - b.percent)[0];
         const bestStage = [...analysisStages].filter(s => s.percent > 0).sort((a,b) => b.percent - a.percent)[0];
-        const hitAwareStages = analysisStages.filter(s => s.hasHitData);
-        const hasHitDetailsForInsights = hitAwareStages.length > 0;
-        const totalMisses = hitAwareStages.reduce((sum, s) => sum + (s.misses || 0), 0);
-        const totalProcedures = hitAwareStages.reduce((sum, s) => sum + (s.procedures || 0), 0);
-        const totalLoss = hitAwareStages.reduce((sum, s) => sum + (s.pointLoss || 0), 0);
-        const mpLoss = hitAwareStages.reduce((sum, s) => sum + ((s.misses || 0) + (s.procedures || 0)) * 10, 0);
+        const totalMisses = analysisStages.reduce((sum, s) => sum + (s.misses || 0), 0);
+        const totalProcedures = analysisStages.reduce((sum, s) => sum + (s.procedures || 0), 0);
+        const totalLoss = analysisStages.reduce((sum, s) => sum + (s.pointLoss || 0), 0);
+        const mpLoss = analysisStages.reduce((sum, s) => sum + ((s.misses || 0) + (s.procedures || 0)) * 10, 0);
         const timeStages = analysisStages.filter(s => s.timeLoss > 0.1 && s.winHf > 0 && s.points > 0);
         const biggestTimeLoss = timeStages.sort((a,b) => b.timeLoss - a.timeLoss)[0];
-        const biggestPointLoss = [...hitAwareStages].sort((a,b) => (b.pointLoss || 0) - (a.pointLoss || 0))[0];
+        const biggestPointLoss = [...analysisStages].sort((a,b) => (b.pointLoss || 0) - (a.pointLoss || 0))[0];
 
         const byCourse = {};
         analysisStages.forEach(s => {
@@ -856,7 +749,7 @@
         }).join(' ');
 
         let focusText = isEn ? "Keep building clean data." : "Sammle weiter saubere Stage-Daten.";
-        if (hasHitDetailsForInsights && biggestPointLoss && biggestPointLoss.pointLoss >= 30 && (!biggestTimeLoss || biggestPointLoss.pointLoss >= biggestTimeLoss.timeLoss * 4)) {
+        if (biggestPointLoss && biggestPointLoss.pointLoss >= 30 && (!biggestTimeLoss || biggestPointLoss.pointLoss >= biggestTimeLoss.timeLoss * 4)) {
             focusText = isEn
                 ? `${biggestPointLoss.name}: most potential is accuracy/penalties (${biggestPointLoss.pointLoss.toFixed(0)} pts lost).`
                 : `${biggestPointLoss.name}: grÃ¶Ãtes Potenzial liegt bei Treffern/Penalties (${biggestPointLoss.pointLoss.toFixed(0)} Punkte Verlust).`;
@@ -866,9 +759,7 @@
                 : `${biggestTimeLoss.name}: grÃ¶Ãter Zeitabstand zur Sieger-Target-Time (${biggestTimeLoss.timeLoss.toFixed(1)}s).`;
         }
 
-        let whatIfText = hasHitDetailsForInsights
-            ? (isEn ? "No major miss/procedure scenario detected." : "Kein groÃer Miss-/Procedure-Hebel erkannt.")
-            : (isEn ? "No hit details available yet. Upload/forward Verify data for A/C/D/M/P." : "Noch keine Trefferdetails vorhanden. Mit Verify/Mail werden A/C/D/M/P ergÃ¤nzt.");
+        let whatIfText = isEn ? "No major miss/procedure scenario detected." : "Kein groÃer Miss-/Procedure-Hebel erkannt.";
         if (mpLoss > 0) {
             const totalTime = analysisStages.reduce((sum, s) => sum + (s.time || 0), 0);
             const totalPts = analysisStages.reduce((sum, s) => sum + (s.points || 0), 0);
@@ -882,7 +773,7 @@
         const cards = [
             analyticsCard(isEn ? "Match performance" : "Matchleistung", formatPercent(avgStagePercent), isEn ? "Average of your official stage percentages, not raw HF." : "Durchschnitt deiner offiziellen Stage-Prozente, nicht der rohe HF.", "ð"),
             analyticsCard(isEn ? "Best / weakest" : "Beste / schwÃ¤chste Stage", `${bestStage ? bestStage.name + ' ' + formatPercent(bestStage.percent) : '-'}<br><span style="font-size:14px;color:var(--text-muted);">${worstStage ? worstStage.name + ' ' + formatPercent(worstStage.percent) : ''}</span>`, isEn ? "Shows the spread behind your consistency value." : "Zeigt, woher deine Konstanz-Spannweite kommt.", "ð¯"),
-            analyticsCard(isEn ? "Point loss" : "Punkteverlust", hasHitDetailsForInsights ? `-${totalLoss.toFixed(0)} PTS` : "-", hasHitDetailsForInsights ? (isEn ? `${totalMisses} misses, ${totalProcedures} procedures. Includes C/D point loss.` : `${totalMisses} Misses, ${totalProcedures} Procedures. Inkl. C/D-Punkteverlust.`) : (isEn ? "Only available after Verify/Mail hit details are imported." : "Erst verfÃ¼gbar, wenn Verify/Mail-Trefferdetails importiert sind."), "â ï¸"),
+            analyticsCard(isEn ? "Point loss" : "Punkteverlust", `-${totalLoss.toFixed(0)} PTS`, isEn ? `${totalMisses} misses, ${totalProcedures} procedures. Includes C/D point loss.` : `${totalMisses} Misses, ${totalProcedures} Procedures. Inkl. C/D-Punkteverlust.`, "â ï¸"),
             analyticsCard(isEn ? "Course types" : "Stage-Typen", `<div style="display:flex; flex-wrap:wrap; gap:6px;">${courseHtml}</div>`, isEn ? "Average performance by Short/Medium/Long courses." : "Durchschnittliche Leistung nach Short/Medium/Long Courses.", "ð§©"),
             analyticsCard(isEn ? "Training focus" : "Trainingsfokus", focusText, isEn ? "Largest actionable gap in this match." : "GrÃ¶Ãter direkt trainierbarer Hebel in diesem Match.", "ð"),
             analyticsCard(isEn ? "What if" : "Was wÃ¤re wenn?", whatIfText, isEn ? "Approximation using available stage data." : "NÃ¤herung auf Basis der vorhandenen Stage-Daten.", "ð§ ")
@@ -952,7 +843,7 @@
         const renderRunId = ++analyticsRenderRunId;
         const client = window.supabaseClient || window.supabase;
         const matchId = document.getElementById("match-selector").value;
-        const rawMatchStages = allUserStages.filter(s => s.match_id === matchId).filter(isMeaningfulAnalyticsRow);
+        const rawMatchStages = allUserStages.filter(s => s.match_id === matchId && isUsefulAnalyticsRow(s));
 
         function normalizeStageLabel(name) {
             const s = String(name || '').trim();
@@ -972,7 +863,7 @@
         }
 
         function analyticsRowScore(stage) {
-            const fields = ['stage_time','hit_factor','winner_hit_factor','pts','alphas','charlies','deltas','misses','procedures','stage_percent','stage_rank'];
+            const fields = ['stage_time','hit_factor','winner_hit_factor','pts','alphas','charlies','deltas','misses','procedures','stage_percent'];
             return fields.reduce((sum, f) => {
                 const v = stage[f];
                 return sum + ((v !== null && v !== undefined && String(v).trim() !== '' && Number(v) !== 0) ? 1 : 0);
@@ -994,7 +885,7 @@
         const matchStages = Array.from(stageMap.values());
 
         const isEn = localStorage.getItem("selectedLanguage") === "en";
-        let sumHf = 0, tA = 0, tC = 0, tD = 0, tM = 0, tP = 0, hitDataStageCount = 0;
+        let sumHf = 0, tA = 0, tC = 0, tD = 0, tM = 0, tP = 0;
         let division = isEn ? "Unknown" : "Unbekannt";
         let stagePercents = [];
         let analysisStages = [];
@@ -1007,14 +898,13 @@
             const time = stage.stage_time ? parseFloat(stage.stage_time) : 0;
             const isOverall = stage.stage_name.includes("Overall Match Results");
 
-            const hitCounts = getStageHitCounts(stage);
-            const alphas = hitCounts.alphas;
-            const charlies = hitCounts.charlies;
-            const deltas = hitCounts.deltas;
-            const misses = hitCounts.misses;
-            const procedures = hitCounts.procedures;
-            const hasHitData = !!hitCounts.hasData;
-            const hasProcedureData = hasHitData || (stage.procedures !== null && stage.procedures !== undefined);
+            const hitVals = rowHitValues(stage);
+            const alphas = hitVals.a;
+            const charlies = hitVals.c;
+            const deltas = hitVals.d;
+            const misses = hitVals.m;
+            const procedures = hitVals.p;
+            const hasProcedureData = hitVals.hasAny || (stage.procedures !== null && stage.procedures !== undefined);
             const stagePercent = stage.stage_percent ? parseFloat(stage.stage_percent) : 0;
             const minRounds = alphas + charlies + deltas + misses;
 
@@ -1029,14 +919,11 @@
 
             if (!isOverall) {
                 sumHf += hf;
-                if (hasHitData) {
-                    hitDataStageCount += 1;
-                    tA += alphas;
-                    tC += charlies;
-                    tD += deltas;
-                    tM += misses;
-                    tP += procedures;
-                }
+                tA += alphas;
+                tC += charlies;
+                tD += deltas;
+                tM += misses;
+                tP += procedures;
             }
 
             const buddyStage = allSquadStages.find(bs => stageDisplayKey(bs) === stageDisplayKey(stage));
@@ -1089,7 +976,7 @@
             }
 
             const possiblePoints = !isOverall ? (minRounds * 5) : 0;
-            const pointLoss = (!isOverall && hasHitData) ? Math.max(0, (charlies * 2) + (deltas * 4) + (misses * 10) + (procedures * 10)) : 0;
+            const pointLoss = !isOverall ? Math.max(0, (charlies * 2) + (deltas * 4) + (misses * 10) + (procedures * 10)) : 0;
             const targetTimeRaw = (!isOverall && displayWinHf > 0 && time > 0 && stagePoints > 0) ? (stagePoints / displayWinHf) : 0;
             const timeLossRaw = targetTimeRaw > 0 ? (time - targetTimeRaw) : 0;
 
@@ -1113,8 +1000,7 @@
                     stagePercent,
                     targetTime: targetTimeRaw,
                     timeLoss: timeLossRaw,
-                    minRounds,
-                    hasHitData
+                    minRounds
                 });
             }
 
@@ -1172,9 +1058,7 @@
                         <span style="background: var(--input-bg); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-weight: 600; ${displayTimeAndHits}">â±ï¸ ${time > 0 ? time.toFixed(2) + 's' : '-'}</span>
                         <span style="background: var(--input-bg); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-weight: 800; color: var(--text-color);">ð¯ ${bottomPtsText}</span>
                         <span style="flex-grow: 1; text-align: right; ${displayTimeAndHits}">
-                            ${hasHitData
-                                ? `<strong style="color: var(--text-color);">ð¯ A:${alphas} C:${charlies} D:${deltas} M:${misses}${procedures ? ` P:${procedures}` : ''}</strong>`
-                                : `<strong style="color: var(--text-muted);">ð¯ Trefferdetails fehlen</strong>`}
+                            <strong style="color: var(--text-color);">ð¯ A:${alphas} C:${charlies} D:${deltas} M:${misses}${procedures ? ` P:${procedures}` : ''}</strong>
                             <button class="btn-small" style="margin-left: 8px;" onclick="openHitEditor('${stage.stage_name.replace(/'/g, "\\'")}')">âï¸</button>
                         </span>
                     </div>
@@ -1186,6 +1070,13 @@
         document.getElementById("stages-container").innerHTML = stagesHtml;
 
         const realStages = matchStages.filter(s => !(s._displayStageName || s.stage_name).includes("Overall Match Results"));
+        const hasOverallResult = matchStages.some(s => String(s._displayStageName || s.stage_name || '').toLowerCase().includes('overall'));
+        const hasHitDetails = (tA + tC + tD + tM + tP) > 0;
+        const sourceBox = document.getElementById("analytics-source-box");
+        if (sourceBox) {
+            sourceBox.style.display = "block";
+            sourceBox.innerHTML = `<strong style="color:var(--text-color);">Datenquelle</strong><br>Stage-Ergebnisse: <b>${realStages.length ? 'vorhanden' : 'fehlen'}</b> Â· Overall-Ergebnis: <b>${hasOverallResult ? 'vorhanden' : 'nicht separat'}</b> Â· Trefferdetails A/C/D/M/PE: <b>${hasHitDetails ? 'vorhanden' : 'fehlen'}</b><br><span style="font-size:12px;">Ergebnisdaten werden automatisch geladen. Trefferdetails nur anzeigen, wenn Verify/Mail oder manuelle Eingabe vorhanden ist.</span>`;
+        }
         const avgStagePercent = stagePercents.length > 0 ? average(stagePercents) : 0;
         const divisionBenchmarkHtml = await buildDivisionBenchmarkHtml(client, matchId, division, window.__analyticsUserId, isEn);
         if (renderRunId !== analyticsRenderRunId) return;
@@ -1209,33 +1100,34 @@
         }
 
         const totalHits = tA + tC + tD;
-        const hasHitDetails = hitDataStageCount > 0 && totalHits > 0;
-        const aPerc = hasHitDetails ? Math.round((tA / totalHits) * 100) : 0;
-        const cPerc = hasHitDetails ? Math.round((tC / totalHits) * 100) : 0;
-        const dPerc = hasHitDetails ? Math.round((tD / totalHits) * 100) : 0;
+        const aPerc = totalHits > 0 ? Math.round((tA / totalHits) * 100) : 0;
+        const cPerc = totalHits > 0 ? Math.round((tC / totalHits) * 100) : 0;
+        const dPerc = totalHits > 0 ? Math.round((tD / totalHits) * 100) : 0;
 
-        document.getElementById("count-alphas").innerText = hasHitDetails ? tA : "-";
-        document.getElementById("count-charlies").innerText = hasHitDetails ? tC : "-";
-        document.getElementById("count-deltas").innerText = hasHitDetails ? tD : "-";
-        document.getElementById("count-misses").innerText = hasHitDetails ? tM : "-";
-
-        document.getElementById("analytics-alpha-badge").innerText = hasHitDetails ? `${aPerc}% Alphas` : (isEn ? "Hit details missing" : "Trefferdetails fehlen");
-        document.getElementById("bar-alphas").style.width = `${aPerc}%`;
-        document.getElementById("bar-charlies").style.width = `${cPerc}%`;
-        document.getElementById("bar-deltas").style.width = `${dPerc}%`;
-
-        const statusBox = document.getElementById("analytics-data-status");
-        if (statusBox) {
-            const hasStageResults = realStages.some(s => isOfficialResultRow(s));
-            const hasOverall = matchStages.some(s => String(s.stage_name || s._displayStageName || '').toLowerCase().includes('overall'));
-            statusBox.style.display = "block";
-            statusBox.innerHTML = `
-                <strong style="color:var(--text-color);">ð Datenquelle</strong><br>
-                ${hasStageResults ? "â" : "â ï¸"} Offizielle Stage-/Ergebnisdaten: <b>${hasStageResults ? "vorhanden" : "fehlen"}</b><br>
-                ${hasOverall ? "â" : "â¹ï¸"} Overall-Ergebnis: <b>${hasOverall ? "vorhanden" : "nicht separat vorhanden"}</b><br>
-                ${hasHitDetails ? "â" : "â ï¸"} Trefferdetails A/C/D/M/P: <b>${hasHitDetails ? "vorhanden" : "nicht vorhanden"}</b>
-                ${hasHitDetails ? "" : "<br><span style='font-size:12px;'>Ohne Verify/Mail-Daten blendet die Seite keine 0-Treffer mehr ein, sondern markiert die Trefferanalyse als fehlend.</span>"}
-            `;
+        const hitStatus = document.getElementById("hit-data-status");
+        const procEl = document.getElementById("count-procedures");
+        if ((tA + tC + tD + tM + tP) > 0) {
+            document.getElementById("count-alphas").innerText = tA;
+            document.getElementById("count-charlies").innerText = tC;
+            document.getElementById("count-deltas").innerText = tD;
+            document.getElementById("count-misses").innerText = tM;
+            if (procEl) procEl.innerText = tP;
+            document.getElementById("analytics-alpha-badge").innerText = `${aPerc}% Alphas`;
+            document.getElementById("bar-alphas").style.width = `${aPerc}%`;
+            document.getElementById("bar-charlies").style.width = `${cPerc}%`;
+            document.getElementById("bar-deltas").style.width = `${dPerc}%`;
+            if (hitStatus) hitStatus.innerText = "Trefferdetails vorhanden. Du kannst einzelne Stages unten oder Ã¼ber den Button bearbeiten.";
+        } else {
+            document.getElementById("count-alphas").innerText = "-";
+            document.getElementById("count-charlies").innerText = "-";
+            document.getElementById("count-deltas").innerText = "-";
+            document.getElementById("count-misses").innerText = "-";
+            if (procEl) procEl.innerText = "-";
+            document.getElementById("analytics-alpha-badge").innerText = "Trefferdetails fehlen";
+            document.getElementById("bar-alphas").style.width = `0%`;
+            document.getElementById("bar-charlies").style.width = `0%`;
+            document.getElementById("bar-deltas").style.width = `0%`;
+            if (hitStatus) hitStatus.innerText = "Noch keine A/C/D/M/PE-Daten vorhanden. Ãber den Button kannst du sie pro Stage manuell eintragen.";
         }
     }
 
@@ -1282,6 +1174,18 @@
         }
     }
 
+    window.openFirstStageHitEditor = function() {
+        const matchId = document.getElementById("match-selector").value;
+        const stages = allUserStages
+            .filter(s => s.match_id === matchId && !String(s.stage_name || '').toLowerCase().includes('overall'))
+            .sort((a,b) => String(a.stage_name || '').localeCompare(String(b.stage_name || ''), undefined, { numeric:true, sensitivity:'base' }));
+        if (!stages.length) {
+            alert("Keine Stage-Zeilen fÃ¼r dieses Match gefunden.");
+            return;
+        }
+        openHitEditor(stages[0].stage_name);
+    }
+
     window.openHitEditor = function(stageName) {
         const matchId = document.getElementById("match-selector").value;
         const stage = allUserStages.find(s => s.match_id === matchId && s.stage_name === stageName);
@@ -1289,12 +1193,12 @@
         
         currentEditStage = stage;
         document.getElementById('hit-editor-stage-name').innerText = stage.stage_name;
-        const hitCounts = getStageHitCounts(stage);
-        document.getElementById('edit-a').value = hitCounts.alphas || 0;
-        document.getElementById('edit-c').value = hitCounts.charlies || 0;
-        document.getElementById('edit-d').value = hitCounts.deltas || 0;
-        document.getElementById('edit-m').value = hitCounts.misses || 0;
-        if (document.getElementById('edit-p')) document.getElementById('edit-p').value = hitCounts.procedures || 0;
+        const hv = rowHitValues(stage);
+        document.getElementById('edit-a').value = hv.a || 0;
+        document.getElementById('edit-c').value = hv.c || 0;
+        document.getElementById('edit-d').value = hv.d || 0;
+        document.getElementById('edit-m').value = hv.m || 0;
+        if (document.getElementById('edit-p')) document.getElementById('edit-p').value = hv.p || 0;
         document.getElementById('smart-paste-area').value = '';
         
         document.getElementById('hit-editor-modal').style.display = 'flex';
@@ -1312,8 +1216,18 @@
         let cleanText = text.replace(/[\r\n\t]+/g, ' ');
         let a = 0, c = 0, d = 0, m = 0, p = 0, success = false;
 
+        let verifyHeader = cleanText.search(/A\s+C\s+D(?:\s+Ded\.?)*\s+MI\s+NS\s+PE/i);
+        if (verifyHeader !== -1) {
+            let nums = cleanText.substring(verifyHeader).match(/\b\d+\b/g);
+            if (nums && nums.length >= 7) {
+                // Verify-Format nach Header: A C D Ded. MI NS PE ...
+                a = nums[0]; c = nums[1]; d = nums[2]; m = nums[4]; p = nums[6];
+                success = true;
+            }
+        }
+
         let idxACD = cleanText.search(/A\s+C\s+D/i);
-        if (idxACD !== -1) {
+        if (!success && idxACD !== -1) {
             let nums = cleanText.substring(idxACD + 5).match(/\b\d+\b/g);
             if (nums && nums.length >= 3) {
                 a = nums[0]; c = nums[1]; d = nums[2];
