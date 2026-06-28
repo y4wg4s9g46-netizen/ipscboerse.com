@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79bf-upload-import-fix';
+const CACHE_NAME = 'ipscboerse-v79bh-multi-import';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
