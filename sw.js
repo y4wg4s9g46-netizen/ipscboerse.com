@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79ax-stage-pdf-namefix';
+const CACHE_NAME = 'ipscboerse-v79az-result-first-analytics';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
