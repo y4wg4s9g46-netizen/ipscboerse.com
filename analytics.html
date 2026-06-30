@@ -70,27 +70,29 @@
       html[data-theme="dark"] #app-page-transition-cover, html[data-theme="dark"] #native-page-curtain-v74 { background: #0f172a; }
       /* V76R: no early body fade/colored curtain during navigation */
 
-  .analytics-hit-edit-btn-v79bq {
-    margin-top: 14px;
-    width: auto;
-    max-width: 100%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 9px 14px;
-    border-radius: 999px;
-    border: 1px solid rgba(255,159,67,.32);
-    background: rgba(255,159,67,.08);
-    color: var(--accent-color);
-    font-size: 12px;
-    font-weight: 900;
-    letter-spacing: .1px;
-    cursor: pointer;
-    box-shadow: none;
+  .analytics-hit-edit-btn-v79br {
+    margin-top: 12px !important;
+    width: auto !important;
+    max-width: 100% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 7px 10px !important;
+    border-radius: 999px !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: var(--text-muted) !important;
+    font-size: 11px !important;
+    line-height: 1.15 !important;
+    font-weight: 850 !important;
+    letter-spacing: .05em !important;
+    text-transform: uppercase !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
   }
-  .analytics-hit-edit-btn-v79bq::before { content: "✎"; font-weight: 900; opacity: .9; }
-  .analytics-hit-edit-btn-v79bq:hover { background: rgba(255,159,67,.13); transform: translateY(-1px); }
+  .analytics-hit-edit-btn-v79br::before { content: "✎"; font-weight: 900; opacity: .9; color: var(--accent-color); }
+  .analytics-hit-edit-btn-v79br:hover { color: var(--accent-color) !important; background: rgba(255,159,67,.08) !important; transform: none !important; }
 
 </style>
   <meta name="color-scheme" content="light dark">
@@ -464,15 +466,15 @@
     color: #fff;
     box-shadow: 0 8px 18px rgba(255,159,67,.22);
   }
-  .analytics-match-tools-v79bq {
+  .analytics-match-tools-v79br {
     display:grid;
     grid-template-columns:minmax(0, 1fr) auto;
     gap:10px;
     align-items:center;
     margin-bottom:14px;
   }
-  .analytics-match-tools-v79bq .select-wrapper { margin:0; }
-  .analytics-delete-match-v79bq {
+  .analytics-match-tools-v79br .select-wrapper { margin:0; }
+  .analytics-delete-match-v79br {
     border:1px solid rgba(239,68,68,.26);
     background:rgba(239,68,68,.06);
     color:var(--danger-color);
@@ -483,10 +485,10 @@
     white-space:nowrap;
     min-height:48px;
   }
-  .analytics-delete-match-v79bq:disabled { opacity:.55; cursor:not-allowed; }
+  .analytics-delete-match-v79br:disabled { opacity:.55; cursor:not-allowed; }
   @media (max-width:640px){
-    .analytics-match-tools-v79bq { grid-template-columns:1fr; gap:8px; }
-    .analytics-delete-match-v79bq { width:100%; }
+    .analytics-match-tools-v79br { grid-template-columns:1fr; gap:8px; }
+    .analytics-delete-match-v79br { width:100%; }
   }
 
   .training-plan-v79bn {
@@ -585,11 +587,11 @@
             </div>
 
             <div id="analytics-dashboard-content" style="display: none;">
-                <div id="analytics-match-tools" class="analytics-match-tools-v79bq">
+                <div id="analytics-match-tools" class="analytics-match-tools-v79br">
                     <div class="select-wrapper">
                         <select id="match-selector" onchange="renderSelectedMatch()"></select>
                     </div>
-                    <button id="analytics-delete-match-btn" type="button" class="analytics-delete-match-v79bq" onclick="deleteSelectedAnalyticsMatch()" data-txt="analytics-delete-match">Match löschen</button>
+                    <button id="analytics-delete-match-btn" type="button" class="analytics-delete-match-v79br" onclick="deleteSelectedAnalyticsMatch()" data-txt="analytics-delete-match">Match löschen</button>
                 </div>
 
                 <div class="analytics-tabs-v79bn">
@@ -638,7 +640,7 @@
                         <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; background: var(--text-muted); border-radius: 50%;"></div> M: <span id="count-misses" style="font-weight: 800; color: var(--text-color);">0</span></div>
                         <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; background: var(--danger-color); border-radius: 50%;"></div> PE: <span id="count-procedures" style="font-weight: 800; color: var(--text-color);">0</span></div>
                     </div>
-                    <button id="btn-open-hit-editor-top" class="analytics-hit-edit-btn-v79bq" type="button" onclick="openFirstStageHitEditor()" data-txt="analytics-hit-edit">Treffer je Stage bearbeiten</button>
+                    <button id="btn-open-hit-editor-top" class="analytics-hit-edit-btn-v79br" type="button" onclick="openFirstStageHitEditor()" data-txt="analytics-hit-edit">Stage-Treffer bearbeiten</button>
                     <div id="hit-data-status" style="margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.4;"></div>
                 </div>
 
@@ -663,7 +665,7 @@
         </div>
     </div>
 
-    <div class="analytics-version-footer-v79bn">Build v79bq</div>
+    <div class="analytics-version-footer-v79bn">Build v79br</div>
 
     <div id="hit-editor-modal" class="modal-overlay">
         <div class="modal-content">
@@ -740,7 +742,7 @@
         </div>
     </footer>
 <script src="auth.js?v=76v"></script>
-    <script src="lang.js?v=79bq"></script>
+    <script src="lang.js?v=79br"></script>
     <script src="app.js?v=76v"></script>
 
     <script>
@@ -815,7 +817,7 @@
   "analytics-kpi-consistency": "Konstanz",
   "analytics-consistency-title": "Was bedeutet Konstanz?",
   "analytics-consistency-desc": "Konstanz zeigt die Spannweite zwischen deiner besten und schlechtesten Stage-Leistung. Je kleiner die Spannweite zwischen bester und schwächster Stage, desto konstanter war dein Match.",
-  "analytics-hit-edit": "Treffer je Stage bearbeiten",
+  "analytics-hit-edit": "Stage-Treffer bearbeiten",
   "analytics-training-title": "Automatischer Trainingsplan",
   "analytics-training-desc": "Der Plan wird aus deinen Stage-Prozenten, Trefferdaten, Misses/Procedures und deiner Konstanz erstellt. Er ist bewusst als 4-Wochen-Plan aufgebaut.",
   "analytics-training-empty": "Wähle ein Match aus oder importiere Daten, dann erstelle ich den Plan automatisch.",
@@ -875,7 +877,7 @@
   "analytics-kpi-consistency": "Consistency",
   "analytics-consistency-title": "What does consistency mean?",
   "analytics-consistency-desc": "Consistency shows the spread between your best and weakest stage performance. The smaller the spread, the more consistent your match was.",
-  "analytics-hit-edit": "Edit hits per stage",
+  "analytics-hit-edit": "Edit stage hits",
   "analytics-training-title": "Automatic training plan",
   "analytics-training-desc": "The plan is created from your stage percentages, hit data, misses/procedures and consistency. It is intentionally structured as a 4-week plan.",
   "analytics-training-empty": "Select a match or import data, then I will create the plan automatically.",
@@ -1059,21 +1061,7 @@
                     document.getElementById("analytics-empty-state").style.display = "block";
                     return;
                 }
-                const matchMap = new Map();
-                allUserStages.forEach(s => {
-                    if(!matchMap.has(s.match_id)) {
-                        matchMap.set(s.match_id, s.match_name);
-                    }
-                });
-                uniqueMatches = Array.from(matchMap, ([id, name]) => ({ id, name }));
-                const selector = document.getElementById("match-selector");
-                selector.innerHTML = "";
-                uniqueMatches.forEach(m => {
-                    let opt = document.createElement("option");
-                    opt.value = m.id;
-                    opt.textContent = m.name;
-                    selector.appendChild(opt);
-                });
+                rebuildAnalyticsMatchSelector();
 
                 const { data: profiles } = await supabase.from('profiles').select('id, real_name');
                 window.buddyProfiles = profiles || [];
@@ -1150,10 +1138,9 @@
         const { data: buddyStages } = await client
             .from('user_match_analytics')
             .select('*')
-            .eq('match_id', matchId)
             .eq('user_id', buddyId);
             
-        allSquadStages = buddyStages || [];
+        allSquadStages = (buddyStages || []).filter(s => analyticsMatchGroupKey(s) === matchId);
         renderSelectedMatch();
     };
 
@@ -1555,7 +1542,7 @@
         const renderRunId = ++analyticsRenderRunId;
         const client = window.supabaseClient || window.supabase;
         const matchId = document.getElementById("match-selector").value;
-        const rawMatchStages = allUserStages.filter(s => s.match_id === matchId && isUsefulAnalyticsRow(s));
+        const rawMatchStages = allUserStages.filter(s => analyticsMatchGroupKey(s) === matchId && isUsefulAnalyticsRow(s));
 
         function normalizeStageLabel(name) {
             const s = String(name || '').trim();
@@ -1979,6 +1966,75 @@
             if (pos > 0 && pos < 140) { s = s.slice(0, pos).trim(); break; }
         }
         return s.slice(0, 110).trim() || 'Import Match';
+    }
+
+    function analyticsMatchYearFromRow(row) {
+        const fields = row && [row.match_name, row.event_name, row.match_title, row.match_date, row.event_date, row.date, row.created_at, row.updated_at, row.match_id];
+        const joined = String((fields || []).filter(Boolean).join(' '));
+        const m = joined.match(/20\d{2}/);
+        return m ? m[0] : '';
+    }
+
+    function analyticsCanonicalMatchKeyFromName(name, row) {
+        let original = String(name || '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
+        let s = analyticsCleanMatchTitle(original).toLowerCase();
+        s = s.replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss')
+             .normalize('NFD').replace(/[̀-ͯ]/g,'')
+             .replace(/(overall match results|overall stage results|score verification by competitor|results overall|results by stage).*$/ig, '')
+             .replace(/powered by walther/ig, '')
+             .replace(/by stp sport target pistol/ig, '')
+             .replace(/\s+/g,' ').trim();
+        const year = (s.match(/20\d{2}/) || [analyticsMatchYearFromRow(row) || ''])[0];
+        // Bekannte, häufig durch PDF.js abgeschnittene Titel hart zusammenführen.
+        if (/german\s+handg/.test(s)) return (year || '2026') + '-german-handgun-part-i';
+        if (/fastsummer\s*6|psc\s*fastsummer/.test(s)) return (year || '2026') + '-psc-fastsummer-6-0';
+        if (/campro\s+cup/.test(s)) return (year || '2026') + '-campro-cup';
+        if (/trigger\s*titans/.test(s)) return (year || '2026') + '-trigger-titans';
+        s = s.replace(/20\d{2}/g, '').trim();
+        const base = s.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        if (base) return (year ? year + '-' : '') + base;
+        return String((row && row.match_id) || '').trim();
+    }
+
+    function analyticsMatchGroupKey(row) {
+        if (!row) return '';
+        const name = row.match_name || row.event_name || row.match_title || '';
+        return analyticsCanonicalMatchKeyFromName(name, row) || String(row.match_id || '').trim();
+    }
+
+    function analyticsDisplayMatchNameForGroup(rows) {
+        const candidates = (rows || []).map(r => analyticsCleanMatchTitle(r.match_name || r.event_name || r.match_title || '')).filter(Boolean);
+        if (!candidates.length) return 'Match';
+        candidates.sort((a,b) => {
+            const score = x => (/(handgun|fastsummer|trigger|campro|cup|open|meisterschaft|walther)/i.test(x) ? 0 : 20) + x.length;
+            return score(a) - score(b);
+        });
+        return candidates[0];
+    }
+
+    function rebuildAnalyticsMatchSelector(selectMatchId) {
+        const selector = document.getElementById('match-selector');
+        if (!selector) return;
+        const groups = new Map();
+        (allUserStages || []).filter(isUsefulAnalyticsRow).forEach(s => {
+            const key = analyticsMatchGroupKey(s);
+            if (!key) return;
+            if (!groups.has(key)) groups.set(key, []);
+            groups.get(key).push(s);
+        });
+        window.__analyticsMatchGroups = groups;
+        uniqueMatches = Array.from(groups.entries()).map(([id, rows]) => ({ id, name: analyticsDisplayMatchNameForGroup(rows), rows }));
+        uniqueMatches.sort((a,b) => String(a.name).localeCompare(String(b.name), undefined, { numeric:true, sensitivity:'base' }));
+        selector.innerHTML = '';
+        uniqueMatches.forEach(m => { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = m.name; selector.appendChild(opt); });
+        if (selectMatchId) {
+            const direct = uniqueMatches.find(m => m.id === selectMatchId);
+            if (direct) selector.value = direct.id;
+            else {
+                const byAlias = uniqueMatches.find(m => (m.rows || []).some(r => r.match_id === selectMatchId));
+                if (byAlias) selector.value = byAlias.id;
+            }
+        }
     }
 
     function analyticsValidDivision(v) {
@@ -2469,19 +2525,7 @@
         }
     };
 
-    function rebuildAnalyticsMatchSelector(selectMatchId) {
-        const selector = document.getElementById('match-selector');
-        if (!selector) return;
-        const map = new Map();
-        allUserStages.filter(isUsefulAnalyticsRow).forEach(s => { if (s.match_id && s.match_name && !map.has(s.match_id)) map.set(s.match_id, s.match_name); });
-        uniqueMatches = Array.from(map, ([id, name]) => ({ id, name }));
-        selector.innerHTML = '';
-        uniqueMatches.forEach(m => { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = m.name; selector.appendChild(opt); });
-        if (selectMatchId) selector.value = selectMatchId;
-    }
-
-
-    window.deleteSelectedAnalyticsMatch = async function() {
+        window.deleteSelectedAnalyticsMatch = async function() {
         const selector = document.getElementById('match-selector');
         if (!selector || !selector.value) return;
         const matchId = selector.value;
@@ -2500,14 +2544,41 @@
             const { data: { session } } = await client.auth.getSession();
             if (!session) throw new Error(isEn ? 'Not logged in.' : 'Nicht angemeldet.');
 
-            const { error } = await client
-                .from('user_match_analytics')
-                .delete()
-                .eq('user_id', session.user.id)
-                .eq('match_id', matchId);
-            if (error) throw error;
+            const selectedRowsLocal = (allUserStages || []).filter(s => analyticsMatchGroupKey(s) === matchId || s.match_id === matchId);
+            const selectedIdsLocal = selectedRowsLocal.map(s => s.id).filter(Boolean);
+            let idsToDelete = selectedIdsLocal;
 
-            allUserStages = (allUserStages || []).filter(s => s.match_id !== matchId);
+            // Noch einmal frisch aus Supabase lesen, damit alte Duplikate mit gleichem Matchnamen wirklich mit erwischt werden.
+            const { data: serverRows, error: readErr } = await client
+                .from('user_match_analytics')
+                .select('id, match_id, match_name, event_name, match_title, created_at, updated_at')
+                .eq('user_id', session.user.id)
+                .limit(5000);
+            if (readErr) throw readErr;
+            const selectedKeys = new Set(selectedRowsLocal.map(analyticsMatchGroupKey).filter(Boolean));
+            selectedKeys.add(matchId);
+            idsToDelete = (serverRows || [])
+                .filter(r => selectedKeys.has(analyticsMatchGroupKey(r)) || r.match_id === matchId)
+                .map(r => r.id)
+                .filter(Boolean);
+
+            if (idsToDelete.length) {
+                const { error } = await client
+                    .from('user_match_analytics')
+                    .delete()
+                    .eq('user_id', session.user.id)
+                    .in('id', idsToDelete);
+                if (error) throw error;
+            } else {
+                const { error } = await client
+                    .from('user_match_analytics')
+                    .delete()
+                    .eq('user_id', session.user.id)
+                    .eq('match_id', matchId);
+                if (error) throw error;
+            }
+
+            allUserStages = (allUserStages || []).filter(s => !(analyticsMatchGroupKey(s) === matchId || s.match_id === matchId));
             allSquadStages = [];
             selectedBuddyId = null;
             const buddyRow = document.getElementById('buddy-selector-row');
@@ -2531,6 +2602,11 @@
             if (btn) { btn.disabled = false; btn.textContent = oldText || trAnalytics('analytics-delete-match', isEn ? 'Delete match' : 'Match löschen'); }
             if (typeof window.translatePortalPage === "function") window.translatePortalPage();
         }
+    };
+
+    window.openFirstStageHitEditor = function() {
+        const target = document.getElementById('stages-container');
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
     window.saveProfileName = async function() {
@@ -2572,19 +2648,9 @@
         }
     }
 
-    window.openFirstStageHitEditor = function() {
-        // Der obere Button darf keine Gesamttreffer in Stage 1 schreiben.
-        // Er führt nur zu den Stage-Karten; bearbeitet wird unten gezielt pro Stage.
-        const container = document.getElementById('stages-container');
-        if (container) {
-            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        alert('Bitte unten die gewünschte Stage öffnen oder die Verify-PDF hochladen. Gesamttreffer werden nicht automatisch auf Stage 1 geschrieben.');
-    }
-
     window.openHitEditor = function(stageName) {
         const matchId = document.getElementById("match-selector").value;
-        const stage = allUserStages.find(s => s.match_id === matchId && s.stage_name === stageName);
+        const stage = allUserStages.find(s => analyticsMatchGroupKey(s) === matchId && s.stage_name === stageName);
         if(!stage) return;
         
         currentEditStage = stage;
