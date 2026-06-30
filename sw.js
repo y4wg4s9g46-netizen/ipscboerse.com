@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79bm-import-merge-fix';
+const CACHE_NAME = 'ipscboerse-v79bo-analytics-lang';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
@@ -10,7 +10,7 @@ const APP_SHELL_ASSETS = [
     'header.js?v=77e',
     'auth.js?v=77e',
     'app.js?v=77e',
-    'lang.js?v=77e',
+    'lang.js?v=79bo',
     'marktplatz.html',
     'mein-planer.html',
     'community.html',
