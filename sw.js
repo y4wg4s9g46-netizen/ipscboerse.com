@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79bi-analytics-layout-course';
+const CACHE_NAME = 'ipscboerse-v79bj-analytics-polish-multifile';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
