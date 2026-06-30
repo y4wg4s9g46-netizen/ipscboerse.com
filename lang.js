@@ -1210,11 +1210,6 @@ if (document.readyState === 'loading') {
   "analytics-import-text-ph": "Oder E-Mail-/PDF-Text hier einfügen …",
   "analytics-import-check": "Import prüfen",
   "analytics-import-save": "In meine Analyse speichern",
-  "analytics-delete-match": "Match löschen",
-  "analytics-delete-confirm": "Dieses Match wirklich löschen? Es werden alle Analyse-Zeilen zu diesem Match aus deinem Profil entfernt.",
-  "analytics-delete-running": "Lösche…",
-  "analytics-delete-done": "Match gelöscht.",
-  "analytics-delete-failed": "Löschen fehlgeschlagen:",
   "analytics-buddy": "Buddy Radar",
   "analytics-empty-title": "Noch keine Match-Daten gefunden",
   "analytics-empty-desc": "Noch keine gespeicherten Matchdaten vorhanden. Lade oben eine Ergebnisliste, Stage-Results oder Verify-PDF hoch.",
@@ -1228,7 +1223,7 @@ if (document.readyState === 'loading') {
   "analytics-kpi-consistency": "Konstanz",
   "analytics-consistency-title": "Was bedeutet Konstanz?",
   "analytics-consistency-desc": "Konstanz zeigt die Spannweite zwischen deiner besten und schlechtesten Stage-Leistung. Je kleiner die Spannweite zwischen bester und schwächster Stage, desto konstanter war dein Match.",
-  "analytics-hit-edit": "Stage-Treffer bearbeiten",
+  "analytics-hit-edit": "Treffer über Verify-PDF oder Stage unten bearbeiten",
   "analytics-training-title": "Automatischer Trainingsplan",
   "analytics-training-desc": "Der Plan wird aus deinen Stage-Prozenten, Trefferdaten, Misses/Procedures und deiner Konstanz erstellt. Er ist bewusst als 4-Wochen-Plan aufgebaut.",
   "analytics-training-empty": "Wähle ein Match aus oder importiere Daten, dann erstelle ich den Plan automatisch.",
@@ -1257,15 +1252,7 @@ if (document.readyState === 'loading') {
   "analytics-preview-ready": "Bereit zum Speichern.",
   "analytics-import-done": "Prüfung fertig.",
   "analytics-import-failed": "Import konnte nicht vorbereitet werden.",
-  "analytics-saved": "Zeilen gespeichert. Analyse aktualisiert.",
-  "analytics-save-running": "Speichere in Supabase …",
-  "analytics-save-failed": "Speichern fehlgeschlagen:",
-  "analytics-not-logged-in": "Nicht angemeldet.",
-  "analytics-type-verify": "Verify / Treffer",
-  "analytics-type-mail": "E-Mail / Treffer",
-  "analytics-type-stagepdf": "Stage-Results PDF",
-  "analytics-type-resultpdf": "Ergebnisliste PDF",
-  "analytics-type-import": "Import"
+  "analytics-saved": "Zeilen gespeichert. Analyse aktualisiert."
 });
   window.portalTranslations.en = Object.assign(window.portalTranslations.en || {}, {
   "analytics-kicker": "STATISTICS",
@@ -1275,11 +1262,6 @@ if (document.readyState === 'loading') {
   "analytics-import-text-ph": "Paste email/PDF text here …",
   "analytics-import-check": "Check import",
   "analytics-import-save": "Save to my analysis",
-  "analytics-delete-match": "Delete match",
-  "analytics-delete-confirm": "Really delete this match? All analysis rows for this match will be removed from your profile.",
-  "analytics-delete-running": "Deleting…",
-  "analytics-delete-done": "Match deleted.",
-  "analytics-delete-failed": "Delete failed:",
   "analytics-buddy": "Buddy Radar",
   "analytics-empty-title": "No match data found yet",
   "analytics-empty-desc": "No saved match data yet. Upload an overall result, stage-results PDF or verification PDF above.",
@@ -1293,7 +1275,7 @@ if (document.readyState === 'loading') {
   "analytics-kpi-consistency": "Consistency",
   "analytics-consistency-title": "What does consistency mean?",
   "analytics-consistency-desc": "Consistency shows the spread between your best and weakest stage performance. The smaller the spread, the more consistent your match was.",
-  "analytics-hit-edit": "Edit stage hits",
+  "analytics-hit-edit": "Edit hits via verification PDF or stage below",
   "analytics-training-title": "Automatic training plan",
   "analytics-training-desc": "The plan is created from your stage percentages, hit data, misses/procedures and consistency. It is intentionally structured as a 4-week plan.",
   "analytics-training-empty": "Select a match or import data, then I will create the plan automatically.",
@@ -1322,15 +1304,7 @@ if (document.readyState === 'loading') {
   "analytics-preview-ready": "Ready to save.",
   "analytics-import-done": "Check complete.",
   "analytics-import-failed": "Import could not be prepared.",
-  "analytics-saved": "Rows saved. Analysis updated.",
-  "analytics-save-running": "Saving to Supabase …",
-  "analytics-save-failed": "Save failed:",
-  "analytics-not-logged-in": "Not logged in.",
-  "analytics-type-verify": "Verification / hits",
-  "analytics-type-mail": "Email / hits",
-  "analytics-type-stagepdf": "Stage-results PDF",
-  "analytics-type-resultpdf": "Overall-results PDF",
-  "analytics-type-import": "Import"
+  "analytics-saved": "Rows saved. Analysis updated."
 });
   window.translations = window.portalTranslations;
   try { if (typeof window.translatePortalPage === "function") window.translatePortalPage(); } catch (_) {}

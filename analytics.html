@@ -99,15 +99,15 @@
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 5px !important;
+    gap: 6px !important;
     width: auto !important;
     min-width: 0 !important;
     height: auto !important;
-    margin-left: 8px !important;
-    padding: 5px 9px !important;
+    margin-left: 10px !important;
+    padding: 7px 11px !important;
     border-radius: 999px !important;
-    border: 1px solid var(--border-color) !important;
-    background: var(--input-bg) !important;
+    border: 1px solid rgba(255,159,67,.28) !important;
+    background: rgba(255,159,67,.08) !important;
     color: var(--text-muted) !important;
     box-shadow: none !important;
     font-size: 11px !important;
@@ -117,11 +117,19 @@
     cursor: pointer !important;
     vertical-align: middle !important;
   }
-  .analytics-stage-hit-edit-btn-v79bt .ico { color: var(--accent-color); font-size: 12px; line-height: 1; }
+  .analytics-stage-hit-edit-btn-v79bt .ico { color: var(--accent-color); font-size: 18px; line-height: 1; transform: translateY(-.5px); }
   .analytics-stage-hit-edit-btn-v79bt:hover,
-  .analytics-stage-hit-edit-btn-v79bt:focus { border-color: rgba(255,159,67,.45) !important; color: var(--text-color) !important; background: rgba(255,159,67,.08) !important; }
+  .analytics-stage-hit-edit-btn-v79bt:focus { border-color: rgba(255,159,67,.55) !important; color: var(--text-color) !important; background: rgba(255,159,67,.13) !important; }
   @media (max-width: 460px) {
-    .analytics-stage-hit-edit-btn-v79bt { padding: 6px 8px !important; }
+    .analytics-stage-hit-edit-btn-v79bt {
+      width: 44px !important;
+      height: 44px !important;
+      padding: 0 !important;
+      border-radius: 16px !important;
+      background: rgba(255,159,67,.10) !important;
+      border-color: rgba(255,159,67,.32) !important;
+    }
+    .analytics-stage-hit-edit-btn-v79bt .ico { font-size: 21px !important; }
     .analytics-stage-hit-edit-btn-v79bt .txt { display: none; }
   }
 
@@ -696,7 +704,7 @@
         </div>
     </div>
 
-    <div class="analytics-version-footer-v79bn">Build v79bt</div>
+    <div class="analytics-version-footer-v79bn">Build v79bu</div>
 
     <div id="hit-editor-modal" class="modal-overlay">
         <div class="modal-content">
