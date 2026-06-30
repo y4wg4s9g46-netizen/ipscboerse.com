@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79bk-analytics-verify-overall-fix';
+const CACHE_NAME = 'ipscboerse-v79bl-verify-header-fix';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
