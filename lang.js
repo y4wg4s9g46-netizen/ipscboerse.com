@@ -1228,7 +1228,7 @@ if (document.readyState === 'loading') {
   "analytics-kpi-consistency": "Konstanz",
   "analytics-consistency-title": "Was bedeutet Konstanz?",
   "analytics-consistency-desc": "Konstanz zeigt die Spannweite zwischen deiner besten und schlechtesten Stage-Leistung. Je kleiner die Spannweite zwischen bester und schwächster Stage, desto konstanter war dein Match.",
-  "analytics-hit-edit": "Treffer über Verify-PDF oder Stage unten bearbeiten",
+  "analytics-hit-edit": "Treffer je Stage bearbeiten",
   "analytics-training-title": "Automatischer Trainingsplan",
   "analytics-training-desc": "Der Plan wird aus deinen Stage-Prozenten, Trefferdaten, Misses/Procedures und deiner Konstanz erstellt. Er ist bewusst als 4-Wochen-Plan aufgebaut.",
   "analytics-training-empty": "Wähle ein Match aus oder importiere Daten, dann erstelle ich den Plan automatisch.",
@@ -1257,7 +1257,15 @@ if (document.readyState === 'loading') {
   "analytics-preview-ready": "Bereit zum Speichern.",
   "analytics-import-done": "Prüfung fertig.",
   "analytics-import-failed": "Import konnte nicht vorbereitet werden.",
-  "analytics-saved": "Zeilen gespeichert. Analyse aktualisiert."
+  "analytics-saved": "Zeilen gespeichert. Analyse aktualisiert.",
+  "analytics-save-running": "Speichere in Supabase …",
+  "analytics-save-failed": "Speichern fehlgeschlagen:",
+  "analytics-not-logged-in": "Nicht angemeldet.",
+  "analytics-type-verify": "Verify / Treffer",
+  "analytics-type-mail": "E-Mail / Treffer",
+  "analytics-type-stagepdf": "Stage-Results PDF",
+  "analytics-type-resultpdf": "Ergebnisliste PDF",
+  "analytics-type-import": "Import"
 });
   window.portalTranslations.en = Object.assign(window.portalTranslations.en || {}, {
   "analytics-kicker": "STATISTICS",
@@ -1285,7 +1293,7 @@ if (document.readyState === 'loading') {
   "analytics-kpi-consistency": "Consistency",
   "analytics-consistency-title": "What does consistency mean?",
   "analytics-consistency-desc": "Consistency shows the spread between your best and weakest stage performance. The smaller the spread, the more consistent your match was.",
-  "analytics-hit-edit": "Edit hits via verification PDF or stage below",
+  "analytics-hit-edit": "Edit hits per stage",
   "analytics-training-title": "Automatic training plan",
   "analytics-training-desc": "The plan is created from your stage percentages, hit data, misses/procedures and consistency. It is intentionally structured as a 4-week plan.",
   "analytics-training-empty": "Select a match or import data, then I will create the plan automatically.",
@@ -1314,7 +1322,15 @@ if (document.readyState === 'loading') {
   "analytics-preview-ready": "Ready to save.",
   "analytics-import-done": "Check complete.",
   "analytics-import-failed": "Import could not be prepared.",
-  "analytics-saved": "Rows saved. Analysis updated."
+  "analytics-saved": "Rows saved. Analysis updated.",
+  "analytics-save-running": "Saving to Supabase …",
+  "analytics-save-failed": "Save failed:",
+  "analytics-not-logged-in": "Not logged in.",
+  "analytics-type-verify": "Verification / hits",
+  "analytics-type-mail": "Email / hits",
+  "analytics-type-stagepdf": "Stage-results PDF",
+  "analytics-type-resultpdf": "Overall-results PDF",
+  "analytics-type-import": "Import"
 });
   window.translations = window.portalTranslations;
   try { if (typeof window.translatePortalPage === "function") window.translatePortalPage(); } catch (_) {}

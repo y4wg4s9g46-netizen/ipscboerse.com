@@ -69,6 +69,29 @@
       #app-page-transition-cover, #native-page-curtain-v74 { background: #f6f8fc; }
       html[data-theme="dark"] #app-page-transition-cover, html[data-theme="dark"] #native-page-curtain-v74 { background: #0f172a; }
       /* V76R: no early body fade/colored curtain during navigation */
+
+  .analytics-hit-edit-btn-v79bq {
+    margin-top: 14px;
+    width: auto;
+    max-width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,159,67,.32);
+    background: rgba(255,159,67,.08);
+    color: var(--accent-color);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .1px;
+    cursor: pointer;
+    box-shadow: none;
+  }
+  .analytics-hit-edit-btn-v79bq::before { content: "✎"; font-weight: 900; opacity: .9; }
+  .analytics-hit-edit-btn-v79bq:hover { background: rgba(255,159,67,.13); transform: translateY(-1px); }
+
 </style>
   <meta name="color-scheme" content="light dark">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
@@ -441,15 +464,15 @@
     color: #fff;
     box-shadow: 0 8px 18px rgba(255,159,67,.22);
   }
-  .analytics-match-tools-v79bp {
+  .analytics-match-tools-v79bq {
     display:grid;
     grid-template-columns:minmax(0, 1fr) auto;
     gap:10px;
     align-items:center;
     margin-bottom:14px;
   }
-  .analytics-match-tools-v79bp .select-wrapper { margin:0; }
-  .analytics-delete-match-v79bp {
+  .analytics-match-tools-v79bq .select-wrapper { margin:0; }
+  .analytics-delete-match-v79bq {
     border:1px solid rgba(239,68,68,.26);
     background:rgba(239,68,68,.06);
     color:var(--danger-color);
@@ -460,10 +483,10 @@
     white-space:nowrap;
     min-height:48px;
   }
-  .analytics-delete-match-v79bp:disabled { opacity:.55; cursor:not-allowed; }
+  .analytics-delete-match-v79bq:disabled { opacity:.55; cursor:not-allowed; }
   @media (max-width:640px){
-    .analytics-match-tools-v79bp { grid-template-columns:1fr; gap:8px; }
-    .analytics-delete-match-v79bp { width:100%; }
+    .analytics-match-tools-v79bq { grid-template-columns:1fr; gap:8px; }
+    .analytics-delete-match-v79bq { width:100%; }
   }
 
   .training-plan-v79bn {
@@ -562,11 +585,11 @@
             </div>
 
             <div id="analytics-dashboard-content" style="display: none;">
-                <div id="analytics-match-tools" class="analytics-match-tools-v79bp">
+                <div id="analytics-match-tools" class="analytics-match-tools-v79bq">
                     <div class="select-wrapper">
                         <select id="match-selector" onchange="renderSelectedMatch()"></select>
                     </div>
-                    <button id="analytics-delete-match-btn" type="button" class="analytics-delete-match-v79bp" onclick="deleteSelectedAnalyticsMatch()" data-txt="analytics-delete-match">Match löschen</button>
+                    <button id="analytics-delete-match-btn" type="button" class="analytics-delete-match-v79bq" onclick="deleteSelectedAnalyticsMatch()" data-txt="analytics-delete-match">Match löschen</button>
                 </div>
 
                 <div class="analytics-tabs-v79bn">
@@ -615,7 +638,7 @@
                         <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; background: var(--text-muted); border-radius: 50%;"></div> M: <span id="count-misses" style="font-weight: 800; color: var(--text-color);">0</span></div>
                         <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; background: var(--danger-color); border-radius: 50%;"></div> PE: <span id="count-procedures" style="font-weight: 800; color: var(--text-color);">0</span></div>
                     </div>
-                    <button id="btn-open-hit-editor-top" type="button" onclick="openFirstStageHitEditor()" style="margin-top:16px;width:100%;padding:12px 14px;border-radius:var(--radius);border:1px solid rgba(255,159,67,.35);background:rgba(255,159,67,.10);color:var(--accent-color);font-weight:900;cursor:pointer;" data-txt="analytics-hit-edit">Treffer über Verify-PDF oder Stage unten bearbeiten</button>
+                    <button id="btn-open-hit-editor-top" class="analytics-hit-edit-btn-v79bq" type="button" onclick="openFirstStageHitEditor()" data-txt="analytics-hit-edit">Treffer je Stage bearbeiten</button>
                     <div id="hit-data-status" style="margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.4;"></div>
                 </div>
 
@@ -640,7 +663,7 @@
         </div>
     </div>
 
-    <div class="analytics-version-footer-v79bn">Build v79bp</div>
+    <div class="analytics-version-footer-v79bn">Build v79bq</div>
 
     <div id="hit-editor-modal" class="modal-overlay">
         <div class="modal-content">
@@ -717,7 +740,7 @@
         </div>
     </footer>
 <script src="auth.js?v=76v"></script>
-    <script src="lang.js?v=79bp"></script>
+    <script src="lang.js?v=79bq"></script>
     <script src="app.js?v=76v"></script>
 
     <script>
@@ -792,7 +815,7 @@
   "analytics-kpi-consistency": "Konstanz",
   "analytics-consistency-title": "Was bedeutet Konstanz?",
   "analytics-consistency-desc": "Konstanz zeigt die Spannweite zwischen deiner besten und schlechtesten Stage-Leistung. Je kleiner die Spannweite zwischen bester und schwächster Stage, desto konstanter war dein Match.",
-  "analytics-hit-edit": "Treffer über Verify-PDF oder Stage unten bearbeiten",
+  "analytics-hit-edit": "Treffer je Stage bearbeiten",
   "analytics-training-title": "Automatischer Trainingsplan",
   "analytics-training-desc": "Der Plan wird aus deinen Stage-Prozenten, Trefferdaten, Misses/Procedures und deiner Konstanz erstellt. Er ist bewusst als 4-Wochen-Plan aufgebaut.",
   "analytics-training-empty": "Wähle ein Match aus oder importiere Daten, dann erstelle ich den Plan automatisch.",
@@ -821,7 +844,15 @@
   "analytics-preview-ready": "Bereit zum Speichern.",
   "analytics-import-done": "Prüfung fertig.",
   "analytics-import-failed": "Import konnte nicht vorbereitet werden.",
-  "analytics-saved": "Zeilen gespeichert. Analyse aktualisiert."
+  "analytics-saved": "Zeilen gespeichert. Analyse aktualisiert.",
+  "analytics-save-running": "Speichere in Supabase …",
+  "analytics-save-failed": "Speichern fehlgeschlagen:",
+  "analytics-not-logged-in": "Nicht angemeldet.",
+  "analytics-type-verify": "Verify / Treffer",
+  "analytics-type-mail": "E-Mail / Treffer",
+  "analytics-type-stagepdf": "Stage-Results PDF",
+  "analytics-type-resultpdf": "Ergebnisliste PDF",
+  "analytics-type-import": "Import"
 });
         Object.assign(window.translations.en, {
   "analytics-kicker": "STATISTICS",
@@ -844,7 +875,7 @@
   "analytics-kpi-consistency": "Consistency",
   "analytics-consistency-title": "What does consistency mean?",
   "analytics-consistency-desc": "Consistency shows the spread between your best and weakest stage performance. The smaller the spread, the more consistent your match was.",
-  "analytics-hit-edit": "Edit hits via verification PDF or stage below",
+  "analytics-hit-edit": "Edit hits per stage",
   "analytics-training-title": "Automatic training plan",
   "analytics-training-desc": "The plan is created from your stage percentages, hit data, misses/procedures and consistency. It is intentionally structured as a 4-week plan.",
   "analytics-training-empty": "Select a match or import data, then I will create the plan automatically.",
@@ -873,12 +904,30 @@
   "analytics-preview-ready": "Ready to save.",
   "analytics-import-done": "Check complete.",
   "analytics-import-failed": "Import could not be prepared.",
-  "analytics-saved": "Rows saved. Analysis updated."
+  "analytics-saved": "Rows saved. Analysis updated.",
+  "analytics-save-running": "Saving to Supabase …",
+  "analytics-save-failed": "Save failed:",
+  "analytics-not-logged-in": "Not logged in.",
+  "analytics-type-verify": "Verification / hits",
+  "analytics-type-mail": "Email / hits",
+  "analytics-type-stagepdf": "Stage-results PDF",
+  "analytics-type-resultpdf": "Overall-results PDF",
+  "analytics-type-import": "Import"
 });
     }
 
+    function currentAnalyticsLang() {
+        const candidates = [];
+        try { candidates.push(document.getElementById('language-select')?.value); } catch(_) {}
+        try { candidates.push(window.currentLang); } catch(_) {}
+        try { candidates.push(localStorage.getItem('selectedLanguage')); } catch(_) {}
+        try { candidates.push(document.documentElement.lang); } catch(_) {}
+        const raw = String(candidates.find(v => v && String(v).trim()) || 'de').toLowerCase();
+        return raw.startsWith('en') ? 'en' : 'de';
+    }
+
     function applyAnalyticsPageLanguage() {
-        const lang = localStorage.getItem("selectedLanguage") === "en" ? "en" : "de";
+        const lang = currentAnalyticsLang();
         const dict = (window.translations && window.translations[lang]) ? window.translations[lang] : {};
         document.querySelectorAll('[data-txt]').forEach(el => {
             const key = el.getAttribute('data-txt');
@@ -901,9 +950,26 @@
 
 
     function trAnalytics(key, fallback) {
-        const lang = localStorage.getItem("selectedLanguage") === "en" ? "en" : "de";
-        const dict = (window.translations && window.translations[lang]) ? window.translations[lang] : {};
-        return dict[key] || fallback || key;
+        const lang = currentAnalyticsLang();
+        const sources = [window.translations, window.portalTranslations].filter(Boolean);
+        for (const src of sources) {
+            const dict = src && src[lang] ? src[lang] : null;
+            if (dict && dict[key]) return dict[key];
+        }
+        return fallback || key;
+    }
+
+    function trAnalyticsImportType(type) {
+        const raw = String(type || '').trim();
+        const map = {
+            'Verify / Treffer': 'analytics-type-verify',
+            'E-Mail / Treffer': 'analytics-type-mail',
+            'Stage-Results PDF': 'analytics-type-stagepdf',
+            'Stage-Results ESS': 'analytics-type-stagepdf',
+            'Ergebnisliste PDF': 'analytics-type-resultpdf',
+            'Import': 'analytics-type-import'
+        };
+        return trAnalytics(map[raw] || raw, raw);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -1025,7 +1091,7 @@
                 }
             } catch (err) {
                 console.error(err);
-                const isEn = localStorage.getItem("selectedLanguage") === "en";
+                const isEn = currentAnalyticsLang() === "en";
                 document.getElementById("analytics-loader").innerText = isEn ? "Error loading database." : "Fehler beim Laden.";
             }
         }
@@ -1053,7 +1119,7 @@
 
         const currentUserId = (await client.auth.getSession()).data.session?.user.id;
         const uniqueUserIds = [...new Set(matchGroup.map(g => g.user_id))].filter(id => id !== currentUserId);
-        const isEn = localStorage.getItem("selectedLanguage") === "en";
+        const isEn = currentAnalyticsLang() === "en";
         const placeholderText = isEn ? "-- Choose a buddy to compare --" : "-- Wähle einen Buddy zum Vergleich --";
         let selectHtml = `<div id="buddy-selector-row" class="select-wrapper" style="margin-top: -10px; margin-bottom: 24px;">
             <select id="buddy-selector" onchange="selectBuddy(this.value)">
@@ -1552,7 +1618,7 @@
         });
         const matchStages = Array.from(stageMap.values());
 
-        const isEn = localStorage.getItem("selectedLanguage") === "en";
+        const isEn = currentAnalyticsLang() === "en";
         let sumHf = 0, tA = 0, tC = 0, tD = 0, tM = 0, tP = 0;
         let division = isEn ? "Unknown" : "Unbekannt";
         let stagePercents = [];
@@ -2322,16 +2388,16 @@
             const hitRows = parsed.rows.filter(r => rowHitValues(r).hasAny).length;
             const stageRows = parsed.rows.filter(r => !String(r.stage_name || '').toLowerCase().includes('overall')).length;
             const overallRows = parsed.rows.filter(r => String(r.stage_name || '').toLowerCase().includes('overall')).length;
-            const chips = (parsed.meta.types.length ? parsed.meta.types : ['Import']).map(t => `<span class="analytics-import-chip-v79bn">${t}</span>`).join('');
-            preview.innerHTML = `<b>${trAnalytics('analytics-preview-title', 'Vorschau')}</b><br>${trAnalytics('analytics-preview-match', 'Match')}: <b>${parsed.meta.matchName}</b><br>${trAnalytics('analytics-preview-found', 'Gefunden')}: <b>${parsed.rows.length}</b> ${trAnalytics('analytics-preview-rows', 'Zeilen')} (${stageRows} ${trAnalytics('analytics-preview-stages', 'Stages')}, ${overallRows} ${trAnalytics('analytics-preview-overall', 'Overall')}, ${hitRows} ${trAnalytics('analytics-preview-hitrows', 'Treffer-Zeilen')})<br>${chips}<br><span class="ok">${trAnalytics('analytics-preview-ready', 'Bereit zum Speichern.')}</span>`;
+            const chips = (parsed.meta.types.length ? parsed.meta.types : ['Import']).map(t => `<span class="analytics-import-chip-v79bn">${trAnalyticsImportType(t)}</span>`).join('');
+            preview.innerHTML = `<b>${trAnalytics('analytics-preview-title', currentAnalyticsLang()==='en' ? 'Preview' : 'Vorschau')}</b><br>${trAnalytics('analytics-preview-match', 'Match')}: <b>${parsed.meta.matchName}</b><br>${trAnalytics('analytics-preview-found', currentAnalyticsLang()==='en' ? 'Found' : 'Gefunden')}: <b>${parsed.rows.length}</b> ${trAnalytics('analytics-preview-rows', currentAnalyticsLang()==='en' ? 'rows' : 'Zeilen')} (${stageRows} ${trAnalytics('analytics-preview-stages', 'Stages')}, ${overallRows} ${trAnalytics('analytics-preview-overall', 'Overall')}, ${hitRows} ${trAnalytics('analytics-preview-hitrows', currentAnalyticsLang()==='en' ? 'hit rows' : 'Treffer-Zeilen')})<br>${chips}<br><span class="ok">${trAnalytics('analytics-preview-ready', currentAnalyticsLang()==='en' ? 'Ready to save.' : 'Bereit zum Speichern.')}</span>`;
             preview.style.display = 'block';
             saveBtn.disabled = false;
-            status.innerText = trAnalytics('analytics-import-done', 'Prüfung fertig.');
+            status.innerText = trAnalytics('analytics-import-done', currentAnalyticsLang()==='en' ? 'Check complete.' : 'Prüfung fertig.');
         } catch (err) {
             console.error(err);
             preview.innerHTML = `<span class="warn">${err.message || err}</span>`;
             preview.style.display = 'block';
-            status.innerText = trAnalytics('analytics-import-failed', 'Import konnte nicht vorbereitet werden.');
+            status.innerText = trAnalytics('analytics-import-failed', currentAnalyticsLang()==='en' ? 'Import could not be prepared.' : 'Import konnte nicht vorbereitet werden.');
         }
     };
 
@@ -2341,10 +2407,10 @@
         if (!pendingAnalyticsImportRows.length) return;
         try {
             saveBtn.disabled = true;
-            status.innerText = 'Speichere in Supabase …';
+            status.innerText = trAnalytics('analytics-save-running', currentAnalyticsLang()==='en' ? 'Saving to Supabase …' : 'Speichere in Supabase …');
             const client = window.supabaseClient || window.supabase;
             const { data: { session } } = await client.auth.getSession();
-            if (!session) throw new Error('Nicht angemeldet.');
+            if (!session) throw new Error(trAnalytics('analytics-not-logged-in', currentAnalyticsLang()==='en' ? 'Not logged in.' : 'Nicht angemeldet.'));
             let saved = 0;
             for (const row of pendingAnalyticsImportRows) {
                 const payload = {
@@ -2395,10 +2461,10 @@
             document.getElementById('analytics-empty-state').style.display = 'none';
             document.getElementById('analytics-dashboard-content').style.display = 'block';
             renderSelectedMatch();
-            status.innerText = `${saved} Zeilen gespeichert. Analyse aktualisiert.`;
+            status.innerText = `${saved} ${trAnalytics('analytics-saved', currentAnalyticsLang()==='en' ? 'rows saved. Analysis updated.' : 'Zeilen gespeichert. Analyse aktualisiert.')}`;
         } catch (err) {
             console.error(err);
-            status.innerText = 'Speichern fehlgeschlagen: ' + (err.message || err);
+            status.innerText = trAnalytics('analytics-save-failed', currentAnalyticsLang()==='en' ? 'Save failed:' : 'Speichern fehlgeschlagen:') + ' ' + (err.message || err);
             saveBtn.disabled = false;
         }
     };
@@ -2420,7 +2486,7 @@
         if (!selector || !selector.value) return;
         const matchId = selector.value;
         const matchName = (selector.options[selector.selectedIndex] && selector.options[selector.selectedIndex].textContent) || matchId;
-        const isEn = localStorage.getItem("selectedLanguage") === "en";
+        const isEn = currentAnalyticsLang() === "en";
         const confirmText = trAnalytics('analytics-delete-confirm', isEn ? 'Really delete this match? All analysis rows for this match will be removed from your profile.' : 'Dieses Match wirklich löschen? Es werden alle Analyse-Zeilen zu diesem Match aus deinem Profil entfernt.');
         if (!confirm(confirmText + "\n\n" + matchName)) return;
 
@@ -2469,7 +2535,7 @@
 
     window.saveProfileName = async function() {
         const inputName = document.getElementById('setup-real-name').value.trim();
-        const isEn = localStorage.getItem("selectedLanguage") === "en";
+        const isEn = currentAnalyticsLang() === "en";
         
         if (!inputName) {
             alert(isEn ? "Please enter a valid name." : "Bitte gib einen gültigen Namen ein.");
@@ -2585,7 +2651,7 @@
             document.getElementById('edit-m').value = m;
             if (document.getElementById('edit-p')) document.getElementById('edit-p').value = p;
             
-            const isEn = localStorage.getItem("selectedLanguage") === "en";
+            const isEn = currentAnalyticsLang() === "en";
             e.target.value = '';
             e.target.placeholder = isEn ? '✅ Hits successfully detected!' : '✅ Treffer erfolgreich erkannt!';
             setTimeout(() => e.target.placeholder = 'Email-Text hier einfügen (Smart Paste)', 3000);
@@ -2601,7 +2667,7 @@
         const p = parseInt((document.getElementById('edit-p') || {}).value) || 0;
         const btn = document.getElementById('btn-save-hits');
         
-        const isEn = localStorage.getItem("selectedLanguage") === "en";
+        const isEn = currentAnalyticsLang() === "en";
         btn.innerText = isEn ? "Saving..." : "Speichere...";
         
         try {

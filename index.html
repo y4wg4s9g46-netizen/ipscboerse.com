@@ -613,7 +613,25 @@
   function parseRank(v){ if(v===null||v===undefined) return null; const m=String(v).replace(',', '.').match(/\d+/); if(!m) return null; const n=parseInt(m[0],10); return Number.isFinite(n)&&n>0?n:null; }
   function rowYear(row){ const fields=[row.match_date,row.event_date,row.date,row.created_at,row.updated_at,row.match_name,row.stage_name,row.match_id]; for(const v of fields){ const m=String(v||'').match(/20\d{2}/); if(m) return parseInt(m[0],10); } return null; }
   function isOverallRow(r){ return /overall\s*match|match\s*results?|gesamt|ergebnis|overall/i.test(String(r.stage_name||r.display_stage_name||'')); }
-  function matchKey(r){ return String(r.match_id || r.match_name || r.event_id || r.id || '').trim(); }
+  function cleanSeasonMatchName(v){
+    let s = String(v || '').replace(/\s+/g,' ').trim();
+    if(!s) return '';
+    // Manche alte Imports haben den Matchtitel mehrfach aneinander gehängt. Auf den ersten sauberen Titel kürzen.
+    const yearHits = [...s.matchAll(/20\d{2}/g)].map(m=>m.index);
+    if(yearHits.length > 1){
+      const second = yearHits.find(i => i > 8);
+      if(Number.isFinite(second)) s = s.slice(0, second).trim();
+    }
+    s = s.replace(/\b(Overall Match Results|Overall Stage Results|Score Verification By Competitor|Results Overall|Results by Stage)\b.*$/i,'').trim();
+    return s.toLowerCase().replace(/[^a-z0-9äöüß]+/gi,'-').replace(/^-+|-+$/g,'') || '';
+  }
+  function matchKey(r){
+    // Für die Saisonkarte nach Matchname gruppieren, nicht nach Import-ID.
+    // So zählen Results/Stage-Results/Verify desselben Matches nicht mehrfach.
+    const nameKey = cleanSeasonMatchName(r.match_name || r.event_name || r.match_title || '');
+    if(nameKey) return nameKey;
+    return String(r.match_id || r.event_id || r.id || '').trim();
+  }
   function rowPercent(r){
     const direct = parsePercent(r.match_percent ?? r.overall_percent ?? r.percent);
     if(direct) return direct;
