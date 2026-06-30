@@ -441,6 +441,31 @@
     color: #fff;
     box-shadow: 0 8px 18px rgba(255,159,67,.22);
   }
+  .analytics-match-tools-v79bp {
+    display:grid;
+    grid-template-columns:minmax(0, 1fr) auto;
+    gap:10px;
+    align-items:center;
+    margin-bottom:14px;
+  }
+  .analytics-match-tools-v79bp .select-wrapper { margin:0; }
+  .analytics-delete-match-v79bp {
+    border:1px solid rgba(239,68,68,.26);
+    background:rgba(239,68,68,.06);
+    color:var(--danger-color);
+    border-radius:16px;
+    padding:13px 14px;
+    font-weight:950;
+    cursor:pointer;
+    white-space:nowrap;
+    min-height:48px;
+  }
+  .analytics-delete-match-v79bp:disabled { opacity:.55; cursor:not-allowed; }
+  @media (max-width:640px){
+    .analytics-match-tools-v79bp { grid-template-columns:1fr; gap:8px; }
+    .analytics-delete-match-v79bp { width:100%; }
+  }
+
   .training-plan-v79bn {
     display: none;
     background: var(--card-bg);
@@ -537,8 +562,11 @@
             </div>
 
             <div id="analytics-dashboard-content" style="display: none;">
-<div class="select-wrapper">
-                    <select id="match-selector" onchange="renderSelectedMatch()"></select>
+                <div id="analytics-match-tools" class="analytics-match-tools-v79bp">
+                    <div class="select-wrapper">
+                        <select id="match-selector" onchange="renderSelectedMatch()"></select>
+                    </div>
+                    <button id="analytics-delete-match-btn" type="button" class="analytics-delete-match-v79bp" onclick="deleteSelectedAnalyticsMatch()" data-txt="analytics-delete-match">Match löschen</button>
                 </div>
 
                 <div class="analytics-tabs-v79bn">
@@ -612,7 +640,7 @@
         </div>
     </div>
 
-    <div class="analytics-version-footer-v79bn">Build v79bo</div>
+    <div class="analytics-version-footer-v79bn">Build v79bp</div>
 
     <div id="hit-editor-modal" class="modal-overlay">
         <div class="modal-content">
@@ -689,7 +717,7 @@
         </div>
     </footer>
 <script src="auth.js?v=76v"></script>
-    <script src="lang.js?v=79bo"></script>
+    <script src="lang.js?v=79bp"></script>
     <script src="app.js?v=76v"></script>
 
     <script>
@@ -714,6 +742,11 @@
         window.translations.de["analytics-import-text-ph"] = "Oder E-Mail-/PDF-Text hier einfügen …";
         window.translations.de["analytics-import-check"] = "Import prüfen";
         window.translations.de["analytics-import-save"] = "In meine Analyse speichern";
+        window.translations.de["analytics-delete-match"] = "Match löschen";
+        window.translations.de["analytics-delete-confirm"] = "Dieses Match wirklich löschen? Es werden alle Analyse-Zeilen zu diesem Match aus deinem Profil entfernt.";
+        window.translations.de["analytics-delete-running"] = "Lösche…";
+        window.translations.de["analytics-delete-done"] = "Match gelöscht.";
+        window.translations.de["analytics-delete-failed"] = "Löschen fehlgeschlagen:";
         window.translations.de["analytics-buddy"] = "Buddy Radar";
         window.translations.de["analytics-empty-title"] = "Noch keine Match-Daten gefunden";
         window.translations.de["analytics-empty-desc"] = "Noch keine gespeicherten Matchdaten vorhanden. Lade oben eine Ergebnisliste, Stage-Results oder Verify-PDF hoch.";
@@ -727,6 +760,11 @@
         window.translations.en["analytics-import-text-ph"] = "Paste email/PDF text here …";
         window.translations.en["analytics-import-check"] = "Check import";
         window.translations.en["analytics-import-save"] = "Save to my analysis";
+        window.translations.en["analytics-delete-match"] = "Delete match";
+        window.translations.en["analytics-delete-confirm"] = "Really delete this match? All analysis rows for this match will be removed from your profile.";
+        window.translations.en["analytics-delete-running"] = "Deleting…";
+        window.translations.en["analytics-delete-done"] = "Match deleted.";
+        window.translations.en["analytics-delete-failed"] = "Delete failed:";
         window.translations.en["analytics-buddy"] = "Buddy Radar";
         window.translations.en["analytics-empty-title"] = "No match data found yet";
         window.translations.en["analytics-empty-desc"] = "No saved match data yet. Upload an overall result, stage-results PDF or verification PDF above.";
@@ -2375,6 +2413,59 @@
         uniqueMatches.forEach(m => { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = m.name; selector.appendChild(opt); });
         if (selectMatchId) selector.value = selectMatchId;
     }
+
+
+    window.deleteSelectedAnalyticsMatch = async function() {
+        const selector = document.getElementById('match-selector');
+        if (!selector || !selector.value) return;
+        const matchId = selector.value;
+        const matchName = (selector.options[selector.selectedIndex] && selector.options[selector.selectedIndex].textContent) || matchId;
+        const isEn = localStorage.getItem("selectedLanguage") === "en";
+        const confirmText = trAnalytics('analytics-delete-confirm', isEn ? 'Really delete this match? All analysis rows for this match will be removed from your profile.' : 'Dieses Match wirklich löschen? Es werden alle Analyse-Zeilen zu diesem Match aus deinem Profil entfernt.');
+        if (!confirm(confirmText + "\n\n" + matchName)) return;
+
+        const btn = document.getElementById('analytics-delete-match-btn');
+        const status = document.getElementById('analytics-import-status');
+        const oldText = btn ? btn.textContent : '';
+        if (btn) { btn.disabled = true; btn.textContent = trAnalytics('analytics-delete-running', isEn ? 'Deleting…' : 'Lösche…'); }
+
+        try {
+            const client = window.supabaseClient || window.supabase;
+            const { data: { session } } = await client.auth.getSession();
+            if (!session) throw new Error(isEn ? 'Not logged in.' : 'Nicht angemeldet.');
+
+            const { error } = await client
+                .from('user_match_analytics')
+                .delete()
+                .eq('user_id', session.user.id)
+                .eq('match_id', matchId);
+            if (error) throw error;
+
+            allUserStages = (allUserStages || []).filter(s => s.match_id !== matchId);
+            allSquadStages = [];
+            selectedBuddyId = null;
+            const buddyRow = document.getElementById('buddy-selector-row');
+            if (buddyRow) buddyRow.remove();
+
+            if (!allUserStages.length) {
+                uniqueMatches = [];
+                document.getElementById('analytics-dashboard-content').style.display = 'none';
+                document.getElementById('analytics-empty-state').style.display = 'block';
+            } else {
+                const nextMatchId = allUserStages[0] && allUserStages[0].match_id;
+                rebuildAnalyticsMatchSelector(nextMatchId);
+                renderSelectedMatch();
+            }
+            if (status) status.innerText = trAnalytics('analytics-delete-done', isEn ? 'Match deleted.' : 'Match gelöscht.');
+        } catch (err) {
+            console.error(err);
+            if (status) status.innerText = trAnalytics('analytics-delete-failed', isEn ? 'Delete failed:' : 'Löschen fehlgeschlagen:') + ' ' + (err.message || err);
+            alert((isEn ? 'Delete failed: ' : 'Löschen fehlgeschlagen: ') + (err.message || err));
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = oldText || trAnalytics('analytics-delete-match', isEn ? 'Delete match' : 'Match löschen'); }
+            if (typeof window.translatePortalPage === "function") window.translatePortalPage();
+        }
+    };
 
     window.saveProfileName = async function() {
         const inputName = document.getElementById('setup-real-name').value.trim();
