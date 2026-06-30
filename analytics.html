@@ -70,7 +70,7 @@
       html[data-theme="dark"] #app-page-transition-cover, html[data-theme="dark"] #native-page-curtain-v74 { background: #0f172a; }
       /* V76R: no early body fade/colored curtain during navigation */
 
-  .analytics-hit-edit-btn-v79br {
+  .analytics-hit-edit-btn-v79bs {
     margin-top: 12px !important;
     width: auto !important;
     max-width: 100% !important;
@@ -91,8 +91,8 @@
     cursor: pointer !important;
     box-shadow: none !important;
   }
-  .analytics-hit-edit-btn-v79br::before { content: "✎"; font-weight: 900; opacity: .9; color: var(--accent-color); }
-  .analytics-hit-edit-btn-v79br:hover { color: var(--accent-color) !important; background: rgba(255,159,67,.08) !important; transform: none !important; }
+  .analytics-hit-edit-btn-v79bs::before { content: "✎"; font-weight: 900; opacity: .9; color: var(--accent-color); }
+  .analytics-hit-edit-btn-v79bs:hover { color: var(--accent-color) !important; background: rgba(255,159,67,.08) !important; transform: none !important; }
 
 </style>
   <meta name="color-scheme" content="light dark">
@@ -466,15 +466,15 @@
     color: #fff;
     box-shadow: 0 8px 18px rgba(255,159,67,.22);
   }
-  .analytics-match-tools-v79br {
+  .analytics-match-tools-v79bs {
     display:grid;
     grid-template-columns:minmax(0, 1fr) auto;
     gap:10px;
     align-items:center;
     margin-bottom:14px;
   }
-  .analytics-match-tools-v79br .select-wrapper { margin:0; }
-  .analytics-delete-match-v79br {
+  .analytics-match-tools-v79bs .select-wrapper { margin:0; }
+  .analytics-delete-match-v79bs {
     border:1px solid rgba(239,68,68,.26);
     background:rgba(239,68,68,.06);
     color:var(--danger-color);
@@ -485,10 +485,10 @@
     white-space:nowrap;
     min-height:48px;
   }
-  .analytics-delete-match-v79br:disabled { opacity:.55; cursor:not-allowed; }
+  .analytics-delete-match-v79bs:disabled { opacity:.55; cursor:not-allowed; }
   @media (max-width:640px){
-    .analytics-match-tools-v79br { grid-template-columns:1fr; gap:8px; }
-    .analytics-delete-match-v79br { width:100%; }
+    .analytics-match-tools-v79bs { grid-template-columns:1fr; gap:8px; }
+    .analytics-delete-match-v79bs { width:100%; }
   }
 
   .training-plan-v79bn {
@@ -587,11 +587,11 @@
             </div>
 
             <div id="analytics-dashboard-content" style="display: none;">
-                <div id="analytics-match-tools" class="analytics-match-tools-v79br">
+                <div id="analytics-match-tools" class="analytics-match-tools-v79bs">
                     <div class="select-wrapper">
                         <select id="match-selector" onchange="renderSelectedMatch()"></select>
                     </div>
-                    <button id="analytics-delete-match-btn" type="button" class="analytics-delete-match-v79br" onclick="deleteSelectedAnalyticsMatch()" data-txt="analytics-delete-match">Match löschen</button>
+                    <button id="analytics-delete-match-btn" type="button" class="analytics-delete-match-v79bs" onclick="deleteSelectedAnalyticsMatch()" data-txt="analytics-delete-match">Match löschen</button>
                 </div>
 
                 <div class="analytics-tabs-v79bn">
@@ -640,7 +640,7 @@
                         <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; background: var(--text-muted); border-radius: 50%;"></div> M: <span id="count-misses" style="font-weight: 800; color: var(--text-color);">0</span></div>
                         <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; background: var(--danger-color); border-radius: 50%;"></div> PE: <span id="count-procedures" style="font-weight: 800; color: var(--text-color);">0</span></div>
                     </div>
-                    <button id="btn-open-hit-editor-top" class="analytics-hit-edit-btn-v79br" type="button" onclick="openFirstStageHitEditor()" data-txt="analytics-hit-edit">Stage-Treffer bearbeiten</button>
+                    <button id="btn-open-hit-editor-top" class="analytics-hit-edit-btn-v79bs" type="button" onclick="openFirstStageHitEditor()" data-txt="analytics-hit-edit">Stage-Treffer bearbeiten</button>
                     <div id="hit-data-status" style="margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.4;"></div>
                 </div>
 
@@ -665,7 +665,7 @@
         </div>
     </div>
 
-    <div class="analytics-version-footer-v79bn">Build v79br</div>
+    <div class="analytics-version-footer-v79bn">Build v79bs</div>
 
     <div id="hit-editor-modal" class="modal-overlay">
         <div class="modal-content">
@@ -742,7 +742,7 @@
         </div>
     </footer>
 <script src="auth.js?v=76v"></script>
-    <script src="lang.js?v=79br"></script>
+    <script src="lang.js?v=79bs"></script>
     <script src="app.js?v=76v"></script>
 
     <script>
@@ -2551,7 +2551,7 @@
             // Noch einmal frisch aus Supabase lesen, damit alte Duplikate mit gleichem Matchnamen wirklich mit erwischt werden.
             const { data: serverRows, error: readErr } = await client
                 .from('user_match_analytics')
-                .select('id, match_id, match_name, event_name, match_title, created_at, updated_at')
+                .select('*')
                 .eq('user_id', session.user.id)
                 .limit(5000);
             if (readErr) throw readErr;

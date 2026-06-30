@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipscboerse-v79br-delete-dedupe';
+const CACHE_NAME = 'ipscboerse-v79bs-delete-schema-fix';
 const APP_SHELL_ASSETS = [
     './',
     'index.html',
@@ -10,7 +10,7 @@ const APP_SHELL_ASSETS = [
     'header.js?v=77e',
     'auth.js?v=77e',
     'app.js?v=77e',
-    'lang.js?v=79br',
+    'lang.js?v=79bs',
     'marktplatz.html',
     'mein-planer.html',
     'community.html',
@@ -18,7 +18,7 @@ const APP_SHELL_ASSETS = [
     'schiessbuch.html',
     'sg-timer-live.html',
     'tools.html',
-    'analytics.html?v=79br',
+    'analytics.html?v=79bs',
     'wiederladen.html',
     'ipsc-hub.html',
     'doppel-aa.html',
