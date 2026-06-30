@@ -70,7 +70,7 @@
       html[data-theme="dark"] #app-page-transition-cover, html[data-theme="dark"] #native-page-curtain-v74 { background: #0f172a; }
       /* V76R: no early body fade/colored curtain during navigation */
 
-  .analytics-hit-edit-btn-v79bs {
+  .analytics-hit-edit-btn-v79bt {
     margin-top: 12px !important;
     width: auto !important;
     max-width: 100% !important;
@@ -91,8 +91,39 @@
     cursor: pointer !important;
     box-shadow: none !important;
   }
-  .analytics-hit-edit-btn-v79bs::before { content: "✎"; font-weight: 900; opacity: .9; color: var(--accent-color); }
-  .analytics-hit-edit-btn-v79bs:hover { color: var(--accent-color) !important; background: rgba(255,159,67,.08) !important; transform: none !important; }
+  .analytics-hit-edit-btn-v79bt::before { content: "✎"; font-weight: 900; opacity: .9; color: var(--accent-color); }
+  .analytics-hit-edit-btn-v79bt:hover { color: var(--accent-color) !important; background: rgba(255,159,67,.08) !important; transform: none !important; }
+
+
+  .analytics-stage-hit-edit-btn-v79bt {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: auto !important;
+    margin-left: 8px !important;
+    padding: 5px 9px !important;
+    border-radius: 999px !important;
+    border: 1px solid var(--border-color) !important;
+    background: var(--input-bg) !important;
+    color: var(--text-muted) !important;
+    box-shadow: none !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
+    font-weight: 850 !important;
+    letter-spacing: .02em !important;
+    cursor: pointer !important;
+    vertical-align: middle !important;
+  }
+  .analytics-stage-hit-edit-btn-v79bt .ico { color: var(--accent-color); font-size: 12px; line-height: 1; }
+  .analytics-stage-hit-edit-btn-v79bt:hover,
+  .analytics-stage-hit-edit-btn-v79bt:focus { border-color: rgba(255,159,67,.45) !important; color: var(--text-color) !important; background: rgba(255,159,67,.08) !important; }
+  @media (max-width: 460px) {
+    .analytics-stage-hit-edit-btn-v79bt { padding: 6px 8px !important; }
+    .analytics-stage-hit-edit-btn-v79bt .txt { display: none; }
+  }
 
 </style>
   <meta name="color-scheme" content="light dark">
@@ -466,15 +497,15 @@
     color: #fff;
     box-shadow: 0 8px 18px rgba(255,159,67,.22);
   }
-  .analytics-match-tools-v79bs {
+  .analytics-match-tools-v79bt {
     display:grid;
     grid-template-columns:minmax(0, 1fr) auto;
     gap:10px;
     align-items:center;
     margin-bottom:14px;
   }
-  .analytics-match-tools-v79bs .select-wrapper { margin:0; }
-  .analytics-delete-match-v79bs {
+  .analytics-match-tools-v79bt .select-wrapper { margin:0; }
+  .analytics-delete-match-v79bt {
     border:1px solid rgba(239,68,68,.26);
     background:rgba(239,68,68,.06);
     color:var(--danger-color);
@@ -485,10 +516,10 @@
     white-space:nowrap;
     min-height:48px;
   }
-  .analytics-delete-match-v79bs:disabled { opacity:.55; cursor:not-allowed; }
+  .analytics-delete-match-v79bt:disabled { opacity:.55; cursor:not-allowed; }
   @media (max-width:640px){
-    .analytics-match-tools-v79bs { grid-template-columns:1fr; gap:8px; }
-    .analytics-delete-match-v79bs { width:100%; }
+    .analytics-match-tools-v79bt { grid-template-columns:1fr; gap:8px; }
+    .analytics-delete-match-v79bt { width:100%; }
   }
 
   .training-plan-v79bn {
@@ -587,11 +618,11 @@
             </div>
 
             <div id="analytics-dashboard-content" style="display: none;">
-                <div id="analytics-match-tools" class="analytics-match-tools-v79bs">
+                <div id="analytics-match-tools" class="analytics-match-tools-v79bt">
                     <div class="select-wrapper">
                         <select id="match-selector" onchange="renderSelectedMatch()"></select>
                     </div>
-                    <button id="analytics-delete-match-btn" type="button" class="analytics-delete-match-v79bs" onclick="deleteSelectedAnalyticsMatch()" data-txt="analytics-delete-match">Match löschen</button>
+                    <button id="analytics-delete-match-btn" type="button" class="analytics-delete-match-v79bt" onclick="deleteSelectedAnalyticsMatch()" data-txt="analytics-delete-match">Match löschen</button>
                 </div>
 
                 <div class="analytics-tabs-v79bn">
@@ -640,7 +671,7 @@
                         <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; background: var(--text-muted); border-radius: 50%;"></div> M: <span id="count-misses" style="font-weight: 800; color: var(--text-color);">0</span></div>
                         <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; background: var(--danger-color); border-radius: 50%;"></div> PE: <span id="count-procedures" style="font-weight: 800; color: var(--text-color);">0</span></div>
                     </div>
-                    <button id="btn-open-hit-editor-top" class="analytics-hit-edit-btn-v79bs" type="button" onclick="openFirstStageHitEditor()" data-txt="analytics-hit-edit">Stage-Treffer bearbeiten</button>
+                    <button id="btn-open-hit-editor-top" class="analytics-hit-edit-btn-v79bt" type="button" onclick="openFirstStageHitEditor()" data-txt="analytics-hit-edit">Stage-Treffer bearbeiten</button>
                     <div id="hit-data-status" style="margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.4;"></div>
                 </div>
 
@@ -665,7 +696,7 @@
         </div>
     </div>
 
-    <div class="analytics-version-footer-v79bn">Build v79bs</div>
+    <div class="analytics-version-footer-v79bn">Build v79bt</div>
 
     <div id="hit-editor-modal" class="modal-overlay">
         <div class="modal-content">
@@ -1783,7 +1814,7 @@
                         <span style="background: var(--input-bg); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-weight: 800; color: var(--text-color);">💯 ${bottomPtsText}</span>
                         <span style="flex-grow: 1; text-align: right; ${displayTimeAndHits}">
                             <strong style="color: var(--text-color);"> A:${alphas} C:${charlies} D:${deltas} M:${misses}${procedures ? ` P:${procedures}` : ''}</strong>
-                            <button class="btn-small" style="margin-left: 8px;" onclick="openHitEditor('${stage.stage_name.replace(/'/g, "\\'")}')"></button>
+                            <button class="analytics-stage-hit-edit-btn-v79bt" type="button" onclick="openHitEditor('${stage.stage_name.replace(/'/g, "\\'")}')" title="${isEn ? 'Edit hits' : 'Treffer bearbeiten'}" aria-label="${isEn ? 'Edit hits' : 'Treffer bearbeiten'}"><span class="ico" aria-hidden="true">✎</span><span class="txt">${isEn ? 'Edit' : 'Bearbeiten'}</span></button>
                         </span>
                     </div>
                 </div>

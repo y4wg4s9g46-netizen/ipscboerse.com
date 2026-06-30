@@ -1,7 +1,7 @@
-const CACHE_NAME = 'ipscboerse-v79bs-delete-schema-fix';
+const CACHE_NAME = 'ipscboerse-v79bt-edit-button-index-count';
 const APP_SHELL_ASSETS = [
     './',
-    'index.html',
+    'index.html?v=79bt',
   'app.html',
   'app-spa.js',
     'native-shell.html',
@@ -10,7 +10,7 @@ const APP_SHELL_ASSETS = [
     'header.js?v=77e',
     'auth.js?v=77e',
     'app.js?v=77e',
-    'lang.js?v=79bs',
+    'lang.js?v=79bt',
     'marktplatz.html',
     'mein-planer.html',
     'community.html',
@@ -18,7 +18,7 @@ const APP_SHELL_ASSETS = [
     'schiessbuch.html',
     'sg-timer-live.html',
     'tools.html',
-    'analytics.html?v=79bs',
+    'analytics.html?v=79bt',
     'wiederladen.html',
     'ipsc-hub.html',
     'doppel-aa.html',

@@ -619,16 +619,27 @@
       .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
       .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
   }
+  function isGenericSeasonName(s){
+    s = String(s || '').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim();
+    if(!s) return true;
+    return /^(match|import|stage\s*\d+|overall|overall match results(?: \(pdf\))?|overall stage results(?: \(pdf\))?|score verification by competitor|results overall|results by stage|verify(?: \/ treffer)?|stage results pdf|ergebnisliste pdf)$/i.test(s);
+  }
   function cleanSeasonMatchName(v, row){
     let s = String(v || '').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim();
-    if(!s) return '';
+    if(!s || isGenericSeasonName(s)) return '';
+
+    // OCR/Import-Bug: mehrfach zusammengesetzte Matchtitel sauber abschneiden.
     const yearHits = [...s.matchAll(/20\d{2}/g)].map(m=>m.index);
     if(yearHits.length > 1){
       const second = yearHits.find(i => i > 8);
       if(Number.isFinite(second)) s = s.slice(0, second).trim();
     }
+
     s = s.replace(/\b(Overall Match Results|Overall Stage Results|Score Verification By Competitor|Results Overall|Results by Stage)\b.*$/i,'').trim();
-    s = s.replace(/\bpowered by walther\b/ig,'').replace(/\bby stp sport target pistol\b/ig,'').replace(/\s+/g,' ').trim();
+    s = s.replace(/\bpowered by walther\b/ig,'powered by Walther').replace(/\bby stp sport target pistol\b/ig,'');
+    s = s.replace(/\s+/g,' ').trim();
+    if(!s || isGenericSeasonName(s)) return '';
+
     const joined = [s, row?.match_date, row?.event_date, row?.date, row?.created_at, row?.updated_at, row?.match_id].filter(Boolean).join(' ');
     const year = (joined.match(/20\d{2}/) || [''])[0];
     const low = s.toLowerCase();
@@ -636,15 +647,31 @@
     if(/fastsummer\s*6|psc\s*fastsummer/.test(low)) return (year||'2026') + '-psc-fastsummer-6-0';
     if(/campro\s+cup/.test(low)) return (year||'2026') + '-campro-cup';
     if(/trigger\s*titans/.test(low)) return (year||'2026') + '-trigger-titans';
+
     const withoutYear = s.replace(/\b20\d{2}\b/g,'').trim();
     const base = normalizeSeasonSlug(withoutYear || s);
     return base ? ((year ? year + '-' : '') + base) : '';
   }
+  function meaningfulSeasonKeyFromRow(r){
+    const fields = [
+      r.match_name, r.event_name, r.match_title, r.event_title, r.title,
+      r.import_match_name, r.source_match_name, r.competition_name, r.match
+    ];
+    for(const f of fields){
+      const k = cleanSeasonMatchName(f, r);
+      if(k) return k;
+    }
+    // match_id nur nutzen, wenn es wie ein Matchname aussieht, nicht wie UUID/Import-ID.
+    const mid = String(r.match_id || r.event_id || '').trim();
+    if(mid && !/^[0-9a-f]{8}-[0-9a-f-]{20,}$/i.test(mid) && !/^\d+$/.test(mid)){
+      const k = cleanSeasonMatchName(mid, r);
+      if(k) return k;
+    }
+    return '';
+  }
   function matchKey(r){
-    // Für die Saisonkarte nach bereinigtem Match-Titel gruppieren, nicht nach Import-ID.
-    const nameKey = cleanSeasonMatchName(r.match_name || r.event_name || r.match_title || '', r);
-    if(nameKey) return nameKey;
-    return String(r.match_id || r.event_id || r.id || '').trim();
+    // Saisonkarte zählt echte Matches, nicht einzelne Import-Dateien oder Stage-Zeilen.
+    return meaningfulSeasonKeyFromRow(r);
   }
   function rowPercent(r){
     const direct = parsePercent(r.match_percent ?? r.overall_percent ?? r.percent);
