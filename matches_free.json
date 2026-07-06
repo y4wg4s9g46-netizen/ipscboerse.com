@@ -19,7 +19,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-06T19:47:52Z"
+        "scraped_at": "2026-07-06T23:01:52Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_3._PengPeng_Parchim_HG",
@@ -41,7 +41,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-06T19:47:55Z"
+        "scraped_at": "2026-07-06T23:01:53Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=13._Dudweiler_Feierabendmatch_2026",
@@ -63,29 +63,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-06T19:47:58Z"
-    },
-    {
-        "id": "https://www.ipscmatch.de/index.pl?match=2026_LV5_LM_IPSC_SG",
-        "name": "RLP Shotgun Cup 2026",
-        "datum": "26.07.2026",
-        "auslastung": "78%",
-        "occupancy_percent": 78,
-        "has_free_slots": true,
-        "availability_status": "checked_free",
-        "availability_label": "Freie Plätze erkannt (78 %)",
-        "registration_status": "endgültig",
-        "region": "GER",
-        "country": "GER",
-        "level": "3",
-        "disziplin": "SG",
-        "discipline": "SG",
-        "url": "https://www.ipscmatch.de/index.pl?match=2026_LV5_LM_IPSC_SG",
-        "source_url": "https://www.ipscmatch.de/index.pl?match=2026_LV5_LM_IPSC_SG",
-        "image_url": "https://ipscmatch.de/wiki/images/6/60/LV5_Logo.png",
-        "source": "MatchSign",
-        "source_type": "matchsign",
-        "scraped_at": "2026-07-06T19:48:04Z"
+        "scraped_at": "2026-07-06T23:01:55Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=Bracara_Action_Air_-_2026",
@@ -107,7 +85,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-06T19:48:13Z"
+        "scraped_at": "2026-07-06T23:02:05Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_Hubertus_Summercup_PCC",
@@ -129,7 +107,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/d/df/Hubertus_WND.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-06T19:48:37Z"
+        "scraped_at": "2026-07-06T23:02:21Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_11._Heidberg_Cup",
@@ -151,7 +129,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-06T19:48:51Z"
+        "scraped_at": "2026-07-06T23:02:31Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_11._Heidberg_Cup_KK",
@@ -173,7 +151,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-06T19:48:53Z"
+        "scraped_at": "2026-07-06T23:02:33Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_V_Adeje_Shooters_Cup",
@@ -195,7 +173,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/e/e2/Logo_ASC.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-06T19:48:57Z"
+        "scraped_at": "2026-07-06T23:02:35Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_V_Extreme_Adeje_Shooters",
@@ -217,7 +195,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/e/e2/Logo_ASC.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-06T19:49:12Z"
+        "scraped_at": "2026-07-06T23:02:46Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_360_PCC_by_3G",
@@ -239,7 +217,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/9/9d/CLE_-_360_Logo.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-06T19:49:17Z"
+        "scraped_at": "2026-07-06T23:02:49Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_Transilvania",
@@ -261,7 +239,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/d/dd/Sponsor_RK_400x512.png",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-06T19:49:23Z"
+        "scraped_at": "2026-07-06T23:02:53Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=TENERIFE_OPEN_2026",
@@ -283,7 +261,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-06T19:49:58Z"
+        "scraped_at": "2026-07-06T23:03:17Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2027_LM_Prd",
@@ -305,7 +283,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-06T19:50:02Z"
+        "scraped_at": "2026-07-06T23:03:20Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2027_TENERIFE_MASTERS_FRONTERA",
@@ -327,6 +305,6 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-06T19:50:04Z"
+        "scraped_at": "2026-07-06T23:03:21Z"
     }
 ]
