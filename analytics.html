@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- V79G: pseudo icon encoding safe, emojis preserved -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -92,7 +93,7 @@
     cursor: pointer !important;
     box-shadow: none !important;
   }
-  .analytics-hit-edit-btn-v79bt::before { content: "â"; font-weight: 900; opacity: .9; color: var(--accent-color); }
+  .analytics-hit-edit-btn-v79bt::before { content: "\270E"; font-weight: 900; opacity: .9; color: var(--accent-color); }
   .analytics-hit-edit-btn-v79bt:hover { color: var(--accent-color) !important; background: rgba(255,159,67,.08) !important; transform: none !important; }
 
 
@@ -1952,7 +1953,7 @@
                         <span style="background: var(--input-bg); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-weight: 800; color: var(--text-color);">ð¯ ${bottomPtsText}</span>
                         <span style="flex-grow: 1; text-align: right; ${displayTimeAndHits}">
                             <strong style="color: var(--text-color);"> A:${alphas} C:${charlies} D:${deltas} M:${misses}${procedures ? ` P:${procedures}` : ''}</strong>
-                            <button class="analytics-stage-hit-edit-btn-v79bt" type="button" onclick="openHitEditor('${stage.stage_name.replace(/'/g, "\\'")}')" title="${isEn ? 'Edit hits' : 'Treffer bearbeiten'}" aria-label="${isEn ? 'Edit hits' : 'Treffer bearbeiten'}"><span class="ico" aria-hidden="true">â</span><span class="txt">${isEn ? 'Edit' : 'Bearbeiten'}</span></button>
+                            <button class="analytics-stage-hit-edit-btn-v79bt" type="button" onclick="openHitEditor('${stage.stage_name.replace(/'/g, "\\'")}')" title="${isEn ? 'Edit hits' : 'Treffer bearbeiten'}" aria-label="${isEn ? 'Edit hits' : 'Treffer bearbeiten'}"><span class="ico" aria-hidden="true">&#9998;</span><span class="txt">${isEn ? 'Edit' : 'Bearbeiten'}</span></button>
                         </span>
                     </div>
                 </div>
@@ -2956,3 +2957,68 @@
         }
     }
     </script>
+
+<script id="native-app-experience-script-v74">
+(function () {
+  if (window.__IPSC_NATIVE_EXPERIENCE_V74) return;
+  window.__IPSC_NATIVE_EXPERIENCE_V74 = true;
+
+  function activeTheme() {
+    var t = document.documentElement.getAttribute("data-theme") || window.__IPSC_ACTIVE_THEME_V74 || window.__IPSC_ACTIVE_THEME_V70 || "light";
+    return t === "dark" ? "dark" : "light";
+  }
+
+  function ensureCurtain() {
+    ["native-page-curtain-v72", "native-page-curtain-v73"].forEach(function(id){
+      var old = document.getElementById(id);
+      if (old && old.parentNode) old.parentNode.removeChild(old);
+    });
+
+    var curtain = document.getElementById("native-page-curtain-v74");
+    if (!curtain) {
+      curtain = document.createElement("div");
+      curtain.id = "native-page-curtain-v74";
+      document.body.appendChild(curtain);
+    }
+    curtain.style.background = activeTheme() === "dark" ? "#0f172a" : "#f6f8fc";
+    return curtain;
+  }
+
+  function markLoaded() {
+    document.documentElement.classList.remove("is-native-arriving-v72", "is-native-navigating-v72", "is-native-arriving-v73", "is-native-navigating-v73", "is-native-arriving-v74", "is-native-navigating-v74");
+    ensureCurtain();
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    markLoaded();
+
+    document.addEventListener("click", function (event) {
+      try { if (new URLSearchParams(window.location.search || "").get("shell") === "1") return; } catch (_) {}
+      var a = event.target.closest && event.target.closest("a[href]");
+      if (!a) return;
+
+      var href = a.getAttribute("href") || "";
+      if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:") || href.startsWith("javascript:")) return;
+      if (a.target && a.target !== "_self") return;
+      if (a.hasAttribute("download")) return;
+
+      var url;
+      try { url = new URL(href, window.location.href); } catch (_) { return; }
+      if (url.origin !== window.location.origin) return;
+      if (url.pathname === window.location.pathname && url.search === window.location.search) return;
+
+      event.preventDefault();
+      ensureCurtain();
+      document.documentElement.classList.add("is-native-navigating-v74");
+      setTimeout(function () { window.location.href = url.href; }, activeTheme() === "light" ? 92 : 54);
+    }, true);
+  });
+
+  window.addEventListener("pageshow", markLoaded);
+})();
+</script>
+
+    <script src="release-i18n-v78s.js?v=78s"></script>
+    <script src="release-i18n-v78u.js?v=78u"></script>
+</body>
+</html>
