@@ -91,7 +91,7 @@
     cursor: pointer !important;
     box-shadow: none !important;
   }
-  .analytics-hit-edit-btn-v79bt::before { content: "✎"; font-weight: 900; opacity: .9; color: var(--accent-color); }
+  .analytics-hit-edit-btn-v79bt::before { content: "â"; font-weight: 900; opacity: .9; color: var(--accent-color); }
   .analytics-hit-edit-btn-v79bt:hover { color: var(--accent-color) !important; background: rgba(255,159,67,.08) !important; transform: none !important; }
 
 
@@ -286,11 +286,11 @@
       })();
     </script>
 
-<title data-txt="nav-analytics">Statistiken | IPSC Startplatz-Börse</title>
+<title data-txt="nav-analytics">Statistiken | IPSC Startplatz-BÃ¶rse</title>
 
     <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="IPSC Börse">
+    <meta name="apple-mobile-web-app-title" content="IPSC BÃ¶rse">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="preload" href="icon-192.png" as="image">
     
@@ -572,12 +572,12 @@
                 <h2 data-txt="analytics-hero-title">Statistiken</h2>
             <div id="analytics-import-panel" class="analytics-import-v79bn" style="display:none;">
                 <h3 data-txt="analytics-import-title">Matchdaten importieren</h3>
-                <p data-txt="analytics-import-desc">Lade eine oder mehrere Dateien gleichzeitig: Ergebnisliste, Stage-Results und Verify-PDF. Alternativ kannst du den Text einer PractiScore-/Verify-Mail einfügen. Die Analyse verbindet passende Daten automatisch.</p>
+                <p data-txt="analytics-import-desc">Lade eine oder mehrere Dateien gleichzeitig: Ergebnisliste, Stage-Results und Verify-PDF. Alternativ kannst du den Text einer PractiScore-/Verify-Mail einfÃ¼gen. Die Analyse verbindet passende Daten automatisch.</p>
                 <div class="analytics-import-grid-v79bn">
                     <input id="analytics-import-file" type="file" multiple accept=".pdf,.txt,.csv,text/plain,application/pdf">
-                    <textarea id="analytics-import-text" data-txt-ph="analytics-import-text-ph" placeholder="Oder E-Mail-/PDF-Text hier einfügen …"></textarea>
+                    <textarea id="analytics-import-text" data-txt-ph="analytics-import-text-ph" placeholder="Oder E-Mail-/PDF-Text hier einfÃ¼gen â¦"></textarea>
                     <div class="analytics-import-actions-v79bn">
-                        <button type="button" class="primary" onclick="analyzeAnalyticsImport()" data-txt="analytics-import-check">Import prüfen</button>
+                        <button type="button" class="primary" onclick="analyzeAnalyticsImport()" data-txt="analytics-import-check">Import prÃ¼fen</button>
                         <button type="button" id="analytics-import-save" onclick="saveAnalyticsImport()" disabled data-txt="analytics-import-save">In meine Analyse speichern</button>
                     </div>
                 </div>
@@ -593,13 +593,13 @@
                 <button class="btn-small analytics-buddy-v79bn" data-txt="analytics-buddy">Buddy Radar</button>
             </div>
             
-            <p id="analytics-loader" data-txt="loading" style="color: var(--text-muted); font-size: 15px; margin-bottom: 20px; font-weight: 600;">Lade aktuelle Startplätze...</p>
+            <p id="analytics-loader" data-txt="loading" style="color: var(--text-muted); font-size: 15px; margin-bottom: 20px; font-weight: 600;">Lade aktuelle StartplÃ¤tze...</p>
 
             <div id="analytics-logged-out-state" style="display: none; background: rgba(239,68,68,0.03); border: 2px dashed rgba(239,68,68,0.3); padding: 40px 20px; border-radius: var(--radius-lg); text-align: center; margin-bottom: 24px;">
                 <span style="font-size: 40px;"></span>
                 <h4 style="margin: 16px 0 8px 0; font-weight: 800; font-size: 18px; color: var(--text-color);" data-txt="planner-logged-out-title">Nicht angemeldet</h4>
                 <p style="font-size: 14px; color: var(--text-muted); margin: 0 auto 20px auto; line-height: 1.5; max-width: 400px;">
-                    Diese Statistiken und Wettkampf-Auswertungen sind exklusiv für eingeloggte Schützen verwendbar.
+                    Diese Statistiken und Wettkampf-Auswertungen sind exklusiv fÃ¼r eingeloggte SchÃ¼tzen verwendbar.
                 </p>
                 <button class="btn-primary-auth" id="btn-trigger-login-view" style="width: auto; padding: 12px 24px;" data-txt="analytics-login-btn">Jetzt einloggen</button>
             </div>
@@ -620,7 +620,7 @@
                  
                     <div style="display: flex; gap: 10px; align-items: flex-start; border-top: 1px solid var(--border-color); padding-top: 12px;">
                         <span style="font-size: 16px;"></span>
-                        <span id="empty-state-email" data-txt="analytics-empty-email"><strong>Treffer-Analyse:</strong> Verify-PDF oder PractiScore-Mail ergänzen A/C/D/M/PE. Ohne Treffer-Details bleiben nur die offiziellen Ergebnisdaten sichtbar.</span>
+                        <span id="empty-state-email" data-txt="analytics-empty-email"><strong>Treffer-Analyse:</strong> Verify-PDF oder PractiScore-Mail ergÃ¤nzen A/C/D/M/PE. Ohne Treffer-Details bleiben nur die offiziellen Ergebnisdaten sichtbar.</span>
                     </div>
                 </div>
             </div>
@@ -630,7 +630,7 @@
                     <div class="select-wrapper">
                         <select id="match-selector" onchange="renderSelectedMatch()"></select>
                     </div>
-                    <button id="analytics-delete-match-btn" type="button" class="analytics-delete-match-v79bt" onclick="deleteSelectedAnalyticsMatch()" data-txt="analytics-delete-match">Match löschen</button>
+                    <button id="analytics-delete-match-btn" type="button" class="analytics-delete-match-v79bt" onclick="deleteSelectedAnalyticsMatch()" data-txt="analytics-delete-match">Match lÃ¶schen</button>
                 </div>
 
                 <div class="analytics-tabs-v79bn">
@@ -646,7 +646,7 @@
                         <div id="kpi-division" style="font-size: 20px; font-weight: 900; margin-top: 6px; color: var(--info-color);">Optics</div>
                     </div>
                     <div style="background: var(--input-bg); border: 1px solid var(--border-color); padding: 16px 8px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm);">
-                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 0.5px;"  data-txt="analytics-kpi-stage-percent">Ø Stage %</div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 0.5px;"  data-txt="analytics-kpi-stage-percent">Ã Stage %</div>
                         <div id="kpi-avg-hf" style="font-size: 20px; font-weight: 900; color: var(--text-color); margin-top: 6px;">0%</div>
                     </div>
                     <div style="background: var(--input-bg); border: 1px solid var(--border-color); padding: 16px 8px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm);">
@@ -657,14 +657,14 @@
 
                 <div style="background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.18); padding: 14px 16px; border-radius: var(--radius); margin: -14px 0 24px 0; color: var(--text-muted); font-size: 13px; line-height: 1.45;">
                     <strong style="color: var(--text-color);" data-txt="analytics-consistency-title">Was bedeutet Konstanz?</strong><br>
-                    <span data-txt="analytics-consistency-desc">Konstanz zeigt die Spannweite zwischen deiner besten und schlechtesten Stage-Leistung. Je kleiner die Spannweite zwischen bester und schwächster Stage, desto konstanter war dein Match.</span>
+                    <span data-txt="analytics-consistency-desc">Konstanz zeigt die Spannweite zwischen deiner besten und schlechtesten Stage-Leistung. Je kleiner die Spannweite zwischen bester und schwÃ¤chster Stage, desto konstanter war dein Match.</span>
                 </div>
 
                 <div id="analytics-source-box" style="background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.18); padding: 14px 16px; border-radius: var(--radius); margin: -10px 0 24px 0; color: var(--text-muted); font-size: 13px; line-height: 1.5; display:none;"></div>
 
                 <div style="background: var(--input-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 32px; box-shadow: var(--shadow-sm);">
                     <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px;">
-                        <span style="font-weight: 800; color: var(--text-color);" data-txt="analytics-acc-title"> Treffer-Verteilung (Präzision)</span>
+                        <span style="font-weight: 800; color: var(--text-color);" data-txt="analytics-acc-title"> Treffer-Verteilung (PrÃ¤zision)</span>
                         <strong id="analytics-alpha-badge" style="color: var(--success-color);">0% Alphas</strong>
                     </div>
                     <div style="width: 100%; height: 16px; background: var(--bg-color); border-radius: 8px; overflow: hidden; display: flex; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
@@ -697,7 +697,7 @@
                             <p data-txt="analytics-training-desc">Der Plan wird aus deinen Stage-Prozenten, Trefferdaten, Misses/Procedures und deiner Konstanz erstellt. Er ist bewusst als 4-Wochen-Plan aufgebaut.</p>
                         </div>
                     </div>
-                    <div id="training-plan-content-v79bn" class="analytics-muted-v79bn" data-txt="analytics-training-empty">Wähle ein Match aus oder importiere Daten, dann erstelle ich den Plan automatisch.</div>
+                    <div id="training-plan-content-v79bn" class="analytics-muted-v79bn" data-txt="analytics-training-empty">WÃ¤hle ein Match aus oder importiere Daten, dann erstelle ich den Plan automatisch.</div>
                 </div>
 
             </div>
@@ -712,13 +712,13 @@
             <p id="hit-editor-stage-name" style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px; margin-top: 0; font-weight: 600;"></p>
             
             <div style="margin-bottom: 24px; text-align: center;">
-                <textarea id="smart-paste-area" placeholder="Email-Text hier einfügen (Smart Paste)" rows="2" style="width: 100%; border-radius: var(--radius); border: 2px dashed var(--accent-color); padding: 16px; background: rgba(255,159,67,0.05); color: var(--text-color); font-size: 13px; resize: none; font-weight: bold; font-family: monospace; box-sizing: border-box; transition: var(--transition);"></textarea>
-                <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px; font-weight: 600;">Fügt A, C, D und M automatisch aus dem Email-Text ein.</div>
+                <textarea id="smart-paste-area" placeholder="Email-Text hier einfÃ¼gen (Smart Paste)" rows="2" style="width: 100%; border-radius: var(--radius); border: 2px dashed var(--accent-color); padding: 16px; background: rgba(255,159,67,0.05); color: var(--text-color); font-size: 13px; resize: none; font-weight: bold; font-family: monospace; box-sizing: border-box; transition: var(--transition);"></textarea>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px; font-weight: 600;">FÃ¼gt A, C, D und M automatisch aus dem Email-Text ein.</div>
             </div>
 
             <div style="display: flex; align-items: center; margin-bottom: 20px;">
                 <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
-                <span style="font-size: 11px; color: var(--text-muted); padding: 0 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Oder manuell prüfen</span>
+                <span style="font-size: 11px; color: var(--text-muted); padding: 0 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Oder manuell prÃ¼fen</span>
                 <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
             </div>
             
@@ -756,14 +756,14 @@
         <div class="modal-content" style="max-width: 400px;">
             <h3 style="margin-top: 0; margin-bottom: 12px; color: var(--text-color); display: flex; align-items: center; gap: 10px;"> Letzter Schritt: Name einrichten</h3>
             <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">
-                Damit unser E-Mail-Bot deine PractiScore-Mails fehlerfrei verarbeiten kann, muss dein <strong>vollständiger Name</strong> exakt so hinterlegt sein, wie er in den Match-Ergebnissen steht.
+                Damit unser E-Mail-Bot deine PractiScore-Mails fehlerfrei verarbeiten kann, muss dein <strong>vollstÃ¤ndiger Name</strong> exakt so hinterlegt sein, wie er in den Match-Ergebnissen steht.
             </p>
             <p style="font-size: 13px; color: var(--accent-color); margin-bottom: 24px; line-height: 1.5; background: rgba(255, 159, 67, 0.08); padding: 12px; border-radius: var(--radius); font-weight: 600; border: 1px solid rgba(255, 159, 67, 0.2);">
-                 <strong>Bitte beachte:</strong> Nach der Einrichtung kann es bis zu 24 Stunden dauern, bis alle deine historischen Daten vollständig analysiert und angezeigt werden.
+                 <strong>Bitte beachte:</strong> Nach der Einrichtung kann es bis zu 24 Stunden dauern, bis alle deine historischen Daten vollstÃ¤ndig analysiert und angezeigt werden.
             </p>
             
             <div class="hit-input-group" style="margin-bottom: 24px;">
-                <label style="color: var(--info-color); font-weight: 800; margin-bottom: 8px;" data-txt="lbl-real-name"> Echter Name (Für automatische Statistiken)</label>
+                <label style="color: var(--info-color); font-weight: 800; margin-bottom: 8px;" data-txt="lbl-real-name"> Echter Name (FÃ¼r automatische Statistiken)</label>
                 <input type="text" id="setup-real-name" data-txt-ph="ph-real-name" placeholder="z.B. Max Mustermann" style="text-align: left; padding: 14px 16px; font-size: 16px;">
             </div>
             
@@ -777,7 +777,7 @@
     <footer>
         <div style="max-width: 1000px; margin: 0 auto; text-align: center; padding: 20px 0;">
             <a href="/impressum.html" style="color: var(--info-color); text-decoration: none; font-weight: bold;" data-txt="footer-impressum-link">Impressum & Hinweise</a>
-            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com – Alle Rechte vorbehalten.</div>
+            <div style="margin-top: 15px; font-size: 11px;">&copy; 2026 ipscboerse.com â Alle Rechte vorbehalten.</div>
         </div>
     </footer>
 <script src="auth.js?v=76v"></script>
@@ -802,31 +802,31 @@
         window.translations.de["analytics-kicker"] = "STATISTIKEN";
         window.translations.de["analytics-hero-title"] = "Statistiken";
         window.translations.de["analytics-import-title"] = "Matchdaten importieren";
-        window.translations.de["analytics-import-desc"] = "Lade eine oder mehrere Dateien gleichzeitig: Ergebnisliste, Stage-Results und Verify-PDF. Alternativ kannst du den Text einer PractiScore-/Verify-Mail einfügen. Die Analyse verbindet passende Daten automatisch.";
-        window.translations.de["analytics-import-text-ph"] = "Oder E-Mail-/PDF-Text hier einfügen …";
-        window.translations.de["analytics-import-check"] = "Import prüfen";
+        window.translations.de["analytics-import-desc"] = "Lade eine oder mehrere Dateien gleichzeitig: Ergebnisliste, Stage-Results und Verify-PDF. Alternativ kannst du den Text einer PractiScore-/Verify-Mail einfÃ¼gen. Die Analyse verbindet passende Daten automatisch.";
+        window.translations.de["analytics-import-text-ph"] = "Oder E-Mail-/PDF-Text hier einfÃ¼gen â¦";
+        window.translations.de["analytics-import-check"] = "Import prÃ¼fen";
         window.translations.de["analytics-import-save"] = "In meine Analyse speichern";
-        window.translations.de["analytics-delete-match"] = "Match löschen";
-        window.translations.de["analytics-delete-confirm"] = "Dieses Match wirklich löschen? Es werden alle Analyse-Zeilen zu diesem Match aus deinem Profil entfernt.";
-        window.translations.de["analytics-delete-running"] = "Lösche…";
-        window.translations.de["analytics-delete-done"] = "Match gelöscht.";
-        window.translations.de["analytics-delete-failed"] = "Löschen fehlgeschlagen:";
+        window.translations.de["analytics-delete-match"] = "Match lÃ¶schen";
+        window.translations.de["analytics-delete-confirm"] = "Dieses Match wirklich lÃ¶schen? Es werden alle Analyse-Zeilen zu diesem Match aus deinem Profil entfernt.";
+        window.translations.de["analytics-delete-running"] = "LÃ¶scheâ¦";
+        window.translations.de["analytics-delete-done"] = "Match gelÃ¶scht.";
+        window.translations.de["analytics-delete-failed"] = "LÃ¶schen fehlgeschlagen:";
         window.translations.de["analytics-buddy"] = "Buddy Radar";
         window.translations.de["analytics-empty-title"] = "Noch keine Match-Daten gefunden";
         window.translations.de["analytics-empty-desc"] = "Noch keine gespeicherten Matchdaten vorhanden. Lade oben eine Ergebnisliste, Stage-Results oder Verify-PDF hoch.";
         window.translations.de["analytics-empty-import"] = "<strong>Match-Import:</strong> Upload ist jetzt der Hauptweg. Ergebnislisten und Stage-Results werden direkt im Browser erkannt.";
-        window.translations.de["analytics-empty-email"] = "<strong>Treffer-Analyse:</strong> Verify-PDF oder PractiScore-Mail ergänzen A/C/D/M/PE. Ohne Treffer-Details bleiben nur die offiziellen Ergebnisdaten sichtbar.";
+        window.translations.de["analytics-empty-email"] = "<strong>Treffer-Analyse:</strong> Verify-PDF oder PractiScore-Mail ergÃ¤nzen A/C/D/M/PE. Ohne Treffer-Details bleiben nur die offiziellen Ergebnisdaten sichtbar.";
 
         window.translations.en["analytics-kicker"] = "STATISTICS";
         window.translations.en["analytics-hero-title"] = "Statistics";
         window.translations.en["analytics-import-title"] = "Import match data";
         window.translations.en["analytics-import-desc"] = "Upload one or more files at once: overall results, stage results and verification PDF. Alternatively paste PractiScore/verification email text. The analysis combines matching data automatically.";
-        window.translations.en["analytics-import-text-ph"] = "Paste email/PDF text here …";
+        window.translations.en["analytics-import-text-ph"] = "Paste email/PDF text here â¦";
         window.translations.en["analytics-import-check"] = "Check import";
         window.translations.en["analytics-import-save"] = "Save to my analysis";
         window.translations.en["analytics-delete-match"] = "Delete match";
         window.translations.en["analytics-delete-confirm"] = "Really delete this match? All analysis rows for this match will be removed from your profile.";
-        window.translations.en["analytics-delete-running"] = "Deleting…";
+        window.translations.en["analytics-delete-running"] = "Deletingâ¦";
         window.translations.en["analytics-delete-done"] = "Match deleted.";
         window.translations.en["analytics-delete-failed"] = "Delete failed:";
         window.translations.en["analytics-buddy"] = "Buddy Radar";
@@ -839,42 +839,42 @@
   "analytics-kicker": "STATISTIKEN",
   "analytics-hero-title": "Statistiken",
   "analytics-import-title": "Matchdaten importieren",
-  "analytics-import-desc": "Lade eine oder mehrere Dateien gleichzeitig: Ergebnisliste, Stage-Results und Verify-PDF. Alternativ kannst du den Text einer PractiScore-/Verify-Mail einfügen. Die Analyse verbindet passende Daten automatisch.",
-  "analytics-import-text-ph": "Oder E-Mail-/PDF-Text hier einfügen …",
-  "analytics-import-check": "Import prüfen",
+  "analytics-import-desc": "Lade eine oder mehrere Dateien gleichzeitig: Ergebnisliste, Stage-Results und Verify-PDF. Alternativ kannst du den Text einer PractiScore-/Verify-Mail einfÃ¼gen. Die Analyse verbindet passende Daten automatisch.",
+  "analytics-import-text-ph": "Oder E-Mail-/PDF-Text hier einfÃ¼gen â¦",
+  "analytics-import-check": "Import prÃ¼fen",
   "analytics-import-save": "In meine Analyse speichern",
   "analytics-buddy": "Buddy Radar",
   "analytics-empty-title": "Noch keine Match-Daten gefunden",
   "analytics-empty-desc": "Noch keine gespeicherten Matchdaten vorhanden. Lade oben eine Ergebnisliste, Stage-Results oder Verify-PDF hoch.",
   "analytics-empty-import": "<strong>Match-Import:</strong> Upload ist jetzt der Hauptweg. Ergebnislisten und Stage-Results werden direkt im Browser erkannt.",
-  "analytics-empty-email": "<strong>Treffer-Analyse:</strong> Verify-PDF oder PractiScore-Mail ergänzt A/C/D/M/PE. Ohne Treffer-Details bleiben nur die offiziellen Ergebnisdaten sichtbar.",
+  "analytics-empty-email": "<strong>Treffer-Analyse:</strong> Verify-PDF oder PractiScore-Mail ergÃ¤nzt A/C/D/M/PE. Ohne Treffer-Details bleiben nur die offiziellen Ergebnisdaten sichtbar.",
   "analytics-login-btn": "Jetzt einloggen",
   "analytics-tab-analysis": "Analyse",
   "analytics-tab-training": "Trainingsplan",
   "analytics-kpi-division": "Division",
-  "analytics-kpi-stage-percent": "Ø Stage %",
+  "analytics-kpi-stage-percent": "Ã Stage %",
   "analytics-kpi-consistency": "Konstanz",
   "analytics-consistency-title": "Was bedeutet Konstanz?",
-  "analytics-consistency-desc": "Konstanz zeigt die Spannweite zwischen deiner besten und schlechtesten Stage-Leistung. Je kleiner die Spannweite zwischen bester und schwächster Stage, desto konstanter war dein Match.",
+  "analytics-consistency-desc": "Konstanz zeigt die Spannweite zwischen deiner besten und schlechtesten Stage-Leistung. Je kleiner die Spannweite zwischen bester und schwÃ¤chster Stage, desto konstanter war dein Match.",
   "analytics-hit-edit": "Stage-Treffer bearbeiten",
   "analytics-training-title": "Automatischer Trainingsplan",
   "analytics-training-desc": "Der Plan wird aus deinen Stage-Prozenten, Trefferdaten, Misses/Procedures und deiner Konstanz erstellt. Er ist bewusst als 4-Wochen-Plan aufgebaut.",
-  "analytics-training-empty": "Wähle ein Match aus oder importiere Daten, dann erstelle ich den Plan automatisch.",
+  "analytics-training-empty": "WÃ¤hle ein Match aus oder importiere Daten, dann erstelle ich den Plan automatisch.",
   "analytics-source-title": "Datenquelle",
   "analytics-stage-results": "Stage-Ergebnisse",
   "analytics-overall-result": "Overall-Ergebnis",
   "analytics-hit-details": "Trefferdetails A/C/D/M/PE",
-  "analytics-source-upload-verify": "Verify-PDF hochladen, um Treffer je Stage automatisch zu übernehmen.",
+  "analytics-source-upload-verify": "Verify-PDF hochladen, um Treffer je Stage automatisch zu Ã¼bernehmen.",
   "analytics-present": "vorhanden",
   "analytics-missing": "fehlen",
   "analytics-not-separate": "nicht separat",
   "analytics-hit-status-present": "Trefferdetails vorhanden. Einzelne Stages kannst du unten auf der jeweiligen Stage bearbeiten.",
   "analytics-hit-status-missing": "Noch keine A/C/D/M/PE-Daten vorhanden. Lade am besten die Verify-PDF hoch oder bearbeite unten eine einzelne Stage.",
   "analytics-hit-missing-badge": "Trefferdetails fehlen",
-  "analytics-import-reading": "Datei wird gelesen …",
+  "analytics-import-reading": "Datei wird gelesen â¦",
   "analytics-import-read-file": "Lese",
-  "analytics-import-no-input": "Bitte eine Datei auswählen oder Text einfügen.",
-  "analytics-import-no-match": "Keine passenden Daten für deinen Profilnamen gefunden. Prüfe Profilname, Division oder Dateityp.",
+  "analytics-import-no-input": "Bitte eine Datei auswÃ¤hlen oder Text einfÃ¼gen.",
+  "analytics-import-no-match": "Keine passenden Daten fÃ¼r deinen Profilnamen gefunden. PrÃ¼fe Profilname, Division oder Dateityp.",
   "analytics-preview-title": "Vorschau",
   "analytics-preview-match": "Match",
   "analytics-preview-found": "Gefunden",
@@ -883,10 +883,10 @@
   "analytics-preview-overall": "Overall",
   "analytics-preview-hitrows": "Treffer-Zeilen",
   "analytics-preview-ready": "Bereit zum Speichern.",
-  "analytics-import-done": "Prüfung fertig.",
+  "analytics-import-done": "PrÃ¼fung fertig.",
   "analytics-import-failed": "Import konnte nicht vorbereitet werden.",
   "analytics-saved": "Zeilen gespeichert. Analyse aktualisiert.",
-  "analytics-save-running": "Speichere in Supabase …",
+  "analytics-save-running": "Speichere in Supabase â¦",
   "analytics-save-failed": "Speichern fehlgeschlagen:",
   "analytics-not-logged-in": "Nicht angemeldet.",
   "analytics-type-verify": "Verify / Treffer",
@@ -900,7 +900,7 @@
   "analytics-hero-title": "Statistics",
   "analytics-import-title": "Import match data",
   "analytics-import-desc": "Upload one or more files at once: overall results, stage results and verification PDF. Alternatively paste PractiScore/verification email text. The analysis combines matching data automatically.",
-  "analytics-import-text-ph": "Paste email/PDF text here …",
+  "analytics-import-text-ph": "Paste email/PDF text here â¦",
   "analytics-import-check": "Check import",
   "analytics-import-save": "Save to my analysis",
   "analytics-buddy": "Buddy Radar",
@@ -912,7 +912,7 @@
   "analytics-tab-analysis": "Analysis",
   "analytics-tab-training": "Training plan",
   "analytics-kpi-division": "Division",
-  "analytics-kpi-stage-percent": "Ø Stage %",
+  "analytics-kpi-stage-percent": "Ã Stage %",
   "analytics-kpi-consistency": "Consistency",
   "analytics-consistency-title": "What does consistency mean?",
   "analytics-consistency-desc": "Consistency shows the spread between your best and weakest stage performance. The smaller the spread, the more consistent your match was.",
@@ -931,7 +931,7 @@
   "analytics-hit-status-present": "Hit details available. You can edit individual stages on the stage card below.",
   "analytics-hit-status-missing": "No A/C/D/M/PE data yet. Upload the verification PDF or edit an individual stage below.",
   "analytics-hit-missing-badge": "Hit details missing",
-  "analytics-import-reading": "Reading file …",
+  "analytics-import-reading": "Reading file â¦",
   "analytics-import-read-file": "Reading",
   "analytics-import-no-input": "Please choose a file or paste text.",
   "analytics-import-no-match": "No matching data found for your profile name. Check profile name, division or file type.",
@@ -946,7 +946,7 @@
   "analytics-import-done": "Check complete.",
   "analytics-import-failed": "Import could not be prepared.",
   "analytics-saved": "Rows saved. Analysis updated.",
-  "analytics-save-running": "Saving to Supabase …",
+  "analytics-save-running": "Saving to Supabase â¦",
   "analytics-save-failed": "Save failed:",
   "analytics-not-logged-in": "Not logged in.",
   "analytics-type-verify": "Verification / hits",
@@ -1045,7 +1045,7 @@
         async function initAnalytics(supabase) {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
-                // --- SPERRE FÜR AUSGELOGGTE NUTZER ---
+                // --- SPERRE FÃR AUSGELOGGTE NUTZER ---
                 if (!session) {
                     document.getElementById("analytics-loader").style.display = "none";
                     document.getElementById("analytics-dashboard-content").style.display = "none";
@@ -1066,7 +1066,7 @@
                 const importPanel = document.getElementById("analytics-import-panel");
                 if (importPanel) importPanel.style.display = "block";
 
-                // --- AUTOMATISCHE NAMENSPRÜFUNG: NUR BEI REGISTRIERTEM & AKTIVEM USER ---
+                // --- AUTOMATISCHE NAMENSPRÃFUNG: NUR BEI REGISTRIERTEM & AKTIVEM USER ---
                 const { data: currentProfile, error: profileErr } = await supabase
                     .from('profiles')
                     .select('real_name')
@@ -1147,14 +1147,14 @@
         const currentUserId = (await client.auth.getSession()).data.session?.user.id;
         const uniqueUserIds = [...new Set(matchGroup.map(g => g.user_id))].filter(id => id !== currentUserId);
         const isEn = currentAnalyticsLang() === "en";
-        const placeholderText = isEn ? "-- Choose a buddy to compare --" : "-- Wähle einen Buddy zum Vergleich --";
+        const placeholderText = isEn ? "-- Choose a buddy to compare --" : "-- WÃ¤hle einen Buddy zum Vergleich --";
         let selectHtml = `<div id="buddy-selector-row" class="select-wrapper" style="margin-top: -10px; margin-bottom: 24px;">
             <select id="buddy-selector" onchange="selectBuddy(this.value)">
                 <option value="">${placeholderText}</option>`;
                 
         uniqueUserIds.forEach(id => {
             const profile = (window.buddyProfiles || []).find(p => p.id === id);
-            const name = profile ? profile.real_name : (isEn ? "Anonymous Shooter" : "Anonymer Schütze");
+            const name = profile ? profile.real_name : (isEn ? "Anonymous Shooter" : "Anonymer SchÃ¼tze");
             selectHtml += `<option value="${id}">${name}</option>`;
         });
         selectHtml += `</select></div>`;
@@ -1326,11 +1326,11 @@
         if (hasHitDetails && biggestPointLoss && biggestPointLoss.pointLoss >= 30 && (!biggestTimeLoss || biggestPointLoss.pointLoss >= biggestTimeLoss.timeLoss * 4)) {
             focusText = isEn
                 ? `${biggestPointLoss.name}: most potential is accuracy/penalties (${biggestPointLoss.pointLoss.toFixed(0)} pts lost).`
-                : `${biggestPointLoss.name}: größtes Potenzial bei Treffern/Penalties (${biggestPointLoss.pointLoss.toFixed(0)} Punkte Verlust).`;
+                : `${biggestPointLoss.name}: grÃ¶Ãtes Potenzial bei Treffern/Penalties (${biggestPointLoss.pointLoss.toFixed(0)} Punkte Verlust).`;
         } else if (biggestTimeLoss) {
             focusText = isEn
                 ? `${biggestTimeLoss.name}: biggest time gap to the winner target time (${biggestTimeLoss.timeLoss.toFixed(1)}s).`
-                : `${biggestTimeLoss.name}: größter Zeitabstand zur Sieger-Target-Time (${biggestTimeLoss.timeLoss.toFixed(1)}s).`;
+                : `${biggestTimeLoss.name}: grÃ¶Ãter Zeitabstand zur Sieger-Target-Time (${biggestTimeLoss.timeLoss.toFixed(1)}s).`;
         }
 
         let whatIfText = isEn ? "No miss/procedure data available." : "Keine Miss-/Procedure-Daten vorhanden.";
@@ -1345,16 +1345,16 @@
         }
 
         const hitSummary = hasHitDetails
-            ? `A ${totalAlphas} · C ${totalCharlies} · D ${totalDeltas} · M ${totalMisses} · PE ${totalProcedures}`
+            ? `A ${totalAlphas} Â· C ${totalCharlies} Â· D ${totalDeltas} Â· M ${totalMisses} Â· PE ${totalProcedures}`
             : (isEn ? "No hit details saved yet." : "Noch keine Trefferdetails gespeichert.");
 
         const cards = [
             analyticsCard(isEn ? "Match performance" : "Matchleistung", formatPercent(avgStagePercent), isEn ? "Average of your official stage percentages." : "Durchschnitt deiner offiziellen Stage-Prozente."),
-            analyticsCard(isEn ? "Best / weakest stage" : "Beste / schwächste Stage", `${bestStage ? bestStage.name + ' ' + formatPercent(bestStage.percent) : '-'}<br><span class="analytics-muted-v79bn">${worstStage ? worstStage.name + ' ' + formatPercent(worstStage.percent) : ''}</span>`, isEn ? "This explains the consistency spread." : "Erklärt die Spannweite deiner Konstanz."),
-            analyticsCard(isEn ? "Hits / penalties" : "Treffer / Penalties", hitSummary, hasHitDetails ? (isEn ? "Includes stored A/C/D/M/PE." : "Aus gespeicherten A/C/D/M/PE-Daten.") : (isEn ? "Use the edit button to add them." : "Über den Bearbeiten-Button ergänzen.")),
+            analyticsCard(isEn ? "Best / weakest stage" : "Beste / schwÃ¤chste Stage", `${bestStage ? bestStage.name + ' ' + formatPercent(bestStage.percent) : '-'}<br><span class="analytics-muted-v79bn">${worstStage ? worstStage.name + ' ' + formatPercent(worstStage.percent) : ''}</span>`, isEn ? "This explains the consistency spread." : "ErklÃ¤rt die Spannweite deiner Konstanz."),
+            analyticsCard(isEn ? "Hits / penalties" : "Treffer / Penalties", hitSummary, hasHitDetails ? (isEn ? "Includes stored A/C/D/M/PE." : "Aus gespeicherten A/C/D/M/PE-Daten.") : (isEn ? "Use the edit button to add them." : "Ãber den Bearbeiten-Button ergÃ¤nzen.")),
             analyticsCard(isEn ? "Course types" : "Stage-Typen", `<div class="analytics-chip-row-v79bn">${courseHtml}</div>`, isEn ? "Average by Short/Medium/Long courses." : "Durchschnitt nach Short/Medium/Long Courses."),
-            analyticsCard(isEn ? "Training focus" : "Trainingsfokus", focusText, isEn ? "Largest currently visible training lever." : "Größter aktuell sichtbarer Trainingshebel."),
-            analyticsCard(isEn ? "What if" : "Was wäre wenn?", whatIfText, isEn ? "Approximation based on stored data." : "Näherung auf Basis gespeicherter Daten.")
+            analyticsCard(isEn ? "Training focus" : "Trainingsfokus", focusText, isEn ? "Largest currently visible training lever." : "GrÃ¶Ãter aktuell sichtbarer Trainingshebel."),
+            analyticsCard(isEn ? "What if" : "Was wÃ¤re wenn?", whatIfText, isEn ? "Approximation based on stored data." : "NÃ¤herung auf Basis gespeicherter Daten.")
         ].join('');
 
         return `
@@ -1403,12 +1403,12 @@
 
             const current = board.find(x => x.user_id === currentUserId);
             if (!current || board.length < 2) {
-                return `<div style="margin-top:14px; background:rgba(59,130,246,.06); border:1px solid rgba(59,130,246,.18); border-radius:var(--radius); padding:13px 14px; font-size:13px; color:var(--text-muted); line-height:1.45;"><strong style="color:var(--text-color);">👥 Division-Benchmark</strong><br>${isEn ? "Not enough app users with comparable division data for this match yet." : "Noch zu wenig App-Nutzer mit vergleichbaren Division-Daten für dieses Match."}</div>`;
+                return `<div style="margin-top:14px; background:rgba(59,130,246,.06); border:1px solid rgba(59,130,246,.18); border-radius:var(--radius); padding:13px 14px; font-size:13px; color:var(--text-muted); line-height:1.45;"><strong style="color:var(--text-color);">ð¥ Division-Benchmark</strong><br>${isEn ? "Not enough app users with comparable division data for this match yet." : "Noch zu wenig App-Nutzer mit vergleichbaren Division-Daten fÃ¼r dieses Match."}</div>`;
             }
 
             const rank = board.findIndex(x => x.user_id === currentUserId) + 1;
             const percentile = board.length > 1 ? Math.round(((board.length - rank) / (board.length - 1)) * 100) : 0;
-            return `<div style="margin-top:14px; background:rgba(16,185,129,.07); border:1px solid rgba(16,185,129,.20); border-radius:var(--radius); padding:13px 14px; font-size:13px; color:var(--text-muted); line-height:1.45;"><strong style="color:var(--text-color);">👥 Division-Benchmark</strong><br>${isEn ? `Among stored ${division} app data: rank <b>${rank}</b> of <b>${board.length}</b>, better than about <b>${percentile}%</b> of comparable entries.` : `Unter den gespeicherten ${division}-App-Daten: Platz <b>${rank}</b> von <b>${board.length}</b>, besser als ca. <b>${percentile}%</b> der vergleichbaren Einträge.`}<br><span style="font-size:12px;">${isEn ? "This uses only shooters already stored in IPSC Börse, not the full official division field." : "Das nutzt nur Schützen, die bereits in der IPSC Börse gespeichert sind, nicht das komplette offizielle Division-Starterfeld."}</span></div>`;
+            return `<div style="margin-top:14px; background:rgba(16,185,129,.07); border:1px solid rgba(16,185,129,.20); border-radius:var(--radius); padding:13px 14px; font-size:13px; color:var(--text-muted); line-height:1.45;"><strong style="color:var(--text-color);">ð¥ Division-Benchmark</strong><br>${isEn ? `Among stored ${division} app data: rank <b>${rank}</b> of <b>${board.length}</b>, better than about <b>${percentile}%</b> of comparable entries.` : `Unter den gespeicherten ${division}-App-Daten: Platz <b>${rank}</b> von <b>${board.length}</b>, besser als ca. <b>${percentile}%</b> der vergleichbaren EintrÃ¤ge.`}<br><span style="font-size:12px;">${isEn ? "This uses only shooters already stored in IPSC BÃ¶rse, not the full official division field." : "Das nutzt nur SchÃ¼tzen, die bereits in der IPSC BÃ¶rse gespeichert sind, nicht das komplette offizielle Division-Starterfeld."}</span></div>`;
         } catch (err) {
             console.warn('Division benchmark unavailable', err);
             return "";
@@ -1442,7 +1442,7 @@
 
     function buildTrainingPlanText(plan) {
         const lines = [];
-        lines.push('Trainingsplan aus IPSC Börse Analytics');
+        lines.push('Trainingsplan aus IPSC BÃ¶rse Analytics');
         lines.push('Fokus: ' + plan.focus);
         lines.push('Warum: ' + plan.reason);
         lines.push('');
@@ -1451,7 +1451,7 @@
             w.items.forEach(i => lines.push('- ' + i));
             lines.push('');
         });
-        lines.push('Messung beim nächsten Match/Training: ' + plan.measure);
+        lines.push('Messung beim nÃ¤chsten Match/Training: ' + plan.measure);
         return lines.join('\n');
     }
 
@@ -1476,62 +1476,62 @@
         let focus = 'saubere, wiederholbare Stage-Leistung';
         let reason = 'Die Analyse hat noch zu wenige Treffer-Details. Der Plan nutzt daher vor allem Stage-% und Konstanz.';
         if ((totalMisses + totalProcedures) >= 3 || (biggestPointLoss && biggestPointLoss.pointLoss >= 35)) {
-            focus = 'Trefferqualität und Penalty-Vermeidung';
-            reason = `${totalMisses} Misses und ${totalProcedures} Procedures gefunden. Größter Punktehebel: ${biggestPointLoss ? trainingStageName(biggestPointLoss) + ' mit ca. ' + Math.round(biggestPointLoss.pointLoss) + ' Punkten Verlust' : 'Treffer/Penalties'}.`;
+            focus = 'TrefferqualitÃ¤t und Penalty-Vermeidung';
+            reason = `${totalMisses} Misses und ${totalProcedures} Procedures gefunden. GrÃ¶Ãter Punktehebel: ${biggestPointLoss ? trainingStageName(biggestPointLoss) + ' mit ca. ' + Math.round(biggestPointLoss.pointLoss) + ' Punkten Verlust' : 'Treffer/Penalties'}.`;
         } else if (variance >= 35) {
             focus = 'Konstanz zwischen den Stages';
-            reason = `Deine Spanne zwischen bester und schwächster Stage liegt bei etwa ${Math.round(variance)} Prozentpunkten.`;
+            reason = `Deine Spanne zwischen bester und schwÃ¤chster Stage liegt bei etwa ${Math.round(variance)} Prozentpunkten.`;
         } else if (weakCourse && weakCourse[1] > 0 && avg > 0 && weakCourse[1] + 12 < avg) {
             focus = `${weakCourse[0]} Courses verbessern`;
             reason = `${weakCourse[0]} Courses liegen mit ca. ${Math.round(weakCourse[1])}% klar unter deinem Schnitt von ${Math.round(avg)}%.`;
         } else if (biggestTimeLoss) {
             focus = 'Tempo ohne Trefferverlust';
-            reason = `${trainingStageName(biggestTimeLoss)} zeigt den größten Zeitabstand zur Sieger-Target-Time.`;
+            reason = `${trainingStageName(biggestTimeLoss)} zeigt den grÃ¶Ãten Zeitabstand zur Sieger-Target-Time.`;
         }
 
-        const worstName = worst ? trainingStageName(worst) : 'schwächste Stage';
+        const worstName = worst ? trainingStageName(worst) : 'schwÃ¤chste Stage';
         const bestName = best ? trainingStageName(best) : 'beste Stage';
         const pointStage = biggestPointLoss ? trainingStageName(biggestPointLoss) : worstName;
         const timeStage = biggestTimeLoss ? trainingStageName(biggestTimeLoss) : worstName;
 
         const weeks = [
             {
-                title: 'Woche 1 – Trefferbild stabilisieren',
+                title: 'Woche 1 â Trefferbild stabilisieren',
                 items: [
-                    '3× Dryfire: sauberes Visierbild beim Abziehen, 10 Minuten pro Einheit.',
-                    'Livefire: 50–80 Schuss nur A-Zone/saubere C-Zone, kein Tempo erzwingen.',
-                    totalMisses > 0 ? 'Jede Miss-Ursache notieren: Ziel überlaufen, schlechter Exit, zu früh abgezogen oder Stageplan verloren.' : 'Nach jedem String Trefferbild kurz prüfen und Tempo erst erhöhen, wenn die Treffer stabil bleiben.'
+                    '3Ã Dryfire: sauberes Visierbild beim Abziehen, 10 Minuten pro Einheit.',
+                    'Livefire: 50â80 Schuss nur A-Zone/saubere C-Zone, kein Tempo erzwingen.',
+                    totalMisses > 0 ? 'Jede Miss-Ursache notieren: Ziel Ã¼berlaufen, schlechter Exit, zu frÃ¼h abgezogen oder Stageplan verloren.' : 'Nach jedem String Trefferbild kurz prÃ¼fen und Tempo erst erhÃ¶hen, wenn die Treffer stabil bleiben.'
                 ]
             },
             {
-                title: 'Woche 2 – Stage-Fokus aus dem Match',
+                title: 'Woche 2 â Stage-Fokus aus dem Match',
                 items: [
                     `${pointStage} nachbauen oder als Mini-Drill simulieren: Startposition, erste Ziele, Wechsel und Exit.`,
-                    '5 Wiederholungen langsam, 5 Wiederholungen Matchtempo. Nur gute Wiederholungen zählen.',
+                    '5 Wiederholungen langsam, 5 Wiederholungen Matchtempo. Nur gute Wiederholungen zÃ¤hlen.',
                     totalProcedures > 0 ? 'Stageplan vor jedem Durchgang laut ansagen: Reihenfolge, Reload, Positionswechsel, No-Shoots.' : 'Vor jedem Durchgang einen festen Ablauf ansagen: Start, Positionen, Reloads, letzter Schuss.'
                 ]
             },
             {
-                title: 'Woche 3 – Tempo kontrolliert erhöhen',
+                title: 'Woche 3 â Tempo kontrolliert erhÃ¶hen',
                 items: [
-                    `${timeStage}: gleiche Punkte mit 5–10% weniger Zeit versuchen, aber Misses zählen doppelt.`,
+                    `${timeStage}: gleiche Punkte mit 5â10% weniger Zeit versuchen, aber Misses zÃ¤hlen doppelt.`,
                     'Transitions: 6 Ziele, je 2 Schuss, Fokus auf Blicksprung vor Waffenbewegung.',
                     'Exit/Entry: letzter Schuss einer Position bewusst, dann sofort Bewegung ohne hektischen Extra-Schritt.'
                 ]
             },
             {
-                title: 'Woche 4 – Mini-Match und Kontrolle',
+                title: 'Woche 4 â Mini-Match und Kontrolle',
                 items: [
-                    '2–3 kurze Stages als Mini-Match schießen und Stage-%/Treffer notieren.',
-                    `Ziel: ${worstName} mental „reparieren“ und die schwächste Stage nicht mehr komplett abfallen lassen.`,
+                    '2â3 kurze Stages als Mini-Match schieÃen und Stage-%/Treffer notieren.',
+                    `Ziel: ${worstName} mental âreparierenâ und die schwÃ¤chste Stage nicht mehr komplett abfallen lassen.`,
                     `Benchmark: beste Stage ${bestName}; nicht kopieren, sondern herausfinden, was dort besser funktioniert hat.`
                 ]
             }
         ];
 
         const measure = avg > 0
-            ? `Ziel beim nächsten Match: Ø Stage % mindestens ${Math.round(avg + 3)}% oder weniger als ±${Math.max(15, Math.round(variance * 0.8))}% Konstanz-Spanne.`
-            : 'Ziel beim nächsten Match: Treffer und Stage-% sauber erfassen, damit der Plan genauer wird.';
+            ? `Ziel beim nÃ¤chsten Match: Ã Stage % mindestens ${Math.round(avg + 3)}% oder weniger als Â±${Math.max(15, Math.round(variance * 0.8))}% Konstanz-Spanne.`
+            : 'Ziel beim nÃ¤chsten Match: Treffer und Stage-% sauber erfassen, damit der Plan genauer wird.';
 
         return { focus, reason, avg, variance, best, worst, totalMisses, totalProcedures, totalCharlies, totalDeltas, weeks, measure };
     }
@@ -1560,9 +1560,9 @@
             ${weeksHtml}
             <div class="training-actions-v79bn">
                 <button class="primary" type="button" onclick="copyTrainingPlan()">Trainingsplan kopieren</button>
-                <button type="button" onclick="copyTrainingCoachPrompt()">Prompt für ChatGPT kopieren</button>
+                <button type="button" onclick="copyTrainingCoachPrompt()">Prompt fÃ¼r ChatGPT kopieren</button>
             </div>
-            <div class="analytics-muted-v79bn" style="margin-top:10px;">Der Plan ist regelbasiert aus deinen Daten erstellt. Ein echter ChatGPT-Coach kann später per API angebunden werden.</div>`;
+            <div class="analytics-muted-v79bn" style="margin-top:10px;">Der Plan ist regelbasiert aus deinen Daten erstellt. Ein echter ChatGPT-Coach kann spÃ¤ter per API angebunden werden.</div>`;
     }
 
     window.copyTrainingPlan = async function() {
@@ -1634,7 +1634,7 @@
             return merged;
         }
 
-        // Sicherheitsnetz: gleiche Stage-Zeilen werden jetzt zusammengeführt.
+        // Sicherheitsnetz: gleiche Stage-Zeilen werden jetzt zusammengefÃ¼hrt.
         // So bleiben offizielle Stage-Results und Verify-/Trefferwerte zusammen erhalten.
         const stageMap = new Map();
         rawMatchStages.forEach(s => {
@@ -1668,8 +1668,8 @@
             const stagePercent = stage.stage_percent ? parseFloat(stage.stage_percent) : 0;
             const minRounds = inferStageRounds(stage, hitVals);
 
-            // Punkte für Anzeige und Target-Time möglichst aus HF * Zeit berechnen.
-            // Das ist robuster, falls der Website-Scraper später nur Compact-PDF-Stagepoints liefert.
+            // Punkte fÃ¼r Anzeige und Target-Time mÃ¶glichst aus HF * Zeit berechnen.
+            // Das ist robuster, falls der Website-Scraper spÃ¤ter nur Compact-PDF-Stagepoints liefert.
             const dbPts = stage.pts ? parseFloat(stage.pts) : 0;
             const calculatedPts = (hf > 0 && time > 0) ? (hf * time) : 0;
             const displayPtsValue = calculatedPts > 0 ? calculatedPts : dbPts;
@@ -1710,10 +1710,10 @@
             let widthWin = isOverall ? 100 : winPerc;
             
             let labelMe = isOverall ? (isEn ? "Overall Result" : "Overall Wertung") : (isEn ? "My Hit Factor" : "Mein Hit Factor");
-            // Overall-Zeilen haben Prozent UND Matchpunkte. Früher wurde pts fälschlich als Prozent angezeigt.
+            // Overall-Zeilen haben Prozent UND Matchpunkte. FrÃ¼her wurde pts fÃ¤lschlich als Prozent angezeigt.
             let overallPercent = isOverall ? (readNumberAny(stage, ['match_percent','overall_percent']) || (stagePercent > 0 ? stagePercent : 0)) : 0;
             let overallPoints = isOverall ? (readNumberAny(stage, ['match_points','overall_points','points']) || dbPts || 0) : 0;
-            // Schutz gegen vertauschte PDF-Spalten/Alt-Daten: Matchpunkte dürfen nicht als Prozent angezeigt werden.
+            // Schutz gegen vertauschte PDF-Spalten/Alt-Daten: Matchpunkte dÃ¼rfen nicht als Prozent angezeigt werden.
             if (isOverall && overallPercent > 150 && overallPoints > 0 && overallPoints <= 100) {
                 const tmp = overallPercent; overallPercent = overallPoints; overallPoints = tmp;
             }
@@ -1730,7 +1730,7 @@
             let courseTag = "";
             let courseType = "";
             if (!isOverall) {
-                // IPSC Course Type wird über Mindestschüsse/Rounds bestimmt.
+                // IPSC Course Type wird Ã¼ber MindestschÃ¼sse/Rounds bestimmt.
                 // Wenn Verify-/Trefferdaten vorhanden sind: A+C+D+M. Sonst fallback auf gespeicherte Rounds/Max Points.
                 courseType = inferCourseTypeFromRounds(minRounds);
                 if (courseType) courseTag = `<span class="course-badge">${courseType}</span>`;
@@ -1773,8 +1773,8 @@
                 const timeDiff = (time - targetTime).toFixed(2);
                 if (timeDiff > 0.1) {
                     insightHtml = isEn 
-                        ? `<div class="insight-box">⏱️ For 1st place you should have shot your points in <b>${targetTime}s</b> (You were ${timeDiff}s too slow).</div>`
-                        : `<div class="insight-box">⏱️ Für Platz 1 hättest du deine Punkte in <b>${targetTime}s</b> schießen müssen (Du warst ${timeDiff}s zu langsam).</div>`;
+                        ? `<div class="insight-box">â±ï¸ For 1st place you should have shot your points in <b>${targetTime}s</b> (You were ${timeDiff}s too slow).</div>`
+                        : `<div class="insight-box">â±ï¸ FÃ¼r Platz 1 hÃ¤ttest du deine Punkte in <b>${targetTime}s</b> schieÃen mÃ¼ssen (Du warst ${timeDiff}s zu langsam).</div>`;
                 } else if (timeDiff < -0.1 && myPerc >= 95) {
                     insightHtml = isEn
                         ? `<div class="insight-box" style="border-color: var(--success-color);"> Amazing! You were faster than the winner's target time!</div>`
@@ -1818,11 +1818,11 @@
                     ${insightHtml}
 
                     <div style="display: flex; gap: 15px; margin-top: 20px; font-size: 12px; color: var(--text-muted); flex-wrap: wrap; align-items: center;">
-                        <span style="background: var(--input-bg); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-weight: 600; ${displayTimeAndHits}">⏱️ ${time > 0 ? time.toFixed(2) + 's' : '-'}</span>
-                        <span style="background: var(--input-bg); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-weight: 800; color: var(--text-color);">💯 ${bottomPtsText}</span>
+                        <span style="background: var(--input-bg); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-weight: 600; ${displayTimeAndHits}">â±ï¸ ${time > 0 ? time.toFixed(2) + 's' : '-'}</span>
+                        <span style="background: var(--input-bg); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-weight: 800; color: var(--text-color);">ð¯ ${bottomPtsText}</span>
                         <span style="flex-grow: 1; text-align: right; ${displayTimeAndHits}">
                             <strong style="color: var(--text-color);"> A:${alphas} C:${charlies} D:${deltas} M:${misses}${procedures ? ` P:${procedures}` : ''}</strong>
-                            <button class="analytics-stage-hit-edit-btn-v79bt" type="button" onclick="openHitEditor('${stage.stage_name.replace(/'/g, "\\'")}')" title="${isEn ? 'Edit hits' : 'Treffer bearbeiten'}" aria-label="${isEn ? 'Edit hits' : 'Treffer bearbeiten'}"><span class="ico" aria-hidden="true">✎</span><span class="txt">${isEn ? 'Edit' : 'Bearbeiten'}</span></button>
+                            <button class="analytics-stage-hit-edit-btn-v79bt" type="button" onclick="openHitEditor('${stage.stage_name.replace(/'/g, "\\'")}')" title="${isEn ? 'Edit hits' : 'Treffer bearbeiten'}" aria-label="${isEn ? 'Edit hits' : 'Treffer bearbeiten'}"><span class="ico" aria-hidden="true">â</span><span class="txt">${isEn ? 'Edit' : 'Bearbeiten'}</span></button>
                         </span>
                     </div>
                 </div>
@@ -1838,7 +1838,7 @@
         const sourceBox = document.getElementById("analytics-source-box");
         if (sourceBox) {
             sourceBox.style.display = "block";
-            sourceBox.innerHTML = `<strong style="color:var(--text-color);">${trAnalytics('analytics-source-title', isEn ? 'Data source' : 'Datenquelle')}</strong><br>${trAnalytics('analytics-stage-results', isEn ? 'Stage results' : 'Stage-Ergebnisse')}: <b>${realStages.length ? trAnalytics('analytics-present', isEn ? 'available' : 'vorhanden') : trAnalytics('analytics-missing', isEn ? 'missing' : 'fehlen')}</b> · ${trAnalytics('analytics-overall-result', isEn ? 'Overall result' : 'Overall-Ergebnis')}: <b>${hasOverallResult ? trAnalytics('analytics-present', isEn ? 'available' : 'vorhanden') : trAnalytics('analytics-not-separate', isEn ? 'not separate' : 'nicht separat')}</b> · ${trAnalytics('analytics-hit-details', isEn ? 'Hit details A/C/D/M/PE' : 'Trefferdetails A/C/D/M/PE')}: <b>${hasHitDetails ? trAnalytics('analytics-present', isEn ? 'available' : 'vorhanden') : trAnalytics('analytics-missing', isEn ? 'missing' : 'fehlen')}</b><br><span style="font-size:12px;">${trAnalytics('analytics-source-upload-verify', isEn ? 'Upload the verification PDF to import hits per stage automatically.' : 'Verify-PDF hochladen, um Treffer je Stage automatisch zu übernehmen.')}</span>`;
+            sourceBox.innerHTML = `<strong style="color:var(--text-color);">${trAnalytics('analytics-source-title', isEn ? 'Data source' : 'Datenquelle')}</strong><br>${trAnalytics('analytics-stage-results', isEn ? 'Stage results' : 'Stage-Ergebnisse')}: <b>${realStages.length ? trAnalytics('analytics-present', isEn ? 'available' : 'vorhanden') : trAnalytics('analytics-missing', isEn ? 'missing' : 'fehlen')}</b> Â· ${trAnalytics('analytics-overall-result', isEn ? 'Overall result' : 'Overall-Ergebnis')}: <b>${hasOverallResult ? trAnalytics('analytics-present', isEn ? 'available' : 'vorhanden') : trAnalytics('analytics-not-separate', isEn ? 'not separate' : 'nicht separat')}</b> Â· ${trAnalytics('analytics-hit-details', isEn ? 'Hit details A/C/D/M/PE' : 'Trefferdetails A/C/D/M/PE')}: <b>${hasHitDetails ? trAnalytics('analytics-present', isEn ? 'available' : 'vorhanden') : trAnalytics('analytics-missing', isEn ? 'missing' : 'fehlen')}</b><br><span style="font-size:12px;">${trAnalytics('analytics-source-upload-verify', isEn ? 'Upload the verification PDF to import hits per stage automatically.' : 'Verify-PDF hochladen, um Treffer je Stage automatisch zu Ã¼bernehmen.')}</span>`;
         }
         const avgStagePercent = stagePercents.length > 0 ? average(stagePercents) : 0;
         const divisionBenchmarkHtml = await buildDivisionBenchmarkHtml(client, matchId, division, window.__analyticsUserId, isEn);
@@ -1855,7 +1855,7 @@
             const minP = Math.min(...stagePercents);
             const variance = (maxP - minP).toFixed(0);
             const varEl = document.getElementById("kpi-variance");
-            varEl.innerText = `± ${variance}%`;
+            varEl.innerText = `Â± ${variance}%`;
             
             if (variance <= 15) varEl.style.color = "var(--success-color)";
             else if (variance >= 35) varEl.style.color = "var(--danger-color)";
@@ -1915,7 +1915,7 @@
     function analyticsParseDec(v) {
         if (v === null || v === undefined) return 0;
         let s = String(v).trim().replace(/\s/g, '');
-        // Unterstützt Deutsch (60,0000) und ESS mit Tausender-Komma (1,108.9551)
+        // UnterstÃ¼tzt Deutsch (60,0000) und ESS mit Tausender-Komma (1,108.9551)
         if (s.includes(',') && s.includes('.')) s = s.replace(/,/g, '');
         else if (s.includes(',')) s = s.replace(',', '.');
         const n = parseFloat(s);
@@ -1925,7 +1925,7 @@
     function analyticsNormalizeName(v) {
         return String(v || '')
             .toLowerCase()
-            .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+            .replace(/Ã¤/g, 'ae').replace(/Ã¶/g, 'oe').replace(/Ã¼/g, 'ue').replace(/Ã/g, 'ss')
             .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
             .replace(/[^a-z0-9]/g, '');
     }
@@ -1964,7 +1964,7 @@
     function analyticsStableMatchId(matchName) {
         const base = String(matchName || 'Import Match')
             .toLowerCase()
-            .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+            .replace(/Ã¤/g, 'ae').replace(/Ã¶/g, 'oe').replace(/Ã¼/g, 'ue').replace(/Ã/g, 'ss')
             .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
             .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 80) || 'import_match';
         return 'upload_' + base;
@@ -1996,7 +1996,7 @@
         s = s.replace(/\b(2026 German Handgun Part I powered by Walther)(?:\s+\1)+\b/ig, '$1');
         s = s.replace(/\b(PSC Fastsummer 6\.0)(?:\s+\1)+\b/ig, '$1');
         s = s.replace(/\b(Trigger Titans 2026(?: by STP Sport Target Pistol)?)(?:\s+\1)+\b/ig, '$1');
-        // Generischer Duplikat-Schutz: wenn die zweite Hälfte wieder mit dem Anfang startet, abschneiden.
+        // Generischer Duplikat-Schutz: wenn die zweite HÃ¤lfte wieder mit dem Anfang startet, abschneiden.
         const low = s.toLowerCase();
         for (let len = 18; len <= Math.min(90, Math.floor(s.length / 2)); len++) {
             const a = low.slice(0, len).trim();
@@ -2017,14 +2017,14 @@
     function analyticsCanonicalMatchKeyFromName(name, row) {
         let original = String(name || '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
         let s = analyticsCleanMatchTitle(original).toLowerCase();
-        s = s.replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss')
-             .normalize('NFD').replace(/[̀-ͯ]/g,'')
+        s = s.replace(/Ã¤/g,'ae').replace(/Ã¶/g,'oe').replace(/Ã¼/g,'ue').replace(/Ã/g,'ss')
+             .normalize('NFD').replace(/[Ì-Í¯]/g,'')
              .replace(/(overall match results|overall stage results|score verification by competitor|results overall|results by stage).*$/ig, '')
              .replace(/powered by walther/ig, '')
              .replace(/by stp sport target pistol/ig, '')
              .replace(/\s+/g,' ').trim();
         const year = (s.match(/20\d{2}/) || [analyticsMatchYearFromRow(row) || ''])[0];
-        // Bekannte, häufig durch PDF.js abgeschnittene Titel hart zusammenführen.
+        // Bekannte, hÃ¤ufig durch PDF.js abgeschnittene Titel hart zusammenfÃ¼hren.
         if (/german\s+handg/.test(s)) return (year || '2026') + '-german-handgun-part-i';
         if (/fastsummer\s*6|psc\s*fastsummer/.test(s)) return (year || '2026') + '-psc-fastsummer-6-0';
         if (/campro\s+cup/.test(s)) return (year || '2026') + '-campro-cup';
@@ -2118,9 +2118,9 @@
     }
 
     async function readAnalyticsFileText(file) {
-        if (!file) throw new Error('Bitte eine Datei auswählen.');
+        if (!file) throw new Error('Bitte eine Datei auswÃ¤hlen.');
         if (/\.pdf$/i.test(file.name) || file.type === 'application/pdf') {
-            if (!window.pdfjsLib) throw new Error('PDF.js konnte nicht geladen werden. Bitte Internetverbindung prüfen.');
+            if (!window.pdfjsLib) throw new Error('PDF.js konnte nicht geladen werden. Bitte Internetverbindung prÃ¼fen.');
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
             const buf = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
@@ -2151,8 +2151,8 @@
 
     async function readAnalyticsImportText(file) {
         const pasted = (document.getElementById('analytics-import-text') || {}).value || '';
-        if (pasted.trim()) return { text: pasted, fileName: 'Eingefügter Text' };
-        if (!file) throw new Error(trAnalytics('analytics-import-no-input', 'Bitte eine Datei auswählen oder Text einfügen.'));
+        if (pasted.trim()) return { text: pasted, fileName: 'EingefÃ¼gter Text' };
+        if (!file) throw new Error(trAnalytics('analytics-import-no-input', 'Bitte eine Datei auswÃ¤hlen oder Text einfÃ¼gen.'));
         return readAnalyticsFileText(file);
     }
 
@@ -2192,7 +2192,7 @@
         const types = new Set();
         const names = imports.map(p => analyticsCleanMatchTitle((p.meta || {}).matchName || '')).filter(Boolean);
         let canonicalName = names[0] || 'Import Match';
-        // Nimm den kürzesten nicht-trivialen Titel, damit keine doppelt geklebten PDF-Titel gewinnen.
+        // Nimm den kÃ¼rzesten nicht-trivialen Titel, damit keine doppelt geklebten PDF-Titel gewinnen.
         names.forEach(n => {
             if (n && n.length >= 8 && n.length < canonicalName.length + 25) canonicalName = n.length < canonicalName.length ? n : canonicalName;
         });
@@ -2239,7 +2239,7 @@
         const out = [];
         let div = '', stageNo = '', winnerHF = 0;
         for (const line of lines) {
-            const hd = line.match(/^([A-ZÄÖÜa-zäöüß ]+)\s+--\s+Overall Stage Results/i);
+            const hd = line.match(/^([A-ZÃÃÃa-zÃ¤Ã¶Ã¼Ã ]+)\s+-{1,2}\s+Overall Stage Results/i);
             if (hd) { div = analyticsDivisionMap(hd[1]); stageNo = ''; winnerHF = 0; continue; }
             const st = line.match(/^Stage\s+(\d+)\b/i);
             if (st) { stageNo = String(parseInt(st[1],10)); winnerHF = 0; continue; }
@@ -2260,7 +2260,7 @@
         const out = [];
         let div = '';
         for (const line of lines) {
-            const hd = line.match(/^(.+?)\s+-\s+Results Overall/i) || line.match(/^(.+?)\s+--\s+Overall Match Results/i);
+            const hd = line.match(/^(.+?)\s+-{1,2}\s+Results Overall/i) || line.match(/^(.+?)\s+-{1,2}\s+Overall Match Results/i);
             if (hd) { div = analyticsDivisionMap(hd[1]); continue; }
             if (!div) continue;
             if (/^(?:%\s+)?Points\s+Competitor/i.test(line) || /World Classification System/i.test(line)) continue;
@@ -2280,7 +2280,7 @@
         const out = [];
         let div = '', stageNo = '';
         for (const line of lines) {
-            const hd = line.match(/^(.+?)\s+-\s+Results by Stage/i);
+            const hd = line.match(/^(.+?)\s+-{1,2}\s+Results by Stage/i);
             if (hd) { div = analyticsDivisionMap(hd[1]); continue; }
             const st = line.match(/^Stage\s+(.+?)\s+-\s+Stage\s+(\d+)/i) || line.match(/^Stage\s+(\d+)\b/i);
             if (st) { stageNo = String(parseInt(st[2] || st[1],10)); continue; }
@@ -2308,11 +2308,11 @@
             if (!candNorm || !wantNorm) return false;
             if (candNorm.includes(wantNorm) || wantNorm.includes(candNorm)) return true;
             const candTokens = String(candidate || '').toLowerCase()
-                .replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss')
+                .replace(/Ã¤/g,'ae').replace(/Ã¶/g,'oe').replace(/Ã¼/g,'ue').replace(/Ã/g,'ss')
                 .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
                 .split(/[^a-z0-9]+/).filter(t => t.length >= 3);
             const wantTokens = String(wanted || window.__analyticsRealName || '').toLowerCase()
-                .replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss')
+                .replace(/Ã¤/g,'ae').replace(/Ã¶/g,'oe').replace(/Ã¼/g,'ue').replace(/Ã/g,'ss')
                 .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
                 .split(/[^a-z0-9]+/).filter(t => t.length >= 3);
             if (candTokens.length < 2 || wantTokens.length < 2) return false;
@@ -2376,15 +2376,15 @@
                 const m = joined.match(/^\s*(\d{1,4})\s+(.+?)\s+DIV\s*:\s*([A-Z]+)\b/i);
                 if (!m) continue;
                 const name = cleanAnalyticsCompetitorName(m[2]);
-                if (!/[A-Za-zÄÖÜäöüß]/.test(name)) continue;
+                if (!/[A-Za-zÃÃÃÃ¤Ã¶Ã¼Ã]/.test(name)) continue;
                 if (/^(STG|PTS|TIME|FACTOR|Page|Printed)$/i.test(name)) continue;
                 return { number: m[1], name, division: analyticsDivisionMap(m[3]) };
             }
             return null;
         }
 
-        // Score Verification By Competitor: nur den Block des eigenen Namens übernehmen.
-        // Robust gegen PDF.js-Zeilenbrüche, bei denen "429 Schöps, Fabian" und "DIV: O" getrennt landen.
+        // Score Verification By Competitor: nur den Block des eigenen Namens Ã¼bernehmen.
+        // Robust gegen PDF.js-ZeilenbrÃ¼che, bei denen "429 SchÃ¶ps, Fabian" und "DIV: O" getrennt landen.
         if (looksLikeVerify) {
             let active = false;
             let currentDivision = '';
@@ -2414,7 +2414,7 @@
                 }
 
                 if (!active) continue;
-                // Beim nächsten fremden Header Block beenden, auch wenn detectCompetitorHeaderAt ihn wegen Split erst später erkennt.
+                // Beim nÃ¤chsten fremden Header Block beenden, auch wenn detectCompetitorHeaderAt ihn wegen Split erst spÃ¤ter erkennt.
                 if (/^\s*\d{1,4}\s+.+?\s+DIV\s*:\s*[A-Z]+\b/i.test(line) && !relaxedNameMatch(line, realName)) {
                     active = false;
                     continue;
@@ -2429,8 +2429,8 @@
         }
 
         // E-Mail oder kopierter Einzelblock: nur verwenden, wenn echte Treffer-Labels vorkommen.
-        // Große Stage-Results-PDFs enthalten zwar deinen Namen, aber keine A/C/D/M-Labels;
-        // sie dürfen niemals als Treffer-E-Mail interpretiert werden.
+        // GroÃe Stage-Results-PDFs enthalten zwar deinen Namen, aber keine A/C/D/M-Labels;
+        // sie dÃ¼rfen niemals als Treffer-E-Mail interpretiert werden.
         const textHasOwnName = relaxedNameMatch(text, realName) || lines.some(l => relaxedNameMatch(l, realName));
         const hasExplicitHitLabels = /\b(?:Alpha|Alphas|Charlie|Charlies|Delta|Deltas|Miss|Misses|Procedure|Procedures|Penalty|Penalties|No\s*Shoot|No-Shoot)\b/i.test(text)
             || /(?:^|\s)(?:A|C|D|MI|PE|NS)\s*[:=]\s*\d+/i.test(text);
@@ -2462,24 +2462,24 @@
         const preview = document.getElementById('analytics-import-preview');
         const saveBtn = document.getElementById('analytics-import-save');
         try {
-            status.innerText = trAnalytics('analytics-import-reading', 'Datei wird gelesen …');
+            status.innerText = trAnalytics('analytics-import-reading', 'Datei wird gelesen â¦');
             preview.style.display = 'none';
             saveBtn.disabled = true;
             pendingAnalyticsImportRows = [];
             const files = Array.from((document.getElementById('analytics-import-file').files || []));
             const pasted = (document.getElementById('analytics-import-text') || {}).value || '';
             const parsedList = [];
-            if (pasted.trim()) parsedList.push(parseAnalyticsImportText(pasted, 'Eingefügter Text'));
+            if (pasted.trim()) parsedList.push(parseAnalyticsImportText(pasted, 'EingefÃ¼gter Text'));
             for (const f of files) {
-                status.innerText = trAnalytics('analytics-import-read-file', 'Lese') + ' ' + f.name + ' …';
+                status.innerText = trAnalytics('analytics-import-read-file', 'Lese') + ' ' + f.name + ' â¦';
                 const read = await readAnalyticsFileText(f);
                 parsedList.push(parseAnalyticsImportText(read.text, read.fileName));
             }
-            if (!parsedList.length) throw new Error(trAnalytics('analytics-import-no-input', 'Bitte eine Datei auswählen oder Text einfügen.'));
+            if (!parsedList.length) throw new Error(trAnalytics('analytics-import-no-input', 'Bitte eine Datei auswÃ¤hlen oder Text einfÃ¼gen.'));
             const parsed = parsedList.length === 1 ? parsedList[0] : mergeAnalyticsParsedImports(parsedList);
             pendingAnalyticsImportRows = parsed.rows;
             pendingAnalyticsImportMeta = parsed.meta;
-            if (!parsed.rows.length) throw new Error(trAnalytics('analytics-import-no-match', 'Keine passenden Daten für deinen Profilnamen gefunden. Prüfe Profilname, Division oder Dateityp.'));
+            if (!parsed.rows.length) throw new Error(trAnalytics('analytics-import-no-match', 'Keine passenden Daten fÃ¼r deinen Profilnamen gefunden. PrÃ¼fe Profilname, Division oder Dateityp.'));
             const hitRows = parsed.rows.filter(r => rowHitValues(r).hasAny).length;
             const stageRows = parsed.rows.filter(r => !String(r.stage_name || '').toLowerCase().includes('overall')).length;
             const overallRows = parsed.rows.filter(r => String(r.stage_name || '').toLowerCase().includes('overall')).length;
@@ -2487,7 +2487,7 @@
             preview.innerHTML = `<b>${trAnalytics('analytics-preview-title', currentAnalyticsLang()==='en' ? 'Preview' : 'Vorschau')}</b><br>${trAnalytics('analytics-preview-match', 'Match')}: <b>${parsed.meta.matchName}</b><br>${trAnalytics('analytics-preview-found', currentAnalyticsLang()==='en' ? 'Found' : 'Gefunden')}: <b>${parsed.rows.length}</b> ${trAnalytics('analytics-preview-rows', currentAnalyticsLang()==='en' ? 'rows' : 'Zeilen')} (${stageRows} ${trAnalytics('analytics-preview-stages', 'Stages')}, ${overallRows} ${trAnalytics('analytics-preview-overall', 'Overall')}, ${hitRows} ${trAnalytics('analytics-preview-hitrows', currentAnalyticsLang()==='en' ? 'hit rows' : 'Treffer-Zeilen')})<br>${chips}<br><span class="ok">${trAnalytics('analytics-preview-ready', currentAnalyticsLang()==='en' ? 'Ready to save.' : 'Bereit zum Speichern.')}</span>`;
             preview.style.display = 'block';
             saveBtn.disabled = false;
-            status.innerText = trAnalytics('analytics-import-done', currentAnalyticsLang()==='en' ? 'Check complete.' : 'Prüfung fertig.');
+            status.innerText = trAnalytics('analytics-import-done', currentAnalyticsLang()==='en' ? 'Check complete.' : 'PrÃ¼fung fertig.');
         } catch (err) {
             console.error(err);
             preview.innerHTML = `<span class="warn">${err.message || err}</span>`;
@@ -2502,7 +2502,7 @@
         if (!pendingAnalyticsImportRows.length) return;
         try {
             saveBtn.disabled = true;
-            status.innerText = trAnalytics('analytics-save-running', currentAnalyticsLang()==='en' ? 'Saving to Supabase …' : 'Speichere in Supabase …');
+            status.innerText = trAnalytics('analytics-save-running', currentAnalyticsLang()==='en' ? 'Saving to Supabase â¦' : 'Speichere in Supabase â¦');
             const client = window.supabaseClient || window.supabase;
             const { data: { session } } = await client.auth.getSession();
             if (!session) throw new Error(trAnalytics('analytics-not-logged-in', currentAnalyticsLang()==='en' ? 'Not logged in.' : 'Nicht angemeldet.'));
@@ -2570,13 +2570,13 @@
         const matchId = selector.value;
         const matchName = (selector.options[selector.selectedIndex] && selector.options[selector.selectedIndex].textContent) || matchId;
         const isEn = currentAnalyticsLang() === "en";
-        const confirmText = trAnalytics('analytics-delete-confirm', isEn ? 'Really delete this match? All analysis rows for this match will be removed from your profile.' : 'Dieses Match wirklich löschen? Es werden alle Analyse-Zeilen zu diesem Match aus deinem Profil entfernt.');
+        const confirmText = trAnalytics('analytics-delete-confirm', isEn ? 'Really delete this match? All analysis rows for this match will be removed from your profile.' : 'Dieses Match wirklich lÃ¶schen? Es werden alle Analyse-Zeilen zu diesem Match aus deinem Profil entfernt.');
         if (!confirm(confirmText + "\n\n" + matchName)) return;
 
         const btn = document.getElementById('analytics-delete-match-btn');
         const status = document.getElementById('analytics-import-status');
         const oldText = btn ? btn.textContent : '';
-        if (btn) { btn.disabled = true; btn.textContent = trAnalytics('analytics-delete-running', isEn ? 'Deleting…' : 'Lösche…'); }
+        if (btn) { btn.disabled = true; btn.textContent = trAnalytics('analytics-delete-running', isEn ? 'Deletingâ¦' : 'LÃ¶scheâ¦'); }
 
         try {
             const client = window.supabaseClient || window.supabase;
@@ -2632,13 +2632,13 @@
                 rebuildAnalyticsMatchSelector(nextMatchId);
                 renderSelectedMatch();
             }
-            if (status) status.innerText = trAnalytics('analytics-delete-done', isEn ? 'Match deleted.' : 'Match gelöscht.');
+            if (status) status.innerText = trAnalytics('analytics-delete-done', isEn ? 'Match deleted.' : 'Match gelÃ¶scht.');
         } catch (err) {
             console.error(err);
-            if (status) status.innerText = trAnalytics('analytics-delete-failed', isEn ? 'Delete failed:' : 'Löschen fehlgeschlagen:') + ' ' + (err.message || err);
-            alert((isEn ? 'Delete failed: ' : 'Löschen fehlgeschlagen: ') + (err.message || err));
+            if (status) status.innerText = trAnalytics('analytics-delete-failed', isEn ? 'Delete failed:' : 'LÃ¶schen fehlgeschlagen:') + ' ' + (err.message || err);
+            alert((isEn ? 'Delete failed: ' : 'LÃ¶schen fehlgeschlagen: ') + (err.message || err));
         } finally {
-            if (btn) { btn.disabled = false; btn.textContent = oldText || trAnalytics('analytics-delete-match', isEn ? 'Delete match' : 'Match löschen'); }
+            if (btn) { btn.disabled = false; btn.textContent = oldText || trAnalytics('analytics-delete-match', isEn ? 'Delete match' : 'Match lÃ¶schen'); }
             if (typeof window.translatePortalPage === "function") window.translatePortalPage();
         }
     };
@@ -2653,7 +2653,7 @@
         const isEn = currentAnalyticsLang() === "en";
         
         if (!inputName) {
-            alert(isEn ? "Please enter a valid name." : "Bitte gib einen gültigen Namen ein.");
+            alert(isEn ? "Please enter a valid name." : "Bitte gib einen gÃ¼ltigen Namen ein.");
             return;
         }
 
@@ -2674,8 +2674,8 @@
             if (error) throw error;
 
             alert(isEn 
-                ? "✅ Name saved successfully! The email bot is now ready for you." 
-                : "✅ Name erfolgreich gespeichert! Der E-Mail-Bot ist jetzt für dich einsatzbereit.");
+                ? "â Name saved successfully! The email bot is now ready for you." 
+                : "â Name erfolgreich gespeichert! Der E-Mail-Bot ist jetzt fÃ¼r dich einsatzbereit.");
             closeNameSetupModal();
             window.location.reload();
         } catch (err) {
@@ -2758,8 +2758,8 @@
             
             const isEn = currentAnalyticsLang() === "en";
             e.target.value = '';
-            e.target.placeholder = isEn ? '✅ Hits successfully detected!' : '✅ Treffer erfolgreich erkannt!';
-            setTimeout(() => e.target.placeholder = 'Email-Text hier einfügen (Smart Paste)', 3000);
+            e.target.placeholder = isEn ? 'â Hits successfully detected!' : 'â Treffer erfolgreich erkannt!';
+            setTimeout(() => e.target.placeholder = 'Email-Text hier einfÃ¼gen (Smart Paste)', 3000);
         }
     });
 
