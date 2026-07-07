@@ -422,6 +422,7 @@
     <!-- SCHIESSBUCH BIGINT ID FIX v58 -->
     <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
     <!-- SCHIESSBUCH QR PDF FIX v59 -->
+    <!-- V79K APP CONFIRM LINK SHARE FIX: public HTTPS link in native app -->
     <!-- SCHIESSBUCH DISPLAY FIX v60: async QR function restored -->
     <!-- PDF APP SHARE FIX v61 -->
     <!-- TRANSITION LIGHT FIX v65: no slow overlay -->
@@ -719,12 +720,75 @@
             return "v57-" + randomTokenV57(16);
         }
 
+        // V79K: öffentliche Links im nativen App-Wrapper immer als echte HTTPS-Links erzeugen.
+        // Vorher wurde in der App teilweise capacitor://localhost/... oder nur ein lokaler Pfad geteilt.
+        const SCHIESSBUCH_PUBLIC_BASE_URL_V79K = "https://ipscboerse.com/";
+
         function getPublicBaseUrlV57() {
-            return window.location.origin + window.location.pathname.replace(/[^/]*$/, "");
+            try {
+                const origin = String(window.location.origin || "");
+                const path = String(window.location.pathname || "/");
+                const isNative = /^(capacitor|ionic|file):/i.test(String(window.location.protocol || ""));
+                const isLocal = /localhost|127\.0\.0\.1|^null$/i.test(origin);
+                if (isNative || isLocal || !/^https?:\/\//i.test(origin)) {
+                    return SCHIESSBUCH_PUBLIC_BASE_URL_V79K;
+                }
+                return origin.replace(/\/$/, "") + path.replace(/[^/]*$/, "");
+            } catch (_) {
+                return SCHIESSBUCH_PUBLIC_BASE_URL_V79K;
+            }
         }
 
         function getVerifyUrlV57(code) {
             return `${getPublicBaseUrlV57()}schiessbuch-verify.html?id=${encodeURIComponent(code)}`;
+        }
+
+        async function shareExternalConfirmationLinkV79K(confirmUrl, shareText) {
+            const title = "Schießbuch-Eintrag bestätigen";
+            const cleanUrl = String(confirmUrl || "");
+            const cleanText = String(shareText || cleanUrl);
+
+            // In der iOS-App zuerst den nativen Capacitor-Share versuchen.
+            try {
+                const Share = window.Capacitor?.Plugins?.Share || window.Capacitor?.Share;
+                if (Share && typeof Share.share === "function") {
+                    await Share.share({
+                        title,
+                        text: cleanText,
+                        url: cleanUrl,
+                        dialogTitle: title
+                    });
+                    return true;
+                }
+            } catch (err) {
+                if (/abort|cancel|dismiss/i.test(String(err?.message || err))) return true;
+                console.warn("Native share for confirmation link failed", err);
+            }
+
+            // Auf der Homepage/Safari funktioniert der normale Web-Share.
+            try {
+                if (navigator.share) {
+                    await navigator.share({ title, text: cleanText, url: cleanUrl });
+                    return true;
+                }
+            } catch (err) {
+                if (/abort|cancel|dismiss/i.test(String(err?.message || err))) return true;
+                console.warn("Web share for confirmation link failed", err);
+            }
+
+            // Fallback: Immer den vollständigen öffentlichen HTTPS-Link kopieren, nicht den Token alleine.
+            try {
+                if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+                    await navigator.clipboard.writeText(cleanText);
+                    alert("Bestätigungslink wurde kopiert.");
+                    return true;
+                }
+            } catch (err) {
+                console.warn("Clipboard copy for confirmation link failed", err);
+            }
+
+            prompt("Bestätigungslink kopieren:", cleanUrl);
+            return false;
         }
 
         function getExternalSnapshot(log) {
@@ -796,25 +860,7 @@
                 confirmUrl
             ].join("\n");
 
-            try {
-                if (navigator.share) {
-                    await navigator.share({
-                        title: "Schießbuch-Eintrag bestätigen",
-                        text: shareText,
-                        url: confirmUrl
-                    });
-                } else {
-                    await navigator.clipboard.writeText(shareText);
-                    alert("Bestätigungslink wurde kopiert.");
-                }
-            } catch (_) {
-                try {
-                    await navigator.clipboard.writeText(shareText);
-                    alert("Bestätigungslink wurde kopiert.");
-                } catch (copyError) {
-                    prompt("Bestätigungslink kopieren:", confirmUrl);
-                }
-            }
+            await shareExternalConfirmationLinkV79K(confirmUrl, shareText);
 
             fetchLogs();
         }
