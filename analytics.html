@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <!-- V79E: Verify + Stage Header + Encoding fix, Emojis bleiben erhalten -->
     <script id="ipsc-native-shell-redirect-v76t">
       (function () {
         try {
@@ -958,20 +959,54 @@
     }
 
 
-    // V79C: Repariert sichtbare Mojibake-Zeichen, falls Hosting/WebView UTF-8 falsch interpretiert.
-    // ASCII-only Escapes, damit der Fix selbst nicht vom Encoding abhÃ¤ngt.
+    // V79E: Repariert sichtbare Mojibake-Zeichen, ohne Emojis zu entfernen.
+    // Wichtig: Emojis bleiben erhalten; kaputt dargestellte Emoji-Sequenzen werden zurÃ¼ckgewandelt.
     function analyticsRepairMojibake(value) {
         let s = String(value == null ? '' : value);
         const pairs = [
-            [/\u00C3\u00A4/g, 'Ã¤'], [/\u00C3\u00B6/g, 'Ã¶'], [/\u00C3\u00BC/g, 'Ã¼'], [/\u00C3\u009F/g, 'Ã'],
-            [/\u00C3\u0084/g, 'Ã'], [/\u00C3\u0096/g, 'Ã'], [/\u00C3\u009C/g, 'Ã'],
-            [/\u00C3\u02DC/g, 'Ã'], [/\u00C3\u0098/g, 'Ã'], [/\u00C3\u00B8/g, 'Ã¸'],
-            [/\u00C2\u00B1/g, 'Â±'], [/\u00C3\u00B1/g, 'Â±'],
-            [/\u00C2\u00A0/g, ' '], [/\u00E2\u20AC\u00A6/g, 'â¦'],
-            [/\u00E2\u20AC\u017E/g, 'â'], [/\u00E2\u20AC\u0153/g, 'â'], [/\u00E2\u20AC\u009D/g, 'â'], [/\u00E2\u20AC\u02DC/g, 'â'], [/\u00E2\u20AC\u2122/g, 'â'],
-            [/\u00E2\u20AC\u201C/g, 'â'], [/\u00E2\u20AC\u201D/g, 'â']
+            // Emojis / Symbole, wenn UTF-8 als Latin-1 sichtbar wurde
+            [/\u00E2\u008F\u00B1\u00EF\u00B8\u008F/g, '\u23F1\uFE0F'], // â±ï¸
+            [/\u00F0\u009F\u0092\u00AF/g, '\uD83D\uDCAF'],       // ð¯
+            [/\u00E2\u009C\u008E/g, '\u270E'],                   // â
+            [/\u00E2\u009C\u0085/g, '\u2705'],                   // â
+            [/\u00F0\u009F\u0091\u00A5/g, '\uD83D\uDC65'],       // ð¥
+
+            // Deutsche Umlaute und hÃ¤ufige europÃ¤ische Zeichen
+            [/\u00C3\u00A4/g, '\u00E4'], [/\u00C3\u00B6/g, '\u00F6'], [/\u00C3\u00BC/g, '\u00FC'], [/\u00C3\u009F/g, '\u00DF'],
+            [/\u00C3\u0084/g, '\u00C4'], [/\u00C3\u0096/g, '\u00D6'], [/\u00C3\u009C/g, '\u00DC'],
+            [/\u00C3\u00A9/g, '\u00E9'], [/\u00C3\u00A8/g, '\u00E8'], [/\u00C3\u00A7/g, '\u00E7'], [/\u00C3\u00B1/g, '\u00F1'],
+            [/\u00C3\u02DC/g, '\u00D8'], [/\u00C3\u0098/g, '\u00D8'], [/\u00C3\u00B8/g, '\u00F8'],
+            [/\u00C2\u00B1/g, '\u00B1'], [/\u00C2\u00A0/g, ' '], [/\u00C2\u00B7/g, '\u00B7'],
+
+            // Typografische Zeichen
+            [/\u00E2\u20AC\u00A6/g, '\u2026'], [/\u00E2\u0080\u00A6/g, '\u2026'],
+            [/\u00E2\u20AC\u017E/g, '\u201E'], [/\u00E2\u0080\u009E/g, '\u201E'],
+            [/\u00E2\u20AC\u0153/g, '\u201C'], [/\u00E2\u0080\u009C/g, '\u201C'],
+            [/\u00E2\u20AC\u009D/g, '\u201D'], [/\u00E2\u0080\u009D/g, '\u201D'],
+            [/\u00E2\u20AC\u02DC/g, '\u2018'], [/\u00E2\u0080\u0098/g, '\u2018'],
+            [/\u00E2\u20AC\u2122/g, '\u2019'], [/\u00E2\u0080\u0099/g, '\u2019'],
+            [/\u00E2\u20AC\u201C/g, '\u2013'], [/\u00E2\u0080\u0093/g, '\u2013'],
+            [/\u00E2\u20AC\u201D/g, '\u2014'], [/\u00E2\u0080\u0094/g, '\u2014']
         ];
         pairs.forEach(([re, rep]) => { s = s.replace(re, rep); });
+
+        // Generische Reparatur fÃ¼r weitere UTF-8-Sequenzen, z. B. seltene Namen/Symbole.
+        // Nur anwenden, wenn typische Mojibake-Zeichen vorkommen.
+        if (/[\u00C2\u00C3\u00E2\u00E3\u00EF\u00F0]/.test(s)) {
+            try {
+                const bytes = [];
+                let can = false;
+                for (let i = 0; i < s.length; i++) {
+                    const c = s.charCodeAt(i);
+                    if (c >= 0x80 && c <= 0xFF) { can = true; bytes.push('%' + c.toString(16).padStart(2, '0')); }
+                    else { bytes.push(encodeURIComponent(s[i])); }
+                }
+                if (can) {
+                    const fixed = decodeURIComponent(bytes.join(''));
+                    if (fixed && fixed !== s && !/\uFFFD/.test(fixed)) s = fixed;
+                }
+            } catch (_) {}
+        }
         return s;
     }
 
@@ -980,7 +1015,7 @@
             const base = root && root.nodeType ? root : document;
             const walker = document.createTreeWalker(base, NodeFilter.SHOW_TEXT, {
                 acceptNode(node) {
-                    if (!node || !node.nodeValue || !/[\u00C2\u00C3\u00E2]/.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
+                    if (!node || !node.nodeValue || !/[\u00C2\u00C3\u00E2\u00E3\u00EF\u00F0]/.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
                     const p = node.parentElement;
                     if (p && /^(SCRIPT|STYLE|TEXTAREA)$/i.test(p.tagName)) return NodeFilter.FILTER_REJECT;
                     return NodeFilter.FILTER_ACCEPT;
@@ -1004,7 +1039,7 @@
         } catch (_) {}
     }
 
-    (function initAnalyticsEncodingRepairV79C(){
+    (function initAnalyticsEncodingRepairV79E(){
         try {
             document.addEventListener('DOMContentLoaded', function(){
                 analyticsRepairVisibleText(document);
@@ -1896,6 +1931,7 @@
 
         if (renderRunId !== analyticsRenderRunId) return;
         document.getElementById("stages-container").innerHTML = stagesHtml;
+        try { analyticsRepairVisibleText(document.getElementById("stages-container")); } catch (_) {}
 
         const realStages = matchStages.filter(s => !(s._displayStageName || s.stage_name).includes("Overall Match Results"));
         const hasOverallResult = matchStages.some(s => String(s._displayStageName || s.stage_name || '').toLowerCase().includes('overall'));
@@ -1904,12 +1940,13 @@
         if (sourceBox) {
             sourceBox.style.display = "block";
             sourceBox.innerHTML = `<strong style="color:var(--text-color);">${trAnalytics('analytics-source-title', isEn ? 'Data source' : 'Datenquelle')}</strong><br>${trAnalytics('analytics-stage-results', isEn ? 'Stage results' : 'Stage-Ergebnisse')}: <b>${realStages.length ? trAnalytics('analytics-present', isEn ? 'available' : 'vorhanden') : trAnalytics('analytics-missing', isEn ? 'missing' : 'fehlen')}</b> Â· ${trAnalytics('analytics-overall-result', isEn ? 'Overall result' : 'Overall-Ergebnis')}: <b>${hasOverallResult ? trAnalytics('analytics-present', isEn ? 'available' : 'vorhanden') : trAnalytics('analytics-not-separate', isEn ? 'not separate' : 'nicht separat')}</b> Â· ${trAnalytics('analytics-hit-details', isEn ? 'Hit details A/C/D/M/PE' : 'Trefferdetails A/C/D/M/PE')}: <b>${hasHitDetails ? trAnalytics('analytics-present', isEn ? 'available' : 'vorhanden') : trAnalytics('analytics-missing', isEn ? 'missing' : 'fehlen')}</b><br><span style="font-size:12px;">${trAnalytics('analytics-source-upload-verify', isEn ? 'Upload the verification PDF to import hits per stage automatically.' : 'Verify-PDF hochladen, um Treffer je Stage automatisch zu Ã¼bernehmen.')}</span>`;
+            try { analyticsRepairVisibleText(sourceBox); } catch (_) {}
         }
         const avgStagePercent = stagePercents.length > 0 ? average(stagePercents) : 0;
         const divisionBenchmarkHtml = await buildDivisionBenchmarkHtml(client, matchId, division, window.__analyticsUserId, isEn);
         if (renderRunId !== analyticsRenderRunId) return;
         const insightsPanel = document.getElementById("analytics-insights-panel");
-        if (insightsPanel) insightsPanel.innerHTML = buildLocalInsightsHtml(analysisStages, stagePercents, divisionBenchmarkHtml, isEn);
+        if (insightsPanel) { insightsPanel.innerHTML = buildLocalInsightsHtml(analysisStages, stagePercents, divisionBenchmarkHtml, isEn); try { analyticsRepairVisibleText(insightsPanel); } catch (_) {} }
         updateTrainingPlanPanel(analysisStages, stagePercents);
         
         document.getElementById("kpi-avg-hf").innerText = avgStagePercent > 0 ? `${avgStagePercent.toFixed(0)}%` : "-";
