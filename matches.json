@@ -19,7 +19,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/d/df/Hubertus_WND.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T14:50:03Z"
+        "scraped_at": "2026-07-24T16:37:57Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_Bodensee_Pirates",
@@ -41,7 +41,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/1/16/Mw_header_t.png",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T14:50:16Z"
+        "scraped_at": "2026-07-24T16:38:08Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_11._Heidberg_Cup",
@@ -63,7 +63,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T14:50:20Z"
+        "scraped_at": "2026-07-24T16:38:11Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_11._Heidberg_Cup_KK",
@@ -85,7 +85,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T14:50:22Z"
+        "scraped_at": "2026-07-24T16:38:12Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_V_Adeje_Shooters_Cup",
@@ -107,7 +107,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/e/e2/Logo_ASC.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T14:50:27Z"
+        "scraped_at": "2026-07-24T16:38:16Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_V_Extreme_Adeje_Shooters",
@@ -129,7 +129,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/e/e2/Logo_ASC.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T14:50:42Z"
+        "scraped_at": "2026-07-24T16:38:28Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_Transilvania",
@@ -151,7 +151,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/e/ec/SDSev_Logo_500x430.png",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T14:50:53Z"
+        "scraped_at": "2026-07-24T16:38:36Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_Impact_Vannes",
@@ -173,7 +173,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T14:51:00Z"
+        "scraped_at": "2026-07-24T16:38:41Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_4_KKS_PCC_Cup",
@@ -195,7 +195,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/c/c0/KKS_Logo_square_750.gif",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T14:51:17Z"
+        "scraped_at": "2026-07-24T16:38:54Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=TENERIFE_OPEN_2026",
@@ -217,7 +217,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T14:51:36Z"
+        "scraped_at": "2026-07-24T16:39:08Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2027_LM_Prd",
@@ -239,7 +239,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T14:51:40Z"
+        "scraped_at": "2026-07-24T16:39:10Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2027_TENERIFE_MASTERS_FRONTERA",
@@ -261,6 +261,6 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T14:51:41Z"
+        "scraped_at": "2026-07-24T16:39:12Z"
     }
 ]
