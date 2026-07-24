@@ -19,7 +19,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/d/df/Hubertus_WND.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T08:15:24Z"
+        "scraped_at": "2026-07-24T10:58:08Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_Bodensee_Pirates",
@@ -41,7 +41,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/1/16/Mw_header_t.png",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T08:15:39Z"
+        "scraped_at": "2026-07-24T10:58:19Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_11._Heidberg_Cup",
@@ -63,7 +63,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T08:15:43Z"
+        "scraped_at": "2026-07-24T10:58:23Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_11._Heidberg_Cup_KK",
@@ -85,7 +85,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T08:15:45Z"
+        "scraped_at": "2026-07-24T10:58:25Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_V_Adeje_Shooters_Cup",
@@ -107,17 +107,17 @@
         "image_url": "https://ipscmatch.de/wiki/images/e/e2/Logo_ASC.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T08:15:50Z"
+        "scraped_at": "2026-07-24T10:58:29Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_V_Extreme_Adeje_Shooters",
         "name": "V Extreme Adeje Shooters",
         "datum": "11.10.2026",
-        "auslastung": "16%",
-        "occupancy_percent": 16,
+        "auslastung": "17%",
+        "occupancy_percent": 17,
         "has_free_slots": true,
         "availability_status": "checked_free",
-        "availability_label": "Freie Plätze erkannt (16 %)",
+        "availability_label": "Freie Plätze erkannt (17 %)",
         "registration_status": "endgültig",
         "region": "ESP",
         "country": "ESP",
@@ -129,7 +129,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/e/e2/Logo_ASC.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T08:16:07Z"
+        "scraped_at": "2026-07-24T10:58:43Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_Transilvania",
@@ -151,17 +151,17 @@
         "image_url": "https://ipscmatch.de/wiki/images/e/ec/SDSev_Logo_500x430.png",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T08:16:18Z"
+        "scraped_at": "2026-07-24T10:58:52Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_Impact_Vannes",
         "name": "Impact Vannes 2026",
         "datum": "24.10.2026",
-        "auslastung": "74%",
-        "occupancy_percent": 74,
+        "auslastung": "75%",
+        "occupancy_percent": 75,
         "has_free_slots": true,
         "availability_status": "checked_free",
-        "availability_label": "Freie Plätze erkannt (74 %)",
+        "availability_label": "Freie Plätze erkannt (75 %)",
         "registration_status": "endgültig",
         "region": "FRA",
         "country": "FRA",
@@ -173,7 +173,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T08:16:25Z"
+        "scraped_at": "2026-07-24T10:58:58Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_4_KKS_PCC_Cup",
@@ -195,17 +195,17 @@
         "image_url": "https://ipscmatch.de/wiki/images/c/c0/KKS_Logo_square_750.gif",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T08:16:44Z"
+        "scraped_at": "2026-07-24T10:59:13Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=TENERIFE_OPEN_2026",
         "name": "Tenerife Open 2026",
         "datum": "13.12.2026",
-        "auslastung": "44%",
-        "occupancy_percent": 44,
+        "auslastung": "46%",
+        "occupancy_percent": 46,
         "has_free_slots": true,
         "availability_status": "checked_free",
-        "availability_label": "Freie Plätze erkannt (44 %)",
+        "availability_label": "Freie Plätze erkannt (46 %)",
         "registration_status": "endgültig",
         "region": "ESP",
         "country": "ESP",
@@ -217,7 +217,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T08:17:03Z"
+        "scraped_at": "2026-07-24T10:59:28Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2027_LM_Prd",
@@ -239,7 +239,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T08:17:07Z"
+        "scraped_at": "2026-07-24T10:59:31Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2027_TENERIFE_MASTERS_FRONTERA",
@@ -261,6 +261,6 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-24T08:17:09Z"
+        "scraped_at": "2026-07-24T10:59:32Z"
     }
 ]
