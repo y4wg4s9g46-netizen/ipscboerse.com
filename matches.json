@@ -19,7 +19,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/d/df/Hubertus_WND.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-25T11:18:45Z"
+        "scraped_at": "2026-07-25T13:11:22Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_Bodensee_Pirates",
@@ -41,7 +41,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/1/16/Mw_header_t.png",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-25T11:18:59Z"
+        "scraped_at": "2026-07-25T13:11:31Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_11._Heidberg_Cup",
@@ -63,7 +63,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-25T11:19:03Z"
+        "scraped_at": "2026-07-25T13:11:34Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_11._Heidberg_Cup_KK",
@@ -85,7 +85,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-25T11:19:06Z"
+        "scraped_at": "2026-07-25T13:11:36Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_V_Adeje_Shooters_Cup",
@@ -107,7 +107,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/e/e2/Logo_ASC.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-25T11:19:11Z"
+        "scraped_at": "2026-07-25T13:11:39Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_V_Extreme_Adeje_Shooters",
@@ -129,17 +129,17 @@
         "image_url": "https://ipscmatch.de/wiki/images/e/e2/Logo_ASC.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-25T11:19:27Z"
+        "scraped_at": "2026-07-25T13:11:51Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_Transilvania",
         "name": "SDS e. V. - Transilvania",
         "datum": "18.10.2026",
-        "auslastung": "90%",
-        "occupancy_percent": 90,
+        "auslastung": "91%",
+        "occupancy_percent": 91,
         "has_free_slots": true,
         "availability_status": "checked_free",
-        "availability_label": "Freie Plätze erkannt (90 %)",
+        "availability_label": "Freie Plätze erkannt (91 %)",
         "registration_status": "endgültig",
         "region": "GER",
         "country": "GER",
@@ -151,7 +151,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/e/ec/SDSev_Logo_500x430.png",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-25T11:19:38Z"
+        "scraped_at": "2026-07-25T13:11:58Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_Impact_Vannes",
@@ -173,17 +173,17 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-25T11:19:45Z"
+        "scraped_at": "2026-07-25T13:12:03Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_4_KKS_PCC_Cup",
         "name": "4. Karlstadt PCC Cup",
         "datum": "15.11.2026",
-        "auslastung": "65%",
-        "occupancy_percent": 65,
+        "auslastung": "66%",
+        "occupancy_percent": 66,
         "has_free_slots": true,
         "availability_status": "checked_free",
-        "availability_label": "Freie Plätze erkannt (65 %)",
+        "availability_label": "Freie Plätze erkannt (66 %)",
         "registration_status": "in Arbeit",
         "region": "GER",
         "country": "GER",
@@ -195,7 +195,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/c/c0/KKS_Logo_square_750.gif",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-25T11:20:03Z"
+        "scraped_at": "2026-07-25T13:12:15Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=TENERIFE_OPEN_2026",
@@ -217,7 +217,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-25T11:20:22Z"
+        "scraped_at": "2026-07-25T13:12:29Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2027_LM_Prd",
@@ -239,7 +239,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-25T11:20:26Z"
+        "scraped_at": "2026-07-25T13:12:32Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2027_TENERIFE_MASTERS_FRONTERA",
@@ -261,6 +261,6 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-07-25T11:20:28Z"
+        "scraped_at": "2026-07-25T13:12:33Z"
     }
 ]
