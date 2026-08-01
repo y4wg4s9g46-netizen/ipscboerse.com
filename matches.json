@@ -19,7 +19,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/f/f8/MSG-LOGO.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-08-01T13:28:33Z"
+        "scraped_at": "2026-08-01T14:55:14Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_Hubertus_Summercup_PCC",
@@ -41,7 +41,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/d/df/Hubertus_WND.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-08-01T13:28:40Z"
+        "scraped_at": "2026-08-01T14:55:21Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_Level_II_Series_PCC_Beginners_II",
@@ -63,7 +63,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/b/b1/Logo_Oliver_Winkler.png",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-08-01T13:28:44Z"
+        "scraped_at": "2026-08-01T14:55:25Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=Berlin_Shotgun_Cup_2026",
@@ -85,7 +85,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/c/ca/Lv1-2.png",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-08-01T13:28:47Z"
+        "scraped_at": "2026-08-01T14:55:27Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_Bodensee_Pirates",
@@ -107,7 +107,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/1/16/Mw_header_t.png",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-08-01T13:28:52Z"
+        "scraped_at": "2026-08-01T14:55:33Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_V_Adeje_Shooters_Cup",
@@ -129,7 +129,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/e/e2/Logo_ASC.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-08-01T13:29:03Z"
+        "scraped_at": "2026-08-01T14:55:43Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_V_Extreme_Adeje_Shooters",
@@ -151,7 +151,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/e/e2/Logo_ASC.jpg",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-08-01T13:29:16Z"
+        "scraped_at": "2026-08-01T14:55:56Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_Transilvania",
@@ -173,7 +173,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/e/ec/SDSev_Logo_500x430.png",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-08-01T13:29:26Z"
+        "scraped_at": "2026-08-01T14:56:05Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_Impact_Vannes",
@@ -195,17 +195,17 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-08-01T13:29:31Z"
+        "scraped_at": "2026-08-01T14:56:10Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_GhostTown",
         "name": "SDS e. V. - GhostTown",
         "datum": "08.11.2026",
-        "auslastung": "54%",
-        "occupancy_percent": 54,
+        "auslastung": "56%",
+        "occupancy_percent": 56,
         "has_free_slots": true,
         "availability_status": "checked_free",
-        "availability_label": "Freie Plätze erkannt (54 %)",
+        "availability_label": "Freie Plätze erkannt (56 %)",
         "registration_status": "endgültig",
         "region": "GER",
         "country": "GER",
@@ -217,7 +217,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/e/ec/SDSev_Logo_500x430.png",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-08-01T13:29:43Z"
+        "scraped_at": "2026-08-01T14:56:22Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_4_KKS_PCC_Cup",
@@ -239,17 +239,17 @@
         "image_url": "https://ipscmatch.de/wiki/images/c/c0/KKS_Logo_square_750.gif",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-08-01T13:29:47Z"
+        "scraped_at": "2026-08-01T14:56:26Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2026_FBG_Xmas_Fun",
         "name": "FBG X-MAS Fun 2026",
         "datum": "12.12.2026",
-        "auslastung": "68%",
-        "occupancy_percent": 68,
+        "auslastung": "69%",
+        "occupancy_percent": 69,
         "has_free_slots": true,
         "availability_status": "checked_free",
-        "availability_label": "Freie Plätze erkannt (68 %)",
+        "availability_label": "Freie Plätze erkannt (69 %)",
         "registration_status": "endgültig",
         "region": "GER",
         "country": "GER",
@@ -261,7 +261,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-08-01T13:30:01Z"
+        "scraped_at": "2026-08-01T14:56:40Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=TENERIFE_OPEN_2026",
@@ -283,7 +283,7 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-08-01T13:30:06Z"
+        "scraped_at": "2026-08-01T14:56:44Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2027_LM_Prd",
@@ -305,7 +305,7 @@
         "image_url": "https://ipscmatch.de/wiki/images/b/b1/Logo_Oliver_Winkler.png",
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-08-01T13:30:17Z"
+        "scraped_at": "2026-08-01T14:56:56Z"
     },
     {
         "id": "https://www.ipscmatch.de/index.pl?match=2027_TENERIFE_MASTERS_FRONTERA",
@@ -327,6 +327,6 @@
         "image_url": null,
         "source": "MatchSign",
         "source_type": "matchsign",
-        "scraped_at": "2026-08-01T13:30:18Z"
+        "scraped_at": "2026-08-01T14:56:57Z"
     }
 ]
